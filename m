@@ -1,99 +1,175 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr80100.outbound.protection.outlook.com ([40.107.8.100]:21279
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232924AbhEQIue (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 17 May 2021 04:50:34 -0400
-From: Erwan Velu <e.velu@criteo.com>
-Subject: Adding exec engine
-Message-ID: <a6eb5db2-8a66-bf1b-fe46-c4c854b46a58@criteo.com>
-Date: Mon, 17 May 2021 10:49:15 +0200
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:29579 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230082AbhE0LOG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 May 2021 07:14:06 -0400
+From: Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v3 2/2] zbd: add a new --ignore_zone_limits option
+Date: Thu, 27 May 2021 11:12:32 +0000
+Message-ID: <20210527111222.122783-2-Niklas.Cassel@wdc.com>
+References: <20210527111222.122783-1-Niklas.Cassel@wdc.com>
+In-Reply-To: <20210527111222.122783-1-Niklas.Cassel@wdc.com>
 Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 
-Hey fellows,
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-I sent a github pull request (https://github.com/axboe/fio/pull/1228) to 
-add a new engine to manage concurrent execution of 3rd party tools.
+In commit d2f442bc0bd5 ("ioengines: add get_max_open_zones zoned block
+device operation") we added a check that verifies that the specified
+--max_open_zones value is lower than the max value reported by the device.
 
-When performing benchmarks with fio, some have the need of executing
-tasks in parallel of the job execution. A typical usecase would be
-observing performance/power metrics.
+For ZNS devices there is a max open zones and a max active zones limit.
+For ZAC/ZBC devices there is only a max open zones limit.
 
-Several implementations were possible :
+On ZAC/ZBC, there is thus no limit on the amount of zones that can be
+in zone state closed.
+When doing a write to an empty or closed zone, a ZAC/ZBC drive will
+close an arbitrary implicit open zone in order to handle the write.
 
-  * Adding an exec_run in addition of the existing exec_{pre|post}run
-  * Implementing performance/power metrics in fio
-  * Adding an exec engine
+The ZNS specification has no requirement on closing a zone in order to
+handle a write to an empty or closed zone. The drive is free to return
+an error.
 
-1°) Adding an exec_run
-This was my first intention but quickly noticed that exec_{pre-post}run
-are executed for each 'numjob'. In the case of performance/power
-monitoring, this doesn't make sense to spawn an instance for each
-threads.
+Even on ZAC/ZBC, you do not want to exceed the max open zones limit,
+since it will lead to additional implicit close zone and implicit open
+zone operations, which may degrade performance.
+However, it seems that this is sometimes done on purpose, in order to
+measure the overhead of these additional operations. Therefore, add
+an option that allows the user to ignore the reported device limits.
 
-2°) Implementing performance/power metrics
-This is possible but would required lot of work to maintain this part of
-fio while 3rd party tools already take care of that perfectly.
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+Changes since V2:
+- Fixed minor nits reported by Damien.
+- Picked up Reviewed-by tag from Damien.
 
-3°) Adding an engine
-Adding a engine let users defining when and how many instance of the
-program they want.
-In the provided example, a single monitoring job is spawn at the same
-time of the worker thread which could be composed of several worker
-threads.
-A stonewall barrier is used to define which jobs must run together
-(monitoring / benchmark).
+ cconv.c          |  2 ++
+ fio.1            |  5 +++++
+ options.c        | 10 ++++++++++
+ server.h         |  2 +-
+ thread_options.h |  2 ++
+ zbd.c            |  2 +-
+ 6 files changed, 21 insertions(+), 2 deletions(-)
 
-The engine has two parameters :
-
-  * program: name of the program to run
-  * arguments: arguments to pass to the program
-
-Arguments can have special variables to be expanded before the execution:
-
-  * %r will be replaced by the job duration in seconds
-  * %n will be replaced by the job name
-
-During the program execution, the std{out|err} are redirected to files
-
-  * stdout: <job_name>.stdout
-  * stderr: <job_name>.stderr
-
-If the executed program has a nice stdout output, after the fio
-execution, the stdout file can be parsed by other tools like CI jobs or 
-graphing tools.
-
-A sample job is provided here to show how this can be used.
-It runs twice the cpu engine with two different cpu mode (noop vs qsort).
-For each benchmark, the output of turbostat is saved to later analysis.
-After the fio run, it is possible to compare the impact of the two modes
-on the CPU frequency and power consumption.
-
-This can be easily extended to any other usage that needs to analysis
-the behavior of the host during some jobs.
-
-About the implementation, the exec engine forks :
-
-  * the child doing an execvp() of the program.
-  * the parent, fio, will monitoring the time passed into the job
-
-Once the time is over, the program is SIGTERM followed by a SIGKILL to
-ensure it will not run /after/ the job completed.
-This mechanism is required as :
-
-  * not all programs can be controlled properly
-  * that's a last resort protection if the program gets crazy
-
-If the program can be limited in its duration, using the %r variable in
-the arguments can be used to request the program to stop /before/ the
-job finished like :
-program=/usr/bin/mytool.sh
-arguments=--duration %r
-
-Erwan,
+diff --git a/cconv.c b/cconv.c
+index d4dfb81b..74c24106 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -232,6 +232,7 @@ void convert_thread_options_to_cpu(struct thread_option=
+s *o,
+ 	o->zone_skip =3D le64_to_cpu(top->zone_skip);
+ 	o->zone_mode =3D le32_to_cpu(top->zone_mode);
+ 	o->max_open_zones =3D __le32_to_cpu(top->max_open_zones);
++	o->ignore_zone_limits =3D le32_to_cpu(top->ignore_zone_limits);
+ 	o->lockmem =3D le64_to_cpu(top->lockmem);
+ 	o->offset_increment_percent =3D le32_to_cpu(top->offset_increment_percent=
+);
+ 	o->offset_increment =3D le64_to_cpu(top->offset_increment);
+@@ -575,6 +576,7 @@ void convert_thread_options_to_net(struct thread_option=
+s_pack *top,
+ 	top->zone_skip =3D __cpu_to_le64(o->zone_skip);
+ 	top->zone_mode =3D __cpu_to_le32(o->zone_mode);
+ 	top->max_open_zones =3D __cpu_to_le32(o->max_open_zones);
++	top->ignore_zone_limits =3D cpu_to_le32(o->ignore_zone_limits);
+ 	top->lockmem =3D __cpu_to_le64(o->lockmem);
+ 	top->ddir_seq_add =3D __cpu_to_le64(o->ddir_seq_add);
+ 	top->file_size_low =3D __cpu_to_le64(o->file_size_low);
+diff --git a/fio.1 b/fio.1
+index ab08cb01..5aa54a4d 100644
+--- a/fio.1
++++ b/fio.1
+@@ -835,6 +835,11 @@ threads/processes.
+ .BI job_max_open_zones \fR=3D\fPint
+ Limit on the number of simultaneously opened zones per single thread/proce=
+ss.
+ .TP
++.BI ignore_zone_limits \fR=3D\fPbool
++If this isn't set, fio will query the max open zones limit from the zoned =
+block
++device, and exit if the specified \fBmax_open_zones\fR value is larger tha=
+n the
++limit reported by the device. Default: false.
++.TP
+ .BI zone_reset_threshold \fR=3D\fPfloat
+ A number between zero and one that indicates the ratio of logical blocks w=
+ith
+ data to the total number of logical blocks in the test above which zones
+diff --git a/options.c b/options.c
+index b82a10aa..a8986d11 100644
+--- a/options.c
++++ b/options.c
+@@ -3492,6 +3492,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {
+ 		.category =3D FIO_OPT_C_IO,
+ 		.group	=3D FIO_OPT_G_INVALID,
+ 	},
++	{
++		.name	=3D "ignore_zone_limits",
++		.lname	=3D "Ignore zone resource limits",
++		.type	=3D FIO_OPT_BOOL,
++		.off1	=3D offsetof(struct thread_options, ignore_zone_limits),
++		.def	=3D "0",
++		.help	=3D "Ignore the zone resource limits (max open/active zones) repor=
+ted by the device",
++		.category =3D FIO_OPT_C_IO,
++		.group	=3D FIO_OPT_G_INVALID,
++	},
+ 	{
+ 		.name	=3D "zone_reset_threshold",
+ 		.lname	=3D "Zone reset threshold",
+diff --git a/server.h b/server.h
+index 8cf3a60b..c128df28 100644
+--- a/server.h
++++ b/server.h
+@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
+ };
+=20
+ enum {
+-	FIO_SERVER_VER			=3D 90,
++	FIO_SERVER_VER			=3D 91,
+=20
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	=3D 1024,
+ 	FIO_SERVER_MAX_CMD_MB		=3D 2048,
+diff --git a/thread_options.h b/thread_options.h
+index 4d48e462..05c2d138 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -355,6 +355,7 @@ struct thread_options {
+ 	unsigned int read_beyond_wp;
+ 	int max_open_zones;
+ 	unsigned int job_max_open_zones;
++	unsigned int ignore_zone_limits;
+ 	fio_fp64_t zrt;
+ 	fio_fp64_t zrf;
+ };
+@@ -657,6 +658,7 @@ struct thread_options_pack {
+=20
+ 	uint32_t zone_mode;
+ 	int32_t max_open_zones;
++	uint32_t ignore_zone_limits;
+ } __attribute__((packed));
+=20
+ extern void convert_thread_options_to_cpu(struct thread_options *o, struct=
+ thread_options_pack *top);
+diff --git a/zbd.c b/zbd.c
+index 68cd58e1..5d9e331a 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -588,7 +588,7 @@ static int zbd_set_max_open_zones(struct thread_data *t=
+d, struct fio_file *f)
+ 	unsigned int max_open_zones;
+ 	int ret;
+=20
+-	if (zbd->model !=3D ZBD_HOST_MANAGED) {
++	if (zbd->model !=3D ZBD_HOST_MANAGED || td->o.ignore_zone_limits) {
+ 		/* Only host-managed devices have a max open limit */
+ 		zbd->max_open_zones =3D td->o.max_open_zones;
+ 		goto out;
+--=20
+2.31.1
 
