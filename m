@@ -1,54 +1,53 @@
-Return-Path: <prvs=7598eea54=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 0/4] Improve fio max open zones handling
-Date: Wed, 12 May 2021 22:36:32 +0000
-Message-ID: <20210512223615.17239-1-Niklas.Cassel@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mga09.intel.com ([134.134.136.24]:22395 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229698AbhE2PEX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 29 May 2021 11:04:23 -0400
+From: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
+Subject: Too Many Open Files
+Date: Sat, 29 May 2021 15:02:41 +0000
+Message-ID: <DM6PR11MB475596F3188D1B1EE8D9F54FA9219@DM6PR11MB4755.namprd11.prod.outlook.com>
 Content-Language: en-US
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+I have a 72-core server running CentOS 8, kernel 4.18.0-240, with FIO 3.27.=
+=A0 I have 12 NVMe drives, each with 12 partitions, and am trying to run mu=
+ltiple jobs for each partition, with numjobs=3D16 and iodepth=3D32.=A0 I ge=
+t a too many open files error from FIO.=A0 Which is fine, that's a lot of t=
+hreads.=A0 If I change numjobs to 8, same error, if I change it to 4, FIO r=
+uns.  Is there a hard or dynamic limit in FIO, and if so, what is it, or ho=
+w is it calculated?  Thanks!
 
-Improve max open zones handling by introducing a new IO engine operation,
-which can be implemented by ioengines.
+[global]
+ioengine=3Dlibaio
+direct=3D1
+randrepeat=3D0
+thread=3D1
+time_based=3D1
+ramp_time=3D300
+runtime=3D900
+group_reporting=3D1
+norandommap
+iodepth=3D32
+numjobs=3D4
+bs=3D4k
+rw=3Drandread
+[job-2-1]
+filename=3D/dev/nvme2n1p1
+[job-2-2]
+filename=3D/dev/nvme2n1p2
+[job-2-3]
+filename=3D/dev/nvme2n1p3
+[job-2-4]
+filename=3D/dev/nvme2n1p4
+[job-2-5]
+filename=3D/dev/nvme2n1p5
+[job-2-6]
+filename=3D/dev/nvme2n1p6
 
-Also provide a default implementation for Linux, which parses sysfs for
-the max open zones value.
-
-Update libzbc ioengine to utilize the new callback.
-
-Having this callback has the two following advantages:
-
-1) If the user forgets to specify a --max_open_zones value, we will
-automatically use the maximum the drive supports.
-(Instead of getting errors because fio tries to open too many zones.)
-
-2) If the user specifies a --max_open_zones value that is too big,
-we will return an error and fio will exit with a proper error message.
-(Instead of getting errors because fio tries to open too many zones.)
-
-
-Kind regards,
-Niklas
-
-Niklas Cassel (4):
-  zbd: only put an upper limit on max open zones once
-  oslib/linux-blkzoned: move sysfs reading into its own function
-  ioengines: add get_max_open_zones zoned block device operation
-  engines/libzbc: add support for the get_max_open_zones io op
-
- engines/libzbc.c            | 21 +++++++++
- engines/skeleton_external.c | 13 ++++++
- ioengines.h                 |  4 +-
- oslib/blkzoned.h            |  7 +++
- oslib/linux-blkzoned.c      | 82 ++++++++++++++++++++++++----------
- zbd.c                       | 88 ++++++++++++++++++++++++++++++++++---
- 6 files changed, 186 insertions(+), 29 deletions(-)
-
---=20
-2.25.1
+(goes on like that for 12 drives * 12 partitions per drive)
 
