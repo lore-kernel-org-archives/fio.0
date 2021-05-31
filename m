@@ -1,53 +1,68 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:22395 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229698AbhE2PEX (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 29 May 2021 11:04:23 -0400
-From: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
-Subject: Too Many Open Files
-Date: Sat, 29 May 2021 15:02:41 +0000
-Message-ID: <DM6PR11MB475596F3188D1B1EE8D9F54FA9219@DM6PR11MB4755.namprd11.prod.outlook.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39558 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231346AbhEaKBM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 31 May 2021 06:01:12 -0400
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0202EC061358
+        for <fio@vger.kernel.org>; Mon, 31 May 2021 02:59:03 -0700 (PDT)
+Received: by mail-ed1-x533.google.com with SMTP id dj8so561761edb.6
+        for <fio@vger.kernel.org>; Mon, 31 May 2021 02:59:02 -0700 (PDT)
+Received: from [192.168.1.19] (77-121-228-123.kra.volia.net. [77.121.228.123])
+        by smtp.gmail.com with ESMTPSA id w11sm7181766ede.54.2021.05.31.02.59.00
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 31 May 2021 02:59:01 -0700 (PDT)
+From: Volodymyr Hoida <volodymyrhoida@gmail.com>
+Subject: Web Based frontend for fio
+Message-ID: <f9c58495-153f-b7e2-bc26-e4b75da9b28c@gmail.com>
+Date: Mon, 31 May 2021 12:59:00 +0300
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-Id: fio@vger.kernel.org
 To: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I have a 72-core server running CentOS 8, kernel 4.18.0-240, with FIO 3.27.=
-=A0 I have 12 NVMe drives, each with 12 partitions, and am trying to run mu=
-ltiple jobs for each partition, with numjobs=3D16 and iodepth=3D32.=A0 I ge=
-t a too many open files error from FIO.=A0 Which is fine, that's a lot of t=
-hreads.=A0 If I change numjobs to 8, same error, if I change it to 4, FIO r=
-uns.  Is there a hard or dynamic limit in FIO, and if so, what is it, or ho=
-w is it calculated?  Thanks!
+I've implemented recently fio as the backend for disk benchmark for the 
+w3top project. Integration tests convers big range of supported fio 
+versions - from 2.0 to 3.26
 
-[global]
-ioengine=3Dlibaio
-direct=3D1
-randrepeat=3D0
-thread=3D1
-time_based=3D1
-ramp_time=3D300
-runtime=3D900
-group_reporting=3D1
-norandommap
-iodepth=3D32
-numjobs=3D4
-bs=3D4k
-rw=3Drandread
-[job-2-1]
-filename=3D/dev/nvme2n1p1
-[job-2-2]
-filename=3D/dev/nvme2n1p2
-[job-2-3]
-filename=3D/dev/nvme2n1p3
-[job-2-4]
-filename=3D/dev/nvme2n1p4
-[job-2-5]
-filename=3D/dev/nvme2n1p5
-[job-2-6]
-filename=3D/dev/nvme2n1p6
+GUI is modern web-based single-page app with support for a large range 
+of browsers.
 
-(goes on like that for 12 drives * 12 partitions per drive)
+Benchmark GUI is simple as Crystal Disk Mark and provides the wizard for 
+volume chooser, benchmark options, and progress visualization. Benchmark 
+history is also implemented. Missing support of Direct IO for a 
+particular volume is auto-detected. Also for read-only volumes, 
+preexisting large files are used for the benchmark.
+
+The cross-platform installer (bash script) supports x86_64, ARMv7, and 
+AARCH64 architectures. Tested OSes start from RHEL 6 up to the latest 
+rolling Linux distributives. One-liner: 
+https://github.com/devizer/w3top-bin#reinstallation-of-precompiled-binaries. 
+
+
+In addition to modern mainstream browsers (Chrome, Firefox, Edge, Opera) 
+many years old browsers are also supported:
+- Builtin Safari on iOS 9.2+
+- Builtin Chrome on Android 5.1+
+- IE 11, a builtin browser on Windows Server
+- Firefox ESR 52 and Chrome 49, the latest browsers for Windows XP/2003
+
+The w3top project also includes precompiled fio for a matrix of 
+architectures and versions. In case then fio is not preinstalled proper 
+version of fio is downloaded and checked on app start.
+
+Now only non-destructive write benchmarks are used using --filename option.
+
+Live: http://xeon.devizer.top/disk-benchmark (hdd in google cloud) and 
+http://pi.devizer.top/disk-benchmark (ARMv7 board running on Kingston A1 
+micro sd card)
+
+Links:
+w3top binaries distribution project and installer: 
+https://github.com/devizer/w3top-bin
+Source Code: https://github.com/devizer/KernelManagementLab
+
 
