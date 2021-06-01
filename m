@@ -1,91 +1,130 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37228 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbhFZK3S (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 26 Jun 2021 06:29:18 -0400
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B48BFC061574
-        for <fio@vger.kernel.org>; Sat, 26 Jun 2021 03:26:36 -0700 (PDT)
-Received: by mail-yb1-xb2b.google.com with SMTP id k184so1976885ybf.12
-        for <fio@vger.kernel.org>; Sat, 26 Jun 2021 03:26:36 -0700 (PDT)
-MIME-Version: 1.0
-References: <CANyP7Cj4hNtq5aeQ-h1L3ZtyBch0GDfab+4E2cChnKJTwjYsLg@mail.gmail.com>
- <CALjAwxgo0gYvmitK0GvLiYLQZvMAK2UeUJRAvWdVTrbmtioD0g@mail.gmail.com> <CAGfUJcHrQWM0viroU+bkKPCfBc7bAeRqajCgegzoEbNsSY8M=w@mail.gmail.com>
-In-Reply-To: <CAGfUJcHrQWM0viroU+bkKPCfBc7bAeRqajCgegzoEbNsSY8M=w@mail.gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Sat, 26 Jun 2021 11:26:09 +0100
-Message-ID: <CALjAwxizh-CjK_LaVt-27GCpSSX3aAwPpDm6y42v52bkhn0S=A@mail.gmail.com>
-Subject: Re: What exactly is iodepth in fio?
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <prvs=7792dbf0f=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 3/3] t/zbd: Fix write target zones counting in test case
+ #31
+Date: Tue, 1 Jun 2021 07:07:50 +0000
+Message-ID: 
+ <DM6PR04MB70810E1AC76F674CA8644421E73E9@DM6PR04MB7081.namprd04.prod.outlook.com>
+References: <20210601064753.734892-1-shinichiro.kawasaki@wdc.com>
+ <20210601064753.734892-4-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-List-Id: fio@vger.kernel.org
-To: Jared Walton <jawalking@gmail.com>
-Cc: fio <fio@vger.kernel.org>
+MIME-Version: 1.0
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-On Sat, 26 Jun 2021 at 05:32, Jared Walton <jawalking@gmail.com> wrote:
->
-> Sorry if this is bringing up an old thread, but I've been googling and I =
-can't find an answer so I thought I'd ask here.
-
-Fair enough but please don't send fio mails to just me - send them to
-the mailing list so:
-- More people are given the chance to see and reply
-- The threads get archived so they turn up in search results ;-)
-
-Out of curiosity, what did you make of
-https://serverfault.com/q/923487 ,
-https://unix.stackexchange.com/q/459045 ?
-
-Additionally because you didn't state a platform and a concrete job
-file the answers below will have to be deliberately vague.
-
-> when you say:
->>
->> io will not create parallel *fio jobs* just because of iodepth BUT using=
- parallel fio jobs is another way of increasing the amount of simultaneous =
-I/O being submitted at any given time (by using different threads/processes=
-) and using both on the same device will act in tandem (so if you have two =
-fio jobs submitting asynchronous I/O at an iodepth of 16 each your OS could=
- be be actually receiving 32 I/Os at any given time). There can be reasons =
-for combining the two (e.g. you have multiple devices and they are so fast =
-that one CPU can't keep up even when submitting I/O asynchronously).
->
->
-> What is the expected outcome when a single job has numjobs=3D2 and iodept=
-h=3D16? Will this result in a total iodepth of 32? Or will fio use 2 thread=
-s to maintain an iodepth of 16?
-
-You are using iodepth in two different contexts:
-1. fio's internal queue for a single job
-2. The simultaneous I/O going to kernel from multiple threads/processes
-
-Let's arbitrarily redefine thing:
-
-1. iodepth - Maximum amount of simultaneous I/O *fio* will queue for a
-*single job*
-2. queue depth - amount of simultaneous I/O going to kernel from
-multiple threads/processes
-
-> What is the expected outcome when a single job has numjobs=3D2 and iodept=
-h=3D16? Will this result in a total iodepth of 32?
-
-Each job (more on that in a moment) queues *up to* 16 I/Os
-simultaneously (iodepth) and the total amount of simultaneous I/O from
-all jobs is *up to* 32 I/Os (queue depth). There may be reasons why a
-depth of 32 isn't reached hence some of the careful wording (you can
-check the depths that were actually reached by looking at fio's output
-after the jobs have completed).
-
-> Or will fio use 2 threads to maintain an iodepth of 16?
-
-As stated in the fio documentation
-(https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-thread
-) by default a job is a *process* on non-Windows platforms/most
-ioengines unless you use the thread option.
-
-(Please try to avoid top-posting on this mailing list. Thanks!)
-
-
---
-Sitsofe
+On 2021/06/01 15:48, Shin'ichiro Kawasaki wrote:=0A=
+> The test case #31 in t/zbd/test-zbd-support writes 128KB data to=0A=
+> sequential write required zones as the preparation for the following=0A=
+> random read test. The data write leaves the target zones in open status.=
+=0A=
+> The test case refers the variable 'nz', which has max_open_zones value,=
+=0A=
+> to decide how many zones to write the data. However, the end condition=0A=
+> of the write target zone loop has a bug. The disk end offset is used as=
+=0A=
+> the loop end condition, which does not match the last target zone when=0A=
+> number of sequential write required zones divided by nz has remainder.=0A=
+> This results in write to more zones than nz=3Dmax_open_zones limit and th=
+e=0A=
+> test case failure. To fix the bug and to simplify the script, avoid the=
+=0A=
+> loop and utilize zonemode strided to achieve the same data write=0A=
+> pattern. Also specify size and io_size using nz to reliably count the=0A=
+> write target zones.=0A=
+> =0A=
+> Even with the fix above, still the number of open zones may exceed=0A=
+> max_open_zones since other test cases executed before the test case 31=0A=
+> may leave open zones on the test target device. To avoid this failure,=0A=
+> reset all zones before the data write.=0A=
+> =0A=
+> The failures were observed with libzbc I/O engine after the commit=0A=
+> e8267436fd7a ("engines/libzbc: add support for the get_max_open_zones io=
+=0A=
+> op"), which changed the max_open_zones value fio refers.=0A=
+> =0A=
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
+> ---=0A=
+>  t/zbd/test-zbd-support | 36 ++++++++++++++++--------------------=0A=
+>  1 file changed, 16 insertions(+), 20 deletions(-)=0A=
+> =0A=
+> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support=0A=
+> index 015fa1dc..a684f988 100755=0A=
+> --- a/t/zbd/test-zbd-support=0A=
+> +++ b/t/zbd/test-zbd-support=0A=
+> @@ -731,32 +731,28 @@ test30() {=0A=
+>  test31() {=0A=
+>      local bs inc nz off opts size=0A=
+>  =0A=
+> -    prep_write=0A=
+> -    # Start with writing 128 KB to max_open_zones sequential zones.=0A=
+> -    bs=3D128K=0A=
+> +    [ -n "$is_zbd" ] && reset_zone "$dev" -1=0A=
+> +=0A=
+> +    # As preparation, write 128 KB to sequential write required zones. L=
+imit=0A=
+> +    # write target zones up to max_open_zones to keep test time reasonab=
+le.=0A=
+> +    # To distribute the write target zones evenly, skip certain zones fo=
+r every=0A=
+> +    # write. Utilize zonemode strided for such write patterns.=0A=
+> +    bs=3D$((128 * 1024))=0A=
+>      nz=3D$((max_open_zones))=0A=
+>      if [[ $nz -eq 0 ]]; then=0A=
+>  	nz=3D128=0A=
+>      fi=0A=
+> -    # shellcheck disable=3DSC2017=0A=
+> -    inc=3D$(((disk_size - (first_sequential_zone_sector * 512)) / (nz * =
+zone_size)=0A=
+> -	   * zone_size))=0A=
+> -    if [ "$inc" -eq 0 ]; then=0A=
+> -	require_seq_zones $nz || return $SKIP_TESTCASE=0A=
+> -    fi=0A=
+> -    opts=3D()=0A=
+> -    for ((off =3D first_sequential_zone_sector * 512; off < disk_size;=
+=0A=
+> -	  off +=3D inc)); do=0A=
+> -	opts+=3D("--name=3D$dev" "--filename=3D$dev" "--offset=3D$off" "--io_si=
+ze=3D$bs")=0A=
+> -	opts+=3D("--bs=3D$bs" "--size=3D$zone_size" "$(ioengine "libaio")")=0A=
+> -	opts+=3D("--rw=3Dwrite" "--direct=3D1" "--thread=3D1" "--stats=3D0")=0A=
+> -	opts+=3D("--zonemode=3Dzbd" "--zonesize=3D${zone_size}")=0A=
+> -	opts+=3D(${job_var_opts[@]})=0A=
+> -    done=0A=
+> -    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_numbe=
+r}" 2>&1=0A=
+> -    # Next, run the test.=0A=
+>      off=3D$((first_sequential_zone_sector * 512))=0A=
+>      size=3D$((disk_size - off))=0A=
+> +    inc=3D$(((size / nz / zone_size) * zone_size))=0A=
+> +    opts=3D("--name=3D$dev" "--filename=3D$dev" "--rw=3Dwrite" "--bs=3D$=
+{bs}")=0A=
+> +    opts+=3D("--offset=3D$off" "--size=3D$((inc * nz))" "--io_size=3D$((=
+bs * nz))")=0A=
+> +    opts+=3D("--zonemode=3Dstrided" "--zonesize=3D${bs}" "--zonerange=3D=
+${inc}")=0A=
+> +    opts+=3D("--direct=3D1")=0A=
+> +    echo "fio ${opts[@]}" >> "${logfile}.${test_number}"=0A=
+> +    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_numbe=
+r}" 2>&1=0A=
+> +=0A=
+> +    # Next, run the test.=0A=
+>      opts=3D("--name=3D$dev" "--filename=3D$dev" "--offset=3D$off" "--siz=
+e=3D$size")=0A=
+>      opts+=3D("--bs=3D$bs" "$(ioengine "psync")" "--rw=3Drandread" "--dir=
+ect=3D1")=0A=
+>      opts+=3D("--thread=3D1" "--time_based" "--runtime=3D30" "--zonemode=
+=3Dzbd")=0A=
+> =0A=
+=0A=
+Looks OK to me.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
