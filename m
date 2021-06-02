@@ -1,53 +1,44 @@
-Return-Path: <prvs=79210697c=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v3 0/5] improve zbd initialization
-Date: Mon, 14 Jun 2021 13:49:02 +0000
-Message-ID: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-eopbgr00102.outbound.protection.outlook.com ([40.107.0.102]:52900
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229607AbhFBQOK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Jun 2021 12:14:10 -0400
+From: Erwan Velu <e.velu@criteo.com>
+Subject: Github CI is broken because of a clang optimization
+Message-ID: <fbbaa8ac-f6bb-4baf-c829-bcd491e3a62a@criteo.com>
+Date: Wed, 2 Jun 2021 18:12:24 +0200
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
-
-Hello there,
-
-This series improves zbd initialization, by making it more robust.
-Previously, zbd_create_zone_info() could return success at the same
-time as f->zbd_info was never initialized. Remove ZBD_IGNORE to
-avoid this combination from being possible.
-
-Also, zonemode=3Dzbd can now be used with regular files by emulating
-zones inside the file. (Just like how we already support emulating
-zones inside a regular block device).
+Hi there,
 
 
-Kind regards,
-Niklas
+My PR around the exec engine was not passing the CI because of a missing 
+stpcpy symbol at link time.
+
+I made some search around that, found the issue and proposed a fix at 
+https://github.com/axboe/fio/pull/1233
 
 
-Changes since v2:
--Picked up Damien's Reviewed-by tags on patch 2 and 3.
--Added patch 5/5 that fixes a test failure related to this series.
+The issue was around clang 12 which is doing some string optimization by 
+using stpcpy we don't have.
 
-Niklas Cassel (5):
-  zbd: disallow pipes for zonemode=3Dzbd
-  zbd: allow zonemode=3Dzbd with regular files by emulating zones
-  zbd: remove zbd_zoned_model ZBD_IGNORE
-  zbd: change some f->zbd_info conditionals to asserts
-  t/zbd: update test case 42
+This PR is about disabling the implicit stpcpy usage with clang for now.
 
- engines/libzbc.c            |  6 ++----
- engines/skeleton_external.c |  1 -
- oslib/linux-blkzoned.c      |  6 ++----
- t/zbd/test-zbd-support      |  2 +-
- zbd.c                       | 37 +++++++++++++++++++++++++------------
- zbd_types.h                 |  7 +++----
- 6 files changed, 33 insertions(+), 26 deletions(-)
+Note the GCC build was passing.
 
---=20
-2.25.1
+
+The CI pass with my patches.
+
+
+Once merged, I'll rebase my exec-engine PR on top of it.
+
+
+Erwan,
+
 
