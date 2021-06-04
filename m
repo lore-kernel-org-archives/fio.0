@@ -1,136 +1,121 @@
-Return-Path: <prvs=785b62de8=Niklas.Cassel@wdc.com>
+Return-Path: <prvs=782a7b7b5=Niklas.Cassel@wdc.com>
 From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v2 3/4] zbd: remove zbd_zoned_model ZBD_IGNORE
-Date: Mon, 7 Jun 2021 09:16:07 +0000
-Message-ID: <20210607091558.21485-4-Niklas.Cassel@wdc.com>
-References: <20210607091558.21485-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210607091558.21485-1-Niklas.Cassel@wdc.com>
+Subject: Re: [PATCH v2 3/3] t/zbd: Fix write target zones counting in test
+ case #31
+Date: Fri, 4 Jun 2021 07:37:03 +0000
+Message-ID: <YLnYHmv8TM26EgM1@x1-carbon>
+References: <20210604053351.763028-1-shinichiro.kawasaki@wdc.com>
+ <20210604053351.763028-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210604053351.763028-4-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <133464901C146D49A1A24ABC064F3895@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+On Fri, Jun 04, 2021 at 02:33:51PM +0900, Shin'ichiro Kawasaki wrote:
+> The test case #31 in t/zbd/test-zbd-support writes 128KB data to
+> sequential write required zones as the preparation for the following
+> random read test. The data write leaves the target zones in open status.
+> The test case refers the variable 'nz', which has max_open_zones value,
+> to decide how many zones to write the data. However, the end condition
+> of the write target zone loop has a bug. The disk end offset is used as
+> the loop end condition, which does not match the last target zone when
+> number of sequential write required zones divided by nz has remainder.
+> This results in write to more zones than nz=3Dmax_open_zones limit and th=
+e
+> test case failure. To fix the bug and to simplify the script, avoid the
+> loop and utilize zonemode strided to achieve the same data write
+> pattern. Also specify size and io_size using nz to reliably count the
+> write target zones.
+>=20
+> Even with the fix above, still the number of open zones may exceed
+> max_open_zones since other test cases executed before the test case 31
+> may leave open zones on the test target device. To avoid this failure,
+> reset all zones before the data write.
+>=20
+> The failures were observed with libzbc I/O engine after the commit
+> e8267436fd7a ("engines/libzbc: add support for the get_max_open_zones io
+> op"), which changed the max_open_zones value fio refers.
+>=20
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+> ---
+>  t/zbd/test-zbd-support | 36 ++++++++++++++++--------------------
+>  1 file changed, 16 insertions(+), 20 deletions(-)
+>=20
+> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+> index 015fa1dc..a684f988 100755
+> --- a/t/zbd/test-zbd-support
+> +++ b/t/zbd/test-zbd-support
+> @@ -731,32 +731,28 @@ test30() {
+>  test31() {
+>      local bs inc nz off opts size
+> =20
+> -    prep_write
+> -    # Start with writing 128 KB to max_open_zones sequential zones.
+> -    bs=3D128K
+> +    [ -n "$is_zbd" ] && reset_zone "$dev" -1
+> +
+> +    # As preparation, write 128 KB to sequential write required zones. L=
+imit
+> +    # write target zones up to max_open_zones to keep test time reasonab=
+le.
+> +    # To distribute the write target zones evenly, skip certain zones fo=
+r every
+> +    # write. Utilize zonemode strided for such write patterns.
+> +    bs=3D$((128 * 1024))
+>      nz=3D$((max_open_zones))
+>      if [[ $nz -eq 0 ]]; then
+>  	nz=3D128
+>      fi
+> -    # shellcheck disable=3DSC2017
+> -    inc=3D$(((disk_size - (first_sequential_zone_sector * 512)) / (nz * =
+zone_size)
+> -	   * zone_size))
+> -    if [ "$inc" -eq 0 ]; then
+> -	require_seq_zones $nz || return $SKIP_TESTCASE
+> -    fi
+> -    opts=3D()
+> -    for ((off =3D first_sequential_zone_sector * 512; off < disk_size;
+> -	  off +=3D inc)); do
+> -	opts+=3D("--name=3D$dev" "--filename=3D$dev" "--offset=3D$off" "--io_si=
+ze=3D$bs")
+> -	opts+=3D("--bs=3D$bs" "--size=3D$zone_size" "$(ioengine "libaio")")
+> -	opts+=3D("--rw=3Dwrite" "--direct=3D1" "--thread=3D1" "--stats=3D0")
+> -	opts+=3D("--zonemode=3Dzbd" "--zonesize=3D${zone_size}")
+> -	opts+=3D(${job_var_opts[@]})
+> -    done
+> -    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_numbe=
+r}" 2>&1
+> -    # Next, run the test.
+>      off=3D$((first_sequential_zone_sector * 512))
+>      size=3D$((disk_size - off))
+> +    inc=3D$(((size / nz / zone_size) * zone_size))
+> +    opts=3D("--name=3D$dev" "--filename=3D$dev" "--rw=3Dwrite" "--bs=3D$=
+{bs}")
+> +    opts+=3D("--offset=3D$off" "--size=3D$((inc * nz))" "--io_size=3D$((=
+bs * nz))")
+> +    opts+=3D("--zonemode=3Dstrided" "--zonesize=3D${bs}" "--zonerange=3D=
+${inc}")
+> +    opts+=3D("--direct=3D1")
+> +    echo "fio ${opts[@]}" >> "${logfile}.${test_number}"
+> +    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_numbe=
+r}" 2>&1
+> +
+> +    # Next, run the test.
+>      opts=3D("--name=3D$dev" "--filename=3D$dev" "--offset=3D$off" "--siz=
+e=3D$size")
+>      opts+=3D("--bs=3D$bs" "$(ioengine "psync")" "--rw=3Drandread" "--dir=
+ect=3D1")
+>      opts+=3D("--thread=3D1" "--time_based" "--runtime=3D30" "--zonemode=
+=3Dzbd")
+> --=20
+> 2.31.1
+>=20
 
-For a job with zonemode=3Dzbd, we do not want any file to be ignored.
-Each file's file type in that job should be supported by either zbd.c
-or the ioengine. If not, we should return an error.
-This way, ZBD_IGNORE becomes redundant and can be removed.
-
-By removing ZBD_IGNORE, we know that all files belonging to a job that
-has zonemode=3Dzbd set, will either be a zoned block device, or emulate
-a zoned block device.
-
-This means that for jobs that have zonemode=3Dzbd, f->zbd_info will always
-be non-NULL. This will make the zbd code slightly easier to reason about
-and to maintain.
-
-When removing zbd_zoned_model ZBD_IGNORE, define the new first enum value
-as 0x1, so that we avoid potential ABI problems with existing binaries.
-
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
----
- engines/libzbc.c            | 6 ++----
- engines/skeleton_external.c | 1 -
- oslib/linux-blkzoned.c      | 6 ++----
- zbd.c                       | 3 +--
- zbd_types.h                 | 7 +++----
- 5 files changed, 8 insertions(+), 15 deletions(-)
-
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 3dde93db..7f2bc431 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -180,10 +180,8 @@ static int libzbc_get_zoned_model(struct thread_data *=
-td, struct fio_file *f,
- 	struct libzbc_data *ld;
- 	int ret;
-=20
--	if (f->filetype !=3D FIO_TYPE_BLOCK && f->filetype !=3D FIO_TYPE_CHAR) {
--		*model =3D ZBD_IGNORE;
--		return 0;
--	}
-+	if (f->filetype !=3D FIO_TYPE_BLOCK && f->filetype !=3D FIO_TYPE_CHAR)
-+		return -EINVAL;
-=20
- 	ret =3D libzbc_open_dev(td, f, &ld);
- 	if (ret)
-diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
-index c79b6f11..cff83a10 100644
---- a/engines/skeleton_external.c
-+++ b/engines/skeleton_external.c
-@@ -156,7 +156,6 @@ static int fio_skeleton_close(struct thread_data *td, s=
-truct fio_file *f)
- /*
-  * Hook for getting the zoned model of a zoned block device for zonemode=
-=3Dzbd.
-  * The zoned model can be one of (see zbd_types.h):
-- * - ZBD_IGNORE: skip regular files
-  * - ZBD_NONE: regular block device (zone emulation will be used)
-  * - ZBD_HOST_AWARE: host aware zoned block device
-  * - ZBD_HOST_MANAGED: host managed zoned block device
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 6f89ec6f..4e441d29 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -140,10 +140,8 @@ int blkzoned_get_zoned_model(struct thread_data *td, s=
-truct fio_file *f,
- {
- 	char *model_str =3D NULL;
-=20
--	if (f->filetype !=3D FIO_TYPE_BLOCK) {
--		*model =3D ZBD_IGNORE;
--		return 0;
--	}
-+	if (f->filetype !=3D FIO_TYPE_BLOCK)
-+		return -EINVAL;
-=20
- 	*model =3D ZBD_NONE;
-=20
-diff --git a/zbd.c b/zbd.c
-index d1db9adc..aab4d741 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -661,8 +661,6 @@ static int zbd_create_zone_info(struct thread_data *td,=
- struct fio_file *f)
- 		return ret;
-=20
- 	switch (zbd_model) {
--	case ZBD_IGNORE:
--		return 0;
- 	case ZBD_HOST_AWARE:
- 	case ZBD_HOST_MANAGED:
- 		ret =3D parse_zone_info(td, f);
-@@ -680,6 +678,7 @@ static int zbd_create_zone_info(struct thread_data *td,=
- struct fio_file *f)
- 		return -EINVAL;
- 	}
-=20
-+	assert(f->zbd_info);
- 	f->zbd_info->model =3D zbd_model;
-=20
- 	ret =3D zbd_set_max_open_zones(td, f);
-diff --git a/zbd_types.h b/zbd_types.h
-index d0f4c44e..0a8630cb 100644
---- a/zbd_types.h
-+++ b/zbd_types.h
-@@ -14,10 +14,9 @@
-  * Zoned block device models.
-  */
- enum zbd_zoned_model {
--	ZBD_IGNORE,		/* Ignore file */
--	ZBD_NONE,		/* No zone support. Emulate zones. */
--	ZBD_HOST_AWARE,		/* Host-aware zoned block device */
--	ZBD_HOST_MANAGED,	/* Host-managed zoned block device */
-+	ZBD_NONE		=3D 0x1,	/* No zone support. Emulate zones. */
-+	ZBD_HOST_AWARE		=3D 0x2,	/* Host-aware zoned block device */
-+	ZBD_HOST_MANAGED	=3D 0x3,	/* Host-managed zoned block device */
- };
-=20
- /*
---=20
-2.31.1
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
 
