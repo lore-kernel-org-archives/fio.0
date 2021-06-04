@@ -1,130 +1,97 @@
-Return-Path: <prvs=782a7b7b5=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 3/4] zbd: remove zbd_zoned_model ZBD_IGNORE
-Date: Fri, 4 Jun 2021 12:18:52 +0000
-Message-ID: <20210604121843.6047-4-Niklas.Cassel@wdc.com>
-References: <20210604121843.6047-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210604121843.6047-1-Niklas.Cassel@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230123AbhFDMCF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 4 Jun 2021 08:02:05 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 369CEC06174A
+        for <fio@vger.kernel.org>; Fri,  4 Jun 2021 05:00:08 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1lp8UZ-003QcF-KJ
+        for fio@vger.kernel.org; Fri, 04 Jun 2021 12:00:06 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210604120002.3925C1BC016C@kernel.dk>
+Date: Fri,  4 Jun 2021 06:00:02 -0600 (MDT)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+The following changes since commit 575686bb85fa36f326524c505e83c54abc0d2f2b:
 
-For a job with zonemode=3Dzbd, we do not want any file to be ignored.
-Each file's file type in that job should be supported by either zbd.c
-or the ioengine. If not, we should return an error.
-This way, ZBD_IGNORE becomes redundant and can be removed.
+  zbd: add a new --ignore_zone_limits option (2021-05-27 16:04:58 -0600)
 
-By removing ZBD_IGNORE, we know that all files belonging to a job that
-has zonemode=3Dzbd set, will either be a zoned block device, or emulate
-a zoned block device.
+are available in the Git repository at:
 
-This means that for jobs that have zonemode=3Dzbd, f->zbd_info will always
-be non-NULL. This will make the zbd code slightly easier to reason about
-and to maintain.
+  git://git.kernel.dk/fio.git master
 
-When removing zbd_zoned_model ZBD_IGNORE, define the new first enum value
-as 0x1, so that we avoid potential ABI problems with existing binaries.
+for you to fetch changes up to d7a28031718d281f1b9ea593c8a3f395761510ca:
 
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+  Merge branch 'fix/928' of https://github.com/larsks/fio (2021-06-03 09:01:52 -0600)
+
+----------------------------------------------------------------
+Erwan Velu (3):
+      ci: Installing missing toolchain
+      ci: Reporting installed msys2 packages
+      Makefile: Avoid using built-in stpcpy during clang build
+
+Jens Axboe (2):
+      Merge branch 'evelu-test' of https://github.com/ErwanAliasr1/fio
+      Merge branch 'fix/928' of https://github.com/larsks/fio
+
+Lars Kellogg-Stedman (1):
+      fix fio2gnuplot to work with new logging format
+
+ Makefile               | 5 +++++
+ ci/appveyor-install.sh | 2 ++
+ tools/plot/fio2gnuplot | 2 +-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
+
 ---
- engines/libzbc.c            | 3 +--
- engines/skeleton_external.c | 1 -
- oslib/linux-blkzoned.c      | 3 +--
- zbd.c                       | 3 +--
- zbd_types.h                 | 7 +++----
- 5 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 3dde93db..c3551bec 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -181,8 +181,7 @@ static int libzbc_get_zoned_model(struct thread_data *t=
-d, struct fio_file *f,
- 	int ret;
-=20
- 	if (f->filetype !=3D FIO_TYPE_BLOCK && f->filetype !=3D FIO_TYPE_CHAR) {
--		*model =3D ZBD_IGNORE;
--		return 0;
-+		return -EINVAL;
- 	}
-=20
- 	ret =3D libzbc_open_dev(td, f, &ld);
-diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
-index c79b6f11..cff83a10 100644
---- a/engines/skeleton_external.c
-+++ b/engines/skeleton_external.c
-@@ -156,7 +156,6 @@ static int fio_skeleton_close(struct thread_data *td, s=
-truct fio_file *f)
- /*
-  * Hook for getting the zoned model of a zoned block device for zonemode=
-=3Dzbd.
-  * The zoned model can be one of (see zbd_types.h):
-- * - ZBD_IGNORE: skip regular files
-  * - ZBD_NONE: regular block device (zone emulation will be used)
-  * - ZBD_HOST_AWARE: host aware zoned block device
-  * - ZBD_HOST_MANAGED: host managed zoned block device
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 6f89ec6f..8cb9c53a 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -141,8 +141,7 @@ int blkzoned_get_zoned_model(struct thread_data *td, st=
-ruct fio_file *f,
- 	char *model_str =3D NULL;
-=20
- 	if (f->filetype !=3D FIO_TYPE_BLOCK) {
--		*model =3D ZBD_IGNORE;
--		return 0;
-+		return -EINVAL;
- 	}
-=20
- 	*model =3D ZBD_NONE;
-diff --git a/zbd.c b/zbd.c
-index fb20f6cc..7012cb93 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -661,8 +661,6 @@ static int zbd_create_zone_info(struct thread_data *td,=
- struct fio_file *f)
- 		return ret;
-=20
- 	switch (zbd_model) {
--	case ZBD_IGNORE:
--		return 0;
- 	case ZBD_HOST_AWARE:
- 	case ZBD_HOST_MANAGED:
- 		ret =3D parse_zone_info(td, f);
-@@ -680,6 +678,7 @@ static int zbd_create_zone_info(struct thread_data *td,=
- struct fio_file *f)
- 		return -EINVAL;
- 	}
-=20
-+	assert(f->zbd_info);
- 	f->zbd_info->model =3D zbd_model;
-=20
- 	ret =3D zbd_set_max_open_zones(td, f);
-diff --git a/zbd_types.h b/zbd_types.h
-index d0f4c44e..0a8630cb 100644
---- a/zbd_types.h
-+++ b/zbd_types.h
-@@ -14,10 +14,9 @@
-  * Zoned block device models.
-  */
- enum zbd_zoned_model {
--	ZBD_IGNORE,		/* Ignore file */
--	ZBD_NONE,		/* No zone support. Emulate zones. */
--	ZBD_HOST_AWARE,		/* Host-aware zoned block device */
--	ZBD_HOST_MANAGED,	/* Host-managed zoned block device */
-+	ZBD_NONE		=3D 0x1,	/* No zone support. Emulate zones. */
-+	ZBD_HOST_AWARE		=3D 0x2,	/* Host-aware zoned block device */
-+	ZBD_HOST_MANAGED	=3D 0x3,	/* Host-managed zoned block device */
- };
-=20
- /*
---=20
-2.31.1
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index ef317373..f57569d5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -40,6 +40,11 @@ ifdef CONFIG_PDB
+   LDFLAGS += -fuse-ld=lld $(LINK_PDBFILE)
+ endif
+ 
++# If clang, do not use builtin stpcpy as it breaks the build
++ifeq ($(CC),clang)
++  FIO_CFLAGS += -fno-builtin-stpcpy
++endif
++
+ ifdef CONFIG_GFIO
+   PROGS += gfio
+ endif
+diff --git a/ci/appveyor-install.sh b/ci/appveyor-install.sh
+index c73e4cb5..3137f39e 100755
+--- a/ci/appveyor-install.sh
++++ b/ci/appveyor-install.sh
+@@ -31,7 +31,9 @@ case "${DISTRO}" in
+         pacman.exe --noconfirm -S \
+             mingw-w64-${PACKAGE_ARCH}-clang \
+             mingw-w64-${PACKAGE_ARCH}-cunit \
++            mingw-w64-${PACKAGE_ARCH}-toolchain \
+             mingw-w64-${PACKAGE_ARCH}-lld
++        pacman.exe -Q # List installed packages
+         ;;
+ esac
+ 
+diff --git a/tools/plot/fio2gnuplot b/tools/plot/fio2gnuplot
+index 78ee82fb..d2dc81df 100755
+--- a/tools/plot/fio2gnuplot
++++ b/tools/plot/fio2gnuplot
+@@ -198,7 +198,7 @@ def compute_temp_file(fio_data_file,disk_perf,gnuplot_output_dir, min_time, max_
+ 			# Index will be used to remember what file was featuring what value
+ 			index=index+1
+ 
+-			time, perf, x, block_size = line[1]
++			time, perf, x, block_size = line[1][:4]
+ 			if (blk_size == 0):
+ 				try:
+ 					blk_size=int(block_size)
 
