@@ -1,101 +1,101 @@
-Return-Path: <prvs=79210697c=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v3 4/5] zbd: change some f->zbd_info conditionals to asserts
-Date: Mon, 14 Jun 2021 13:49:05 +0000
-Message-ID: <20210614134851.158700-5-Niklas.Cassel@wdc.com>
-References: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
+Return-Path: <prvs=782ebe97f=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v2 1/3] t/zbd: Use max_open_zones that fio fetched from
+ device
+Date: Fri, 4 Jun 2021 10:33:55 +0000
+Message-ID: <20210604103354.btwrzzhppcmiezli@shindev.dhcp.fujisawa.hgst.com>
+References: <20210604053351.763028-1-shinichiro.kawasaki@wdc.com>
+ <20210604053351.763028-2-shinichiro.kawasaki@wdc.com>
+ <YLnePubuHuPCea/E@x1-carbon>
+In-Reply-To: <YLnePubuHuPCea/E@x1-carbon>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <A87247AB9528AD44A179DBBA02B14E2C@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+To: Niklas Cassel <Niklas.Cassel@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+On Jun 04, 2021 / 08:03, Niklas Cassel wrote:
+> On Fri, Jun 04, 2021 at 02:33:49PM +0900, Shin'ichiro Kawasaki wrote:
+> > Recent commit d2f442bc0bd5 ("ioengines: add get_max_open_zones zoned
+> > block device operation") modified fio to compare --max_open_zones optio=
+n
+> > value and max_open_zones reported by the device. The device limit is
+> > fetched through sysfs or through an ioengine specific implementation.
+> >=20
+> > The test script currently try to fetch the max open zones limit using
+> > libzbc tools or sg_inq. If either of these fail, default value 128 is
+> > supplied. This default value can be too high when the test script is
+> > run for certain zoned block devices, and can therefore result in fio
+> > error and test case failure.
+> >=20
+> > To avoid the failure, modify the default value used in the test script
+> > from 128 to 0. With this, --max_open_zones=3D0 is passed to fio, and it
+> > makes fio use the max_open_zones reported by the device. Also add
+> > comments to describe why the test script gets max_open_zones with tools=
+.
+> >=20
+> > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> > ---
+> >  t/zbd/functions | 15 ++++++++++++---
+> >  1 file changed, 12 insertions(+), 3 deletions(-)
+> >=20
+> > diff --git a/t/zbd/functions b/t/zbd/functions
+> > index 40ffe1de..06973f79 100644
+> > --- a/t/zbd/functions
+> > +++ b/t/zbd/functions
+> > @@ -173,15 +173,24 @@ last_online_zone() {
+> >      fi
+> >  }
+> > =20
+> > +# Get max_open_zones of SMR drives using sg_inq or libzbc tools. Two t=
+est cases
+> > +# 31 and 32 use this max_open_zones value. The test case 31 uses max_o=
+pen_zones
+> > +# to decide number of write target zones. The test case 32 passes max_=
+open_zones
+> > +# value to fio with --max_open_zones option. Of note is that fio itsel=
+f as the
+> > +# feature to get max_open_zones from the device through sysfs or ioeng=
+ine
+>=20
+> has the feature?
 
-Unfortunately, generic fio code calls some zbd_* functions unconditionally.
-These functions will be called regardless if zonemode =3D=3D ZONE_MODE_NONE=
-,
-ZONE_MODE_STRIDED or ZONE_MODE_ZBD, and cannot be optimized.
+Oops. Thanks for the catch.
 
-However, some functions are only called when zonemode =3D=3D ZONE_MODE_ZBD.
-Since f->zbd_info will always be non-NULL for a job with zonemode=3Dzbd,
-these functions can be optimized to not check if f->zbd_info is set.
+>=20
+> > +# specific implementation. This max_open_zones fetch by test script is=
+ required
+> > +# in case 1) ioengine lacks max_open_zones fetch feature, 2) Linux ker=
+nel lacks
+> > +# zoned block device support, or 3) Linux kernel supports zoned block =
+devices
+> > +# but lacks max_open_zones in sysfs.
+>=20
+> 1) ioengine lacks max_open_zones
+> makes it sound like that is something that is needed,
+> it is not, there is the oslib implementation.
 
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- zbd.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+Indeed.
 
-diff --git a/zbd.c b/zbd.c
-index aab4d741..8e99eb95 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -808,8 +808,7 @@ int zbd_setup_files(struct thread_data *td)
- 		struct fio_zone_info *z;
- 		int zi;
-=20
--		if (!zbd)
--			continue;
-+		assert(zbd);
-=20
- 		f->min_zone =3D zbd_zone_idx(f, f->file_offset);
- 		f->max_zone =3D zbd_zone_idx(f, f->file_offset + f->io_size);
-@@ -1470,8 +1469,7 @@ static void zbd_queue_io(struct thread_data *td, stru=
-ct io_u *io_u, int q,
- 	uint32_t zone_idx;
- 	uint64_t zone_end;
-=20
--	if (!zbd_info)
--		return;
-+	assert(zbd_info);
-=20
- 	zone_idx =3D zbd_zone_idx(f, io_u->offset);
- 	assert(zone_idx < zbd_info->nr_zones);
-@@ -1531,8 +1529,7 @@ static void zbd_put_io(struct thread_data *td, const =
-struct io_u *io_u)
- 	struct fio_zone_info *z;
- 	uint32_t zone_idx;
-=20
--	if (!zbd_info)
--		return;
-+	assert(zbd_info);
-=20
- 	zone_idx =3D zbd_zone_idx(f, io_u->offset);
- 	assert(zone_idx < zbd_info->nr_zones);
-@@ -1588,6 +1585,7 @@ void setup_zbd_zone_mode(struct thread_data *td, stru=
-ct io_u *io_u)
-=20
- 	assert(td->o.zone_mode =3D=3D ZONE_MODE_ZBD);
- 	assert(td->o.zone_size);
-+	assert(f->zbd_info);
-=20
- 	zone_idx =3D zbd_zone_idx(f, f->last_pos[ddir]);
- 	z =3D get_zone(f, zone_idx);
-@@ -1662,6 +1660,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td,=
- struct io_u *io_u,
- 	 * devices with all empty zones. Overwrite the first I/O direction as
- 	 * write to make sure data to read exists.
- 	 */
-+	assert(io_u->file->zbd_info);
- 	if (ddir !=3D DDIR_READ || !td_rw(td))
- 		return ddir;
-=20
-@@ -1691,9 +1690,7 @@ enum io_u_action zbd_adjust_block(struct thread_data =
-*td, struct io_u *io_u)
- 	uint64_t new_len;
- 	int64_t range;
-=20
--	if (!f->zbd_info)
--		return io_u_accept;
--
-+	assert(f->zbd_info);
- 	assert(min_bs);
- 	assert(is_valid_offset(f, io_u->offset));
- 	assert(io_u->buflen);
+>=20
+> I think that you can replace 1, 2, 3 with something simpler like:
+>=20
+> ... is required in case fio is running on an old Linux kernel version whi=
+ch
+> lacks max_open_zones in sysfs.
+>=20
+> Or if you want something more specific:
+>=20
+> ... is required in case fio is running on an old Linux kernel version whi=
+ch
+> lacks max_oper_zones in sysfs, or which lacks zbd support completely.
+
+Will reflect to v3. Thank you!
+
 --=20
-2.25.1
+Best Regards,
+Shin'ichiro Kawasaki=
 
