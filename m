@@ -1,8 +1,8 @@
 Return-Path: <prvs=782ebe97f=shinichiro.kawasaki@wdc.com>
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 0/3] t/zbd: Fix max_open_zones related failures
-Date: Fri,  4 Jun 2021 20:32:49 +0900
-Message-Id: <20210604113252.765970-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 0/3] t/zbd: Fix max_open_zones related failures
+Date: Fri,  4 Jun 2021 14:33:48 +0900
+Message-Id: <20210604053351.763028-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
@@ -27,10 +27,6 @@ max_open_zones limit. The third patch fixes the write target zone count logic.
 
 [1] https://www.spinics.net/lists/fio/msg09502.html
 
-Changes from v2:
-* Improved the comment to explain why the test script gets max_open_zones
-* Added Reviewed-by tags
-
 Changes from v1:
 * Added comment to explain why the test script gets max_open_zones
 * Reflected other comments and added Reviewed-by tags
@@ -41,9 +37,9 @@ Shin'ichiro Kawasaki (3):
     max_open_zones
   t/zbd: Fix write target zones counting in test case #31
 
- t/zbd/functions        | 14 +++++++++++---
+ t/zbd/functions        | 15 ++++++++++++---
  t/zbd/test-zbd-support | 37 +++++++++++++++++--------------------
- 2 files changed, 28 insertions(+), 23 deletions(-)
+ 2 files changed, 29 insertions(+), 23 deletions(-)
 
 -- 
 2.31.1
