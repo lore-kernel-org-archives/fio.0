@@ -1,27 +1,46 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from mail-eopbgr80121.outbound.protection.outlook.com ([40.107.8.121]:1089
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230194AbhFGNK1 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 7 Jun 2021 09:10:27 -0400
-Subject: Re: Adding exec engine
-From: Erwan Velu <e.velu@criteo.com>
-References: <a6eb5db2-8a66-bf1b-fe46-c4c854b46a58@criteo.com>
-Message-ID: <c08c7d47-78fc-c498-1dd8-6649c42bf1a9@criteo.com>
-Date: Mon, 7 Jun 2021 15:08:33 +0200
-In-Reply-To: <a6eb5db2-8a66-bf1b-fe46-c4c854b46a58@criteo.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Return-Path: <prvs=785b62de8=Niklas.Cassel@wdc.com>
+From: Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v2 1/4] zbd: disallow pipes for zonemode=zbd
+Date: Mon, 7 Jun 2021 09:16:06 +0000
+Message-ID: <20210607091558.21485-2-Niklas.Cassel@wdc.com>
+References: <20210607091558.21485-1-Niklas.Cassel@wdc.com>
+In-Reply-To: <20210607091558.21485-1-Niklas.Cassel@wdc.com>
 Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Heya,
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-If some wants to make a review or feedback about the usage, I'd be happy 
-to get your thoughts around it.
+zoned block device support in fio cannot handle pipes,
+so simply reject them and give a clear error message.
 
-Erwan,
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
+diff --git a/zbd.c b/zbd.c
+index 5d9e331a..60325d28 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -32,6 +32,11 @@ int zbd_get_zoned_model(struct thread_data *td, struct f=
+io_file *f,
+ {
+ 	int ret;
+=20
++	if (f->filetype =3D=3D FIO_TYPE_PIPE) {
++		log_err("zonemode=3Dzbd does not support pipes\n");
++		return -EINVAL;
++	}
++
+ 	if (td->io_ops && td->io_ops->get_zoned_model)
+ 		ret =3D td->io_ops->get_zoned_model(td, f, model);
+ 	else
+--=20
+2.31.1
 
