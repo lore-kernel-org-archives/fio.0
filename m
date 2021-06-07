@@ -1,51 +1,27 @@
-Return-Path: <prvs=785b62de8=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v2 0/4] improve zbd initialization
-Date: Mon, 7 Jun 2021 09:16:05 +0000
-Message-ID: <20210607091558.21485-1-Niklas.Cassel@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-eopbgr80121.outbound.protection.outlook.com ([40.107.8.121]:1089
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230194AbhFGNK1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 7 Jun 2021 09:10:27 -0400
+Subject: Re: Adding exec engine
+From: Erwan Velu <e.velu@criteo.com>
+References: <a6eb5db2-8a66-bf1b-fe46-c4c854b46a58@criteo.com>
+Message-ID: <c08c7d47-78fc-c498-1dd8-6649c42bf1a9@criteo.com>
+Date: Mon, 7 Jun 2021 15:08:33 +0200
+In-Reply-To: <a6eb5db2-8a66-bf1b-fe46-c4c854b46a58@criteo.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+Heya,
 
-Hello there,
+If some wants to make a review or feedback about the usage, I'd be happy 
+to get your thoughts around it.
 
-This series improves zbd initialization, by making it more robust.
-Previously, zbd_create_zone_info() could return success at the same
-time as f->zbd_info was never initialized. Remove ZBD_IGNORE to
-avoid this combination from being possible.
+Erwan,
 
-Also, zonemode=3Dzbd can now be used with regular files by emulating
-zones inside the file. (Just like how we already support emulating
-zones inside a regular block device).
-
-
-Kind regards,
-Niklas
-
-
-Changes since v1:
--Picked up Damien's Reviewed-by tags on patch 1 and 4.
--Addressed Damien's review comments on patch 2 and 3.
-
-Niklas Cassel (4):
-  zbd: disallow pipes for zonemode=3Dzbd
-  zbd: allow zonemode=3Dzbd with regular files by emulating zones
-  zbd: remove zbd_zoned_model ZBD_IGNORE
-  zbd: change some f->zbd_info conditionals to asserts
-
- engines/libzbc.c            |  6 ++----
- engines/skeleton_external.c |  1 -
- oslib/linux-blkzoned.c      |  6 ++----
- zbd.c                       | 37 +++++++++++++++++++++++++------------
- zbd_types.h                 |  7 +++----
- 5 files changed, 32 insertions(+), 25 deletions(-)
-
---=20
-2.31.1
 
