@@ -1,24 +1,27 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] io_uring: drop redundant IO_MODE_OFFLOAD check
-References: <20210610155539.354452-1-stefanha@redhat.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <00308c47-f5ae-8776-cbaa-81188e4d6c52@kernel.dk>
-Date: Thu, 10 Jun 2021 16:40:59 -0600
+Return-Path: <stefanha@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] io_uring: drop redundant IO_MODE_OFFLOAD check
+Date: Thu, 10 Jun 2021 16:55:39 +0100
+Message-Id: <20210610155539.354452-1-stefanha@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210610155539.354452-1-stefanha@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Stefan Hajnoczi <stefanha@redhat.com>, fio@vger.kernel.org
+Content-Transfer-Encoding: base64
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk, Stefan Hajnoczi <stefanha@redhat.com>
 List-ID: <fio@vger.kernel.org>
 
-On 6/10/21 9:55 AM, Stefan Hajnoczi wrote:
-> check_engine_ops() already returns an error if io_submit_mode is
-> IO_MODE_OFFLOAD and the engine is marked FIO_NO_OFFLOAD.
-
-Applied, thanks.
-
--- 
-Jens Axboe
+Y2hlY2tfZW5naW5lX29wcygpIGFscmVhZHkgcmV0dXJucyBhbiBlcnJvciBpZiBpb19zdWJtaXRf
+bW9kZSBpcwpJT19NT0RFX09GRkxPQUQgYW5kIHRoZSBlbmdpbmUgaXMgbWFya2VkIEZJT19OT19P
+RkZMT0FELgoKU2lnbmVkLW9mZi1ieTogU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUByZWRoYXQu
+Y29tPgotLS0KIGVuZ2luZXMvaW9fdXJpbmcuYyB8IDYgLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwg
+NiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9lbmdpbmVzL2lvX3VyaW5nLmMgYi9lbmdpbmVz
+L2lvX3VyaW5nLmMKaW5kZXggYjk2MmU4MDQuLjljMDkxZTM3IDEwMDY0NAotLS0gYS9lbmdpbmVz
+L2lvX3VyaW5nLmMKKysrIGIvZW5naW5lcy9pb191cmluZy5jCkBAIC03MjgsMTIgKzcyOCw2IEBA
+IHN0YXRpYyBpbnQgZmlvX2lvcmluZ19pbml0KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQpCiAJc3Ry
+dWN0IGlvcmluZ19kYXRhICpsZDsKIAlzdHJ1Y3QgdGhyZWFkX29wdGlvbnMgKnRvID0gJnRkLT5v
+OwogCi0JaWYgKHRvLT5pb19zdWJtaXRfbW9kZSA9PSBJT19NT0RFX09GRkxPQUQpIHsKLQkJbG9n
+X2VycigiZmlvOiBpb19zdWJtaXRfbW9kZT1vZmZsb2FkIGlzIG5vdCBjb21wYXRpYmxlIChvciAi
+Ci0JCQkidXNlZnVsKSB3aXRoIGlvX3VyaW5nXG4iKTsKLQkJcmV0dXJuIDE7Ci0JfQotCiAJLyog
+c3F0aHJlYWQgc3VibWlzc2lvbiByZXF1aXJlcyByZWdpc3RlcmVkIGZpbGVzICovCiAJaWYgKG8t
+PnNxcG9sbF90aHJlYWQpCiAJCW8tPnJlZ2lzdGVyZmlsZXMgPSAxOwotLSAKMi4zMS4xCgo=
 
 
