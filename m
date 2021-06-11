@@ -1,39 +1,85 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36842 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231310AbhFRBLL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 17 Jun 2021 21:11:11 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB4EC061574
-        for <fio@vger.kernel.org>; Thu, 17 Jun 2021 18:09:02 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id m21so13525022lfg.13
-        for <fio@vger.kernel.org>; Thu, 17 Jun 2021 18:09:02 -0700 (PDT)
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:41840 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229951AbhFKRtG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 11 Jun 2021 13:49:06 -0400
+Received: by mail-wr1-f43.google.com with SMTP id o3so6912461wri.8
+        for <fio@vger.kernel.org>; Fri, 11 Jun 2021 10:46:52 -0700 (PDT)
 MIME-Version: 1.0
-From: Arthur Shau <arthurcshau@gmail.com>
-Date: Thu, 17 Jun 2021 18:08:47 -0700
-Message-ID: <CA+_dZJifi4+5GX1D=HELXrNkniVgVMnJgbYX+PMhuZ0s0ZiQFA@mail.gmail.com>
-Subject: Question about rwmixread/rwmixwrite implementation
+References: <26482be0-75b2-ab35-e217-94cbc39a0171@gmail.com>
+In-Reply-To: <26482be0-75b2-ab35-e217-94cbc39a0171@gmail.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Fri, 11 Jun 2021 18:45:26 +0100
+Message-ID: <CALjAwxgqqoSbm7pxrrc0BeFg8R-01fTfEmowfPhVkunar8G45A@mail.gmail.com>
+Subject: Re: Can we build fio statically with both libaio and posixaio?
 Content-Type: text/plain; charset="UTF-8"
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: Professor Pro <annivation@gmail.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-I have a basic question about how the read/write ratio is enforced in
-fio. I am new to fio, and I am not well versed enough in C to dig into
-the source code myself, so I am asking here.
+Hi,
 
-For I/O in a fixed size region, I am assuming that fio dynamically
-throttles the number of requests in each direction as the job runs,
-rather than predetermining the number of requests based on total size
-and block sizes. Is this correct?
+On Wed, 26 May 2021 at 21:38, Professor Pro <annivation@gmail.com> wrote:
+>
+> I'm missing reason why fio can not be built statically with both libaio
+> and posixaio
+>
+> Here is simplest way to reproduce on clear linux using docker ubuntu image:
+>
+> echo '
+> url=https://brick.kernel.dk/snaps/fio-3.26.tar.gz
+> libaio=https://pagure.io/libaio/archive/libaio-0.3.112/libaio-libaio-0.3.112.tar.gz
+> apt-get update
+> apt-get install libc6-dev build-essential autoconf autoconf make wget -y -q
+> work=/build/fio-src
 
-1. If so, how does it do this? Is there some sort of threshold where,
-if too much of one type of request is happening, it will limit that
-type and only allow the other to be requested? What happens if there
-are multiple jobs reading and writing concurrently?
+<snip>
 
-2. Why choose to do it this way rather than predetermining the number
-of requests and limiting it that way?
+> # build libaio
+> cd lib*
+> make prefix=/usr/local install
+> cd ../fio*
+>
+> # build fio
+> ./configure --prefix=/usr/local --build-static | tee configure.log
+> make -j && make install && echo "SUCCESS. $(fio --version) engines:" &&
+> fio --enghelp | tail -n +2 | sort
+> cat configure.log | grep "AIO"
 
-If you could also point me to where this logic is happening in the
-source code, that would also be immensely helpful. Thanks so much!
+<snip>
+
+> Linux AIO support             yes
+> Linux AIO support rw flags    yes
+> POSIX AIO support             no
+> POSIX AIO support needs -lrt  no
+> POSIX AIO fsync               no
+> Solaris AIO support           no
+>
+>
+> According to man [https://man7.org/linux/man-pages/man7/aio.7.html]
+> posix aio was introduced in glibc 2.1.
+> Another words, libc6-dev 2.31 is preinstalled but posixaio is not
+> available for static build?
+>
+> Can we build fio statically with both libaio and posixaio?
+
+Probably not both without a large amount of effort.
+
+Whether you can build fio statically with Linux AIO depends entirely on whether
+you have a static (.a) version of of libaio library in your library search
+path. Since you're building libaio by hand it's up to you to check the
+paths/fiddle with environment variables... FWIW I thought Debian-like distros
+like Ubuntu actually shipped a static libaio in libaio-dev (e.g.
+https://packages.ubuntu.com/focal/amd64/libaio-dev/filelist ) so I'm unsure why
+you need to build your own...
+
+For the POSIX AIO failure you would have to look through config.log. My guess
+is that when you use posixaio on Linux it also needs libpthread to be available
+and perhaps this is something that doesn't take place when doing a static build
+(i.e. try adding -lpthread after -lrt in the fio configure script). Note that
+the posixaio I/O engine on Linux is somewhat slow and won't achieve high
+concurrency when multiple I/Os are targeting the same file descriptor.
+
+--
+Sitsofe
 
