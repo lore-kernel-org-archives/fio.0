@@ -1,47 +1,94 @@
-Return-Path: <prvs=782ebe97f=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 0/3] t/zbd: Fix max_open_zones related failures
-Date: Fri,  4 Jun 2021 14:33:48 +0900
-Message-Id: <20210604053351.763028-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=79210697c=Niklas.Cassel@wdc.com>
+From: Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v3 2/5] zbd: allow zonemode=zbd with regular files by
+ emulating zones
+Date: Mon, 14 Jun 2021 13:49:04 +0000
+Message-ID: <20210614134851.158700-3-Niklas.Cassel@wdc.com>
+References: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
+In-Reply-To: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Recent changes in fio [1] triggered three failures in the test script
-t/zbd/test-zoned-support. This series address the failures.
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-The first failure was caused by difference between max_open_zones value that fio
-refers and that test script refers. The first patch modifies the test script to
-use the value fio refers.
+Currently when using zonemode=3Dzbd and running against a regular file,
+fio will fail with:
+fio: file hash not empty on exit
 
-The second failure was observed when users specify special max_open_zones values
-larger than the max_open_zones limit of the test target device. The second patch
-adds --ignore_zone_limits option to the fio command only when users specify such
-special conditions.
+Treat regular files just like how we treat regular (non-zoned) block
+devices: return ZBD_NONE and let zbd.c emulate zones inside the regular
+file/block device.
 
-The third failure was caused by write target zone count bug in the test case 31.
-Data write to more zones than max_open_zones limit resulted in exceeding
-max_open_zones limit. The third patch fixes the write target zone count logic.
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+---
+ zbd.c       | 14 +++++++++++++-
+ zbd_types.h |  2 +-
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-[1] https://www.spinics.net/lists/fio/msg09502.html
-
-Changes from v1:
-* Added comment to explain why the test script gets max_open_zones
-* Reflected other comments and added Reviewed-by tags
-
-Shin'ichiro Kawasaki (3):
-  t/zbd: Use max_open_zones that fio fetched from device
-  t/zbd: Add ignore_zone_limit option to test with special
-    max_open_zones
-  t/zbd: Fix write target zones counting in test case #31
-
- t/zbd/functions        | 15 ++++++++++++---
- t/zbd/test-zbd-support | 37 +++++++++++++++++--------------------
- 2 files changed, 29 insertions(+), 23 deletions(-)
-
--- 
-2.31.1
-
+diff --git a/zbd.c b/zbd.c
+index 60325d28..d1db9adc 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -37,6 +37,12 @@ int zbd_get_zoned_model(struct thread_data *td, struct f=
+io_file *f,
+ 		return -EINVAL;
+ 	}
+=20
++	/* If regular file, always emulate zones inside the file. */
++	if (f->filetype =3D=3D FIO_TYPE_FILE) {
++		*model =3D ZBD_NONE;
++		return 0;
++	}
++
+ 	if (td->io_ops && td->io_ops->get_zoned_model)
+ 		ret =3D td->io_ops->get_zoned_model(td, f, model);
+ 	else
+@@ -414,7 +420,7 @@ static int init_zone_info(struct thread_data *td, struc=
+t fio_file *f)
+ 	int i;
+=20
+ 	if (zone_size =3D=3D 0) {
+-		log_err("%s: Specifying the zone size is mandatory for regular block dev=
+ices with --zonemode=3Dzbd\n\n",
++		log_err("%s: Specifying the zone size is mandatory for regular file/bloc=
+k device with --zonemode=3Dzbd\n\n",
+ 			f->file_name);
+ 		return 1;
+ 	}
+@@ -435,6 +441,12 @@ static int init_zone_info(struct thread_data *td, stru=
+ct fio_file *f)
+ 		return 1;
+ 	}
+=20
++	if (f->real_file_size < zone_size) {
++		log_err("%s: file/device size %"PRIu64" is smaller than zone size %"PRIu=
+64"\n",
++			f->file_name, f->real_file_size, zone_size);
++		return -EINVAL;
++	}
++
+ 	nr_zones =3D (f->real_file_size + zone_size - 1) / zone_size;
+ 	zbd_info =3D scalloc(1, sizeof(*zbd_info) +
+ 			   (nr_zones + 1) * sizeof(zbd_info->zone_info[0]));
+diff --git a/zbd_types.h b/zbd_types.h
+index 5ed41aa0..d0f4c44e 100644
+--- a/zbd_types.h
++++ b/zbd_types.h
+@@ -15,7 +15,7 @@
+  */
+ enum zbd_zoned_model {
+ 	ZBD_IGNORE,		/* Ignore file */
+-	ZBD_NONE,		/* Regular block device */
++	ZBD_NONE,		/* No zone support. Emulate zones. */
+ 	ZBD_HOST_AWARE,		/* Host-aware zoned block device */
+ 	ZBD_HOST_MANAGED,	/* Host-managed zoned block device */
+ };
+--=20
+2.25.1
 
