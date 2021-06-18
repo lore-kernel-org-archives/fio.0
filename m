@@ -1,47 +1,59 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45042 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229464AbhFXSk7 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 24 Jun 2021 14:40:59 -0400
-Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99774C061574
-        for <fio@vger.kernel.org>; Thu, 24 Jun 2021 11:38:39 -0700 (PDT)
-Received: by mail-vs1-xe2b.google.com with SMTP id x12so4038195vsp.4
-        for <fio@vger.kernel.org>; Thu, 24 Jun 2021 11:38:39 -0700 (PDT)
-MIME-Version: 1.0
-From: Sunil Vettukalppurathu <sunilvm@gmail.com>
-Date: Thu, 24 Jun 2021 11:38:27 -0700
-Message-ID: <CAP6uPsW0SF-0BuLkx8aC8X9xuqju4C-+9wknxMP3JiOqB6_QRg@mail.gmail.com>
-Subject: random buffer_compress_percentage instead of static
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S231345AbhFRMCQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 18 Jun 2021 08:02:16 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AABFAC061574
+        for <fio@vger.kernel.org>; Fri, 18 Jun 2021 05:00:06 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1luDAD-009B1z-CZ
+        for fio@vger.kernel.org; Fri, 18 Jun 2021 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210618120001.A52FD1BC0100@kernel.dk>
+Date: Fri, 18 Jun 2021 06:00:01 -0600 (MDT)
 List-Id: fio@vger.kernel.org
 To: fio@vger.kernel.org
 
-Hi,
+The following changes since commit a59b12d2a5eb92c1128a5d8ebcd03b1831962ce5:
 
-Currently we can=E2=80=99t vary % of compressible data from block to block =
-(as
-far as I know). The value provided  for buffer_compress_percentage is
-used for all blocks.
+  t/zbd: update test case 42 (2021-06-14 08:54:56 -0600)
 
-"""
-buffer_compress_percentage=3Dint
-If this is set, then fio will attempt to provide I/O buffer content
-(on WRITEs) that compresses to the specified
-level. Fio does this by providing a mix of random data followed by
-fixed pattern data. """
+are available in the Git repository at:
 
-As we have a requirement to test with random compression %, we
-modified the code to accept a range of values for
-buffer_compress_percentage instead of one number so that the
-percentage changes from block to block =E2=80=93 random value between min a=
-nd
-max.
+  git://git.kernel.dk/fio.git master
 
-Not sure if  it=E2=80=99s useful for others; if so, will send the patch for=
- review.
+for you to fetch changes up to afa37b56c6637967180e4409adbb682b2ce16bcb:
 
-Thanks,
---Sunil
+  filehash: ignore hashed file with fd == -1 (2021-06-17 10:55:20 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      filehash: ignore hashed file with fd == -1
+
+ filehash.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/filehash.c b/filehash.c
+index b55ab734..71ec7b18 100644
+--- a/filehash.c
++++ b/filehash.c
+@@ -60,10 +60,8 @@ static struct fio_file *__lookup_file_hash(const char *name)
+ 		if (!f->file_name)
+ 			continue;
+ 
+-		if (!strcmp(f->file_name, name)) {
+-			assert(f->fd != -1);
++		if (!strcmp(f->file_name, name))
+ 			return f;
+-		}
+ 	}
+ 
+ 	return NULL;
 
