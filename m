@@ -1,137 +1,35 @@
-Return-Path: <prvs=79210697c=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v3 3/5] zbd: remove zbd_zoned_model ZBD_IGNORE
-Date: Mon, 14 Jun 2021 13:49:04 +0000
-Message-ID: <20210614134851.158700-4-Niklas.Cassel@wdc.com>
-References: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210614134851.158700-1-Niklas.Cassel@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mx0a-002e3701.pphosted.com ([148.163.147.86]:29944 "EHLO
+        mx0a-002e3701.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231289AbhFRCde (ORCPT
+        <rfc822;fio@vger.kernel.org>); Thu, 17 Jun 2021 22:33:34 -0400
+From: "Elliott, Robert (Servers)" <elliott@hpe.com>
+Subject: RE: Question about rwmixread/rwmixwrite implementation
+Date: Fri, 18 Jun 2021 02:31:22 +0000
+Message-ID: <TU4PR8401MB1055D36322B806ABF9C05AF4AB0D9@TU4PR8401MB1055.NAMPRD84.PROD.OUTLOOK.COM>
+References: <CA+_dZJifi4+5GX1D=HELXrNkniVgVMnJgbYX+PMhuZ0s0ZiQFA@mail.gmail.com>
+In-Reply-To: <CA+_dZJifi4+5GX1D=HELXrNkniVgVMnJgbYX+PMhuZ0s0ZiQFA@mail.gmail.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: 'Arthur Shau' <arthurcshau@gmail.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
-
-For a job with zonemode=3Dzbd, we do not want any file to be ignored.
-Each file's file type in that job should be supported by either zbd.c
-or the ioengine. If not, we should return an error.
-This way, ZBD_IGNORE becomes redundant and can be removed.
-
-By removing ZBD_IGNORE, we know that all files belonging to a job that
-has zonemode=3Dzbd set, will either be a zoned block device, or emulate
-a zoned block device.
-
-This means that for jobs that have zonemode=3Dzbd, f->zbd_info will always
-be non-NULL. This will make the zbd code slightly easier to reason about
-and to maintain.
-
-When removing zbd_zoned_model ZBD_IGNORE, define the new first enum value
-as 0x1, so that we avoid potential ABI problems with existing binaries.
-
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
----
- engines/libzbc.c            | 6 ++----
- engines/skeleton_external.c | 1 -
- oslib/linux-blkzoned.c      | 6 ++----
- zbd.c                       | 3 +--
- zbd_types.h                 | 7 +++----
- 5 files changed, 8 insertions(+), 15 deletions(-)
-
-diff --git a/engines/libzbc.c b/engines/libzbc.c
-index 3dde93db..7f2bc431 100644
---- a/engines/libzbc.c
-+++ b/engines/libzbc.c
-@@ -180,10 +180,8 @@ static int libzbc_get_zoned_model(struct thread_data *=
-td, struct fio_file *f,
- 	struct libzbc_data *ld;
- 	int ret;
-=20
--	if (f->filetype !=3D FIO_TYPE_BLOCK && f->filetype !=3D FIO_TYPE_CHAR) {
--		*model =3D ZBD_IGNORE;
--		return 0;
--	}
-+	if (f->filetype !=3D FIO_TYPE_BLOCK && f->filetype !=3D FIO_TYPE_CHAR)
-+		return -EINVAL;
-=20
- 	ret =3D libzbc_open_dev(td, f, &ld);
- 	if (ret)
-diff --git a/engines/skeleton_external.c b/engines/skeleton_external.c
-index c79b6f11..cff83a10 100644
---- a/engines/skeleton_external.c
-+++ b/engines/skeleton_external.c
-@@ -156,7 +156,6 @@ static int fio_skeleton_close(struct thread_data *td, s=
-truct fio_file *f)
- /*
-  * Hook for getting the zoned model of a zoned block device for zonemode=
-=3Dzbd.
-  * The zoned model can be one of (see zbd_types.h):
-- * - ZBD_IGNORE: skip regular files
-  * - ZBD_NONE: regular block device (zone emulation will be used)
-  * - ZBD_HOST_AWARE: host aware zoned block device
-  * - ZBD_HOST_MANAGED: host managed zoned block device
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 6f89ec6f..4e441d29 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -140,10 +140,8 @@ int blkzoned_get_zoned_model(struct thread_data *td, s=
-truct fio_file *f,
- {
- 	char *model_str =3D NULL;
-=20
--	if (f->filetype !=3D FIO_TYPE_BLOCK) {
--		*model =3D ZBD_IGNORE;
--		return 0;
--	}
-+	if (f->filetype !=3D FIO_TYPE_BLOCK)
-+		return -EINVAL;
-=20
- 	*model =3D ZBD_NONE;
-=20
-diff --git a/zbd.c b/zbd.c
-index d1db9adc..aab4d741 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -661,8 +661,6 @@ static int zbd_create_zone_info(struct thread_data *td,=
- struct fio_file *f)
- 		return ret;
-=20
- 	switch (zbd_model) {
--	case ZBD_IGNORE:
--		return 0;
- 	case ZBD_HOST_AWARE:
- 	case ZBD_HOST_MANAGED:
- 		ret =3D parse_zone_info(td, f);
-@@ -680,6 +678,7 @@ static int zbd_create_zone_info(struct thread_data *td,=
- struct fio_file *f)
- 		return -EINVAL;
- 	}
-=20
-+	assert(f->zbd_info);
- 	f->zbd_info->model =3D zbd_model;
-=20
- 	ret =3D zbd_set_max_open_zones(td, f);
-diff --git a/zbd_types.h b/zbd_types.h
-index d0f4c44e..0a8630cb 100644
---- a/zbd_types.h
-+++ b/zbd_types.h
-@@ -14,10 +14,9 @@
-  * Zoned block device models.
-  */
- enum zbd_zoned_model {
--	ZBD_IGNORE,		/* Ignore file */
--	ZBD_NONE,		/* No zone support. Emulate zones. */
--	ZBD_HOST_AWARE,		/* Host-aware zoned block device */
--	ZBD_HOST_MANAGED,	/* Host-managed zoned block device */
-+	ZBD_NONE		=3D 0x1,	/* No zone support. Emulate zones. */
-+	ZBD_HOST_AWARE		=3D 0x2,	/* Host-aware zoned block device */
-+	ZBD_HOST_MANAGED	=3D 0x3,	/* Host-managed zoned block device */
- };
-=20
- /*
---=20
-2.25.1
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQXJ0aHVyIFNoYXUgPGFy
+dGh1cmNzaGF1QGdtYWlsLmNvbT4NCj4gU2VudDogVGh1cnNkYXksIEp1bmUgMTcsIDIwMjEgODow
+OSBQTQ0KPiBUbzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBRdWVzdGlvbiBhYm91
+dCByd21peHJlYWQvcndtaXh3cml0ZSBpbXBsZW1lbnRhdGlvbg0KPiANCj4gSSBoYXZlIGEgYmFz
+aWMgcXVlc3Rpb24gYWJvdXQgaG93IHRoZSByZWFkL3dyaXRlIHJhdGlvIGlzIGVuZm9yY2VkIGlu
+DQo+IGZpby4gSSBhbSBuZXcgdG8gZmlvLCBhbmQgSSBhbSBub3Qgd2VsbCB2ZXJzZWQgZW5vdWdo
+IGluIEMgdG8gZGlnIGludG8NCj4gdGhlIHNvdXJjZSBjb2RlIG15c2VsZiwgc28gSSBhbSBhc2tp
+bmcgaGVyZS4NCj4gDQouLi4NCj4gSWYgeW91IGNvdWxkIGFsc28gcG9pbnQgbWUgdG8gd2hlcmUg
+dGhpcyBsb2dpYyBpcyBoYXBwZW5pbmcgaW4gdGhlDQo+IHNvdXJjZSBjb2RlLCB0aGF0IHdvdWxk
+IGFsc28gYmUgaW1tZW5zZWx5IGhlbHBmdWwuIFRoYW5rcyBzbyBtdWNoIQ0KDQpUaGUgSE9XVE8g
+ZmlsZSBzb21ldGltZXMgaGFzIG1vcmUgaW5mb3JtYXRpb24gdGhhbiB0aGUgbWFucGFnZSwgc28N
+CnRoYXQncyB0aGUgZmlyc3QgcGxhY2UgdG8gY2hlY2suDQoNClRvIGZpbmQgdGhlIGFwcGxpY2Fi
+bGUgc291cmNlIGNvZGUsIHJ1bjoNCiAgICBncmVwIHJ3bWl4ICouW2NoXQ0KDQpUaGF0IHNob3dz
+IHRoYXQgdGhlIGlvIGhhbmRsaW5nIGNvZGUgaW4gaW9fdS5jIGlzIHdoZXJlIGRlY2lzaW9ucw0K
+YXJlIG1hZGUgYmFzZWQgb24gdGhhdCBhcmd1bWVudCwgcGFydGljdWxhcmx5IGluIHRoZSByYXRl
+X2RkaXIoKSBhbmQNCmdldF9yd19kZGlyKCkgZnVuY3Rpb25zLg0KDQo=
 
