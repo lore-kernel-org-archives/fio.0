@@ -1,86 +1,55 @@
-Return-Path: <prvs=7792dbf0f=Damien.LeMoal@wdc.com>
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH 1/3] t/zbd: Use max_open_zones that fio fetched from
- device
-Date: Tue, 1 Jun 2021 07:01:18 +0000
-Message-ID: 
- <DM6PR04MB7081B85BD9106F0824A9F8C5E73E9@DM6PR04MB7081.namprd04.prod.outlook.com>
-References: <20210601064753.734892-1-shinichiro.kawasaki@wdc.com>
- <20210601064753.734892-2-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58558 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229605AbhFTRNK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 20 Jun 2021 13:13:10 -0400
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18DB5C061574
+        for <fio@vger.kernel.org>; Sun, 20 Jun 2021 10:10:56 -0700 (PDT)
+Received: by mail-wr1-x434.google.com with SMTP id a11so16871293wrt.13
+        for <fio@vger.kernel.org>; Sun, 20 Jun 2021 10:10:56 -0700 (PDT)
 MIME-Version: 1.0
-To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
-Cc: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+References: <DM6PR11MB475596F3188D1B1EE8D9F54FA9219@DM6PR11MB4755.namprd11.prod.outlook.com>
+In-Reply-To: <DM6PR11MB475596F3188D1B1EE8D9F54FA9219@DM6PR11MB4755.namprd11.prod.outlook.com>
+From: Sitsofe Wheeler <sitsofe@gmail.com>
+Date: Sun, 20 Jun 2021 18:10:28 +0100
+Message-ID: <CALjAwxi5UBBh8PKWWviPb_YokZxePVi03iMfGkpAh-HPD9t6tw@mail.gmail.com>
+Subject: Re: Too Many Open Files
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+List-Id: fio@vger.kernel.org
+To: "Gruher, Joseph R" <joseph.r.gruher@intel.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-On 2021/06/01 15:48, Shin'ichiro Kawasaki wrote:=0A=
-> Recent commit d2f442bc0bd5 ("ioengines: add get_max_open_zones zoned=0A=
-> block device operation") modified fio to compare --max_open_zoned option=
-=0A=
-=0A=
-s/max_open_zoned/max_open_zones=0A=
-=0A=
-> value and max_open_zones reported by the device. The device limit is=0A=
-> fetched through sysfs or through an ioengine specific implementation.=0A=
-> =0A=
-> The test script currently try to fetch the max open zones limit using=0A=
-> libzbc tools or sg_inq. If either of these fail, default value 128 is=0A=
-> supplied. This default value can be too high when the test script is=0A=
-> run for certain zoned block devices, and can therefore result in fio=0A=
-> error and test case failure.=0A=
-=0A=
-If sysfs has the max_open_zones attribute file present, that value should b=
-e=0A=
-retrieved first. libzbc and sg_inq should be used only if the sysfs attribu=
-te is=0A=
-not present, that is, when running on older kernels.=0A=
-=0A=
-> =0A=
-> To avoid the failure, modify the default value used in the test script=0A=
-> from 128 to 0. With this, --max_open_zoned=3D0 is passed to fio, and it=
-=0A=
-> makes fio use the max_open_zones reported by the device.=0A=
-=0A=
-Why pass anything at all since now fio will use the device reported limit b=
-y=0A=
-default if the user does not specify anything ?=0A=
-=0A=
-> =0A=
-> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
-> ---=0A=
->  t/zbd/functions | 4 ++--=0A=
->  1 file changed, 2 insertions(+), 2 deletions(-)=0A=
-> =0A=
-> diff --git a/t/zbd/functions b/t/zbd/functions=0A=
-> index 40ffe1de..1a7ea970 100644=0A=
-> --- a/t/zbd/functions=0A=
-> +++ b/t/zbd/functions=0A=
-> @@ -180,8 +180,8 @@ max_open_zones() {=0A=
->  	if ! ${sg_inq} -e --page=3D0xB6 --len=3D20 --hex "$dev" \=0A=
->  		 > /dev/null 2>&1; then=0A=
->  	    # Non scsi device such as null_blk can not return max open zones.=
-=0A=
-=0A=
-This comment is a little outdated since even nullblk now has a limit expose=
-d=0A=
-through sysfs (the limit may be 0 =3D=3D no limit). See above comment. sysf=
-s should=0A=
-be the first thing to look at.=0A=
-=0A=
-> -	    # Use default value.=0A=
-> -	    echo 128=0A=
-> +	    # Specify 0 to indicate fio to get max open zones from the device.=
-=0A=
-> +	    echo 0=0A=
->  	else=0A=
->  	    ${sg_inq} -e --page=3D0xB6 --len=3D20 --hex "$dev" | tail -1 |=0A=
->  		{=0A=
-> =0A=
-=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+Hi,
+
+On Sat, 29 May 2021 at 16:03, Gruher, Joseph R
+<joseph.r.gruher@intel.com> wrote:
+>
+> I have a 72-core server running CentOS 8, kernel 4.18.0-240, with FIO 3.2=
+7.  I have 12 NVMe drives, each with 12 partitions, and am trying to run mu=
+ltiple jobs for each partition, with numjobs=3D16 and iodepth=3D32.  I get =
+a too many open files error from FIO.  Which is fine, that's a lot of threa=
+ds.  If I change numjobs to 8, same error, if I change it to 4, FIO runs.  =
+Is there a hard or dynamic limit in FIO, and if so, what is it, or how is i=
+t calculated?  Thanks!
+>
+>
+> [global]
+> ioengine=3Dlibaio
+> direct=3D1
+> randrepeat=3D0
+> thread=3D1
+
+In this case I don't think you're hitting an fio limit but your system
+likely has limits (e.g. a global maximum and a seperate per process
+limit). I'm guessing 12 (disks) * 12 (partitions) * 16 (jobs) =3D 2304
+files. 12 * 12 * 8 =3D 1152 files. The fact that 4 worked makes me think
+you have some per user or per process limit which is a number like
+1024. Does the information in https://unix.stackexchange.com/q/84227
+help?
+
+
+--
+Sitsofe
 
