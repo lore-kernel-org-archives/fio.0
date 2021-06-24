@@ -1,43 +1,47 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: random buffer_compress_percentage instead of static
-References: <CAP6uPsW0SF-0BuLkx8aC8X9xuqju4C-+9wknxMP3JiOqB6_QRg@mail.gmail.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <e2f3a5c9-88a5-fa17-610e-a107589ef3a6@kernel.dk>
-Date: Thu, 24 Jun 2021 18:55:10 -0600
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45042 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229464AbhFXSk7 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 24 Jun 2021 14:40:59 -0400
+Received: from mail-vs1-xe2b.google.com (mail-vs1-xe2b.google.com [IPv6:2607:f8b0:4864:20::e2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99774C061574
+        for <fio@vger.kernel.org>; Thu, 24 Jun 2021 11:38:39 -0700 (PDT)
+Received: by mail-vs1-xe2b.google.com with SMTP id x12so4038195vsp.4
+        for <fio@vger.kernel.org>; Thu, 24 Jun 2021 11:38:39 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAP6uPsW0SF-0BuLkx8aC8X9xuqju4C-+9wknxMP3JiOqB6_QRg@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-To: Sunil Vettukalppurathu <sunilvm@gmail.com>, fio@vger.kernel.org
-List-ID: <fio@vger.kernel.org>
+From: Sunil Vettukalppurathu <sunilvm@gmail.com>
+Date: Thu, 24 Jun 2021 11:38:27 -0700
+Message-ID: <CAP6uPsW0SF-0BuLkx8aC8X9xuqju4C-+9wknxMP3JiOqB6_QRg@mail.gmail.com>
+Subject: random buffer_compress_percentage instead of static
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-On 6/24/21 12:38 PM, Sunil Vettukalppurathu wrote:
-> Hi,
-> 
-> Currently we can’t vary % of compressible data from block to block (as
-> far as I know). The value provided  for buffer_compress_percentage is
-> used for all blocks.
-> 
-> """
-> buffer_compress_percentage=int
-> If this is set, then fio will attempt to provide I/O buffer content
-> (on WRITEs) that compresses to the specified
-> level. Fio does this by providing a mix of random data followed by
-> fixed pattern data. """
-> 
-> As we have a requirement to test with random compression %, we
-> modified the code to accept a range of values for
-> buffer_compress_percentage instead of one number so that the
-> percentage changes from block to block – random value between min and
-> max.
-> 
-> Not sure if  it’s useful for others; if so, will send the patch for review.
+Hi,
 
-Please do, sounds like a useful feature. How is it managed in terms of
-options?
+Currently we can=E2=80=99t vary % of compressible data from block to block =
+(as
+far as I know). The value provided  for buffer_compress_percentage is
+used for all blocks.
 
--- 
-Jens Axboe
+"""
+buffer_compress_percentage=3Dint
+If this is set, then fio will attempt to provide I/O buffer content
+(on WRITEs) that compresses to the specified
+level. Fio does this by providing a mix of random data followed by
+fixed pattern data. """
 
+As we have a requirement to test with random compression %, we
+modified the code to accept a range of values for
+buffer_compress_percentage instead of one number so that the
+percentage changes from block to block =E2=80=93 random value between min a=
+nd
+max.
+
+Not sure if  it=E2=80=99s useful for others; if so, will send the patch for=
+ review.
+
+Thanks,
+--Sunil
 
