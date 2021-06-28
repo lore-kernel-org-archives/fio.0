@@ -1,69 +1,47 @@
-Return-Path: <prvs=782ebe97f=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 1/3] t/zbd: Use max_open_zones that fio fetched from device
-Date: Fri,  4 Jun 2021 20:32:50 +0900
-Message-Id: <20210604113252.765970-2-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210604113252.765970-1-shinichiro.kawasaki@wdc.com>
-References: <20210604113252.765970-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=80640e188=Niklas.Cassel@wdc.com>
+From: Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: Re: [PATCH 1/3] zbd: create a local zbdi variable for f->zbd_info
+Date: Mon, 28 Jun 2021 10:42:53 +0000
+Message-ID: <YNmnrEjk4nJF30g/@x1-carbon.lan>
+References: <20210624172256.37177-1-Niklas.Cassel@wdc.com>
+ <20210624172256.37177-2-Niklas.Cassel@wdc.com>
+ <YNTmZ3y8r+/DXyds@localhost.localdomain>
+In-Reply-To: <YNTmZ3y8r+/DXyds@localhost.localdomain>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <EB9CD73E90D1A349AE0294CA21648E3D@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-Recent commit d2f442bc0bd5 ("ioengines: add get_max_open_zones zoned
-block device operation") modified fio to compare --max_open_zones option
-value and max_open_zones reported by the device. The device limit is
-fetched through sysfs or through an ioengine specific implementation.
+On Thu, Jun 24, 2021 at 11:09:11PM +0300, Alexey Dobriyan wrote:
+> On Thu, Jun 24, 2021 at 05:23:07PM +0000, Niklas Cassel wrote:
+> > +	struct zoned_block_device_info *zbdi =3D f->zbd_info;
+>=20
+> It is unrelated to the patch. But! It is impossible to type
+> "zoned_block_device_info" without autocompletion.
+>=20
+> Can it be renamed just to=20
+>=20
+> 	struct zbd * const zbd =3D f->zbd_info;
+>=20
+> "info" is kind of information free word, too.
 
-The test script currently try to fetch the max open zones limit using
-libzbc tools or sg_inq. If either of these fail, default value 128 is
-supplied. This default value can be too high when the test script is
-run for certain zoned block devices, and can therefore result in fio
-error and test case failure.
+Hello Alexey!
 
-To avoid the failure, modify the default value used in the test script
-from 128 to 0. With this, --max_open_zones=0 is passed to fio, and it
-makes fio use the max_open_zones reported by the device. Also add
-comments to describe why the test script gets max_open_zones with tools.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/functions | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+Like you say, such a change seems unrelated to this patch.
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 40ffe1de..08a2c629 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -173,15 +173,23 @@ last_online_zone() {
-     fi
- }
- 
-+# Get max_open_zones of SMR drives using sg_inq or libzbc tools. Two test cases
-+# 31 and 32 use this max_open_zones value. The test case 31 uses max_open_zones
-+# to decide number of write target zones. The test case 32 passes max_open_zones
-+# value to fio with --max_open_zones option. Of note is that fio itself has the
-+# feature to get max_open_zones from the device through sysfs or ioengine
-+# specific implementation. This max_open_zones fetch by test script is required
-+# in case fio is running on an old Linux kernel version which lacks
-+# max_open_zones in sysfs, or which lacks zoned block device support completely.
- max_open_zones() {
-     local dev=$1
- 
-     if [ -n "${sg_inq}" ] && [ ! -n "${use_libzbc}" ]; then
- 	if ! ${sg_inq} -e --page=0xB6 --len=20 --hex "$dev" \
- 		 > /dev/null 2>&1; then
--	    # Non scsi device such as null_blk can not return max open zones.
--	    # Use default value.
--	    echo 128
-+	    # When sg_inq can not get max open zones, specify 0 which indicates
-+	    # fio to get max open zones limit from the device.
-+	    echo 0
- 	else
- 	    ${sg_inq} -e --page=0xB6 --len=20 --hex "$dev" | tail -1 |
- 		{
--- 
-2.31.1
+Feel free to send out a patch that renames struct zoned_block_device_info
+to something else.
+(Although, you might want to wait until this series has been merged.)
 
+If we were to rename the struct, I personally think that "struct zbd_info"
+is a better name than just "struct zbd".
+
+
+Kind regards,
+Niklas=
 
