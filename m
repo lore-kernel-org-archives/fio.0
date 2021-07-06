@@ -1,8 +1,8 @@
 Return-Path: <prvs=81407a9e8=damien.lemoal@wdc.com>
 From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 01/11] manpage: fix formatting
-Date: Tue,  6 Jul 2021 09:17:33 +0900
-Message-Id: <20210706001743.10818-2-damien.lemoal@wdc.com>
+Subject: [PATCH 02/11] manpage: fix definition of prio and prioclass options
+Date: Tue,  6 Jul 2021 09:17:34 +0900
+Message-Id: <20210706001743.10818-3-damien.lemoal@wdc.com>
 In-Reply-To: <20210706001743.10818-1-damien.lemoal@wdc.com>
 References: <20210706001743.10818-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
@@ -11,54 +11,36 @@ To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-For ioengine options supported by multiple ioengines, remove spaces
-after commas in the ioengine list to have troff correctly format in bold
-the entire ioengine list and option name. Also add "=int" indicators
-missing for some options.
+Remove the reference to the hipri_percentage option in the definition of
+the prio and prioclass options as hipri_percentage controls the use of
+RWF_HIPRI flag which triggers I/O completion polling, which is unrelated
+with I/O priority (polling and I/O priority can be used together).
 
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
- fio.1 | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fio.1 | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/fio.1 b/fio.1
-index 5aa54a4d..1101a75d 100644
+index 1101a75d..d9a3593e 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -1918,7 +1918,7 @@ In addition, there are some parameters which are only valid when a specific
- with the caveat that when used on the command line, they must come after the
- \fBioengine\fR that defines them is selected.
+@@ -2624,13 +2624,11 @@ Set the I/O priority value of this job. Linux limits us to a positive value
+ between 0 and 7, with 0 being the highest. See man
+ \fBionice\fR\|(1). Refer to an appropriate manpage for other operating
+ systems since meaning of priority may differ. For per-command priority
+-setting, see I/O engine specific `cmdprio_percentage` and `hipri_percentage`
+-options.
++setting, see the I/O engine specific `cmdprio_percentage` option.
  .TP
--.BI (io_uring, libaio)cmdprio_percentage \fR=\fPint
-+.BI (io_uring,libaio)cmdprio_percentage \fR=\fPint
- Set the percentage of I/O that will be issued with higher priority by setting
- the priority bit. Non-read I/O is likely unaffected by ``cmdprio_percentage``.
- This option cannot be used with the `prio` or `prioclass` options. For this
-@@ -1999,20 +1999,20 @@ Detect when I/O threads are done, then exit.
- .BI (libhdfs)namenode \fR=\fPstr
- The hostname or IP address of a HDFS cluster namenode to contact.
+ .BI prioclass \fR=\fPint
+ Set the I/O priority class. See man \fBionice\fR\|(1). For per-command
+-priority setting, see I/O engine specific `cmdprio_percentage` and `hipri_percent`
+-options.
++priority setting, see the I/O engine specific `cmdprio_percentage` option.
  .TP
--.BI (libhdfs)port
-+.BI (libhdfs)port \fR=\fPint
- The listening port of the HFDS cluster namenode.
- .TP
--.BI (netsplice,net)port
-+.BI (netsplice,net)port \fR=\fPint
- The TCP or UDP port to bind to or connect to. If this is used with
- \fBnumjobs\fR to spawn multiple instances of the same job type, then
- this will be the starting port number since fio will use a range of
- ports.
- .TP
--.BI (rdma, librpma_*)port
-+.BI (rdma,librpma_*)port \fR=\fPint
- The port to use for RDMA-CM communication. This should be the same
- value on the client and the server side.
- .TP
--.BI (netsplice,net, rdma)hostname \fR=\fPstr
-+.BI (netsplice,net,rdma)hostname \fR=\fPstr
- The hostname or IP address to use for TCP, UDP or RDMA-CM based I/O.
- If the job is a TCP listener or UDP reader, the hostname is not used
- and must be omitted unless it is a valid UDP multicast address.
+ .BI cpus_allowed \fR=\fPstr
+ Controls the same options as \fBcpumask\fR, but accepts a textual
 -- 
 2.31.1
 
