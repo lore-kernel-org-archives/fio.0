@@ -1,8 +1,8 @@
 Return-Path: <prvs=81407a9e8=damien.lemoal@wdc.com>
 From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 09/11] libaio: relax cdmprio_percentage constraints
-Date: Tue,  6 Jul 2021 09:17:41 +0900
-Message-Id: <20210706001743.10818-10-damien.lemoal@wdc.com>
+Subject: [PATCH 04/11] os: introduce ioprio_value() helper
+Date: Tue,  6 Jul 2021 09:17:36 +0900
+Message-Id: <20210706001743.10818-5-damien.lemoal@wdc.com>
 In-Reply-To: <20210706001743.10818-1-damien.lemoal@wdc.com>
 References: <20210706001743.10818-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
@@ -11,109 +11,142 @@ To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc: Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-When an AIO is issued without a priority set, Linux kernel will execute
-it using the issuing context IO priority set with ioprio_set(). In fio,
-a job IO priority is controlled with the prioclass and prio options and
-these options cannot be used together with the cmdprio_percentage
-option.
+Introduce the ioprio_value() helper function to calculate a priority
+value based on a priority class and priority level. For Linux and
+Android, this is defined as an integer equal to the priority class
+shifted left by 13 bits and or-ed with the priority level. For
+Dragonfly, ioprio_value() simply return the priority level as their is
+no concept of priority class.
 
-Allow a user to have AIO priorities to default to the job defined IO
-priority by removing the mutual exclusion between the options
-cmdprio_percentage and prioclass/prio.
-
-With the introduction of the aioprioclass option, an AIO priority may be
-lower than the job default priority, resulting in reversed clat
-statistics showed for high and low priority IOs when fio completes.
-Solve this by setting an io_u IO_U_F_PRIORITY flag depending on a
-comparison between the aio priority and job default IO priority. The job
-default IO priority is added as the ioprio field in struct thread_data
-for convenience, avoiding referencing the job options for every IO.
+Use this new helper in the io_uring and libaio engines to set IO
+priority when the cmdprio_percentage option is used.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
- backend.c        |  1 +
- engines/libaio.c | 28 ++++++++++++++++------------
- fio.h            |  5 +++++
- 3 files changed, 22 insertions(+), 12 deletions(-)
+ engines/io_uring.c |  2 +-
+ engines/libaio.c   |  2 +-
+ os/os-android.h    | 19 ++++++++++++-------
+ os/os-dragonfly.h  |  1 +
+ os/os-linux.h      | 19 ++++++++++++-------
+ os/os.h            |  1 +
+ 6 files changed, 28 insertions(+), 16 deletions(-)
 
-diff --git a/backend.c b/backend.c
-index 6290e0d6..ff53e8b5 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1760,6 +1760,7 @@ static void *thread_main(void *data)
- 			td_verror(td, errno, "ioprio_set");
- 			goto err;
- 		}
-+		td->ioprio = ioprio_value(o->ioprio_class, o->ioprio);
- 	}
- 
- 	if (o->cgroup && cgroup_setup(td, cgroup_list, &cgroup_mnt))
-diff --git a/engines/libaio.c b/engines/libaio.c
-index e0f8a3d3..c0cbf97b 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -282,13 +282,26 @@ static int fio_libaio_need_prio(struct libaio_options *o, struct io_u *io_u)
- static void fio_libaio_prio_prep(struct thread_data *td, struct io_u *io_u)
- {
- 	struct libaio_options *o = td->eo;
--	enum fio_ddir ddir = io_u->ddir;
- 	unsigned int p = fio_libaio_need_prio(o, io_u);
-+	enum fio_ddir ddir = io_u->ddir;
-+	unsigned int aioprio =
-+		ioprio_value(o->aioprio_class[ddir], o->aioprio[ddir]);
- 
- 	if (p && rand_between(&td->prio_state, 0, 99) < p) {
--		io_u->iocb.aio_reqprio =
--			ioprio_value(o->aioprio_class[ddir], o->aioprio[ddir]);
-+		io_u->iocb.aio_reqprio = aioprio;
- 		io_u->iocb.u.c.flags |= IOCB_FLAG_IOPRIO;
-+		if (!td->ioprio || aioprio < td->ioprio) {
-+			/*
-+			 * The AIO priortity is higher than the default context
-+			 * priority.
-+			 */
-+			io_u->flags |= IO_U_F_PRIORITY;
-+		}
-+	} else if (td->ioprio && td->ioprio < aioprio) {
-+		/*
-+		 * The IO will be executed with the default context priority
-+		 * and it is higher than the aio priority.
-+		 */
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 9c091e37..1ab1406f 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -381,7 +381,7 @@ static void fio_ioring_prio_prep(struct thread_data *td, struct io_u *io_u)
+ 	struct ioring_options *o = td->eo;
+ 	struct ioring_data *ld = td->io_ops_data;
+ 	if (rand_between(&td->prio_state, 0, 99) < o->cmdprio_percentage) {
+-		ld->sqes[io_u->index].ioprio = IOPRIO_CLASS_RT << IOPRIO_CLASS_SHIFT;
++		ld->sqes[io_u->index].ioprio = ioprio_value(IOPRIO_CLASS_RT, 0);
  		io_u->flags |= IO_U_F_PRIORITY;
  	}
- }
-@@ -605,15 +618,6 @@ static int fio_libaio_init(struct thread_data *td)
- 		td_verror(td, EINVAL, "fio_libaio_init");
- 		return 1;
+ 	return;
+diff --git a/engines/libaio.c b/engines/libaio.c
+index b909b79e..b12b6ffc 100644
+--- a/engines/libaio.c
++++ b/engines/libaio.c
+@@ -136,7 +136,7 @@ static void fio_libaio_prio_prep(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct libaio_options *o = td->eo;
+ 	if (rand_between(&td->prio_state, 0, 99) < o->cmdprio_percentage) {
+-		io_u->iocb.aio_reqprio = IOPRIO_CLASS_RT << IOPRIO_CLASS_SHIFT;
++		io_u->iocb.aio_reqprio = ioprio_value(IOPRIO_CLASS_RT, 0);
+ 		io_u->iocb.u.c.flags |= IOCB_FLAG_IOPRIO;
+ 		io_u->flags |= IO_U_F_PRIORITY;
  	}
--	if (p &&
--	    (fio_option_is_set(to, ioprio) ||
--	     fio_option_is_set(to, ioprio_class))) {
--		log_err("%s: cmdprio_percentage option and mutually exclusive "
--			"prio or prioclass option is set, exiting\n",
--			to->name);
--		td_verror(td, EINVAL, "fio_libaio_init");
--		return 1;
--	}
+diff --git a/os/os-android.h b/os/os-android.h
+index a81cd815..6801b8a8 100644
+--- a/os/os-android.h
++++ b/os/os-android.h
+@@ -173,16 +173,21 @@ enum {
+ #define IOPRIO_MIN_PRIO_CLASS	0
+ #define IOPRIO_MAX_PRIO_CLASS	3
  
- 	ld->use_aioprio = p || nr_aioprio_bssplits;
- 
-diff --git a/fio.h b/fio.h
-index 83334652..fa7e42dd 100644
---- a/fio.h
-+++ b/fio.h
-@@ -274,6 +274,11 @@ struct thread_data {
- 
- 	int shm_id;
- 
-+	/*
-+	 * Job default IO priority set with prioclass and prio options.
-+	 */
-+	unsigned int ioprio;
-+
+-static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
++static inline int ioprio_value(int ioprio_class, int ioprio)
+ {
  	/*
- 	 * IO engine hooks, contains everything needed to submit an io_u
- 	 * to any of the available IO engines.
+-	 * If no class is set, assume BE
+-	 */
+-	if (!ioprio_class)
+-		ioprio_class = IOPRIO_CLASS_BE;
++         * If no class is set, assume BE
++         */
++        if (!ioprio_class)
++                ioprio_class = IOPRIO_CLASS_BE;
++
++	return (ioprio_class << IOPRIO_CLASS_SHIFT) | ioprio;
++}
+ 
+-	ioprio |= ioprio_class << IOPRIO_CLASS_SHIFT;
+-	return syscall(__NR_ioprio_set, which, who, ioprio);
++static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
++{
++	return syscall(__NR_ioprio_set, which, who,
++		       ioprio_value(ioprio_class, ioprio));
+ }
+ 
+ #ifndef BLKGETSIZE64
+diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+index 6e465894..5b37a37e 100644
+--- a/os/os-dragonfly.h
++++ b/os/os-dragonfly.h
+@@ -171,6 +171,7 @@ static inline int fio_getaffinity(int pid, os_cpu_mask_t *mask)
+  * ioprio_set() with 4 arguments, so define fio's ioprio_set() as a macro.
+  * Note that there is no idea of class within ioprio_set(2) unlike Linux.
+  */
++#define ioprio_value(ioprio_class, ioprio)	(ioprio)
+ #define ioprio_set(which, who, ioprio_class, ioprio)	\
+ 	ioprio_set(which, who, ioprio)
+ 
+diff --git a/os/os-linux.h b/os/os-linux.h
+index f7137abe..87bed43b 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -120,16 +120,21 @@ enum {
+ #define IOPRIO_MIN_PRIO_CLASS	0
+ #define IOPRIO_MAX_PRIO_CLASS	3
+ 
+-static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
++static inline int ioprio_value(int ioprio_class, int ioprio)
+ {
+ 	/*
+-	 * If no class is set, assume BE
+-	 */
+-	if (!ioprio_class)
+-		ioprio_class = IOPRIO_CLASS_BE;
++         * If no class is set, assume BE
++         */
++        if (!ioprio_class)
++                ioprio_class = IOPRIO_CLASS_BE;
++
++	return (ioprio_class << IOPRIO_CLASS_SHIFT) | ioprio;
++}
+ 
+-	ioprio |= ioprio_class << IOPRIO_CLASS_SHIFT;
+-	return syscall(__NR_ioprio_set, which, who, ioprio);
++static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
++{
++	return syscall(__NR_ioprio_set, which, who,
++		       ioprio_value(ioprio_class, ioprio));
+ }
+ 
+ #ifndef CONFIG_HAVE_GETTID
+diff --git a/os/os.h b/os/os.h
+index e47d3d97..7bf7c53c 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -118,6 +118,7 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
+ #endif
+ 
+ #ifndef FIO_HAVE_IOPRIO
++#define ioprio_value(prioclass, prio)	(0)
+ #define ioprio_set(which, who, prioclass, prio)	(0)
+ #endif
+ 
 -- 
 2.31.1
 
