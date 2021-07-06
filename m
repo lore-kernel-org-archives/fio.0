@@ -1,304 +1,220 @@
-Return-Path: <prvs=81407a9e8=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 07/11] libaio: introduce aioprio and aioprioclass options
-Date: Tue,  6 Jul 2021 09:17:39 +0900
-Message-Id: <20210706001743.10818-8-damien.lemoal@wdc.com>
-In-Reply-To: <20210706001743.10818-1-damien.lemoal@wdc.com>
-References: <20210706001743.10818-1-damien.lemoal@wdc.com>
+Return-Path: <prvs=8148fed87=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/4] zbd: Support zone reset by trim
+Date: Tue,  6 Jul 2021 09:59:24 +0900
+Message-Id: <20210706005926.303890-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210706005926.303890-1-shinichiro.kawasaki@wdc.com>
+References: <20210706005926.303890-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-When the cmdprio_percentage option is used, the specified percentage of
-IO will be issued with the highest priority class IOPRIO_CLASS_RT. This
-priority class maps to the ATA NCQ "high" priority level and allows
-exercising a SATA device to measure its command latency characteristics
-in the presence of low and high priority commands.
+Enable trim workload for zonemode=zbd by modifying do_io_u_trim() to
+call zoned block device unique function zbd_do_io_u_trim() which resets
+target zone. This allows fio to emulate workloads which mix data
+read/write and zone resets with zonemode=zbd.
 
-Beside ATA NCQ commands, Linux block IO schedulers also support IO
-priorities and will behave differently in the presence of IOs with
-different IO priority classes and values. However, cmdprio_percentage
-does not allow specifying all possible priority classes and values.
+To call reset zones, the trim I/O shall have offset aligned to zone
+start and block size same as zone size. Reset zone is called only to
+sequential write required zones and sequential write preferred zones.
+Conventional zones are handled in same manner as regular block devices
+by calling os_trim() function.
 
-To solve this, introduce the libaio engine specific options
-aioprioclass and aioprio. These new options are the equivalent of the
-prio and prioclass options and allow specifying the priority class and
-priority value to use for asynchronous I/Os when the aioprio_percentage
-option is used. If not specified, the I/O priority class defaults to
-IOPRIO_CLASS_RT and the I/O priority value to 0, as before. Similarly
-to the cmdprio_percentage option, these options can specify different
-values for reads and writes using a comma separated list.
+When zones are reset with random trim workload, choose only non-empty
+zones as trim target. This avoids meaningless trim to empty zones and
+makes the workload more realistic. To find the non-empty zones, utilize
+zbd_find_zone() helper function which is already used for read workload,
+specifying 1 byte as the minimum valid data size.
 
-To allow scripts to be written with a consistent set of option names,
-add the aioprio_percentage alias for the cmdprio_percentage option.
-
-The manpage, HOWTO and fiograph configuration file are updated to
-document these new options.
-
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- HOWTO                        | 32 ++++++++++++++--
- engines/libaio.c             | 71 +++++++++++++++++++++++++++++++-----
- fio.1                        | 27 +++++++++++++-
- tools/fiograph/fiograph.conf |  2 +-
- 4 files changed, 115 insertions(+), 17 deletions(-)
+ HOWTO  |  3 +++
+ fio.1  |  2 ++
+ io_u.c |  9 ++++++++
+ zbd.c  | 71 ++++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ zbd.h  |  2 ++
+ 5 files changed, 83 insertions(+), 4 deletions(-)
 
 diff --git a/HOWTO b/HOWTO
-index 36ad8176..aaf87d95 100644
+index 86fb2964..1e584645 100644
 --- a/HOWTO
 +++ b/HOWTO
-@@ -2162,6 +2162,30 @@ with the caveat that when used on the command line, they must come after the
- 	When :option:`sqthread_poll` is set, this option provides a way to
- 	define which CPU should be used for the polling thread.
+@@ -992,6 +992,9 @@ Target file/device
+ 				single zone. The :option:`zoneskip` parameter
+ 				is ignored. :option:`zonerange` and
+ 				:option:`zonesize` must be identical.
++				Trim is handled using a zone reset operation.
++				Trim only considers non-empty sequential write
++				required and sequential write preferred zones.
  
-+.. option:: aioprio_percentage=int[,int] : [libaio]
-+
-+	Alias for :option:`cmdprio_percentage`.
-+
-+.. option:: aioprioclass=int[,int] : [libaio]
-+
-+	Set the I/O priority class to use for I/Os that must be issued with
-+	a priority when :option:`aioprio_percentage` is set. If not specified
-+	when :option:`aioprio_percentage` is set, this defaults to the highest
-+	priority class. A single value applies to reads and writes.
-+	Comma-separated values may be specified for reads and writes.See
-+	:manpage:`ionice(1)`. See also the :option:`prioclass` option.
-+
-+.. option:: aioprio=int[,int] : [libaio]
-+
-+	Set the I/O priority value to use for I/Os that must be issued with
-+	a priority when :option:`aioprio_percentage` is set. If not specified
-+	when :option:`aioprio_percentage` is set, this defaults to 0.
-+	Linux limits us to a positive value between 0 and 7, with 0 being the
-+	highest. A single value applies to reads and writes. Comma-separated
-+	values may be specified for reads and writes. See :manpage:`ionice(1)`.
-+	Refer to an appropriate manpage for other operating systems since
-+	meaning of priority may differ. See also the :option:`prio` option.
-+
- .. option:: userspace_reap : [libaio]
+ .. option:: zonerange=int
  
- 	Normally, with the libaio engine in use, fio will use the
-@@ -2906,14 +2930,14 @@ Threads, processes and job synchronization
- 	between 0 and 7, with 0 being the highest.  See man
- 	:manpage:`ionice(1)`. Refer to an appropriate manpage for other operating
- 	systems since meaning of priority may differ. For per-command priority
--	setting, see I/O engine specific `cmdprio_percentage` and `hipri_percentage`
--	options.
-+	setting, see I/O engine specific :option:`cmdprio_percentage`,
-+	:option:`aioprio` and :option:`hipri_percentage` options.
- 
- .. option:: prioclass=int
- 
- 	Set the I/O priority class. See man :manpage:`ionice(1)`. For per-command
--	priority setting, see I/O engine specific `cmdprio_percentage` and
--	`hipri_percentage` options.
-+	priority setting, see I/O engine specific :option:`cmdprio_percentage`,
-+	:option:`aioprioclass` and :option:`hipri_percentage` options.
- 
- .. option:: cpus_allowed=str
- 
-diff --git a/engines/libaio.c b/engines/libaio.c
-index 1e997cce..96f799de 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -55,7 +55,9 @@ struct libaio_data {
- struct libaio_options {
- 	void *pad;
- 	unsigned int userspace_reap;
--	unsigned int cmdprio_percentage[DDIR_RWDIR_CNT];
-+	unsigned int aioprio_percentage[DDIR_RWDIR_CNT];
-+	unsigned int aioprio_class[DDIR_RWDIR_CNT];
-+	unsigned int aioprio[DDIR_RWDIR_CNT];
- 	unsigned int nowait;
- };
- 
-@@ -72,16 +74,43 @@ static struct fio_option options[] = {
- #ifdef FIO_HAVE_IOPRIO_CLASS
- 	{
- 		.name	= "cmdprio_percentage",
-+		.alias	= "aioprio_percentage",
- 		.lname	= "high priority percentage",
- 		.type	= FIO_OPT_INT,
--		.off1	= offsetof(struct libaio_options, cmdprio_percentage[DDIR_READ]),
--		.off2	= offsetof(struct libaio_options, cmdprio_percentage[DDIR_WRITE]),
-+		.off1	= offsetof(struct libaio_options, aioprio_percentage[DDIR_READ]),
-+		.off2	= offsetof(struct libaio_options, aioprio_percentage[DDIR_WRITE]),
- 		.minval	= 0,
- 		.maxval	= 100,
- 		.help	= "Send high priority I/O this percentage of the time",
- 		.category = FIO_OPT_C_ENGINE,
- 		.group	= FIO_OPT_G_LIBAIO,
- 	},
-+	{
-+		.name	= "aioprioclass",
-+		.lname	= "Asynchronous I/O priority class",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct libaio_options, aioprio_class[DDIR_READ]),
-+		.off2	= offsetof(struct libaio_options, aioprio_class[DDIR_WRITE]),
-+		.help	= "Set asynchronous IO priority class",
-+		.minval	= IOPRIO_MIN_PRIO_CLASS + 1,
-+		.maxval	= IOPRIO_MAX_PRIO_CLASS,
-+		.interval = 1,
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_CRED,
-+	},
-+	{
-+		.name	= "aioprio",
-+		.lname	= "Asynchronous I/O priority value",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct libaio_options, aioprio[DDIR_READ]),
-+		.off2	= offsetof(struct libaio_options, aioprio[DDIR_WRITE]),
-+		.help	= "Set asynchronous IO priority value",
-+		.minval	= IOPRIO_MIN_PRIO,
-+		.maxval	= IOPRIO_MAX_PRIO,
-+		.interval = 1,
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_CRED,
-+	},
- #else
- 	{
- 		.name	= "cmdprio_percentage",
-@@ -89,6 +118,18 @@ static struct fio_option options[] = {
- 		.type	= FIO_OPT_UNSUPPORTED,
- 		.help	= "Your platform does not support I/O priority classes",
- 	},
-+		{
-+		.name	= "aioprioclass",
-+		.lname	= "Asynchronous I/O priority class",
-+		.type	= FIO_OPT_UNSUPPORTED,
-+		.help	= "Your platform does not support I/O priority classes",
-+	},
-+	{
-+		.name	= "aioprio",
-+		.lname	= "Asynchronous I/O priority level",
-+		.type	= FIO_OPT_UNSUPPORTED,
-+		.help	= "Your platform does not support I/O priority classes",
-+	},
- #endif
- 	{
- 		.name	= "nowait",
-@@ -136,10 +177,12 @@ static int fio_libaio_prep(struct thread_data *td, struct io_u *io_u)
- static void fio_libaio_prio_prep(struct thread_data *td, struct io_u *io_u)
- {
- 	struct libaio_options *o = td->eo;
--	unsigned int p = o->cmdprio_percentage[io_u->ddir];
-+	enum fio_ddir ddir = io_u->ddir;
-+	unsigned int p = o->aioprio_percentage[ddir];
- 
- 	if (p && rand_between(&td->prio_state, 0, 99) < p) {
--		io_u->iocb.aio_reqprio = ioprio_value(IOPRIO_CLASS_RT, 0);
-+		io_u->iocb.aio_reqprio =
-+			ioprio_value(o->aioprio_class[ddir], o->aioprio[ddir]);
- 		io_u->iocb.u.c.flags |= IOCB_FLAG_IOPRIO;
- 		io_u->flags |= IO_U_F_PRIORITY;
- 	}
-@@ -279,7 +322,7 @@ static enum fio_q_status fio_libaio_queue(struct thread_data *td,
- 		return FIO_Q_COMPLETED;
- 	}
- 
--	if (o->cmdprio_percentage[io_u->ddir])
-+	if (o->aioprio_percentage[io_u->ddir])
- 		fio_libaio_prio_prep(td, io_u);
- 
- 	ld->iocbs[ld->head] = &io_u->iocb;
-@@ -421,10 +464,10 @@ static int fio_libaio_post_init(struct thread_data *td)
- 
- static int fio_libaio_init(struct thread_data *td)
- {
-+	struct libaio_options *o = td->eo;
- 	struct libaio_data *ld;
- 	struct thread_options *to = &td->o;
--	struct libaio_options *o = td->eo;
--	int p;
-+	int i, p = 0;
- 
- 	ld = calloc(1, sizeof(*ld));
- 
-@@ -436,11 +479,19 @@ static int fio_libaio_init(struct thread_data *td)
- 
- 	td->io_ops_data = ld;
- 
-+	/*
-+	 * If aioprio_percentage is set and aioprio_class is not set,
-+	 * default to RT priority class.
-+	 */
-+	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-+		if (o->aioprio_percentage[i] && !o->aioprio_class[i])
-+			o->aioprio_class[i] = IOPRIO_CLASS_RT;
-+		p += o->aioprio_percentage[i];
-+	}
-+
- 	/*
- 	 * Check for option conflicts
- 	 */
--	p = o->cmdprio_percentage[DDIR_READ] +
--		o->cmdprio_percentage[DDIR_WRITE];
- 	if (p &&
- 	    (fio_option_is_set(to, ioprio) ||
- 	     fio_option_is_set(to, ioprio_class))) {
 diff --git a/fio.1 b/fio.1
-index a4b2deb1..0f4b9ff7 100644
+index 5aa54a4d..1fab3a6f 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -1955,6 +1955,27 @@ the cost of using more CPU in the system.
- When `sqthread_poll` is set, this option provides a way to define which CPU
- should be used for the polling thread.
+@@ -766,6 +766,8 @@ starts. The \fBzonecapacity\fR parameter is ignored.
+ Zoned block device mode. I/O happens sequentially in each zone, even if random
+ I/O has been selected. Random I/O happens across all zones instead of being
+ restricted to a single zone.
++Trim is handled using a zone reset operation. Trim only considers non-empty
++sequential write required and sequential write preferred zones.
+ .RE
+ .RE
  .TP
-+.BI (libaio)aioprio_percentage \fR=\fPint[,int]
-+Alias for \fBcmdprio_percentage\fR.
-+.TP
-+.BI (libaio)aioprioclass \fR=\fPint[,int]
-+Set the I/O priority class to use for I/Os that must be issued with a
-+priority when \fBaioprio_percentage\fR is set. If not specified when
-+\fBaioprio_percentage\fR is set, this defaults to the highest priority
-+class. A single value applies to reads and writes. Comma-separated
-+values may be specified for reads and writes. See man \fBionice\fR\|(1).
-+See also the \fBprioclass\fR option.
-+.TP
-+.BI (libaio)aioprio \fR=\fPint[,int]
-+Set the I/O priority value to use for I/Os that must be issued with a
-+priority when \fBaioprio_percentage\fR is set. If not specified when
-+\fBaioprio_percentage\fR is set, this defaults to 0. Linux limits us to
-+a positive value between 0 and 7, with 0 being the highest. A single
-+value applies to reads and writes. Comma-separated values may be specified
-+for reads and writes. See man \fBionice\fR\|(1). Refer to an appropriate
-+manpage for other operating systems since the meaning of priority may differ.
-+See also the \fBprio\fR option.
-+.TP
- .BI (libaio)userspace_reap
- Normally, with the libaio engine in use, fio will use the
- \fBio_getevents\fR\|(3) system call to reap newly returned events. With
-@@ -2624,11 +2645,13 @@ Set the I/O priority value of this job. Linux limits us to a positive value
- between 0 and 7, with 0 being the highest. See man
- \fBionice\fR\|(1). Refer to an appropriate manpage for other operating
- systems since meaning of priority may differ. For per-command priority
--setting, see the I/O engine specific `cmdprio_percentage` option.
-+setting, see the I/O engine specific `cmdprio_percentage` and
-+`aioprio` options.
- .TP
- .BI prioclass \fR=\fPint
- Set the I/O priority class. See man \fBionice\fR\|(1). For per-command
--priority setting, see the I/O engine specific `cmdprio_percentage` option.
-+priority setting, see the I/O engine specific `cmdprio_percentage` and
-+`aioprioclass` options.
- .TP
- .BI cpus_allowed \fR=\fPstr
- Controls the same options as \fBcpumask\fR, but accepts a textual
-diff --git a/tools/fiograph/fiograph.conf b/tools/fiograph/fiograph.conf
-index 1d50d141..7f0434d5 100644
---- a/tools/fiograph/fiograph.conf
-+++ b/tools/fiograph/fiograph.conf
-@@ -51,7 +51,7 @@ specific_options=ime_psync  ime_psyncv
- specific_options=hipri  cmdprio_percentage  fixedbufs  registerfiles  sqthread_poll  sqthread_poll_cpu  nonvectored  uncached  nowait  force_async
+diff --git a/io_u.c b/io_u.c
+index b421a579..ccbc4974 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -2299,10 +2299,19 @@ int do_io_u_trim(const struct thread_data *td, struct io_u *io_u)
+ 	struct fio_file *f = io_u->file;
+ 	int ret;
  
- [ioengine_libaio]
--specific_options=userspace_reap  cmdprio_percentage  nowait
-+specific_options=userspace_reap  cmdprio_percentage  aioprio_percentage  nowait aioprioclass aioprio
++	if (td->o.zone_mode == ZONE_MODE_ZBD) {
++		ret = zbd_do_io_u_trim(td, io_u);
++		if (ret == io_u_completed)
++			return io_u->xfer_buflen;
++		if (ret)
++			goto err;
++	}
++
+ 	ret = os_trim(f, io_u->offset, io_u->xfer_buflen);
+ 	if (!ret)
+ 		return io_u->xfer_buflen;
  
- [ioengine_libcufile]
- specific_options=gpu_dev_ids  cuda_io
++err:
+ 	io_u->error = ret;
+ 	return 0;
+ #endif
+diff --git a/zbd.c b/zbd.c
+index f10b3267..39060ecd 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -375,12 +375,24 @@ static bool zbd_verify_bs(void)
+ 	int i, j, k;
+ 
+ 	for_each_td(td, i) {
++		if (td_trim(td) &&
++		    (td->o.min_bs[DDIR_TRIM] != td->o.max_bs[DDIR_TRIM] ||
++		     td->o.bssplit_nr[DDIR_TRIM])) {
++			log_info("bsrange and bssplit is not allowed for trim with zonemode=zbd\n");
++			return false;
++		}
+ 		for_each_file(td, f, j) {
+ 			uint64_t zone_size;
+ 
+ 			if (!f->zbd_info)
+ 				continue;
+ 			zone_size = f->zbd_info->zone_size;
++			if (td_trim(td) && td->o.bs[DDIR_TRIM] != zone_size) {
++				log_info("%s: trim block size %llu is not the zone size %llu\n",
++					 f->file_name, td->o.bs[DDIR_TRIM],
++					 (unsigned long long)zone_size);
++				return false;
++			}
+ 			for (k = 0; k < FIO_ARRAY_SIZE(td->o.bs); k++) {
+ 				if (td->o.verify != VERIFY_NONE &&
+ 				    zone_size % td->o.bs[k] != 0) {
+@@ -1528,9 +1540,6 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
+ 		pthread_mutex_unlock(&zbd_info->mutex);
+ 		z->wp = zone_end;
+ 		break;
+-	case DDIR_TRIM:
+-		assert(z->wp == z->start);
+-		break;
+ 	default:
+ 		break;
+ 	}
+@@ -1910,8 +1919,23 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 			(zbd_zone_capacity_end(zb) - io_u->offset), min_bs);
+ 		goto eof;
+ 	case DDIR_TRIM:
+-		/* fall-through */
++		/* Check random trim targets a non-empty zone */
++		if (!td_random(td) || zb->wp > zb->start)
++			goto accept;
++
++		/* Find out a non-empty zone to trim */
++		zone_unlock(zb);
++		zl = get_zone(f, f->max_zone);
++		zb = zbd_find_zone(td, io_u, 1, zb, zl);
++		if (zb) {
++			io_u->offset = zb->start;
++			dprint(FD_ZBD, "%s: found new zone(%lld) for trim\n",
++			       f->file_name, io_u->offset);
++			goto accept;
++		}
++		goto eof;
+ 	case DDIR_SYNC:
++		/* fall-through */
+ 	case DDIR_DATASYNC:
+ 	case DDIR_SYNC_FILE_RANGE:
+ 	case DDIR_WAIT:
+@@ -1952,3 +1976,42 @@ char *zbd_write_status(const struct thread_stat *ts)
+ 		return NULL;
+ 	return res;
+ }
++
++/**
++ * zbd_do_io_u_trim - If reset zone is applicable, do reset zone instead of trim
++ *
++ * @td: FIO thread data.
++ * @io_u: FIO I/O unit.
++ *
++ * It is assumed that z->mutex is already locked.
++ * Return io_u_completed when reset zone succeeds. Return 0 when the target zone
++ * does not have write pointer. On error, return negative errno.
++ */
++int zbd_do_io_u_trim(const struct thread_data *td, struct io_u *io_u)
++{
++	struct fio_file *f = io_u->file;
++	struct fio_zone_info *z;
++	uint32_t zone_idx;
++	int ret;
++
++	zone_idx = zbd_zone_idx(f, io_u->offset);
++	z = get_zone(f, zone_idx);
++
++	if (!z->has_wp)
++		return 0;
++
++	if (io_u->offset != z->start) {
++		log_err("Trim offset not at zone start (%lld)\n", io_u->offset);
++		return -EINVAL;
++	}
++
++	/*
++	 * Cast td to drop const modifier so that zbd_reset_zone() can change td
++	 * members.
++	 */
++	ret = zbd_reset_zone((struct thread_data *)td, f, z);
++	if (ret < 0)
++		return ret;
++
++	return io_u_completed;
++}
+diff --git a/zbd.h b/zbd.h
+index 39dc45e3..0a73b41d 100644
+--- a/zbd.h
++++ b/zbd.h
+@@ -17,6 +17,7 @@ struct fio_file;
+ enum io_u_action {
+ 	io_u_accept	= 0,
+ 	io_u_eof	= 1,
++	io_u_completed  = 2,
+ };
+ 
+ /**
+@@ -99,6 +100,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
+ 			      enum fio_ddir ddir);
+ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
+ char *zbd_write_status(const struct thread_stat *ts);
++int zbd_do_io_u_trim(const struct thread_data *td, struct io_u *io_u);
+ 
+ static inline void zbd_close_file(struct fio_file *f)
+ {
 -- 
 2.31.1
 
