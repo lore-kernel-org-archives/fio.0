@@ -1,40 +1,44 @@
-Return-Path: <prvs=8148fed87=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 0/4] zbd: Support zone reset by trim
-Date: Tue,  6 Jul 2021 09:59:22 +0900
-Message-Id: <20210706005926.303890-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH] Makefile: use override directive on engine CFLAGS
+References: <20210706172700.189584-1-stefanha@redhat.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <dc2b5428-3af3-db12-b9a0-529f8bac0b87@kernel.dk>
+Date: Wed, 7 Jul 2021 07:06:27 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210706172700.189584-1-stefanha@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Stefan Hajnoczi <stefanha@redhat.com>, fio@vger.kernel.org
+Cc: Eric Sandeen <sandeen@redhat.com>
 List-ID: <fio@vger.kernel.org>
 
-Trim workload is currently not supported for zonemode=zbd. This patch series
-enables it by resetting zones for trim I/Os. This allows fio to measure
-performance of zoned block devices using more realistic workloads which mixes
-write and trim.
+On 7/6/21 11:27 AM, Stefan Hajnoczi wrote:
+> The GNU Make documentation says the following about the override
+> keyword:
+> 
+>   Subsequent assignments or appends to this variable which are not
+>   marked override will be ignored.
+> 
+>   https://www.gnu.org/software/make/manual/html_node/Override-Directive.html
+> 
+> When the override CFLAGS line was moved in commit
+> f4bd2c3d80bc35f76892205a7e50426711e3def3 it broke the engine template,
+> which does not use the override directive. Since the engine template is
+> now evaluated afterwards, the engine CFLAGS are ignored.
+> 
+> Add the override keyword to the engine template so that engine CFLAGS
+> are honored again.
+> 
+> Note that the CONFIG_DYNAMIC_ENGINES case doesn't need the override
+> directive. It seems that GNU Make assigns CFLAGS even without the
+> override directive in this case:
+> 
+>   $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
 
-The first patch prepares for trim support by modifying the helper function
-zbd_find_zone(). The second patch adds zone reset for trim. The third patch
-enables trim workload for libzbc I/O engine. The fourth patch adds a test
-case that exercises trim operation with zonemode=zbd.
-
-Shin'ichiro Kawasaki (4):
-  zbd: Add min_bytes argument to zbd_find_zone()
-  zbd: Support zone reset by trim
-  engines/libzbc: Enable trim for libzbc I/O engine
-  t/zbd: Add test #58 to test zone reset by trim workload
-
- HOWTO                  |  3 ++
- engines/libzbc.c       | 16 +++++---
- fio.1                  |  2 +
- io_u.c                 |  9 +++++
- t/zbd/test-zbd-support | 26 ++++++++++++
- zbd.c                  | 89 +++++++++++++++++++++++++++++++++++-------
- zbd.h                  |  2 +
- 7 files changed, 127 insertions(+), 20 deletions(-)
+Applied, thanks.
 
 -- 
-2.31.1
+Jens Axboe
 
 
