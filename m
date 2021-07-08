@@ -1,96 +1,56 @@
-Return-Path: <prvs=81407a9e8=damien.lemoal@wdc.com>
-From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH 00/11] Improve libaio IO priority support
-Date: Tue,  6 Jul 2021 09:17:32 +0900
-Message-Id: <20210706001743.10818-1-damien.lemoal@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Bart Van Assche <bvanassche@acm.org>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231391AbhGHMCs (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 8 Jul 2021 08:02:48 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6A7C061574
+        for <fio@vger.kernel.org>; Thu,  8 Jul 2021 05:00:06 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1m1ShI-00FeKj-Dj
+        for fio@vger.kernel.org; Thu, 08 Jul 2021 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210708120001.D71201BC0166@kernel.dk>
+Date: Thu,  8 Jul 2021 06:00:01 -0600 (MDT)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-This series improves libaio engine support for IO priority, adding
-options to allow for mixed priority workloads to be specified more
-easily and to match the kernel supported IO priority features.
+The following changes since commit 77c72e0f504364adf6a0e8f1155fdf3fd68ef248:
 
-The first 3 patches are small cleanup and fixes in the manpage and
-fiograph tool.
+  Merge branch 'dedupe_bugfix' of https://github.com/bardavid/fio (2021-07-01 13:27:39 -0600)
 
-Patch 4 and 5 introduce some helper functions to simplify the code in
-the followup patches.
+are available in the Git repository at:
 
-Patch 6 changes the cmdprio_percentage option to allow specifying
-different percentages for reads and writes.
+  git://git.kernel.dk/fio.git master
 
-Patch 7 and 8 introduce the aioprioclass, aioprio and aioprio_bssplit.
-These together allow a script to specify different IO priorities for
-reads and writes of different sizes with different percentages.
+for you to fetch changes up to 7a9cc9c93c1384f72ac16d1d7980e158ec5f9f0a:
 
-Patch 9 relaxes restrictions on the cmdprio_percentage option to allow
-jobs to execute AIOs using a default priority as set with ioprio_set()
-(as the kernel supports this).
+  Makefile: use override directive on engine CFLAGS (2021-07-07 07:05:08 -0600)
 
-Patch 10 introduces the log_prio option to log each IO priority value,
-allowing users to do per-priority level performance analysis with
-complex workloads using many jobs.
+----------------------------------------------------------------
+Stefan Hajnoczi (1):
+      Makefile: use override directive on engine CFLAGS
 
-Finally, patch 11 adds a couple of example scripts to illustrate the use
-of the new options introduced.
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Comments are as always most welcome.
+---
 
-Damien Le Moal (11):
-  manpage: fix formatting
-  manpage: fix definition of prio and prioclass options
-  tools: fiograph: do not overwrite input script file
-  os: introduce ioprio_value() helper
-  options: make parsing functions available to ioengines
-  libaio,io_uring: improve cmdprio_percentage option
-  libaio: introduce aioprio and aioprioclass options
-  libaio: introduce aioprio_bssplit
-  libaio: relax cdmprio_percentage constraints
-  fio: Introduce the log_prio option
-  examples: add libaio priority use examples
+Diff of recent changes:
 
- HOWTO                            |  57 +++++++--
- backend.c                        |   1 +
- cconv.c                          |   2 +
- client.c                         |   2 +
- engines/filecreate.c             |   2 +-
- engines/filedelete.c             |   2 +-
- engines/filestat.c               |   2 +-
- engines/io_uring.c               |  33 +++--
- engines/libaio.c                 | 210 ++++++++++++++++++++++++++++---
- eta.c                            |   2 +-
- examples/aio-prio-bssplit.fio    |  17 +++
- examples/aio-prio-bssplit.png    | Bin 0 -> 48709 bytes
- examples/aio-prio-percentage.fio |  17 +++
- examples/aio-prio-percentage.png | Bin 0 -> 48752 bytes
- fio.1                            |  76 ++++++++---
- fio.h                            |   5 +
- init.c                           |   4 +
- io_u.c                           |  14 ++-
- io_u.h                           |  10 +-
- iolog.c                          |  45 +++++--
- iolog.h                          |  16 ++-
- options.c                        |  50 ++++----
- os/os-android.h                  |  24 ++--
- os/os-dragonfly.h                |   1 +
- os/os-linux.h                    |  24 ++--
- os/os.h                          |   4 +
- server.h                         |   3 +-
- stat.c                           |  75 +++++------
- stat.h                           |   9 +-
- thread_options.h                 |  20 +++
- tools/fiograph/fiograph.conf     |   4 +-
- tools/fiograph/fiograph.py       |   4 +-
- 32 files changed, 574 insertions(+), 161 deletions(-)
- create mode 100644 examples/aio-prio-bssplit.fio
- create mode 100644 examples/aio-prio-bssplit.png
- create mode 100644 examples/aio-prio-percentage.fio
- create mode 100644 examples/aio-prio-percentage.png
-
--- 
-2.31.1
-
+diff --git a/Makefile b/Makefile
+index f57569d5..510e07fc 100644
+--- a/Makefile
++++ b/Makefile
+@@ -293,7 +293,7 @@ else # !CONFIG_DYNAMIC_ENGINES
+ define engine_template =
+ SOURCE += $$($(1)_SRCS)
+ LIBS += $$($(1)_LIBS)
+-CFLAGS += $$($(1)_CFLAGS)
++override CFLAGS += $$($(1)_CFLAGS)
+ endef
+ endif
+ 
 
