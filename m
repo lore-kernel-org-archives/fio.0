@@ -1,76 +1,124 @@
-Return-Path: <axboe@kernel.dk>
+Return-Path: <prvs=827efda90=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
 Subject: Re: [PATCH 00/11] Improve libaio IO priority support
-References: <20210706001743.10818-1-damien.lemoal@wdc.com>
+Date: Mon, 19 Jul 2021 03:24:27 +0000
+Message-ID: 
  <DM6PR04MB7081F4A4644DCE721C6B0575E7E19@DM6PR04MB7081.namprd04.prod.outlook.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <db4d09a0-5240-0bf9-01b2-92e7020a31de@kernel.dk>
-Date: Mon, 19 Jul 2021 08:20:20 -0600
-MIME-Version: 1.0
-In-Reply-To: <DM6PR04MB7081F4A4644DCE721C6B0575E7E19@DM6PR04MB7081.namprd04.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8
+References: <20210706001743.10818-1-damien.lemoal@wdc.com>
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: Damien Le Moal <Damien.LeMoal@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 Cc: Bart Van Assche <bvanassche@acm.org>
 List-ID: <fio@vger.kernel.org>
 
-On 7/18/21 9:24 PM, Damien Le Moal wrote:
-> On 2021/07/06 9:17, Damien Le Moal wrote:
->> This series improves libaio engine support for IO priority, adding
->> options to allow for mixed priority workloads to be specified more
->> easily and to match the kernel supported IO priority features.
->>
->> The first 3 patches are small cleanup and fixes in the manpage and
->> fiograph tool.
->>
->> Patch 4 and 5 introduce some helper functions to simplify the code in
->> the followup patches.
->>
->> Patch 6 changes the cmdprio_percentage option to allow specifying
->> different percentages for reads and writes.
->>
->> Patch 7 and 8 introduce the aioprioclass, aioprio and aioprio_bssplit.
->> These together allow a script to specify different IO priorities for
->> reads and writes of different sizes with different percentages.
->>
->> Patch 9 relaxes restrictions on the cmdprio_percentage option to allow
->> jobs to execute AIOs using a default priority as set with ioprio_set()
->> (as the kernel supports this).
->>
->> Patch 10 introduces the log_prio option to log each IO priority value,
->> allowing users to do per-priority level performance analysis with
->> complex workloads using many jobs.
->>
->> Finally, patch 11 adds a couple of example scripts to illustrate the use
->> of the new options introduced.
->>
->> Comments are as always most welcome.
-> 
-> Hi Jens,
-> 
-> Any comment on this series ? We have been using this for a while now internally
-> and in the field to test ATA NCQ priority with good results. I am also planning
-> to re-use this to add support for the Command Duration Limits feature (ATA &
-> SCSI) using a new priority class (kernel patching cooking, but this will need
-> some more time as the specifications must stabilize first.
-> 
-> One thing that can be considered missing with this series is a full set of
-> per-priority level statistics (IOPS, BW, etc). But that is a major change and so
-> this is not talked here.
-
-I'll give it a look over today. My main object would be to ensure that
-aio and io_uring provide the same kind of interface, there shouldn't be
-any differences there in terms of how to use them and what they do. Even
-naming should be the same. Engine options exist for engine specific
-options. These don't apply to all engines, but to the ones they do, they
-should be interchangable. I should be able to take a job file with
-ioengine=X and change it to =Y and have the priorities still work,
-provided that engine Y supports it.
-
-As far as I'm concerned, aio is legacy and I have no real interest in
-adding anything that supports that, be it kernel or software.
-
--- 
-Jens Axboe
-
+On 2021/07/06 9:17, Damien Le Moal wrote:=0A=
+> This series improves libaio engine support for IO priority, adding=0A=
+> options to allow for mixed priority workloads to be specified more=0A=
+> easily and to match the kernel supported IO priority features.=0A=
+> =0A=
+> The first 3 patches are small cleanup and fixes in the manpage and=0A=
+> fiograph tool.=0A=
+> =0A=
+> Patch 4 and 5 introduce some helper functions to simplify the code in=0A=
+> the followup patches.=0A=
+> =0A=
+> Patch 6 changes the cmdprio_percentage option to allow specifying=0A=
+> different percentages for reads and writes.=0A=
+> =0A=
+> Patch 7 and 8 introduce the aioprioclass, aioprio and aioprio_bssplit.=0A=
+> These together allow a script to specify different IO priorities for=0A=
+> reads and writes of different sizes with different percentages.=0A=
+> =0A=
+> Patch 9 relaxes restrictions on the cmdprio_percentage option to allow=0A=
+> jobs to execute AIOs using a default priority as set with ioprio_set()=0A=
+> (as the kernel supports this).=0A=
+> =0A=
+> Patch 10 introduces the log_prio option to log each IO priority value,=0A=
+> allowing users to do per-priority level performance analysis with=0A=
+> complex workloads using many jobs.=0A=
+> =0A=
+> Finally, patch 11 adds a couple of example scripts to illustrate the use=
+=0A=
+> of the new options introduced.=0A=
+> =0A=
+> Comments are as always most welcome.=0A=
+=0A=
+Hi Jens,=0A=
+=0A=
+Any comment on this series ? We have been using this for a while now intern=
+ally=0A=
+and in the field to test ATA NCQ priority with good results. I am also plan=
+ning=0A=
+to re-use this to add support for the Command Duration Limits feature (ATA =
+&=0A=
+SCSI) using a new priority class (kernel patching cooking, but this will ne=
+ed=0A=
+some more time as the specifications must stabilize first.=0A=
+=0A=
+One thing that can be considered missing with this series is a full set of=
+=0A=
+per-priority level statistics (IOPS, BW, etc). But that is a major change a=
+nd so=0A=
+this is not talked here.=0A=
+=0A=
+> =0A=
+> Damien Le Moal (11):=0A=
+>   manpage: fix formatting=0A=
+>   manpage: fix definition of prio and prioclass options=0A=
+>   tools: fiograph: do not overwrite input script file=0A=
+>   os: introduce ioprio_value() helper=0A=
+>   options: make parsing functions available to ioengines=0A=
+>   libaio,io_uring: improve cmdprio_percentage option=0A=
+>   libaio: introduce aioprio and aioprioclass options=0A=
+>   libaio: introduce aioprio_bssplit=0A=
+>   libaio: relax cdmprio_percentage constraints=0A=
+>   fio: Introduce the log_prio option=0A=
+>   examples: add libaio priority use examples=0A=
+> =0A=
+>  HOWTO                            |  57 +++++++--=0A=
+>  backend.c                        |   1 +=0A=
+>  cconv.c                          |   2 +=0A=
+>  client.c                         |   2 +=0A=
+>  engines/filecreate.c             |   2 +-=0A=
+>  engines/filedelete.c             |   2 +-=0A=
+>  engines/filestat.c               |   2 +-=0A=
+>  engines/io_uring.c               |  33 +++--=0A=
+>  engines/libaio.c                 | 210 ++++++++++++++++++++++++++++---=
+=0A=
+>  eta.c                            |   2 +-=0A=
+>  examples/aio-prio-bssplit.fio    |  17 +++=0A=
+>  examples/aio-prio-bssplit.png    | Bin 0 -> 48709 bytes=0A=
+>  examples/aio-prio-percentage.fio |  17 +++=0A=
+>  examples/aio-prio-percentage.png | Bin 0 -> 48752 bytes=0A=
+>  fio.1                            |  76 ++++++++---=0A=
+>  fio.h                            |   5 +=0A=
+>  init.c                           |   4 +=0A=
+>  io_u.c                           |  14 ++-=0A=
+>  io_u.h                           |  10 +-=0A=
+>  iolog.c                          |  45 +++++--=0A=
+>  iolog.h                          |  16 ++-=0A=
+>  options.c                        |  50 ++++----=0A=
+>  os/os-android.h                  |  24 ++--=0A=
+>  os/os-dragonfly.h                |   1 +=0A=
+>  os/os-linux.h                    |  24 ++--=0A=
+>  os/os.h                          |   4 +=0A=
+>  server.h                         |   3 +-=0A=
+>  stat.c                           |  75 +++++------=0A=
+>  stat.h                           |   9 +-=0A=
+>  thread_options.h                 |  20 +++=0A=
+>  tools/fiograph/fiograph.conf     |   4 +-=0A=
+>  tools/fiograph/fiograph.py       |   4 +-=0A=
+>  32 files changed, 574 insertions(+), 161 deletions(-)=0A=
+>  create mode 100644 examples/aio-prio-bssplit.fio=0A=
+>  create mode 100644 examples/aio-prio-bssplit.png=0A=
+>  create mode 100644 examples/aio-prio-percentage.fio=0A=
+>  create mode 100644 examples/aio-prio-percentage.png=0A=
+> =0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
