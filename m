@@ -1,82 +1,83 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36554 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231912AbhGBMCi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 2 Jul 2021 08:02:38 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98E5C061762
-        for <fio@vger.kernel.org>; Fri,  2 Jul 2021 05:00:06 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1lzHq0-00DqnQ-SE
-        for fio@vger.kernel.org; Fri, 02 Jul 2021 12:00:05 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210702120002.09B851BC0165@kernel.dk>
-Date: Fri,  2 Jul 2021 06:00:02 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=836215823=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 3/4] engines/libzbc: Enable trim for libzbc I/O engine
+Date: Wed, 28 Jul 2021 19:47:51 +0900
+Message-Id: <20210728104752.923770-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
+References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit ea51055cbb2fcbca3935e25c78e8b6d358ca2b3f:
+The trim workload to zoned block devices is supported as zone reset, and
+this feature is available for I/O engines which support both zoned
+devices and trim workload. Libzbc I/O engine supports zoned but lacks
+trim workload support. To enable trim support with libzbc I/O engine,
+remove the check which inhibited trim from requests to libzbc I/O
+engine. Also set file open flags for trim same as write, and call
+zbd_do_io_u_trim() for trim I/O.
 
-  zbd: ensure that global max open zones limit is respected (2021-06-29 07:43:30 -0600)
+Of note is that libzbc I/O engine now can support trim to sequential
+write required zones, but still can not support os_trim() call and
+BLKDISCARD ioctl for the conventional zones. The trim I/Os to
+conventional zones are reported as an error.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 77c72e0f504364adf6a0e8f1155fdf3fd68ef248:
-
-  Merge branch 'dedupe_bugfix' of https://github.com/bardavid/fio (2021-07-01 13:27:39 -0600)
-
-----------------------------------------------------------------
-Bar David (1):
-      dedupe: fixing bug with subsequent dedupe buffer generation
-
-Jens Axboe (1):
-      Merge branch 'dedupe_bugfix' of https://github.com/bardavid/fio
-
- fio.h  |  1 +
- io_u.c | 12 ++++++++++--
- 2 files changed, 11 insertions(+), 2 deletions(-)
-
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
+ engines/libzbc.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-Diff of recent changes:
+diff --git a/engines/libzbc.c b/engines/libzbc.c
+index 7f2bc431..5b4c5e8e 100644
+--- a/engines/libzbc.c
++++ b/engines/libzbc.c
+@@ -14,6 +14,7 @@
+ #include "fio.h"
+ #include "err.h"
+ #include "zbd_types.h"
++#include "zbd.h"
+ 
+ struct libzbc_data {
+ 	struct zbc_device	*zdev;
+@@ -63,7 +64,7 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (td_write(td)) {
++	if (td_write(td) || td_trim(td)) {
+ 		if (!read_only)
+ 			flags |= O_RDWR;
+ 	} else if (td_read(td)) {
+@@ -71,10 +72,6 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
+ 			flags |= O_RDWR;
+ 		else
+ 			flags |= O_RDONLY;
+-	} else if (td_trim(td)) {
+-		td_verror(td, EINVAL, "libzbc does not support trim");
+-		log_err("%s: libzbc does not support trim\n", f->file_name);
+-		return -EINVAL;
+ 	}
+ 
+ 	if (td->o.oatomic) {
+@@ -411,7 +408,14 @@ static enum fio_q_status libzbc_queue(struct thread_data *td, struct io_u *io_u)
+ 		ret = zbc_flush(ld->zdev);
+ 		if (ret)
+ 			log_err("zbc_flush error %zd\n", ret);
+-	} else if (io_u->ddir != DDIR_TRIM) {
++	} else if (io_u->ddir == DDIR_TRIM) {
++		ret = zbd_do_io_u_trim(td, io_u);
++		if (!ret) {
++			log_err("libzbc does not support trim to "
++				"conventional zones\n");
++			ret = EINVAL;
++		}
++	} else {
+ 		log_err("Unsupported operation %u\n", io_u->ddir);
+ 		ret = -EINVAL;
+ 	}
+-- 
+2.31.1
 
-diff --git a/fio.h b/fio.h
-index b05cb3df..83334652 100644
---- a/fio.h
-+++ b/fio.h
-@@ -259,6 +259,7 @@ struct thread_data {
- 
- 	struct frand_state buf_state;
- 	struct frand_state buf_state_prev;
-+	struct frand_state buf_state_ret;
- 	struct frand_state dedupe_state;
- 	struct frand_state zone_state;
- 	struct frand_state prio_state;
-diff --git a/io_u.c b/io_u.c
-index b421a579..b60488a3 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2182,8 +2182,16 @@ static struct frand_state *get_buf_state(struct thread_data *td)
- 
- 	v = rand_between(&td->dedupe_state, 1, 100);
- 
--	if (v <= td->o.dedupe_percentage)
--		return &td->buf_state_prev;
-+	if (v <= td->o.dedupe_percentage) {
-+		/*
-+		 * The caller advances the returned frand_state.
-+		 * A copy of prev should be returned instead since
-+		 * a subsequent intention to generate a deduped buffer
-+		 * might result in generating a unique one
-+		 */
-+		frand_copy(&td->buf_state_ret, &td->buf_state_prev);
-+		return &td->buf_state_ret;
-+	}
- 
- 	return &td->buf_state;
- }
 
