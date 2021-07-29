@@ -1,64 +1,56 @@
-Return-Path: <prvs=836215823=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 4/4] t/zbd: Add test #58 to test zone reset by trim workload
-Date: Wed, 28 Jul 2021 19:47:52 +0900
-Message-Id: <20210728104752.923770-5-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
-References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235522AbhG2MAK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 29 Jul 2021 08:00:10 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE03C061765
+        for <fio@vger.kernel.org>; Thu, 29 Jul 2021 05:00:06 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1m94ho-003xd3-MV
+        for fio@vger.kernel.org; Thu, 29 Jul 2021 12:00:04 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210729120002.1CE0C1BC0154@kernel.dk>
+Date: Thu, 29 Jul 2021 06:00:02 -0600 (MDT)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-To exercise zone reset by trim workload, add the test case #58. As the
-precondition, it fills several zones. After that, a trim job and a write
-job run in parallel for 30 seconds. The ratio of trim commands and write
-commands is controlled by --flow option.
+The following changes since commit 9ce6f6f2bd636e9678982b86d6992ed419634c31:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+  Merge branch 'evelu-fix-engines' of https://github.com/ErwanAliasr1/fio (2021-07-25 16:48:02 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 7c8e6725155cae72a0a730d3c3a36776bc5621a3:
+
+  Makefile: update libzbc git repository (2021-07-28 07:27:29 -0600)
+
+----------------------------------------------------------------
+Damien Le Moal (1):
+      Makefile: update libzbc git repository
+
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 ---
- t/zbd/test-zbd-support | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 57e6d05e..5103c406 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1215,6 +1215,32 @@ test57() {
- 		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Random writes and random trims to sequential write required zones for 30s.
-+test58() {
-+    local off size bs
-+
-+    require_seq_zones 128 || return $SKIP_TESTCASE
-+
-+    size=$((zone_size * 128))
-+    bs="$(max $((zone_size / 128)) "$logical_block_size")"
-+    prep_write
-+    off=$((first_sequential_zone_sector * 512))
-+    run_fio --zonemode=zbd --direct=1 --zonesize="${zone_size}" --thread=1 \
-+	    --filename="${dev}" --norandommap=1 \
-+            --name="precondition"  --rw=write "$(ioengine "psync")" \
-+            --offset="${off}" --size=$((zone_size * 16)) --bs="${bs}" \
-+	    "${job_var_opts[@]}" \
-+	    --name=wjob --wait_for="precondition" --rw=randwrite \
-+	    "$(ioengine "libaio")" --iodepth=8 \
-+	    --offset="${off}" --size="${size}" --bs="${bs}" \
-+	    --time_based --runtime=30s --flow=128 "${job_var_opts[@]}" \
-+	    --name=trimjob --wait_for="precondition" --rw=randtrim \
-+	    "$(ioengine "psync")" \
-+	    --offset="${off}" --size="${size}" --bs="${zone_size}" \
-+	    --time_based --runtime=30s --flow=1 "${job_var_opts[@]}" \
-+	    >>"${logfile}.${test_number}" 2>&1
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
--- 
-2.31.1
+Diff of recent changes:
 
+diff --git a/Makefile b/Makefile
+index 6b4b4122..5198f70e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -651,7 +651,7 @@ test: fio
+ fulltest:
+ 	sudo modprobe null_blk &&				 	\
+ 	if [ ! -e /usr/include/libzbc/zbc.h ]; then			\
+-	  git clone https://github.com/hgst/libzbc &&		 	\
++	  git clone https://github.com/westerndigitalcorporation/libzbc && \
+ 	  (cd libzbc &&						 	\
+ 	   ./autogen.sh &&					 	\
+ 	   ./configure --prefix=/usr &&				 	\
 
