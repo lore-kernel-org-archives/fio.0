@@ -1,66 +1,73 @@
-Return-Path: <prvs=845b5b8a0=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 5/5] t/zbd: Add test #58 to test zone reset by trim workload
-Date: Fri,  6 Aug 2021 10:07:11 +0900
-Message-Id: <20210806010711.1128153-6-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210806010711.1128153-1-shinichiro.kawasaki@wdc.com>
-References: <20210806010711.1128153-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:20295 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229955AbhHAWco (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 1 Aug 2021 18:32:44 -0400
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: Help on how to specify LBA in Fio
+Date: Sun, 1 Aug 2021 22:31:54 +0000
+Message-ID: <DM6PR04MB70818C78D2136B70E7A8C09EE7EE9@DM6PR04MB7081.namprd04.prod.outlook.com>
+References: <ECDC56C0-4386-42E1-A6D5-829D4A4DC7D8@163.com>
+ <DM6PR04MB708162B68D43093FCF5EB10BE7509@DM6PR04MB7081.namprd04.prod.outlook.com>
+ <304f5d56.15f5.17b01d09484.Coremail.mfpnzwm@163.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: =?iso-2022-jp?B?GyRCUHY8KzhKGyhC?= <mfpnzwm@163.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>
 
-To exercise zone reset by trim workload, add the test case #58. As the
-precondition, it fills several zones. After that, a trim job and a write
-job run in parallel for 30 seconds. The ratio of trim commands and write
-commands is controlled by --flow option.
-
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/test-zbd-support | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 57e6d05e..5103c406 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1215,6 +1215,32 @@ test57() {
- 		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Random writes and random trims to sequential write required zones for 30s.
-+test58() {
-+    local off size bs
-+
-+    require_seq_zones 128 || return $SKIP_TESTCASE
-+
-+    size=$((zone_size * 128))
-+    bs="$(max $((zone_size / 128)) "$logical_block_size")"
-+    prep_write
-+    off=$((first_sequential_zone_sector * 512))
-+    run_fio --zonemode=zbd --direct=1 --zonesize="${zone_size}" --thread=1 \
-+	    --filename="${dev}" --norandommap=1 \
-+            --name="precondition"  --rw=write "$(ioengine "psync")" \
-+            --offset="${off}" --size=$((zone_size * 16)) --bs="${bs}" \
-+	    "${job_var_opts[@]}" \
-+	    --name=wjob --wait_for="precondition" --rw=randwrite \
-+	    "$(ioengine "libaio")" --iodepth=8 \
-+	    --offset="${off}" --size="${size}" --bs="${bs}" \
-+	    --time_based --runtime=30s --flow=128 "${job_var_opts[@]}" \
-+	    --name=trimjob --wait_for="precondition" --rw=randtrim \
-+	    "$(ioengine "psync")" \
-+	    --offset="${off}" --size="${size}" --bs="${zone_size}" \
-+	    --time_based --runtime=30s --flow=1 "${job_var_opts[@]}" \
-+	    >>"${logfile}.${test_number}" 2>&1
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
--- 
-2.31.1
-
+On 2021/08/01 22:04, =1B$BPv<+8J=1B(B wrote:=0A=
+> Hi Damien,=0A=
+> =0A=
+> Thanks a lot.=0A=
+> =0A=
+> Regarding to LBA size, does it differ from HDD sector format=1B$B!)=1B(BT=
+hat means=0A=
+> 512e&4kn should use 4096 for capacity-LBA conversion while 512 for 512n?=
+=0A=
+=0A=
+A LBA is the minimum access size possible on a block device. So all accesse=
+s=0A=
+should be aligned to the device LBA size. You can see the LBA size, and the=
+=0A=
+physical block size in sysfs:=0A=
+=0A=
+cat /sys/block/sdX/queue/logical_block_size=0A=
+cat /sys/block/sdX/queue/physical_block_size=0A=
+=0A=
+=0A=
+> =0A=
+> Best regards,=0A=
+> Samuel=0A=
+> ---- Replied Message ----=0A=
+> From	Damien Le Moal<damien.lemoal@wdc.com> <mailto:damien.lemoal@wdc.com>=
+=0A=
+> Date	05/14/2021 09:52=0A=
+> To	=1B$B<~L)=1B(B<mfpnzwm@163.com> <mailto:mfpnzwm@163.com>,=0A=
+> fio@vger.kernel.org<fio@vger.kernel.org> <mailto:fio@vger.kernel.org>=0A=
+> Subject	Re: Help on how to specify LBA in Fio=0A=
+> =0A=
+> On 2021/05/14 2:36, =1B$B<~L)=1B(B wrote:=0A=
+>> Help on how to specify LBA in Fio=0A=
+>>=0A=
+>> Samuel=0A=
+>>=0A=
+> =0A=
+> fio uses Byte as the unit for specifying offset, size, IO size, block siz=
+e etc.=0A=
+> So just multiply your LBA values by your device LBA size and you will hav=
+e LBA=0A=
+> aligned byte values you can pass to fio.=0A=
+> =0A=
+> =0A=
+> -- =0A=
+> Damien Le Moal=0A=
+> Western Digital Research=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
