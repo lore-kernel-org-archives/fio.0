@@ -1,334 +1,208 @@
-Return-Path: <prvs=84353bb0d=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38451 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239902AbhHCTgS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 3 Aug 2021 15:36:18 -0400
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Subject: Re: [PATCH 2/4] zbd: Support zone reset by trim
-Date: Wed, 4 Aug 2021 06:32:14 +0000
-Message-ID: <20210804063213.f7r7enkhn74rb2qa@shindev>
+Date: Tue, 3 Aug 2021 19:36:05 +0000
+Message-ID: <c64f93bcd740905a63ef4b8eeb05a13bdd67d275.camel@wdc.com>
 References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
- <20210728104752.923770-3-shinichiro.kawasaki@wdc.com>
- <c64f93bcd740905a63ef4b8eeb05a13bdd67d275.camel@wdc.com>
-In-Reply-To: <c64f93bcd740905a63ef4b8eeb05a13bdd67d275.camel@wdc.com>
+         <20210728104752.923770-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210728104752.923770-3-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <7DA918EB2BCA99468E59F2DFDC311336@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <1E46A1DA69E9B64B8436C724481496FC@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 
-Dmitry, thank you for the review comments.
-
-On Aug 03, 2021 / 19:36, Dmitry Fomichev wrote:
-> On Wed, 2021-07-28 at 19:47 +0900, Shin'ichiro Kawasaki wrote:
-> > Enable trim workload for zonemode=3Dzbd by modifying do_io_u_trim() to
-> > call zoned block device unique function zbd_do_io_u_trim() which resets
-> > target zone. This allows fio to emulate workloads which mix data
-> > read/write and zone resets with zonemode=3Dzbd.
-> >=20
-> > To call reset zones, the trim I/O shall have offset aligned to zone
-> > start and block size same as zone size. Reset zone is called only to
-> > sequential write required zones and sequential write preferred zones.
-> > Conventional zones are handled in same manner as regular block devices
-> > by calling os_trim() function.
-> >=20
-> > When zones are reset with random trim workload, choose only non-empty
-> > zones as trim target. This avoids meaningless trim to empty zones and
-> > makes the workload more realistic. To find the non-empty zones, utilize
-> > zbd_find_zone() helper function which is already used for read
-> > workload,
-> > specifying 1 byte as the minimum valid data size.
-> >=20
-> > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-> > ---
-> > =A0HOWTO=A0 |=A0 3 +++
-> > =A0fio.1=A0 |=A0 2 ++
-> > =A0io_u.c |=A0 9 ++++++++
-> > =A0zbd.c=A0 | 71 ++++++++++++++++++++++++++++++++++++++++++++++++++++++=
-----
-> > =A0zbd.h=A0 |=A0 2 ++
-> > =A05 files changed, 83 insertions(+), 4 deletions(-)
-> >=20
-> > diff --git a/HOWTO b/HOWTO
-> > index 59c7f1ff..f1fd2045 100644
-> > --- a/HOWTO
-> > +++ b/HOWTO
-> > @@ -992,6 +992,9 @@ Target file/device
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0single zone. The :option:`zoneskip`
-> > parameter
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0is ignored. :option:`zonerange` and
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0:option:`zonesize` must be identical.
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0Trim is handled using a zone reset
-> > operation.
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0Trim only considers non-empty
-> > sequential write
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0required and sequential write preferred
-> > zones.
->=20
-> The documentation changes could be moved to a separate patch. While
-> looking at HOWTO file, I notice that libzbc is absent from the list of
-> i/o engines there. Perhaps, since you are making changes to this file,
-> you could add a small description of libzbc there and mention that it
-> supports read, write and trim workloads when run against zoned block
-> devices.
-
-Okay, I will separate out changes in HOWTO and fio.1 into a patch. Will
-add the description of libzbc i/o engine also.
-
->=20
-> > =A0
-> > =A0.. option:: zonerange=3Dint
-> > =A0
-> > diff --git a/fio.1 b/fio.1
-> > index 6cc82542..ef319062 100644
-> > --- a/fio.1
-> > +++ b/fio.1
-> > @@ -766,6 +766,8 @@ starts. The \fBzonecapacity\fR parameter is
-> > ignored.
-> > =A0Zoned block device mode. I/O happens sequentially in each zone, even
-> > if random32ad4373
-> > =A0I/O has been selected. Random I/O happens across all zones instead o=
-f
-> > being
-> > =A0restricted to a single zone.
-> > +Trim is handled using a zone reset operation. Trim only considers non-
-> > empty
-> > +sequential write required and sequential write preferred zones.
-> > =A0.RE
-> > =A0.RE
-> > =A0.TP
-> > diff --git a/io_u.c b/io_u.c
-> > index 9a1cd547..696d25cd 100644
-> > --- a/io_u.c
-> > +++ b/io_u.c
-> > @@ -2317,10 +2317,19 @@ int do_io_u_trim(const struct thread_data *td,
-> > struct io_u *io_u)
-> > =A0=A0=A0=A0=A0=A0=A0=A0struct fio_file *f =3D io_u->file;
-> > =A0=A0=A0=A0=A0=A0=A0=A0int ret;
-> > =A0
-> > +=A0=A0=A0=A0=A0=A0=A0if (td->o.zone_mode =3D=3D ZONE_MODE_ZBD) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ret =3D zbd_do_io_u_trim(=
-td, io_u);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (ret =3D=3D io_u_compl=
-eted)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0r=
-eturn io_u->xfer_buflen;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (ret)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0g=
-oto err;
-> > +=A0=A0=A0=A0=A0=A0=A0}
-> > +
-> > =A0=A0=A0=A0=A0=A0=A0=A0ret =3D os_trim(f, io_u->offset, io_u->xfer_buf=
-len);
-> > =A0=A0=A0=A0=A0=A0=A0=A0if (!ret)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return io_u->xfer_bufle=
-n;
-> > =A0
-> > +err:
-> > =A0=A0=A0=A0=A0=A0=A0=A0io_u->error =3D ret;
-> > =A0=A0=A0=A0=A0=A0=A0=A0return 0;
-> > =A0#endif
-> > diff --git a/zbd.c b/zbd.c
-> > index f10b3267..39060ecd 100644
-> > --- a/zbd.cpassing in an offset
->         modifier with a value of 8. If the suffix is used with a
-> sequential I/O
-
-I did not catch this part. May I ask to rephrase?
-
->=20
-> > +++ b/zbd.c
-> > @@ -375,12 +375,24 @@ static bool zbd_verify_bs(void)
-> > =A0=A0=A0=A0=A0=A0=A0=A0int i, j, k;
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0for_each_td(td, i) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (td_trim(td) &&
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 (td->o.min_bs[D=
-DIR_TRIM] !=3D td-
-> > >o.max_bs[DDIR_TRIM] ||
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 td->o.bsspli=
-t_nr[DDIR_TRIM])) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0l=
-og_info("bsrange and bssplit is not allowed
-> > for trim with zonemode=3Dzbd\n");
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0r=
-eturn false;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0for_each_file(td, f, j)=
- {
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0uint64_t zone_size;
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0if (!f->zbd_info)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0continue;
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0zone_size =3D f->zbd_info->zone_size;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0i=
-f (td_trim(td) && td->o.bs[DDIR_TRIM] !=3D
-> > zone_size) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0log_info("%s: trim block size %llu is
-> > not the zone size %llu\n",
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 f->file_name, td-
-> > >o.bs[DDIR_TRIM],
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 (unsigned long
-> > long)zone_size);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0return false;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0for (k =3D 0; k < FIO_ARRAY_SIZE(td->o.bs);
-> > k++) {
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0if (td->o.verify !=3D VERIFY_NONE &&
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 zone_size % td->o.bs[k] !=3D 0) {
-> > @@ -1528,9 +1540,6 @@ static void zbd_queue_io(struct thread_data
-> > *td, struct io_u *io_u, int q,
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0pthread_mutex_unlock(&z=
-bd_info->mutex);
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0z->wp =3D zone_end;
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0break;
-> > -=A0=A0=A0=A0=A0=A0=A0case DDIR_TRIM:
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0assert(z->wp =3D=3D z->st=
-art);
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0break;
-> > =A0=A0=A0=A0=A0=A0=A0=A0default:
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0break;
-> > =A0=A0=A0=A0=A0=A0=A0=A0}
-> > @@ -1910,8 +1919,23 @@ enum io_u_action zbd_adjust_block(struct
-> > thread_data *td, struct io_u *io_u)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0(zbd_zone_capacity_end(zb) - io_u->offset),
-> > min_bs);
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto eof;
-> > =A0=A0=A0=A0=A0=A0=A0=A0case DDIR_TRIM:
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* fall-through */
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* Check random trim targ=
-ets a non-empty zone */
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (!td_random(td) || zb-=
->wp > zb->start)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0g=
-oto accept;
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* Find out a non-empty z=
-one to trim */
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0zone_unlock(zb);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0zl =3D get_zone(f, f->max=
-_zone);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0zb =3D zbd_find_zone(td, =
-io_u, 1, zb, zl);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (zb) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0i=
-o_u->offset =3D zb->start;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0d=
-print(FD_ZBD, "%s: found new zone(%lld) for
-> > trim\n",
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 f->file_name, io_u->offset);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0g=
-oto accept;
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto eof;
-> > =A0=A0=A0=A0=A0=A0=A0=A0case DDIR_SYNC:
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/* fall-through */
-> > =A0=A0=A0=A0=A0=A0=A0=A0case DDIR_DATASYNC:
-> > =A0=A0=A0=A0=A0=A0=A0=A0case DDIR_SYNC_FILE_RANGE:
-> > =A0=A0=A0=A0=A0=A0=A0=A0case DDIR_WAIT:
-> > @@ -1952,3 +1976,42 @@ char *zbd_write_status(const struct
-> > thread_stat *ts)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return NULL;
-> > =A0=A0=A0=A0=A0=A0=A0=A0return res;
-> > =A0}
-> > +
-> > +/**
-> > + * zbd_do_io_u_trim - If reset zone is applicable, do reset zone
-> > instead of trim
-> > + *
-> > + * @td: FIO thread data.
-> > + * @io_u: FIO I/O unit.
-> > + *
-> > + * It is assumed that z->mutex is already locked.
-> > + * Return io_u_completed when reset zone succeeds. Return 0 when the
-> > target zone
-> > + * does not have write pointer. On error, return negative errno.
-> > + */
-> > +int zbd_do_io_u_trim(const struct thread_data *td, struct io_u
-> > *io_u)
-> > +{
-> > +=A0=A0=A0=A0=A0=A0=A0struct fio_file *f =3D io_u->file;
-> > +=A0=A0=A0=A0=A0=A0=A0struct fio_zone_info *z;
-> > +=A0=A0=A0=A0=A0=A0=A0uint32_t zone_idx;
-> > +=A0=A0=A0=A0=A0=A0=A0int ret;
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0zone_idx =3D zbd_zone_idx(f, io_u->offset);
-> > +=A0=A0=A0=A0=A0=A0=A0z =3D get_zone(f, zone_idx);
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0if (!z->has_wp)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return 0;
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0if (io_u->offset !=3D z->start) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0log_err("Trim offset not =
-at zone start (%lld)\n",
-> > io_u->offset);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -EINVAL;
-> > +=A0=A0=A0=A0=A0=A0=A0}
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0/*
-> > +=A0=A0=A0=A0=A0=A0=A0 * Cast td to drop const modifier so that zbd_res=
-et_zone()
-> > can change td
-> > +=A0=A0=A0=A0=A0=A0=A0 * members.
-> > +=A0=A0=A0=A0=A0=A0=A0 */
->=20
-> This comment is not really necessary.
-
-Will remove it. Thanks.
-
---=20
-Best Regards,
-Shin'ichiro Kawasaki
-
->=20
-> > +=A0=A0=A0=A0=A0=A0=A0ret =3D zbd_reset_zone((struct thread_data *)td, =
-f, z);
-> > +=A0=A0=A0=A0=A0=A0=A0if (ret < 0)
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return ret;
-> > +
-> > +=A0=A0=A0=A0=A0=A0=A0return io_u_completed;
-> > +}
-> > diff --git a/zbd.h b/zbd.h
-> > index 39dc45e3..0a73b41d 100644
-> > --- a/zbd.h
-> > +++ b/zbd.h
-> > @@ -17,6 +17,7 @@ struct fio_file;
-> > =A0enum io_u_action {
-> > =A0=A0=A0=A0=A0=A0=A0=A0io_u_accept=A0=A0=A0=A0=A0=3D 0,
-> > =A0=A0=A0=A0=A0=A0=A0=A0io_u_eof=A0=A0=A0=A0=A0=A0=A0=A0=3D 1,
-> > +=A0=A0=A0=A0=A0=A0=A0io_u_completed=A0 =3D 2,
-> > =A0};
-> > =A0
-> > =A0/**
-> > @@ -99,6 +100,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data
-> > *td, struct io_u *io_u,
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0 enum fio_ddir ddir);
-> > =A0enum io_u_action zbd_adjust_block(struct thread_data *td, struct
-> > io_u *io_u);
-> > =A0char *zbd_write_status(const struct thread_stat *ts);
-> > +int zbd_do_io_u_trim(const struct thread_data *td, struct io_u
-> > *io_u);
-> > =A0
-> > =A0static inline void zbd_close_file(struct fio_file *f)
-> > =A0{
-> =
+T24gV2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
+cm90ZToNCj4gRW5hYmxlIHRyaW0gd29ya2xvYWQgZm9yIHpvbmVtb2RlPXpiZCBieSBtb2RpZnlp
+bmcgZG9faW9fdV90cmltKCkgdG8NCj4gY2FsbCB6b25lZCBibG9jayBkZXZpY2UgdW5pcXVlIGZ1
+bmN0aW9uIHpiZF9kb19pb191X3RyaW0oKSB3aGljaCByZXNldHMNCj4gdGFyZ2V0IHpvbmUuIFRo
+aXMgYWxsb3dzIGZpbyB0byBlbXVsYXRlIHdvcmtsb2FkcyB3aGljaCBtaXggZGF0YQ0KPiByZWFk
+L3dyaXRlIGFuZCB6b25lIHJlc2V0cyB3aXRoIHpvbmVtb2RlPXpiZC4NCj4gDQo+IFRvIGNhbGwg
+cmVzZXQgem9uZXMsIHRoZSB0cmltIEkvTyBzaGFsbCBoYXZlIG9mZnNldCBhbGlnbmVkIHRvIHpv
+bmUNCj4gc3RhcnQgYW5kIGJsb2NrIHNpemUgc2FtZSBhcyB6b25lIHNpemUuIFJlc2V0IHpvbmUg
+aXMgY2FsbGVkIG9ubHkgdG8NCj4gc2VxdWVudGlhbCB3cml0ZSByZXF1aXJlZCB6b25lcyBhbmQg
+c2VxdWVudGlhbCB3cml0ZSBwcmVmZXJyZWQgem9uZXMuDQo+IENvbnZlbnRpb25hbCB6b25lcyBh
+cmUgaGFuZGxlZCBpbiBzYW1lIG1hbm5lciBhcyByZWd1bGFyIGJsb2NrIGRldmljZXMNCj4gYnkg
+Y2FsbGluZyBvc190cmltKCkgZnVuY3Rpb24uDQo+IA0KPiBXaGVuIHpvbmVzIGFyZSByZXNldCB3
+aXRoIHJhbmRvbSB0cmltIHdvcmtsb2FkLCBjaG9vc2Ugb25seSBub24tZW1wdHkNCj4gem9uZXMg
+YXMgdHJpbSB0YXJnZXQuIFRoaXMgYXZvaWRzIG1lYW5pbmdsZXNzIHRyaW0gdG8gZW1wdHkgem9u
+ZXMgYW5kDQo+IG1ha2VzIHRoZSB3b3JrbG9hZCBtb3JlIHJlYWxpc3RpYy4gVG8gZmluZCB0aGUg
+bm9uLWVtcHR5IHpvbmVzLCB1dGlsaXplDQo+IHpiZF9maW5kX3pvbmUoKSBoZWxwZXIgZnVuY3Rp
+b24gd2hpY2ggaXMgYWxyZWFkeSB1c2VkIGZvciByZWFkDQo+IHdvcmtsb2FkLA0KPiBzcGVjaWZ5
+aW5nIDEgYnl0ZSBhcyB0aGUgbWluaW11bSB2YWxpZCBkYXRhIHNpemUuDQo+IA0KPiBTaWduZWQt
+b2ZmLWJ5OiBTaGluJ2ljaGlybyBLYXdhc2FraSA8c2hpbmljaGlyby5rYXdhc2FraUB3ZGMuY29t
+Pg0KPiAtLS0NCj4gwqBIT1dUT8KgIHzCoCAzICsrKw0KPiDCoGZpby4xwqAgfMKgIDIgKysNCj4g
+wqBpb191LmMgfMKgIDkgKysrKysrKysNCj4gwqB6YmQuY8KgIHwgNzEgKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLQ0KPiDCoHpiZC5owqAg
+fMKgIDIgKysNCj4gwqA1IGZpbGVzIGNoYW5nZWQsIDgzIGluc2VydGlvbnMoKyksIDQgZGVsZXRp
+b25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvSE9XVE8gYi9IT1dUTw0KPiBpbmRleCA1OWM3ZjFm
+Zi4uZjFmZDIwNDUgMTAwNjQ0DQo+IC0tLSBhL0hPV1RPDQo+ICsrKyBiL0hPV1RPDQo+IEBAIC05
+OTIsNiArOTkyLDkgQEAgVGFyZ2V0IGZpbGUvZGV2aWNlDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBzaW5nbGUgem9uZS4g
+VGhlIDpvcHRpb246YHpvbmVza2lwYA0KPiBwYXJhbWV0ZXINCj4gwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlzIGlnbm9yZWQu
+IDpvcHRpb246YHpvbmVyYW5nZWAgYW5kDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqA6b3B0aW9uOmB6b25lc2l6ZWAgbXVz
+dCBiZSBpZGVudGljYWwuDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoFRyaW0gaXMgaGFuZGxlZCB1c2luZyBhIHpvbmUgcmVz
+ZXQNCj4gb3BlcmF0aW9uLg0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBUcmltIG9ubHkgY29uc2lkZXJzIG5vbi1lbXB0eQ0K
+PiBzZXF1ZW50aWFsIHdyaXRlDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJlcXVpcmVkIGFuZCBzZXF1ZW50aWFsIHdyaXRl
+IHByZWZlcnJlZA0KPiB6b25lcy4NCg0KVGhlIGRvY3VtZW50YXRpb24gY2hhbmdlcyBjb3VsZCBi
+ZSBtb3ZlZCB0byBhIHNlcGFyYXRlIHBhdGNoLiBXaGlsZQ0KbG9va2luZyBhdCBIT1dUTyBmaWxl
+LCBJIG5vdGljZSB0aGF0IGxpYnpiYyBpcyBhYnNlbnQgZnJvbSB0aGUgbGlzdCBvZg0KaS9vIGVu
+Z2luZXMgdGhlcmUuIFBlcmhhcHMsIHNpbmNlIHlvdSBhcmUgbWFraW5nIGNoYW5nZXMgdG8gdGhp
+cyBmaWxlLA0KeW91IGNvdWxkIGFkZCBhIHNtYWxsIGRlc2NyaXB0aW9uIG9mIGxpYnpiYyB0aGVy
+ZSBhbmQgbWVudGlvbiB0aGF0IGl0DQpzdXBwb3J0cyByZWFkLCB3cml0ZSBhbmQgdHJpbSB3b3Jr
+bG9hZHMgd2hlbiBydW4gYWdhaW5zdCB6b25lZCBibG9jaw0KZGV2aWNlcy4NCg0KPiDCoA0KPiDC
+oC4uIG9wdGlvbjo6IHpvbmVyYW5nZT1pbnQNCj4gwqANCj4gZGlmZiAtLWdpdCBhL2Zpby4xIGIv
+ZmlvLjENCj4gaW5kZXggNmNjODI1NDIuLmVmMzE5MDYyIDEwMDY0NA0KPiAtLS0gYS9maW8uMQ0K
+PiArKysgYi9maW8uMQ0KPiBAQCAtNzY2LDYgKzc2Niw4IEBAIHN0YXJ0cy4gVGhlIFxmQnpvbmVj
+YXBhY2l0eVxmUiBwYXJhbWV0ZXIgaXMNCj4gaWdub3JlZC4NCj4gwqBab25lZCBibG9jayBkZXZp
+Y2UgbW9kZS4gSS9PIGhhcHBlbnMgc2VxdWVudGlhbGx5IGluIGVhY2ggem9uZSwgZXZlbg0KPiBp
+ZiByYW5kb20zMmFkNDM3Mw0KPiDCoEkvTyBoYXMgYmVlbiBzZWxlY3RlZC4gUmFuZG9tIEkvTyBo
+YXBwZW5zIGFjcm9zcyBhbGwgem9uZXMgaW5zdGVhZCBvZg0KPiBiZWluZw0KPiDCoHJlc3RyaWN0
+ZWQgdG8gYSBzaW5nbGUgem9uZS4NCj4gK1RyaW0gaXMgaGFuZGxlZCB1c2luZyBhIHpvbmUgcmVz
+ZXQgb3BlcmF0aW9uLiBUcmltIG9ubHkgY29uc2lkZXJzIG5vbi0NCj4gZW1wdHkNCj4gK3NlcXVl
+bnRpYWwgd3JpdGUgcmVxdWlyZWQgYW5kIHNlcXVlbnRpYWwgd3JpdGUgcHJlZmVycmVkIHpvbmVz
+Lg0KPiDCoC5SRQ0KPiDCoC5SRQ0KPiDCoC5UUA0KPiBkaWZmIC0tZ2l0IGEvaW9fdS5jIGIvaW9f
+dS5jDQo+IGluZGV4IDlhMWNkNTQ3Li42OTZkMjVjZCAxMDA2NDQNCj4gLS0tIGEvaW9fdS5jDQo+
+ICsrKyBiL2lvX3UuYw0KPiBAQCAtMjMxNywxMCArMjMxNywxOSBAQCBpbnQgZG9faW9fdV90cmlt
+KGNvbnN0IHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsDQo+IHN0cnVjdCBpb191ICppb191KQ0KPiDC
+oMKgwqDCoMKgwqDCoMKgc3RydWN0IGZpb19maWxlICpmID0gaW9fdS0+ZmlsZTsNCj4gwqDCoMKg
+wqDCoMKgwqDCoGludCByZXQ7DQo+IMKgDQo+ICvCoMKgwqDCoMKgwqDCoGlmICh0ZC0+by56b25l
+X21vZGUgPT0gWk9ORV9NT0RFX1pCRCkgew0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgcmV0ID0gemJkX2RvX2lvX3VfdHJpbSh0ZCwgaW9fdSk7DQo+ICvCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqBpZiAocmV0ID09IGlvX3VfY29tcGxldGVkKQ0KPiArwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiBpb191LT54ZmVyX2J1Zmxl
+bjsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmIChyZXQpDQo+ICvCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ290byBlcnI7DQo+ICvCoMKg
+wqDCoMKgwqDCoH0NCj4gKw0KPiDCoMKgwqDCoMKgwqDCoMKgcmV0ID0gb3NfdHJpbShmLCBpb191
+LT5vZmZzZXQsIGlvX3UtPnhmZXJfYnVmbGVuKTsNCj4gwqDCoMKgwqDCoMKgwqDCoGlmICghcmV0
+KQ0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiBpb191LT54ZmVyX2J1
+ZmxlbjsNCj4gwqANCj4gK2VycjoNCj4gwqDCoMKgwqDCoMKgwqDCoGlvX3UtPmVycm9yID0gcmV0
+Ow0KPiDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuIDA7DQo+IMKgI2VuZGlmDQo+IGRpZmYgLS1naXQg
+YS96YmQuYyBiL3piZC5jDQo+IGluZGV4IGYxMGIzMjY3Li4zOTA2MGVjZCAxMDA2NDQNCj4gLS0t
+IGEvemJkLmNwYXNzaW5nIGluIGFuIG9mZnNldA0KICAgICAgICBtb2RpZmllciB3aXRoIGEgdmFs
+dWUgb2YgOC4gSWYgdGhlIHN1ZmZpeCBpcyB1c2VkIHdpdGggYQ0Kc2VxdWVudGlhbCBJL08NCg0K
+PiArKysgYi96YmQuYw0KPiBAQCAtMzc1LDEyICszNzUsMjQgQEAgc3RhdGljIGJvb2wgemJkX3Zl
+cmlmeV9icyh2b2lkKQ0KPiDCoMKgwqDCoMKgwqDCoMKgaW50IGksIGosIGs7DQo+IMKgDQo+IMKg
+wqDCoMKgwqDCoMKgwqBmb3JfZWFjaF90ZCh0ZCwgaSkgew0KPiArwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgaWYgKHRkX3RyaW0odGQpICYmDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgKHRkLT5vLm1pbl9ic1tERElSX1RSSU1dICE9IHRkLQ0KPiA+by5tYXhf
+YnNbRERJUl9UUklNXSB8fA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgdGQtPm8uYnNzcGxpdF9ucltERElSX1RSSU1dKSkgew0KPiArwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGxvZ19pbmZvKCJic3JhbmdlIGFuZCBic3NwbGl0
+IGlzIG5vdCBhbGxvd2VkDQo+IGZvciB0cmltIHdpdGggem9uZW1vZGU9emJkXG4iKTsNCj4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gZmFsc2U7
+DQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB9DQo+IMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgZm9yX2VhY2hfZmlsZSh0ZCwgZiwgaikgew0KPiDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB1aW50NjRfdCB6b25lX3NpemU7DQo+
+IMKgDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlm
+ICghZi0+emJkX2luZm8pDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjb250aW51ZTsNCj4gwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgem9uZV9zaXplID0gZi0+emJkX2luZm8tPnpv
+bmVfc2l6ZTsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqBpZiAodGRfdHJpbSh0ZCkgJiYgdGQtPm8uYnNbRERJUl9UUklNXSAhPQ0KPiB6b25lX3NpemUp
+IHsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgbG9nX2luZm8oIiVzOiB0cmltIGJsb2NrIHNpemUgJWxsdSBpcw0KPiBub3Qg
+dGhlIHpvbmUgc2l6ZSAlbGx1XG4iLA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGYtPmZpbGVf
+bmFtZSwgdGQtDQo+ID5vLmJzW0RESVJfVFJJTV0sDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+KHVuc2lnbmVkIGxvbmcNCj4gbG9uZyl6b25lX3NpemUpOw0KPiArwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gZmFsc2U7
+DQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfQ0KPiDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBmb3IgKGsgPSAw
+OyBrIDwgRklPX0FSUkFZX1NJWkUodGQtPm8uYnMpOw0KPiBrKyspIHsNCj4gwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmICh0
+ZC0+by52ZXJpZnkgIT0gVkVSSUZZX05PTkUgJiYNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB6b25lX3NpemUg
+JSB0ZC0+by5ic1trXSAhPSAwKSB7DQo+IEBAIC0xNTI4LDkgKzE1NDAsNiBAQCBzdGF0aWMgdm9p
+ZCB6YmRfcXVldWVfaW8oc3RydWN0IHRocmVhZF9kYXRhDQo+ICp0ZCwgc3RydWN0IGlvX3UgKmlv
+X3UsIGludCBxLA0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHB0aHJlYWRfbXV0
+ZXhfdW5sb2NrKCZ6YmRfaW5mby0+bXV0ZXgpOw0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoHotPndwID0gem9uZV9lbmQ7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgYnJlYWs7DQo+IC3CoMKgwqDCoMKgwqDCoGNhc2UgRERJUl9UUklNOg0KPiAtwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgYXNzZXJ0KHotPndwID09IHotPnN0YXJ0KTsNCj4gLcKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGJyZWFrOw0KPiDCoMKgwqDCoMKgwqDCoMKgZGVmYXVs
+dDoNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBicmVhazsNCj4gwqDCoMKgwqDC
+oMKgwqDCoH0NCj4gQEAgLTE5MTAsOCArMTkxOSwyMyBAQCBlbnVtIGlvX3VfYWN0aW9uIHpiZF9h
+ZGp1c3RfYmxvY2soc3RydWN0DQo+IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3Up
+DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCh6YmRf
+em9uZV9jYXBhY2l0eV9lbmQoemIpIC0gaW9fdS0+b2Zmc2V0KSwNCj4gbWluX2JzKTsNCj4gwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBnb3RvIGVvZjsNCj4gwqDCoMKgwqDCoMKgwqDC
+oGNhc2UgRERJUl9UUklNOg0KPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgLyogZmFs
+bC10aHJvdWdoICovDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAvKiBDaGVjayBy
+YW5kb20gdHJpbSB0YXJnZXRzIGEgbm9uLWVtcHR5IHpvbmUgKi8NCj4gK8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoGlmICghdGRfcmFuZG9tKHRkKSB8fCB6Yi0+d3AgPiB6Yi0+c3RhcnQp
+DQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ290byBh
+Y2NlcHQ7DQo+ICsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoC8qIEZpbmQgb3V0
+IGEgbm9uLWVtcHR5IHpvbmUgdG8gdHJpbSAqLw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgem9uZV91bmxvY2soemIpOw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+emwgPSBnZXRfem9uZShmLCBmLT5tYXhfem9uZSk7DQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqB6YiA9IHpiZF9maW5kX3pvbmUodGQsIGlvX3UsIDEsIHpiLCB6bCk7DQo+ICvCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoemIpIHsNCj4gK8KgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpb191LT5vZmZzZXQgPSB6Yi0+c3RhcnQ7DQo+
+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZHByaW50KEZE
+X1pCRCwgIiVzOiBmb3VuZCBuZXcgem9uZSglbGxkKSBmb3INCj4gdHJpbVxuIiwNCj4gK8KgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgZi0+
+ZmlsZV9uYW1lLCBpb191LT5vZmZzZXQpOw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoGdvdG8gYWNjZXB0Ow0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgfQ0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ290byBlb2Y7DQo+
+IMKgwqDCoMKgwqDCoMKgwqBjYXNlIERESVJfU1lOQzoNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoC8qIGZhbGwtdGhyb3VnaCAqLw0KPiDCoMKgwqDCoMKgwqDCoMKgY2FzZSBERElS
+X0RBVEFTWU5DOg0KPiDCoMKgwqDCoMKgwqDCoMKgY2FzZSBERElSX1NZTkNfRklMRV9SQU5HRToN
+Cj4gwqDCoMKgwqDCoMKgwqDCoGNhc2UgRERJUl9XQUlUOg0KPiBAQCAtMTk1MiwzICsxOTc2LDQy
+IEBAIGNoYXIgKnpiZF93cml0ZV9zdGF0dXMoY29uc3Qgc3RydWN0DQo+IHRocmVhZF9zdGF0ICp0
+cykNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gTlVMTDsNCj4gwqDC
+oMKgwqDCoMKgwqDCoHJldHVybiByZXM7DQo+IMKgfQ0KPiArDQo+ICsvKioNCj4gKyAqIHpiZF9k
+b19pb191X3RyaW0gLSBJZiByZXNldCB6b25lIGlzIGFwcGxpY2FibGUsIGRvIHJlc2V0IHpvbmUN
+Cj4gaW5zdGVhZCBvZiB0cmltDQo+ICsgKg0KPiArICogQHRkOiBGSU8gdGhyZWFkIGRhdGEuDQo+
+ICsgKiBAaW9fdTogRklPIEkvTyB1bml0Lg0KPiArICoNCj4gKyAqIEl0IGlzIGFzc3VtZWQgdGhh
+dCB6LT5tdXRleCBpcyBhbHJlYWR5IGxvY2tlZC4NCj4gKyAqIFJldHVybiBpb191X2NvbXBsZXRl
+ZCB3aGVuIHJlc2V0IHpvbmUgc3VjY2VlZHMuIFJldHVybiAwIHdoZW4gdGhlDQo+IHRhcmdldCB6
+b25lDQo+ICsgKiBkb2VzIG5vdCBoYXZlIHdyaXRlIHBvaW50ZXIuIE9uIGVycm9yLCByZXR1cm4g
+bmVnYXRpdmUgZXJybm8uDQo+ICsgKi8NCj4gK2ludCB6YmRfZG9faW9fdV90cmltKGNvbnN0IHN0
+cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBpb191DQo+ICppb191KQ0KPiArew0KPiArwqDC
+oMKgwqDCoMKgwqBzdHJ1Y3QgZmlvX2ZpbGUgKmYgPSBpb191LT5maWxlOw0KPiArwqDCoMKgwqDC
+oMKgwqBzdHJ1Y3QgZmlvX3pvbmVfaW5mbyAqejsNCj4gK8KgwqDCoMKgwqDCoMKgdWludDMyX3Qg
+em9uZV9pZHg7DQo+ICvCoMKgwqDCoMKgwqDCoGludCByZXQ7DQo+ICsNCj4gK8KgwqDCoMKgwqDC
+oMKgem9uZV9pZHggPSB6YmRfem9uZV9pZHgoZiwgaW9fdS0+b2Zmc2V0KTsNCj4gK8KgwqDCoMKg
+wqDCoMKgeiA9IGdldF96b25lKGYsIHpvbmVfaWR4KTsNCj4gKw0KPiArwqDCoMKgwqDCoMKgwqBp
+ZiAoIXotPmhhc193cCkNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiAw
+Ow0KPiArDQo+ICvCoMKgwqDCoMKgwqDCoGlmIChpb191LT5vZmZzZXQgIT0gei0+c3RhcnQpIHsN
+Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGxvZ19lcnIoIlRyaW0gb2Zmc2V0IG5v
+dCBhdCB6b25lIHN0YXJ0ICglbGxkKVxuIiwNCj4gaW9fdS0+b2Zmc2V0KTsNCj4gK8KgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiAtRUlOVkFMOw0KPiArwqDCoMKgwqDCoMKgwqB9
+DQo+ICsNCj4gK8KgwqDCoMKgwqDCoMKgLyoNCj4gK8KgwqDCoMKgwqDCoMKgICogQ2FzdCB0ZCB0
+byBkcm9wIGNvbnN0IG1vZGlmaWVyIHNvIHRoYXQgemJkX3Jlc2V0X3pvbmUoKQ0KPiBjYW4gY2hh
+bmdlIHRkDQo+ICvCoMKgwqDCoMKgwqDCoCAqIG1lbWJlcnMuDQo+ICvCoMKgwqDCoMKgwqDCoCAq
+Lw0KDQpUaGlzIGNvbW1lbnQgaXMgbm90IHJlYWxseSBuZWNlc3NhcnkuDQoNCj4gK8KgwqDCoMKg
+wqDCoMKgcmV0ID0gemJkX3Jlc2V0X3pvbmUoKHN0cnVjdCB0aHJlYWRfZGF0YSAqKXRkLCBmLCB6
+KTsNCj4gK8KgwqDCoMKgwqDCoMKgaWYgKHJldCA8IDApDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqByZXR1cm4gcmV0Ow0KPiArDQo+ICvCoMKgwqDCoMKgwqDCoHJldHVybiBpb191
+X2NvbXBsZXRlZDsNCj4gK30NCj4gZGlmZiAtLWdpdCBhL3piZC5oIGIvemJkLmgNCj4gaW5kZXgg
+MzlkYzQ1ZTMuLjBhNzNiNDFkIDEwMDY0NA0KPiAtLS0gYS96YmQuaA0KPiArKysgYi96YmQuaA0K
+PiBAQCAtMTcsNiArMTcsNyBAQCBzdHJ1Y3QgZmlvX2ZpbGU7DQo+IMKgZW51bSBpb191X2FjdGlv
+biB7DQo+IMKgwqDCoMKgwqDCoMKgwqBpb191X2FjY2VwdMKgwqDCoMKgwqA9IDAsDQo+IMKgwqDC
+oMKgwqDCoMKgwqBpb191X2VvZsKgwqDCoMKgwqDCoMKgwqA9IDEsDQo+ICvCoMKgwqDCoMKgwqDC
+oGlvX3VfY29tcGxldGVkwqAgPSAyLA0KPiDCoH07DQo+IMKgDQo+IMKgLyoqDQo+IEBAIC05OSw2
+ICsxMDAsNyBAQCBlbnVtIGZpb19kZGlyIHpiZF9hZGp1c3RfZGRpcihzdHJ1Y3QgdGhyZWFkX2Rh
+dGENCj4gKnRkLCBzdHJ1Y3QgaW9fdSAqaW9fdSwNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBlbnVtIGZpb19kZGlyIGRkaXIpOw0K
+PiDCoGVudW0gaW9fdV9hY3Rpb24gemJkX2FkanVzdF9ibG9jayhzdHJ1Y3QgdGhyZWFkX2RhdGEg
+KnRkLCBzdHJ1Y3QNCj4gaW9fdSAqaW9fdSk7DQo+IMKgY2hhciAqemJkX3dyaXRlX3N0YXR1cyhj
+b25zdCBzdHJ1Y3QgdGhyZWFkX3N0YXQgKnRzKTsNCj4gK2ludCB6YmRfZG9faW9fdV90cmltKGNv
+bnN0IHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBpb191DQo+ICppb191KTsNCj4gwqAN
+Cj4gwqBzdGF0aWMgaW5saW5lIHZvaWQgemJkX2Nsb3NlX2ZpbGUoc3RydWN0IGZpb19maWxlICpm
+KQ0KPiDCoHsNCg0K
 
