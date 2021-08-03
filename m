@@ -1,126 +1,82 @@
-Return-Path: <prvs=84353bb0d=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=842e7faf4=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
 Subject: Re: [PATCH 3/4] engines/libzbc: Enable trim for libzbc I/O engine
-Date: Wed, 4 Aug 2021 06:39:05 +0000
-Message-ID: <20210804063905.cq3xjq2szt3ptnax@shindev>
+Date: Tue, 3 Aug 2021 19:36:24 +0000
+Message-ID: <596b2e633684d7bdef9652854481096994b82149.camel@wdc.com>
 References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
- <20210728104752.923770-4-shinichiro.kawasaki@wdc.com>
- <596b2e633684d7bdef9652854481096994b82149.camel@wdc.com>
-In-Reply-To: <596b2e633684d7bdef9652854481096994b82149.camel@wdc.com>
+	 <20210728104752.923770-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210728104752.923770-4-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <692075CDE443424B8144C94087DB3494@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <067F87DB818E634B8FDE7077E5504E9F@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-On Aug 03, 2021 / 19:36, Dmitry Fomichev wrote:
-> On Wed, 2021-07-28 at 19:47 +0900, Shin'ichiro Kawasaki wrote:
-> > The trim workload to zoned block devices is supported as zone reset,
-> > and
-> > this feature is available for I/O engines which support both zoned
-> > devices and trim workload. Libzbc I/O engine supports zoned but lacks
-> > trim workload support. To enable trim support with libzbc I/O engine,
-> > remove the check which inhibited trim from requests to libzbc I/O
-> > engine. Also set file open flags for trim same as write, and call
-> > zbd_do_io_u_trim() for trim I/O.
-> >=20
-> > Of note is that libzbc I/O engine now can support trim to sequential
-> > write required zones, but still can not support os_trim() call and
-> > BLKDISCARD ioctl for the conventional zones. The trim I/Os to
-> > conventional zones are reported as an error.
-> >=20
-> > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-> > ---
-> > =A0engines/libzbc.c | 16 ++++++++++------
-> > =A01 file changed, 10 insertions(+), 6 deletions(-)
-> >=20
-> > diff --git a/engines/libzbc.c b/engines/libzbc.c
-> > index 7f2bc431..5b4c5e8e 100644
-> > --- a/engines/libzbc.c
-> > +++ b/engines/libzbc.c
-> > @@ -14,6 +14,7 @@
-> > =A0#include "fio.h"
-> > =A0#include "err.h"
-> > =A0#include "zbd_types.h"
-> > +#include "zbd.h"
-> > =A0
-> > =A0struct libzbc_data {
-> > =A0=A0=A0=A0=A0=A0=A0=A0struct zbc_device=A0=A0=A0=A0=A0=A0=A0*zdev;
-> > @@ -63,7 +64,7 @@ static int libzbc_open_dev(struct thread_data *td,
-> > struct fio_file *f,
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -EINVAL;
-> > =A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0
-> > -=A0=A0=A0=A0=A0=A0=A0if (td_write(td)) {
-> > +=A0=A0=A0=A0=A0=A0=A0if (td_write(td) || td_trim(td)) {
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (!read_only)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0flags |=3D O_RDWR;
-> > =A0=A0=A0=A0=A0=A0=A0=A0} else if (td_read(td)) {
-> > @@ -71,10 +72,6 @@ static int libzbc_open_dev(struct thread_data *td,
-> > struct fio_file *f,
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0flags |=3D O_RDWR;
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0else
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0flags |=3D O_RDONLY;
-> > -=A0=A0=A0=A0=A0=A0=A0} else if (td_trim(td)) {
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0td_verror(td, EINVAL, "li=
-bzbc does not support
-> > trim");
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0log_err("%s: libzbc does =
-not support trim\n", f-
-> > >file_name);
-> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -EINVAL;
-> > =A0=A0=A0=A0=A0=A0=A0=A0}
-> > =A0
-> > =A0=A0=A0=A0=A0=A0=A0=A0if (td->o.oatomic) {
-> > @@ -411,7 +408,14 @@ static enum fio_q_status libzbc_queue(struct
-> > thread_data *td, struct io_u *io_u)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ret =3D zbc_flush(ld->z=
-dev);
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (ret)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0log_err("zbc_flush error %zd\n", ret);
-> > -=A0=A0=A0=A0=A0=A0=A0} else if (io_u->ddir !=3D DDIR_TRIM) {
-> > +=A0=A0=A0=A0=A0=A0=A0} else if (io_u->ddir =3D=3D DDIR_TRIM) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ret =3D zbd_do_io_u_trim(=
-td, io_u);
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (!ret) {
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0l=
-og_err("libzbc does not support trim to "
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0"conventional zones\n");
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0r=
-et =3D EINVAL;
->=20
-> Wouldn't that be more appropriate to just call os_trim() here and avoid
-> this error? This way, any ZBD trim workload that succeeds without using
-> libzbc would also succeed with using this engine... not the case with
-> the code above.
-
-os_trim() for Linux calls BLKDISCARD ioctl, which does not work for SG node=
-.
-Then, os_trim() call is not appropriate here.
-
-One point to improve is the log_err() message I added. "Trim" and
-"Conventional zone" does not have relation, then the message is confusing.
-The error message is too much, probably. I will remove it and just return
-EINVAL.
-
->=20
-> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
-> > +=A0=A0=A0=A0=A0=A0=A0} else {
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0log_err("Unsupported op=
-eration %u\n", io_u->ddir);
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ret =3D -EINVAL;
-> > =A0=A0=A0=A0=A0=A0=A0=A0}
->=20
-
---=20
-Best Regards,
-Shin'ichiro Kawasaki=
+T24gV2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
+cm90ZToNCj4gVGhlIHRyaW0gd29ya2xvYWQgdG8gem9uZWQgYmxvY2sgZGV2aWNlcyBpcyBzdXBw
+b3J0ZWQgYXMgem9uZSByZXNldCwNCj4gYW5kDQo+IHRoaXMgZmVhdHVyZSBpcyBhdmFpbGFibGUg
+Zm9yIEkvTyBlbmdpbmVzIHdoaWNoIHN1cHBvcnQgYm90aCB6b25lZA0KPiBkZXZpY2VzIGFuZCB0
+cmltIHdvcmtsb2FkLiBMaWJ6YmMgSS9PIGVuZ2luZSBzdXBwb3J0cyB6b25lZCBidXQgbGFja3MN
+Cj4gdHJpbSB3b3JrbG9hZCBzdXBwb3J0LiBUbyBlbmFibGUgdHJpbSBzdXBwb3J0IHdpdGggbGli
+emJjIEkvTyBlbmdpbmUsDQo+IHJlbW92ZSB0aGUgY2hlY2sgd2hpY2ggaW5oaWJpdGVkIHRyaW0g
+ZnJvbSByZXF1ZXN0cyB0byBsaWJ6YmMgSS9PDQo+IGVuZ2luZS4gQWxzbyBzZXQgZmlsZSBvcGVu
+IGZsYWdzIGZvciB0cmltIHNhbWUgYXMgd3JpdGUsIGFuZCBjYWxsDQo+IHpiZF9kb19pb191X3Ry
+aW0oKSBmb3IgdHJpbSBJL08uDQo+IA0KPiBPZiBub3RlIGlzIHRoYXQgbGliemJjIEkvTyBlbmdp
+bmUgbm93IGNhbiBzdXBwb3J0IHRyaW0gdG8gc2VxdWVudGlhbA0KPiB3cml0ZSByZXF1aXJlZCB6
+b25lcywgYnV0IHN0aWxsIGNhbiBub3Qgc3VwcG9ydCBvc190cmltKCkgY2FsbCBhbmQNCj4gQkxL
+RElTQ0FSRCBpb2N0bCBmb3IgdGhlIGNvbnZlbnRpb25hbCB6b25lcy4gVGhlIHRyaW0gSS9PcyB0
+bw0KPiBjb252ZW50aW9uYWwgem9uZXMgYXJlIHJlcG9ydGVkIGFzIGFuIGVycm9yLg0KPiANCj4g
+U2lnbmVkLW9mZi1ieTogU2hpbidpY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3YXNha2lA
+d2RjLmNvbT4NCj4gLS0tDQo+IMKgZW5naW5lcy9saWJ6YmMuYyB8IDE2ICsrKysrKysrKystLS0t
+LS0NCj4gwqAxIGZpbGUgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkN
+Cj4gDQo+IGRpZmYgLS1naXQgYS9lbmdpbmVzL2xpYnpiYy5jIGIvZW5naW5lcy9saWJ6YmMuYw0K
+PiBpbmRleCA3ZjJiYzQzMS4uNWI0YzVlOGUgMTAwNjQ0DQo+IC0tLSBhL2VuZ2luZXMvbGliemJj
+LmMNCj4gKysrIGIvZW5naW5lcy9saWJ6YmMuYw0KPiBAQCAtMTQsNiArMTQsNyBAQA0KPiDCoCNp
+bmNsdWRlICJmaW8uaCINCj4gwqAjaW5jbHVkZSAiZXJyLmgiDQo+IMKgI2luY2x1ZGUgInpiZF90
+eXBlcy5oIg0KPiArI2luY2x1ZGUgInpiZC5oIg0KPiDCoA0KPiDCoHN0cnVjdCBsaWJ6YmNfZGF0
+YSB7DQo+IMKgwqDCoMKgwqDCoMKgwqBzdHJ1Y3QgemJjX2RldmljZcKgwqDCoMKgwqDCoMKgKnpk
+ZXY7DQo+IEBAIC02Myw3ICs2NCw3IEBAIHN0YXRpYyBpbnQgbGliemJjX29wZW5fZGV2KHN0cnVj
+dCB0aHJlYWRfZGF0YSAqdGQsDQo+IHN0cnVjdCBmaW9fZmlsZSAqZiwNCj4gwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gLUVJTlZBTDsNCj4gwqDCoMKgwqDCoMKgwqDCoH0N
+Cj4gwqANCj4gLcKgwqDCoMKgwqDCoMKgaWYgKHRkX3dyaXRlKHRkKSkgew0KPiArwqDCoMKgwqDC
+oMKgwqBpZiAodGRfd3JpdGUodGQpIHx8IHRkX3RyaW0odGQpKSB7DQo+IMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgaWYgKCFyZWFkX29ubHkpDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGZsYWdzIHw9IE9fUkRXUjsNCj4gwqDCoMKgwqDC
+oMKgwqDCoH0gZWxzZSBpZiAodGRfcmVhZCh0ZCkpIHsNCj4gQEAgLTcxLDEwICs3Miw2IEBAIHN0
+YXRpYyBpbnQgbGliemJjX29wZW5fZGV2KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsDQo+IHN0cnVj
+dCBmaW9fZmlsZSAqZiwNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgZmxhZ3MgfD0gT19SRFdSOw0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoGVsc2UNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgZmxhZ3MgfD0gT19SRE9OTFk7DQo+IC3CoMKgwqDCoMKgwqDCoH0gZWxzZSBpZiAodGRfdHJp
+bSh0ZCkpIHsNCj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHRkX3ZlcnJvcih0ZCwg
+RUlOVkFMLCAibGliemJjIGRvZXMgbm90IHN1cHBvcnQNCj4gdHJpbSIpOw0KPiAtwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgbG9nX2VycigiJXM6IGxpYnpiYyBkb2VzIG5vdCBzdXBwb3J0
+IHRyaW1cbiIsIGYtDQo+ID5maWxlX25hbWUpOw0KPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgcmV0dXJuIC1FSU5WQUw7DQo+IMKgwqDCoMKgwqDCoMKgwqB9DQo+IMKgDQo+IMKgwqDC
+oMKgwqDCoMKgwqBpZiAodGQtPm8ub2F0b21pYykgew0KPiBAQCAtNDExLDcgKzQwOCwxNCBAQCBz
+dGF0aWMgZW51bSBmaW9fcV9zdGF0dXMgbGliemJjX3F1ZXVlKHN0cnVjdA0KPiB0aHJlYWRfZGF0
+YSAqdGQsIHN0cnVjdCBpb191ICppb191KQ0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoHJldCA9IHpiY19mbHVzaChsZC0+emRldik7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgaWYgKHJldCkNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgbG9nX2VycigiemJjX2ZsdXNoIGVycm9yICV6ZFxuIiwgcmV0KTsNCj4gLcKg
+wqDCoMKgwqDCoMKgfSBlbHNlIGlmIChpb191LT5kZGlyICE9IERESVJfVFJJTSkgew0KPiArwqDC
+oMKgwqDCoMKgwqB9IGVsc2UgaWYgKGlvX3UtPmRkaXIgPT0gRERJUl9UUklNKSB7DQo+ICvCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXQgPSB6YmRfZG9faW9fdV90cmltKHRkLCBpb191
+KTsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmICghcmV0KSB7DQo+ICvCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgbG9nX2VycigibGliemJj
+IGRvZXMgbm90IHN1cHBvcnQgdHJpbSB0byAiDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCJjb252ZW50aW9uYWwgem9uZXNc
+biIpOw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJl
+dCA9IEVJTlZBTDsNCg0KV291bGRuJ3QgdGhhdCBiZSBtb3JlIGFwcHJvcHJpYXRlIHRvIGp1c3Qg
+Y2FsbCBvc190cmltKCkgaGVyZSBhbmQgYXZvaWQNCnRoaXMgZXJyb3I/IFRoaXMgd2F5LCBhbnkg
+WkJEIHRyaW0gd29ya2xvYWQgdGhhdCBzdWNjZWVkcyB3aXRob3V0IHVzaW5nDQpsaWJ6YmMgd291
+bGQgYWxzbyBzdWNjZWVkIHdpdGggdXNpbmcgdGhpcyBlbmdpbmUuLi4gbm90IHRoZSBjYXNlIHdp
+dGgNCnRoZSBjb2RlIGFib3ZlLg0KDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB9
+DQo+ICvCoMKgwqDCoMKgwqDCoH0gZWxzZSB7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgbG9nX2VycigiVW5zdXBwb3J0ZWQgb3BlcmF0aW9uICV1XG4iLCBpb191LT5kZGlyKTsN
+Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXQgPSAtRUlOVkFMOw0KPiDCoMKg
+wqDCoMKgwqDCoMKgfQ0KDQo=
 
