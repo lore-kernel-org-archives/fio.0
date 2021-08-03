@@ -1,28 +1,138 @@
-Return-Path: <axboe@kernel.dk>
-Subject: Re: [PATCH] fio:remove raw device support
-References: <b49454cd-40a4-c4ae-7fce-91e95c1abfc4@redhat.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <f1f6966c-5a54-ac40-94a3-ef1ee9ac58d5@kernel.dk>
-Date: Tue, 3 Aug 2021 12:21:42 -0600
+Return-Path: <esandeen@redhat.com>
+Return-Path: <esandeen@redhat.com>
+From: Eric Sandeen <esandeen@redhat.com>
+Subject: [PATCH] fio:remove raw device support
+Message-ID: <b49454cd-40a4-c4ae-7fce-91e95c1abfc4@redhat.com>
+Date: Tue, 3 Aug 2021 10:23:35 -0700
 MIME-Version: 1.0
-In-Reply-To: <b49454cd-40a4-c4ae-7fce-91e95c1abfc4@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-To: Eric Sandeen <esandeen@redhat.com>, fio <fio@vger.kernel.org>
+To: fio <fio@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-On 8/3/21 11:23 AM, Eric Sandeen wrote:
-> As of Linux kernel commit 603e4922f1c ("remove the raw driver"),
-> linux/raw.h is gone, and raw device support no longer exists.
-> Because of this, fio can no longer build against the current Linux
-> kernel headers.
-> 
-> So, remove raw device support from fio as well.
+As of Linux kernel commit 603e4922f1c ("remove the raw driver"),
+linux/raw.h is gone, and raw device support no longer exists.
+Because of this, fio can no longer build against the current Linux
+kernel headers.
 
-Thanks, applied.
+So, remove raw device support from fio as well.
 
--- 
-Jens Axboe
+Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+---
+
+This might be braindead, and it's compile-tested only. But I figured
+I'd report the problem in the form of a patch, even if it's wrong. ;)
+
+diff --git a/diskutil.c b/diskutil.c
+index 0051a7a0..ace7af3d 100644
+--- a/diskutil.c
++++ b/diskutil.c
+@@ -166,14 +166,10 @@ static int get_device_numbers(char *file_name, int *maj, int *min)
+ 		if (S_ISBLK(st.st_mode)) {
+ 			majdev = major(st.st_rdev);
+ 			mindev = minor(st.st_rdev);
+-		} else if (S_ISCHR(st.st_mode)) {
+-			majdev = major(st.st_rdev);
+-			mindev = minor(st.st_rdev);
+-			if (fio_lookup_raw(st.st_rdev, &majdev, &mindev))
+-				return -1;
+-		} else if (S_ISFIFO(st.st_mode))
++		} else if (S_ISCHR(st.st_mode) ||
++			   S_ISFIFO(st.st_mode)) {
+ 			return -1;
+-		else {
++		} else {
+ 			majdev = major(st.st_dev);
+ 			mindev = minor(st.st_dev);
+ 		}
+diff --git a/fio.1 b/fio.1
+index 6cc82542..9c12ad13 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1700,9 +1700,7 @@ Sets size to something really large and waits for ENOSPC (no space left on
+ device) or EDQUOT (disk quota exceeded)
+ as the terminating condition. Only makes sense with sequential
+ write. For a read workload, the mount point will be filled first then I/O
+-started on the result. This option doesn't make sense if operating on a raw
+-device node, since the size of that is already known by the file system.
+-Additionally, writing beyond end-of-device will not return ENOSPC there.
++started on the result.
+ .SS "I/O engine"
+ .TP
+ .BI ioengine \fR=\fPstr
+diff --git a/os/os-linux.h b/os/os-linux.h
+index f7137abe..16ed5258 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -14,7 +14,6 @@
+ #include <errno.h>
+ #include <sched.h>
+ #include <linux/unistd.h>
+-#include <linux/raw.h>
+ #include <linux/major.h>
+ #include <linux/fs.h>
+ #include <scsi/sg.h>
+@@ -41,7 +40,6 @@
+ #define FIO_HAVE_IOSCHED_SWITCH
+ #define FIO_HAVE_ODIRECT
+ #define FIO_HAVE_HUGETLB
+-#define FIO_HAVE_RAWBIND
+ #define FIO_HAVE_BLKTRACE
+ #define FIO_HAVE_CL_SIZE
+ #define FIO_HAVE_CGROUPS
+@@ -178,36 +176,6 @@ static inline unsigned long long os_phys_mem(void)
+ 	return (unsigned long long) pages * (unsigned long long) pagesize;
+ }
+ 
+-static inline int fio_lookup_raw(dev_t dev, int *majdev, int *mindev)
+-{
+-	struct raw_config_request rq;
+-	int fd;
+-
+-	if (major(dev) != RAW_MAJOR)
+-		return 1;
+-
+-	/*
+-	 * we should be able to find /dev/rawctl or /dev/raw/rawctl
+-	 */
+-	fd = open("/dev/rawctl", O_RDONLY);
+-	if (fd < 0) {
+-		fd = open("/dev/raw/rawctl", O_RDONLY);
+-		if (fd < 0)
+-			return 1;
+-	}
+-
+-	rq.raw_minor = minor(dev);
+-	if (ioctl(fd, RAW_GETBIND, &rq) < 0) {
+-		close(fd);
+-		return 1;
+-	}
+-
+-	close(fd);
+-	*majdev = rq.block_major;
+-	*mindev = rq.block_minor;
+-	return 0;
+-}
+-
+ #ifdef O_NOATIME
+ #define FIO_O_NOATIME	O_NOATIME
+ #else
+diff --git a/os/os.h b/os/os.h
+index e47d3d97..17daf91d 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -157,10 +157,6 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
+ #define OS_RAND_MAX			RAND_MAX
+ #endif
+ 
+-#ifndef FIO_HAVE_RAWBIND
+-#define fio_lookup_raw(dev, majdev, mindev)	1
+-#endif
+-
+ #ifndef FIO_PREFERRED_ENGINE
+ #define FIO_PREFERRED_ENGINE	"psync"
+ #endif
 
 
