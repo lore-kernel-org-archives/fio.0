@@ -1,45 +1,66 @@
-Return-Path: <vincent.fu@samsung.com>
-From: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 1/2] backend: clarify io scheduler setting error message
-Date: Wed, 4 Aug 2021 18:29:04 +0000
-Message-ID: <20210804182841.8780-2-vincent.fu@samsung.com>
-In-Reply-To: <20210804182841.8780-1-vincent.fu@samsung.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38487 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239946AbhHCTgv (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 3 Aug 2021 15:36:51 -0400
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: Re: [PATCH 4/4] t/zbd: Add test #58 to test zone reset by trim
+ workload
+Date: Tue, 3 Aug 2021 19:36:38 +0000
+Message-ID: <f88d374b00fe03781613458cae10559436b581e2.camel@wdc.com>
+References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
+         <20210728104752.923770-5-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210728104752.923770-5-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <3935F50CC352054EB0B92CDD07588F78@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20210804182841.8780-1-vincent.fu@samsung.com>
-	<CGME20210804182905uscas1p2c6194b189e05c087e5cb4813c3c7abff@uscas1p2.samsung.com>
-To: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: Vincent Fu <vincent.fu@samsung.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
 
-If you know *how* fio tries to confirm that the IO scheduler was
-successfully set, then the error message "io scheduler not found" makes
-sense. However, if you don't know what fio does to confirm the io
-scheduler setting, then the error message is confusing. This patch
-modifies the error message to indicate that the selected IO scheduler
-could not be set.
-
-Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
----
- backend.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/backend.c b/backend.c
-index 6290e0d6..808e4362 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1407,7 +1407,7 @@ static int set_ioscheduler(struct thread_data *td, st=
-ruct fio_file *file)
-=20
- 	sprintf(tmp2, "[%s]", td->o.ioscheduler);
- 	if (!strstr(tmp, tmp2)) {
--		log_err("fio: io scheduler %s not found\n", td->o.ioscheduler);
-+		log_err("fio: unable to set io scheduler to %s\n", td->o.ioscheduler);
- 		td_verror(td, EINVAL, "iosched_switch");
- 		fclose(f);
- 		return 1;
---=20
-2.25.1
+T24gV2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
+cm90ZToNCj4gVG8gZXhlcmNpc2Ugem9uZSByZXNldCBieSB0cmltIHdvcmtsb2FkLCBhZGQgdGhl
+IHRlc3QgY2FzZSAjNTguIEFzIHRoZQ0KPiBwcmVjb25kaXRpb24sIGl0IGZpbGxzIHNldmVyYWwg
+em9uZXMuIEFmdGVyIHRoYXQsIGEgdHJpbSBqb2IgYW5kIGENCj4gd3JpdGUNCj4gam9iIHJ1biBp
+biBwYXJhbGxlbCBmb3IgMzAgc2Vjb25kcy4gVGhlIHJhdGlvIG9mIHRyaW0gY29tbWFuZHMgYW5k
+DQo+IHdyaXRlDQo+IGNvbW1hbmRzIGlzIGNvbnRyb2xsZWQgYnkgLS1mbG93IG9wdGlvbi4NCj4g
+DQo+IFNpZ25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtpIDxzaGluaWNoaXJvLmthd2Fz
+YWtpQHdkYy5jb20+DQoNClRlc3RlZC1ieTogRG1pdHJ5IEZvbWljaGV2IDxkbWl0cnkuZm9taWNo
+ZXZAd2RjLmNvbT4NClJldmlld2VkLWJ5OiBEbWl0cnkgRm9taWNoZXYgPGRtaXRyeS5mb21pY2hl
+dkB3ZGMuY29tPg0KPiAtLS0NCj4gwqB0L3piZC90ZXN0LXpiZC1zdXBwb3J0IHwgMjYgKysrKysr
+KysrKysrKysrKysrKysrKysrKysNCj4gwqAxIGZpbGUgY2hhbmdlZCwgMjYgaW5zZXJ0aW9ucygr
+KQ0KPiANCj4gZGlmZiAtLWdpdCBhL3QvemJkL3Rlc3QtemJkLXN1cHBvcnQgYi90L3piZC90ZXN0
+LXpiZC1zdXBwb3J0DQo+IGluZGV4IDU3ZTZkMDVlLi41MTAzYzQwNiAxMDA3NTUNCj4gLS0tIGEv
+dC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiArKysgYi90L3piZC90ZXN0LXpiZC1zdXBwb3J0DQo+
+IEBAIC0xMjE1LDYgKzEyMTUsMzIgQEAgdGVzdDU3KCkgew0KPiDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoD4+ICIke2xvZ2ZpbGV9LiR7dGVzdF9udW1iZXJ9IiAyPiYxIHx8IHJldHVy
+biAkPw0KPiDCoH0NCj4gwqANCj4gKyMgUmFuZG9tIHdyaXRlcyBhbmQgcmFuZG9tIHRyaW1zIHRv
+IHNlcXVlbnRpYWwgd3JpdGUgcmVxdWlyZWQgem9uZXMNCj4gZm9yIDMwcy4NCj4gK3Rlc3Q1OCgp
+IHsNCj4gK8KgwqDCoCBsb2NhbCBvZmYgc2l6ZSBicw0KPiArDQo+ICvCoMKgwqAgcmVxdWlyZV9z
+ZXFfem9uZXMgMTI4IHx8IHJldHVybiAkU0tJUF9URVNUQ0FTRQ0KPiArDQo+ICvCoMKgwqAgc2l6
+ZT0kKCh6b25lX3NpemUgKiAxMjgpKQ0KPiArwqDCoMKgIGJzPSIkKG1heCAkKCh6b25lX3NpemUg
+LyAxMjgpKSAiJGxvZ2ljYWxfYmxvY2tfc2l6ZSIpIg0KPiArwqDCoMKgIHByZXBfd3JpdGUNCj4g
+K8KgwqDCoCBvZmY9JCgoZmlyc3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciAqIDUxMikpDQo+ICvC
+oMKgwqAgcnVuX2ZpbyAtLXpvbmVtb2RlPXpiZCAtLWRpcmVjdD0xIC0tem9uZXNpemU9IiR7em9u
+ZV9zaXplfSIgLS0NCj4gdGhyZWFkPTEgXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS1maWxl
+bmFtZT0iJHtkZXZ9IiAtLW5vcmFuZG9tbWFwPTEgXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCAtLW5hbWU9InByZWNvbmRpdGlvbiLCoCAtLXJ3PXdyaXRlICIkKGlvZW5naW5lICJwc3luYyIp
+IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC0tb2Zmc2V0PSIke29mZn0iIC0tc2l6ZT0k
+KCh6b25lX3NpemUgKiAxNikpIC0tYnM9IiR7YnN9Ig0KPiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKg
+wqDCoCAiJHtqb2JfdmFyX29wdHNbQF19IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCAtLW5h
+bWU9d2pvYiAtLXdhaXRfZm9yPSJwcmVjb25kaXRpb24iIC0tcnc9cmFuZHdyaXRlIFwNCj4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgICIkKGlvZW5naW5lICJsaWJhaW8iKSIgLS1pb2RlcHRoPTggXA0K
+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS1vZmZzZXQ9IiR7b2ZmfSIgLS1zaXplPSIke3NpemV9
+IiAtLWJzPSIke2JzfSIgXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS10aW1lX2Jhc2VkIC0t
+cnVudGltZT0zMHMgLS1mbG93PTEyOCAiJHtqb2JfdmFyX29wdHNbQF19Ig0KPiBcDQo+ICvCoMKg
+wqDCoMKgwqDCoMKgwqDCoCAtLW5hbWU9dHJpbWpvYiAtLXdhaXRfZm9yPSJwcmVjb25kaXRpb24i
+IC0tcnc9cmFuZHRyaW0gXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgIiQoaW9lbmdpbmUgInBz
+eW5jIikiIFwNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgIC0tb2Zmc2V0PSIke29mZn0iIC0tc2l6
+ZT0iJHtzaXplfSIgLS1icz0iJHt6b25lX3NpemV9IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
+oCAtLXRpbWVfYmFzZWQgLS1ydW50aW1lPTMwcyAtLWZsb3c9MSAiJHtqb2JfdmFyX29wdHNbQF19
+IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCA+PiIke2xvZ2ZpbGV9LiR7dGVzdF9udW1iZXJ9
+IiAyPiYxDQo+ICt9DQo+ICsNCj4gwqBTRUNPTkRTPTANCj4gwqB0ZXN0cz0oKQ0KPiDCoGR5bmFt
+aWNfYW5hbHl6ZXI9KCkNCg0K
 
