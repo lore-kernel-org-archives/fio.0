@@ -1,57 +1,57 @@
-Return-Path: <ankit.kumar@samsung.com>
-From: Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 2/2] zbd: Improve random zone index generation logic
-Date: Wed,  4 Aug 2021 16:53:08 +0530
-Message-Id: <20210804112308.28062-3-ankit.kumar@samsung.com>
-In-Reply-To: <20210804112308.28062-1-ankit.kumar@samsung.com>
+Return-Path: <prvs=84353bb0d=shinichiro.kawasaki@wdc.com>
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH 1/2] Add missing documentation for job_max_open_zones.
+Date: Wed, 4 Aug 2021 05:52:35 +0000
+Message-ID: <20210804055234.2ybmcqastjeseghy@shindev>
+References: <1627986516-4814-1-git-send-email-ankit.kumar@samsung.com>
+ <CGME20210803111237epcas5p3793e7b1dbb19ccad4841e5ba69ee1bb8@epcas5p3.samsung.com>
+ <1627986516-4814-2-git-send-email-ankit.kumar@samsung.com>
+In-Reply-To: <1627986516-4814-2-git-send-email-ankit.kumar@samsung.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <5F5FAEFA230B8642A075FF8CFFA50C59@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="utf-8"
-References: <20210804112308.28062-1-ankit.kumar@samsung.com>
-	<CGME20210804112710epcas5p4d9ef2bfa2d2327b6e4ae27e1cad3aba6@epcas5p4.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, krish.reddy@samsung.com, prakash.v@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
+To: Ankit Kumar <ankit.kumar@samsung.com>
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>, "krish.reddy@samsung.com" <krish.reddy@samsung.com>, "prakash.v@samsung.com" <prakash.v@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-Existing random zone index generation logic is dependent on the file size.
-For smaller I/O sizes the random zone index always return a particular
-section of open zones. As this index is used to return one of the open zones,
-it was observed that after one of the max_open_zones / job_max_open_zones limit
-is reached all further I/O's are redirected to only a few open zones till they
-are full.
+Hello Ankit,
 
-This patch modifies the random zone index genration logic so that it is uniform
-across all the open zones.
+On Aug 03, 2021 / 15:58, Ankit Kumar wrote:
+> ---
+>  HOWTO | 5 +++++
+>  1 file changed, 5 insertions(+)
+>=20
+> diff --git a/HOWTO b/HOWTO
+> index 59c7f1f..d4e620d 100644
+> --- a/HOWTO
+> +++ b/HOWTO
+> @@ -1055,6 +1055,11 @@ Target file/device
+>  	number of open zones is defined as the number of zones to which write
+>  	commands are issued.
+> =20
+> +.. option:: job_max_open_zones=3Dint
+> +
+> +	Limit on the number of simultaneously opened zones per single
+> +	thread/process.
+> +
 
-It reverts part of the commit 6463db6c1
-('fio: fix interaction between offset/size limited threads and
-"max_open_zones"')
+This change looks good to me, but I think the commit message title can be
+improved. "HOWTO: " prefix will help to identify the change target file. Al=
+so,
+I suggest to remove the period in the title. As far as I know, all fio comm=
+its
+do not have period in their commit message titles.
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
----
- zbd.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+>  .. option:: zone_reset_threshold=3Dfloat
+> =20
+>  	A number between zero and one that indicates the ratio of logical
+> --=20
+> 1.8.3.1
+>=20
 
-diff --git a/zbd.c b/zbd.c
-index 04c68dea..43f12b45 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1184,11 +1184,12 @@ out:
- 	return res;
- }
- 
--/* Anything goes as long as it is not a constant. */
-+/* Return random zone index for one of the open zones. */
- static uint32_t pick_random_zone_idx(const struct fio_file *f,
- 				     const struct io_u *io_u)
- {
--	return io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
-+	return (io_u->offset - f->file_offset) * f->zbd_info->num_open_zones /
-+		f->io_size;
- }
- 
- /*
--- 
-2.30.0-rc0
-
+--=20
+Best Regards,
+Shin'ichiro Kawasaki
 
