@@ -1,59 +1,55 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41112 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229968AbhHUMBK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 21 Aug 2021 08:01:10 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A7A7C061575
-        for <fio@vger.kernel.org>; Sat, 21 Aug 2021 05:00:31 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mHPfR-007Zi7-5C
-        for fio@vger.kernel.org; Sat, 21 Aug 2021 12:00:14 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210821120002.34F2D1BC0139@kernel.dk>
-Date: Sat, 21 Aug 2021 06:00:02 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <ankit.kumar@samsung.com>
+From: Ankit Kumar <ankit.kumar@samsung.com>
+Subject: [PATCH 2/2] zbd: Improve random zone index generation logic
+Date: Wed,  4 Aug 2021 14:54:50 +0530
+Message-Id: <20210804092450.28782-3-ankit.kumar@samsung.com>
+In-Reply-To: <20210804092450.28782-1-ankit.kumar@samsung.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+References: <20210804092450.28782-1-ankit.kumar@samsung.com>
+	<CGME20210804092859epcas5p1085bcaafa631e16cc3ad4325b883172e@epcas5p1.samsung.com>
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org, krish.reddy@samsung.com, prakash.v@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 864314464e2772a9885da34ea041f130073affe9:
+Existing random zone index generation logic is dependent on the file size.
+For smaller I/O sizes the random zone index always return a particular
+section of open zones. As this index is used to return one of the open zones,
+it was observed that after one of the max_open_zones / job_max_open_zones limit
+is reached all further I/O's are redirected to only a few open zones till they
+are full.
 
-  Merge branch 'patch-1' of https://github.com/antroseco/fio (2021-08-18 10:47:55 -0600)
+This patch modifies the random zone index genration logic so that it is uniform
+across all the open zones.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 15ce99bb71e7c289f62ddee94e0149f6c81549de:
-
-  Merge branch 'master' of https://github.com/DamonPalovaara/fio (2021-08-20 20:58:42 -0600)
-
-----------------------------------------------------------------
-Damon Palovaara (1):
-      fixed type boot->bool
-
-Jens Axboe (1):
-      Merge branch 'master' of https://github.com/DamonPalovaara/fio
-
- HOWTO | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+It reverts part of the commit 6463db6c1
+('fio: fix interaction between offset/size limited threads and
+"max_open_zones"')
 ---
+ zbd.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Diff of recent changes:
+diff --git a/zbd.c b/zbd.c
+index 04c68dea..43f12b45 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1184,11 +1184,12 @@ out:
+ 	return res;
+ }
+ 
+-/* Anything goes as long as it is not a constant. */
++/* Return random zone index for one of the open zones. */
+ static uint32_t pick_random_zone_idx(const struct fio_file *f,
+ 				     const struct io_u *io_u)
+ {
+-	return io_u->offset * f->zbd_info->num_open_zones / f->real_file_size;
++	return (io_u->offset - f->file_offset) * f->zbd_info->num_open_zones /
++		f->io_size;
+ }
+ 
+ /*
+-- 
+2.30.0-rc0
 
-diff --git a/HOWTO b/HOWTO
-index 9bfd38b4..a2cf20f6 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2600,7 +2600,7 @@ with the caveat that when used on the command line, they must come after the
- 
- 	Specify the time between the SIGTERM and SIGKILL signals. Default is 1 second.
- 
--.. option:: std_redirect=boot : [exec]
-+.. option:: std_redirect=bool : [exec]
- 
- 	If set, stdout and stderr streams are redirected to files named from the job name. Default is true.
- 
 
