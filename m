@@ -1,50 +1,155 @@
-Return-Path: <prvs=86529e675=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 1/3] io_uring: always initialize sqe->flags
-Date: Thu, 26 Aug 2021 16:45:04 +0000
-Message-ID: <20210826164449.45833-2-Niklas.Cassel@wdc.com>
-References: <20210826164449.45833-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210826164449.45833-1-Niklas.Cassel@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235848AbhHDMBF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 4 Aug 2021 08:01:05 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5098CC0613D5
+        for <fio@vger.kernel.org>; Wed,  4 Aug 2021 05:00:52 -0700 (PDT)
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mBFZ7-005nuv-1t
+        for fio@vger.kernel.org; Wed, 04 Aug 2021 12:00:15 +0000
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+Message-Id: <20210804120002.5669F1BC014C@kernel.dk>
+Date: Wed,  4 Aug 2021 06:00:02 -0600 (MDT)
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+The following changes since commit b61fdc8a555f844ba838c80781972df1239b5959:
 
-Commit 7c70f506e438 ("engines/io_uring: move sqe clear out of hot path")
-removed the memset of sqe from fio_ioring_prep().
+  iolog: don't attempt read chunking with blktrace format (2021-08-02 08:23:24 -0600)
 
-Later, force_async was added in commit 5a59a81d2923 ("engines/io_uring:
-allow setting of IOSQE_ASYNC").
+are available in the Git repository at:
 
-The force_async commit sets sqe->flags every N requests, however,
-since we no longer do a memset, this commit should have made sure that
-flags is always initialized, such that we don't have sqe->flags set on
-reused sqes where we didn't intend to.
+  git://git.kernel.dk/fio.git master
 
-Fixes: 5a59a81d2923 ("engines/io_uring: allow setting of IOSQE_ASYNC")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+for you to fetch changes up to 382975557e632efb506836bc1709789e615c9094:
+
+  fio: remove raw device support (2021-08-03 12:20:22 -0600)
+
+----------------------------------------------------------------
+Eric Sandeen (1):
+      fio: remove raw device support
+
+ diskutil.c    | 10 +++-------
+ fio.1         |  4 +---
+ os/os-linux.h | 32 --------------------------------
+ os/os.h       |  4 ----
+ 4 files changed, 4 insertions(+), 46 deletions(-)
+
 ---
- engines/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 9c091e37..269e501f 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -234,6 +234,7 @@ static int fio_ioring_prep(struct thread_data *td, stru=
-ct io_u *io_u)
- 		sqe->flags =3D IOSQE_FIXED_FILE;
- 	} else {
- 		sqe->fd =3D f->fd;
-+		sqe->flags =3D 0;
- 	}
-=20
- 	if (io_u->ddir =3D=3D DDIR_READ || io_u->ddir =3D=3D DDIR_WRITE) {
---=20
-2.31.1
+Diff of recent changes:
+
+diff --git a/diskutil.c b/diskutil.c
+index 0051a7a0..ace7af3d 100644
+--- a/diskutil.c
++++ b/diskutil.c
+@@ -166,14 +166,10 @@ static int get_device_numbers(char *file_name, int *maj, int *min)
+ 		if (S_ISBLK(st.st_mode)) {
+ 			majdev = major(st.st_rdev);
+ 			mindev = minor(st.st_rdev);
+-		} else if (S_ISCHR(st.st_mode)) {
+-			majdev = major(st.st_rdev);
+-			mindev = minor(st.st_rdev);
+-			if (fio_lookup_raw(st.st_rdev, &majdev, &mindev))
+-				return -1;
+-		} else if (S_ISFIFO(st.st_mode))
++		} else if (S_ISCHR(st.st_mode) ||
++			   S_ISFIFO(st.st_mode)) {
+ 			return -1;
+-		else {
++		} else {
+ 			majdev = major(st.st_dev);
+ 			mindev = minor(st.st_dev);
+ 		}
+diff --git a/fio.1 b/fio.1
+index 6cc82542..9c12ad13 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1700,9 +1700,7 @@ Sets size to something really large and waits for ENOSPC (no space left on
+ device) or EDQUOT (disk quota exceeded)
+ as the terminating condition. Only makes sense with sequential
+ write. For a read workload, the mount point will be filled first then I/O
+-started on the result. This option doesn't make sense if operating on a raw
+-device node, since the size of that is already known by the file system.
+-Additionally, writing beyond end-of-device will not return ENOSPC there.
++started on the result.
+ .SS "I/O engine"
+ .TP
+ .BI ioengine \fR=\fPstr
+diff --git a/os/os-linux.h b/os/os-linux.h
+index f7137abe..16ed5258 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -14,7 +14,6 @@
+ #include <errno.h>
+ #include <sched.h>
+ #include <linux/unistd.h>
+-#include <linux/raw.h>
+ #include <linux/major.h>
+ #include <linux/fs.h>
+ #include <scsi/sg.h>
+@@ -41,7 +40,6 @@
+ #define FIO_HAVE_IOSCHED_SWITCH
+ #define FIO_HAVE_ODIRECT
+ #define FIO_HAVE_HUGETLB
+-#define FIO_HAVE_RAWBIND
+ #define FIO_HAVE_BLKTRACE
+ #define FIO_HAVE_CL_SIZE
+ #define FIO_HAVE_CGROUPS
+@@ -178,36 +176,6 @@ static inline unsigned long long os_phys_mem(void)
+ 	return (unsigned long long) pages * (unsigned long long) pagesize;
+ }
+ 
+-static inline int fio_lookup_raw(dev_t dev, int *majdev, int *mindev)
+-{
+-	struct raw_config_request rq;
+-	int fd;
+-
+-	if (major(dev) != RAW_MAJOR)
+-		return 1;
+-
+-	/*
+-	 * we should be able to find /dev/rawctl or /dev/raw/rawctl
+-	 */
+-	fd = open("/dev/rawctl", O_RDONLY);
+-	if (fd < 0) {
+-		fd = open("/dev/raw/rawctl", O_RDONLY);
+-		if (fd < 0)
+-			return 1;
+-	}
+-
+-	rq.raw_minor = minor(dev);
+-	if (ioctl(fd, RAW_GETBIND, &rq) < 0) {
+-		close(fd);
+-		return 1;
+-	}
+-
+-	close(fd);
+-	*majdev = rq.block_major;
+-	*mindev = rq.block_minor;
+-	return 0;
+-}
+-
+ #ifdef O_NOATIME
+ #define FIO_O_NOATIME	O_NOATIME
+ #else
+diff --git a/os/os.h b/os/os.h
+index e47d3d97..17daf91d 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -157,10 +157,6 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
+ #define OS_RAND_MAX			RAND_MAX
+ #endif
+ 
+-#ifndef FIO_HAVE_RAWBIND
+-#define fio_lookup_raw(dev, majdev, mindev)	1
+-#endif
+-
+ #ifndef FIO_PREFERRED_ENGINE
+ #define FIO_PREFERRED_ENGINE	"psync"
+ #endif
 
