@@ -1,66 +1,38 @@
-Return-Path: <prvs=844bea82a=shinichiro.kawasaki@wdc.com>
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 5/5] t/zbd: Add test #58 to test zone reset by trim workload
-Date: Thu,  5 Aug 2021 12:28:35 +0900
-Message-Id: <20210805032835.1119908-6-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
-References: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/2] v2: ZBD fix with random zone index logic and missing
+ documentation
+References: <CGME20210804092848epcas5p43713e1728116d2ea38c910a2b8991c42@epcas5p4.samsung.com>
+ <20210804092450.28782-1-ankit.kumar@samsung.com>
+ <20210804110731.7yqxy6k7dr6evrrg@shindev>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <5d93c040-c57c-502c-4262-8526d4d2867e@kernel.dk>
+Date: Wed, 4 Aug 2021 07:25:01 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210804110731.7yqxy6k7dr6evrrg@shindev>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, Ankit Kumar <ankit.kumar@samsung.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, "krish.reddy@samsung.com" <krish.reddy@samsung.com>, "prakash.v@samsung.com" <prakash.v@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-To exercise zone reset by trim workload, add the test case #58. As the
-precondition, it fills several zones. After that, a trim job and a write
-job run in parallel for 30 seconds. The ratio of trim commands and write
-commands is controlled by --flow option.
+On 8/4/21 5:07 AM, Shinichiro Kawasaki wrote:
+> On Aug 04, 2021 / 14:54, Ankit Kumar wrote:
+>> v1 -> v2
+>>
+>>  - Addressed the commit message review comments for both the patches
+>>
+>> Ankit Kumar (2):
+>>   HOWTO: Add missing documentation for job_max_open_zones
+>>   zbd: Improve random zone index generation logic
+> 
+> Ankit, when I commented the v1 patches, I overlooked that your commit messages
+> do not include your Signed-off-by tags. Many of the fio commits have the tags.
+> To clarify who contributed, I suggest to add it to the two patches.
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
----
- t/zbd/test-zbd-support | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+Indeed, please always add those.
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 57e6d05e..5103c406 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1215,6 +1215,32 @@ test57() {
- 		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Random writes and random trims to sequential write required zones for 30s.
-+test58() {
-+    local off size bs
-+
-+    require_seq_zones 128 || return $SKIP_TESTCASE
-+
-+    size=$((zone_size * 128))
-+    bs="$(max $((zone_size / 128)) "$logical_block_size")"
-+    prep_write
-+    off=$((first_sequential_zone_sector * 512))
-+    run_fio --zonemode=zbd --direct=1 --zonesize="${zone_size}" --thread=1 \
-+	    --filename="${dev}" --norandommap=1 \
-+            --name="precondition"  --rw=write "$(ioengine "psync")" \
-+            --offset="${off}" --size=$((zone_size * 16)) --bs="${bs}" \
-+	    "${job_var_opts[@]}" \
-+	    --name=wjob --wait_for="precondition" --rw=randwrite \
-+	    "$(ioengine "libaio")" --iodepth=8 \
-+	    --offset="${off}" --size="${size}" --bs="${bs}" \
-+	    --time_based --runtime=30s --flow=128 "${job_var_opts[@]}" \
-+	    --name=trimjob --wait_for="precondition" --rw=randtrim \
-+	    "$(ioengine "psync")" \
-+	    --offset="${off}" --size="${size}" --bs="${zone_size}" \
-+	    --time_based --runtime=30s --flow=1 "${job_var_opts[@]}" \
-+	    >>"${logfile}.${test_number}" 2>&1
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
 -- 
-2.31.1
+Jens Axboe
 
 
