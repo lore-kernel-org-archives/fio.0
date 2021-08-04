@@ -1,82 +1,45 @@
-Return-Path: <prvs=842e7faf4=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 3/4] engines/libzbc: Enable trim for libzbc I/O engine
-Date: Tue, 3 Aug 2021 19:36:24 +0000
-Message-ID: <596b2e633684d7bdef9652854481096994b82149.camel@wdc.com>
-References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
-	 <20210728104752.923770-4-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210728104752.923770-4-shinichiro.kawasaki@wdc.com>
+Return-Path: <vincent.fu@samsung.com>
+From: Vincent Fu <vincent.fu@samsung.com>
+Subject: [PATCH 1/2] backend: clarify io scheduler setting error message
+Date: Wed, 4 Aug 2021 18:29:04 +0000
+Message-ID: <20210804182841.8780-2-vincent.fu@samsung.com>
+In-Reply-To: <20210804182841.8780-1-vincent.fu@samsung.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <067F87DB818E634B8FDE7077E5504E9F@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+References: <20210804182841.8780-1-vincent.fu@samsung.com>
+	<CGME20210804182905uscas1p2c6194b189e05c087e5cb4813c3c7abff@uscas1p2.samsung.com>
+To: "axboe@kernel.dk" <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: Vincent Fu <vincent.fu@samsung.com>
 List-ID: <fio@vger.kernel.org>
 
-T24gV2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gVGhlIHRyaW0gd29ya2xvYWQgdG8gem9uZWQgYmxvY2sgZGV2aWNlcyBpcyBzdXBw
-b3J0ZWQgYXMgem9uZSByZXNldCwNCj4gYW5kDQo+IHRoaXMgZmVhdHVyZSBpcyBhdmFpbGFibGUg
-Zm9yIEkvTyBlbmdpbmVzIHdoaWNoIHN1cHBvcnQgYm90aCB6b25lZA0KPiBkZXZpY2VzIGFuZCB0
-cmltIHdvcmtsb2FkLiBMaWJ6YmMgSS9PIGVuZ2luZSBzdXBwb3J0cyB6b25lZCBidXQgbGFja3MN
-Cj4gdHJpbSB3b3JrbG9hZCBzdXBwb3J0LiBUbyBlbmFibGUgdHJpbSBzdXBwb3J0IHdpdGggbGli
-emJjIEkvTyBlbmdpbmUsDQo+IHJlbW92ZSB0aGUgY2hlY2sgd2hpY2ggaW5oaWJpdGVkIHRyaW0g
-ZnJvbSByZXF1ZXN0cyB0byBsaWJ6YmMgSS9PDQo+IGVuZ2luZS4gQWxzbyBzZXQgZmlsZSBvcGVu
-IGZsYWdzIGZvciB0cmltIHNhbWUgYXMgd3JpdGUsIGFuZCBjYWxsDQo+IHpiZF9kb19pb191X3Ry
-aW0oKSBmb3IgdHJpbSBJL08uDQo+IA0KPiBPZiBub3RlIGlzIHRoYXQgbGliemJjIEkvTyBlbmdp
-bmUgbm93IGNhbiBzdXBwb3J0IHRyaW0gdG8gc2VxdWVudGlhbA0KPiB3cml0ZSByZXF1aXJlZCB6
-b25lcywgYnV0IHN0aWxsIGNhbiBub3Qgc3VwcG9ydCBvc190cmltKCkgY2FsbCBhbmQNCj4gQkxL
-RElTQ0FSRCBpb2N0bCBmb3IgdGhlIGNvbnZlbnRpb25hbCB6b25lcy4gVGhlIHRyaW0gSS9PcyB0
-bw0KPiBjb252ZW50aW9uYWwgem9uZXMgYXJlIHJlcG9ydGVkIGFzIGFuIGVycm9yLg0KPiANCj4g
-U2lnbmVkLW9mZi1ieTogU2hpbidpY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3YXNha2lA
-d2RjLmNvbT4NCj4gLS0tDQo+IMKgZW5naW5lcy9saWJ6YmMuYyB8IDE2ICsrKysrKysrKystLS0t
-LS0NCj4gwqAxIGZpbGUgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgNiBkZWxldGlvbnMoLSkN
-Cj4gDQo+IGRpZmYgLS1naXQgYS9lbmdpbmVzL2xpYnpiYy5jIGIvZW5naW5lcy9saWJ6YmMuYw0K
-PiBpbmRleCA3ZjJiYzQzMS4uNWI0YzVlOGUgMTAwNjQ0DQo+IC0tLSBhL2VuZ2luZXMvbGliemJj
-LmMNCj4gKysrIGIvZW5naW5lcy9saWJ6YmMuYw0KPiBAQCAtMTQsNiArMTQsNyBAQA0KPiDCoCNp
-bmNsdWRlICJmaW8uaCINCj4gwqAjaW5jbHVkZSAiZXJyLmgiDQo+IMKgI2luY2x1ZGUgInpiZF90
-eXBlcy5oIg0KPiArI2luY2x1ZGUgInpiZC5oIg0KPiDCoA0KPiDCoHN0cnVjdCBsaWJ6YmNfZGF0
-YSB7DQo+IMKgwqDCoMKgwqDCoMKgwqBzdHJ1Y3QgemJjX2RldmljZcKgwqDCoMKgwqDCoMKgKnpk
-ZXY7DQo+IEBAIC02Myw3ICs2NCw3IEBAIHN0YXRpYyBpbnQgbGliemJjX29wZW5fZGV2KHN0cnVj
-dCB0aHJlYWRfZGF0YSAqdGQsDQo+IHN0cnVjdCBmaW9fZmlsZSAqZiwNCj4gwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gLUVJTlZBTDsNCj4gwqDCoMKgwqDCoMKgwqDCoH0N
-Cj4gwqANCj4gLcKgwqDCoMKgwqDCoMKgaWYgKHRkX3dyaXRlKHRkKSkgew0KPiArwqDCoMKgwqDC
-oMKgwqBpZiAodGRfd3JpdGUodGQpIHx8IHRkX3RyaW0odGQpKSB7DQo+IMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgaWYgKCFyZWFkX29ubHkpDQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGZsYWdzIHw9IE9fUkRXUjsNCj4gwqDCoMKgwqDC
-oMKgwqDCoH0gZWxzZSBpZiAodGRfcmVhZCh0ZCkpIHsNCj4gQEAgLTcxLDEwICs3Miw2IEBAIHN0
-YXRpYyBpbnQgbGliemJjX29wZW5fZGV2KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsDQo+IHN0cnVj
-dCBmaW9fZmlsZSAqZiwNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgZmxhZ3MgfD0gT19SRFdSOw0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoGVsc2UNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgZmxhZ3MgfD0gT19SRE9OTFk7DQo+IC3CoMKgwqDCoMKgwqDCoH0gZWxzZSBpZiAodGRfdHJp
-bSh0ZCkpIHsNCj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHRkX3ZlcnJvcih0ZCwg
-RUlOVkFMLCAibGliemJjIGRvZXMgbm90IHN1cHBvcnQNCj4gdHJpbSIpOw0KPiAtwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgbG9nX2VycigiJXM6IGxpYnpiYyBkb2VzIG5vdCBzdXBwb3J0
-IHRyaW1cbiIsIGYtDQo+ID5maWxlX25hbWUpOw0KPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgcmV0dXJuIC1FSU5WQUw7DQo+IMKgwqDCoMKgwqDCoMKgwqB9DQo+IMKgDQo+IMKgwqDC
-oMKgwqDCoMKgwqBpZiAodGQtPm8ub2F0b21pYykgew0KPiBAQCAtNDExLDcgKzQwOCwxNCBAQCBz
-dGF0aWMgZW51bSBmaW9fcV9zdGF0dXMgbGliemJjX3F1ZXVlKHN0cnVjdA0KPiB0aHJlYWRfZGF0
-YSAqdGQsIHN0cnVjdCBpb191ICppb191KQ0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoHJldCA9IHpiY19mbHVzaChsZC0+emRldik7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgaWYgKHJldCkNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgbG9nX2VycigiemJjX2ZsdXNoIGVycm9yICV6ZFxuIiwgcmV0KTsNCj4gLcKg
-wqDCoMKgwqDCoMKgfSBlbHNlIGlmIChpb191LT5kZGlyICE9IERESVJfVFJJTSkgew0KPiArwqDC
-oMKgwqDCoMKgwqB9IGVsc2UgaWYgKGlvX3UtPmRkaXIgPT0gRERJUl9UUklNKSB7DQo+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXQgPSB6YmRfZG9faW9fdV90cmltKHRkLCBpb191
-KTsNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmICghcmV0KSB7DQo+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgbG9nX2VycigibGliemJj
-IGRvZXMgbm90IHN1cHBvcnQgdHJpbSB0byAiDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCJjb252ZW50aW9uYWwgem9uZXNc
-biIpOw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJl
-dCA9IEVJTlZBTDsNCg0KV291bGRuJ3QgdGhhdCBiZSBtb3JlIGFwcHJvcHJpYXRlIHRvIGp1c3Qg
-Y2FsbCBvc190cmltKCkgaGVyZSBhbmQgYXZvaWQNCnRoaXMgZXJyb3I/IFRoaXMgd2F5LCBhbnkg
-WkJEIHRyaW0gd29ya2xvYWQgdGhhdCBzdWNjZWVkcyB3aXRob3V0IHVzaW5nDQpsaWJ6YmMgd291
-bGQgYWxzbyBzdWNjZWVkIHdpdGggdXNpbmcgdGhpcyBlbmdpbmUuLi4gbm90IHRoZSBjYXNlIHdp
-dGgNCnRoZSBjb2RlIGFib3ZlLg0KDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB9
-DQo+ICvCoMKgwqDCoMKgwqDCoH0gZWxzZSB7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgbG9nX2VycigiVW5zdXBwb3J0ZWQgb3BlcmF0aW9uICV1XG4iLCBpb191LT5kZGlyKTsN
-Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXQgPSAtRUlOVkFMOw0KPiDCoMKg
-wqDCoMKgwqDCoMKgfQ0KDQo=
+If you know *how* fio tries to confirm that the IO scheduler was
+successfully set, then the error message "io scheduler not found" makes
+sense. However, if you don't know what fio does to confirm the io
+scheduler setting, then the error message is confusing. This patch
+modifies the error message to indicate that the selected IO scheduler
+could not be set.
+
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+---
+ backend.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/backend.c b/backend.c
+index 6290e0d6..808e4362 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1407,7 +1407,7 @@ static int set_ioscheduler(struct thread_data *td, st=
+ruct fio_file *file)
+=20
+ 	sprintf(tmp2, "[%s]", td->o.ioscheduler);
+ 	if (!strstr(tmp, tmp2)) {
+-		log_err("fio: io scheduler %s not found\n", td->o.ioscheduler);
++		log_err("fio: unable to set io scheduler to %s\n", td->o.ioscheduler);
+ 		td_verror(td, EINVAL, "iosched_switch");
+ 		fclose(f);
+ 		return 1;
+--=20
+2.25.1
 
