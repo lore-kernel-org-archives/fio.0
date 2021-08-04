@@ -1,155 +1,113 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49028 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235848AbhHDMBF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 4 Aug 2021 08:01:05 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5098CC0613D5
-        for <fio@vger.kernel.org>; Wed,  4 Aug 2021 05:00:52 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mBFZ7-005nuv-1t
-        for fio@vger.kernel.org; Wed, 04 Aug 2021 12:00:15 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210804120002.5669F1BC014C@kernel.dk>
-Date: Wed,  4 Aug 2021 06:00:02 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=843384e24=Dmitry.Fomichev@wdc.com>
+From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+Subject: Re: [PATCH 2/4] zbd: Support zone reset by trim
+Date: Wed, 4 Aug 2021 19:23:25 +0000
+Message-ID: <21ce80d6abc715a8abdbd1c59a3c5d8dd868dcde.camel@wdc.com>
+References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
+	 <20210728104752.923770-3-shinichiro.kawasaki@wdc.com>
+	 <c64f93bcd740905a63ef4b8eeb05a13bdd67d275.camel@wdc.com>
+	 <20210804063213.f7r7enkhn74rb2qa@shindev>
+In-Reply-To: <20210804063213.f7r7enkhn74rb2qa@shindev>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <57CF7A726C802E439EF5022CFFDBE9AB@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, "axboe@kernel.dk" <axboe@kernel.dk>, Niklas Cassel <Niklas.Cassel@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit b61fdc8a555f844ba838c80781972df1239b5959:
-
-  iolog: don't attempt read chunking with blktrace format (2021-08-02 08:23:24 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 382975557e632efb506836bc1709789e615c9094:
-
-  fio: remove raw device support (2021-08-03 12:20:22 -0600)
-
-----------------------------------------------------------------
-Eric Sandeen (1):
-      fio: remove raw device support
-
- diskutil.c    | 10 +++-------
- fio.1         |  4 +---
- os/os-linux.h | 32 --------------------------------
- os/os.h       |  4 ----
- 4 files changed, 4 insertions(+), 46 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/diskutil.c b/diskutil.c
-index 0051a7a0..ace7af3d 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -166,14 +166,10 @@ static int get_device_numbers(char *file_name, int *maj, int *min)
- 		if (S_ISBLK(st.st_mode)) {
- 			majdev = major(st.st_rdev);
- 			mindev = minor(st.st_rdev);
--		} else if (S_ISCHR(st.st_mode)) {
--			majdev = major(st.st_rdev);
--			mindev = minor(st.st_rdev);
--			if (fio_lookup_raw(st.st_rdev, &majdev, &mindev))
--				return -1;
--		} else if (S_ISFIFO(st.st_mode))
-+		} else if (S_ISCHR(st.st_mode) ||
-+			   S_ISFIFO(st.st_mode)) {
- 			return -1;
--		else {
-+		} else {
- 			majdev = major(st.st_dev);
- 			mindev = minor(st.st_dev);
- 		}
-diff --git a/fio.1 b/fio.1
-index 6cc82542..9c12ad13 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1700,9 +1700,7 @@ Sets size to something really large and waits for ENOSPC (no space left on
- device) or EDQUOT (disk quota exceeded)
- as the terminating condition. Only makes sense with sequential
- write. For a read workload, the mount point will be filled first then I/O
--started on the result. This option doesn't make sense if operating on a raw
--device node, since the size of that is already known by the file system.
--Additionally, writing beyond end-of-device will not return ENOSPC there.
-+started on the result.
- .SS "I/O engine"
- .TP
- .BI ioengine \fR=\fPstr
-diff --git a/os/os-linux.h b/os/os-linux.h
-index f7137abe..16ed5258 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -14,7 +14,6 @@
- #include <errno.h>
- #include <sched.h>
- #include <linux/unistd.h>
--#include <linux/raw.h>
- #include <linux/major.h>
- #include <linux/fs.h>
- #include <scsi/sg.h>
-@@ -41,7 +40,6 @@
- #define FIO_HAVE_IOSCHED_SWITCH
- #define FIO_HAVE_ODIRECT
- #define FIO_HAVE_HUGETLB
--#define FIO_HAVE_RAWBIND
- #define FIO_HAVE_BLKTRACE
- #define FIO_HAVE_CL_SIZE
- #define FIO_HAVE_CGROUPS
-@@ -178,36 +176,6 @@ static inline unsigned long long os_phys_mem(void)
- 	return (unsigned long long) pages * (unsigned long long) pagesize;
- }
- 
--static inline int fio_lookup_raw(dev_t dev, int *majdev, int *mindev)
--{
--	struct raw_config_request rq;
--	int fd;
--
--	if (major(dev) != RAW_MAJOR)
--		return 1;
--
--	/*
--	 * we should be able to find /dev/rawctl or /dev/raw/rawctl
--	 */
--	fd = open("/dev/rawctl", O_RDONLY);
--	if (fd < 0) {
--		fd = open("/dev/raw/rawctl", O_RDONLY);
--		if (fd < 0)
--			return 1;
--	}
--
--	rq.raw_minor = minor(dev);
--	if (ioctl(fd, RAW_GETBIND, &rq) < 0) {
--		close(fd);
--		return 1;
--	}
--
--	close(fd);
--	*majdev = rq.block_major;
--	*mindev = rq.block_minor;
--	return 0;
--}
--
- #ifdef O_NOATIME
- #define FIO_O_NOATIME	O_NOATIME
- #else
-diff --git a/os/os.h b/os/os.h
-index e47d3d97..17daf91d 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -157,10 +157,6 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
- #define OS_RAND_MAX			RAND_MAX
- #endif
- 
--#ifndef FIO_HAVE_RAWBIND
--#define fio_lookup_raw(dev, majdev, mindev)	1
--#endif
--
- #ifndef FIO_PREFERRED_ENGINE
- #define FIO_PREFERRED_ENGINE	"psync"
- #endif
+T24gV2VkLCAyMDIxLTA4LTA0IGF0IDA2OjMyICswMDAwLCBTaGluaWNoaXJvIEthd2FzYWtpIHdy
+b3RlOg0KPiBEbWl0cnksIHRoYW5rIHlvdSBmb3IgdGhlIHJldmlldyBjb21tZW50cy4NCj4gDQo+
+IE9uIEF1ZyAwMywgMjAyMSAvIDE5OjM2LCBEbWl0cnkgRm9taWNoZXYgd3JvdGU6DQo+ID4gT24g
+V2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3cm90
+ZToNCj4gPiA+IEVuYWJsZSB0cmltIHdvcmtsb2FkIGZvciB6b25lbW9kZT16YmQgYnkgbW9kaWZ5
+aW5nIGRvX2lvX3VfdHJpbSgpDQo+ID4gPiB0bw0KPiA+ID4gY2FsbCB6b25lZCBibG9jayBkZXZp
+Y2UgdW5pcXVlIGZ1bmN0aW9uIHpiZF9kb19pb191X3RyaW0oKSB3aGljaA0KPiA+ID4gcmVzZXRz
+DQo+ID4gPiB0YXJnZXQgem9uZS4gVGhpcyBhbGxvd3MgZmlvIHRvIGVtdWxhdGUgd29ya2xvYWRz
+IHdoaWNoIG1peCBkYXRhDQo+ID4gPiByZWFkL3dyaXRlIGFuZCB6b25lIHJlc2V0cyB3aXRoIHpv
+bmVtb2RlPXpiZC4NCj4gPiA+IA0KPiA+ID4gVG8gY2FsbCByZXNldCB6b25lcywgdGhlIHRyaW0g
+SS9PIHNoYWxsIGhhdmUgb2Zmc2V0IGFsaWduZWQgdG8NCj4gPiA+IHpvbmUNCj4gPiA+IHN0YXJ0
+IGFuZCBibG9jayBzaXplIHNhbWUgYXMgem9uZSBzaXplLiBSZXNldCB6b25lIGlzIGNhbGxlZCBv
+bmx5DQo+ID4gPiB0bw0KPiA+ID4gc2VxdWVudGlhbCB3cml0ZSByZXF1aXJlZCB6b25lcyBhbmQg
+c2VxdWVudGlhbCB3cml0ZSBwcmVmZXJyZWQNCj4gPiA+IHpvbmVzLg0KPiA+ID4gQ29udmVudGlv
+bmFsIHpvbmVzIGFyZSBoYW5kbGVkIGluIHNhbWUgbWFubmVyIGFzIHJlZ3VsYXIgYmxvY2sNCj4g
+PiA+IGRldmljZXMNCj4gPiA+IGJ5IGNhbGxpbmcgb3NfdHJpbSgpIGZ1bmN0aW9uLg0KPiA+ID4g
+DQo+ID4gPiBXaGVuIHpvbmVzIGFyZSByZXNldCB3aXRoIHJhbmRvbSB0cmltIHdvcmtsb2FkLCBj
+aG9vc2Ugb25seSBub24tDQo+ID4gPiBlbXB0eQ0KPiA+ID4gem9uZXMgYXMgdHJpbSB0YXJnZXQu
+IFRoaXMgYXZvaWRzIG1lYW5pbmdsZXNzIHRyaW0gdG8gZW1wdHkgem9uZXMNCj4gPiA+IGFuZA0K
+PiA+ID4gbWFrZXMgdGhlIHdvcmtsb2FkIG1vcmUgcmVhbGlzdGljLiBUbyBmaW5kIHRoZSBub24t
+ZW1wdHkgem9uZXMsDQo+ID4gPiB1dGlsaXplDQo+ID4gPiB6YmRfZmluZF96b25lKCkgaGVscGVy
+IGZ1bmN0aW9uIHdoaWNoIGlzIGFscmVhZHkgdXNlZCBmb3IgcmVhZA0KPiA+ID4gd29ya2xvYWQs
+DQo+ID4gPiBzcGVjaWZ5aW5nIDEgYnl0ZSBhcyB0aGUgbWluaW11bSB2YWxpZCBkYXRhIHNpemUu
+DQo+ID4gPiANCj4gPiA+IFNpZ25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtpIDxzaGlu
+aWNoaXJvLmthd2FzYWtpQHdkYy5jb20+DQo+ID4gPiAtLS0NCj4gPiA+IMKgSE9XVE/CoCB8wqAg
+MyArKysNCj4gPiA+IMKgZmlvLjHCoCB8wqAgMiArKw0KPiA+ID4gwqBpb191LmMgfMKgIDkgKysr
+KysrKysNCj4gPiA+IMKgemJkLmPCoCB8IDcxDQo+ID4gPiArKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tDQo+ID4gPiDCoHpiZC5owqAgfMKg
+IDIgKysNCj4gPiA+IMKgNSBmaWxlcyBjaGFuZ2VkLCA4MyBpbnNlcnRpb25zKCspLCA0IGRlbGV0
+aW9ucygtKQ0KPiA+ID4gDQo+ID4gPiBkaWZmIC0tZ2l0IGEvSE9XVE8gYi9IT1dUTw0KPiA+ID4g
+aW5kZXggNTljN2YxZmYuLmYxZmQyMDQ1IDEwMDY0NA0KPiA+ID4gLS0tIGEvSE9XVE8NCj4gPiA+
+ICsrKyBiL0hPV1RPDQo+ID4gPiBAQCAtOTkyLDYgKzk5Miw5IEBAIFRhcmdldCBmaWxlL2Rldmlj
+ZQ0KPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoHNpbmdsZSB6b25lLiBUaGUNCj4gPiA+IDpvcHRpb246YHpvbmVza2lw
+YA0KPiA+ID4gcGFyYW1ldGVyDQo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaXMgaWdub3JlZC4gOm9wdGlvbjpgem9u
+ZXJhbmdlYA0KPiA+ID4gYW5kDQo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgOm9wdGlvbjpgem9uZXNpemVgIG11c3Qg
+YmUNCj4gPiA+IGlkZW50aWNhbC4NCj4gPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoFRyaW0gaXMgaGFuZGxlZCB1c2luZyBh
+IHpvbmUNCj4gPiA+IHJlc2V0DQo+ID4gPiBvcGVyYXRpb24uDQo+ID4gPiArwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBUcmltIG9u
+bHkgY29uc2lkZXJzIG5vbi1lbXB0eQ0KPiA+ID4gc2VxdWVudGlhbCB3cml0ZQ0KPiA+ID4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgcmVxdWlyZWQgYW5kIHNlcXVlbnRpYWwgd3JpdGUNCj4gPiA+IHByZWZlcnJlZA0KPiA+ID4g
+em9uZXMuDQo+ID4gDQo+ID4gVGhlIGRvY3VtZW50YXRpb24gY2hhbmdlcyBjb3VsZCBiZSBtb3Zl
+ZCB0byBhIHNlcGFyYXRlIHBhdGNoLiBXaGlsZQ0KPiA+IGxvb2tpbmcgYXQgSE9XVE8gZmlsZSwg
+SSBub3RpY2UgdGhhdCBsaWJ6YmMgaXMgYWJzZW50IGZyb20gdGhlIGxpc3QNCj4gPiBvZg0KPiA+
+IGkvbyBlbmdpbmVzIHRoZXJlLiBQZXJoYXBzLCBzaW5jZSB5b3UgYXJlIG1ha2luZyBjaGFuZ2Vz
+IHRvIHRoaXMNCj4gPiBmaWxlLA0KPiA+IHlvdSBjb3VsZCBhZGQgYSBzbWFsbCBkZXNjcmlwdGlv
+biBvZiBsaWJ6YmMgdGhlcmUgYW5kIG1lbnRpb24gdGhhdA0KPiA+IGl0DQo+ID4gc3VwcG9ydHMg
+cmVhZCwgd3JpdGUgYW5kIHRyaW0gd29ya2xvYWRzIHdoZW4gcnVuIGFnYWluc3Qgem9uZWQNCj4g
+PiBibG9jaw0KPiA+IGRldmljZXMuDQo+IA0KPiBPa2F5LCBJIHdpbGwgc2VwYXJhdGUgb3V0IGNo
+YW5nZXMgaW4gSE9XVE8gYW5kIGZpby4xIGludG8gYSBwYXRjaC4NCj4gV2lsbA0KPiBhZGQgdGhl
+IGRlc2NyaXB0aW9uIG9mIGxpYnpiYyBpL28gZW5naW5lIGFsc28uDQo+IA0KPiA+IA0KPiA+ID4g
+wqANCj4gPiA+IMKgLi4gb3B0aW9uOjogem9uZXJhbmdlPWludA0KPiA+ID4gwqANCj4gPiA+IGRp
+ZmYgLS1naXQgYS9maW8uMSBiL2Zpby4xDQo+ID4gPiBpbmRleCA2Y2M4MjU0Mi4uZWYzMTkwNjIg
+MTAwNjQ0DQo+ID4gPiAtLS0gYS9maW8uMQ0KPiA+ID4gKysrIGIvZmlvLjENCj4gPiA+IEBAIC03
+NjYsNiArNzY2LDggQEAgc3RhcnRzLiBUaGUgXGZCem9uZWNhcGFjaXR5XGZSIHBhcmFtZXRlciBp
+cw0KPiA+ID4gaWdub3JlZC4NCj4gPiA+IMKgWm9uZWQgYmxvY2sgZGV2aWNlIG1vZGUuIEkvTyBo
+YXBwZW5zIHNlcXVlbnRpYWxseSBpbiBlYWNoIHpvbmUsDQo+ID4gPiBldmVuDQo+ID4gPiBpZiBy
+YW5kb20zMmFkNDM3Mw0KPiA+ID4gwqBJL08gaGFzIGJlZW4gc2VsZWN0ZWQuIFJhbmRvbSBJL08g
+aGFwcGVucyBhY3Jvc3MgYWxsIHpvbmVzDQo+ID4gPiBpbnN0ZWFkIG9mDQo+ID4gPiBiZWluZw0K
+PiA+ID4gwqByZXN0cmljdGVkIHRvIGEgc2luZ2xlIHpvbmUuDQo+ID4gPiArVHJpbSBpcyBoYW5k
+bGVkIHVzaW5nIGEgem9uZSByZXNldCBvcGVyYXRpb24uIFRyaW0gb25seQ0KPiA+ID4gY29uc2lk
+ZXJzIG5vbi0NCj4gPiA+IGVtcHR5DQo+ID4gPiArc2VxdWVudGlhbCB3cml0ZSByZXF1aXJlZCBh
+bmQgc2VxdWVudGlhbCB3cml0ZSBwcmVmZXJyZWQgem9uZXMuDQo+ID4gPiDCoC5SRQ0KPiA+ID4g
+wqAuUkUNCj4gPiA+IMKgLlRQDQo+ID4gPiBkaWZmIC0tZ2l0IGEvaW9fdS5jIGIvaW9fdS5jDQo+
+ID4gPiBpbmRleCA5YTFjZDU0Ny4uNjk2ZDI1Y2QgMTAwNjQ0DQo+ID4gPiAtLS0gYS9pb191LmMN
+Cj4gPiA+ICsrKyBiL2lvX3UuYw0KPiA+ID4gQEAgLTIzMTcsMTAgKzIzMTcsMTkgQEAgaW50IGRv
+X2lvX3VfdHJpbShjb25zdCBzdHJ1Y3QgdGhyZWFkX2RhdGENCj4gPiA+ICp0ZCwNCj4gPiA+IHN0
+cnVjdCBpb191ICppb191KQ0KPiA+ID4gwqDCoMKgwqDCoMKgwqDCoHN0cnVjdCBmaW9fZmlsZSAq
+ZiA9IGlvX3UtPmZpbGU7DQo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgaW50IHJldDsNCj4gPiA+IMKg
+DQo+ID4gPiArwqDCoMKgwqDCoMKgwqBpZiAodGQtPm8uem9uZV9tb2RlID09IFpPTkVfTU9ERV9a
+QkQpIHsNCj4gPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXQgPSB6YmRfZG9f
+aW9fdV90cmltKHRkLCBpb191KTsNCj4gPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqBpZiAocmV0ID09IGlvX3VfY29tcGxldGVkKQ0KPiA+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gaW9fdS0+eGZlcl9idWZsZW47DQo+ID4g
+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaWYgKHJldCkNCj4gPiA+ICvCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ290byBlcnI7DQo+ID4gPiAr
+wqDCoMKgwqDCoMKgwqB9DQo+ID4gPiArDQo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgcmV0ID0gb3Nf
+dHJpbShmLCBpb191LT5vZmZzZXQsIGlvX3UtPnhmZXJfYnVmbGVuKTsNCj4gPiA+IMKgwqDCoMKg
+wqDCoMKgwqBpZiAoIXJldCkNCj4gPiA+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+cmV0dXJuIGlvX3UtPnhmZXJfYnVmbGVuOw0KPiA+ID4gwqANCj4gPiA+ICtlcnI6DQo+ID4gPiDC
+oMKgwqDCoMKgwqDCoMKgaW9fdS0+ZXJyb3IgPSByZXQ7DQo+ID4gPiDCoMKgwqDCoMKgwqDCoMKg
+cmV0dXJuIDA7DQo+ID4gPiDCoCNlbmRpZg0KPiA+ID4gZGlmZiAtLWdpdCBhL3piZC5jIGIvemJk
+LmMNCj4gPiA+IGluZGV4IGYxMGIzMjY3Li4zOTA2MGVjZCAxMDA2NDQNCj4gPiA+IC0tLSBhL3pi
+ZC5jcGFzc2luZyBpbiBhbiBvZmZzZXQNCj4gPiDCoMKgwqDCoMKgwqDCoCBtb2RpZmllciB3aXRo
+IGEgdmFsdWUgb2YgOC4gSWYgdGhlIHN1ZmZpeCBpcyB1c2VkIHdpdGggYQ0KPiA+IHNlcXVlbnRp
+YWwgSS9PDQo+IA0KPiBJIGRpZCBub3QgY2F0Y2ggdGhpcyBwYXJ0LiBNYXkgSSBhc2sgdG8gcmVw
+aHJhc2U/DQoNClBsZWFzZSBkaXNyZWdhcmQgdGhpcywgSSB0aGluayBteSBlbWFpbCBjbGllbnQg
+KEV2b2x1dGlvbikgaGFkIGEgbGl0dGxlDQpnbGl0Y2ggd2hpbGUgZm9ybWF0dGluZyB0aGUgcmVw
+bHkuLi4NCj4gDQo=
 
