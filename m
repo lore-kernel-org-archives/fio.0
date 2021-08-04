@@ -1,39 +1,36 @@
-Return-Path: <ankit.kumar@samsung.com>
-From: Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 1/2] HOWTO: Add missing documentation for job_max_open_zones
-Date: Wed,  4 Aug 2021 14:54:49 +0530
-Message-Id: <20210804092450.28782-2-ankit.kumar@samsung.com>
-In-Reply-To: <20210804092450.28782-1-ankit.kumar@samsung.com>
+Return-Path: <axboe@kernel.dk>
+Subject: Re: [PATCH 0/2] v3: ZBD fix with random zone index logic and missing
+ documentation
+References: <CGME20210804112704epcas5p2e74d90bf989d4305d5213971e0a30b63@epcas5p2.samsung.com>
+ <20210804112308.28062-1-ankit.kumar@samsung.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <395d79ae-e07d-641a-dd80-588c84efc193@kernel.dk>
+Date: Wed, 4 Aug 2021 07:26:16 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="utf-8"
-References: <20210804092450.28782-1-ankit.kumar@samsung.com>
-	<CGME20210804092852epcas5p2bf4990e1b1b9a2e9d02c8520b3998818@epcas5p2.samsung.com>
-To: axboe@kernel.dk
-Cc: fio@vger.kernel.org, krish.reddy@samsung.com, prakash.v@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
+In-Reply-To: <20210804112308.28062-1-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+To: Ankit Kumar <ankit.kumar@samsung.com>
+Cc: fio@vger.kernel.org, krish.reddy@samsung.com, prakash.v@samsung.com
 List-ID: <fio@vger.kernel.org>
 
----
- HOWTO | 5 +++++
- 1 file changed, 5 insertions(+)
+On 8/4/21 5:23 AM, Ankit Kumar wrote:
+> v2 -> v2
+> 
+>  - Added missing signoff tags with the patches
+> 
+> Ankit Kumar (2):
+>   HOWTO: Add missing documentation for job_max_open_zones
+>   zbd: Improve random zone index generation logic
+> 
+>  HOWTO | 5 +++++
+>  zbd.c | 5 +++--
+>  2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 59c7f1ff..d4e620de 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -1055,6 +1055,11 @@ Target file/device
- 	number of open zones is defined as the number of zones to which write
- 	commands are issued.
- 
-+.. option:: job_max_open_zones=int
-+
-+	Limit on the number of simultaneously opened zones per single
-+	thread/process.
-+
- .. option:: zone_reset_threshold=float
- 
- 	A number between zero and one that indicates the ratio of logical
+Applied, thanks.
+
 -- 
-2.30.0-rc0
+Jens Axboe
 
 
