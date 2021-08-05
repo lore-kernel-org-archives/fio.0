@@ -1,81 +1,76 @@
-Return-Path: <prvs=844ae666b=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH v2 4/5] HOWTO/man: Describe trim support by zone reset for
- zoned devices
-Date: Thu, 5 Aug 2021 19:04:03 +0000
-Message-ID: <5b52178493ed1eea4966aa9cedebfd01cdbe332b.camel@wdc.com>
+Return-Path: <prvs=844bea82a=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 4/5] HOWTO/man: Describe trim support by zone reset for zoned devices
+Date: Thu,  5 Aug 2021 12:28:34 +0900
+Message-Id: <20210805032835.1119908-5-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
 References: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
-	 <20210805032835.1119908-5-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210805032835.1119908-5-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <5F9AA54B52F9274A8D5DE623D75E378D@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-T24gVGh1LCAyMDIxLTA4LTA1IGF0IDEyOjI4ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gUHJldmlvdXMgY29tbWl0cyBhZGRlZCB0cmltIHN1cHBvcnQgZm9yIHpvbmVkIGRl
-dmljZXMuIFVwZGF0ZSBIT1dUTyBhbmQNCj4gbWFuIHBhZ2UgdG8gZGVzY3JpYmUgaXQuIEFsc28g
-YWRkIG1pc3NpbmcgZGVzY3JpcHRpb24gYWJvdXQgbGliemJjIEkvTw0KPiBlbmdpbmUgdG8gSE9X
-VE8uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBTaGluJ2ljaGlybyBLYXdhc2FraSA8c2hpbmljaGly
-by5rYXdhc2FraUB3ZGMuY29tPg0KPiAtLS0NCj4gwqBIT1dUTyB8IDkgKysrKysrKysrDQo+IMKg
-ZmlvLjEgfCA0ICsrKy0NCj4gwqAyIGZpbGVzIGNoYW5nZWQsIDEyIGluc2VydGlvbnMoKyksIDEg
-ZGVsZXRpb24oLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9IT1dUTyBiL0hPV1RPDQo+IGluZGV4IGQ0
-ZTYyMGRlLi5iNWQ3MTQ3NSAxMDA2NDQNCj4gLS0tIGEvSE9XVE8NCj4gKysrIGIvSE9XVE8NCj4g
-QEAgLTk5Miw2ICs5OTIsOSBAQCBUYXJnZXQgZmlsZS9kZXZpY2UNCj4gwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHNpbmdsZSB6
-b25lLiBUaGUgOm9wdGlvbjpgem9uZXNraXBgDQo+IHBhcmFtZXRlcg0KPiDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaXMgaWdu
-b3JlZC4gOm9wdGlvbjpgem9uZXJhbmdlYCBhbmQNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoDpvcHRpb246YHpvbmVzaXpl
-YCBtdXN0IGJlIGlkZW50aWNhbC4NCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgVHJpbSBpcyBoYW5kbGVkIHVzaW5nIGEgem9u
-ZSByZXNldA0KPiBvcGVyYXRpb24uDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoFRyaW0gb25seSBjb25zaWRlcnMgbm9uLWVt
-cHR5DQo+IHNlcXVlbnRpYWwgd3JpdGUNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmVxdWlyZWQgYW5kIHNlcXVlbnRpYWwg
-d3JpdGUgcHJlZmVycmVkDQo+IHpvbmVzLg0KPiDCoA0KPiDCoC4uIG9wdGlvbjo6IHpvbmVyYW5n
-ZT1pbnQNCj4gwqANCj4gQEAgLTE5NjUsNiArMTk2OCwxMiBAQCBJL08gZW5naW5lDQo+IMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGNoYXJhY3RlciBkZXZp
-Y2VzLiBUaGlzIGVuZ2luZSBzdXBwb3J0cyB0cmltDQo+IG9wZXJhdGlvbnMuDQo+IMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoFRoZSBzZyBlbmdpbmUgaW5j
-bHVkZXMgZW5naW5lIHNwZWNpZmljIG9wdGlvbnMuDQo+IMKgDQo+ICvCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAqKmxpYnpiYyoqDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgU3luY2hyb25vdXMgSS9PIGVuZ2luZSBmb3IgU01SIGhhcmQtZGlz
-a3MgdXNpbmcNCj4gdGhlIGxpYnpiYw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoGxpYnJhcnkuIFRoZSB0YXJnZXQgY2FuIGJlIGVpdGhlciBhbiBzZw0K
-PiBjaGFyYWN0ZXIgZGV2aWNlIG9yDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgYSBibG9jayBkZXZpY2UgZmlsZS4gVGhpcyBlbmdpbmUgc3VwcG9ydHMg
-dGhlDQo+IHpvbmVtb2RlPXpiZCB6b25lDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgb3BlcmF0aW9ucyBhbmQgcmVhZC93cml0ZS90cmltIEkvT3MuDQo+
-ICsNCg0KTWF5IEkgc3VnZ2VzdCBhbiBldmVuIHNob3J0ZXIgZGVzY3JpcHRpb24gaGVyZT8NCg0K
-UmVhZCwgd3JpdGUsIHRyaW0gYW5kIFpCQy9aQUMgb3BlcmF0aW9ucyB0byBhIHpvbmVkIGJsb2Nr
-IGRldmljZSB1c2luZw0KbGliemJjIGxpYnJhcnkuIFRoZSB0YXJnZXQgY2FuIGJlIGVpdGhlciBh
-biBTRyBjaGFyYWN0ZXIgZGV2aWNlIG9yDQphIGJsb2NrIGRldmljZSBmaWxlLg0KDQo+IMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgKipudWxsKioNCj4gwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgRG9lc24ndCB0cmFuc2ZlciBhbnkgZGF0YSwg
-anVzdCBwcmV0ZW5kcyB0by7CoA0KPiBUaGlzIGlzIG1haW5seSB1c2VkIHRvDQo+IMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGV4ZXJjaXNlIGZpbyBpdHNl
-bGYgYW5kIGZvciBkZWJ1Z2dpbmcvdGVzdGluZw0KPiBwdXJwb3Nlcy4NCj4gZGlmZiAtLWdpdCBh
-L2Zpby4xIGIvZmlvLjENCj4gaW5kZXggOWMxMmFkMTMuLmMwZTgzZmVmIDEwMDY0NA0KPiAtLS0g
-YS9maW8uMQ0KPiArKysgYi9maW8uMQ0KPiBAQCAtNzY2LDYgKzc2Niw4IEBAIHN0YXJ0cy4gVGhl
-IFxmQnpvbmVjYXBhY2l0eVxmUiBwYXJhbWV0ZXIgaXMNCj4gaWdub3JlZC4NCj4gwqBab25lZCBi
-bG9jayBkZXZpY2UgbW9kZS4gSS9PIGhhcHBlbnMgc2VxdWVudGlhbGx5IGluIGVhY2ggem9uZSwg
-ZXZlbg0KPiBpZiByYW5kb20NCj4gwqBJL08gaGFzIGJlZW4gc2VsZWN0ZWQuIFJhbmRvbSBJL08g
-aGFwcGVucyBhY3Jvc3MgYWxsIHpvbmVzIGluc3RlYWQgb2YNCj4gYmVpbmcNCj4gwqByZXN0cmlj
-dGVkIHRvIGEgc2luZ2xlIHpvbmUuDQo+ICtUcmltIGlzIGhhbmRsZWQgdXNpbmcgYSB6b25lIHJl
-c2V0IG9wZXJhdGlvbi4gVHJpbSBvbmx5IGNvbnNpZGVycyBub24tDQo+IGVtcHR5DQo+ICtzZXF1
-ZW50aWFsIHdyaXRlIHJlcXVpcmVkIGFuZCBzZXF1ZW50aWFsIHdyaXRlIHByZWZlcnJlZCB6b25l
-cy4NCj4gwqAuUkUNCj4gwqAuUkUNCj4gwqAuVFANCj4gQEAgLTE3NjQsNyArMTc2Niw3IEBAIHNn
-IGVuZ2luZSBpbmNsdWRlcyBlbmdpbmUgc3BlY2lmaWMgb3B0aW9ucy4NCj4gwqBTeW5jaHJvbm91
-cyBJL08gZW5naW5lIGZvciBTTVIgaGFyZC1kaXNrcyB1c2luZyB0aGUgXGZCbGliemJjXGZSDQo+
-IMKgbGlicmFyeS4gVGhlIHRhcmdldCBjYW4gYmUgZWl0aGVyIGFuIHNnIGNoYXJhY3RlciBkZXZp
-Y2Ugb3INCj4gwqBhIGJsb2NrIGRldmljZSBmaWxlLiBUaGlzIGVuZ2luZSBzdXBwb3J0cyB0aGUg
-em9uZW1vZGU9emJkIHpvbmUNCj4gLW9wZXJhdGlvbnMuDQo+ICtvcGVyYXRpb25zIGFuZCByZWFk
-L3dyaXRlL3RyaW0gSS9Pcy4NCj4gwqAuVFANCj4gwqAuQiBudWxsDQo+IMKgRG9lc24ndCB0cmFu
-c2ZlciBhbnkgZGF0YSwganVzdCBwcmV0ZW5kcyB0by4gVGhpcyBpcyBtYWlubHkgdXNlZCB0bw0K
-DQo=
+Previous commits added trim support for zoned devices. Update HOWTO and
+man page to describe it. Also add missing description about libzbc I/O
+engine to HOWTO.
+
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ HOWTO | 9 +++++++++
+ fio.1 | 4 +++-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/HOWTO b/HOWTO
+index d4e620de..b5d71475 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -992,6 +992,9 @@ Target file/device
+ 				single zone. The :option:`zoneskip` parameter
+ 				is ignored. :option:`zonerange` and
+ 				:option:`zonesize` must be identical.
++				Trim is handled using a zone reset operation.
++				Trim only considers non-empty sequential write
++				required and sequential write preferred zones.
+ 
+ .. option:: zonerange=int
+ 
+@@ -1965,6 +1968,12 @@ I/O engine
+ 			character devices. This engine supports trim operations.
+ 			The sg engine includes engine specific options.
+ 
++		**libzbc**
++			Synchronous I/O engine for SMR hard-disks using the libzbc
++			library. The target can be either an sg character device or
++			a block device file. This engine supports the zonemode=zbd zone
++			operations and read/write/trim I/Os.
++
+ 		**null**
+ 			Doesn't transfer any data, just pretends to.  This is mainly used to
+ 			exercise fio itself and for debugging/testing purposes.
+diff --git a/fio.1 b/fio.1
+index 9c12ad13..c0e83fef 100644
+--- a/fio.1
++++ b/fio.1
+@@ -766,6 +766,8 @@ starts. The \fBzonecapacity\fR parameter is ignored.
+ Zoned block device mode. I/O happens sequentially in each zone, even if random
+ I/O has been selected. Random I/O happens across all zones instead of being
+ restricted to a single zone.
++Trim is handled using a zone reset operation. Trim only considers non-empty
++sequential write required and sequential write preferred zones.
+ .RE
+ .RE
+ .TP
+@@ -1764,7 +1766,7 @@ sg engine includes engine specific options.
+ Synchronous I/O engine for SMR hard-disks using the \fBlibzbc\fR
+ library. The target can be either an sg character device or
+ a block device file. This engine supports the zonemode=zbd zone
+-operations.
++operations and read/write/trim I/Os.
+ .TP
+ .B null
+ Doesn't transfer any data, just pretends to. This is mainly used to
+-- 
+2.31.1
+
 
