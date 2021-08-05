@@ -1,41 +1,79 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50253 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229884AbhHPMDM (ORCPT
-        <rfc822;fio@vger.kernel.org>); Mon, 16 Aug 2021 08:03:12 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 95DE3801596
-        for <fio@vger.kernel.org>; Mon, 16 Aug 2021 12:02:38 +0000 (UTC)
-Date: Mon, 16 Aug 2021 20:02:27 +0800
-From: Ming Lei <ming.lei@redhat.com>
-Subject: Can't setup io_uring for buffered IO
-Message-ID: <YRpT0019mbS1jSE4@T590>
+Return-Path: <prvs=844bea82a=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 3/5] engines/libzbc: Enable trim for libzbc I/O engine
+Date: Thu,  5 Aug 2021 12:28:33 +0900
+Message-Id: <20210805032835.1119908-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
+References: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-Hello Guys,
+The trim workload to zoned block devices is supported as zone reset, and
+this feature is available for I/O engines which support both zoned
+devices and trim workload. Libzbc I/O engine supports zoned devices but
+lacks trim workload support. To enable trim support with libzbc I/O
+engine, remove the check which inhibited trim from requests to libzbc
+I/O engine. Also set file open flags for trim same as write, and call
+zbd_do_io_u_trim() for trim I/O.
 
-I tried to use the following script to run buffered io with io_uring,
-but looks it always complains with 'Operation not supported', and any
-idea to make it working?
+Of note is that libzbc I/O engine now can support trim to sequential
+write required zones only. The trim I/Os to conventional zones are
+reported as an error.
 
-++ /root/git/fio/fio --readonly --name=onessd --filename=/dev/nvme0n1 --filesize=16m --rw=randread --bs=4k --direct=0 --overwrite=0 --numjobs=1 --iodepth=1 --time_based=1 --runtime=1 --ioengine=io_uring --registerfiles --fixedbufs --hipri=1 --gtod_reduce=1 --group_reporting
-onessd: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=io_uring, iodepth=1
-fio-3.25-229-gdf9e8
-Starting 1 process
-fio: io_u error on file /dev/nvme0n1: Operation not supported: read offset=1011712, buflen=4096
-fio: pid=3278, err=95/file:io_u.c:1841, func=io_u error, error=Operation not supported
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ engines/libzbc.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-onessd: (groupid=0, jobs=1): err=95 (file:io_u.c:1841, func=io_u error, error=Operation not supported): pid=3278: Mon Aug 16 12:01:17 2021
-
-
-
-Thanks,
-Ming
+diff --git a/engines/libzbc.c b/engines/libzbc.c
+index 7f2bc431..abee2043 100644
+--- a/engines/libzbc.c
++++ b/engines/libzbc.c
+@@ -14,6 +14,7 @@
+ #include "fio.h"
+ #include "err.h"
+ #include "zbd_types.h"
++#include "zbd.h"
+ 
+ struct libzbc_data {
+ 	struct zbc_device	*zdev;
+@@ -63,7 +64,7 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (td_write(td)) {
++	if (td_write(td) || td_trim(td)) {
+ 		if (!read_only)
+ 			flags |= O_RDWR;
+ 	} else if (td_read(td)) {
+@@ -71,10 +72,6 @@ static int libzbc_open_dev(struct thread_data *td, struct fio_file *f,
+ 			flags |= O_RDWR;
+ 		else
+ 			flags |= O_RDONLY;
+-	} else if (td_trim(td)) {
+-		td_verror(td, EINVAL, "libzbc does not support trim");
+-		log_err("%s: libzbc does not support trim\n", f->file_name);
+-		return -EINVAL;
+ 	}
+ 
+ 	if (td->o.oatomic) {
+@@ -411,7 +408,11 @@ static enum fio_q_status libzbc_queue(struct thread_data *td, struct io_u *io_u)
+ 		ret = zbc_flush(ld->zdev);
+ 		if (ret)
+ 			log_err("zbc_flush error %zd\n", ret);
+-	} else if (io_u->ddir != DDIR_TRIM) {
++	} else if (io_u->ddir == DDIR_TRIM) {
++		ret = zbd_do_io_u_trim(td, io_u);
++		if (!ret)
++			ret = EINVAL;
++	} else {
+ 		log_err("Unsupported operation %u\n", io_u->ddir);
+ 		ret = -EINVAL;
+ 	}
+-- 
+2.31.1
 
 
