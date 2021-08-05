@@ -1,60 +1,95 @@
-Return-Path: <prvs=86529e675=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 3/3] io_uring: fix misbehaving cmdprio_percentage option
-Date: Thu, 26 Aug 2021 16:45:05 +0000
-Message-ID: <20210826164449.45833-4-Niklas.Cassel@wdc.com>
-References: <20210826164449.45833-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210826164449.45833-1-Niklas.Cassel@wdc.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Return-Path: <prvs=844bea82a=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 1/5] zbd: Add min_bytes argument to zbd_find_zone()
+Date: Thu,  5 Aug 2021 12:28:31 +0900
+Message-Id: <20210805032835.1119908-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
+References: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+The helper function zbd_find_zone() finds a zone with at least
+min_bs[DDIR_READ] bytes of readable data before the zone write pointer.
+This patch generalizes this function to allow finding a non-empty zone.
+To do so, add the min_bytes argument to specify the minimum readable
+data of a zone to filter the search. Specifying 1 to min_bytes then
+become equivalent to finding a non-empty zone.
 
-Commit 7c70f506e438 ("engines/io_uring: move sqe clear out of hot path")
-removed the memset of sqe from fio_ioring_prep().
+This change will allow to reuse this function to find a suitable zone
+for trim I/O.
 
-Before this commit, fio_ioring_prio_prep() behaved properly, because
-sqe->ioprio was always cleared by the memset in fio_ioring_prep().
-
-cmdprio_percentage=3D20 is supposed to set the highest priority class for
-20% of the total I/Os, however, because sqes got reused without clearing
-the ioprio field, this meant that the number of I/Os sent with the highest
-priority became 95% already after 10 seconds. Quite far off from the
-intended 20%.
-
-Fix this by explicitly clearing the priority in fio_ioring_prio_prep().
-Note that prio/prioclass cannot be used together with cmdprio_percentage,
-so we do not need to do an additional clear in fio_ioring_prep().
-
-engines/libaio.c doesn't explicitly clear the ioprio, nor does it memset
-the descriptor entry, this is because io_prep_pread()/io_prep_pwrite() in
-libaio itself performs a memset.
-
-Fixes: 7c70f506e438 ("engines/io_uring: move sqe clear out of hot path")
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- engines/io_uring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ zbd.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 2b65572d..b8d4cf91 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -384,6 +384,8 @@ static void fio_ioring_prio_prep(struct thread_data *td=
-, struct io_u *io_u)
- 	if (rand_between(&td->prio_state, 0, 99) < o->cmdprio_percentage) {
- 		ld->sqes[io_u->index].ioprio =3D IOPRIO_CLASS_RT << IOPRIO_CLASS_SHIFT;
- 		io_u->flags |=3D IO_U_F_PRIORITY;
-+	} else {
-+		ld->sqes[io_u->index].ioprio =3D 0;
- 	}
- 	return;
+diff --git a/zbd.c b/zbd.c
+index 43f12b45..859c7feb 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1414,18 +1414,16 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
  }
---=20
+ 
+ /*
+- * Find another zone for which @io_u fits in the readable data in the zone.
+- * Search in zones @zb + 1 .. @zl. For random workload, also search in zones
+- * @zb - 1 .. @zf.
++ * Find another zone which has @min_bytes of readable data. Search in zones
++ * @zb + 1 .. @zl. For random workload, also search in zones @zb - 1 .. @zf.
+  *
+  * Either returns NULL or returns a zone pointer. When the zone has write
+  * pointer, hold the mutex for the zone.
+  */
+ static struct fio_zone_info *
+-zbd_find_zone(struct thread_data *td, struct io_u *io_u,
++zbd_find_zone(struct thread_data *td, struct io_u *io_u, uint32_t min_bytes,
+ 	      struct fio_zone_info *zb, struct fio_zone_info *zl)
+ {
+-	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
+ 	struct fio_file *f = io_u->file;
+ 	struct fio_zone_info *z1, *z2;
+ 	const struct fio_zone_info *const zf = get_zone(f, f->min_zone);
+@@ -1438,7 +1436,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
+ 			if (z1->has_wp)
+ 				zone_lock(td, f, z1);
+-			if (z1->start + min_bs <= z1->wp)
++			if (z1->start + min_bytes <= z1->wp)
+ 				return z1;
+ 			if (z1->has_wp)
+ 				zone_unlock(z1);
+@@ -1449,14 +1447,14 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
+ 			if (z2->has_wp)
+ 				zone_lock(td, f, z2);
+-			if (z2->start + min_bs <= z2->wp)
++			if (z2->start + min_bytes <= z2->wp)
+ 				return z2;
+ 			if (z2->has_wp)
+ 				zone_unlock(z2);
+ 		}
+ 	}
+-	dprint(FD_ZBD, "%s: adjusting random read offset failed\n",
+-	       f->file_name);
++	dprint(FD_ZBD, "%s: no zone has %d bytes of readable data\n",
++	       f->file_name, min_bytes);
+ 	return NULL;
+ }
+ 
+@@ -1785,7 +1783,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp))) {
+ 			zone_unlock(zb);
+ 			zl = get_zone(f, f->max_zone);
+-			zb = zbd_find_zone(td, io_u, zb, zl);
++			zb = zbd_find_zone(td, io_u, min_bs, zb, zl);
+ 			if (!zb) {
+ 				dprint(FD_ZBD,
+ 				       "%s: zbd_find_zone(%lld, %llu) failed\n",
+-- 
 2.31.1
+
 
