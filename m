@@ -1,165 +1,66 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238064AbhHNMBR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 14 Aug 2021 08:01:17 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683EEC061764
-        for <fio@vger.kernel.org>; Sat, 14 Aug 2021 05:00:49 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mEsKa-00GfLW-UA
-        for fio@vger.kernel.org; Sat, 14 Aug 2021 12:00:25 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210814120002.425301BC015D@kernel.dk>
-Date: Sat, 14 Aug 2021 06:00:02 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=844bea82a=shinichiro.kawasaki@wdc.com>
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 5/5] t/zbd: Add test #58 to test zone reset by trim workload
+Date: Thu,  5 Aug 2021 12:28:35 +0900
+Message-Id: <20210805032835.1119908-6-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
+References: <20210805032835.1119908-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 543196617ce45b6a04fb039a3b9c6d06c9b58309:
+To exercise zone reset by trim workload, add the test case #58. As the
+precondition, it fills several zones. After that, a trim job and a write
+job run in parallel for 30 seconds. The ratio of trim commands and write
+commands is controlled by --flow option.
 
-  t/io_uring: allow multiple IO threads (2021-08-11 16:57:19 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to df9e8b65a52fdab5a1ac48847c44d7201faa3cf1:
-
-  Merge branch 'dfs_update_13_api' of https://github.com/johannlombardi/fio (2021-08-13 10:01:31 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'dfs_update_13_api' of https://github.com/johannlombardi/fio
-
-Johann Lombardi (1):
-      engines/dfs: add support for 1.3 DAOS API
-
- HOWTO         |  4 ++--
- engines/dfs.c | 24 ++++++++++++++++++------
- fio.1         |  4 ++--
- 3 files changed, 22 insertions(+), 10 deletions(-)
-
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
+ t/zbd/test-zbd-support | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
-Diff of recent changes:
-
-diff --git a/HOWTO b/HOWTO
-index 04ea284b..9bfd38b4 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2561,11 +2561,11 @@ with the caveat that when used on the command line, they must come after the
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 57e6d05e..5103c406 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1215,6 +1215,32 @@ test57() {
+ 		>> "${logfile}.${test_number}" 2>&1 || return $?
+ }
  
- .. option:: pool=str : [dfs]
- 
--	Specify the UUID of the DAOS pool to connect to.
-+	Specify the label or UUID of the DAOS pool to connect to.
- 
- .. option:: cont=str : [dfs]
- 
--	Specify the UUID of the DAOS container to open.
-+	Specify the label or UUID of the DAOS container to open.
- 
- .. option:: chunk_size=int : [dfs]
- 
-diff --git a/engines/dfs.c b/engines/dfs.c
-index 0343b101..664e8b13 100644
---- a/engines/dfs.c
-+++ b/engines/dfs.c
-@@ -49,19 +49,19 @@ struct daos_fio_options {
- static struct fio_option options[] = {
- 	{
- 		.name		= "pool",
--		.lname		= "pool uuid",
-+		.lname		= "pool uuid or label",
- 		.type		= FIO_OPT_STR_STORE,
- 		.off1		= offsetof(struct daos_fio_options, pool),
--		.help		= "DAOS pool uuid",
-+		.help		= "DAOS pool uuid or label",
- 		.category	= FIO_OPT_C_ENGINE,
- 		.group		= FIO_OPT_G_DFS,
- 	},
- 	{
- 		.name           = "cont",
--		.lname          = "container uuid",
-+		.lname          = "container uuid or label",
- 		.type           = FIO_OPT_STR_STORE,
- 		.off1           = offsetof(struct daos_fio_options, cont),
--		.help           = "DAOS container uuid",
-+		.help           = "DAOS container uuid or label",
- 		.category	= FIO_OPT_C_ENGINE,
- 		.group		= FIO_OPT_G_DFS,
- 	},
-@@ -103,7 +103,6 @@ static struct fio_option options[] = {
- static int daos_fio_global_init(struct thread_data *td)
- {
- 	struct daos_fio_options	*eo = td->eo;
--	uuid_t			pool_uuid, co_uuid;
- 	daos_pool_info_t	pool_info;
- 	daos_cont_info_t	co_info;
- 	int			rc = 0;
-@@ -124,6 +123,10 @@ static int daos_fio_global_init(struct thread_data *td)
- 		return rc;
- 	}
- 
-+#if !defined(DAOS_API_VERSION_MAJOR) || \
-+    (DAOS_API_VERSION_MAJOR == 1 && DAOS_API_VERSION_MINOR < 3)
-+	uuid_t pool_uuid, co_uuid;
++# Random writes and random trims to sequential write required zones for 30s.
++test58() {
++    local off size bs
 +
- 	rc = uuid_parse(eo->pool, pool_uuid);
- 	if (rc) {
- 		log_err("Failed to parse 'Pool uuid': %s\n", eo->pool);
-@@ -137,6 +140,7 @@ static int daos_fio_global_init(struct thread_data *td)
- 		td_verror(td, EINVAL, "uuid_parse(eo->cont)");
- 		return EINVAL;
- 	}
-+#endif
- 
- 	/* Connect to the DAOS pool */
- #if !defined(DAOS_API_VERSION_MAJOR) || DAOS_API_VERSION_MAJOR < 1
-@@ -152,9 +156,12 @@ static int daos_fio_global_init(struct thread_data *td)
- 	rc = daos_pool_connect(pool_uuid, NULL, svcl, DAOS_PC_RW,
- 			&poh, &pool_info, NULL);
- 	d_rank_list_free(svcl);
--#else
-+#elif (DAOS_API_VERSION_MAJOR == 1 && DAOS_API_VERSION_MINOR < 3)
- 	rc = daos_pool_connect(pool_uuid, NULL, DAOS_PC_RW, &poh, &pool_info,
- 			       NULL);
-+#else
-+	rc = daos_pool_connect(eo->pool, NULL, DAOS_PC_RW, &poh, &pool_info,
-+			       NULL);
- #endif
- 	if (rc) {
- 		log_err("Failed to connect to pool %d\n", rc);
-@@ -163,7 +170,12 @@ static int daos_fio_global_init(struct thread_data *td)
- 	}
- 
- 	/* Open the DAOS container */
-+#if !defined(DAOS_API_VERSION_MAJOR) || \
-+    (DAOS_API_VERSION_MAJOR == 1 && DAOS_API_VERSION_MINOR < 3)
- 	rc = daos_cont_open(poh, co_uuid, DAOS_COO_RW, &coh, &co_info, NULL);
-+#else
-+	rc = daos_cont_open(poh, eo->cont, DAOS_COO_RW, &coh, &co_info, NULL);
-+#endif
- 	if (rc) {
- 		log_err("Failed to open container: %d\n", rc);
- 		td_verror(td, rc, "daos_cont_open");
-diff --git a/fio.1 b/fio.1
-index ff100a1c..382cebfc 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2326,10 +2326,10 @@ the use of cudaMemcpy.
- .RE
- .TP
- .BI (dfs)pool
--Specify the UUID of the DAOS pool to connect to.
-+Specify the label or UUID of the DAOS pool to connect to.
- .TP
- .BI (dfs)cont
--Specify the UUID of the DAOS DAOS container to open.
-+Specify the label or UUID of the DAOS container to open.
- .TP
- .BI (dfs)chunk_size
- Specificy a different chunk size (in bytes) for the dfs file.
++    require_seq_zones 128 || return $SKIP_TESTCASE
++
++    size=$((zone_size * 128))
++    bs="$(max $((zone_size / 128)) "$logical_block_size")"
++    prep_write
++    off=$((first_sequential_zone_sector * 512))
++    run_fio --zonemode=zbd --direct=1 --zonesize="${zone_size}" --thread=1 \
++	    --filename="${dev}" --norandommap=1 \
++            --name="precondition"  --rw=write "$(ioengine "psync")" \
++            --offset="${off}" --size=$((zone_size * 16)) --bs="${bs}" \
++	    "${job_var_opts[@]}" \
++	    --name=wjob --wait_for="precondition" --rw=randwrite \
++	    "$(ioengine "libaio")" --iodepth=8 \
++	    --offset="${off}" --size="${size}" --bs="${bs}" \
++	    --time_based --runtime=30s --flow=128 "${job_var_opts[@]}" \
++	    --name=trimjob --wait_for="precondition" --rw=randtrim \
++	    "$(ioengine "psync")" \
++	    --offset="${off}" --size="${size}" --bs="${zone_size}" \
++	    --time_based --runtime=30s --flow=1 "${job_var_opts[@]}" \
++	    >>"${logfile}.${test_number}" 2>&1
++}
++
+ SECONDS=0
+ tests=()
+ dynamic_analyzer=()
+-- 
+2.31.1
+
 
