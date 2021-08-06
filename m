@@ -1,56 +1,99 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231391AbhGHMCs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 8 Jul 2021 08:02:48 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D6A7C061574
-        for <fio@vger.kernel.org>; Thu,  8 Jul 2021 05:00:06 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1m1ShI-00FeKj-Dj
-        for fio@vger.kernel.org; Thu, 08 Jul 2021 12:00:04 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210708120001.D71201BC0166@kernel.dk>
-Date: Thu,  8 Jul 2021 06:00:01 -0600 (MDT)
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:22295 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229707AbhHFBH2 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 5 Aug 2021 21:07:28 -0400
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v3 1/5] zbd: Add min_bytes argument to zbd_find_zone()
+Date: Fri,  6 Aug 2021 10:07:07 +0900
+Message-Id: <20210806010711.1128153-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210806010711.1128153-1-shinichiro.kawasaki@wdc.com>
+References: <20210806010711.1128153-1-shinichiro.kawasaki@wdc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Dmitry Fomichev <Dmitry.Fomichev@wdc.com>, Niklas Cassel <niklas.cassel@wdc.com>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-The following changes since commit 77c72e0f504364adf6a0e8f1155fdf3fd68ef248:
+The helper function zbd_find_zone() finds a zone with at least
+min_bs[DDIR_READ] bytes of readable data before the zone write pointer.
+This patch generalizes this function to allow finding a non-empty zone.
+To do so, add the min_bytes argument to specify the minimum readable
+data of a zone to filter the search. Specifying 1 to min_bytes then
+become equivalent to finding a non-empty zone.
 
-  Merge branch 'dedupe_bugfix' of https://github.com/bardavid/fio (2021-07-01 13:27:39 -0600)
+This change will allow to reuse this function to find a suitable zone
+for trim I/O.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 7a9cc9c93c1384f72ac16d1d7980e158ec5f9f0a:
-
-  Makefile: use override directive on engine CFLAGS (2021-07-07 07:05:08 -0600)
-
-----------------------------------------------------------------
-Stefan Hajnoczi (1):
-      Makefile: use override directive on engine CFLAGS
-
- Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
+ zbd.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index f57569d5..510e07fc 100644
---- a/Makefile
-+++ b/Makefile
-@@ -293,7 +293,7 @@ else # !CONFIG_DYNAMIC_ENGINES
- define engine_template =
- SOURCE += $$($(1)_SRCS)
- LIBS += $$($(1)_LIBS)
--CFLAGS += $$($(1)_CFLAGS)
-+override CFLAGS += $$($(1)_CFLAGS)
- endef
- endif
+diff --git a/zbd.c b/zbd.c
+index 43f12b45..859c7feb 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1414,18 +1414,16 @@ static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
+ }
  
+ /*
+- * Find another zone for which @io_u fits in the readable data in the zone.
+- * Search in zones @zb + 1 .. @zl. For random workload, also search in zones
+- * @zb - 1 .. @zf.
++ * Find another zone which has @min_bytes of readable data. Search in zones
++ * @zb + 1 .. @zl. For random workload, also search in zones @zb - 1 .. @zf.
+  *
+  * Either returns NULL or returns a zone pointer. When the zone has write
+  * pointer, hold the mutex for the zone.
+  */
+ static struct fio_zone_info *
+-zbd_find_zone(struct thread_data *td, struct io_u *io_u,
++zbd_find_zone(struct thread_data *td, struct io_u *io_u, uint32_t min_bytes,
+ 	      struct fio_zone_info *zb, struct fio_zone_info *zl)
+ {
+-	const uint32_t min_bs = td->o.min_bs[io_u->ddir];
+ 	struct fio_file *f = io_u->file;
+ 	struct fio_zone_info *z1, *z2;
+ 	const struct fio_zone_info *const zf = get_zone(f, f->min_zone);
+@@ -1438,7 +1436,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 		if (z1 < zl && z1->cond != ZBD_ZONE_COND_OFFLINE) {
+ 			if (z1->has_wp)
+ 				zone_lock(td, f, z1);
+-			if (z1->start + min_bs <= z1->wp)
++			if (z1->start + min_bytes <= z1->wp)
+ 				return z1;
+ 			if (z1->has_wp)
+ 				zone_unlock(z1);
+@@ -1449,14 +1447,14 @@ zbd_find_zone(struct thread_data *td, struct io_u *io_u,
+ 		    z2->cond != ZBD_ZONE_COND_OFFLINE) {
+ 			if (z2->has_wp)
+ 				zone_lock(td, f, z2);
+-			if (z2->start + min_bs <= z2->wp)
++			if (z2->start + min_bytes <= z2->wp)
+ 				return z2;
+ 			if (z2->has_wp)
+ 				zone_unlock(z2);
+ 		}
+ 	}
+-	dprint(FD_ZBD, "%s: adjusting random read offset failed\n",
+-	       f->file_name);
++	dprint(FD_ZBD, "%s: no zone has %d bytes of readable data\n",
++	       f->file_name, min_bytes);
+ 	return NULL;
+ }
+ 
+@@ -1785,7 +1783,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp))) {
+ 			zone_unlock(zb);
+ 			zl = get_zone(f, f->max_zone);
+-			zb = zbd_find_zone(td, io_u, zb, zl);
++			zb = zbd_find_zone(td, io_u, min_bs, zb, zl);
+ 			if (!zb) {
+ 				dprint(FD_ZBD,
+ 				       "%s: zbd_find_zone(%lld, %llu) failed\n",
+-- 
+2.31.1
+
 
