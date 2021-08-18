@@ -1,103 +1,127 @@
-Return-Path: <prvs=842e7faf4=Dmitry.Fomichev@wdc.com>
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 1/4] zbd: Add min_bytes argument to zbd_find_zone()
-Date: Tue, 3 Aug 2021 19:35:44 +0000
-Message-ID: <9ca160b4b2af9ed09ca09ee82f900b8ed0db56c6.camel@wdc.com>
-References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
-	 <20210728104752.923770-2-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210728104752.923770-2-shinichiro.kawasaki@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from mail-eopbgr10101.outbound.protection.outlook.com ([40.107.1.101]:44177
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231476AbhHRMC6 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 18 Aug 2021 08:02:58 -0400
+Subject: Re: Guidance to learn more about fio tool
+References: <CAPJkFLYrwOx+fdSLPij8eqF09wZ7nfTS3m-7UCce8_Y0ZRHBXA@mail.gmail.com>
+From: Erwan Velu <e.velu@criteo.com>
+Message-ID: <a90d805b-29a9-2454-28de-60340a36559a@criteo.com>
+Date: Wed, 18 Aug 2021 14:02:20 +0200
+In-Reply-To: <CAPJkFLYrwOx+fdSLPij8eqF09wZ7nfTS3m-7UCce8_Y0ZRHBXA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <95F2CD7B75F6C345A72723155FD272DC@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: CED17I048 SJ HARINI <ced17i048@iiitdm.ac.in>, fio@vger.kernel.org
 
-T24gV2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gVGhlIGhlbHBlciBmdW5jdGlvbiB6YmRfZmluZF96b25lKCkgZmluZHMgYSB6b25l
-IHdpdGggYXQgbGVhc3QNCj4gbWluX2JzW0RESVJfUkVBRF0gYnl0ZXMgcmVhZGFibGUgYmVmb3Jl
-IHRoZSB6b25lIHdyaXRlIHBvaW50ZXIuIFRoaXMNCj4gcGF0Y2ggZ2VuZXJhbGl6ZXMgdGhpcyBm
-dW5jdGlvbiB0byBhbGxvdyBmaW5kaW5nIGEgbm9uLWVtcHR5IHpvbmUuIFRvDQo+IGRvDQo+IHNv
-LCBhZGQgdGhlIG1pbl9ieXRlcyBhcmd1bWVudCB0byBzcGVjaWZ5IHRoZSBtaW5pbXVtIHJlYWRh
-YmxlIGRhdGEgb2YNCj4gYQ0KPiB6b25lIHRvIGZpbHRlciB0aGUgc2VhcmNoLiBTcGVjaWZ5aW5n
-IDEgdG8gbWluX2J5dGVzIHRoZW4gYmVjb21lDQo+IGVxdWl2YWxlbnQgdG8gZmluZGluZyBhIG5v
-bi1lbXB0eSB6b25lLg0KPiANCj4gVGhpcyBjaGFuZ2Ugd2lsbCBhbGxvdyB0byByZXVzZSB0aGlz
-IGZ1bmN0aW9uIHRvIGZpbmQgYSBzdWl0YWJsZSB6b25lDQo+IGZvciB0cmltIEkvTy4NCj4gDQo+
-IFNpZ25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtpIDxzaGluaWNoaXJvLmthd2FzYWtp
-QHdkYy5jb20+DQoNCldpdGggYSBuaXQgYmVsb3csDQpSZXZpZXdlZC1ieTogRG1pdHJ5IEZvbWlj
-aGV2IDxkbWl0cnkuZm9taWNoZXZAd2RjLmNvbT4NCg0KPiBkaWZmIC0tZ2l0IGEvemJkLmMgYi96
-YmQuYw0KPiBpbmRleCAwNGM2OGRlYS4uZjEwYjMyNjcgMTAwNjQ0DQo+IC0tLSBhL3piZC5jDQo+
-ICsrKyBiL3piZC5jDQo+IEBAIC0xNDEzLDE4ICsxNDEzLDE2IEBAIHN0YXRpYyBzdHJ1Y3QgZmlv
-X3pvbmVfaW5mbw0KPiAqemJkX3JlcGxheV93cml0ZV9vcmRlcihzdHJ1Y3QgdGhyZWFkX2RhdGEg
-KnRkLA0KPiDCoH0NCj4gwqANCj4gwqAvKg0KPiAtICogRmluZCBhbm90aGVyIHpvbmUgZm9yIHdo
-aWNoIEBpb191IGZpdHMgaW4gdGhlIHJlYWRhYmxlIGRhdGEgaW4gdGhlDQo+IHpvbmUuDQo+IC0g
-KiBTZWFyY2ggaW4gem9uZXMgQHpiICsgMSAuLiBAemwuIEZvciByYW5kb20gd29ya2xvYWQsIGFs
-c28gc2VhcmNoIGluDQo+IHpvbmVzDQo+IC0gKiBAemIgLSAxIC4uIEB6Zi4NCj4gKyAqIEZpbmQg
-YW5vdGhlciB6b25lIHdoaWNoIGhhcyBAbWluX2J5dGVzIHJlYWRhYmxlIGRhdGEuIFNlYXJjaCBp
-bg0KPiB6b25lcw0KPiArICogQHpiICsgMSAuLiBAemwuIEZvciByYW5kb20gd29ya2xvYWQsIGFs
-c28gc2VhcmNoIGluIHpvbmVzIEB6YiAtIDENCj4gLi4gQHpmLg0KPiDCoCAqDQo+IMKgICogRWl0
-aGVyIHJldHVybnMgTlVMTCBvciByZXR1cm5zIGEgem9uZSBwb2ludGVyLiBXaGVuIHRoZSB6b25l
-IGhhcw0KPiB3cml0ZQ0KPiDCoCAqIHBvaW50ZXIsIGhvbGQgdGhlIG11dGV4IGZvciB0aGUgem9u
-ZS4NCj4gwqAgKi8NCj4gwqBzdGF0aWMgc3RydWN0IGZpb196b25lX2luZm8gKg0KPiAtemJkX2Zp
-bmRfem9uZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdSAqaW9fdSwNCj4gK3pi
-ZF9maW5kX3pvbmUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGlvX3UgKmlvX3UsIHVp
-bnQzMl90DQo+IG1pbl9ieXRlcywNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgc3RydWN0
-IGZpb196b25lX2luZm8gKnpiLCBzdHJ1Y3QgZmlvX3pvbmVfaW5mbyAqemwpDQo+IMKgew0KPiAt
-wqDCoMKgwqDCoMKgwqBjb25zdCB1aW50MzJfdCBtaW5fYnMgPSB0ZC0+by5taW5fYnNbaW9fdS0+
-ZGRpcl07DQo+IMKgwqDCoMKgwqDCoMKgwqBzdHJ1Y3QgZmlvX2ZpbGUgKmYgPSBpb191LT5maWxl
-Ow0KPiDCoMKgwqDCoMKgwqDCoMKgc3RydWN0IGZpb196b25lX2luZm8gKnoxLCAqejI7DQo+IMKg
-wqDCoMKgwqDCoMKgwqBjb25zdCBzdHJ1Y3QgZmlvX3pvbmVfaW5mbyAqY29uc3QgemYgPSBnZXRf
-em9uZShmLCBmLQ0KPiA+bWluX3pvbmUpOw0KPiBAQCAtMTQzNyw3ICsxNDM1LDcgQEAgemJkX2Zp
-bmRfem9uZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBzdHJ1Y3QgaW9fdQ0KPiAqaW9fdSwNCj4g
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoejEgPCB6bCAmJiB6MS0+Y29uZCAh
-PSBaQkRfWk9ORV9DT05EX09GRkxJTkUpIHsNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgaWYgKHoxLT5oYXNfd3ApDQo+IMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB6b25lX2xvY2so
-dGQsIGYsIHoxKTsNCj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqBpZiAoejEtPnN0YXJ0ICsgbWluX2JzIDw9IHoxLT53cCkNCj4gK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoejEtPnN0YXJ0ICsgbWluX2J5dGVz
-IDw9IHoxLT53cCkNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiB6MTsNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaWYgKHoxLT5oYXNfd3ApDQo+IMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB6b25l
-X3VubG9jayh6MSk7DQo+IEBAIC0xNDQ4LDE0ICsxNDQ2LDE0IEBAIHpiZF9maW5kX3pvbmUoc3Ry
-dWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0DQo+IGlvX3UgKmlvX3UsDQo+IMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHoyLT5jb25kICE9IFpCRF9aT05FX0NPTkRfT0ZG
-TElORSkgew0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqBpZiAoejItPmhhc193cCkNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHpvbmVfbG9jayh0ZCwgZiwgejIpOw0KPiAtwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmICh6Mi0+c3RhcnQg
-KyBtaW5fYnMgPD0gejItPndwKQ0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoGlmICh6Mi0+c3RhcnQgKyBtaW5fYnl0ZXMgPD0gejItPndwKQ0KPiDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgcmV0dXJuIHoyOw0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqBpZiAoejItPmhhc193cCkNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHpvbmVfdW5sb2NrKHoyKTsNCj4gwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB9DQo+IMKgwqDCoMKgwqDCoMKgwqB9DQo+IC3C
-oMKgwqDCoMKgwqDCoGRwcmludChGRF9aQkQsICIlczogYWRqdXN0aW5nIHJhbmRvbSByZWFkIG9m
-ZnNldCBmYWlsZWRcbiIsDQo+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBmLT5maWxlX25h
-bWUpOw0KPiArwqDCoMKgwqDCoMKgwqBkcHJpbnQoRkRfWkJELCAiJXM6IG5vIHpvbmUgaGFzICVk
-IGJ5dGVzIHJlYWRhYmxlIGRhdGFcbiIsDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBm
-LT5maWxlX25hbWUsIG1pbl9ieXRlcyk7DQoNClRoaXMgbWVzc2FnZSBpcyBtb3JlIGNsZWFyIHRo
-YW4gdGhlIG9sZCB2ZXJzaW9uLCBidXQgeW91IGNvdWxkIHNheQ0KImJ5dGVzIG9mIHJlYWRhYmxl
-IGRhdGEiIGhlcmUgaW5zdGVhZCBvZiAiYnl0ZXMgcmVhZGFibGUgZGF0YSIuIFRoZQ0Kc2FtZSB3
-b3JkaW5nIGNoYW5nZSBjYW4gYmUgZG9uZSBpbiB0aGUgcGF0Y2ggYW5ub3RhdGlvbi4NCg0KPiDC
-oMKgwqDCoMKgwqDCoMKgcmV0dXJuIE5VTEw7DQo+IMKgfQ0KPiDCoA0KPiBAQCAtMTc4NCw3ICsx
-NzgyLDcgQEAgZW51bSBpb191X2FjdGlvbiB6YmRfYWRqdXN0X2Jsb2NrKHN0cnVjdA0KPiB0aHJl
-YWRfZGF0YSAqdGQsIHN0cnVjdCBpb191ICppb191KQ0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCAoKCF0ZF9yYW5kb20odGQpKSAmJiAoaW9fdS0+b2Zmc2V0ICsgbWlu
-X2JzID4gemItDQo+ID53cCkpKSB7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoHpvbmVfdW5sb2NrKHpiKTsNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgemwgPSBnZXRfem9uZShmLCBmLT5tYXhfem9uZSk7
-DQo+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgemIgPSB6
-YmRfZmluZF96b25lKHRkLCBpb191LCB6YiwgemwpOw0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHpiID0gemJkX2ZpbmRfem9uZSh0ZCwgaW9fdSwgbWlu
-X2JzLCB6YiwgemwpOw0KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqBpZiAoIXpiKSB7DQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBkcHJpbnQoRkRfWkJELA0KPiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgICIlczogemJkX2ZpbmRfem9uZSglbGxkLCAlbGx1KQ0KPiBmYWlsZWRcbiIsDQoN
-Cg==
+
+Le 31/07/2021 à 11:39, CED17I048 SJ HARINI a écrit :
+> Hi,
+> [...]
+Good to see new comers.
+>
+> What have I done so far to understand the tool and the source code better:
+> 1) Tried running  fio (installed using : sudo apt-get install fio)
+> from command line (ubuntu) with --debug=all.
+>      A lot of log information was printed in the terminal.
+> 2) Cloned the source code from github fio repository. Installed
+> sourcetrail and indexed all the files in fio-master. But there were
+> many errors while indexing the files, so the visualization was
+> somewhat incomplete. In case anyone has tried using sourcetrail, would
+> love to know your experience.
+I never used it sorry. I'm using atom or vim directly on the source tree.
+> 3) Tried running many test jobs using fio.
+> 4) Read up various resources available online about using fio and
+> understanding its output.
+
+That's a good start !
+
+
+>
+> Some doubts:
+> 1) To understand the underlying logic about how the tool works, what
+> concepts should I learn about prior? - From my reading about the fio
+> tool, I came across AIO engine, nvme and learned that the hard
+> disk/storage device also contains a hardware cache. So sometimes when
+> we want to stress the hard disk/spin disk, we are actually stressing
+> the cache. How do I disable the hardware cache using the fio tool ?
+> Will --validate or --direct parameters take care of this ?
+
+First you need to differentiate if you test the filesystem 
+(/mnt/something) or the block device (/dev/sdx).
+
+And yes, --direct bypass the caching.
+
+
+> 2) I also came across some tools like IOStat, IO Meter, for storage
+> device performance. How is FIO superior to these tools?
+
+To me, it's real opensource, it has many backends, it's scriptable.
+
+So barely we can test any kind of configuration with fio and if one is 
+missing, let's add it.
+
+> 3) When I run fio for random read and set the file option : example :
+> --size = 20M, a file is created, which is not readable (i'm guessing
+> it is a binary file). What does this file contain?
+> And why is a file getting created even if rw is set to read? How to
+> read this test file created by fio? My understanding is that FIO reads
+> and writes random data using a random number generator, so shouldn't
+> the data be readable.
+
+To read a file, it needs to be created first right ?
+
+I would say, why do you care about the content of it ?
+
+If you want to check the consistency of the file, there is a 
+verification mode in fio.
+
+You can read the documentation around it if interested : 
+https://fio.readthedocs.io/en/latest/fio_doc.html#verification
+
+> 4) Is there any design diagram or documentation to understand the
+> logic of how fio works?
+I don't think so
+> 5) How do I create a debug version of fio source code ? I was hoping
+> that using breakpoints and debugging may help me identify the flow of
+> the code.
+You can do that, but reading the code is probably easier. With all the 
+threads, the debugging will not be really trivial I think.
+> 6) How to find the optimal io depth? Is queue depth same as fio iodepth?
+
+The iodepth is usually linked to the device you target. Starts from the 
+hardware specs and make your tries ;)
+
+https://fio.readthedocs.io/en/latest/fio_doc.html#i-o-depth
+
+https://www.kernel.org/doc/html/latest/block/blk-mq.html
+
+> 7) For zonemode = strided, does zonesize represent the stride length?
+> My understanding of stride length is the gap between each read/write.
+I have no experience here.
+> 8) I wanted to check if whatever data was written is correct or not,
+> so I ran the basic-verify.fio job file. But I didn't get any output
+> saying the data written was also read, and that there were no errors.
+> How do I know if there were errors ?
+I don't know the expected behavior here.
+>
+> If you could recommend any useful resources to better my
+> understanding, that would be highly appreciated.
+> Even though I do not have a clear understanding of how the tool works,
+> I am eager to learn as much as possible and hope to gain an enriching
+> learning experience.
+> I hope to gain a good understanding of the tool and want to create a
+> documentation with flowchart of how fio works as my first contribution
+> (so it's easier for complete beginners like me to understand better)
+> Thank you for taking the time and reading this mail, awaiting your response.
+
+That's a great idea to tackle the points that you face when entering a 
+project so the following ones will have a better experience.
+
+
+Erwan,
+
 
