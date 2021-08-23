@@ -1,238 +1,318 @@
-Return-Path: <prvs=862e73157=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=8624f6c1e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
 Subject: Re: [PATCH] options: Add thinktime_iotime option
-Date: Mon, 23 Aug 2021 01:35:42 +0000
-Message-ID: <20210823013541.ndgh3gcmyhteofyr@shindev>
+Date: Mon, 23 Aug 2021 01:10:14 +0000
+Message-ID: 
+ <DM6PR04MB70819EEF6D7109B5EF691BCBE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
 References: <20210820112542.1489147-1-shinichiro.kawasaki@wdc.com>
- <DM6PR04MB70819EEF6D7109B5EF691BCBE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
-In-Reply-To: 
- <DM6PR04MB70819EEF6D7109B5EF691BCBE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <966F4BF4BCE3F844A8B2141E1F34AB70@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: Damien Le Moal <Damien.LeMoal@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>, "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
 List-ID: <fio@vger.kernel.org>
 
-T24gQXVnIDIzLCAyMDIxIC8gMDE6MTAsIERhbWllbiBMZSBNb2FsIHdyb3RlOg0KPiBPbiAyMDIx
-LzA4LzIwIDIwOjI1LCBTaGluJ2ljaGlybyBLYXdhc2FraSB3cm90ZToNCj4gPiBUaGUgdGhpbmt0
-aW1lIG9wdGlvbiBhbGxvd3Mgc3RhbGxpbmcgYSBqb2IgZm9yIGEgc3BlY2lmaWVkIGFtb3VudCBv
-Zg0KPiA+IHRpbWUuIFVzaW5nIHRoZSB0aGlua3RpbWVfYmxvY2tzIG9wdGlvbiwgcGVyaW9kaWMg
-c3RhbGxzIGNhbiBiZSBhZGRlZA0KPiA+IGV2ZXJ5IHRoaW5rdGltZV9ibG9ja3MgSU9zLiBIb3dl
-dmVyLCB3aXRoIHRoaXMgb3B0aW9uLCB0aGUgcGVyaW9kaWMNCj4gPiBzdGFsbCBtYXkgbm90IGJl
-IHJlcGVhdGVkIGF0IGVxdWFsIHRpbWUgaW50ZXJ2YWxzIGFzIHRoZSB0aW1lIHRvIGV4ZWN1dGUN
-Cj4gPiB0aGlua3RpbWVfYmxvY2tzIElPcyBtYXkgdmFyeS4NCj4gPiANCj4gPiBUbyBjb250cm9s
-IHRoZSB0aGlua3RpbWUgaW50ZXJ2YWwgYnkgdGltZSwgaW50cm9kdWNlIHRoZSBvcHRpb24NCj4g
-PiB0aGlua3RpbWVfaW90aW1lLiBXaXRoIHRoaXMgbmV3IG9wdGlvbiwgdGhlIHRoaW5rdGltZSBz
-dGFsbCBpcyByZXBlYXRlZA0KPiA+IGFmdGVyIElPcyBhcmUgZXhlY3V0ZWQgZm9yIHRoaW5rdGlt
-ZV9pb3RpbWUuIElmIHRoaXMgb3B0aW9uIGlzIHVzZWQNCj4gPiB0b2dldGhlciB3aXRoIHRoZSB0
-aGlua3RpbWVfYmxvY2tzIG9wdGlvbiwgdGhlIHRoaW5rdGltZSBwYXVzZSBpcw0KPiA+IHJlcGVh
-dGVkIGFmdGVyIHRoaW5rdGltZV9pb3RpbWUgb3IgYWZ0ZXIgdGhpbmt0aW1lX2Jsb2NrcyBJT3Ms
-IHdoaWNoZXZlcg0KPiA+IGhhcHBlbnMgZmlyc3QuDQo+ID4gDQo+ID4gVG8gdHJhY2sgdGhlIHRp
-bWUgYW5kIElPIGJsb2NrIGNvdW50IGF0IHRoZSBsYXN0IHN0YWxsLCBhZGQNCj4gPiBsYXN0X3Ro
-aW5rdGltZSB2YXJpYWJsZSBhbmQgbGFzdF90aGlua3RpbWVfYmxvY2tzIHZhcmlhYmxlIHRvIHN0
-cnVjdA0KPiA+IHRocmVhZF9kYXRhLiBBbHNvLCBpbnRyb2R1Y2UgdGhlIGhlbHBlciBmdW5jdGlv
-biBpbml0X3RoaW5rdGltZSgpDQo+ID4gdG8gZ3JvdXAgdGhpbmt0aW1lIHJlbGF0ZWQgcHJlcGFy
-YXRpb25zLg0KPiA+IA0KPiA+IFNpZ25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtpIDxz
-aGluaWNoaXJvLmthd2FzYWtpQHdkYy5jb20+DQo+ID4gLS0tDQo+ID4gIEhPV1RPICAgICAgICAg
-ICAgfCAgOSArKysrKysrKy0NCj4gPiAgYmFja2VuZC5jICAgICAgICB8IDQ1ICsrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLQ0KPiA+ICBjY29udi5jICAgICAgICAg
-IHwgIDIgKysNCj4gPiAgZmlvLjEgICAgICAgICAgICB8ICA3ICsrKysrKy0NCj4gPiAgZmlvLmgg
-ICAgICAgICAgICB8ICAyICsrDQo+ID4gIG9wdGlvbnMuYyAgICAgICAgfCAxNCArKysrKysrKysr
-KysrKw0KPiA+ICBzZXJ2ZXIuaCAgICAgICAgIHwgIDIgKy0NCj4gPiAgdGhyZWFkX29wdGlvbnMu
-aCB8ICAzICsrKw0KPiA+ICA4IGZpbGVzIGNoYW5nZWQsIDc1IGluc2VydGlvbnMoKyksIDkgZGVs
-ZXRpb25zKC0pDQo+ID4gDQo+ID4gZGlmZiAtLWdpdCBhL0hPV1RPIGIvSE9XVE8NCj4gPiBpbmRl
-eCA5YmZkMzhiNC4uY2ZiMjc4ZWYgMTAwNjQ0DQo+ID4gLS0tIGEvSE9XVE8NCj4gPiArKysgYi9I
-T1dUTw0KPiA+IEBAIC0yNzEwLDcgKzI3MTAsNyBAQCBJL08gcmF0ZQ0KPiA+ICAJU3RhbGwgdGhl
-IGpvYiBmb3IgdGhlIHNwZWNpZmllZCBwZXJpb2Qgb2YgdGltZSBhZnRlciBhbiBJL08gaGFzIGNv
-bXBsZXRlZCBiZWZvcmUgaXNzdWluZyB0aGUNCj4gPiAgCW5leHQuIE1heSBiZSB1c2VkIHRvIHNp
-bXVsYXRlIHByb2Nlc3NpbmcgYmVpbmcgZG9uZSBieSBhbiBhcHBsaWNhdGlvbi4NCj4gPiAgCVdo
-ZW4gdGhlIHVuaXQgaXMgb21pdHRlZCwgdGhlIHZhbHVlIGlzIGludGVycHJldGVkIGluIG1pY3Jv
-c2Vjb25kcy4gIFNlZQ0KPiA+IC0JOm9wdGlvbjpgdGhpbmt0aW1lX2Jsb2Nrc2AgYW5kIDpvcHRp
-b246YHRoaW5rdGltZV9zcGluYC4NCj4gPiArCTpvcHRpb246YHRoaW5rdGltZV9ibG9ja3NgLCA6
-b3B0aW9uOmB0aGlua3RpbWVfaW90aW1lYCBhbmQgOm9wdGlvbjpgdGhpbmt0aW1lX3NwaW5gLg0K
-PiA+ICANCj4gPiAgLi4gb3B0aW9uOjogdGhpbmt0aW1lX3NwaW49dGltZQ0KPiA+ICANCj4gPiBA
-QCAtMjczNSw2ICsyNzM1LDEzIEBAIEkvTyByYXRlDQo+ID4gIAk6b3B0aW9uOmB0aGlua3RpbWVf
-YmxvY2tzYCBibG9ja3MuIElmIHRoaXMgaXMgc2V0IHRvIGBpc3N1ZWAsIHRoZW4gdGhlIHRyaWdn
-ZXIgaGFwcGVucw0KPiA+ICAJYXQgdGhlIGlzc3VlIHNpZGUuDQo+ID4gIA0KPiA+ICsuLiBvcHRp
-b246OiB0aGlua3RpbWVfaW90aW1lPXRpbWUNCj4gPiArDQo+ID4gKwlPbmx5IHZhbGlkIGlmIDpv
-cHRpb246YHRoaW5rdGltZWAgaXMgc2V0IC0gUmVwZWF0IGpvYiBzdGFsbCBmb3INCj4gPiArCTpv
-cHRpb246YHRoaW5rdGltZWAgYWZ0ZXIgZXhlY3V0aW5nIEkvT3MgZm9yIGB0aGlua3RpbWVfaW90
-aW1lYC4gV2hlbg0KPiA+ICsJdGhlIHVuaXQgaXMgb21pdHRlZCwgOm9wdGlvbjpgdGhpbmt0aW1l
-X2lvdGltZWAgaXMgaW50ZXJwcmV0ZWQgYXMgYQ0KPiA+ICsJbnVtYmVyIG9mIHNlY29uZHMuDQo+
-ID4gKw0KPiA+ICAuLiBvcHRpb246OiByYXRlPWludFssaW50XVssaW50XQ0KPiA+ICANCj4gPiAg
-CUNhcCB0aGUgYmFuZHdpZHRoIHVzZWQgYnkgdGhpcyBqb2IuIFRoZSBudW1iZXIgaXMgaW4gYnl0
-ZXMvc2VjLCB0aGUgbm9ybWFsDQo+ID4gZGlmZiAtLWdpdCBhL2JhY2tlbmQuYyBiL2JhY2tlbmQu
-Yw0KPiA+IGluZGV4IDgwOGU0MzYyLi41Y2RiODEyNCAxMDA2NDQNCj4gPiAtLS0gYS9iYWNrZW5k
-LmMNCj4gPiArKysgYi9iYWNrZW5kLmMNCj4gPiBAQCAtODU4LDE1ICs4NTgsNDcgQEAgc3RhdGlj
-IGxvbmcgbG9uZyB1c2VjX2Zvcl9pbyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBlbnVtIGZpb19k
-ZGlyIGRkaXIpDQo+ID4gIAlyZXR1cm4gMDsNCj4gPiAgfQ0KPiA+ICANCj4gPiArc3RhdGljIHZv
-aWQgaW5pdF90aGlua3RpbWUoc3RydWN0IHRocmVhZF9kYXRhICp0ZCkNCj4gPiArew0KPiA+ICsJ
-aWYgKHRkLT5vLnRoaW5rdGltZV9ibG9ja3NfdHlwZSA9PSBUSElOS1RJTUVfQkxPQ0tTX1RZUEVf
-Q09NUExFVEUpDQo+ID4gKwkJdGQtPnRoaW5rdGltZV9ibG9ja3NfY291bnRlciA9IHRkLT5pb19i
-bG9ja3M7DQo+ID4gKwllbHNlDQo+ID4gKwkJdGQtPnRoaW5rdGltZV9ibG9ja3NfY291bnRlciA9
-IHRkLT5pb19pc3N1ZXM7DQo+ID4gKwl0ZC0+bGFzdF90aGlua3RpbWUgPSB0ZC0+ZXBvY2g7DQo+
-ID4gKwl0ZC0+bGFzdF90aGlua3RpbWVfYmxvY2tzID0gMDsNCj4gPiArfQ0KPiA+ICsNCj4gPiAg
-c3RhdGljIHZvaWQgaGFuZGxlX3RoaW5rdGltZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLCBlbnVt
-IGZpb19kZGlyIGRkaXIsDQo+ID4gIAkJCSAgICAgc3RydWN0IHRpbWVzcGVjICp0aW1lKQ0KPiA+
-ICB7DQo+ID4gIAl1bnNpZ25lZCBsb25nIGxvbmcgYjsNCj4gPiAgCXVpbnQ2NF90IHRvdGFsOw0K
-PiA+ICAJaW50IGxlZnQ7DQo+ID4gKwlzdHJ1Y3QgdGltZXNwZWMgbm93Ow0KPiA+ICsJYm9vbCBz
-dGFsbCA9IGZhbHNlOw0KPiA+ICsNCj4gPiArCWlmICh0ZC0+by50aGlua3RpbWVfaW90aW1lKSB7
-DQo+ID4gKwkJZmlvX2dldHRpbWUoJm5vdywgTlVMTCk7DQo+ID4gKwkJaWYgKHV0aW1lX3NpbmNl
-KCZ0ZC0+bGFzdF90aGlua3RpbWUsICZub3cpDQo+ID4gKwkJICAgID49IHRkLT5vLnRoaW5rdGlt
-ZV9pb3RpbWUgKyB0ZC0+by50aGlua3RpbWUpIHsNCj4gPiArCQkJc3RhbGwgPSB0cnVlOw0KPiA+
-ICsJCX0gZWxzZSBpZiAoIWZpb19vcHRpb25faXNfc2V0KCZ0ZC0+bywgdGhpbmt0aW1lX2Jsb2Nr
-cykpIHsNCj4gPiArCQkJLyoNCj4gPiArCQkJICogV2hlbiB0aGlua3RpbWVfaW90aW1lIGlzIHNl
-dCBhbmQgdGhpbmt0aW1lX2Jsb2NrcyBpcw0KPiA+ICsJCQkgKiBub3Qgc2V0LCBza2lwIHRoZSB0
-aGlua3RpbWVfYmxvY2tzIGNoZWNrLCBzaW5jZQ0KPiA+ICsJCQkgKiB0aGlua3RpbWVfYmxvY2tz
-IGRlZmF1bHQgdmFsdWUgMSBkb2VzIG5vdCB3b3JrDQo+ID4gKwkJCSAqIHRvZ2V0aGVyIHdpdGgg
-dGhpbmt0aW1lX2lvdGltZS4NCj4gPiArCQkJICovDQo+ID4gKwkJCXJldHVybjsNCj4gPiArCQl9
-DQo+ID4gKw0KPiA+ICsJfQ0KPiA+ICANCj4gPiAgCWIgPSBkZGlyX3J3X3N1bSh0ZC0+dGhpbmt0
-aW1lX2Jsb2Nrc19jb3VudGVyKTsNCj4gPiAtCWlmIChiICUgdGQtPm8udGhpbmt0aW1lX2Jsb2Nr
-cyB8fCAhYikNCj4gPiArCWlmIChiID49IHRkLT5sYXN0X3RoaW5rdGltZV9ibG9ja3MgKyB0ZC0+
-by50aGlua3RpbWVfYmxvY2tzKQ0KPiA+ICsJCXN0YWxsID0gdHJ1ZTsNCj4gPiArDQo+ID4gKwlp
-ZiAoIXN0YWxsKQ0KPiA+ICAJCXJldHVybjsNCj4gPiAgDQo+ID4gIAlpb191X3F1aWVzY2UodGQp
-Ow0KPiA+IEBAIC05MDIsNiArOTM0LDEwIEBAIHN0YXRpYyB2b2lkIGhhbmRsZV90aGlua3RpbWUo
-c3RydWN0IHRocmVhZF9kYXRhICp0ZCwgZW51bSBmaW9fZGRpciBkZGlyLA0KPiA+ICANCj4gPiAg
-CWlmICh0aW1lICYmIHNob3VsZF9jaGVja19yYXRlKHRkKSkNCj4gPiAgCQlmaW9fZ2V0dGltZSh0
-aW1lLCBOVUxMKTsNCj4gPiArDQo+ID4gKwl0ZC0+bGFzdF90aGlua3RpbWVfYmxvY2tzID0gYjsN
-Cj4gPiArCWlmICh0ZC0+by50aGlua3RpbWVfaW90aW1lKQ0KPiA+ICsJCXRkLT5sYXN0X3RoaW5r
-dGltZSA9IG5vdzsNCj4gPiAgfQ0KPiA+ICANCj4gPiAgLyoNCj4gPiBAQCAtMTc5MSwxNyArMTgy
-NywxNCBAQCBzdGF0aWMgdm9pZCAqdGhyZWFkX21haW4odm9pZCAqZGF0YSkNCj4gPiAgCWlmIChy
-YXRlX3N1Ym1pdF9pbml0KHRkLCBza19vdXQpKQ0KPiA+ICAJCWdvdG8gZXJyOw0KPiA+ICANCj4g
-PiAtCWlmICh0ZC0+by50aGlua3RpbWVfYmxvY2tzX3R5cGUgPT0gVEhJTktUSU1FX0JMT0NLU19U
-WVBFX0NPTVBMRVRFKQ0KPiA+IC0JCXRkLT50aGlua3RpbWVfYmxvY2tzX2NvdW50ZXIgPSB0ZC0+
-aW9fYmxvY2tzOw0KPiA+IC0JZWxzZQ0KPiA+IC0JCXRkLT50aGlua3RpbWVfYmxvY2tzX2NvdW50
-ZXIgPSB0ZC0+aW9faXNzdWVzOw0KPiA+IC0NCj4gPiAgCXNldF9lcG9jaF90aW1lKHRkLCBvLT5s
-b2dfdW5peF9lcG9jaCk7DQo+ID4gIAlmaW9fZ2V0cnVzYWdlKCZ0ZC0+cnVfc3RhcnQpOw0KPiA+
-ICAJbWVtY3B5KCZ0ZC0+Yndfc2FtcGxlX3RpbWUsICZ0ZC0+ZXBvY2gsIHNpemVvZih0ZC0+ZXBv
-Y2gpKTsNCj4gPiAgCW1lbWNweSgmdGQtPmlvcHNfc2FtcGxlX3RpbWUsICZ0ZC0+ZXBvY2gsIHNp
-emVvZih0ZC0+ZXBvY2gpKTsNCj4gPiAgCW1lbWNweSgmdGQtPnNzLnByZXZfdGltZSwgJnRkLT5l
-cG9jaCwgc2l6ZW9mKHRkLT5lcG9jaCkpOw0KPiA+ICANCj4gPiArCWluaXRfdGhpbmt0aW1lKHRk
-KTsNCj4gPiArDQo+ID4gIAlpZiAoby0+cmF0ZW1pbltERElSX1JFQURdIHx8IG8tPnJhdGVtaW5b
-RERJUl9XUklURV0gfHwNCj4gPiAgCQkJby0+cmF0ZW1pbltERElSX1RSSU1dKSB7DQo+ID4gIAkg
-ICAgICAgIG1lbWNweSgmdGQtPmxhc3RyYXRlW0RESVJfUkVBRF0sICZ0ZC0+Yndfc2FtcGxlX3Rp
-bWUsDQo+ID4gZGlmZiAtLWdpdCBhL2Njb252LmMgYi9jY29udi5jDQo+ID4gaW5kZXggZTNhOGMy
-N2MuLjkyNDkxZGRiIDEwMDY0NA0KPiA+IC0tLSBhL2Njb252LmMNCj4gPiArKysgYi9jY29udi5j
-DQo+ID4gQEAgLTIxMyw2ICsyMTMsNyBAQCB2b2lkIGNvbnZlcnRfdGhyZWFkX29wdGlvbnNfdG9f
-Y3B1KHN0cnVjdCB0aHJlYWRfb3B0aW9ucyAqbywNCj4gPiAgCW8tPnRoaW5rdGltZV9zcGluID0g
-bGUzMl90b19jcHUodG9wLT50aGlua3RpbWVfc3Bpbik7DQo+ID4gIAlvLT50aGlua3RpbWVfYmxv
-Y2tzID0gbGUzMl90b19jcHUodG9wLT50aGlua3RpbWVfYmxvY2tzKTsNCj4gPiAgCW8tPnRoaW5r
-dGltZV9ibG9ja3NfdHlwZSA9IGxlMzJfdG9fY3B1KHRvcC0+dGhpbmt0aW1lX2Jsb2Nrc190eXBl
-KTsNCj4gPiArCW8tPnRoaW5rdGltZV9pb3RpbWUgPSBsZTMyX3RvX2NwdSh0b3AtPnRoaW5rdGlt
-ZV9pb3RpbWUpOw0KPiA+ICAJby0+ZnN5bmNfYmxvY2tzID0gbGUzMl90b19jcHUodG9wLT5mc3lu
-Y19ibG9ja3MpOw0KPiA+ICAJby0+ZmRhdGFzeW5jX2Jsb2NrcyA9IGxlMzJfdG9fY3B1KHRvcC0+
-ZmRhdGFzeW5jX2Jsb2Nrcyk7DQo+ID4gIAlvLT5iYXJyaWVyX2Jsb2NrcyA9IGxlMzJfdG9fY3B1
-KHRvcC0+YmFycmllcl9ibG9ja3MpOw0KPiA+IEBAIC00MzgsNiArNDM5LDcgQEAgdm9pZCBjb252
-ZXJ0X3RocmVhZF9vcHRpb25zX3RvX25ldChzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjayAqdG9w
-LA0KPiA+ICAJdG9wLT50aGlua3RpbWVfc3BpbiA9IGNwdV90b19sZTMyKG8tPnRoaW5rdGltZV9z
-cGluKTsNCj4gPiAgCXRvcC0+dGhpbmt0aW1lX2Jsb2NrcyA9IGNwdV90b19sZTMyKG8tPnRoaW5r
-dGltZV9ibG9ja3MpOw0KPiA+ICAJdG9wLT50aGlua3RpbWVfYmxvY2tzX3R5cGUgPSBfX2NwdV90
-b19sZTMyKG8tPnRoaW5rdGltZV9ibG9ja3NfdHlwZSk7DQo+ID4gKwl0b3AtPnRoaW5rdGltZV9p
-b3RpbWUgPSBfX2NwdV90b19sZTMyKG8tPnRoaW5rdGltZV9pb3RpbWUpOw0KPiA+ICAJdG9wLT5m
-c3luY19ibG9ja3MgPSBjcHVfdG9fbGUzMihvLT5mc3luY19ibG9ja3MpOw0KPiA+ICAJdG9wLT5m
-ZGF0YXN5bmNfYmxvY2tzID0gY3B1X3RvX2xlMzIoby0+ZmRhdGFzeW5jX2Jsb2Nrcyk7DQo+ID4g
-IAl0b3AtPmJhcnJpZXJfYmxvY2tzID0gY3B1X3RvX2xlMzIoby0+YmFycmllcl9ibG9ja3MpOw0K
-PiA+IGRpZmYgLS1naXQgYS9maW8uMSBiL2Zpby4xDQo+ID4gaW5kZXggMzgyY2ViZmMuLjNjYWUx
-NWIzIDEwMDY0NA0KPiA+IC0tLSBhL2Zpby4xDQo+ID4gKysrIGIvZmlvLjENCj4gPiBAQCAtMjQ3
-MSw3ICsyNDcxLDcgQEAgcHJvYmxlbSkuIE5vdGUgdGhhdCB0aGlzIG9wdGlvbiBjYW5ub3QgcmVs
-aWFibHkgYmUgdXNlZCB3aXRoIGFzeW5jIElPIGVuZ2luZXMuDQo+ID4gIFN0YWxsIHRoZSBqb2Ig
-Zm9yIHRoZSBzcGVjaWZpZWQgcGVyaW9kIG9mIHRpbWUgYWZ0ZXIgYW4gSS9PIGhhcyBjb21wbGV0
-ZWQgYmVmb3JlIGlzc3VpbmcgdGhlDQo+ID4gIG5leHQuIE1heSBiZSB1c2VkIHRvIHNpbXVsYXRl
-IHByb2Nlc3NpbmcgYmVpbmcgZG9uZSBieSBhbiBhcHBsaWNhdGlvbi4NCj4gPiAgV2hlbiB0aGUg
-dW5pdCBpcyBvbWl0dGVkLCB0aGUgdmFsdWUgaXMgaW50ZXJwcmV0ZWQgaW4gbWljcm9zZWNvbmRz
-LiBTZWUNCj4gPiAtXGZCdGhpbmt0aW1lX2Jsb2Nrc1xmUiBhbmQgXGZCdGhpbmt0aW1lX3NwaW5c
-ZlIuDQo+ID4gK1xmQnRoaW5rdGltZV9ibG9ja3NcZlIsIFxmQnRoaW5rdGltZV9pb3RpbWVcZlIg
-YW5kIFxmQnRoaW5rdGltZV9zcGluXGZSLg0KPiA+ICAuVFANCj4gPiAgLkJJIHRoaW5rdGltZV9z
-cGluIFxmUj1cZlB0aW1lDQo+ID4gIE9ubHkgdmFsaWQgaWYgXGZCdGhpbmt0aW1lXGZSIGlzIHNl
-dCAtIHByZXRlbmQgdG8gc3BlbmQgQ1BVIHRpbWUgZG9pbmcNCj4gPiBAQCAtMjQ5Myw2ICsyNDkz
-LDExIEBAIFRoZSBkZWZhdWx0IGlzIGBjb21wbGV0ZScsIHdoaWNoIHRyaWdnZXJzIFxmQnRoaW5r
-dGltZVxmUiB3aGVuIGZpbyBjb21wbGV0ZXMNCj4gPiAgXGZCdGhpbmt0aW1lX2Jsb2Nrc1xmUiBi
-bG9ja3MuIElmIHRoaXMgaXMgc2V0IHRvIGBpc3N1ZScsIHRoZW4gdGhlIHRyaWdnZXIgaGFwcGVu
-cw0KPiA+ICBhdCB0aGUgaXNzdWUgc2lkZS4NCj4gPiAgLlRQDQo+ID4gKy5CSSB0aGlua3RpbWVf
-aW90aW1lIFxmUj1cZlB0aW1lDQo+ID4gK09ubHkgdmFsaWQgaWYgXGZCdGhpbmt0aW1lXGZSIGlz
-IHNldCAtIFJlcGVhdCBqb2Igc3RhbGwgZm9yIFxmQnRoaW5rdGltZVxmUg0KPiA+ICthZnRlciBl
-eGVjdXRpbmcgSS9PcyBmb3IgXGZCdGhpbmt0aW1lX2lvdGltZVxmUi4gV2hlbiB0aGUgdW5pdCBp
-cyBvbWl0dGVkLA0KPiA+ICtcZkJ0aGlua3RpbWVfaW90aW1lXGZSIGlzIGludGVycHJldGVkIGFz
-IGEgbnVtYmVyIG9mIHNlY29uZHMuDQo+ID4gKy5UUA0KPiA+ICAuQkkgcmF0ZSBcZlI9XGZQaW50
-WyxpbnRdWyxpbnRdDQo+ID4gIENhcCB0aGUgYmFuZHdpZHRoIHVzZWQgYnkgdGhpcyBqb2IuIFRo
-ZSBudW1iZXIgaXMgaW4gYnl0ZXMvc2VjLCB0aGUgbm9ybWFsDQo+ID4gIHN1ZmZpeCBydWxlcyBh
-cHBseS4gQ29tbWEtc2VwYXJhdGVkIHZhbHVlcyBtYXkgYmUgc3BlY2lmaWVkIGZvciByZWFkcywN
-Cj4gPiBkaWZmIC0tZ2l0IGEvZmlvLmggYi9maW8uaA0KPiA+IGluZGV4IDZmNmIyMTFiLi44NWVk
-NjBmYyAxMDA2NDQNCj4gPiAtLS0gYS9maW8uaA0KPiA+ICsrKyBiL2Zpby5oDQo+ID4gQEAgLTM2
-NSw2ICszNjUsOCBAQCBzdHJ1Y3QgdGhyZWFkX2RhdGEgew0KPiA+ICAJdWludDY0X3QgYnl0ZXNf
-ZG9uZVtERElSX1JXRElSX0NOVF07DQo+ID4gIA0KPiA+ICAJdWludDY0X3QgKnRoaW5rdGltZV9i
-bG9ja3NfY291bnRlcjsNCj4gPiArCXN0cnVjdCB0aW1lc3BlYyBsYXN0X3RoaW5rdGltZTsNCj4g
-PiArCXVpbnQ2NF90IGxhc3RfdGhpbmt0aW1lX2Jsb2NrczsNCj4gPiAgDQo+ID4gIAkvKg0KPiA+
-ICAJICogU3RhdGUgZm9yIHJhbmRvbSBpbywgYSBiaXRtYXAgb2YgYmxvY2tzIGRvbmUgdnMgbm90
-IGRvbmUNCj4gPiBkaWZmIC0tZ2l0IGEvb3B0aW9ucy5jIGIvb3B0aW9ucy5jDQo+ID4gaW5kZXgg
-OGMyYWI3Y2MuLjNmZTFlNmJkIDEwMDY0NA0KPiA+IC0tLSBhL29wdGlvbnMuYw0KPiA+ICsrKyBi
-L29wdGlvbnMuYw0KPiA+IEBAIC0zNjg4LDYgKzM2ODgsMjAgQEAgc3RydWN0IGZpb19vcHRpb24g
-ZmlvX29wdGlvbnNbRklPX01BWF9PUFRTXSA9IHsNCj4gPiAgCQl9LA0KPiA+ICAJCS5wYXJlbnQg
-PSAidGhpbmt0aW1lIiwNCj4gPiAgCX0sDQo+ID4gKwl7DQo+ID4gKwkJLm5hbWUJPSAidGhpbmt0
-aW1lX2lvdGltZSIsDQo+ID4gKwkJLmxuYW1lCT0gIlRoaW5rdGltZSBpbnRlcnZhbCIsDQo+ID4g
-KwkJLnR5cGUJPSBGSU9fT1BUX0lOVCwNCj4gPiArCQkub2ZmMQk9IG9mZnNldG9mKHN0cnVjdCB0
-aHJlYWRfb3B0aW9ucywgdGhpbmt0aW1lX2lvdGltZSksDQo+ID4gKwkJLmhlbHAJPSAiSU8gdGlt
-ZSBpbnRlcnZhbCBiZXR3ZWVuICd0aGlua3RpbWUnIiwNCj4gPiArCQkuaXNfdGltZSA9IDEsDQo+
-ID4gKwkJLmlzX3NlY29uZHMgPSAxLA0KPiA+ICsJCS5kZWYJPSAiMCIsDQo+ID4gKwkJLnBhcmVu
-dAk9ICJ0aGlua3RpbWUiLA0KPiA+ICsJCS5oaWRlCT0gMSwNCj4gPiArCQkuY2F0ZWdvcnkgPSBG
-SU9fT1BUX0NfSU8sDQo+ID4gKwkJLmdyb3VwCT0gRklPX09QVF9HX1RISU5LVElNRSwNCj4gPiAr
-CX0sDQo+ID4gIAl7DQo+ID4gIAkJLm5hbWUJPSAicmF0ZSIsDQo+ID4gIAkJLmxuYW1lCT0gIkkv
-TyByYXRlIiwNCj4gPiBkaWZmIC0tZ2l0IGEvc2VydmVyLmggYi9zZXJ2ZXIuaA0KPiA+IGluZGV4
-IGRhZWQwNTdhLi43Y2UyZGRiMSAxMDA2NDQNCj4gPiAtLS0gYS9zZXJ2ZXIuaA0KPiA+ICsrKyBi
-L3NlcnZlci5oDQo+ID4gQEAgLTQ4LDcgKzQ4LDcgQEAgc3RydWN0IGZpb19uZXRfY21kX3JlcGx5
-IHsNCj4gPiAgfTsNCj4gPiAgDQo+ID4gIGVudW0gew0KPiA+IC0JRklPX1NFUlZFUl9WRVIJCQk9
-IDkyLA0KPiA+ICsJRklPX1NFUlZFUl9WRVIJCQk9IDkzLA0KPiA+ICANCj4gPiAgCUZJT19TRVJW
-RVJfTUFYX0ZSQUdNRU5UX1BEVQk9IDEwMjQsDQo+ID4gIAlGSU9fU0VSVkVSX01BWF9DTURfTUIJ
-CT0gMjA0OCwNCj4gPiBkaWZmIC0tZ2l0IGEvdGhyZWFkX29wdGlvbnMuaCBiL3RocmVhZF9vcHRp
-b25zLmgNCj4gPiBpbmRleCA0YjRlY2ZlMS4uNmZlMWNhZDcgMTAwNjQ0DQo+ID4gLS0tIGEvdGhy
-ZWFkX29wdGlvbnMuaA0KPiA+ICsrKyBiL3RocmVhZF9vcHRpb25zLmgNCj4gPiBAQCAtMTg5LDYg
-KzE4OSw3IEBAIHN0cnVjdCB0aHJlYWRfb3B0aW9ucyB7DQo+ID4gIAl1bnNpZ25lZCBpbnQgdGhp
-bmt0aW1lX3NwaW47DQo+ID4gIAl1bnNpZ25lZCBpbnQgdGhpbmt0aW1lX2Jsb2NrczsNCj4gPiAg
-CXVuc2lnbmVkIGludCB0aGlua3RpbWVfYmxvY2tzX3R5cGU7DQo+ID4gKwl1bnNpZ25lZCBpbnQg
-dGhpbmt0aW1lX2lvdGltZTsNCj4gPiAgCXVuc2lnbmVkIGludCBmc3luY19ibG9ja3M7DQo+ID4g
-IAl1bnNpZ25lZCBpbnQgZmRhdGFzeW5jX2Jsb2NrczsNCj4gPiAgCXVuc2lnbmVkIGludCBiYXJy
-aWVyX2Jsb2NrczsNCj4gPiBAQCAtNTAwLDYgKzUwMSw4IEBAIHN0cnVjdCB0aHJlYWRfb3B0aW9u
-c19wYWNrIHsNCj4gPiAgCXVpbnQzMl90IHRoaW5rdGltZV9zcGluOw0KPiA+ICAJdWludDMyX3Qg
-dGhpbmt0aW1lX2Jsb2NrczsNCj4gPiAgCXVpbnQzMl90IHRoaW5rdGltZV9ibG9ja3NfdHlwZTsN
-Cj4gPiArCXVpbnQzMl90IHRoaW5rdGltZV9pb3RpbWU7DQo+ID4gKwl1aW50MzJfdCBwYWQ2Ow0K
-PiANCj4gV2h5IGlzIHRoaXMgbmVlZGVkID8gU29tZSBhbGlnbmVtZW50IHdhcm5pbmcgPw0KDQpZ
-ZXMuIFdpdGhvdXQgdGhlIHBhZCwgSSBvYnNlcnZlIGJ1aWxkIGVycm9ycyBhcyBmb2xsb3dzOg0K
-DQpJbiBmaWxlIGluY2x1ZGVkIGZyb20gZmlvLmg6MTcsDQogICAgICAgICAgICAgICAgIGZyb20g
-bGliZmlvLmM6MzE6DQpsaWJmaW8uYzogSW4gZnVuY3Rpb24g4oCYaW5pdGlhbGl6ZV9maW/igJk6
-DQpjb21waWxlci9jb21waWxlci5oOjMxOjQ0OiBlcnJvcjogc3RhdGljIGFzc2VydGlvbiBmYWls
-ZWQ6ICJwZXJjZW50aWxlX2xpc3QiDQogICAzMSB8ICNkZWZpbmUgY29tcGlsZXRpbWVfYXNzZXJ0
-KGNvbmRpdGlvbiwgbXNnKSBfU3RhdGljX2Fzc2VydChjb25kaXRpb24sIG1zZykNCiAgICAgIHwg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF5+fn5+fn5+fn5+fn5+
-DQpsaWJmaW8uYzozNzI6OTogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvIOKAmGNvbXBpbGV0
-aW1lX2Fzc2VydOKAmQ0KICAzNzIgfCAgICAgICAgIGNvbXBpbGV0aW1lX2Fzc2VydCgob2Zmc2V0
-b2Yoc3RydWN0IHRocmVhZF9vcHRpb25zX3BhY2ssIHBlcmNlbnRpbGVfbGlzdCkgJSA4KSA9PSAw
-LCAicGVyY2VudGlsZV9saXN0Iik7DQogICAgICB8ICAgICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+
-DQpjb21waWxlci9jb21waWxlci5oOjMxOjQ0OiBlcnJvcjogc3RhdGljIGFzc2VydGlvbiBmYWls
-ZWQ6ICJsYXRlbmN5X3BlcmNlbnRpbGUiDQogICAzMSB8ICNkZWZpbmUgY29tcGlsZXRpbWVfYXNz
-ZXJ0KGNvbmRpdGlvbiwgbXNnKSBfU3RhdGljX2Fzc2VydChjb25kaXRpb24sIG1zZykNCiAgICAg
-IHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF5+fn5+fn5+fn5+
-fn5+DQpsaWJmaW8uYzozNzM6OTogbm90ZTogaW4gZXhwYW5zaW9uIG9mIG1hY3JvIOKAmGNvbXBp
-bGV0aW1lX2Fzc2VydOKAmQ0KICAzNzMgfCAgICAgICAgIGNvbXBpbGV0aW1lX2Fzc2VydCgob2Zm
-c2V0b2Yoc3RydWN0IHRocmVhZF9vcHRpb25zX3BhY2ssIGxhdGVuY3lfcGVyY2VudGlsZSkgJSA4
-KSA9PSAwLCAibGF0ZW5jeV9wZXJjZW50aWxlIik7DQogICAgICB8ICAgICAgICAgXn5+fn5+fn5+
-fn5+fn5+fn5+DQptYWtlOiAqKiogW01ha2VmaWxlOjQ5NjogbGliZmlvLm9dIEVycm9yIDENCm1h
-a2U6ICoqKiBXYWl0aW5nIGZvciB1bmZpbmlzaGVkIGpvYnMuLi4uDQoNCj4gSWYgeWVzLCBoYXZl
-IHlvdSB0cmllZCBtb3ZpbmcNCj4gdGhpcyBkZWNsYXJhdGlvbiBpbiB0aGUgc3RydWN0ID8NCg0K
-WWVzLiBJIG1vdmVkIHRoZSBuZXcgZmllbGQgdGhpbmt0aW1lX2lvdGltZSB0byB0aGUgZW5kIG9m
-IHN0cnVjdA0KdGhyZWFkX29wdGlvbnNfcGFjayB0aGVuIHRoZSBlcnJvcnMgd2VyZSBhdm9pZGVk
-LiBCdXQgSSB3YW50ZWQNCnRvIHBsYWNlIHRoZSBuZXcgZmllbGQgYXQgdGhlIHNhbWUgcGxhY2Ug
-YXMgb3RoZXIgdGhpbmt0aW1lIHJlbGF0ZWQNCmZpZWxkcy4gRm9yIHRoYXQgcHVycG9zZSwgSSBu
-ZWVkZWQgdG8gYWRkIHRoZSBwYWRkaW5nIHBhZDYuIEkgdHJpZWQgdG8NCnV0aWxpemUgb3RoZXIg
-cGFkcyBzdWNoIGFzIHBhZDIgb3IgcGFkNSwgYnV0IGl0IGRpZG4ndCB3b3JrLg0KDQpUbyBwbGFj
-ZSB0aGUgcmVsYXRlZCBmaWVsZHMgYXQgc2FtZSBwbGFjZSB3aXRoIHBhZGRpbmcsIG9yIHRvIHBs
-YWNlIHRoZSBuZXcNCmZpZWxkIGF0IGRpZmZlcmVudCBwbGFjZSB3aXRob3V0IHBhZGRpbmcsIHdo
-aWNoIHdheSB0byBnbz8NCg0KPiANCj4gPiAgCXVpbnQzMl90IGZzeW5jX2Jsb2NrczsNCj4gPiAg
-CXVpbnQzMl90IGZkYXRhc3luY19ibG9ja3M7DQo+ID4gIAl1aW50MzJfdCBiYXJyaWVyX2Jsb2Nr
-czsNCj4gPiANCj4gDQo+IEFwYXJ0IGZyb20gdGhlIHF1ZXN0aW9uIGFib3ZlLCB0aGlzIGxvb2tz
-IGdvb2QgdG8gbWUuDQo+IA0KPiAtLSANCj4gRGFtaWVuIExlIE1vYWwNCj4gV2VzdGVybiBEaWdp
-dGFsIFJlc2VhcmNoDQo+IA0KDQotLSANCkJlc3QgUmVnYXJkcywNClNoaW4naWNoaXJvIEthd2Fz
-YWtp
+On 2021/08/20 20:25, Shin'ichiro Kawasaki wrote:=0A=
+> The thinktime option allows stalling a job for a specified amount of=0A=
+> time. Using the thinktime_blocks option, periodic stalls can be added=0A=
+> every thinktime_blocks IOs. However, with this option, the periodic=0A=
+> stall may not be repeated at equal time intervals as the time to execute=
+=0A=
+> thinktime_blocks IOs may vary.=0A=
+> =0A=
+> To control the thinktime interval by time, introduce the option=0A=
+> thinktime_iotime. With this new option, the thinktime stall is repeated=
+=0A=
+> after IOs are executed for thinktime_iotime. If this option is used=0A=
+> together with the thinktime_blocks option, the thinktime pause is=0A=
+> repeated after thinktime_iotime or after thinktime_blocks IOs, whichever=
+=0A=
+> happens first.=0A=
+> =0A=
+> To track the time and IO block count at the last stall, add=0A=
+> last_thinktime variable and last_thinktime_blocks variable to struct=0A=
+> thread_data. Also, introduce the helper function init_thinktime()=0A=
+> to group thinktime related preparations.=0A=
+> =0A=
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>=0A=
+> ---=0A=
+>  HOWTO            |  9 ++++++++-=0A=
+>  backend.c        | 45 +++++++++++++++++++++++++++++++++++++++------=0A=
+>  cconv.c          |  2 ++=0A=
+>  fio.1            |  7 ++++++-=0A=
+>  fio.h            |  2 ++=0A=
+>  options.c        | 14 ++++++++++++++=0A=
+>  server.h         |  2 +-=0A=
+>  thread_options.h |  3 +++=0A=
+>  8 files changed, 75 insertions(+), 9 deletions(-)=0A=
+> =0A=
+> diff --git a/HOWTO b/HOWTO=0A=
+> index 9bfd38b4..cfb278ef 100644=0A=
+> --- a/HOWTO=0A=
+> +++ b/HOWTO=0A=
+> @@ -2710,7 +2710,7 @@ I/O rate=0A=
+>  	Stall the job for the specified period of time after an I/O has complet=
+ed before issuing the=0A=
+>  	next. May be used to simulate processing being done by an application.=
+=0A=
+>  	When the unit is omitted, the value is interpreted in microseconds.  Se=
+e=0A=
+> -	:option:`thinktime_blocks` and :option:`thinktime_spin`.=0A=
+> +	:option:`thinktime_blocks`, :option:`thinktime_iotime` and :option:`thi=
+nktime_spin`.=0A=
+>  =0A=
+>  .. option:: thinktime_spin=3Dtime=0A=
+>  =0A=
+> @@ -2735,6 +2735,13 @@ I/O rate=0A=
+>  	:option:`thinktime_blocks` blocks. If this is set to `issue`, then the =
+trigger happens=0A=
+>  	at the issue side.=0A=
+>  =0A=
+> +.. option:: thinktime_iotime=3Dtime=0A=
+> +=0A=
+> +	Only valid if :option:`thinktime` is set - Repeat job stall for=0A=
+> +	:option:`thinktime` after executing I/Os for `thinktime_iotime`. When=
+=0A=
+> +	the unit is omitted, :option:`thinktime_iotime` is interpreted as a=0A=
+> +	number of seconds.=0A=
+> +=0A=
+>  .. option:: rate=3Dint[,int][,int]=0A=
+>  =0A=
+>  	Cap the bandwidth used by this job. The number is in bytes/sec, the nor=
+mal=0A=
+> diff --git a/backend.c b/backend.c=0A=
+> index 808e4362..5cdb8124 100644=0A=
+> --- a/backend.c=0A=
+> +++ b/backend.c=0A=
+> @@ -858,15 +858,47 @@ static long long usec_for_io(struct thread_data *td=
+, enum fio_ddir ddir)=0A=
+>  	return 0;=0A=
+>  }=0A=
+>  =0A=
+> +static void init_thinktime(struct thread_data *td)=0A=
+> +{=0A=
+> +	if (td->o.thinktime_blocks_type =3D=3D THINKTIME_BLOCKS_TYPE_COMPLETE)=
+=0A=
+> +		td->thinktime_blocks_counter =3D td->io_blocks;=0A=
+> +	else=0A=
+> +		td->thinktime_blocks_counter =3D td->io_issues;=0A=
+> +	td->last_thinktime =3D td->epoch;=0A=
+> +	td->last_thinktime_blocks =3D 0;=0A=
+> +}=0A=
+> +=0A=
+>  static void handle_thinktime(struct thread_data *td, enum fio_ddir ddir,=
+=0A=
+>  			     struct timespec *time)=0A=
+>  {=0A=
+>  	unsigned long long b;=0A=
+>  	uint64_t total;=0A=
+>  	int left;=0A=
+> +	struct timespec now;=0A=
+> +	bool stall =3D false;=0A=
+> +=0A=
+> +	if (td->o.thinktime_iotime) {=0A=
+> +		fio_gettime(&now, NULL);=0A=
+> +		if (utime_since(&td->last_thinktime, &now)=0A=
+> +		    >=3D td->o.thinktime_iotime + td->o.thinktime) {=0A=
+> +			stall =3D true;=0A=
+> +		} else if (!fio_option_is_set(&td->o, thinktime_blocks)) {=0A=
+> +			/*=0A=
+> +			 * When thinktime_iotime is set and thinktime_blocks is=0A=
+> +			 * not set, skip the thinktime_blocks check, since=0A=
+> +			 * thinktime_blocks default value 1 does not work=0A=
+> +			 * together with thinktime_iotime.=0A=
+> +			 */=0A=
+> +			return;=0A=
+> +		}=0A=
+> +=0A=
+> +	}=0A=
+>  =0A=
+>  	b =3D ddir_rw_sum(td->thinktime_blocks_counter);=0A=
+> -	if (b % td->o.thinktime_blocks || !b)=0A=
+> +	if (b >=3D td->last_thinktime_blocks + td->o.thinktime_blocks)=0A=
+> +		stall =3D true;=0A=
+> +=0A=
+> +	if (!stall)=0A=
+>  		return;=0A=
+>  =0A=
+>  	io_u_quiesce(td);=0A=
+> @@ -902,6 +934,10 @@ static void handle_thinktime(struct thread_data *td,=
+ enum fio_ddir ddir,=0A=
+>  =0A=
+>  	if (time && should_check_rate(td))=0A=
+>  		fio_gettime(time, NULL);=0A=
+> +=0A=
+> +	td->last_thinktime_blocks =3D b;=0A=
+> +	if (td->o.thinktime_iotime)=0A=
+> +		td->last_thinktime =3D now;=0A=
+>  }=0A=
+>  =0A=
+>  /*=0A=
+> @@ -1791,17 +1827,14 @@ static void *thread_main(void *data)=0A=
+>  	if (rate_submit_init(td, sk_out))=0A=
+>  		goto err;=0A=
+>  =0A=
+> -	if (td->o.thinktime_blocks_type =3D=3D THINKTIME_BLOCKS_TYPE_COMPLETE)=
+=0A=
+> -		td->thinktime_blocks_counter =3D td->io_blocks;=0A=
+> -	else=0A=
+> -		td->thinktime_blocks_counter =3D td->io_issues;=0A=
+> -=0A=
+>  	set_epoch_time(td, o->log_unix_epoch);=0A=
+>  	fio_getrusage(&td->ru_start);=0A=
+>  	memcpy(&td->bw_sample_time, &td->epoch, sizeof(td->epoch));=0A=
+>  	memcpy(&td->iops_sample_time, &td->epoch, sizeof(td->epoch));=0A=
+>  	memcpy(&td->ss.prev_time, &td->epoch, sizeof(td->epoch));=0A=
+>  =0A=
+> +	init_thinktime(td);=0A=
+> +=0A=
+>  	if (o->ratemin[DDIR_READ] || o->ratemin[DDIR_WRITE] ||=0A=
+>  			o->ratemin[DDIR_TRIM]) {=0A=
+>  	        memcpy(&td->lastrate[DDIR_READ], &td->bw_sample_time,=0A=
+> diff --git a/cconv.c b/cconv.c=0A=
+> index e3a8c27c..92491ddb 100644=0A=
+> --- a/cconv.c=0A=
+> +++ b/cconv.c=0A=
+> @@ -213,6 +213,7 @@ void convert_thread_options_to_cpu(struct thread_opti=
+ons *o,=0A=
+>  	o->thinktime_spin =3D le32_to_cpu(top->thinktime_spin);=0A=
+>  	o->thinktime_blocks =3D le32_to_cpu(top->thinktime_blocks);=0A=
+>  	o->thinktime_blocks_type =3D le32_to_cpu(top->thinktime_blocks_type);=
+=0A=
+> +	o->thinktime_iotime =3D le32_to_cpu(top->thinktime_iotime);=0A=
+>  	o->fsync_blocks =3D le32_to_cpu(top->fsync_blocks);=0A=
+>  	o->fdatasync_blocks =3D le32_to_cpu(top->fdatasync_blocks);=0A=
+>  	o->barrier_blocks =3D le32_to_cpu(top->barrier_blocks);=0A=
+> @@ -438,6 +439,7 @@ void convert_thread_options_to_net(struct thread_opti=
+ons_pack *top,=0A=
+>  	top->thinktime_spin =3D cpu_to_le32(o->thinktime_spin);=0A=
+>  	top->thinktime_blocks =3D cpu_to_le32(o->thinktime_blocks);=0A=
+>  	top->thinktime_blocks_type =3D __cpu_to_le32(o->thinktime_blocks_type);=
+=0A=
+> +	top->thinktime_iotime =3D __cpu_to_le32(o->thinktime_iotime);=0A=
+>  	top->fsync_blocks =3D cpu_to_le32(o->fsync_blocks);=0A=
+>  	top->fdatasync_blocks =3D cpu_to_le32(o->fdatasync_blocks);=0A=
+>  	top->barrier_blocks =3D cpu_to_le32(o->barrier_blocks);=0A=
+> diff --git a/fio.1 b/fio.1=0A=
+> index 382cebfc..3cae15b3 100644=0A=
+> --- a/fio.1=0A=
+> +++ b/fio.1=0A=
+> @@ -2471,7 +2471,7 @@ problem). Note that this option cannot reliably be =
+used with async IO engines.=0A=
+>  Stall the job for the specified period of time after an I/O has complete=
+d before issuing the=0A=
+>  next. May be used to simulate processing being done by an application.=
+=0A=
+>  When the unit is omitted, the value is interpreted in microseconds. See=
+=0A=
+> -\fBthinktime_blocks\fR and \fBthinktime_spin\fR.=0A=
+> +\fBthinktime_blocks\fR, \fBthinktime_iotime\fR and \fBthinktime_spin\fR.=
+=0A=
+>  .TP=0A=
+>  .BI thinktime_spin \fR=3D\fPtime=0A=
+>  Only valid if \fBthinktime\fR is set - pretend to spend CPU time doing=
+=0A=
+> @@ -2493,6 +2493,11 @@ The default is `complete', which triggers \fBthink=
+time\fR when fio completes=0A=
+>  \fBthinktime_blocks\fR blocks. If this is set to `issue', then the trigg=
+er happens=0A=
+>  at the issue side.=0A=
+>  .TP=0A=
+> +.BI thinktime_iotime \fR=3D\fPtime=0A=
+> +Only valid if \fBthinktime\fR is set - Repeat job stall for \fBthinktime=
+\fR=0A=
+> +after executing I/Os for \fBthinktime_iotime\fR. When the unit is omitte=
+d,=0A=
+> +\fBthinktime_iotime\fR is interpreted as a number of seconds.=0A=
+> +.TP=0A=
+>  .BI rate \fR=3D\fPint[,int][,int]=0A=
+>  Cap the bandwidth used by this job. The number is in bytes/sec, the norm=
+al=0A=
+>  suffix rules apply. Comma-separated values may be specified for reads,=
+=0A=
+> diff --git a/fio.h b/fio.h=0A=
+> index 6f6b211b..85ed60fc 100644=0A=
+> --- a/fio.h=0A=
+> +++ b/fio.h=0A=
+> @@ -365,6 +365,8 @@ struct thread_data {=0A=
+>  	uint64_t bytes_done[DDIR_RWDIR_CNT];=0A=
+>  =0A=
+>  	uint64_t *thinktime_blocks_counter;=0A=
+> +	struct timespec last_thinktime;=0A=
+> +	uint64_t last_thinktime_blocks;=0A=
+>  =0A=
+>  	/*=0A=
+>  	 * State for random io, a bitmap of blocks done vs not done=0A=
+> diff --git a/options.c b/options.c=0A=
+> index 8c2ab7cc..3fe1e6bd 100644=0A=
+> --- a/options.c=0A=
+> +++ b/options.c=0A=
+> @@ -3688,6 +3688,20 @@ struct fio_option fio_options[FIO_MAX_OPTS] =3D {=
+=0A=
+>  		},=0A=
+>  		.parent =3D "thinktime",=0A=
+>  	},=0A=
+> +	{=0A=
+> +		.name	=3D "thinktime_iotime",=0A=
+> +		.lname	=3D "Thinktime interval",=0A=
+> +		.type	=3D FIO_OPT_INT,=0A=
+> +		.off1	=3D offsetof(struct thread_options, thinktime_iotime),=0A=
+> +		.help	=3D "IO time interval between 'thinktime'",=0A=
+> +		.is_time =3D 1,=0A=
+> +		.is_seconds =3D 1,=0A=
+> +		.def	=3D "0",=0A=
+> +		.parent	=3D "thinktime",=0A=
+> +		.hide	=3D 1,=0A=
+> +		.category =3D FIO_OPT_C_IO,=0A=
+> +		.group	=3D FIO_OPT_G_THINKTIME,=0A=
+> +	},=0A=
+>  	{=0A=
+>  		.name	=3D "rate",=0A=
+>  		.lname	=3D "I/O rate",=0A=
+> diff --git a/server.h b/server.h=0A=
+> index daed057a..7ce2ddb1 100644=0A=
+> --- a/server.h=0A=
+> +++ b/server.h=0A=
+> @@ -48,7 +48,7 @@ struct fio_net_cmd_reply {=0A=
+>  };=0A=
+>  =0A=
+>  enum {=0A=
+> -	FIO_SERVER_VER			=3D 92,=0A=
+> +	FIO_SERVER_VER			=3D 93,=0A=
+>  =0A=
+>  	FIO_SERVER_MAX_FRAGMENT_PDU	=3D 1024,=0A=
+>  	FIO_SERVER_MAX_CMD_MB		=3D 2048,=0A=
+> diff --git a/thread_options.h b/thread_options.h=0A=
+> index 4b4ecfe1..6fe1cad7 100644=0A=
+> --- a/thread_options.h=0A=
+> +++ b/thread_options.h=0A=
+> @@ -189,6 +189,7 @@ struct thread_options {=0A=
+>  	unsigned int thinktime_spin;=0A=
+>  	unsigned int thinktime_blocks;=0A=
+>  	unsigned int thinktime_blocks_type;=0A=
+> +	unsigned int thinktime_iotime;=0A=
+>  	unsigned int fsync_blocks;=0A=
+>  	unsigned int fdatasync_blocks;=0A=
+>  	unsigned int barrier_blocks;=0A=
+> @@ -500,6 +501,8 @@ struct thread_options_pack {=0A=
+>  	uint32_t thinktime_spin;=0A=
+>  	uint32_t thinktime_blocks;=0A=
+>  	uint32_t thinktime_blocks_type;=0A=
+> +	uint32_t thinktime_iotime;=0A=
+> +	uint32_t pad6;=0A=
+=0A=
+Why is this needed ? Some alignement warning ? If yes, have you tried movin=
+g=0A=
+this declaration in the struct ?=0A=
+=0A=
+>  	uint32_t fsync_blocks;=0A=
+>  	uint32_t fdatasync_blocks;=0A=
+>  	uint32_t barrier_blocks;=0A=
+> =0A=
+=0A=
+Apart from the question above, this looks good to me.=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
