@@ -1,66 +1,90 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa2.hgst.iphmx.com ([68.232.143.124]:38487 "EHLO
-        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239946AbhHCTgv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 3 Aug 2021 15:36:51 -0400
-From: Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 4/4] t/zbd: Add test #58 to test zone reset by trim
- workload
-Date: Tue, 3 Aug 2021 19:36:38 +0000
-Message-ID: <f88d374b00fe03781613458cae10559436b581e2.camel@wdc.com>
-References: <20210728104752.923770-1-shinichiro.kawasaki@wdc.com>
-         <20210728104752.923770-5-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20210728104752.923770-5-shinichiro.kawasaki@wdc.com>
+Return-Path: <prvs=8624f6c1e=Damien.LeMoal@wdc.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH] options: Add thinktime_iotime option
+Date: Mon, 23 Aug 2021 03:02:17 +0000
+Message-ID: 
+ <DM6PR04MB70811E567D631024AE13198BE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
+References: <20210820112542.1489147-1-shinichiro.kawasaki@wdc.com>
+ <DM6PR04MB70819EEF6D7109B5EF691BCBE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
+ <20210823013541.ndgh3gcmyhteofyr@shindev>
 Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <3935F50CC352054EB0B92CDD07588F78@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-List-Id: fio@vger.kernel.org
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>, "axboe@kernel.dk" <axboe@kernel.dk>, Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>
+List-ID: <fio@vger.kernel.org>
 
-T24gV2VkLCAyMDIxLTA3LTI4IGF0IDE5OjQ3ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
-cm90ZToNCj4gVG8gZXhlcmNpc2Ugem9uZSByZXNldCBieSB0cmltIHdvcmtsb2FkLCBhZGQgdGhl
-IHRlc3QgY2FzZSAjNTguIEFzIHRoZQ0KPiBwcmVjb25kaXRpb24sIGl0IGZpbGxzIHNldmVyYWwg
-em9uZXMuIEFmdGVyIHRoYXQsIGEgdHJpbSBqb2IgYW5kIGENCj4gd3JpdGUNCj4gam9iIHJ1biBp
-biBwYXJhbGxlbCBmb3IgMzAgc2Vjb25kcy4gVGhlIHJhdGlvIG9mIHRyaW0gY29tbWFuZHMgYW5k
-DQo+IHdyaXRlDQo+IGNvbW1hbmRzIGlzIGNvbnRyb2xsZWQgYnkgLS1mbG93IG9wdGlvbi4NCj4g
-DQo+IFNpZ25lZC1vZmYtYnk6IFNoaW4naWNoaXJvIEthd2FzYWtpIDxzaGluaWNoaXJvLmthd2Fz
-YWtpQHdkYy5jb20+DQoNClRlc3RlZC1ieTogRG1pdHJ5IEZvbWljaGV2IDxkbWl0cnkuZm9taWNo
-ZXZAd2RjLmNvbT4NClJldmlld2VkLWJ5OiBEbWl0cnkgRm9taWNoZXYgPGRtaXRyeS5mb21pY2hl
-dkB3ZGMuY29tPg0KPiAtLS0NCj4gwqB0L3piZC90ZXN0LXpiZC1zdXBwb3J0IHwgMjYgKysrKysr
-KysrKysrKysrKysrKysrKysrKysNCj4gwqAxIGZpbGUgY2hhbmdlZCwgMjYgaW5zZXJ0aW9ucygr
-KQ0KPiANCj4gZGlmZiAtLWdpdCBhL3QvemJkL3Rlc3QtemJkLXN1cHBvcnQgYi90L3piZC90ZXN0
-LXpiZC1zdXBwb3J0DQo+IGluZGV4IDU3ZTZkMDVlLi41MTAzYzQwNiAxMDA3NTUNCj4gLS0tIGEv
-dC96YmQvdGVzdC16YmQtc3VwcG9ydA0KPiArKysgYi90L3piZC90ZXN0LXpiZC1zdXBwb3J0DQo+
-IEBAIC0xMjE1LDYgKzEyMTUsMzIgQEAgdGVzdDU3KCkgew0KPiDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoD4+ICIke2xvZ2ZpbGV9LiR7dGVzdF9udW1iZXJ9IiAyPiYxIHx8IHJldHVy
-biAkPw0KPiDCoH0NCj4gwqANCj4gKyMgUmFuZG9tIHdyaXRlcyBhbmQgcmFuZG9tIHRyaW1zIHRv
-IHNlcXVlbnRpYWwgd3JpdGUgcmVxdWlyZWQgem9uZXMNCj4gZm9yIDMwcy4NCj4gK3Rlc3Q1OCgp
-IHsNCj4gK8KgwqDCoCBsb2NhbCBvZmYgc2l6ZSBicw0KPiArDQo+ICvCoMKgwqAgcmVxdWlyZV9z
-ZXFfem9uZXMgMTI4IHx8IHJldHVybiAkU0tJUF9URVNUQ0FTRQ0KPiArDQo+ICvCoMKgwqAgc2l6
-ZT0kKCh6b25lX3NpemUgKiAxMjgpKQ0KPiArwqDCoMKgIGJzPSIkKG1heCAkKCh6b25lX3NpemUg
-LyAxMjgpKSAiJGxvZ2ljYWxfYmxvY2tfc2l6ZSIpIg0KPiArwqDCoMKgIHByZXBfd3JpdGUNCj4g
-K8KgwqDCoCBvZmY9JCgoZmlyc3Rfc2VxdWVudGlhbF96b25lX3NlY3RvciAqIDUxMikpDQo+ICvC
-oMKgwqAgcnVuX2ZpbyAtLXpvbmVtb2RlPXpiZCAtLWRpcmVjdD0xIC0tem9uZXNpemU9IiR7em9u
-ZV9zaXplfSIgLS0NCj4gdGhyZWFkPTEgXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS1maWxl
-bmFtZT0iJHtkZXZ9IiAtLW5vcmFuZG9tbWFwPTEgXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oCAtLW5hbWU9InByZWNvbmRpdGlvbiLCoCAtLXJ3PXdyaXRlICIkKGlvZW5naW5lICJwc3luYyIp
-IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIC0tb2Zmc2V0PSIke29mZn0iIC0tc2l6ZT0k
-KCh6b25lX3NpemUgKiAxNikpIC0tYnM9IiR7YnN9Ig0KPiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKg
-wqDCoCAiJHtqb2JfdmFyX29wdHNbQF19IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCAtLW5h
-bWU9d2pvYiAtLXdhaXRfZm9yPSJwcmVjb25kaXRpb24iIC0tcnc9cmFuZHdyaXRlIFwNCj4gK8Kg
-wqDCoMKgwqDCoMKgwqDCoMKgICIkKGlvZW5naW5lICJsaWJhaW8iKSIgLS1pb2RlcHRoPTggXA0K
-PiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS1vZmZzZXQ9IiR7b2ZmfSIgLS1zaXplPSIke3NpemV9
-IiAtLWJzPSIke2JzfSIgXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgLS10aW1lX2Jhc2VkIC0t
-cnVudGltZT0zMHMgLS1mbG93PTEyOCAiJHtqb2JfdmFyX29wdHNbQF19Ig0KPiBcDQo+ICvCoMKg
-wqDCoMKgwqDCoMKgwqDCoCAtLW5hbWU9dHJpbWpvYiAtLXdhaXRfZm9yPSJwcmVjb25kaXRpb24i
-IC0tcnc9cmFuZHRyaW0gXA0KPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgIiQoaW9lbmdpbmUgInBz
-eW5jIikiIFwNCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgIC0tb2Zmc2V0PSIke29mZn0iIC0tc2l6
-ZT0iJHtzaXplfSIgLS1icz0iJHt6b25lX3NpemV9IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
-oCAtLXRpbWVfYmFzZWQgLS1ydW50aW1lPTMwcyAtLWZsb3c9MSAiJHtqb2JfdmFyX29wdHNbQF19
-IiBcDQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCA+PiIke2xvZ2ZpbGV9LiR7dGVzdF9udW1iZXJ9
-IiAyPiYxDQo+ICt9DQo+ICsNCj4gwqBTRUNPTkRTPTANCj4gwqB0ZXN0cz0oKQ0KPiDCoGR5bmFt
-aWNfYW5hbHl6ZXI9KCkNCg0K
+On 2021/08/23 10:35, Shinichiro Kawasaki wrote:=0A=
+[...]=0A=
+>>> diff --git a/thread_options.h b/thread_options.h=0A=
+>>> index 4b4ecfe1..6fe1cad7 100644=0A=
+>>> --- a/thread_options.h=0A=
+>>> +++ b/thread_options.h=0A=
+>>> @@ -189,6 +189,7 @@ struct thread_options {=0A=
+>>>  	unsigned int thinktime_spin;=0A=
+>>>  	unsigned int thinktime_blocks;=0A=
+>>>  	unsigned int thinktime_blocks_type;=0A=
+>>> +	unsigned int thinktime_iotime;=0A=
+>>>  	unsigned int fsync_blocks;=0A=
+>>>  	unsigned int fdatasync_blocks;=0A=
+>>>  	unsigned int barrier_blocks;=0A=
+>>> @@ -500,6 +501,8 @@ struct thread_options_pack {=0A=
+>>>  	uint32_t thinktime_spin;=0A=
+>>>  	uint32_t thinktime_blocks;=0A=
+>>>  	uint32_t thinktime_blocks_type;=0A=
+>>> +	uint32_t thinktime_iotime;=0A=
+>>> +	uint32_t pad6;=0A=
+>>=0A=
+>> Why is this needed ? Some alignement warning ?=0A=
+> =0A=
+> Yes. Without the pad, I observe build errors as follows:=0A=
+> =0A=
+> In file included from fio.h:17,=0A=
+>                  from libfio.c:31:=0A=
+> libfio.c: In function =91initialize_fio=92:=0A=
+> compiler/compiler.h:31:44: error: static assertion failed: "percentile_li=
+st"=0A=
+>    31 | #define compiletime_assert(condition, msg) _Static_assert(conditi=
+on, msg)=0A=
+>       |                                            ^~~~~~~~~~~~~~=0A=
+> libfio.c:372:9: note: in expansion of macro =91compiletime_assert=92=0A=
+>   372 |         compiletime_assert((offsetof(struct thread_options_pack, =
+percentile_list) % 8) =3D=3D 0, "percentile_list");=0A=
+>       |         ^~~~~~~~~~~~~~~~~~=0A=
+> compiler/compiler.h:31:44: error: static assertion failed: "latency_perce=
+ntile"=0A=
+>    31 | #define compiletime_assert(condition, msg) _Static_assert(conditi=
+on, msg)=0A=
+>       |                                            ^~~~~~~~~~~~~~=0A=
+> libfio.c:373:9: note: in expansion of macro =91compiletime_assert=92=0A=
+>   373 |         compiletime_assert((offsetof(struct thread_options_pack, =
+latency_percentile) % 8) =3D=3D 0, "latency_percentile");=0A=
+>       |         ^~~~~~~~~~~~~~~~~~=0A=
+> make: *** [Makefile:496: libfio.o] Error 1=0A=
+> make: *** Waiting for unfinished jobs....=0A=
+> =0A=
+>> If yes, have you tried moving=0A=
+>> this declaration in the struct ?=0A=
+> =0A=
+> Yes. I moved the new field thinktime_iotime to the end of struct=0A=
+> thread_options_pack then the errors were avoided. But I wanted=0A=
+> to place the new field at the same place as other thinktime related=0A=
+> fields. For that purpose, I needed to add the padding pad6. I tried to=0A=
+> utilize other pads such as pad2 or pad5, but it didn't work.=0A=
+> =0A=
+> To place the related fields at same place with padding, or to place the n=
+ew=0A=
+> field at different place without padding, which way to go?=0A=
+=0A=
+I think that is a question for Jens...=0A=
+=0A=
+Jens,=0A=
+=0A=
+Which way do you prefer ?=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
 
