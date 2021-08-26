@@ -1,90 +1,74 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52054 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbhHZP5s (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 26 Aug 2021 11:57:48 -0400
-Received: from scc-mailout-kit-02.scc.kit.edu (scc-mailout-kit-02.scc.kit.edu [IPv6:2a00:1398:9:f712::810d:e752])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C626CC061757
-        for <fio@vger.kernel.org>; Thu, 26 Aug 2021 08:57:00 -0700 (PDT)
-From: Hans-Peter Lehmann <hans-peter.lehmann@kit.edu>
+Received: from mail-am6eur05on2092.outbound.protection.outlook.com ([40.107.22.92]:41441
+        "EHLO EUR05-AM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234415AbhHZH21 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 26 Aug 2021 03:28:27 -0400
 Subject: Re: Question: t/io_uring performance
 References: <9025606c-8579-bf81-47ea-351fc7ec81c3@kit.edu>
- <867506cc-642e-1047-08c6-aae60e7294c5@criteo.com>
-Message-ID: <5b58a227-c376-1f3e-7a10-1aa5483bdc0d@kit.edu>
-Date: Thu, 26 Aug 2021 17:57:16 +0200
-MIME-Version: 1.0
-In-Reply-To: <867506cc-642e-1047-08c6-aae60e7294c5@criteo.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+From: Erwan Velu <e.velu@criteo.com>
+Message-ID: <867506cc-642e-1047-08c6-aae60e7294c5@criteo.com>
+Date: Thu, 26 Aug 2021 09:27:37 +0200
+In-Reply-To: <9025606c-8579-bf81-47ea-351fc7ec81c3@kit.edu>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
 List-Id: fio@vger.kernel.org
-To: Erwan Velu <e.velu@criteo.com>, fio@vger.kernel.org
+To: Hans-Peter Lehmann <hans-peter.lehmann@kit.edu>, fio@vger.kernel.org
 
 
-Thank you very much for your reply.
+Le 25/08/2021 à 17:57, Hans-Peter Lehmann a écrit :
+>
+> Hello,
+>
+> I am currently trying to run the t/io_uring benchmark but I am unable 
+> to achieve the IOPS that I would expect. In 2019, Axboe achieved 1.6M 
+> IOPS [3] or 1.7M IOPS [1] using a single CPU core (4k random reads). 
+> On my machine (AMD EPYC 7702P, 2x Intel P4510 NVMe SSD, separate 3rd 
+> SSD for the OS), I can't even get close to those numbers.
+>
+> Each of my SSDs can handle about 560k IOPS when running t/io_uring. 
+> Now, when I launch the benchmark with both SSDs, I still only get 
+> about 580k IOPS, from which each SSD gets about 300k IOPS. When I 
+> launch two separate t/io_uring instances, I get the full 560k IOPS on 
+> each device. To me, this sounds like the benchmark is CPU bound. Given 
+> that the CPU is quite decent, I am surprised that I only get half of 
+> the single-threaded IOPS that my SSDs could handle (and 1/3 of what 
+> Axboe got).
+>
+A few considerations here about your hardware.
 
-> You didn't mention the size of your P4510
+You didn't mention the size of your P4510 and that's important as this 
+will strongly defines the max you can achieve on this SSD. The 1TB model 
+is limited at 465K read random, nearly 640K for the greater sizes.
 
-Sorry, the P4510 SSDs each have 2 TB.
+These numbers are given for a QD set to 64 with 4 workers.
 
-> Did you checked how your NVMEs are connected via their PCI lanes? It's obvious here that you need multiple PCI-GEN3 lanes to reach 1.6M IOPS (I'd say two).
-
-If I understand the lspci output (listed below) correctly, the SSDs are connected directly to the same PCIe root complex, each of them getting their maximum of x4 lanes. Given that I can saturate the SSDs when using 2 t/io_uring instances, I think the hardware-side connection should not be the limitation - or am I missing something?
-
-> Then considering the EPYC processor, what's your current Numa configuration? 
-
-The processor was configured to use one single Numa node (NPS=1). I just tried to switch to NPS=4 and ran the benchmark on a core belonging to the SSDs' Numa node (using numactl). It brought the IOPS from 580k to 590k. That's still nowhere near the values that Jens got.
-
-> If you want to run a single core benchmark, you should also ensure how the IRQs are pinned over the Cores and NUMA domains (even if it's a single socket CPU).
-
-Is IRQ pinning the "big thing" that will double the IOPS? To me, it sounds like there must be something else that is wrong. I will definitely try it, though.
+So in any way here to expect to reach what Jens did ;)
 
 
-= Details =
+Did you checked how your NVMEs are connected via their PCI lanes ?
 
-# lspci -tv
--+-[0000:c0]-+-00.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex
-  |           +- [...]
-  +-[0000:80]-+-00.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex
-  |           +- [...]
-  +-[0000:40]-+-00.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex
-  |           +- [...]
-  \-[0000:00]-+-00.0  Advanced Micro Devices, Inc. [AMD] Starship/Matisse Root Complex
-              +- [...]
-              +-03.1-[01]----00.0  Intel Corporation NVMe Datacenter SSD [3DNAND, Beta Rock Controller]
-              +-03.2-[02]----00.0  Intel Corporation NVMe Datacenter SSD [3DNAND, Beta Rock Controller]
+It's obvious here that you need multiple PCI-GEN3 lanes to reach 1.6M 
+IOPS (I'd say two).
 
-# lspci -vv
-01:00.0 Non-Volatile memory controller: Intel Corporation NVMe Datacenter SSD [3DNAND, Beta Rock Controller] (prog-if 02 [NVM Express])
-         Subsystem: Intel Corporation NVMe Datacenter SSD [3DNAND] SE 2.5" U.2 (P4510)
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx+
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
-         Latency: 0, Cache Line Size: 64 bytes
-         Interrupt: pin A routed to IRQ 65
-         NUMA node: 0
-         [...]
-         Capabilities: [60] Express (v2) Endpoint, MSI 00
-                 LnkCap: Port #0, Speed 8GT/s, Width x4, ASPM L0s, Exit Latency L0s <64ns
-                         ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp+
-                 LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk+
-                         ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
-                 LnkSta: Speed 8GT/s (ok), Width x4 (ok)
-                         TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
-                 [...]
-02:00.0 Non-Volatile memory controller: Intel Corporation NVMe Datacenter SSD [3DNAND, Beta Rock Controller] (prog-if 02 [NVM Express])
-         Subsystem: Intel Corporation NVMe Datacenter SSD [3DNAND] SE 2.5" U.2 (P4510)
-         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx+
-         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
-         Latency: 0, Cache Line Size: 64 bytes
-         Interrupt: pin A routed to IRQ 67
-         NUMA node: 0
-         [...]
-         Capabilities: [60] Express (v2) Endpoint, MSI 00
-                 LnkCap: Port #0, Speed 8GT/s, Width x4, ASPM L0s, Exit Latency L0s <64ns
-                         ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp+
-                 LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk+
-                         ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
-                 LnkSta: Speed 8GT/s (ok), Width x4 (ok)
-                         TrErr- Train- SlotClk+ DLActive- BWMgmt- ABWMgmt-
-                 [...]
+So if your disks are running on the same lane, then you'll have no 
+chance getting higher than a single PCI GEN3 lane even with 2 NVMEs.
+
+
+Then considering the EPYC processor, what's your current Numa 
+configuration ? Are you NPS=1 ? 2 ? 4 ? (lscpu would give the answer)
+
+If you want to run a single core benchmark, you should also ensure how 
+the IRQs are pinned over the Cores and NUMA domains (even if it's a 
+single socket CPU).
+
+Depending on your server vendor, you should also considering tweaking 
+the bios if you want to get the most of it. I'm especially thinking of 
+the DRAM & IODie power management that are using set into 
+powersaving/dynamic even if the cpu govenor is set to performance. This 
+could influence the final result but that's not your main trouble here.
+
+
 
