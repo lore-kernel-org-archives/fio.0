@@ -1,138 +1,56 @@
-Return-Path: <esandeen@redhat.com>
-Return-Path: <esandeen@redhat.com>
-From: Eric Sandeen <esandeen@redhat.com>
-Subject: [PATCH] fio:remove raw device support
-Message-ID: <b49454cd-40a4-c4ae-7fce-91e95c1abfc4@redhat.com>
-Date: Tue, 3 Aug 2021 10:23:35 -0700
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:43200 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242074AbhIAGmv (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Sep 2021 02:42:51 -0400
+From: Damien Le Moal <damien.lemoal@wdc.com>
+Subject: [PATCH V2] oslib: Fix blkzoned_get_max_open_zones()
+Date: Wed,  1 Sep 2021 15:41:53 +0900
+Message-Id: <20210901064153.312953-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-To: fio <fio@vger.kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-List-ID: <fio@vger.kernel.org>
+Content-Transfer-Encoding: 8bit
+List-Id: fio@vger.kernel.org
+To: fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 
-As of Linux kernel commit 603e4922f1c ("remove the raw driver"),
-linux/raw.h is gone, and raw device support no longer exists.
-Because of this, fio can no longer build against the current Linux
-kernel headers.
+When the kernel does not have the sysfs atttribute file
+queue/max_open_zones, blkzoned_get_max_open_zones() returns success
+without initializing the max_open_zones value to 0 to indicate to the
+caller (zbd_get_max_open_zones() in zbd.c) that the device limit is
+unknown. If the max_open_zones variable in zbd_get_max_open_zones() is
+not already 0 (depending on the memory status), the missing
+initialization in blkzoned_get_max_open_zones() can cause errors or
+misbehavior as an incorrect, random, limit may be used.
 
-So, remove raw device support from fio as well.
+Fix this by always initializing max_open_zones to 0 when the
+max_open_zones sysfs attribute file does not exist.
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+Reported-by: Bao-Hua Li <baohua.li@wdc.com>
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
 
-This might be braindead, and it's compile-tested only. But I figured
-I'd report the problem in the form of a patch, even if it's wrong. ;)
+Changes from v1:
+* Added missing reported-by tag
 
-diff --git a/diskutil.c b/diskutil.c
-index 0051a7a0..ace7af3d 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -166,14 +166,10 @@ static int get_device_numbers(char *file_name, int *maj, int *min)
- 		if (S_ISBLK(st.st_mode)) {
- 			majdev = major(st.st_rdev);
- 			mindev = minor(st.st_rdev);
--		} else if (S_ISCHR(st.st_mode)) {
--			majdev = major(st.st_rdev);
--			mindev = minor(st.st_rdev);
--			if (fio_lookup_raw(st.st_rdev, &majdev, &mindev))
--				return -1;
--		} else if (S_ISFIFO(st.st_mode))
-+		} else if (S_ISCHR(st.st_mode) ||
-+			   S_ISFIFO(st.st_mode)) {
- 			return -1;
--		else {
-+		} else {
- 			majdev = major(st.st_dev);
- 			mindev = minor(st.st_dev);
- 		}
-diff --git a/fio.1 b/fio.1
-index 6cc82542..9c12ad13 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1700,9 +1700,7 @@ Sets size to something really large and waits for ENOSPC (no space left on
- device) or EDQUOT (disk quota exceeded)
- as the terminating condition. Only makes sense with sequential
- write. For a read workload, the mount point will be filled first then I/O
--started on the result. This option doesn't make sense if operating on a raw
--device node, since the size of that is already known by the file system.
--Additionally, writing beyond end-of-device will not return ENOSPC there.
-+started on the result.
- .SS "I/O engine"
- .TP
- .BI ioengine \fR=\fPstr
-diff --git a/os/os-linux.h b/os/os-linux.h
-index f7137abe..16ed5258 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -14,7 +14,6 @@
- #include <errno.h>
- #include <sched.h>
- #include <linux/unistd.h>
--#include <linux/raw.h>
- #include <linux/major.h>
- #include <linux/fs.h>
- #include <scsi/sg.h>
-@@ -41,7 +40,6 @@
- #define FIO_HAVE_IOSCHED_SWITCH
- #define FIO_HAVE_ODIRECT
- #define FIO_HAVE_HUGETLB
--#define FIO_HAVE_RAWBIND
- #define FIO_HAVE_BLKTRACE
- #define FIO_HAVE_CL_SIZE
- #define FIO_HAVE_CGROUPS
-@@ -178,36 +176,6 @@ static inline unsigned long long os_phys_mem(void)
- 	return (unsigned long long) pages * (unsigned long long) pagesize;
- }
+ oslib/linux-blkzoned.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
+index 4e441d29..185bd501 100644
+--- a/oslib/linux-blkzoned.c
++++ b/oslib/linux-blkzoned.c
+@@ -169,8 +169,10 @@ int blkzoned_get_max_open_zones(struct thread_data *td, struct fio_file *f,
+ 		return -EIO;
  
--static inline int fio_lookup_raw(dev_t dev, int *majdev, int *mindev)
--{
--	struct raw_config_request rq;
--	int fd;
--
--	if (major(dev) != RAW_MAJOR)
--		return 1;
--
--	/*
--	 * we should be able to find /dev/rawctl or /dev/raw/rawctl
--	 */
--	fd = open("/dev/rawctl", O_RDONLY);
--	if (fd < 0) {
--		fd = open("/dev/raw/rawctl", O_RDONLY);
--		if (fd < 0)
--			return 1;
--	}
--
--	rq.raw_minor = minor(dev);
--	if (ioctl(fd, RAW_GETBIND, &rq) < 0) {
--		close(fd);
--		return 1;
--	}
--
--	close(fd);
--	*majdev = rq.block_major;
--	*mindev = rq.block_minor;
--	return 0;
--}
--
- #ifdef O_NOATIME
- #define FIO_O_NOATIME	O_NOATIME
- #else
-diff --git a/os/os.h b/os/os.h
-index e47d3d97..17daf91d 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -157,10 +157,6 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
- #define OS_RAND_MAX			RAND_MAX
- #endif
+ 	max_open_str = blkzoned_get_sysfs_attr(f->file_name, "queue/max_open_zones");
+-	if (!max_open_str)
++	if (!max_open_str) {
++		*max_open_zones = 0;
+ 		return 0;
++	}
  
--#ifndef FIO_HAVE_RAWBIND
--#define fio_lookup_raw(dev, majdev, mindev)	1
--#endif
--
- #ifndef FIO_PREFERRED_ENGINE
- #define FIO_PREFERRED_ENGINE	"psync"
- #endif
+ 	dprint(FD_ZBD, "%s: max open zones supported by device: %s\n",
+ 	       f->file_name, max_open_str);
+-- 
+2.31.1
 
 
