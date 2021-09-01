@@ -1,12 +1,12 @@
 Return-Path: <fio-owner@vger.kernel.org>
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:43200 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242074AbhIAGmv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Sep 2021 02:42:51 -0400
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:45580 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231501AbhIAGen (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Sep 2021 02:34:43 -0400
 From: Damien Le Moal <damien.lemoal@wdc.com>
-Subject: [PATCH V2] oslib: Fix blkzoned_get_max_open_zones()
-Date: Wed,  1 Sep 2021 15:41:53 +0900
-Message-Id: <20210901064153.312953-1-damien.lemoal@wdc.com>
+Subject: [PATCH] oslib: Fix blkzoned_get_max_open_zones()
+Date: Wed,  1 Sep 2021 15:33:44 +0900
+Message-Id: <20210901063344.312847-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-Id: fio@vger.kernel.org
@@ -24,13 +24,8 @@ misbehavior as an incorrect, random, limit may be used.
 Fix this by always initializing max_open_zones to 0 when the
 max_open_zones sysfs attribute file does not exist.
 
-Reported-by: Bao-Hua Li <baohua.li@wdc.com>
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 ---
-
-Changes from v1:
-* Added missing reported-by tag
-
  oslib/linux-blkzoned.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
