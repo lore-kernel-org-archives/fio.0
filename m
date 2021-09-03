@@ -1,9 +1,9 @@
 Return-Path: <prvs=873f0fbe3=Niklas.Cassel@wdc.com>
 From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v2 07/11] libaio,io_uring: introduce cmdprio_class and cmdprio
- options
-Date: Fri, 3 Sep 2021 15:20:24 +0000
-Message-ID: <20210903152012.18035-8-Niklas.Cassel@wdc.com>
+Subject: [PATCH v2 09/11] libaio,io_uring: relax cmdprio_percentage
+ constraints
+Date: Fri, 3 Sep 2021 15:20:26 +0000
+Message-ID: <20210903152012.18035-10-Niklas.Cassel@wdc.com>
 References: <20210903152012.18035-1-Niklas.Cassel@wdc.com>
 In-Reply-To: <20210903152012.18035-1-Niklas.Cassel@wdc.com>
 Content-Language: en-US
@@ -16,349 +16,230 @@ List-ID: <fio@vger.kernel.org>
 
 From: Damien Le Moal <damien.lemoal@wdc.com>
 
-When the cmdprio_percentage option is used, the specified percentage of
-IO will be issued with the highest priority class IOPRIO_CLASS_RT. This
-priority class maps to the ATA NCQ "high" priority level and allows
-exercising a SATA device to measure its command latency characteristics
-in the presence of low and high priority commands.
+In fio, a job IO priority is controlled with the prioclass and prio
+options and these options cannot be used together with the
+cmdprio_percentage option.
 
-Beside ATA NCQ commands, Linux block IO schedulers also support IO
-priorities and will behave differently in the presence of IOs with
-different IO priority classes and values. However, cmdprio_percentage
-does not allow specifying all possible priority classes and values.
+Allow a user to have async IO priorities default to the job defined
+IO priority by removing the mutual exclusion between the options
+cmdprio_percentage and prioclass/prio.
 
-To solve this, introduce libaio and io_uring engine specific options
-cmdprio_class and cmdprio. These new options are the equivalent
-of the prioclass and prio options and allow specifying the priority
-class and priority value to use for asynchronous I/Os when the
-cmdprio_percentage option is used. If not specified, the I/O priority
-class defaults to IOPRIO_CLASS_RT and the I/O priority value to 0,
-as before. Similarly to the cmdprio_percentage option, these options
-can specify different values for read and write I/Os using a comma
-separated list.
+With the introduction of the cmdprio_class option, an async IO priority
+may be lower than the job default priority, resulting in reversed clat
+statistics showed for high and low priority IOs when fio completes.
+Solve this by setting an io_u IO_U_F_PRIORITY flag depending on a
+comparison between the async IO priority and job default IO priority.
 
-The manpage, HOWTO and fiograph configuration file are updated to
-document these new options.
+When an async IO is issued without a priority set, Linux kernel will
+execute it using the IO priority of the issuing context set with
+ioprio_set(). This works fine for libaio, where the context will be
+the same as the context that submitted the IO.
+
+However, io_uring can be used with a kernel thread that performs
+block device IO submissions (sqthread_poll). Therefore, for io_uring,
+an IO sqe ioprio field must be set to the job default priority unless
+the IO priority is set according to the job cmdprio_percentage value.
+
+Because of this, IO uring already did set sqe->ioprio even when only
+prio/prioclass was used. See commit b7ed2a862dda ("io_uring: set sqe
+iopriority, if prio/prioclass is set"). In order to make the code easier
+to maintain, handle all I/O priority preparations in the same function.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
- HOWTO                        | 26 +++++++++++++++++--
- engines/cmdprio.h            | 11 ++++++++-
- engines/io_uring.c           | 48 ++++++++++++++++++++++++++++++++++--
- engines/libaio.c             | 48 ++++++++++++++++++++++++++++++++++--
- fio.1                        | 24 ++++++++++++++++--
- tools/fiograph/fiograph.conf |  4 +--
- 6 files changed, 150 insertions(+), 11 deletions(-)
+ backend.c          |  1 +
+ engines/cmdprio.h  | 16 ----------------
+ engines/io_uring.c | 47 +++++++++++++++++++++++++++++++---------------
+ engines/libaio.c   | 18 ++++++++++++++++--
+ fio.h              |  5 +++++
+ 5 files changed, 54 insertions(+), 33 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 916f5191..8b7d4957 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2172,6 +2172,26 @@ with the caveat that when used on the command line, =
-they must come after the
-     to be effective, NCQ priority must be supported and enabled, and `dire=
-ct=3D1'
-     option must be used. fio must also be run as the root user.
+diff --git a/backend.c b/backend.c
+index 808e4362..1bcb035a 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1760,6 +1760,7 @@ static void *thread_main(void *data)
+ 			td_verror(td, errno, "ioprio_set");
+ 			goto err;
+ 		}
++		td->ioprio =3D ioprio_value(o->ioprio_class, o->ioprio);
+ 	}
 =20
-+.. option:: cmdprio_class=3Dint[,int] : [io_uring] [libaio]
-+
-+	Set the I/O priority class to use for I/Os that must be issued with
-+	a priority when :option:`cmdprio_percentage` is set. If not specified
-+	when :option:`cmdprio_percentage` is set, this defaults to the highest
-+	priority class. A single value applies to reads and writes.
-+	Comma-separated values may be specified for reads and writes. See
-+	:manpage:`ionice(1)`. See also the :option:`prioclass` option.
-+
-+.. option:: cmdprio=3Dint[,int] : [io_uring] [libaio]
-+
-+	Set the I/O priority value to use for I/Os that must be issued with
-+	a priority when :option:`cmdprio_percentage` is set. If not specified
-+	when :option:`cmdprio_percentage` is set, this defaults to 0.
-+	Linux limits us to a positive value between 0 and 7, with 0 being the
-+	highest. A single value applies to reads and writes. Comma-separated
-+	values may be specified for reads and writes. See :manpage:`ionice(1)`.
-+	Refer to an appropriate manpage for other operating systems since
-+	meaning of priority may differ. See also the :option:`prio` option.
-+
- .. option:: fixedbufs : [io_uring]
-=20
-     If fio is asked to do direct IO, then Linux will map pages for each
-@@ -2974,12 +2994,14 @@ Threads, processes and job synchronization
- 	between 0 and 7, with 0 being the highest.  See man
- 	:manpage:`ionice(1)`. Refer to an appropriate manpage for other operating
- 	systems since meaning of priority may differ. For per-command priority
--	setting, see I/O engine specific `cmdprio_percentage` option.
-+	setting, see I/O engine specific :option:`cmdprio_percentage` and
-+	:option:`cmdprio` options.
-=20
- .. option:: prioclass=3Dint
-=20
- 	Set the I/O priority class. See man :manpage:`ionice(1)`. For per-command
--	priority setting, see I/O engine specific `cmdprio_percentage` option.
-+	priority setting, see I/O engine specific :option:`cmdprio_percentage`
-+	and :option:`cmdprio_class` options.
-=20
- .. option:: cpus_allowed=3Dstr
-=20
+ 	if (o->cgroup && cgroup_setup(td, cgroup_list, &cgroup_mnt))
 diff --git a/engines/cmdprio.h b/engines/cmdprio.h
-index 19120d78..e3b42182 100644
+index 8acdb0b3..0edc4365 100644
 --- a/engines/cmdprio.h
 +++ b/engines/cmdprio.h
-@@ -10,6 +10,8 @@
-=20
- struct cmdprio {
- 	unsigned int percentage[DDIR_RWDIR_CNT];
-+	unsigned int class[DDIR_RWDIR_CNT];
-+	unsigned int level[DDIR_RWDIR_CNT];
- };
-=20
- static int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdpri=
-o,
-@@ -19,9 +21,16 @@ static int fio_cmdprio_init(struct thread_data *td, stru=
-ct cmdprio *cmdprio,
- 	bool has_cmdprio_percentage =3D false;
- 	int i;
-=20
-+	/*
-+	 * If cmdprio_percentage is set and cmdprio_class is not set,
-+	 * default to RT priority class.
-+	 */
- 	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
--		if (cmdprio->percentage[i])
-+		if (cmdprio->percentage[i]) {
-+			if (!cmdprio->class[i])
-+				cmdprio->class[i] =3D IOPRIO_CLASS_RT;
- 			has_cmdprio_percentage =3D true;
-+		}
- 	}
-=20
+@@ -129,22 +129,6 @@ static int fio_cmdprio_init(struct thread_data *td, st=
+ruct cmdprio *cmdprio,
  	/*
+ 	 * Check for option conflicts
+ 	 */
+-	if (has_cmdprio_percentage &&
+-	    (fio_option_is_set(to, ioprio) ||
+-	     fio_option_is_set(to, ioprio_class))) {
+-		log_err("%s: cmdprio_percentage option and mutually exclusive "
+-			"prio or prioclass option is set, exiting\n",
+-			to->name);
+-		return 1;
+-	}
+-	if (has_cmdprio_bssplit &&
+-	    (fio_option_is_set(to, ioprio) ||
+-	     fio_option_is_set(to, ioprio_class))) {
+-		log_err("%s: cmdprio_bssplit option and mutually exclusive "
+-			"prio or prioclass option is set, exiting\n",
+-			to->name);
+-		return 1;
+-	}
+ 	if (has_cmdprio_percentage && has_cmdprio_bssplit) {
+ 		log_err("%s: cmdprio_percentage and cmdprio_bssplit options "
+ 			"are mutually exclusive\n",
 diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 1731eb24..1591ee4e 100644
+index 57124d22..df2d6c4c 100644
 --- a/engines/io_uring.c
 +++ b/engines/io_uring.c
-@@ -133,6 +133,36 @@ static struct fio_option options[] =3D {
- 		.category =3D FIO_OPT_C_ENGINE,
- 		.group	=3D FIO_OPT_G_IOURING,
- 	},
-+	{
-+		.name	=3D "cmdprio_class",
-+		.lname	=3D "Asynchronous I/O priority class",
-+		.type	=3D FIO_OPT_INT,
-+		.off1	=3D offsetof(struct ioring_options,
-+				   cmdprio.class[DDIR_READ]),
-+		.off2	=3D offsetof(struct ioring_options,
-+				   cmdprio.class[DDIR_WRITE]),
-+		.help	=3D "Set asynchronous IO priority class",
-+		.minval	=3D IOPRIO_MIN_PRIO_CLASS + 1,
-+		.maxval	=3D IOPRIO_MAX_PRIO_CLASS,
-+		.interval =3D 1,
-+		.category =3D FIO_OPT_C_ENGINE,
-+		.group	=3D FIO_OPT_G_IOURING,
-+	},
-+	{
-+		.name	=3D "cmdprio",
-+		.lname	=3D "Asynchronous I/O priority level",
-+		.type	=3D FIO_OPT_INT,
-+		.off1	=3D offsetof(struct ioring_options,
-+				   cmdprio.level[DDIR_READ]),
-+		.off2	=3D offsetof(struct ioring_options,
-+				   cmdprio.level[DDIR_WRITE]),
-+		.help	=3D "Set asynchronous IO priority level",
-+		.minval	=3D IOPRIO_MIN_PRIO,
-+		.maxval	=3D IOPRIO_MAX_PRIO,
-+		.interval =3D 1,
-+		.category =3D FIO_OPT_C_ENGINE,
-+		.group	=3D FIO_OPT_G_IOURING,
-+	},
- #else
- 	{
- 		.name	=3D "cmdprio_percentage",
-@@ -140,6 +170,18 @@ static struct fio_option options[] =3D {
- 		.type	=3D FIO_OPT_UNSUPPORTED,
- 		.help	=3D "Your platform does not support I/O priority classes",
- 	},
-+	{
-+		.name	=3D "cmdprio_class",
-+		.lname	=3D "Asynchronous I/O priority class",
-+		.type	=3D FIO_OPT_UNSUPPORTED,
-+		.help	=3D "Your platform does not support I/O priority classes",
-+	},
-+	{
-+		.name	=3D "cmdprio",
-+		.lname	=3D "Asynchronous I/O priority level",
-+		.type	=3D FIO_OPT_UNSUPPORTED,
-+		.help	=3D "Your platform does not support I/O priority classes",
-+	},
- #endif
- 	{
- 		.name	=3D "fixedbufs",
-@@ -389,10 +431,12 @@ static void fio_ioring_prio_prep(struct thread_data *=
+@@ -65,8 +65,6 @@ struct ioring_data {
+ 	int queued;
+ 	int cq_ring_off;
+ 	unsigned iodepth;
+-	bool ioprio_class_set;
+-	bool ioprio_set;
+ 	int prepped;
+=20
+ 	struct ioring_mmap mmap[3];
+@@ -340,10 +338,6 @@ static int fio_ioring_prep(struct thread_data *td, str=
+uct io_u *io_u)
+ 			sqe->rw_flags |=3D RWF_UNCACHED;
+ 		if (o->nowait)
+ 			sqe->rw_flags |=3D RWF_NOWAIT;
+-		if (ld->ioprio_class_set)
+-			sqe->ioprio =3D td->o.ioprio_class << 13;
+-		if (ld->ioprio_set)
+-			sqe->ioprio |=3D td->o.ioprio;
+ 		sqe->off =3D io_u->offset;
+ 	} else if (ddir_sync(io_u->ddir)) {
+ 		sqe->ioprio =3D 0;
+@@ -458,13 +452,30 @@ static void fio_ioring_prio_prep(struct thread_data *=
 td, struct io_u *io_u)
- 	struct ioring_data *ld =3D td->io_ops_data;
- 	struct io_uring_sqe *sqe =3D &ld->sqes[io_u->index];
  	struct cmdprio *cmdprio =3D &o->cmdprio;
--	unsigned int p =3D cmdprio->percentage[io_u->ddir];
-+	enum fio_ddir ddir =3D io_u->ddir;
-+	unsigned int p =3D cmdprio->percentage[ddir];
+ 	enum fio_ddir ddir =3D io_u->ddir;
+ 	unsigned int p =3D fio_cmdprio_percentage(cmdprio, io_u);
++	unsigned int cmdprio_value =3D
++		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
 =20
  	if (p && rand_between(&td->prio_state, 0, 99) < p) {
--		sqe->ioprio =3D ioprio_value(IOPRIO_CLASS_RT, 0);
-+		sqe->ioprio =3D
-+			ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
- 		io_u->flags |=3D IO_U_F_PRIORITY;
+-		sqe->ioprio =3D
+-			ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
+-		io_u->flags |=3D IO_U_F_PRIORITY;
++		sqe->ioprio =3D cmdprio_value;
++		if (!td->ioprio || cmdprio_value < td->ioprio) {
++			/*
++			 * The async IO priority is higher (has a lower value)
++			 * than the priority set by "prio" and "prioclass"
++			 * options.
++			 */
++			io_u->flags |=3D IO_U_F_PRIORITY;
++		}
  	} else {
- 		sqe->ioprio =3D 0;
+-		sqe->ioprio =3D 0;
++		sqe->ioprio =3D td->ioprio;
++		if (cmdprio_value && td->ioprio && td->ioprio < cmdprio_value) {
++			/*
++			 * The IO will be executed with the priority set by
++			 * "prio" and "prioclass" options, and this priority
++			 * is higher (has a lower value) than the async IO
++			 * priority.
++			 */
++			io_u->flags |=3D IO_U_F_PRIORITY;
++		}
+ 	}
+ }
+=20
+@@ -807,6 +818,7 @@ static int fio_ioring_init(struct thread_data *td)
+ 	struct ioring_options *o =3D td->eo;
+ 	struct ioring_data *ld;
+ 	struct cmdprio *cmdprio =3D &o->cmdprio;
++	bool has_cmdprio =3D false;
+ 	int ret;
+=20
+ 	/* sqthread submission requires registered files */
+@@ -831,16 +843,21 @@ static int fio_ioring_init(struct thread_data *td)
+=20
+ 	td->io_ops_data =3D ld;
+=20
+-	ret =3D fio_cmdprio_init(td, cmdprio, &ld->use_cmdprio);
++	ret =3D fio_cmdprio_init(td, cmdprio, &has_cmdprio);
+ 	if (ret) {
+ 		td_verror(td, EINVAL, "fio_ioring_init");
+ 		return 1;
+ 	}
+=20
+-	if (fio_option_is_set(&td->o, ioprio_class))
+-		ld->ioprio_class_set =3D true;
+-	if (fio_option_is_set(&td->o, ioprio))
+-		ld->ioprio_set =3D true;
++	/*
++	 * Since io_uring can have a submission context (sqthread_poll) that is
++	 * different from the process context, we cannot rely on the the IO
++	 * priority set by ioprio_set() (option prio/prioclass) to be inherited.
++	 * Therefore, we set the sqe->ioprio field when prio/prioclass is used.
++	 */
++	ld->use_cmdprio =3D has_cmdprio ||
++		fio_option_is_set(&td->o, ioprio_class) ||
++		fio_option_is_set(&td->o, ioprio);
+=20
+ 	return 0;
+ }
 diff --git a/engines/libaio.c b/engines/libaio.c
-index 8cf560c5..8b965fe2 100644
+index 9fba3b12..62c8aed7 100644
 --- a/engines/libaio.c
 +++ b/engines/libaio.c
-@@ -87,6 +87,36 @@ static struct fio_option options[] =3D {
- 		.category =3D FIO_OPT_C_ENGINE,
- 		.group	=3D FIO_OPT_G_LIBAIO,
- 	},
-+	{
-+		.name	=3D "cmdprio_class",
-+		.lname	=3D "Asynchronous I/O priority class",
-+		.type	=3D FIO_OPT_INT,
-+		.off1	=3D offsetof(struct libaio_options,
-+				   cmdprio.class[DDIR_READ]),
-+		.off2	=3D offsetof(struct libaio_options,
-+				   cmdprio.class[DDIR_WRITE]),
-+		.help	=3D "Set asynchronous IO priority class",
-+		.minval	=3D IOPRIO_MIN_PRIO_CLASS + 1,
-+		.maxval	=3D IOPRIO_MAX_PRIO_CLASS,
-+		.interval =3D 1,
-+		.category =3D FIO_OPT_C_ENGINE,
-+		.group	=3D FIO_OPT_G_LIBAIO,
-+	},
-+	{
-+		.name	=3D "cmdprio",
-+		.lname	=3D "Asynchronous I/O priority level",
-+		.type	=3D FIO_OPT_INT,
-+		.off1	=3D offsetof(struct libaio_options,
-+				   cmdprio.level[DDIR_READ]),
-+		.off2	=3D offsetof(struct libaio_options,
-+				   cmdprio.level[DDIR_WRITE]),
-+		.help	=3D "Set asynchronous IO priority level",
-+		.minval	=3D IOPRIO_MIN_PRIO,
-+		.maxval	=3D IOPRIO_MAX_PRIO,
-+		.interval =3D 1,
-+		.category =3D FIO_OPT_C_ENGINE,
-+		.group	=3D FIO_OPT_G_LIBAIO,
-+	},
- #else
- 	{
- 		.name	=3D "cmdprio_percentage",
-@@ -94,6 +124,18 @@ static struct fio_option options[] =3D {
- 		.type	=3D FIO_OPT_UNSUPPORTED,
- 		.help	=3D "Your platform does not support I/O priority classes",
- 	},
-+	{
-+		.name	=3D "cmdprio_class",
-+		.lname	=3D "Asynchronous I/O priority class",
-+		.type	=3D FIO_OPT_UNSUPPORTED,
-+		.help	=3D "Your platform does not support I/O priority classes",
-+	},
-+	{
-+		.name	=3D "cmdprio",
-+		.lname	=3D "Asynchronous I/O priority level",
-+		.type	=3D FIO_OPT_UNSUPPORTED,
-+		.help	=3D "Your platform does not support I/O priority classes",
-+	},
- #endif
- 	{
- 		.name	=3D "nowait",
-@@ -142,10 +184,12 @@ static void fio_libaio_prio_prep(struct thread_data *=
+@@ -211,11 +211,25 @@ static void fio_libaio_prio_prep(struct thread_data *=
 td, struct io_u *io_u)
- {
- 	struct libaio_options *o =3D td->eo;
  	struct cmdprio *cmdprio =3D &o->cmdprio;
--	unsigned int p =3D cmdprio->percentage[io_u->ddir];
-+	enum fio_ddir ddir =3D io_u->ddir;
-+	unsigned int p =3D cmdprio->percentage[ddir];
+ 	enum fio_ddir ddir =3D io_u->ddir;
+ 	unsigned int p =3D fio_cmdprio_percentage(cmdprio, io_u);
++	unsigned int cmdprio_value =3D
++		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
 =20
  	if (p && rand_between(&td->prio_state, 0, 99) < p) {
--		io_u->iocb.aio_reqprio =3D ioprio_value(IOPRIO_CLASS_RT, 0);
-+		io_u->iocb.aio_reqprio =3D
-+			ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
+-		io_u->iocb.aio_reqprio =3D
+-			ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
++		io_u->iocb.aio_reqprio =3D cmdprio_value;
  		io_u->iocb.u.c.flags |=3D IOCB_FLAG_IOPRIO;
++		if (!td->ioprio || cmdprio_value < td->ioprio) {
++			/*
++			 * The async IO priority is higher (has a lower value)
++			 * than the default context priority.
++			 */
++			io_u->flags |=3D IO_U_F_PRIORITY;
++		}
++	} else if (td->ioprio && td->ioprio < cmdprio_value) {
++		/*
++		 * The IO will be executed with the default context priority,
++		 * and this priority is higher (has a lower value) than the
++		 * async IO priority.
++		 */
  		io_u->flags |=3D IO_U_F_PRIORITY;
  	}
-diff --git a/fio.1 b/fio.1
-index 3611da98..09b97de3 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1970,6 +1970,24 @@ with the `prio` or `prioclass` options. For this opt=
-ion to be effective,
- NCQ priority must be supported and enabled, and `direct=3D1' option must b=
-e
- used. fio must also be run as the root user.
- .TP
-+.BI (io_uring,libaio)cmdprio_class \fR=3D\fPint[,int]
-+Set the I/O priority class to use for I/Os that must be issued with a
-+priority when \fBcmdprio_percentage\fR is set. If not specified when
-+\fBcmdprio_percentage\fR is set, this defaults to the highest priority
-+class. A single value applies to reads and writes. Comma-separated
-+values may be specified for reads and writes. See man \fBionice\fR\|(1).
-+See also the \fBprioclass\fR option.
-+.TP
-+.BI (io_uring,libaio)cmdprio \fR=3D\fPint[,int]
-+Set the I/O priority value to use for I/Os that must be issued with a
-+priority when \fBcmdprio_percentage\fR is set. If not specified when
-+\fBcmdprio_percentage\fR is set, this defaults to 0. Linux limits us to
-+a positive value between 0 and 7, with 0 being the highest. A single
-+value applies to reads and writes. Comma-separated values may be specified
-+for reads and writes. See man \fBionice\fR\|(1). Refer to an appropriate
-+manpage for other operating systems since the meaning of priority may diff=
-er.
-+See also the \fBprio\fR option.
-+.TP
- .BI (io_uring)fixedbufs
- If fio is asked to do direct IO, then Linux will map pages for each IO cal=
-l, and
- release them when IO is done. If this option is set, the pages are pre-map=
-ped
-@@ -2693,11 +2711,13 @@ Set the I/O priority value of this job. Linux limit=
-s us to a positive value
- between 0 and 7, with 0 being the highest. See man
- \fBionice\fR\|(1). Refer to an appropriate manpage for other operating
- systems since meaning of priority may differ. For per-command priority
--setting, see the I/O engine specific `cmdprio_percentage` option.
-+setting, see the I/O engine specific `cmdprio_percentage` and
-+`cmdprio` options.
- .TP
- .BI prioclass \fR=3D\fPint
- Set the I/O priority class. See man \fBionice\fR\|(1). For per-command
--priority setting, see the I/O engine specific `cmdprio_percentage` option.
-+priority setting, see the I/O engine specific `cmdprio_percentage` and
-+`cmdprio_class` options.
- .TP
- .BI cpus_allowed \fR=3D\fPstr
- Controls the same options as \fBcpumask\fR, but accepts a textual
-diff --git a/tools/fiograph/fiograph.conf b/tools/fiograph/fiograph.conf
-index 1957e11d..5ba59c52 100644
---- a/tools/fiograph/fiograph.conf
-+++ b/tools/fiograph/fiograph.conf
-@@ -51,10 +51,10 @@ specific_options=3Dhttps  http_host  http_user  http_pa=
-ss  http_s3_key  http_s3_ke
- specific_options=3Dime_psync  ime_psyncv
+ }
+diff --git a/fio.h b/fio.h
+index 6f6b211b..da1fe085 100644
+--- a/fio.h
++++ b/fio.h
+@@ -280,6 +280,11 @@ struct thread_data {
 =20
- [ioengine_io_uring]
--specific_options=3Dhipri  cmdprio_percentage  fixedbufs  registerfiles  sq=
-thread_poll  sqthread_poll_cpu  nonvectored  uncached  nowait  force_async
-+specific_options=3Dhipri  cmdprio_percentage  cmdprio_class  cmdprio  fixe=
-dbufs  registerfiles  sqthread_poll  sqthread_poll_cpu  nonvectored  uncach=
-ed  nowait  force_async
+ 	int shm_id;
 =20
- [ioengine_libaio]
--specific_options=3Duserspace_reap  cmdprio_percentage  nowait
-+specific_options=3Duserspace_reap  cmdprio_percentage  cmdprio_class  cmdp=
-rio  nowait
-=20
- [ioengine_libcufile]
- specific_options=3Dgpu_dev_ids  cuda_io
++	/*
++	 * Job default IO priority set with prioclass and prio options.
++	 */
++	unsigned int ioprio;
++
+ 	/*
+ 	 * IO engine hooks, contains everything needed to submit an io_u
+ 	 * to any of the available IO engines.
 --=20
 2.31.1
 
