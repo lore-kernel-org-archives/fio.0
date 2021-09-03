@@ -1,59 +1,77 @@
-Return-Path: <fio-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32772 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234910AbhICMBI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 3 Sep 2021 08:01:08 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE7F3C061575
-        for <fio@vger.kernel.org>; Fri,  3 Sep 2021 05:00:08 -0700 (PDT)
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mM7rZ-000La8-N4
-        for fio@vger.kernel.org; Fri, 03 Sep 2021 12:00:06 +0000
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-Message-Id: <20210903120002.4BBE91BC012A@kernel.dk>
-Date: Fri,  3 Sep 2021 06:00:02 -0600 (MDT)
-List-Id: fio@vger.kernel.org
-To: fio@vger.kernel.org
+Return-Path: <prvs=873f0fbe3=Niklas.Cassel@wdc.com>
+From: Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v2 03/11] tools: fiograph: do not overwrite input script file
+Date: Fri, 3 Sep 2021 15:20:22 +0000
+Message-ID: <20210903152012.18035-4-Niklas.Cassel@wdc.com>
+References: <20210903152012.18035-1-Niklas.Cassel@wdc.com>
+In-Reply-To: <20210903152012.18035-1-Niklas.Cassel@wdc.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+To: "axboe@kernel.dk" <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
+List-ID: <fio@vger.kernel.org>
 
-The following changes since commit 4f2152278e0b3c35ded02fb3e6fb550eab7bedcd:
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-  t/io_uring: further simplify inflight tracking (2021-08-28 15:37:25 -0600)
+In fiograph.py, the setup_commandline() function mistakenly initializes
+the output_file variable to the input fio script file, causing this file
+to always be overwritten, even if an output file is specified using the
+--output option. Fix this by properly initializing the output_file
+variable using the --output option argument value. If an output file
+name is not provided, the input script file name is used by default.
 
-are available in the Git repository at:
+Also fix fiograph configuration file to remove the cmdprio_percentage
+option repeated entry for io_uring and libaio.
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to f3463241727215e228a60dc3b9a1ba2996f149a1:
-
-  oslib: Fix blkzoned_get_max_open_zones() (2021-09-02 20:56:19 -0600)
-
-----------------------------------------------------------------
-Damien Le Moal (1):
-      oslib: Fix blkzoned_get_max_open_zones()
-
- oslib/linux-blkzoned.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
+ tools/fiograph/fiograph.conf | 4 ++--
+ tools/fiograph/fiograph.py   | 4 +++-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 4e441d29..185bd501 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -169,8 +169,10 @@ int blkzoned_get_max_open_zones(struct thread_data *td, struct fio_file *f,
- 		return -EIO;
- 
- 	max_open_str = blkzoned_get_sysfs_attr(f->file_name, "queue/max_open_zones");
--	if (!max_open_str)
-+	if (!max_open_str) {
-+		*max_open_zones = 0;
- 		return 0;
-+	}
- 
- 	dprint(FD_ZBD, "%s: max open zones supported by device: %s\n",
- 	       f->file_name, max_open_str);
+diff --git a/tools/fiograph/fiograph.conf b/tools/fiograph/fiograph.conf
+index 5becc4d9..1957e11d 100644
+--- a/tools/fiograph/fiograph.conf
++++ b/tools/fiograph/fiograph.conf
+@@ -51,10 +51,10 @@ specific_options=3Dhttps  http_host  http_user  http_pa=
+ss  http_s3_key  http_s3_ke
+ specific_options=3Dime_psync  ime_psyncv
+=20
+ [ioengine_io_uring]
+-specific_options=3Dhipri  cmdprio_percentage  cmdprio_percentage  fixedbuf=
+s  registerfiles  sqthread_poll  sqthread_poll_cpu  nonvectored  uncached  =
+nowait  force_async
++specific_options=3Dhipri  cmdprio_percentage  fixedbufs  registerfiles  sq=
+thread_poll  sqthread_poll_cpu  nonvectored  uncached  nowait  force_async
+=20
+ [ioengine_libaio]
+-specific_options=3Duserspace_reap  cmdprio_percentage  cmdprio_percentage =
+ nowait
++specific_options=3Duserspace_reap  cmdprio_percentage  nowait
+=20
+ [ioengine_libcufile]
+ specific_options=3Dgpu_dev_ids  cuda_io
+diff --git a/tools/fiograph/fiograph.py b/tools/fiograph/fiograph.py
+index 7695c964..b5669a2d 100755
+--- a/tools/fiograph/fiograph.py
++++ b/tools/fiograph/fiograph.py
+@@ -292,9 +292,11 @@ def setup_commandline():
+ def main():
+     global config_file
+     args =3D setup_commandline()
+-    output_file =3D args.file
+     if args.output is None:
++        output_file =3D args.file
+         output_file =3D output_file.replace('.fio', '')
++    else:
++        output_file =3D args.output
+     config_file =3D configparser.RawConfigParser(allow_no_value=3DTrue)
+     config_file.read(args.config)
+     fio_to_graphviz(args.file, args.format).render(output_file, view=3Darg=
+s.view)
+--=20
+2.31.1
 
