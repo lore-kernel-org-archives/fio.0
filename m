@@ -1,86 +1,96 @@
-Return-Path: <prvs=8739f553a=shinichiro.kawasaki@wdc.com>
-From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Return-Path: <axboe@kernel.dk>
 Subject: Re: [PATCH] options: Add thinktime_iotime option
-Date: Fri, 3 Sep 2021 05:05:53 +0000
-Message-ID: <20210903050552.muh7n66efe6zu7yh@shindev>
 References: <20210820112542.1489147-1-shinichiro.kawasaki@wdc.com>
  <DM6PR04MB70819EEF6D7109B5EF691BCBE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
  <20210823013541.ndgh3gcmyhteofyr@shindev>
  <DM6PR04MB70811E567D631024AE13198BE7C49@DM6PR04MB7081.namprd04.prod.outlook.com>
  <20210903012602.dkdwfxybvmlzuhh4@shindev>
- <d5917e42-e2c0-0bed-eb5a-98c16f969d50@kernel.dk>
-In-Reply-To: <d5917e42-e2c0-0bed-eb5a-98c16f969d50@kernel.dk>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <39EB9A06562A534C805035A2AA23EF5B@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: base64
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <d5917e42-e2c0-0bed-eb5a-98c16f969d50@kernel.dk>
+Date: Thu, 2 Sep 2021 20:57:52 -0600
 MIME-Version: 1.0
-To: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20210903012602.dkdwfxybvmlzuhh4@shindev>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>
 List-ID: <fio@vger.kernel.org>
 
-T24gU2VwIDAyLCAyMDIxIC8gMjA6NTcsIEplbnMgQXhib2Ugd3JvdGU6DQo+IE9uIDkvMi8yMSA3
-OjI2IFBNLCBTaGluaWNoaXJvIEthd2FzYWtpIHdyb3RlOg0KPiA+IE9uIEF1ZyAyMywgMjAyMSAv
-IDAzOjAyLCBEYW1pZW4gTGUgTW9hbCB3cm90ZToNCj4gPj4gT24gMjAyMS8wOC8yMyAxMDozNSwg
-U2hpbmljaGlybyBLYXdhc2FraSB3cm90ZToNCj4gPj4gWy4uLl0NCj4gPj4+Pj4gZGlmZiAtLWdp
-dCBhL3RocmVhZF9vcHRpb25zLmggYi90aHJlYWRfb3B0aW9ucy5oDQo+ID4+Pj4+IGluZGV4IDRi
-NGVjZmUxLi42ZmUxY2FkNyAxMDA2NDQNCj4gPj4+Pj4gLS0tIGEvdGhyZWFkX29wdGlvbnMuaA0K
-PiA+Pj4+PiArKysgYi90aHJlYWRfb3B0aW9ucy5oDQo+ID4+Pj4+IEBAIC0xODksNiArMTg5LDcg
-QEAgc3RydWN0IHRocmVhZF9vcHRpb25zIHsNCj4gPj4+Pj4gIAl1bnNpZ25lZCBpbnQgdGhpbmt0
-aW1lX3NwaW47DQo+ID4+Pj4+ICAJdW5zaWduZWQgaW50IHRoaW5rdGltZV9ibG9ja3M7DQo+ID4+
-Pj4+ICAJdW5zaWduZWQgaW50IHRoaW5rdGltZV9ibG9ja3NfdHlwZTsNCj4gPj4+Pj4gKwl1bnNp
-Z25lZCBpbnQgdGhpbmt0aW1lX2lvdGltZTsNCj4gPj4+Pj4gIAl1bnNpZ25lZCBpbnQgZnN5bmNf
-YmxvY2tzOw0KPiA+Pj4+PiAgCXVuc2lnbmVkIGludCBmZGF0YXN5bmNfYmxvY2tzOw0KPiA+Pj4+
-PiAgCXVuc2lnbmVkIGludCBiYXJyaWVyX2Jsb2NrczsNCj4gPj4+Pj4gQEAgLTUwMCw2ICs1MDEs
-OCBAQCBzdHJ1Y3QgdGhyZWFkX29wdGlvbnNfcGFjayB7DQo+ID4+Pj4+ICAJdWludDMyX3QgdGhp
-bmt0aW1lX3NwaW47DQo+ID4+Pj4+ICAJdWludDMyX3QgdGhpbmt0aW1lX2Jsb2NrczsNCj4gPj4+
-Pj4gIAl1aW50MzJfdCB0aGlua3RpbWVfYmxvY2tzX3R5cGU7DQo+ID4+Pj4+ICsJdWludDMyX3Qg
-dGhpbmt0aW1lX2lvdGltZTsNCj4gPj4+Pj4gKwl1aW50MzJfdCBwYWQ2Ow0KPiA+Pj4+DQo+ID4+
-Pj4gV2h5IGlzIHRoaXMgbmVlZGVkID8gU29tZSBhbGlnbmVtZW50IHdhcm5pbmcgPw0KPiA+Pj4N
-Cj4gPj4+IFllcy4gV2l0aG91dCB0aGUgcGFkLCBJIG9ic2VydmUgYnVpbGQgZXJyb3JzIGFzIGZv
-bGxvd3M6DQo+ID4+Pg0KPiA+Pj4gSW4gZmlsZSBpbmNsdWRlZCBmcm9tIGZpby5oOjE3LA0KPiA+
-Pj4gICAgICAgICAgICAgICAgICBmcm9tIGxpYmZpby5jOjMxOg0KPiA+Pj4gbGliZmlvLmM6IElu
-IGZ1bmN0aW9uIOKAmGluaXRpYWxpemVfZmlv4oCZOg0KPiA+Pj4gY29tcGlsZXIvY29tcGlsZXIu
-aDozMTo0NDogZXJyb3I6IHN0YXRpYyBhc3NlcnRpb24gZmFpbGVkOiAicGVyY2VudGlsZV9saXN0
-Ig0KPiA+Pj4gICAgMzEgfCAjZGVmaW5lIGNvbXBpbGV0aW1lX2Fzc2VydChjb25kaXRpb24sIG1z
-ZykgX1N0YXRpY19hc3NlcnQoY29uZGl0aW9uLCBtc2cpDQo+ID4+PiAgICAgICB8ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fg0KPiA+Pj4g
-bGliZmlvLmM6MzcyOjk6IG5vdGU6IGluIGV4cGFuc2lvbiBvZiBtYWNybyDigJhjb21waWxldGlt
-ZV9hc3NlcnTigJkNCj4gPj4+ICAgMzcyIHwgICAgICAgICBjb21waWxldGltZV9hc3NlcnQoKG9m
-ZnNldG9mKHN0cnVjdCB0aHJlYWRfb3B0aW9uc19wYWNrLCBwZXJjZW50aWxlX2xpc3QpICUgOCkg
-PT0gMCwgInBlcmNlbnRpbGVfbGlzdCIpOw0KPiA+Pj4gICAgICAgfCAgICAgICAgIF5+fn5+fn5+
-fn5+fn5+fn5+fg0KPiA+Pj4gY29tcGlsZXIvY29tcGlsZXIuaDozMTo0NDogZXJyb3I6IHN0YXRp
-YyBhc3NlcnRpb24gZmFpbGVkOiAibGF0ZW5jeV9wZXJjZW50aWxlIg0KPiA+Pj4gICAgMzEgfCAj
-ZGVmaW5lIGNvbXBpbGV0aW1lX2Fzc2VydChjb25kaXRpb24sIG1zZykgX1N0YXRpY19hc3NlcnQo
-Y29uZGl0aW9uLCBtc2cpDQo+ID4+PiAgICAgICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fg0KPiA+Pj4gbGliZmlvLmM6MzczOjk6IG5v
-dGU6IGluIGV4cGFuc2lvbiBvZiBtYWNybyDigJhjb21waWxldGltZV9hc3NlcnTigJkNCj4gPj4+
-ICAgMzczIHwgICAgICAgICBjb21waWxldGltZV9hc3NlcnQoKG9mZnNldG9mKHN0cnVjdCB0aHJl
-YWRfb3B0aW9uc19wYWNrLCBsYXRlbmN5X3BlcmNlbnRpbGUpICUgOCkgPT0gMCwgImxhdGVuY3lf
-cGVyY2VudGlsZSIpOw0KPiA+Pj4gICAgICAgfCAgICAgICAgIF5+fn5+fn5+fn5+fn5+fn5+fg0K
-PiA+Pj4gbWFrZTogKioqIFtNYWtlZmlsZTo0OTY6IGxpYmZpby5vXSBFcnJvciAxDQo+ID4+PiBt
-YWtlOiAqKiogV2FpdGluZyBmb3IgdW5maW5pc2hlZCBqb2JzLi4uLg0KPiA+Pj4NCj4gPj4+PiBJ
-ZiB5ZXMsIGhhdmUgeW91IHRyaWVkIG1vdmluZw0KPiA+Pj4+IHRoaXMgZGVjbGFyYXRpb24gaW4g
-dGhlIHN0cnVjdCA/DQo+ID4+Pg0KPiA+Pj4gWWVzLiBJIG1vdmVkIHRoZSBuZXcgZmllbGQgdGhp
-bmt0aW1lX2lvdGltZSB0byB0aGUgZW5kIG9mIHN0cnVjdA0KPiA+Pj4gdGhyZWFkX29wdGlvbnNf
-cGFjayB0aGVuIHRoZSBlcnJvcnMgd2VyZSBhdm9pZGVkLiBCdXQgSSB3YW50ZWQNCj4gPj4+IHRv
-IHBsYWNlIHRoZSBuZXcgZmllbGQgYXQgdGhlIHNhbWUgcGxhY2UgYXMgb3RoZXIgdGhpbmt0aW1l
-IHJlbGF0ZWQNCj4gPj4+IGZpZWxkcy4gRm9yIHRoYXQgcHVycG9zZSwgSSBuZWVkZWQgdG8gYWRk
-IHRoZSBwYWRkaW5nIHBhZDYuIEkgdHJpZWQgdG8NCj4gPj4+IHV0aWxpemUgb3RoZXIgcGFkcyBz
-dWNoIGFzIHBhZDIgb3IgcGFkNSwgYnV0IGl0IGRpZG4ndCB3b3JrLg0KPiA+Pj4NCj4gPj4+IFRv
-IHBsYWNlIHRoZSByZWxhdGVkIGZpZWxkcyBhdCBzYW1lIHBsYWNlIHdpdGggcGFkZGluZywgb3Ig
-dG8gcGxhY2UgdGhlIG5ldw0KPiA+Pj4gZmllbGQgYXQgZGlmZmVyZW50IHBsYWNlIHdpdGhvdXQg
-cGFkZGluZywgd2hpY2ggd2F5IHRvIGdvPw0KPiA+Pg0KPiA+PiBJIHRoaW5rIHRoYXQgaXMgYSBx
-dWVzdGlvbiBmb3IgSmVucy4uLg0KPiA+Pg0KPiA+PiBKZW5zLA0KPiA+Pg0KPiA+PiBXaGljaCB3
-YXkgZG8geW91IHByZWZlciA/DQo+ID4gDQo+ID4gSmVucywNCj4gPiANCj4gPiBNYXkgSSBhc2sg
-eW91ciBjb21tZW50IG9uIHRoZSBuZXcgcGFkIGluIHRoZSBzdHJ1Y3QgdGhyZWFkX29wdGlvbnNf
-cGFjaz8gSWYgdGhlDQo+ID4gbmV3IHBhZCBpcyBub3QgZ29vZCwgSSB3aWxsIG1vdmUgdGhlIG5l
-dyBmaWVsZCB0aGlua3RpbWVfaW90aW1lIHRvIHRoZSBlbmQgb2YNCj4gPiB0aGUgc3RydWN0Lg0K
-PiANCj4gSSB0ZW5kIHRvIGFkZCBuZXcgZWxlbWVudHMgd2hlcmUgSSBjYW4gcmVtb3ZlIGEgcGFk
-ZGluZyBmaWVsZC4gT3IgbW92aW5nDQo+IHRoaW5ncyBhcm91bmQgdG8gbWFrZSBpdCBzYW5lci4g
-SWYgeW91IG5lZWQgdG8gYWRkIHBhZDYsIHRoZW4gdGhhdCdzDQo+IGEgY2xlYXIgaW5kaWNhdGlv
-biB0aGF0IHRoaW5ncyBjYW4gYmUgbW92ZWQgYXJvdW5kIGFuZCBwYWRkaW5nIHJlZHVjZWQuDQoN
-CkplbnMsIHRoYW5rIHlvdSBmb3IgdGhlIGNvbW1lbnQuIEkgd2lsbCBtb3ZlIHRoaW5rdGltZSBy
-ZWxhdGVkIGVsZW1lbnRzIGFuZA0KcmVtb3ZlIGFuIGV4aXN0aW5nIHBhZGRpbmcuDQoNCi0tIA0K
-QmVzdCBSZWdhcmRzLA0KU2hpbidpY2hpcm8gS2F3YXNha2k=
+On 9/2/21 7:26 PM, Shinichiro Kawasaki wrote:
+> On Aug 23, 2021 / 03:02, Damien Le Moal wrote:
+>> On 2021/08/23 10:35, Shinichiro Kawasaki wrote:
+>> [...]
+>>>>> diff --git a/thread_options.h b/thread_options.h
+>>>>> index 4b4ecfe1..6fe1cad7 100644
+>>>>> --- a/thread_options.h
+>>>>> +++ b/thread_options.h
+>>>>> @@ -189,6 +189,7 @@ struct thread_options {
+>>>>>  	unsigned int thinktime_spin;
+>>>>>  	unsigned int thinktime_blocks;
+>>>>>  	unsigned int thinktime_blocks_type;
+>>>>> +	unsigned int thinktime_iotime;
+>>>>>  	unsigned int fsync_blocks;
+>>>>>  	unsigned int fdatasync_blocks;
+>>>>>  	unsigned int barrier_blocks;
+>>>>> @@ -500,6 +501,8 @@ struct thread_options_pack {
+>>>>>  	uint32_t thinktime_spin;
+>>>>>  	uint32_t thinktime_blocks;
+>>>>>  	uint32_t thinktime_blocks_type;
+>>>>> +	uint32_t thinktime_iotime;
+>>>>> +	uint32_t pad6;
+>>>>
+>>>> Why is this needed ? Some alignement warning ?
+>>>
+>>> Yes. Without the pad, I observe build errors as follows:
+>>>
+>>> In file included from fio.h:17,
+>>>                  from libfio.c:31:
+>>> libfio.c: In function ‘initialize_fio’:
+>>> compiler/compiler.h:31:44: error: static assertion failed: "percentile_list"
+>>>    31 | #define compiletime_assert(condition, msg) _Static_assert(condition, msg)
+>>>       |                                            ^~~~~~~~~~~~~~
+>>> libfio.c:372:9: note: in expansion of macro ‘compiletime_assert’
+>>>   372 |         compiletime_assert((offsetof(struct thread_options_pack, percentile_list) % 8) == 0, "percentile_list");
+>>>       |         ^~~~~~~~~~~~~~~~~~
+>>> compiler/compiler.h:31:44: error: static assertion failed: "latency_percentile"
+>>>    31 | #define compiletime_assert(condition, msg) _Static_assert(condition, msg)
+>>>       |                                            ^~~~~~~~~~~~~~
+>>> libfio.c:373:9: note: in expansion of macro ‘compiletime_assert’
+>>>   373 |         compiletime_assert((offsetof(struct thread_options_pack, latency_percentile) % 8) == 0, "latency_percentile");
+>>>       |         ^~~~~~~~~~~~~~~~~~
+>>> make: *** [Makefile:496: libfio.o] Error 1
+>>> make: *** Waiting for unfinished jobs....
+>>>
+>>>> If yes, have you tried moving
+>>>> this declaration in the struct ?
+>>>
+>>> Yes. I moved the new field thinktime_iotime to the end of struct
+>>> thread_options_pack then the errors were avoided. But I wanted
+>>> to place the new field at the same place as other thinktime related
+>>> fields. For that purpose, I needed to add the padding pad6. I tried to
+>>> utilize other pads such as pad2 or pad5, but it didn't work.
+>>>
+>>> To place the related fields at same place with padding, or to place the new
+>>> field at different place without padding, which way to go?
+>>
+>> I think that is a question for Jens...
+>>
+>> Jens,
+>>
+>> Which way do you prefer ?
+> 
+> Jens,
+> 
+> May I ask your comment on the new pad in the struct thread_options_pack? If the
+> new pad is not good, I will move the new field thinktime_iotime to the end of
+> the struct.
+
+I tend to add new elements where I can remove a padding field. Or moving
+things around to make it saner. If you need to add pad6, then that's
+a clear indication that things can be moved around and padding reduced.
+
+-- 
+Jens Axboe
+
 
