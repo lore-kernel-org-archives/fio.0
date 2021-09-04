@@ -1,74 +1,131 @@
-Return-Path: <prvs=873f0fbe3=Niklas.Cassel@wdc.com>
-From: Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v2 01/11] manpage: fix formatting
-Date: Fri, 3 Sep 2021 15:20:20 +0000
-Message-ID: <20210903152012.18035-2-Niklas.Cassel@wdc.com>
-References: <20210903152012.18035-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20210903152012.18035-1-Niklas.Cassel@wdc.com>
+Return-Path: <fio-owner@vger.kernel.org>
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:59124 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232243AbhIDJCJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 4 Sep 2021 05:02:09 -0400
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v2] options: Add thinktime_iotime option
+Date: Sat, 4 Sep 2021 09:01:05 +0000
+Message-ID: <20210904090104.7ecb4wxloyzecqrt@shindev>
+References: <20210903083719.1757299-1-shinichiro.kawasaki@wdc.com>
+ <ef8b37bd-d743-5e89-eb98-c619523c34e2@kernel.dk>
+ <20210903213801.m46bdht67ukz7blm@shindev>
+ <9ddf62e1-6f8e-0f20-1ef5-9b0426b15d34@kernel.dk>
+In-Reply-To: <9ddf62e1-6f8e-0f20-1ef5-9b0426b15d34@kernel.dk>
 Content-Language: en-US
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <34343BACC7EC0241850ACA0D34B5AD8B@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-To: "axboe@kernel.dk" <axboe@kernel.dk>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Niklas Cassel <Niklas.Cassel@wdc.com>
-List-ID: <fio@vger.kernel.org>
+List-Id: fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+On Sep 03, 2021 / 18:58, Jens Axboe wrote:
+> On 9/3/21 3:38 PM, Shinichiro Kawasaki wrote:
+> > On Sep 03, 2021 / 06:38, Jens Axboe wrote:
+> >> On 9/3/21 2:37 AM, Shin'ichiro Kawasaki wrote:
+> >>> diff --git a/options.c b/options.c
+> >>> index 8c2ab7cc..3fe1e6bd 100644
+> >>> --- a/options.c
+> >>> +++ b/options.c
+> >>> @@ -3688,6 +3688,20 @@ struct fio_option fio_options[FIO_MAX_OPTS] =
+=3D {
+> >>>  		},
+> >>>  		.parent =3D "thinktime",
+> >>>  	},
+> >>> +	{
+> >>> +		.name	=3D "thinktime_iotime",
+> >>> +		.lname	=3D "Thinktime interval",
+> >>> +		.type	=3D FIO_OPT_INT,
+> >>> +		.off1	=3D offsetof(struct thread_options, thinktime_iotime),
+> >>> +		.help	=3D "IO time interval between 'thinktime'",
+> >>> +		.is_time =3D 1,
+> >>> +		.is_seconds =3D 1,
+> >>> +		.def	=3D "0",
+> >>> +		.parent	=3D "thinktime",
+> >>> +		.hide	=3D 1,
+> >>> +		.category =3D FIO_OPT_C_IO,
+> >>> +		.group	=3D FIO_OPT_G_THINKTIME,
+> >>> +	},
+> >>
+> >> Please line these up nicely as is done elsewhere.
+> >=20
+> > Ah, the order of the members are diffferent from others. I will move a
+> > few members to make the order same as others.
+>=20
+> I didn't notice the ordering, but just to be clear, I'm just referring
+> to the tabbing so the '=3D' line up. But if they are out of order, please
+> do correct that too.
 
-For ioengine options supported by multiple ioengines, remove spaces
-after commas in the ioengine list to have troff correctly format in bold
-the entire ioengine list and option name. Also add "=3Dint" indicators
-missing for some options.
+Thanks for the clarification. I will fix the order. As for tabbing, I found=
+ that
+'=3D' is not lined up in existing members of fio_options[] either. Here I q=
+uote an
+example from "startdelay" option.
 
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
----
- fio.1 | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+	{
+		.name	=3D "startdelay",
+		.lname	=3D "Start delay",
+		.type	=3D FIO_OPT_STR_VAL_TIME,
+		.off1	=3D offsetof(struct thread_options, start_delay),
+		.off2	=3D offsetof(struct thread_options, start_delay_high),
+		.help	=3D "Only start job when this period has passed",
+		.def	=3D "0",
+		.is_seconds =3D 1,
+		.is_time =3D 1,
+		.category =3D FIO_OPT_C_GENERAL,
+		.group	=3D FIO_OPT_G_RUNTIME,
+	},
 
-diff --git a/fio.1 b/fio.1
-index 382cebfc..25d9f545 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1962,7 +1962,7 @@ In addition, there are some parameters which are only=
- valid when a specific
- with the caveat that when used on the command line, they must come after t=
-he
- \fBioengine\fR that defines them is selected.
- .TP
--.BI (io_uring, libaio)cmdprio_percentage \fR=3D\fPint
-+.BI (io_uring,libaio)cmdprio_percentage \fR=3D\fPint
- Set the percentage of I/O that will be issued with higher priority by sett=
-ing
- the priority bit. Non-read I/O is likely unaffected by ``cmdprio_percentag=
-e``.
- This option cannot be used with the `prio` or `prioclass` options. For thi=
+The number of tab in front of '=3D' is single for all members. On the other=
+ hand,
+some of the members have too long name: such as "is_time", "is_seconds" or
+"category". So '=3D' can not be lined up for them. I think it would be the =
+better
+to allow unaligned '=3D' style for new options if they have the long name m=
+embers.
+
+After fixing the order of the members of the new option, that part will loo=
+k as
+follows:
+
++		.name	=3D "thinktime_iotime",
++		.lname	=3D "Thinktime interval",
++		.type	=3D FIO_OPT_INT,
++		.off1	=3D offsetof(struct thread_options, thinktime_iotime),
++		.help	=3D "IO time interval between 'thinktime'",
++		.def	=3D "0",
++		.parent	=3D "thinktime",
++		.hide	=3D 1,
++		.is_seconds =3D 1,
++		.is_time =3D 1,
++		.category =3D FIO_OPT_C_IO,
++		.group	=3D FIO_OPT_G_THINKTIME,
+
+The unaligned '=3D's will be gathered at the last part, so I wish it does n=
+ot look
+so messy.
+
+>=20
+> >> Apart from that, this looks fine. Could really use an example job
+> >> though, and an improvement in the explanation. The commit message look=
 s
-@@ -2043,20 +2043,20 @@ Detect when I/O threads are done, then exit.
- .BI (libhdfs)namenode \fR=3D\fPstr
- The hostname or IP address of a HDFS cluster namenode to contact.
- .TP
--.BI (libhdfs)port
-+.BI (libhdfs)port \fR=3D\fPint
- The listening port of the HFDS cluster namenode.
- .TP
--.BI (netsplice,net)port
-+.BI (netsplice,net)port \fR=3D\fPint
- The TCP or UDP port to bind to or connect to. If this is used with
- \fBnumjobs\fR to spawn multiple instances of the same job type, then
- this will be the starting port number since fio will use a range of
- ports.
- .TP
--.BI (rdma, librpma_*)port
-+.BI (rdma,librpma_*)port \fR=3D\fPint
- The port to use for RDMA-CM communication. This should be the same
- value on the client and the server side.
- .TP
--.BI (netsplice,net, rdma)hostname \fR=3D\fPstr
-+.BI (netsplice,net,rdma)hostname \fR=3D\fPstr
- The hostname or IP address to use for TCP, UDP or RDMA-CM based I/O.
- If the job is a TCP listener or UDP reader, the hostname is not used
- and must be omitted unless it is a valid UDP multicast address.
+> >> great, but then the doc additions are pretty lackluster. Maybe steal a
+> >> bit of the text you wrote from the commit message and put it in the
+> >> shipped documentation?
+> >=20
+> > I will improve the descriptions of the new option in fio.1 and HOWTO,
+> > copying some of the commit message. Also I will add "for example"
+> > option usage in the descriptions.
+>=20
+> Sounds good, thanks!
+>=20
+> --=20
+> Jens Axboe
+>=20
+
 --=20
-2.31.1
+Best Regards,
+Shin'ichiro Kawasaki
 
