@@ -2,148 +2,104 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B01B3C433EF
-	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 15:07:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E014C433EF
+	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 15:16:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8692A611C6
-	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 15:07:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7B37C60F6C
+	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 15:16:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349384AbhIHPJB (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 8 Sep 2021 11:09:01 -0400
-Received: from mga07.intel.com ([134.134.136.100]:56444 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349279AbhIHPJA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 Sep 2021 11:09:00 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10101"; a="284211808"
-X-IronPort-AV: E=Sophos;i="5.85,278,1624345200"; 
-   d="scan'208";a="284211808"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2021 08:07:46 -0700
-X-IronPort-AV: E=Sophos;i="5.85,278,1624345200"; 
-   d="scan'208";a="524867526"
-Received: from fm42an009.fm.intel.com ([10.132.70.54])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Sep 2021 08:07:46 -0700
-From:   Andrzej Jakowski <andrzej.jakowski@intel.com>
-To:     fio@vger.kernel.org, axboe@kernel.dk
-Cc:     Andrzej Jakowski <andrzej.jakowski@intel.com>
-Subject: [PATCH v2] t/io_uring: allow flexible IO threads assignment
-Date:   Wed,  8 Sep 2021 08:07:32 -0700
-Message-Id: <1631113652-25526-1-git-send-email-andrzej.jakowski@intel.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1348609AbhIHPRP (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 8 Sep 2021 11:17:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42440 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348450AbhIHPRP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 8 Sep 2021 11:17:15 -0400
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 402FDC061575
+        for <fio@vger.kernel.org>; Wed,  8 Sep 2021 08:16:07 -0700 (PDT)
+Received: by mail-io1-xd2d.google.com with SMTP id z1so3708322ioh.7
+        for <fio@vger.kernel.org>; Wed, 08 Sep 2021 08:16:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=SiNR5eqRInkdhrJa+ypi/NNhxcMT6MJK4usQZrvrP8E=;
+        b=TYqNGEGjwZqx8DJsqGJob1O0lsKTzLEruBWFJ+mudhrtkBD9OKm2jYVG+Fl1PCmjMF
+         9rJB3hTeee2GcChhsX6kCPHMRUPzJNi+5U4i9JErInaNv3hpRpqySuOyy/gQRBqobcsK
+         NCcecl0EO4mv0Y2h94L0e4bA9fQTHJ3wK19Yt2CR9ujq9rjMeoCk2bZEpz5paSL4WdYo
+         zFBAsSNbo/n/HtII7rH9xWsFyF9YiMMNjXZKwgYpK0C7aRvpdGya8vL+g6G66v+CCg6c
+         elm2tgOHbNshLaq8w3Y0zkHbyW2xbeUOw/DY64aJ26szvnOI9obFSAyxrNvJBJp+Kn2S
+         5DsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=SiNR5eqRInkdhrJa+ypi/NNhxcMT6MJK4usQZrvrP8E=;
+        b=drhJeA4acpeVT8isRINk8qHMbYchF9vjtI9f7KuUikE/xOonFooqFrbpQLVn8biJ35
+         YE44JrUVlvJDs14yMFB+gSEcX9MZ160Zfu3sGcL25QGvqgBBLOJ1KPrIzEU6kQNG/L9v
+         Gtxl2sujBfeG/gNr6ZTNKk9Af7luWTk2bA9Se1AgxNv5aCBBCVwAc7IHeB66HRl0LrY/
+         S7VoY9kQRK00WHFSTd8yuH8mq/GjTLuXrhzObIqB+WXpB1x578/oU/PJkR/wnGJFzTGR
+         sr5+v6LZdnqxjTKHYF6uGzq/0mpnIZerlb5ZM4oo74hAdAAOQrn6i2at+x87CR0gIRE8
+         MmsA==
+X-Gm-Message-State: AOAM5324jJgHTui2nvUgVt0/MYm7ZP39FTZWdQK63t2zBj2TKUMHnHfj
+        0eqQiGDQNUbhZ9cFAtUobp7k9i9zFCTJ8A==
+X-Google-Smtp-Source: ABdhPJxvNMXnqFjXBQXwDQig/GimqtdBsjyS4Jc0HmBnmdYg22/uTVw98nZh9OFK/LvClCuQO9GFqg==
+X-Received: by 2002:a05:6602:2436:: with SMTP id g22mr299167iob.109.1631114166404;
+        Wed, 08 Sep 2021 08:16:06 -0700 (PDT)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id n11sm1226738ilq.21.2021.09.08.08.16.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Sep 2021 08:16:06 -0700 (PDT)
+Subject: Re: [PATCH v2] t/io_uring: allow flexible IO threads assignment
+To:     Andrzej Jakowski <andrzej.jakowski@intel.com>, fio@vger.kernel.org
+References: <1631113652-25526-1-git-send-email-andrzej.jakowski@intel.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <d358a412-5080-cf7f-02a4-3fe2670f0ddc@kernel.dk>
+Date:   Wed, 8 Sep 2021 09:16:05 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <1631113652-25526-1-git-send-email-andrzej.jakowski@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-This patch allows to flexibly assign IO threads to fileset. When
-you specify:
+On 9/8/21 9:07 AM, Andrzej Jakowski wrote:
+> This patch allows to flexibly assign IO threads to fileset. When
+> you specify:
+> 
+> t/io_uring -n 5 /dev/dev1 dev/dev2
+> 
+> First file/device will get 3 IO threads and second file/device
+> remaining 2 IO threads. When there is more files then IO threads,
+> IO thread may get assigned multiple files/devices.
 
-t/io_uring -n 5 /dev/dev1 dev/dev2
+Not to nit pick, but:
+  
+> @@ -620,37 +621,57 @@ int main(int argc, char *argv[])
+>  
+>  	j = 0;
+>  	i = optind;
+> +	nfiles = argc - i;
+> +	if (!nfiles) {
+> +		printf("no files specified\n");
+> +		return 1;
+> +	}
 
-First file/device will get 3 IO threads and second file/device
-remaining 2 IO threads. When there is more files then IO threads,
-IO thread may get assigned multiple files/devices.
+I think this looks correct now, do we want to call usage() here?
+Seems common practice for any kind of invocation error.
 
-Signed-off-by: Andrzej Jakowski <andrzej.jakowski@intel.com>
----
-Changes from v1:
- * Handling crashing case when no files are specified
----
- t/io_uring.c | 55 ++++++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 38 insertions(+), 17 deletions(-)
+usage() should probably exit() with non-zero though, in general.
 
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 77d2785..e7ff142 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -563,7 +563,8 @@ int main(int argc, char *argv[])
- {
- 	struct submitter *s;
- 	unsigned long done, calls, reap;
--	int err, i, j, flags, fd, opt;
-+	int err, i, j, flags, fd, opt, threads_per_f, threads_rem = 0, nfiles;
-+	struct file f;
- 	char *fdepths;
- 	void *ret;
- 
-@@ -620,37 +621,57 @@ int main(int argc, char *argv[])
- 
- 	j = 0;
- 	i = optind;
-+	nfiles = argc - i;
-+	if (!nfiles) {
-+		printf("no files specified\n");
-+		return 1;
-+	}
-+	threads_per_f = nthreads / nfiles;
-+	/* make sure each thread gets assigned files */
-+	if (threads_per_f == 0) {
-+		threads_per_f = 1;
-+	} else {
-+		threads_rem = nthreads - threads_per_f * nfiles;
-+	}
- 	while (!do_nop && i < argc) {
--		struct file *f;
-+		int k, limit;
-+
-+		memset(&f, 0, sizeof(f));
- 
--		s = get_submitter(j);
--		if (s->nr_files == MAX_FDS) {
--			printf("Max number of files (%d) reached\n", MAX_FDS);
--			break;
--		}
- 		fd = open(argv[i], flags);
- 		if (fd < 0) {
- 			perror("open");
- 			return 1;
- 		}
--
--		f = &s->files[s->nr_files];
--		f->real_fd = fd;
--		if (get_file_size(f)) {
-+		f.real_fd = fd;
-+		if (get_file_size(&f)) {
- 			printf("failed getting size of device/file\n");
- 			return 1;
- 		}
--		if (f->max_blocks <= 1) {
-+		if (f.max_blocks <= 1) {
- 			printf("Zero file/device size?\n");
- 			return 1;
- 		}
--		f->max_blocks--;
-+		f.max_blocks--;
-+
-+		limit = threads_per_f;
-+		limit += threads_rem > 0 ? 1 : 0;
-+		for (k = 0; k < limit; k++) {
-+			s = get_submitter((j + k) % nthreads);
-+
-+			if (s->nr_files == MAX_FDS) {
-+				printf("Max number of files (%d) reached\n", MAX_FDS);
-+				break;
-+			}
- 
--		printf("Added file %s (submitter %d)\n", argv[i], s->index);
--		s->nr_files++;
-+			memcpy(&s->files[s->nr_files], &f, sizeof(f));
-+
-+			printf("Added file %s (submitter %d)\n", argv[i], s->index);
-+			s->nr_files++;
-+		}
-+		threads_rem--;
- 		i++;
--		if (++j >= nthreads)
--			j = 0;
-+		j += limit;
- 	}
- 
- 	arm_sig_int();
 -- 
-1.8.3.1
+Jens Axboe
 
