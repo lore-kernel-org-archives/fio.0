@@ -2,89 +2,75 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-6.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 796F7C433F5
-	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 19:14:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3116DC433EF
+	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 20:26:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 604A1610C8
-	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 19:14:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 11F466115B
+	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 20:26:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240696AbhIHTPt (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 8 Sep 2021 15:15:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40722 "EHLO
+        id S236018AbhIHU2A (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 8 Sep 2021 16:28:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231734AbhIHTPt (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 Sep 2021 15:15:49 -0400
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E08DC061575
-        for <fio@vger.kernel.org>; Wed,  8 Sep 2021 12:14:41 -0700 (PDT)
-Received: by mail-io1-xd2a.google.com with SMTP id f6so4771670iox.0
-        for <fio@vger.kernel.org>; Wed, 08 Sep 2021 12:14:41 -0700 (PDT)
+        with ESMTP id S233179AbhIHU17 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 8 Sep 2021 16:27:59 -0400
+Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0791C061575
+        for <fio@vger.kernel.org>; Wed,  8 Sep 2021 13:26:51 -0700 (PDT)
+Received: by mail-qv1-xf2b.google.com with SMTP id 62so2133087qvb.11
+        for <fio@vger.kernel.org>; Wed, 08 Sep 2021 13:26:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=b6f5jbAmbfAKPJL5guvKtQ34GqZAgTylq7xfheT5594=;
-        b=OXbQChF0pSsDkofxs5vWC01YR33uHweE2yf30lwQH0Klu5J920MitzaJn7hYULPh7Q
-         /UBDMPNMiVRKgzaQEISBOcFmC5LNB67iwB24ZmnaJGgNwaZ5iENMyHr1spTU+UiCf2OQ
-         /UDrxYTd43snVm9j9KrkNh1Zeto4qsjqKYT/GPGNX+0Xu++7ffnfBqlDtRpvdQpMWiBP
-         D7lXI50rWUhZkpiALXyc4na6j9n9DFjGSnhicYNcc2U2UTyrxxcpe5B5nUDZ8BqwYxAA
-         j4IRzuCOPp6YvNkzz4ro/upmlYSwimgNFIjxpvqHhT/1wPvNFdTnIgdgSZSHdPsGO9Gg
-         9rrQ==
+        d=linuxfoundation.org; s=google;
+        h=date:from:to:subject:message-id:mime-version:content-disposition;
+        bh=CO9tvCv2cWu3iyVeuMIDOG6PDFl0+Shgl/30MLp20lQ=;
+        b=hX9pZnyPtMCWPaV43+m0jHOrVxJtvIBBZE9z35MGf2atkKxIosls6CDvyx/qKrqiDH
+         K7BJOv7RmhcOBQ+BGc8TyppHpDxdY8iXmGRmlIKGWx1nFll8xTAF5jyQ01HmMNzHxlAU
+         XBpFrebdySjrGDsMeuVDzRfw0M+qiUHN2y+ag=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=b6f5jbAmbfAKPJL5guvKtQ34GqZAgTylq7xfheT5594=;
-        b=7q8/OEbQTOHrmbCoWq1UL3DBzI+mjjFPnz8QpsGahcYcwpvWhZdM2O+125YGdiM6Pi
-         TYbjRCt065dF1qspG82O13rG5uUKn8YJMLGkhW41QoSlG3gQPF72rsHRjMeb3ox8gehd
-         vdCCQs/65Qmxfroutf4TSususfMK6IQlM7S6kKRhi/SQRwAtHly4kuamSXOUpLkChFeT
-         EarqPJgE3jynqWgTrcS5gqn+/hXPR9qFB4LcAj4ZMO98+I+6ALTV3DaM21WMczq6zCEU
-         Gjel4eV8FJjwRYmQqSfCu+w7tcwiEZBZ48XYdhjjl4ZupVTpFFI35eu+g88Ma7aKQpil
-         8j4g==
-X-Gm-Message-State: AOAM531yAZLhU5nPEtq4g9068p+JMi25AFNDJs5tHQ/NSONgbcdckj2i
-        Mc27AaEl360MXzgKcfB1c5qr1vaEIdvD9A==
-X-Google-Smtp-Source: ABdhPJw+UkRUNCv+Erp/s45yAjzlDLHjbyBWkmm7/IWBw6W7wEqRVH/e8PD0rtgyNJKGGr6F95AJgw==
-X-Received: by 2002:a5e:d80c:: with SMTP id l12mr1231548iok.120.1631128480463;
-        Wed, 08 Sep 2021 12:14:40 -0700 (PDT)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id 9sm617458ily.9.2021.09.08.12.14.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Sep 2021 12:14:40 -0700 (PDT)
-Subject: Re: [PATCH v3] t/io_uring: allow flexible IO threads assignment
-To:     Andrzej Jakowski <andrzej.jakowski@intel.com>, fio@vger.kernel.org
-References: <1631126100-28184-1-git-send-email-andrzej.jakowski@intel.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <b1e911a0-4150-dbb8-a713-8ade2bcac890@kernel.dk>
-Date:   Wed, 8 Sep 2021 13:14:38 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+         :content-disposition;
+        bh=CO9tvCv2cWu3iyVeuMIDOG6PDFl0+Shgl/30MLp20lQ=;
+        b=4FmWydRLWzAySZN3yCTSgrw+rjyycASIXFr4zrbrJMMgXVE4lEdQrOCPvmW67/yGTp
+         IxWYwHpbi7CFXVfj4NHZ/BCFe4716Opoj/Yif0MD+vSFp24Nn/D8d+fYT3MdO4lJQWKy
+         ytEDTvLtnGQaTUq2DiNTN0ek63X83cV+rrR22Xp1EYMh496Tn2gtw2imoHsnht+3ksZs
+         t6j04h4PmXsekI5eD4c4xHouLncBr+Lbm1OPfDNHEd11cPUM2+eSY3uhUbom+ph8LAA6
+         x2amsc4i0Cn9MKeX7rcxM2u/jF0TWgawl/Ja5mhb1On8hf2bd+ylEh8UZbRlgSVbvDpb
+         ZqCg==
+X-Gm-Message-State: AOAM5311wrfBZbusS8JV0N2bZinEsgCPF+bKBgR+/5J6wCHuzGiOH6d8
+        f4GIq2uFEt1aThmkHgbZGgrNxow2PDBu7g==
+X-Google-Smtp-Source: ABdhPJxiuWK2CzrdJbyZ1/0JZm0uBPVRUhOdEZNRIa3DJcnE77rVBpmgRaQLpVwu7Qq1M+hv9KyM2g==
+X-Received: by 2002:ad4:5bea:: with SMTP id k10mr194349qvc.23.1631132810596;
+        Wed, 08 Sep 2021 13:26:50 -0700 (PDT)
+Received: from meerkat.local (bras-base-mtrlpq5031w-grc-32-216-209-220-181.dsl.bell.ca. [216.209.220.181])
+        by smtp.gmail.com with ESMTPSA id t188sm170763qkf.22.2021.09.08.13.26.50
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Sep 2021 13:26:50 -0700 (PDT)
+Date:   Wed, 8 Sep 2021 16:26:48 -0400
+From:   Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+To:     fio@vger.kernel.org
+Subject: Test delivery to lore.kernel.org
+Message-ID: <20210908202648.ady2e5zaeuti3kmw@meerkat.local>
 MIME-Version: 1.0
-In-Reply-To: <1631126100-28184-1-git-send-email-andrzej.jakowski@intel.com>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 9/8/21 12:35 PM, Andrzej Jakowski wrote:
-> This patch allows to flexibly assign IO threads to fileset. When
-> you specify:
-> 
-> t/io_uring -n 5 /dev/dev1 dev/dev2
-> 
-> First file/device will get 3 IO threads and second file/device
-> remaining 2 IO threads. When there is more files then IO threads,
-> IO thread may get assigned multiple files/devices.
+Hello:
 
-Applied, thanks.
+This is both an announcement and test of delivery to the lore archive for this
+list, which can be found here:
 
--- 
-Jens Axboe
+    https://lore.kernel.org/fio/
 
+If this message shows up in the archive, then everything is working correctly.
+
+-K
