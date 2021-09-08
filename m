@@ -2,62 +2,52 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85DB0C433F5
-	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 16:20:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16C62C433EF
+	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 17:11:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6628D61139
-	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 16:20:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F3F9660EE6
+	for <fio@archiver.kernel.org>; Wed,  8 Sep 2021 17:11:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348078AbhIHQVn (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 8 Sep 2021 12:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57364 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245273AbhIHQVm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 Sep 2021 12:21:42 -0400
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8156BC061575
-        for <fio@vger.kernel.org>; Wed,  8 Sep 2021 09:20:34 -0700 (PDT)
-Received: by mail-io1-xd2e.google.com with SMTP id y18so4041396ioc.1
-        for <fio@vger.kernel.org>; Wed, 08 Sep 2021 09:20:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=BYJg2XrXoqSD0BVCRXKwe4pt4sho5ituTS0VFCsvRm4=;
-        b=o3OoV4nwKFb5yDfquhrq4EaaSUtTNxqU/+bkrLt1mmWJc8VVWgxN1Xu6EZNivNyBcT
-         X3cyH1mxijTw78XQ90W1OKZ9KF1ewbiA0Qjajz9Myt3HcsSBgU1ihVHX7CX3Juh9qyWe
-         uriqJDlrVTU5DZ73yWAzqwEa8F2l66yIB9tZ0EoJ8cBKI7aWOtQUL12EnzH+gwlqMr7u
-         sZhuUzq8SpQjFUeXCpePTT4QGDPYbqf79tktK2xtBcejOG0zpd1T1z6BdN97VNKtR4iQ
-         FZ3bBJVA55dnWTn2pklZsq7RbVmghL8H+txWDsLSFjsrtXsn1FyTGv+Xk8xkE/UITQxi
-         UjKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=BYJg2XrXoqSD0BVCRXKwe4pt4sho5ituTS0VFCsvRm4=;
-        b=kjva/drCc7hGrCfjLrgGC4FB7QcGgIZOXOL7ufcGvQkHlLhCPwz/XaDiDcBzSjEVZP
-         ApMBew9QUQopNs3wYWb3ajeUA5wd2Oi86DDX4l75wJ6rv8rxiDFIHcaTtUfM2lse9MXA
-         gO2JZOeP3Ez/de8h8fhteW4gJL1GWJaqS1dYBQ8mkKVZIB8quvzS5eMWQ0EZkQUsYCYb
-         P1SpqjTf03RKETC69FOteQ1YM21mJTc1V1EGxnnS/gUMso8c6SeFp0S/cwvPzZD0CRHx
-         FFb0i/i1XTqiXZNIFcv6NojEBCUbpyrDU29g37EwKiR50t55q4VNGs3rxkHwK1alloDr
-         4YlA==
-X-Gm-Message-State: AOAM532Ycq472fOUH8bT7ih9lct0nQAGjyOe7IjvB4sB9dWPnjwCcEHx
-        424fmAg7J2R4buBQVyD4TWFHHUwVRk621w==
-X-Google-Smtp-Source: ABdhPJzdRA7gLtAiabcug9ewLZOQx/0AUMgPIkRelGMx42+BkAe2++z9be3uXsASa3laq8LLKGrX0w==
-X-Received: by 2002:a05:6602:117:: with SMTP id s23mr606433iot.124.1631118033464;
-        Wed, 08 Sep 2021 09:20:33 -0700 (PDT)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id k21sm1295231ioh.38.2021.09.08.09.20.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 08 Sep 2021 09:20:32 -0700 (PDT)
+        id S229689AbhIHRMT (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 8 Sep 2021 13:12:19 -0400
+Received: from mail-eopbgr60122.outbound.protection.outlook.com ([40.107.6.122]:18986
+        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1350166AbhIHRMS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 8 Sep 2021 13:12:18 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IXoc+7pkkfIF3WlUpXhitfJIVipJJGE3fS1RzsvFucqCrcLnbnPGHOyIlB78rQgOYBSTnRxqEASrgczuMCXeQV34HhJAwHcJMojCnlmD3eI2Cyi0NHSXIEdmrapVeyAJu0EbA2ZrQrSg6CF7VCBV1KI9vZtkgrDMwHpYqS1CVyKvRGkra5cVeTwIOq2wGkm+FPsqbt9KDjJoC16+vO9cyfwEg6NJNqZfdMBXBAGELifR+PYvJ0vydGjz3Ot0Cc1XA4AUA9rVdGXEMHCx8bqdEgnCCDITzm8eaP1cjaUzSXdk8TMH0XOG9F26dtFsgRrVpYmQJmTS+TfxA3iNkHAtUQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
+ bh=KJQFLIPKBErNlRQ/Qo/SQ2X30j7ghGhO5EMluZy5eTE=;
+ b=m13pFSluabPVnP3QlbxMjE/xxvTMPk0p4Vso3Hx6AXa73gk557QCyE9lz+jrA6YOplIvqPW2GZEomxyAzCWz7rHm0CciVkRjqfy4V7zhbqTWkNj6NE8Yh+hZ2R4/AbnwKX6lE4mVISptTpGqGVVrsroaS1fwzNguUmIWzHN2xAyX1OcYNtUkxjpahs2ImFnb2ZrWPXCEZu7cPQMamni0Xsd48+EeEhCUVVY1xj1ELZVlVSR2PQJBSZAEd/WxQA7PH9dVerRJIM5txLLeYCgGZv3UCE2yE2Z8v4F2WcHzb6EYzN5J9ukj/eb8+Fs+OZrXFJ4bgEZJxO0KBp8buXN4iA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=criteo.com; dmarc=pass action=none header.from=criteo.com;
+ dkim=pass header.d=criteo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=criteo.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=KJQFLIPKBErNlRQ/Qo/SQ2X30j7ghGhO5EMluZy5eTE=;
+ b=e/0erR3dN0nCJ00cO7b26JXMTp6Xy/vHzsKhia3jSpP6EaqkUIwyRi6UqfnHZcavtfed+HKZKkRcBuryTeYwsrw5PrKhHtPURALC3hNqu4QhD2ebIOEywKQxN8f2LtRpSvWlt3LSzQAKFGvlBu8+BXeSjw634UZjJnFd5WmqqfY=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=criteo.com;
+Received: from AM9PR04MB8340.eurprd04.prod.outlook.com (2603:10a6:20b:3e0::23)
+ by AM8PR04MB7986.eurprd04.prod.outlook.com (2603:10a6:20b:245::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4478.19; Wed, 8 Sep
+ 2021 17:11:08 +0000
+Received: from AM9PR04MB8340.eurprd04.prod.outlook.com
+ ([fe80::8496:1aec:598a:3ed1]) by AM9PR04MB8340.eurprd04.prod.outlook.com
+ ([fe80::8496:1aec:598a:3ed1%9]) with mapi id 15.20.4478.025; Wed, 8 Sep 2021
+ 17:11:08 +0000
 Subject: Re: Question: t/io_uring performance
-To:     Hans-Peter Lehmann <hans-peter.lehmann@kit.edu>,
+To:     Jens Axboe <axboe@kernel.dk>,
+        Hans-Peter Lehmann <hans-peter.lehmann@kit.edu>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 References: <9025606c-8579-bf81-47ea-351fc7ec81c3@kit.edu>
  <867506cc-642e-1047-08c6-aae60e7294c5@criteo.com>
@@ -68,92 +58,126 @@ References: <9025606c-8579-bf81-47ea-351fc7ec81c3@kit.edu>
  <2df22c68-6040-298e-4512-752cd10b7201@kit.edu>
  <5015f1e3-eaeb-ef9e-e530-83c21db5aeb7@criteo.com>
  <e41a49a8-f5ea-9f50-0327-dd2af9487153@criteo.com>
- <77b67cc0-30c1-70a8-438b-f1bcf1fdb295@kit.edu>
- <CALjAwxgM65_vfrBkvGksoyO6vgR1dx4aPtGJSqRhm-gieHKgyA@mail.gmail.com>
- <bfddf649-aaf4-b01f-f26b-513fb4e236b2@kernel.dk>
- <8d6acc34-5078-c023-fcc8-cb34b63e5112@kernel.dk>
- <1cf066bb-aa71-1403-c80c-454ea87a9502@kit.edu>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <4ce4addd-a7c7-f35f-ef3b-b0bf9966e224@kernel.dk>
-Date:   Wed, 8 Sep 2021 10:20:27 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <1cf066bb-aa71-1403-c80c-454ea87a9502@kit.edu>
-Content-Type: text/plain; charset=utf-8
+ <08a0ddec-45b3-bdcb-e428-e17ff55c5382@kernel.dk>
+From:   Erwan Velu <e.velu@criteo.com>
+Message-ID: <9b72cfc0-c4e7-3ece-1f66-21b66d45d565@criteo.com>
+Date:   Wed, 8 Sep 2021 19:11:06 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+In-Reply-To: <08a0ddec-45b3-bdcb-e428-e17ff55c5382@kernel.dk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PR2P264CA0008.FRAP264.PROD.OUTLOOK.COM (2603:10a6:101::20)
+ To AM9PR04MB8340.eurprd04.prod.outlook.com (2603:10a6:20b:3e0::23)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [IPv6:2a01:cb00:de8:8800:a11a:413a:fe7d:f6a2] (2a01:cb00:de8:8800:a11a:413a:fe7d:f6a2) by PR2P264CA0008.FRAP264.PROD.OUTLOOK.COM (2603:10a6:101::20) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend Transport; Wed, 8 Sep 2021 17:11:08 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 185566d7-6d6a-401e-585c-08d972eba64d
+X-MS-TrafficTypeDiagnostic: AM8PR04MB7986:
+X-Microsoft-Antispam-PRVS: <AM8PR04MB79866871190584256D9CABFAF2D49@AM8PR04MB7986.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:7219;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: S2qXZRPvtMJKDPuIVRJWsdH1hQXagScaQcLetTzfjpyVsMZh57egAr0THwalk62y4w/6sZ1srl4J8FpfRGTPozqRhY1YGjzVIarrfyQE4CeCEj/Si/WySsi1Jx5/V7Ke1OXVeibVMH1w92jl4HM2PQWWrLQ0e6oWiKX52G/crZUM0gUDuQD+JaLWD2WejkrIj8Y4KZcVUNfEJzJtSkNrdpG12mwJFyJ38X7l2Y7r65622OhNOJ4BMBCBFiko1P0QOPHAzTHQxRDn2ALq2eVTO1G63fLQ1doZsg+VJlHbQ26Tgg9pPKRE+ZNRvBIp/6LBrkMinQg/xArlnJNAGtk6qdLjVx9Exkxqeao6KtD9Q2H6ouAwdoR/rpwAnZTm7++cfw3gt20nylr1akcJVSXTYHz4Rc4uiNonY5KNP9gWiz09vs6Z7/jr/kdyrEal1tQl+pTK8SChnvLqd29DmD2ISCuCNhCaNrvklj+WJAWvqalWWTBUAl9FSzQETcVB/3+oqxE3VjM8QUoO3+MNfh89wLXgX/IDWPNZ5337hw1DocS9rOrJKL7dV3zaEY0PftHoUNiNVvZ4D+DIjFy+65pMBrfUdCf+OmM6EOv+Cceiq6vKnhzmyyF0arRGIuVsBKp8dVex/OE1euR3HIjjGk7V5/TV9eSwpYDAXnnIMBYI/Os6paeXsc51Ywp+XtPKqAFmfHx7yTEj7/DGmYj1IPpLZztiNJRFFmLmPmB1/Qhws7k=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR04MB8340.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(31686004)(52116002)(8936002)(2906002)(8676002)(31696002)(508600001)(316002)(2616005)(86362001)(5660300002)(66556008)(66946007)(66476007)(83380400001)(110136005)(36756003)(186003)(38100700002)(6486002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?T1oxcjQvWHZzeWhqU2pvOGI1ank5Q0F6RGRvSlRGb0haeFRORTMrV0JqaFRz?=
+ =?utf-8?B?SGVJdWFoVGFPaDUrWlQyYlJoZlNRcStzbXdkTFo0a2xPZE9NMnJJaGQ4TTFr?=
+ =?utf-8?B?TXJlUVJRaDBYL3hqVUgvZ21ubGZORVZCNTgwUEUwQWl5aldkTlVMa1ZNckdi?=
+ =?utf-8?B?KzJwTWk4bzcvTFY1SG0wd3daUU9ONDM2TmlzdGh0UDNYeERTRlcvajJRd2Ez?=
+ =?utf-8?B?UElGUnJTbUlCSDJNZW9QdXR6YWZ4WGFiR0ZjejdYVFA4MU1rRXFrRjBLZ2o4?=
+ =?utf-8?B?RjVyWCtiOG1yWHVrekl4UWIrcjM4c3hrM1B4U3U1UWNsQlRKQTkra0FUUHlT?=
+ =?utf-8?B?U1N2d3MrK2dyNFJjMkFTY0EzOXl5UkppQkorWlY5Y3hzQTUrTUNPT01QdVdT?=
+ =?utf-8?B?TEhzMG9teW9JQ3JCR1dwREdFZ1N2V25TTjg5Nk16cmNtQXcvQVBBZXEySFNt?=
+ =?utf-8?B?V2J1Qyt6K1dWMjBydWVwemVIUVRDclpubDE5dFUwaGxlV21CWTBCb0lZRkcv?=
+ =?utf-8?B?REZpTm9yTEYwQzhzRDRLY2ppZE1DS3VrM1JhQW1uVzZVdDFMWGVHSHI3Y0RL?=
+ =?utf-8?B?WHFmVEJ0elgvdWNIb3pxYVZYR1ZLdU10WGNTYWxWZ1VWN0kzVDV3Tm8yYU95?=
+ =?utf-8?B?YjVhb0JjN1hlUzlZWGFqOUFtSURJTkNUYWVESFVUa0xUQzlvaDV6OThCcFk4?=
+ =?utf-8?B?d291aU1MY25hZUh1a1JiM3VPNWhxZ2xmOEsxdlJ0NFpUYkFhUHFObjBtYmlx?=
+ =?utf-8?B?eGxhMjJIenF1WUt6T0VOcWJZRlBiQWl4a1JhbEhGZHNSdXR6YTV5ak9Xa0xr?=
+ =?utf-8?B?NWVycmIxRWM5NjRScE9KUWFYek1GYW1yQlB3c3RvdlpkS0xWaFNGMDAyU293?=
+ =?utf-8?B?dWFjYXNXWGRFb3YrQnVWeGV1OEY2cTJXV2VjMWkwNGZIS05lUnRWZ1pBdlI1?=
+ =?utf-8?B?aVNtOEpzV3B3UEFocjZqNkdaZGp5MnU3bStRNk9KUnNpeFMxTmloNTV0azg5?=
+ =?utf-8?B?ZjVKVitnSzk0ZkVsOTFCRW5CRzZlNGthRXRIZlhXWGpFeGx0bmhDRUtzUUtB?=
+ =?utf-8?B?NWVuUTZSU2FqNndobzdmM0JTZE51a3RidmFiUDdPT3dKdzBZNVAwNkNGRU9F?=
+ =?utf-8?B?dUxxWk9ULzYyWWQyZnRTMU85dXNLOVlpVGkvSlJyZG56THpRaFJ0dmhtaWQ2?=
+ =?utf-8?B?ck1mM2ljSGxpOEdZZGZsb3VTK1ppdGNwTDIwUlB4SWxSbmtYM3BjWGRjNk4z?=
+ =?utf-8?B?Y0tlWGdyakl2U3g4Z2pNODc4eWVmaGl1VTczK2RLWm5oN2tUNGY5WjZNajRT?=
+ =?utf-8?B?czhVaUlxU1M2UCtUenppY2N4RG00ajJsQm5LMGxOM0ZHaUxiSFFSMVN6ZFht?=
+ =?utf-8?B?RjhtRHdWYjczWFJySFVuVlp5TFJPK3FKc0x1ZW1QSCtNSjRRODhmbVk4dDF3?=
+ =?utf-8?B?ejExc1RQdjg3eXBSTDZESVlQWDBnYmNERjc1WFhMWFJITkgyUXNqT3ZBWEsr?=
+ =?utf-8?B?QTMraEl0dEl5RXhiMFp6aGxVY05qd0dPZjdWMzhVVUFwVGZRM045YmlwWFZi?=
+ =?utf-8?B?OUZyaE04ZlpGYlUxVnl0NDYyTi9JekJpekZzVVFlUmJ5YTI0SW9weUpVUnVI?=
+ =?utf-8?B?ZHVyNTdIOEhjOHZGaTIwajN1T0JESUFFNXQ1SlhqRlBtbXlvYmkzM0J0ZjBi?=
+ =?utf-8?B?eEJoZm9sRlhyc0E4cWl0SGZ1NE9tVTVydSs4WHVVNzhIODBOSmdnc1dNNUhV?=
+ =?utf-8?B?U3dxTXg1aTZuUUVoNDhWVmhOL1dPSVlscVJudmgxaUxyVFB3UWRPRjRRbFBt?=
+ =?utf-8?B?VHhyb25NRWFJL0V5YnBubDF1dGRKUmYwNHVKK0JwbXdubWJtTGJoblhjTmtk?=
+ =?utf-8?Q?8QRpOLdl0okPy?=
+X-OriginatorOrg: criteo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 185566d7-6d6a-401e-585c-08d972eba64d
+X-MS-Exchange-CrossTenant-AuthSource: AM9PR04MB8340.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Sep 2021 17:11:08.3907
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 2a35d8fd-574d-48e3-927c-8c398e225a01
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: FxyoGWSE7c5bpYslfybmSCQHfMFONcr6OYZ+a3JewSz93jgIVHLXKBF9NEROJSnW2MGKgbShzHe55uENr9iKAw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM8PR04MB7986
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 9/8/21 10:12 AM, Hans-Peter Lehmann wrote:
-> Hi Jens,
-> 
-> thank you for your reply. Given that you have read the thread after the first reply, I think some of the questions of your first email are no longer relevant. I still answered them at the bottom for completeness, but I will answer the more interesting ones first.
-> 
->> I turn off iostats and merging for the device.
-> 
-> 
-> 
-> Doing this helped quite a bit. The 512b reads went from 715K to 800K. The 4096b reads went from 570K to 630K.
-> 
->> Note that you'll need to configure NVMe
->   to properly use polling. I use 32 poll queues, number isn't really
->   that important for single core testing, as long as there's enough to
->   have a poll queue local to CPU being tested on.
-> 
-> My SSD was configured to use 128/0/0 default/read/poll queues. I added
-> "nvme.poll_queues=32" to GRUB and rebooted, which changed it to
-> 96/0/32. I now get 1.0M IOPS (512b blocks) and 790K IOPS (4096b
-> blocks) using a single core. Thank you very much, this probably was
-> the main bottleneck. Launching the benchmark two times with 512b
-> blocks, I get 1.4M IOPS total.
 
-Sounds like IRQs are expensive on your box, it does vary quite a bit
-between systems.
+Le 08/09/2021 à 14:33, Jens Axboe a écrit :
+> [..]
+>> Same on a 5.10.35.
+>>
+>> Jens, did we missed something here ?
+> Read through the actual thread. It seriously sounds like the system is
+> hitting bandwidth limits, which is very odd. 580K is not very much. Just
+> curious, does it change anything if you use 512b blocks instead?
+>
+That's clearly way better !
 
-What's the advertised peak random read performance of the devices you
-are using?
 
-> Starting single-threaded t/io_uring with two SSDs still achieves "only" 1.0M IOPS, independently of the block size. In your benchmarks from 2019 [0] when Linux 5.4 (which I am using) was current, you achieved 1.6M IOPS (4096b blocks) using a single core. I get the full 1.6M IOPS for saturating both SSDs (4096b blocks) only when running t/io_uring with two threads. This makes me think that there is still another configuration option that I am missing. Most time is spent in the kernel.
-> 
-> # time taskset -c 48 t/io_uring -b512 -d128 -c32 -s32 -p1 -F1 -B1 /dev/nvme0n1 /dev/nvme1n1
-> i 8, argc 10
-> Added file /dev/nvme0n1 (submitter 0)
-> Added file /dev/nvme1n1 (submitter 0)
-> sq_ring ptr = 0x0x7f78fb740000
-> sqes ptr    = 0x0x7f78fb73e000
-> cq_ring ptr = 0x0x7f78fb73c000
-> polled=1, fixedbufs=1, register_files=1, buffered=0 QD=128, sq_ring=128, cq_ring=256
-> submitter=2336
-> IOPS=1014252, IOS/call=31/31, inflight=102 (38, 64)
-> IOPS=1017984, IOS/call=31/31, inflight=123 (64, 59)
-> IOPS=1018220, IOS/call=31/31, inflight=102 (38, 64)
-> [...]
-> real    0m7.898s
-> user    0m0.144s
-> sys     0m7.661s
-> 
-> I attached a perf output to the email. It was generated using the same parameters as above (getting 1.0M IOPS).
+With default kernel config :
 
-Looking at the perf trace, it looks pretty apparent:
+1 device : 512b : 674K
 
-     7.54%  io_uring  [kernel.kallsyms]  [k] read_tsc                           
+1 device: 512b + nomerge + nostats : 745K
 
-which means you're spending ~8% of the time of the worload just reading
-time stamps. As is often the case once you get near core limits,
-realistically that'll cut more than 8% of your perf. Did you turn off
-iostats? If so, then there's a few things in the kernel config that can
-cause this. One is BLK_CGROUP_IOCOST, is that enabled? Might be more if
-you're still on that old kernel.
+1 device: 512b + nomerge + nostats + nopoll : 770K
 
-Would be handy to have -g enabled for your perf record and report, since
-that would show us exactly who's calling the expensive bits. The next
-one is memset(), which also looks suspect. But may be related to:
+2 devices, 2 thread + nopoll : taskset -c 0,1 t/io_uring -b512 -d128 
+-c32 -s32 -p0 -F1 -B1 -n2 /dev/nvme2n1 /dev/nvme3n1 : 1.57M
 
-https://git.kernel.dk/cgit/linux-block/commit/block/bio.c?id=da521626ac620d8719d674a48b8ec3620eefd42a
 
--- 
-Jens Axboe
+Enabling 32 poll queues:
+
+1 device: 512b: 884K
+
+1 device: 512b + nostats : 915K
+
+1 device: 512b + nomerge + nostats + nopoll : 715K
+
+2 devices, 2 thread nostats : taskset -c 0,1 t/io_uring -b512 -d128 -c32 
+-s32 -p1 -F1 -B1 -n2 /dev/nvme2n1 /dev/nvme3n1 : 1.84M
+
+3 devices, 2 threads nostats : 2.2M
+
+3 devices, 3 threads nostats : 2.8M
+
+4 devices, 3 threads nostats 3.1M
+
+4 devices, 4 threads nostats: 3.8M
+
+
+Thanks for the insights !
+
+Erwan,
+
 
