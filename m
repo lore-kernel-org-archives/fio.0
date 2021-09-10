@@ -2,153 +2,144 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8734C433EF
-	for <fio@archiver.kernel.org>; Fri, 10 Sep 2021 11:46:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 817F5C433F5
+	for <fio@archiver.kernel.org>; Fri, 10 Sep 2021 18:38:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 963C060041
-	for <fio@archiver.kernel.org>; Fri, 10 Sep 2021 11:46:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 45A2F60F5D
+	for <fio@archiver.kernel.org>; Fri, 10 Sep 2021 18:38:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232727AbhIJLrM (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 10 Sep 2021 07:47:12 -0400
-Received: from mail-vi1eur05on2129.outbound.protection.outlook.com ([40.107.21.129]:28032
-        "EHLO EUR05-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S232613AbhIJLrL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 10 Sep 2021 07:47:11 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=R02ZPYZ9zEr8bEzYr3WEIUt/9LJs8eNSXuYYsuW7BDtJsdWoW6AgbRYhSv0mdMO2W7CWBYpd6cCcBBn78yjg70BewbmFNJhwJaU43+AtJg/sbvsbPztPBjvUiuTr+EKgVIZ3IT84VzadxyC4dhTJdELEkGvxR5gAHKOtPVEUGSQClsZba76aZPq0N+z/UVAfY+Rd0Ak6qspBes6/r96b/obEGB4b/dnEOFMOPmZsQtLibdGcSHxP4hVizY6cgBfrf7/Y5UkkmJC1bjJivUbomjswPnYE3L6PpNHG3n2VsTuhyjjMUxWu2zGNZog7lAUC4IOmpp80UC2XdifrwTfUvQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901; h=From:Date:Subject:Message-ID:Content-Type:MIME-Version;
- bh=qC0RXqHAizV64OFqz4CkLQ5waMq2MPK6glsbs0/sdZ8=;
- b=P3xcZ+BOXeN1BOOtb+jyh3UNuRDRCfYuhU/r2vIgQ5s3LIC8lmiyWUfNnqbSoEIRfcH0KKRjc/4L1F5HAw5YbhQmCjJckNY6jvURXUwqpUafG6DoTIsK4tJSRadZwuXTASnTGo8fWq/X/a06CUNh+azngTEQipxd27qWoQ4YxdorOYEtyozC/Tu+cRxW3hETQMQjraTDo0J+/JIezW0Dm0+DLQzB4FWuGfI8M21mU/HW6mKeSGiIqILj6YfaURHGf+lt3iQ+ZLWSzydamR6MneRyz8F7QN0JM73G3u8VfohSDwAfAvxyOeqSGsTGIyvFHdwSyDu6LJGQpc729kfwcw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=criteo.com; dmarc=pass action=none header.from=criteo.com;
- dkim=pass header.d=criteo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=criteo.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qC0RXqHAizV64OFqz4CkLQ5waMq2MPK6glsbs0/sdZ8=;
- b=lyfTeCfy/Poqa89qgk+7iug21XScIvt8VMkHRAm/rQr+vH2kN8ZDHQ+TkLFzgeRanjtaKzE+7s2xbo/U3cgQy2aFxRk9i35rC7ZNcei36kWyYYJD6nF1+gVOV0vuseYJlu3VWpCRaymRJOenhxn70zC8K6dhAIPadxdSPcTY8rk=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=criteo.com;
-Received: from AM9PR04MB8340.eurprd04.prod.outlook.com (2603:10a6:20b:3e0::23)
- by AM0PR0402MB3313.eurprd04.prod.outlook.com (2603:10a6:208:1c::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14; Fri, 10 Sep
- 2021 11:45:59 +0000
-Received: from AM9PR04MB8340.eurprd04.prod.outlook.com
- ([fe80::8496:1aec:598a:3ed1]) by AM9PR04MB8340.eurprd04.prod.outlook.com
- ([fe80::8496:1aec:598a:3ed1%8]) with mapi id 15.20.4500.017; Fri, 10 Sep 2021
- 11:45:59 +0000
-Subject: Re: Question: t/io_uring performance
-To:     Hans-Peter Lehmann <hans-peter.lehmann@kit.edu>, axboe@kernel.dk,
-        fio@vger.kernel.org
-References: <9025606c-8579-bf81-47ea-351fc7ec81c3@kit.edu>
- <867506cc-642e-1047-08c6-aae60e7294c5@criteo.com>
- <5b58a227-c376-1f3e-7a10-1aa5483bdc0d@kit.edu>
- <d7ed795e-78e7-2146-d6ad-06fe81451684@criteo.com>
- <1b1c961d-ddba-18de-e0ff-fd8cf60f5da8@kit.edu>
- <74c59a8b-9475-6554-7d93-f9c5f26cc652@criteo.com>
- <2df22c68-6040-298e-4512-752cd10b7201@kit.edu>
- <5015f1e3-eaeb-ef9e-e530-83c21db5aeb7@criteo.com>
- <e41a49a8-f5ea-9f50-0327-dd2af9487153@criteo.com>
- <77b67cc0-30c1-70a8-438b-f1bcf1fdb295@kit.edu>
- <CALjAwxgM65_vfrBkvGksoyO6vgR1dx4aPtGJSqRhm-gieHKgyA@mail.gmail.com>
- <bfddf649-aaf4-b01f-f26b-513fb4e236b2@kernel.dk>
- <8d6acc34-5078-c023-fcc8-cb34b63e5112@kernel.dk>
- <1cf066bb-aa71-1403-c80c-454ea87a9502@kit.edu>
- <4ce4addd-a7c7-f35f-ef3b-b0bf9966e224@kernel.dk>
- <47a5597f-4b7a-fcfc-b57d-2b46c86c0817@kit.edu>
- <5668f23f-49b3-1c37-1029-dabe996f7bd0@kernel.dk>
- <812cac88-dd29-852f-2370-4121376ac64e@kit.edu>
-From:   Erwan Velu <e.velu@criteo.com>
-Message-ID: <85cdd7d0-aeb1-f726-7bd6-006f2b81fee9@criteo.com>
-Date:   Fri, 10 Sep 2021 13:45:57 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
-In-Reply-To: <812cac88-dd29-852f-2370-4121376ac64e@kit.edu>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-ClientProxiedBy: PR3P193CA0004.EURP193.PROD.OUTLOOK.COM
- (2603:10a6:102:50::9) To AM9PR04MB8340.eurprd04.prod.outlook.com
- (2603:10a6:20b:3e0::23)
+        id S229523AbhIJSj4 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 10 Sep 2021 14:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57318 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229476AbhIJSj4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 10 Sep 2021 14:39:56 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E619EC061574
+        for <fio@vger.kernel.org>; Fri, 10 Sep 2021 11:38:44 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id h20so2077080ilj.13
+        for <fio@vger.kernel.org>; Fri, 10 Sep 2021 11:38:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=y90mzGgQTDYYABFGZGZKlaHJ8D1XL75xLd/G087QGuM=;
+        b=2NqDa7wM8voKm2QfYyDOAnNJY7MDv1r8pQs2HISvglUfSmPdMIVV9VLKQuajH1wboJ
+         SapGbO8F5kKwxmD7+aiBPFGToIQl7mwbS2BIekQILHKU7PIbl8BbjLS/kVPs0FY6LwDL
+         H9J/G77k5vZxBvo6spSo/NczKiKXUKYzeCGLVUNGEqv7moHRe4ZCjSl4XHVlKE6hWi+/
+         6UmEw/3G26lkANTn5DySYe/uhjJDqBGBmNZ100dvW/tWCHt2KUZB+bU6EcA3W5Cegjph
+         MXXiYnOQN1KVN6Wu/xMWDqmeSP10e2zQB0n5GC7hDbtj9yjJ8TW1LKdY5mLoRsb3D/2y
+         Pc6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=y90mzGgQTDYYABFGZGZKlaHJ8D1XL75xLd/G087QGuM=;
+        b=wWV5mXOQ8OhzlnWOecO2KdRJ5mS/H+7sM+CMXuv0F9K19YBQHP8SE6+ES/X/OpeHKM
+         LlwJIZ2REZVv6G+4N+1x5kz4vuHV00tzx6+P3WYjAbgYMX3xUxUNZHQuSqYLOc20BpPQ
+         m5YFGNESmvIv7BQSIia5O5F7QnDRyieA92rONaoZf+e8rfx1EP4KU5znOjUDo2R4p0v+
+         Wnp/VlrKIz8rJ7S4qHJMHAoYS0etxVKrzfMWTq4f07eAhX43bkY0/NWSxKXoE8Eg56My
+         bzMW+2adcRsxo4K8xxibD2MHBuk2Wd1o/NomUMfj6pEbcV35KBa3IhONEMo9oWoiROnP
+         9f0w==
+X-Gm-Message-State: AOAM5315HCBVI/DD4Kr6Thdc8KJWrGd30j3gAEAoclpmc2IwoE31yh2S
+        osGvaqRSd1RuupVwHNmAnD/11idIKYuRMqzyXtI=
+X-Google-Smtp-Source: ABdhPJz8aTH7jVotyoBiqxEe6Fvri1tG3kLhiCP6UfzuLgjhErTqozuCOcG+4Isb1Z/GFOzUOIWVAw==
+X-Received: by 2002:a92:b711:: with SMTP id k17mr7398514ili.247.1631299123996;
+        Fri, 10 Sep 2021 11:38:43 -0700 (PDT)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id f3sm2719998ilu.85.2021.09.10.11.38.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 10 Sep 2021 11:38:43 -0700 (PDT)
+Subject: Re: Weird errors initializing I/O engines
+To:     Dmitry Antipov <dantipov@cloudlinux.com>, fio@vger.kernel.org
+References: <7c937a02-0349-7b17-2bcd-89cf32c0f371@cloudlinux.com>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <214f8c63-849a-a476-225f-531916239b92@kernel.dk>
+Date:   Fri, 10 Sep 2021 12:38:43 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [IPv6:2a01:cb00:de8:8800:60d9:3723:4a46:c8d0] (2a01:cb00:de8:8800:60d9:3723:4a46:c8d0) by PR3P193CA0004.EURP193.PROD.OUTLOOK.COM (2603:10a6:102:50::9) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4500.14 via Frontend Transport; Fri, 10 Sep 2021 11:45:58 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 01e885b2-6798-4e99-e94d-08d974508e9d
-X-MS-TrafficTypeDiagnostic: AM0PR0402MB3313:
-X-Microsoft-Antispam-PRVS: <AM0PR0402MB3313D83363AB01651C7B9DA2F2D69@AM0PR0402MB3313.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5236;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ME+Ms50rfuhfZjXINcRDYXFxgeN2n4bz4VqN0uJKUD1SAii+SFNL/unUPLmc9ucZOQ+L/048lJ19sVMydQC4ximERtaaF+FNNkHe73mL7Jl3lHt+9NQP8V8infZcJJIDS0JfahpaDR1ipusV/VQyIuOQv1rjIPAwfzJb+RCETE9nP3WgKTX2ABPrfpRPlk02Memp4Xfmqi1Q2uI8Wq5qYY6fY/OLRK0TKHLwhAMzo0BYn680gc7t3JNxGQHeSS5886JHqOo/2S+YzSdJMDZUe7bQXTllOmp0VqAH8JvBOPJAhJCuikEp727tDKV4R+WcJ8fnkgR3H3vHYZv/gHkdRUHJOAstNEEhzbLyqrtwXOo0Mm+29n+lNIOPg3h4BkmwaPDBlPTuvf7jIGAG2dKbCXjt9NBH9CwnH87/xiLFWJveXS8J9pa1KFDY6u+ickQGHGA0WxV4WnBYpxlwixwIVI3b92a8jw6dvkYOKFMZO2I9k4Z/wmK115NQDBIny3yf9iqRGiwoGX7za6pAOpx2iCnmcr4OfezID2KNsYDrQxRy7+3JpbPWIf0LvZ6fdvTa98mXullIuGWkbC7OhAvDBAZCQXlcuYQhwsSatOYyk/NxGB6cm38rpC26g3wOh/GHDEpZE2G35zEAfiZwZJoCX7FRBXflfc5xs7Vk+zWciGoYNCtZvsujGOvMAcrMQdMEe1sEoxRn0MmihwX+J0WDIay6Iiony3SBgSUKNlrYdyHxkTc7vV0f1CXhtljM4PHmNQIK6nZlX67W7kqEteiHxrHlWr9pUfd+2juI2jX7JunnaaItkYVeNLLLCsRC4C7B
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR04MB8340.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(346002)(366004)(396003)(39860400002)(376002)(136003)(52116002)(36756003)(2616005)(6486002)(66476007)(8676002)(31686004)(4744005)(966005)(8936002)(86362001)(66556008)(478600001)(2906002)(316002)(66946007)(38100700002)(5660300002)(31696002)(186003)(45980500001)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?RGxpNGI0S1F0alEzdWcydG5JRUQzRzd1L250RG1oMFRHdGt2RVlnWTA2ckVZ?=
- =?utf-8?B?alEwbHZvVDJkeW9MQ0lPaEQraytsdnhwd2J5cExEc0VFNnJxdUJKNUltRlRH?=
- =?utf-8?B?VVk1b2xXUzJ4L1ZHZzZ4ZVJJWW9uN1VmZkVqT3J6YkpyeHkxQXlKVlQzZGhn?=
- =?utf-8?B?bS9MTTJBRkRBdzFRYURzWXJjOVdGdXJaVGVLR3lzNklSYlUwNWt0STZ3TFFj?=
- =?utf-8?B?aUVBWlYxOG5vY2hXRVpVc29EalVJcGpzbC9Mc2V0di9HYzBOVk5admRRc3la?=
- =?utf-8?B?Z2xWVUFwUU83bTBMbCtFdGFWb09jbWRYNkNqdmJPNFk0UGgxczF0dTQ3TVg4?=
- =?utf-8?B?MzRrbERJeWUzZHRaTUdCTW5pS2o5ZU53K3d1ZFBoWHlpRDczNk5GQ3RtblE0?=
- =?utf-8?B?N2RoMEIvcWN2VlRJZnJ3eU1zUmRHVFIrZ01ad20weGFPK25MNXJFTi9Ybjll?=
- =?utf-8?B?SElqbDh0YlYvM1R3bWdqTUVLR21YSEdHWWJtNFF4MkRBUDM0V1pQcFR1WTZD?=
- =?utf-8?B?Zk5jaEh5cUJ4OFozYWEyQmoxUHBvYUpuYldCcVNpajF5V3c0eG14WXFRckhI?=
- =?utf-8?B?Zm4rMUhRVXVOeTBrUGM0aU1KcHFqYUtTeDZrMmhNanJEUUVsOGZOTld1dVNU?=
- =?utf-8?B?b3RIVU9zeDNOeG02aUNOaC9iWG0zK1I2R2xkREFWdmFmdWthNk1xK1E3dU9L?=
- =?utf-8?B?bi84N0hvRnZjUVlmQVlpQTRFWDJiNW9CeUFkQUxkelZBRXcrcklrWmZ3Wnk1?=
- =?utf-8?B?TndDdlZPSkt1VTd3OW9pVDFvVUU2OWluOW91eEF5NkIrVi93YXZqdmlxN0VD?=
- =?utf-8?B?WklSckx0Rkg1d0xqZHpwaGdBOGU4aFJCUmpiellsV0lsSGVlTDc5anQ2SlBw?=
- =?utf-8?B?Q0RFYTVuc2tDQkMxMWlVME1CWWhWYW9pV2FjMWU1WTh3UVo5anFGK0JMalRt?=
- =?utf-8?B?clV0VGJXK1pzZlpLSUZrUm0weHFBRHQ4YWR6VzR6ekZ1UG5NRWVkQmtYY2xW?=
- =?utf-8?B?SHFYaUtwSlh2RVJVTXZrZERHOTRaSWxhTWZ1TGJPTGZkMDNrT3lUaEdTbGNn?=
- =?utf-8?B?akJIL1JhUU5UQk1YUHBTaGtHTGVxcFRpUmpnOFVUNTl2SDAxY2pPL2J6NGY1?=
- =?utf-8?B?akJKbDErb28zTmhiKytYRFd1c1o2MUVnTkNwWnVpYms4R3hQOHpMSm9QYklv?=
- =?utf-8?B?QkZzaE1mNW16eW5vM1JOTXd3RG5UQWNOMHgxeUhzcTJ6ay90WldvbjY4cU1v?=
- =?utf-8?B?eDUvbTAwUDhhaXZlbk5CYXBUb2pSc2lKaTdZTDlKcUJmc3RmRWJ3UStFaFVo?=
- =?utf-8?B?WGhLQXNMRE9sOFhMejNCMy9SZVhJaXYxOEhRZFdGalJHYnU2MTArTmFBQjB5?=
- =?utf-8?B?ZjhCNW1VM3grTC9UM3ZQS01Xb08vNDRVNW9TY2ZmN0MyL2s2cXRuaHhnVHUv?=
- =?utf-8?B?UWtXK2g4QkZwOFlsZThaaXZpYm9JY2FScUtmV1FFMnp5eXRDQWRGc2RDS2kw?=
- =?utf-8?B?TTJLc3FrSHNLSTRuWkhmNlEyVDdiWVFzTGpSZkdZUStSTVhzT0wwd0J0N3Z1?=
- =?utf-8?B?dXVxNDV5MkhUK081OFk4b0EvNElFUE9weGdQcmk1Rzd3aDVCRUJxaVdnWm1N?=
- =?utf-8?B?Wm8xQ0VJZ1dsbm11VzE3eGd3R3NPdE95SFVoOHFkVURwRkhPaE41SW03dlRB?=
- =?utf-8?B?WGpPTkpOV0pyOENqeURVSXIzWERMd2w4LzNVcDlvLzVnYXpXcFdvcUpUWHpr?=
- =?utf-8?B?WHhEcnpqeVBWQW96TW5zSTJQMmVNMk55L3VnY0wwRmxQZk1TKzFZWXVmb3lF?=
- =?utf-8?B?RVJYaVI0eS92ZnFocW8wbzFzWGdpVFU5Rk91WGFORlJGRCs4TEdqcmZDTVpU?=
- =?utf-8?Q?1k47zIja0fZwp?=
-X-OriginatorOrg: criteo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 01e885b2-6798-4e99-e94d-08d974508e9d
-X-MS-Exchange-CrossTenant-AuthSource: AM9PR04MB8340.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Sep 2021 11:45:58.9899
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 2a35d8fd-574d-48e3-927c-8c398e225a01
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: IIctac9OfmQlAkLher0Uux9zxfO23DYgzal+5f10O3evPdCIxo6Fc53Tw8o4u1cIjKBQM0q9n0UKKGrOHO25aQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR0402MB3313
+In-Reply-To: <7c937a02-0349-7b17-2bcd-89cf32c0f371@cloudlinux.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
+On 9/9/21 4:11 AM, Dmitry Antipov wrote:
+> As of git head at 25425cb4a5531b1b3f26eba4e49866d944e0f1fb, I'm observing
+> weird errors initializing all simple I/O engines except 'vsync'. Example:
+> 
+> $ ./fio --ioengine=sync --create_on_open=1 --time_based --runtime=10 --numjobs=1 --rw=read --bs=1k --size=1M --name=test-read-1k --filename=fio-1M
+> test-read-1k: (g=0): rw=read, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=sync, iodepth=1
+> fio-3.28-11-g2542-dirty
+> Starting 1 process
+> fio: pid=13034, err=5/file:backend.c:479, func=full resid, error=Input/output error
+> 
+> test-read-1k: (groupid=0, jobs=1): err= 5 (file:backend.c:479, func=full resid, error=Input/output error): pid=13034: Thu Sep  9 13:04:51 2021
+>    cpu          : usr=0.00%, sys=0.00%, ctx=0, majf=0, minf=16
+>    IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>       submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>       complete  : 0=50.0%, 4=50.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>       issued rwts: total=1,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+>       latency   : target=0, window=0, percentile=100.00%, depth=1
+> 
+> Run status group 0 (all jobs):
+> 
+> Disk stats (read/write):
+>    sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
+> 
+> The same thing happens with 'psync', 'pvsync' and 'pvsync2', but 'vsync' seems to work:
+> 
+> $ ./fio --ioengine=vsync --create_on_open=1 --time_based --runtime=10 --numjobs=1 --rw=read --bs=1k --size=1M --name=test-read-1k --filename=fio-1M
+> test-read-1k: (g=0): rw=read, bs=(R) 1024B-1024B, (W) 1024B-1024B, (T) 1024B-1024B, ioengine=vsync, iodepth=1
+> fio-3.28-11-g2542-dirty
+> Starting 1 process
+> Jobs: 1 (f=1): [R(1)][100.0%][r=627MiB/s][r=642k IOPS][eta 00m:00s]
+> test-read-1k: (groupid=0, jobs=1): err= 0: pid=13105: Thu Sep  9 13:06:54 2021
+>    read: IOPS=627k, BW=612MiB/s (642MB/s)(6122MiB/10001msec)
+>      clat (nsec): min=423, max=67325, avg=821.73, stdev=1436.87
+>       lat (nsec): min=477, max=67448, avg=896.28, stdev=1492.29
+>      clat percentiles (nsec):
+>       |  1.00th=[  434],  5.00th=[  442], 10.00th=[  450], 20.00th=[  458],
+>       | 30.00th=[  466], 40.00th=[  474], 50.00th=[  490], 60.00th=[  516],
+>       | 70.00th=[  740], 80.00th=[ 1096], 90.00th=[ 1240], 95.00th=[ 1656],
+>       | 99.00th=[ 3184], 99.50th=[13888], 99.90th=[21632], 99.95th=[23936],
+>       | 99.99th=[29824]
+>     bw (  KiB/s): min=408604, max=650082, per=99.91%, avg=626337.05, stdev=53380.19, samples=19
+>     iops        : min=408604, max=650082, avg=626337.47, stdev=53380.34, samples=19
+>    lat (nsec)   : 500=55.10%, 750=15.20%, 1000=5.43%
+>    lat (usec)   : 2=21.09%, 4=2.40%, 10=0.24%, 20=0.39%, 50=0.14%
+>    lat (usec)   : 100=0.01%
+>    cpu          : usr=60.91%, sys=38.47%, ctx=43, majf=0, minf=13
+>    IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+>       submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>       complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+>       issued rwts: total=6269388,0,0,0 short=0,0,0,0 dropped=0,0,0,0
+>       latency   : target=0, window=0, percentile=100.00%, depth=1
+> 
+> Run status group 0 (all jobs):
+>     READ: bw=612MiB/s (642MB/s), 612MiB/s-612MiB/s (642MB/s-642MB/s), io=6122MiB (6420MB), run=10001-10001msec
+> 
+> Disk stats (read/write):
+>    sda: ios=0/64, merge=0/29, ticks=0/149, in_queue=156, util=0.19%
+> 
+> BTW, should 'fio-1M' file be empty after running the workload?
+> 
+> I'm running Fedora 34, recently updated to kernel version 5.13.14, and
+> seems has no issues with underlying filesystem where FIO is running.
 
-Le 10/09/2021 à 13:25, Hans-Peter Lehmann a écrit :
->> it's definitely more expensive to drive two drives vs one for these 
->> kinds of tests. [...] it does show extra overhead for polling 2 
->> drives vs just one.
->
-> Oh, right. Sorry. Thanks a lot for the interesting measurements. Also, 
-> I somehow missed that you already are at 3.5M IOPS. Crazy.
->
-Spoiler, it went up to 6M/core with 3 Optane ...
+Looks like an artifact of using create_on_open and depends on if the
+engine uses lseek() to set the offset. I'll take a look in a bit,
+for now I'd just recommend not using create_on_open.
 
-https://twitter.com/axboe/status/1435741761897254916
+-- 
+Jens Axboe
 
