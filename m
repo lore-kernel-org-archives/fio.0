@@ -2,89 +2,159 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE956C433EF
-	for <fio@archiver.kernel.org>; Mon, 13 Sep 2021 07:50:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46EC7C4332F
+	for <fio@archiver.kernel.org>; Tue, 14 Sep 2021 12:00:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D42DE60F6F
-	for <fio@archiver.kernel.org>; Mon, 13 Sep 2021 07:50:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27898610A2
+	for <fio@archiver.kernel.org>; Tue, 14 Sep 2021 12:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237760AbhIMHvs (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 13 Sep 2021 03:51:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38380 "EHLO
+        id S232493AbhINMBZ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 14 Sep 2021 08:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237739AbhIMHvs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 13 Sep 2021 03:51:48 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2C7AC061760
-        for <fio@vger.kernel.org>; Mon, 13 Sep 2021 00:50:31 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id bq5so19156528lfb.9
-        for <fio@vger.kernel.org>; Mon, 13 Sep 2021 00:50:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudlinux.com; s=google;
-        h=to:references:from:subject:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=24KekrCQlT+qsPs0yDK1Js++SnHhy5LhMNvWGCB9erk=;
-        b=G189CGAxerYFqPQCKVYEklhY6adZyQqrKFWrlpXoITxfomJQWQAuAvwubOc2v4mmo4
-         Tu+E+uy7GXevEDMeXKA3DMnQ+GOPOZRdueyMsfTQYdWJbBIN6KAIz0r9SSF2TYysxUMs
-         oAh8BcXecBzoUqn8YOQ9iI9Drs6IzxDy4l7caRlvRIEhTTjwjCYuNIcnWOm8esqEaicr
-         pfLopdllYMLtoo8uwbXLkoPBDEpMq3OprZh2h7OuMaq8a7Ivf95pitrnyOeGQrpyLWe/
-         8avgY8ksQhT8vUpBDEU5Z1sciDEWoIl0XDGumxUyWD5Vyv+iJb5YQimGt39++nIbwKVd
-         IAJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:to:references:from:subject:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=24KekrCQlT+qsPs0yDK1Js++SnHhy5LhMNvWGCB9erk=;
-        b=C7CMLR/jCT1rDGbmfQIB9a7dTOQrdStVTXM5Fmu2R0HJSZGIDSTa3acsXUIdLQ+DyA
-         9nrOneeTg9Rz1CQtDj4XNodBPafOBFt7nooxi7LprahHvV/cmqScqDtu1/47cuek+Xoc
-         8G9GgHIOJFIT45vWCyUxXacxhDCvtSMcd/N49x3ba0NAC20L8MMuWTIgsjWquhKjpiuy
-         l3hCblcM/0oEPaMLxKfXFZyj4RK/yxEd882bctYBE17BiTIksbbyhtdRXXqS1nDz5CNs
-         2fXrKhIrjL2S96kcmPry9HCwHe5KCwZWkFbYmbXBn19pE+E/X3k6dtKKhW5qw1jlwWAC
-         jI+A==
-X-Gm-Message-State: AOAM532L1zQyjUojs7nWbgtl82GkUUkwPokYtor7u3/mvw9S6H1nGNg6
-        Tq4EZFHFCYKj9QQokOrmtPx4fpCJ/wBbKQ==
-X-Google-Smtp-Source: ABdhPJze6i+cYIOadoMBVM/JjiCcX1F5AUz5dF9e0sF29OWAfvOsXT/KH6sOZx2HemK907WBK7/Ftg==
-X-Received: by 2002:ac2:4f8f:: with SMTP id z15mr8172336lfs.361.1631519430108;
-        Mon, 13 Sep 2021 00:50:30 -0700 (PDT)
-Received: from localhost.localdomain ([37.139.80.10])
-        by smtp.gmail.com with ESMTPSA id br13sm744754lfb.71.2021.09.13.00.50.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 13 Sep 2021 00:50:29 -0700 (PDT)
-To:     Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-References: <7c937a02-0349-7b17-2bcd-89cf32c0f371@cloudlinux.com>
- <214f8c63-849a-a476-225f-531916239b92@kernel.dk>
-From:   Dmitry Antipov <dantipov@cloudlinux.com>
-Subject: Re: Weird errors initializing I/O engines
-Message-ID: <bcf0a2b5-7ab9-46a5-400d-e7cbae8f64a8@cloudlinux.com>
-Date:   Mon, 13 Sep 2021 10:50:28 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <214f8c63-849a-a476-225f-531916239b92@kernel.dk>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S232486AbhINMBZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 14 Sep 2021 08:01:25 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FAD3C061574
+        for <fio@vger.kernel.org>; Tue, 14 Sep 2021 05:00:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=qRhghhCc+eqtbtSFhBuBgNPflNNSRr6aXoJe9daFKus=; b=X7/yUqtjkLPB/WMH/9d/Xxw2rN
+        99II3fziUKbUJwYDObXPgmeXddEs6mthTORkAWD/wzvCI6UxLI90EkaQOrl2qVd5Ech+iyrF0pFR7
+        0LqhC1gJXK6x4LdhZ9EFwISorEQtQaY2Bj1bOKpHR5oYkVg7eH6qLq5oii7sIC5fYROxuBcC9STyG
+        DlJtARqMQoeM6/CRAL3aJ3L2MGthXWeKKQ6iyoeKqeRvP1/pThc4ldlbyaByAeMUokVgJjaAEkiw6
+        4+hKCtnan666v6aT35vk6drp4slwGZAU0cqQR1owhEWaUUi1rTtASIAHIKc5GrzGbz78+Geq1FFL3
+        qv/IFx4w==;
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mQ76c-0038Fo-7z
+        for fio@vger.kernel.org; Tue, 14 Sep 2021 12:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 4C5241BC0168; Tue, 14 Sep 2021 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20210914120002.4C5241BC0168@kernel.dk>
+Date:   Tue, 14 Sep 2021 06:00:02 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 9/10/21 9:38 PM, Jens Axboe wrote:
+The following changes since commit 25425cb4a5531b1b3f26eba4e49866d944e0f1fb:
 
-> Looks like an artifact of using create_on_open and depends on if the
-> engine uses lseek() to set the offset. I'll take a look in a bit,
-> for now I'd just recommend not using create_on_open.
+  Merge branch 'ft' of https://github.com/ErwanAliasr1/fio (2021-09-08 15:40:47 -0600)
 
-Yes, dropping '--create_on_open=3D1' makes this works as expected. IMO a =
-bit
-of extra confusion was added by reporting 'error=3DInput/output error' be=
-cause
--EIO is expected from a failed system call.
+are available in the Git repository at:
 
-Dmitry
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to d5c3be105af97c71bc2095ffd19343e4217abcd7:
+
+  zbd: remove dead zone retrieval call (2021-09-13 14:09:01 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      t/io_uring: don't require a file for do_nop runs
+      t/io_uring: add -N option for do_nop
+      zbd: remove dead zone retrieval call
+
+ t/io_uring.c | 38 +++++++++++++++++++++-----------------
+ zbd.c        |  1 -
+ 2 files changed, 21 insertions(+), 18 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/t/io_uring.c b/t/io_uring.c
+index c9ca3e9d..aed6fdbd 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -553,9 +553,10 @@ static void usage(char *argv, int status)
+ 		" -p <bool> : Polled IO, default %d\n"
+ 		" -B <bool> : Fixed buffers, default %d\n"
+ 		" -F <bool> : Register files, default %d\n"
+-		" -n <int>  : Number of threads, default %d\n",
++		" -n <int>  : Number of threads, default %d\n"
++		" -N <bool> : Perform just no-op requests, default %d\n",
+ 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
+-		fixedbufs, register_files, nthreads);
++		fixedbufs, register_files, nthreads, do_nop);
+ 	exit(status);
+ }
+ 
+@@ -568,12 +569,10 @@ int main(int argc, char *argv[])
+ 	char *fdepths;
+ 	void *ret;
+ 
+-	if (!do_nop && argc < 2) {
+-		printf("%s: filename [options]\n", argv[0]);
+-		return 1;
+-	}
++	if (!do_nop && argc < 2)
++		usage(argv[0], 1);
+ 
+-	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:h?")) != -1) {
++	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:h?")) != -1) {
+ 		switch (opt) {
+ 		case 'd':
+ 			depth = atoi(optarg);
+@@ -603,6 +602,9 @@ int main(int argc, char *argv[])
+ 				usage(argv[0], 1);
+ 			}
+ 			break;
++		case 'N':
++			do_nop = !!atoi(optarg);
++			break;
+ 		case 'h':
+ 		case '?':
+ 		default:
+@@ -626,16 +628,18 @@ int main(int argc, char *argv[])
+ 	j = 0;
+ 	i = optind;
+ 	nfiles = argc - i;
+-	if (!nfiles) {
+-		printf("No files specified\n");
+-		usage(argv[0], 1);
+-	}
+-	threads_per_f = nthreads / nfiles;
+-	/* make sure each thread gets assigned files */
+-	if (threads_per_f == 0) {
+-		threads_per_f = 1;
+-	} else {
+-		threads_rem = nthreads - threads_per_f * nfiles;
++	if (!do_nop) {
++		if (!nfiles) {
++			printf("No files specified\n");
++			usage(argv[0], 1);
++		}
++		threads_per_f = nthreads / nfiles;
++		/* make sure each thread gets assigned files */
++		if (threads_per_f == 0) {
++			threads_per_f = 1;
++		} else {
++			threads_rem = nthreads - threads_per_f * nfiles;
++		}
+ 	}
+ 	while (!do_nop && i < argc) {
+ 		int k, limit;
+diff --git a/zbd.c b/zbd.c
+index dd1abc58..64415d2b 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1857,7 +1857,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 				       f->file_name);
+ 				goto eof;
+ 			}
+-			zbd_zone_nr(f, zb);
+ 		}
+ 		/* Check whether the zone reset threshold has been exceeded */
+ 		if (td->o.zrf.u.f) {
