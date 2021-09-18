@@ -2,104 +2,139 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE2B6C433EF
-	for <fio@archiver.kernel.org>; Fri, 17 Sep 2021 12:01:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C0FAC433F5
+	for <fio@archiver.kernel.org>; Sat, 18 Sep 2021 22:46:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE8F3611C8
-	for <fio@archiver.kernel.org>; Fri, 17 Sep 2021 12:01:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC43F610A4
+	for <fio@archiver.kernel.org>; Sat, 18 Sep 2021 22:46:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242509AbhIQMCa (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 17 Sep 2021 08:02:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58240 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242369AbhIQMCa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 17 Sep 2021 08:02:30 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 835AFC061766
-        for <fio@vger.kernel.org>; Fri, 17 Sep 2021 05:01:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=FxnWn7tbIctVBQog0ptxHarXcYcZTwkDHj4pWEaiaOM=; b=QpkVawM3dDlkZkwEHqaQBGVE5Y
-        O64HODRkzTWmznoix0VvjXn2EyMsZURJaH78JSG1qZRKCz0LabkykwFzrVBbxZlbVuMuboXvIAYf5
-        VeCt2r4bS0TOA8iWNLAuAFO/U0y9lClVitX0yPr9tBTc64n2obOTKbRBmY/9Ks3VOK99MGk1/kiOP
-        A9wxSGpADgOldEkmZgItR63eNewDkJzEeTWX1eRbKRxL0KmxR8pxTnLQCPHQCCCiGgDIpfnW+9w89
-        zDOQ7Kmx4e/B5e/rcnSPubNkYpVJjYw3ouiHjgsf+4jyhao04m3Qk4jUsut7bjE0AOox5E/czGpYu
-        Ce7U/4pA==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mRCXH-000DEH-Do
-        for fio@vger.kernel.org; Fri, 17 Sep 2021 12:00:38 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 1A1EC1BC015C; Fri, 17 Sep 2021 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20210917120002.1A1EC1BC015C@kernel.dk>
-Date:   Fri, 17 Sep 2021 06:00:02 -0600 (MDT)
+        id S240409AbhIRWsO (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sat, 18 Sep 2021 18:48:14 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54109 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232125AbhIRWsO (ORCPT
+        <rfc822;fio@vger.kernel.org>); Sat, 18 Sep 2021 18:48:14 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 97F7A320047A
+        for <fio@vger.kernel.org>; Sat, 18 Sep 2021 18:46:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 18 Sep 2021 18:46:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=hJY1ka
+        lZ30hoDfQ73G/YqpTuHgRlklVEzpsGgs6hafE=; b=oBLzj8Z975WnDwD4vW3jn6
+        xwEsYgemtDz1DkdZ9/WD75WhCngQmg/XyNbgB1WOXBwbQMscGZsnroPkmeHKGh4d
+        Gui3kcDR7+rm7QRNoehiyBk8pewFUv7oJiCu0e0KbKnwwBTZyeRHHp0ajvKv3Ggt
+        PTGdQ7r6PppoOFvvlBceIQBCRyTS8SASGizQ4w2gFF//4OZ+h4gTAS8qBWS60Qgm
+        7Ql8sWGX5xdgIBa0pjy1BWc2EPm/kcOsR8R9os58dQGz7nv0o9DmoTG44d+0Eo4W
+        tWwL9YMqrb4IobE2nsYLHH0u2XWmyG0m17kuAf1mhMsrg6nRY2mjy8ffhYYBsJXg
+        ==
+X-ME-Sender: <xms:WWxGYa6GD8R3RpDeNcRhi_IOioDyjg97sPjUcPiVwTAdouQz2XPmkQ>
+    <xme:WWxGYT7I-sHh-ovqjsVI4TIkKnshlFmVhm9MGjsF-luo8t07s7xLOFcNCKq9K0MaK
+    NFqoUfI8JiyuGsQe1Y>
+X-ME-Received: <xmr:WWxGYZdONzzGBByH36n5h1ar4g7fbIbfoMcLN4JSlAqbiZvzP8E2EaKkt_hYzejAeioE8Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudehledgudefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefvhffukffffgggtgfgsehtkeertd
+    dtfeejnecuhfhrohhmpefkshgrfigrnhcuofhilhhlihgtrghnuceolhhinhhugiesihhs
+    rgifrghnrdhnvghtqeenucggtffrrghtthgvrhhnpedvffefveehgfetkedutdeikeehhf
+    fftedvhfekgeekteehleefleekfeeigfdvgeenucevlhhushhtvghrufhiiigvpedtnecu
+    rfgrrhgrmhepmhgrihhlfhhrohhmpehlihhnuhigsehishgrfigrnhdrnhgvth
+X-ME-Proxy: <xmx:WWxGYXKMP_7E5r41LHSNbWc0Do5dZIFRoqu1d1R1G7A9VfdIscZfdg>
+    <xmx:WWxGYeL8mOrp1QM0R69W8UHKIbtnjTWRSLykBmPp6yxyY6IZK2FuIQ>
+    <xmx:WWxGYYxUlfNsD5CqsOC5bx1kizXc_FC-khWWSgkGkJv_uEdb63afQw>
+    <xmx:WWxGYTXZHABm0zdGXEJO8yeO6lxzVZWKaEjVDQrh2MtwDYYEpgQ-SA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA for
+ <fio@vger.kernel.org>; Sat, 18 Sep 2021 18:46:48 -0400 (EDT)
+To:     fio@vger.kernel.org
+From:   Isawan Millican <linux@isawan.net>
+Subject: fadvise_hint behavior unclear from documentation
+Message-ID: <769eb00b-fa01-a9f1-4fcc-09f4f7bbce38@isawan.net>
+Date:   Sat, 18 Sep 2021 23:46:47 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 2686fc2279c0e1272a48657dc62c16059a672da9:
+Hi,
 
-  t/io_uring: add switch -O for O_DIRECT vs buffered (2021-09-15 06:51:01 -0600)
+I was using fio and noticed that the throughput was lower than expected for
+random reads to a small file; I would expect it to be entirely cached in
+memory. The issue seems to be because fadvise_hint=0 is not behaving as
+documented as POSIX_FADV_DONTNEED is being called.
+This might be the intended bahavior as the program is flushing the pages
+to purely test IO throughput
 
-are available in the Git repository at:
+If the current behaviour is intentional, is there an existing flag that 
+could
+provide the desired functionality? Essentially I'd like to test the IO
+throughput of various file sizes without bypassing the page cache to see the
+effects of caching.
 
-  git://git.kernel.dk/fio.git master
+To reproduce:
 
-for you to fetch changes up to f3057d268d98aeb638b659a284d087fb0c2f654c:
+Version:
+     Built from source from master (commit f3057d268d)
+     Output of /fio --version
+         fio-3.28-18-gf3057
 
-  t/io_uring: fix bandwidth calculation (2021-09-16 11:41:06 -0600)
+We can see fadvise is being used when ran with strace:
 
-----------------------------------------------------------------
-Erwan Velu (1):
-      t/io_uring: Reporting bandwidth
+     isawan@hypermachine:~/Software/fio$ strace -f  -e fadvise64 ./fio  
+--name=test-reader --ioengine=mmap --readwrite=randread --readonly 
+--filename=/tmp/test --bs=4k --size=128M --numjobs=1 --runtime=30s 
+--time_based --buffered=1 --allow_file_create=0 --fadvise_hint=0
+     test-reader: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 
+4096B-4096B, (T) 4096B-4096B, ioengine=mmap, iodepth=1
+     fio-3.28-18-gf3057
+     strace: Process 28297 attached
+     strace: Process 28298 attached
+     strace: Process 28299 attached
+     strace: Process 28300 attached
+     strace: Process 28301 attached
+     strace: Process 28302 attached
+     strace: Process 28303 attached
+     strace: Process 28304 attached
+     [pid 28301] +++ exited with 0 +++
+     [pid 28297] +++ exited with 0 +++
+     [pid 28303] +++ exited with 0 +++
+     [pid 28298] +++ exited with 0 +++
+     [pid 28299] +++ exited with 0 +++
+     [pid 28304] +++ exited with 0 +++
+     [pid 28302] +++ exited with 0 +++
+     [pid 28300] +++ exited with 0 +++
+     strace: Process 28305 attached
+     Starting 1 process
+     strace: Process 28306 attached
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
+     [pid 28306] fadvise64(6, 0, 134217728, POSIX_FADV_DONTNEED) = 0
 
-Jens Axboe (2):
-      Merge branch 'bwps' of https://github.com/ErwanAliasr1/fio
-      t/io_uring: fix bandwidth calculation
+As we see here, fadvise is being called, while the documentation states:
 
- t/io_uring.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+     fadvise_hint=str
 
----
+         Use posix_fadvise(2) or posix_fadvise(2) to advise the kernel 
+on what I/O patterns are likely to be issued.
+         Accepted values are:
+             "0": Backwards-compatible hint for “no hint”
 
-Diff of recent changes:
-
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 0acbf0b4..1adb8789 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -727,6 +727,7 @@ int main(int argc, char *argv[])
- 		unsigned long this_reap = 0;
- 		unsigned long this_call = 0;
- 		unsigned long rpc = 0, ipc = 0;
-+		unsigned long iops, bw;
- 
- 		sleep(1);
- 		for (j = 0; j < nthreads; j++) {
-@@ -740,8 +741,13 @@ int main(int argc, char *argv[])
- 		} else
- 			rpc = ipc = -1;
- 		file_depths(fdepths);
--		printf("IOPS=%lu, IOS/call=%ld/%ld, inflight=(%s)\n",
--				this_done - done, rpc, ipc, fdepths);
-+		iops = this_done - done;
-+		if (bs > 1048576)
-+			bw = iops * (bs / 1048576);
-+		else
-+			bw = iops / (1048576 / bs);
-+		printf("IOPS=%lu, BW=%luMiB/s, IOS/call=%ld/%ld, inflight=(%s)\n",
-+				iops, bw, rpc, ipc, fdepths);
- 		done = this_done;
- 		calls = this_call;
- 		reap = this_reap;
