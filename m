@@ -2,80 +2,105 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63A28C433F5
-	for <fio@archiver.kernel.org>; Wed, 22 Sep 2021 14:45:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10181C433F5
+	for <fio@archiver.kernel.org>; Thu, 23 Sep 2021 09:30:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 443AD611C9
-	for <fio@archiver.kernel.org>; Wed, 22 Sep 2021 14:45:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4C6A61131
+	for <fio@archiver.kernel.org>; Thu, 23 Sep 2021 09:30:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236262AbhIVOrV (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 22 Sep 2021 10:47:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33546 "EHLO
+        id S240069AbhIWJbj (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 23 Sep 2021 05:31:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236260AbhIVOrV (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 22 Sep 2021 10:47:21 -0400
-Received: from scc-mailout-kit-01.scc.kit.edu (scc-mailout-kit-01.scc.kit.edu [IPv6:2a00:1398:9:f712::810d:e751])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F1ECC061574
-        for <fio@vger.kernel.org>; Wed, 22 Sep 2021 07:45:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=kit.edu;
-        s=20190212; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-        References:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:Cc:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=UEqiIoYOja1wrXDdR6NVJMVicEC+Xb4XKKgtxSrGlfY=; b=pJgkl7p6kd73Wu0AdpLNAH42+z
-        y1eqgHS76XWyhodgHtT2EM+MEebBktgzN5GL2GTHahsMmw2xe24QL3zZFTsRflp7Xo82+3AcOi1Rj
-        KnK1+LbmeUA/HEUWz3E+PiFQVb/Gn05sCO9mNSf444pknlocvpeuSpr0JDsZ07nJvZU8=;
-Received: from [2a00:1398:9:f612:d1c2:400:a855:6a47] (helo=kit-msx-42.kit.edu)
-        by scc-mailout-kit-01.scc.kit.edu with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (envelope-from <hans-peter.lehmann@kit.edu>)
-        id 1mT3VM-0006pa-Lz; Wed, 22 Sep 2021 16:45:48 +0200
-Received: from [192.168.42.5] (46.223.201.100) by smtp.kit.edu (129.13.50.106)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.922.13; Wed, 22 Sep
- 2021 16:45:48 +0200
-Message-ID: <1a2ea0c7-0c76-01ac-4c25-cdcbc8ec83fa@kit.edu>
-Date:   Wed, 22 Sep 2021 16:45:47 +0200
+        with ESMTP id S240033AbhIWJbj (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 23 Sep 2021 05:31:39 -0400
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB51C061574
+        for <fio@vger.kernel.org>; Thu, 23 Sep 2021 02:30:07 -0700 (PDT)
+Received: by mail-qk1-x72c.google.com with SMTP id 73so19975917qki.4
+        for <fio@vger.kernel.org>; Thu, 23 Sep 2021 02:30:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MSNFb58ADFBAn3UTIuHucPUcCPRB3Jt3HAdXg/uJ5gQ=;
+        b=q5PYNidis4ACVEIqeglLiMuTh3819dXqC0SQeKdNNTPEHiO1/VrxBqA/W9+eT8ArOs
+         R9qV9prx0KrOjA6zIn6kIHgAx3sOlKpPdPnXoCkUZQ4a5pg3xO3Qq3hg8GDYCIiIi0n3
+         d0gDU2T9tgBt0a9GXoYqKFQXaiRNuDKufeHH6mHTXSEy10NCV5ffqnPQxHCvSnJUn2QI
+         6MutByWs3qogY/4mme006RvFTmyCHnHKVJIHUiR0i9Ps/BXItYTUwPaoHFzqqZajjyUt
+         EBvp2bQJKl391UZgU3gIBodGugdyMnErq5PPPeiNw8EakmF+oOtRqJpbBG/L9Itg4WEu
+         i1RQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=MSNFb58ADFBAn3UTIuHucPUcCPRB3Jt3HAdXg/uJ5gQ=;
+        b=0lCVAE6ng8cbRowqNL5ljiUBtBE4NOnNSxq4BFetXaWcoRidX0ACRZ7LkbzwUkAxxd
+         00LYh+8qALo4uGRLdWzV3p/Wl9Vdq5+pP7UMkfOE4bqGt0tMbbhGgI1mcip4gKM5tym3
+         o/muDtYdW4mAzvzK3KnvrI3Js3P5nD/q26qKoo4+gVWvmTv199lx9AIlJ7a6Blxzz726
+         tpzNtY83TPrIy2JGmVu1t3VRWisAKQWgtqW30g2iNwyfqTS7GKYBExyFHFlegUImLuC+
+         NTvUQyCIyFIjYVVHWddybYZLn/9ELwu9jfZo6KL7+WZg2vmRfM9v9nByqS+OVGYK7/NQ
+         dTJQ==
+X-Gm-Message-State: AOAM532qFfjKYNDVxB9PqT8lWyEuqF7ctcitavrH7ezfs1C6vc9cKvxi
+        YPlpqAW72mVyzh1m2Zc/PKfKEI8ZCTsTBm2d7Hcto4x5THI=
+X-Google-Smtp-Source: ABdhPJyXq2U5s9Z7IAqTWOSY+6mwvmlmmA14F8K49lpFTIiML1qd8g0Ja31Hf6rFpFWm9ruM60ybJdNm9U27Z7JijCU=
+X-Received: by 2002:a25:ad45:: with SMTP id l5mr4620225ybe.228.1632389406702;
+ Thu, 23 Sep 2021 02:30:06 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.1.1
-Subject: Re: Question: t/io_uring performance
-Content-Language: en-US-large
-To:     Erwan Velu <e.velu@criteo.com>, Jens Axboe <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-References: <9025606c-8579-bf81-47ea-351fc7ec81c3@kit.edu>
- <867506cc-642e-1047-08c6-aae60e7294c5@criteo.com>
- <5b58a227-c376-1f3e-7a10-1aa5483bdc0d@kit.edu>
- <d7ed795e-78e7-2146-d6ad-06fe81451684@criteo.com>
- <1b1c961d-ddba-18de-e0ff-fd8cf60f5da8@kit.edu>
- <74c59a8b-9475-6554-7d93-f9c5f26cc652@criteo.com>
- <2df22c68-6040-298e-4512-752cd10b7201@kit.edu>
- <5015f1e3-eaeb-ef9e-e530-83c21db5aeb7@criteo.com>
- <e41a49a8-f5ea-9f50-0327-dd2af9487153@criteo.com>
- <08a0ddec-45b3-bdcb-e428-e17ff55c5382@kernel.dk>
- <9b72cfc0-c4e7-3ece-1f66-21b66d45d565@criteo.com>
- <8e3e78f6-947f-1566-b666-736c9fb9e353@criteo.com>
- <796c8f29-323a-6fbc-09fc-5c739c81a221@criteo.com>
- <abf13615-4243-e102-5c1d-cb252c679b1a@criteo.com>
-From:   Hans-Peter Lehmann <hans-peter.lehmann@kit.edu>
-In-Reply-To: <abf13615-4243-e102-5c1d-cb252c679b1a@criteo.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [46.223.201.100]
+References: <CAASfLOtCaXJccL1TrZwkpRj0kMFOWcvZwVUEC+m7XTv3MaP0HA@mail.gmail.com>
+In-Reply-To: <CAASfLOtCaXJccL1TrZwkpRj0kMFOWcvZwVUEC+m7XTv3MaP0HA@mail.gmail.com>
+From:   Sitsofe Wheeler <sitsofe@gmail.com>
+Date:   Thu, 23 Sep 2021 10:29:40 +0100
+Message-ID: <CALjAwxiqsYpqwa5HyKGjXcWALFiYH7MB0ZOdisSF3U4+61-=gA@mail.gmail.com>
+Subject: Re: Single iolog file created when 2 separate files are expected (write_iolog)
+To:     freoone <freoone@gmail.com>
+Cc:     fio <fio@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
+Hi,
 
-Thank you for your help with reproducing the benchmarks, Jens and Erwan!
+On Tue, 21 Sept 2021 at 09:30, freoone <freoone@gmail.com> wrote:
+>
+>
+> I'm trying to run fio to do some random reads with 2 threads
+> (numjobs=3D2). I'd like to record iolog for both threads in separate
+> files.
+> The manual in the 'write_iolog' section says:
+> "Specify a separate file for each job, otherwise the iologs will be
+> interspersed and the file may be corrupt."
+> and later:
+> "You can specify a number of files by separating the names with a =E2=80=
+=98:=E2=80=99
+> character."
 
-> feel free to comment & patch.
+The text "you can specify a number of files by separating the names
+with a =E2=80=98:=E2=80=99 colon" only applies to the explicit filename opt=
+ion
+(https://fio.readthedocs.io/en/latest/fio_man.html#cmdoption-arg-filename
+) as opposed to other options (like write_iolog) that happen be
+filenames.
 
-I just submitted a little PR :)
+> So I'm running the following command:
+> ./fio  --name=3Dtest2jobs --rw=3Drandread --filename=3Dfile.fio --size=3D=
+10M
+> --numjobs=3D2 --write_iolog=3Dlog1:log2
+> but instead of two files "log1" and "log2" I get a single file
+> "log1:log2" containing IOs from both threads.
+> Is this a bug in fio or is there some misconception on my part?
 
-Hans-Peter
+To get what you describe you have to avoid usage of numjobs. For
+example if I leave make most of the options as global then this works:
+./fio --rw=3Drandread --filename=3Dfile.fio --size=3D10M  --name=3Dtestjob1
+--write_iolog=3Dlog1  --name=3Dtestjob2 --write_iolog=3Dlog2
+
+--=20
+Sitsofe
