@@ -2,512 +2,266 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CED0C433EF
-	for <fio@archiver.kernel.org>; Sun, 26 Sep 2021 12:00:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C6AFC433F5
+	for <fio@archiver.kernel.org>; Mon, 27 Sep 2021 12:01:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E24E961038
-	for <fio@archiver.kernel.org>; Sun, 26 Sep 2021 12:00:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 489FF60F6C
+	for <fio@archiver.kernel.org>; Mon, 27 Sep 2021 12:01:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbhIZMCH (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 26 Sep 2021 08:02:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44760 "EHLO
+        id S234139AbhI0MCz (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 27 Sep 2021 08:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbhIZMCH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 26 Sep 2021 08:02:07 -0400
+        with ESMTP id S234111AbhI0MCs (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 27 Sep 2021 08:02:48 -0400
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8922FC061570
-        for <fio@vger.kernel.org>; Sun, 26 Sep 2021 05:00:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D478CC061604
+        for <fio@vger.kernel.org>; Mon, 27 Sep 2021 05:01:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
         Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=Un/vx3YCUnBaDRlc+wg6is22w4lH3ihyun4sGrM81R4=; b=QsGwQJN+wcxTusjhiVwDGhlHm8
-        6W7aSRFyBt4p1i+4aQkWtMqRA5mBpy+tE8sOLUZXY9BrNYgeJJmxvmZAmo9QB1LTKM76XJ4UOoKHz
-        VwQ7RcDCd+2d0YWVojoPxOs7JsexrIlKgc5S3hH+YhUFTxvDIS5j7ZOQqeGkvS38y4nm2GUrLGYQE
-        FK1YkeQWeCDqUwQCT352u+6rbzhwoRbrm2LI+MvWqXtEx0F1vvfxqIWXR+c7UfIuSUYKnMK8cjeM4
-        qMQx7vzfy4RK8aiIrmq2nbuQ9Yu4uvWRR21ARwLVdToWvVgpKtQzJZjqRM4Cg4YYEcF4NoQo0cB/F
-        soira5ww==;
+        bh=KTbTZJ4JhA5ATgZ7QYVlxwDjJpVP6l19KkWoJcsX1s0=; b=C+UN0lXiZcrzXpKvr2mcyMUkXS
+        QQf0/AJxDgsFs2hcZc+K4e9JMUIWmjDkAuJio1u59fexTyGSkCudw1Ygaokhp9V0ubjIh9X2GzFxP
+        adain7TFPHLsj9zgdt3kM2WxbeucB9NTYuJfU7Dxy4EZqH7jFAjndzmTzuEaExIQ8gNzeT3insbKN
+        nE9sykK9wJbKnUOhJx/mrlyGMWk17x6L94J5t5KWgXzi8ukSzUgDjI47rsdwynY9TyXQKvtljdG25
+        CUzl2hmk7rZELAR4Uvkcn0cqTSTMGBaHf5nFWr/vCJtVPDJN5VAhcwRyt7on5PoY1FNsoabQusrZB
+        +W2D6JfA==;
 Received: from [65.144.74.35] (helo=kernel.dk)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mUSpF-008sOy-VX
-        for fio@vger.kernel.org; Sun, 26 Sep 2021 12:00:18 +0000
+        id 1mUpIj-009igN-9V
+        for fio@vger.kernel.org; Mon, 27 Sep 2021 12:00:20 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id 6C1631BC0155; Sun, 26 Sep 2021 06:00:02 -0600 (MDT)
+        id B9A951BC013D; Mon, 27 Sep 2021 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20210926120002.6C1631BC0155@kernel.dk>
-Date:   Sun, 26 Sep 2021 06:00:02 -0600 (MDT)
+Message-Id: <20210927120001.B9A951BC013D@kernel.dk>
+Date:   Mon, 27 Sep 2021 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 6c5d3a1c08bda1bbf22187c7b80573400e1c1053:
+The following changes since commit 0b2114e7b46d047271d8d404beaae7006e89f8ef:
 
-  t/io_uring: don't print BW numbers for do_nop (2021-09-24 15:17:44 -0600)
+  Merge branch 'evelu-uring' of https://github.com/ErwanAliasr1/fio (2021-09-25 14:56:14 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 0b2114e7b46d047271d8d404beaae7006e89f8ef:
+for you to fetch changes up to 6e0ef20ffd975fc217aba4e7c125b420cd2fbd91:
 
-  Merge branch 'evelu-uring' of https://github.com/ErwanAliasr1/fio (2021-09-25 14:56:14 -0600)
+  Merge branch 'onecore' of https://github.com/ByteHamster/fio (2021-09-26 16:32:32 -0600)
 
 ----------------------------------------------------------------
-Erwan Velu (1):
-      t/io_uring.c: Adding \n on help
+ByteHamster (1):
+      Pick core for running t/one-core-peak.sh
+
+Erwan Velu (5):
+      one-core-peak: Avoid reporting Unknown memory speed
+      one-core-peak: Adding option to reporting latencies
+      one-core-peak.sh: Fixing bash
+      t/one-core-peak: Reporting kernel config
+      one-core-peak: Reporting NVME features
 
 Jens Axboe (3):
-      t/io_uring: add support for latency tracking
-      t/io_uring: batch stat updates
-      Merge branch 'evelu-uring' of https://github.com/ErwanAliasr1/fio
+      Merge branch 'tsc' of https://github.com/ErwanAliasr1/fio
+      Merge branch 'evelu-fio' of https://github.com/ErwanAliasr1/fio
+      Merge branch 'onecore' of https://github.com/ByteHamster/fio
 
- t/io_uring.c | 298 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 289 insertions(+), 9 deletions(-)
+ t/one-core-peak.sh | 109 +++++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 93 insertions(+), 16 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/t/io_uring.c b/t/io_uring.c
-index d5636380..f22c504a 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -5,6 +5,7 @@
- #include <stddef.h>
- #include <signal.h>
- #include <inttypes.h>
-+#include <math.h>
+diff --git a/t/one-core-peak.sh b/t/one-core-peak.sh
+index 791deece..57c45451 100755
+--- a/t/one-core-peak.sh
++++ b/t/one-core-peak.sh
+@@ -4,7 +4,11 @@ args=$*
+ first_cores=""
+ taskset_cores=""
+ first_cores_count=0
+-nb_threads=4 #default from the benchmark
++nb_threads=1
++drives=""
++
++# Default options
++latency_cmdline=""
  
- #include <sys/types.h>
- #include <sys/stat.h>
-@@ -22,10 +23,10 @@
+ fatal() {
+   echo "$@"
+@@ -35,11 +39,22 @@ check_binary() {
+   done
+ }
  
- #include "../arch/arch.h"
- #include "../lib/types.h"
-+#include "../lib/roundup.h"
-+#include "../minmax.h"
- #include "../os/linux/io_uring.h"
- 
--#define min(a, b)		((a < b) ? (a) : (b))
 -
- struct io_sq_ring {
- 	unsigned *head;
- 	unsigned *tail;
-@@ -57,8 +58,14 @@ struct file {
- 	unsigned pending_ios;
- 	int real_fd;
- 	int fixed_fd;
-+	int fileno;
- };
- 
-+#define PLAT_BITS		6
-+#define PLAT_VAL		(1 << PLAT_BITS)
-+#define PLAT_GROUP_NR		29
-+#define PLAT_NR			(PLAT_GROUP_NR * PLAT_VAL)
+ detect_first_core() {
++  cpu_to_search="0"
++  if [ "${#drives[@]}" -eq 1 ]; then
++    device_name=$(block_dev_name ${drives[0]})
++    device_dir="/sys/block/${device_name}/device/"
++    pci_addr=$(cat ${device_dir}/address)
++    pci_dir="/sys/bus/pci/devices/${pci_addr}/"
++    cpu_to_search=$(cat ${pci_dir}/local_cpulist | cut -d"," -f 1 | cut -d"-" -f 1)
++  else
++    hint 'Passed multiple devices. Running on the first core.'
++  fi
++  core_to_run=$(lscpu  --all -pSOCKET,CORE,CPU | grep ",$cpu_to_search\$" | cut -d"," -f1-2)
 +
- struct submitter {
- 	pthread_t thread;
- 	int ring_fd;
-@@ -67,6 +74,7 @@ struct submitter {
- 	struct io_uring_sqe *sqes;
- 	struct io_cq_ring cq_ring;
- 	int inflight;
-+	int tid;
- 	unsigned long reaps;
- 	unsigned long done;
- 	unsigned long calls;
-@@ -74,6 +82,10 @@ struct submitter {
- 
- 	__s32 *fds;
- 
-+	unsigned long *clock_batch;
-+	int clock_index;
-+	unsigned long *plat;
-+
- 	struct file files[MAX_FDS];
- 	unsigned nr_files;
- 	unsigned cur_file;
-@@ -95,9 +107,202 @@ static int sq_thread_poll = 0;	/* use kernel submission/poller thread */
- static int sq_thread_cpu = -1;	/* pin above thread to this CPU */
- static int do_nop = 0;		/* no-op SQ ring commands */
- static int nthreads = 1;
-+static int stats = 0;		/* generate IO stats */
-+static unsigned long tsc_rate;
- 
- static int vectored = 1;
- 
-+static float plist[] = { 1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
-+			80.0, 90.0, 95.0, 99.9, 99.5, 99.9, 99.95, 99.99 };
-+static int plist_len = 17;
-+
-+static unsigned long cycles_to_nsec(unsigned long cycles)
-+{
-+	uint64_t val;
-+
-+	if (!tsc_rate)
-+		return cycles;
-+
-+	val = cycles * 1000000000ULL;
-+	return val / tsc_rate;
-+}
-+
-+static unsigned long plat_idx_to_val(unsigned int idx)
-+{
-+	unsigned int error_bits;
-+	unsigned long k, base;
-+
-+	assert(idx < PLAT_NR);
-+
-+	/* MSB <= (PLAT_BITS-1), cannot be rounded off. Use
-+	 * all bits of the sample as index */
-+	if (idx < (PLAT_VAL << 1))
-+		return cycles_to_nsec(idx);
-+
-+	/* Find the group and compute the minimum value of that group */
-+	error_bits = (idx >> PLAT_BITS) - 1;
-+	base = ((unsigned long) 1) << (error_bits + PLAT_BITS);
-+
-+	/* Find its bucket number of the group */
-+	k = idx % PLAT_VAL;
-+
-+	/* Return the mean of the range of the bucket */
-+	return cycles_to_nsec(base + ((k + 0.5) * (1 << error_bits)));
-+}
-+
-+unsigned int calc_clat_percentiles(unsigned long *io_u_plat, unsigned long nr,
-+				   unsigned long **output,
-+				   unsigned long *maxv, unsigned long *minv)
-+{
-+	unsigned long sum = 0;
-+	unsigned int len = plist_len, i, j = 0;
-+	unsigned long *ovals = NULL;
-+	bool is_last;
-+
-+	*minv = -1ULL;
-+	*maxv = 0;
-+
-+	ovals = malloc(len * sizeof(*ovals));
-+	if (!ovals)
-+		return 0;
-+
-+	/*
-+	 * Calculate bucket values, note down max and min values
-+	 */
-+	is_last = false;
-+	for (i = 0; i < PLAT_NR && !is_last; i++) {
-+		sum += io_u_plat[i];
-+		while (sum >= ((long double) plist[j] / 100.0 * nr)) {
-+			assert(plist[j] <= 100.0);
-+
-+			ovals[j] = plat_idx_to_val(i);
-+			if (ovals[j] < *minv)
-+				*minv = ovals[j];
-+			if (ovals[j] > *maxv)
-+				*maxv = ovals[j];
-+
-+			is_last = (j == len - 1) != 0;
-+			if (is_last)
-+				break;
-+
-+			j++;
-+		}
-+	}
-+
-+	if (!is_last)
-+		fprintf(stderr, "error calculating latency percentiles\n");
-+
-+	*output = ovals;
-+	return len;
-+}
-+
-+static void show_clat_percentiles(unsigned long *io_u_plat, unsigned long nr,
-+				  unsigned int precision)
-+{
-+	unsigned int divisor, len, i, j = 0;
-+	unsigned long minv, maxv;
-+	unsigned long *ovals;
-+	int per_line, scale_down, time_width;
-+	bool is_last;
-+	char fmt[32];
-+
-+	len = calc_clat_percentiles(io_u_plat, nr, &ovals, &maxv, &minv);
-+	if (!len || !ovals)
-+		goto out;
-+
-+	if (!tsc_rate) {
-+		scale_down = 0;
-+		divisor = 1;
-+		printf("    percentiles (tsc ticks):\n     |");
-+	} else if (minv > 2000 && maxv > 99999) {
-+		scale_down = 1;
-+		divisor = 1000;
-+		printf("    percentiles (usec):\n     |");
-+	} else {
-+		scale_down = 0;
-+		divisor = 1;
-+		printf("    percentiles (nsec):\n     |");
-+	}
-+
-+	time_width = max(5, (int) (log10(maxv / divisor) + 1));
-+	snprintf(fmt, sizeof(fmt), " %%%u.%ufth=[%%%dllu]%%c", precision + 3,
-+			precision, time_width);
-+	/* fmt will be something like " %5.2fth=[%4llu]%c" */
-+	per_line = (80 - 7) / (precision + 10 + time_width);
-+
-+	for (j = 0; j < len; j++) {
-+		/* for formatting */
-+		if (j != 0 && (j % per_line) == 0)
-+			printf("     |");
-+
-+		/* end of the list */
-+		is_last = (j == len - 1) != 0;
-+
-+		for (i = 0; i < scale_down; i++)
-+			ovals[j] = (ovals[j] + 999) / 1000;
-+
-+		printf(fmt, plist[j], ovals[j], is_last ? '\n' : ',');
-+
-+		if (is_last)
-+			break;
-+
-+		if ((j % per_line) == per_line - 1)	/* for formatting */
-+			printf("\n");
-+	}
-+
-+out:
-+	free(ovals);
-+}
-+
-+static unsigned int plat_val_to_idx(unsigned long val)
-+{
-+	unsigned int msb, error_bits, base, offset, idx;
-+
-+	/* Find MSB starting from bit 0 */
-+	if (val == 0)
-+		msb = 0;
-+	else
-+		msb = (sizeof(val)*8) - __builtin_clzll(val) - 1;
-+
-+	/*
-+	 * MSB <= (PLAT_BITS-1), cannot be rounded off. Use
-+	 * all bits of the sample as index
-+	 */
-+	if (msb <= PLAT_BITS)
-+		return val;
-+
-+	/* Compute the number of error bits to discard*/
-+	error_bits = msb - PLAT_BITS;
-+
-+	/* Compute the number of buckets before the group */
-+	base = (error_bits + 1) << PLAT_BITS;
-+
-+	/*
-+	 * Discard the error bits and apply the mask to find the
-+	 * index for the buckets in the group
-+	 */
-+	offset = (PLAT_VAL - 1) & (val >> error_bits);
-+
-+	/* Make sure the index does not exceed (array size - 1) */
-+	idx = (base + offset) < (PLAT_NR - 1) ?
-+		(base + offset) : (PLAT_NR - 1);
-+
-+	return idx;
-+}
-+
-+static void add_stat(struct submitter *s, int clock_index, int nr)
-+{
-+#ifdef ARCH_HAVE_CPU_CLOCK
-+	unsigned long cycles;
-+	unsigned int pidx;
-+
-+	cycles = get_cpu_clock();
-+	cycles -= s->clock_batch[clock_index];
-+	pidx = plat_val_to_idx(cycles);
-+	s->plat[pidx] += nr;
-+#endif
-+}
-+
- static int io_uring_register_buffers(struct submitter *s)
- {
- 	if (do_nop)
-@@ -224,7 +429,9 @@ static void init_io(struct submitter *s, unsigned index)
- 	}
- 	sqe->ioprio = 0;
- 	sqe->off = offset;
--	sqe->user_data = (unsigned long) f;
-+	sqe->user_data = (unsigned long) f->fileno;
-+	if (stats)
-+		sqe->user_data |= ((unsigned long)s->clock_index << 32);
+   # Detect which logical cpus belongs to the first physical core
+   # If Hyperthreading is enabled, two cores are returned
+-  cpus=$(lscpu  --all -pSOCKET,CORE,CPU |grep "0,0")
++  cpus=$(lscpu  --all -pSOCKET,CORE,CPU | grep "$core_to_run")
+   for cpu in ${cpus}; do
+     IFS=','
+     # shellcheck disable=SC2206
+@@ -57,8 +72,37 @@ detect_first_core() {
+   taskset_cores=$(echo "${first_cores}" | tr ' ' ',')
  }
  
- static int prep_more_ios(struct submitter *s, int max_ios)
-@@ -277,6 +484,7 @@ static int reap_events(struct submitter *s)
- 	struct io_cq_ring *ring = &s->cq_ring;
- 	struct io_uring_cqe *cqe;
- 	unsigned head, reaped = 0;
-+	int last_idx = -1, stat_nr = 0;
- 
- 	head = *ring->head;
- 	do {
-@@ -287,7 +495,9 @@ static int reap_events(struct submitter *s)
- 			break;
- 		cqe = &ring->cqes[head & cq_ring_mask];
- 		if (!do_nop) {
--			f = (struct file *) (uintptr_t) cqe->user_data;
-+			int fileno = cqe->user_data & 0xffffffff;
++usage() {
++  echo "usage: [options] block_device [other_block_devices]
 +
-+			f = &s->files[fileno];
- 			f->pending_ios--;
- 			if (cqe->res != bs) {
- 				printf("io: unexpected ret=%d\n", cqe->res);
-@@ -296,10 +506,26 @@ static int reap_events(struct submitter *s)
- 				return -1;
- 			}
- 		}
-+		if (stats) {
-+			int clock_index = cqe->user_data >> 32;
++   -h         : print help
++   -l         : enable latency reporting
 +
-+			if (last_idx != clock_index) {
-+				if (last_idx != -1) {
-+					add_stat(s, last_idx, stat_nr);
-+					stat_nr = 0;
-+				}
-+				last_idx = clock_index;
-+			}
-+			stat_nr++;
-+			add_stat(s, clock_index, 1);
-+		}
- 		reaped++;
- 		head++;
- 	} while (1);
- 
-+	if (stat_nr)
-+		add_stat(s, last_idx, stat_nr);
++   example:
++      t/one-core-peak.sh /dev/nvme0n1
++      t/one-core-peak.sh -l /dev/nvme0n1 /dev/nvme1n1
++  "
++  exit 0
++}
 +
- 	if (reaped) {
- 		s->inflight -= reaped;
- 		atomic_store_release(ring->head, head);
-@@ -311,12 +537,28 @@ static void *submitter_fn(void *data)
- {
- 	struct submitter *s = data;
- 	struct io_sq_ring *ring = &s->sq_ring;
--	int ret, prepped;
-+	int i, ret, prepped, nr_batch;
- 
--	printf("submitter=%d\n", gettid());
-+	s->tid = gettid();
-+	printf("submitter=%d\n", s->tid);
- 
- 	srand48(pthread_self());
- 
-+	for (i = 0; i < MAX_FDS; i++)
-+		s->files[i].fileno = i;
-+
-+	if (stats) {
-+		nr_batch = roundup_pow2(depth / batch_submit);
-+		s->clock_batch = calloc(nr_batch, sizeof(unsigned long));
-+		s->clock_index = 0;
-+
-+		s->plat = calloc(PLAT_NR, sizeof(unsigned long));
-+	} else {
-+		s->clock_batch = NULL;
-+		s->plat = NULL;
-+		nr_batch = 0;
-+	}
-+
- 	prepped = 0;
- 	do {
- 		int to_wait, to_submit, this_reap, to_prep;
-@@ -325,6 +567,12 @@ static void *submitter_fn(void *data)
- 		if (!prepped && s->inflight < depth) {
- 			to_prep = min(depth - s->inflight, batch_submit);
- 			prepped = prep_more_ios(s, to_prep);
-+#ifdef ARCH_HAVE_CPU_CLOCK
-+			if (prepped && stats) {
-+				s->clock_batch[s->clock_index] = get_cpu_clock();
-+				s->clock_index = (s->clock_index + 1) & (nr_batch - 1);
-+			}
-+#endif
- 		}
- 		s->inflight += prepped;
- submit_more:
-@@ -555,9 +803,11 @@ static void usage(char *argv, int status)
- 		" -F <bool> : Register files, default %d\n"
- 		" -n <int>  : Number of threads, default %d\n"
- 		" -O <bool> : Use O_DIRECT, default %d\n"
--		" -N <bool> : Perform just no-op requests, default %d\n",
-+		" -N <bool> : Perform just no-op requests, default %d\n"
-+		" -t <bool> : Track IO latencies, default %d\n"
-+		" -T <int>  : TSC rate in HZ\n",
- 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
--		fixedbufs, register_files, nthreads, !buffered, do_nop);
-+		fixedbufs, register_files, nthreads, !buffered, do_nop, stats);
- 	exit(status);
+ check_args() {
+-  [ $1 -eq 0 ] && fatal "Missing drive(s) as argument"
++  local OPTIND option
++  while getopts "hl" option; do
++    case "${option}" in
++        h) # Show help
++            usage
++            ;;
++        l) # Report latency
++            latency_cmdline="1"
++            ;;
++        *)
++            fatal "Unsupported ${option} option"
++            ;;
++    esac
++  done
++  shift $((OPTIND-1))
++  [ $# -eq 0 ] && fatal "Missing drive(s) as argument"
++  drives="$*"
  }
  
-@@ -573,16 +823,20 @@ int main(int argc, char *argv[])
- 	if (!do_nop && argc < 2)
- 		usage(argv[0], 1);
+ check_drive_exists() {
+@@ -72,7 +116,7 @@ is_nvme() {
  
--	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:h?")) != -1) {
-+	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:h?")) != -1) {
- 		switch (opt) {
- 		case 'd':
- 			depth = atoi(optarg);
- 			break;
- 		case 's':
- 			batch_submit = atoi(optarg);
-+			if (!batch_submit)
-+				batch_submit = 1;
- 			break;
- 		case 'c':
- 			batch_complete = atoi(optarg);
-+			if (!batch_complete)
-+				batch_complete = 1;
- 			break;
- 		case 'b':
- 			bs = atoi(optarg);
-@@ -609,6 +863,20 @@ int main(int argc, char *argv[])
- 		case 'O':
- 			buffered = !atoi(optarg);
- 			break;
-+		case 't':
-+#ifndef ARCH_HAVE_CPU_CLOCK
-+			fprintf(stderr, "Stats not supported on this CPU\n");
-+			return 1;
-+#endif
-+			stats = !!atoi(optarg);
-+			break;
-+		case 'T':
-+#ifndef ARCH_HAVE_CPU_CLOCK
-+			fprintf(stderr, "Stats not supported on this CPU\n");
-+			return 1;
-+#endif
-+			tsc_rate = strtoul(optarg, NULL, 10);
-+			break;
- 		case 'h':
- 		case '?':
- 		default:
-@@ -764,7 +1032,19 @@ int main(int argc, char *argv[])
- 		s = get_submitter(j);
- 		pthread_join(s->thread, &ret);
- 		close(s->ring_fd);
+ check_poll_queue() {
+   # Print a warning if the nvme poll queues aren't enabled
+-  is_nvme ${args} || return
++  is_nvme ${drives} || return
+   poll_queue=$(cat /sys/module/nvme/parameters/poll_queues)
+   [ ${poll_queue} -eq 0 ] && hint "For better performance, you should enable nvme poll queues by setting nvme.poll_queues=32 on the kernel commande line"
+ }
+@@ -141,6 +185,7 @@ check_idle_governor() {
+ }
+ 
+ show_nvme() {
++  device="$1"
+   device_name=$(block_dev_name $1)
+   device_dir="/sys/block/${device_name}/device/"
+   pci_addr=$(cat ${device_dir}/address)
+@@ -153,6 +198,12 @@ show_nvme() {
+   fw=$(cat ${device_dir}/firmware_rev | xargs) #xargs for trimming spaces
+   serial=$(cat ${device_dir}/serial | xargs) #xargs for trimming spaces
+   info ${device_name} "MODEL=${model} FW=${fw} serial=${serial} PCI=${pci_addr}@${link_speed} IRQ=${irq} NUMA=${numa} CPUS=${cpus} "
++  NCQA=$(nvme get-feature -H -f 0x7 ${device} |grep NCQA |cut -d ':' -f 2 | xargs)
++  NSQA=$(nvme get-feature -H -f 0x7 ${device} |grep NSQA |cut -d ':' -f 2 | xargs)
++  power_state=$(nvme get-feature -H -f 0x2 ${device} | grep PS |cut -d ":" -f 2 | xargs)
++  apste=$(nvme get-feature -H -f 0xc ${device} | grep APSTE |cut -d ":" -f 2 | xargs)
++  temp=$(nvme smart-log ${device} |grep 'temperature' |cut -d ':' -f 2 |xargs)
++  info ${device_name} "Temp:${temp}, Autonomous Power State Transition:${apste}, PowerState:${power_state}, Completion Queues:${NCQA}, Submission Queues:${NSQA}"
+ }
+ 
+ show_device() {
+@@ -160,24 +211,50 @@ show_device() {
+   is_nvme $1 && show_nvme $1
+ }
+ 
++show_kernel_config_item() {
++  config_item="CONFIG_$1"
++  config_file="/boot/config-$(uname -r)"
++  if [ ! -f "${config_file}" ]; then
++    config_file='/proc/config.gz'
++    if [ ! -f "${config_file}" ]; then
++      return
++    fi
++  fi
++  status=$(zgrep ${config_item}= ${config_file})
++  if [ -z "${status}" ]; then
++    echo "${config_item}=N"
++  else
++    echo "${config_item}=$(echo ${status} | cut -d '=' -f 2)"
++  fi
++}
 +
-+		if (stats) {
-+			unsigned long nr;
-+
-+			printf("%d: Latency percentiles:\n", s->tid);
-+			for (i = 0, nr = 0; i < PLAT_NR; i++)
-+				nr += s->plat[i];
-+			show_clat_percentiles(s->plat, nr, 4);
-+			free(s->clock_batch);
-+			free(s->plat);
-+		}
- 	}
-+
- 	free(fdepths);
- 	free(submitter);
- 	return 0;
+ show_system() {
+-CPU_MODEL=$(grep -m1 "model name" /proc/cpuinfo | awk '{print substr($0, index($0,$4))}')
+-MEMORY_SPEED=$(dmidecode -t 17 -q |grep -m 1 "Configured Memory Speed: " | awk '{print substr($0, index($0,$4))}')
+-KERNEL=$(uname -r)
+-info "system" "CPU: ${CPU_MODEL}"
+-info "system" "MEMORY: ${MEMORY_SPEED}"
+-info "system" "KERNEL: ${KERNEL}"
++  CPU_MODEL=$(grep -m1 "model name" /proc/cpuinfo | awk '{print substr($0, index($0,$4))}')
++  MEMORY_SPEED=$(dmidecode -t 17 -q | grep -m 1 "Configured Memory Speed: [0-9]" | awk '{print substr($0, index($0,$4))}')
++  KERNEL=$(uname -r)
++  info "system" "CPU: ${CPU_MODEL}"
++  info "system" "MEMORY: ${MEMORY_SPEED}"
++  info "system" "KERNEL: ${KERNEL}"
++  for config_item in BLK_CGROUP_IOCOST HZ; do
++    info "system" "KERNEL: $(show_kernel_config_item ${config_item})"
++  done
++  tsc=$(journalctl -k | grep 'tsc: Refined TSC clocksource calibration:' | awk '{print $11}')
++  if [ -n "${tsc}" ]; then
++    info "system" "TSC: ${tsc} Mhz"
++    tsc=$(echo ${tsc} | tr -d '.')
++    [ -n "${latency_cmdline}" ] && latency_cmdline="-t1 -T${tsc}000"
++  fi
+ }
+ 
+ ### MAIN
+-check_args $#
++check_args ${args}
+ check_root
+-check_binary t/io_uring lscpu grep taskset cpupower awk tr xargs dmidecode
++check_binary t/io_uring lscpu grep taskset cpupower awk tr xargs dmidecode nvme
+ detect_first_core
+ 
+ info "##################################################"
+ show_system
+-for drive in ${args}; do
++for drive in ${drives}; do
+   check_drive_exists ${drive}
+   check_io_scheduler ${drive}
+   check_sysblock_value ${drive} "queue/iostats" 0 # Ensure iostats are disabled
+@@ -187,13 +264,13 @@ for drive in ${args}; do
+ done
+ 
+ check_poll_queue
+-compute_nb_threads ${args}
++compute_nb_threads ${drives}
+ check_scaling_governor
+ check_idle_governor
+ 
+ info "##################################################"
+ echo
+ 
+-cmdline="taskset -c ${taskset_cores} t/io_uring -b512 -d128 -c32 -s32 -p1 -F1 -B1 -n${nb_threads} ${args}"
++cmdline="taskset -c ${taskset_cores} t/io_uring -b512 -d128 -c32 -s32 -p1 -F1 -B1 -n${nb_threads} ${latency_cmdline} ${drives}"
+ info "io_uring" "Running ${cmdline}"
+ ${cmdline}
