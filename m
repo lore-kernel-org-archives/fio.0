@@ -2,110 +2,286 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1ADC433FE
-	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 20:46:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B99EC433EF
+	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 22:00:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8609E61AEE
-	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 20:46:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 66A9161A6E
+	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 22:00:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355412AbhJAUr5 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 1 Oct 2021 16:47:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57358 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355403AbhJAUr4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 1 Oct 2021 16:47:56 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3478FC06177E
-        for <fio@vger.kernel.org>; Fri,  1 Oct 2021 13:46:12 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id r75so13119697iod.7
-        for <fio@vger.kernel.org>; Fri, 01 Oct 2021 13:46:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=3DybLe1RpzKsxnKzIBemCIAZ6AMadRGjezFEaPOKcoc=;
-        b=0Mqo6jiy7LSz9NJceKhYYwz+bqIpqn86YEP1lSboYwJsyrCWFDv/zPuusAreK8LrbG
-         dOBy6xQbCFWUnsJObIKSGUolFp5JpxVy+iZDnwfjQwkq9+j/kgq9Cfk/PddfFBicXVBe
-         0rd4X6Fx2ne9F0PRJlCIOOIS/mZmvNqpFOZf1QSaBXxmORDRUi5cQDOZ7zlkH1Y+cgvA
-         PMrEFuspnAugsz6ebvjI5S77M7PiekhFkEoeKAohXo+9ql6L2QtTwpe/hMrsKT4Z/G2l
-         1mUOynhnX9wo/GgXxj7XF6oSFe6EhnG1TpL6naVXtsttClWegRM/ili06+pB91QSIPtq
-         KFDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=3DybLe1RpzKsxnKzIBemCIAZ6AMadRGjezFEaPOKcoc=;
-        b=zZl5f116R3iZYJNExH6i4O/uVVXHJHMyf9SFl875nOkLhj/F8c+S0/X8ZhV1v+r7WQ
-         t8Qu7bAPW98XfNym7GdyZbuhrsHL1YOrF8zpTQqhdp+Mrtou3IzlMZLzOnkB/kZKD+aB
-         hI5Dl5tLBuZdV63Lf0oOmx89d9yXoqctw33E5agA3mN22fA1KfrO07rVDrrrS4YToSw7
-         bz3tc4Mztgl/G7hLRjjwzLDgdDXjxKHVCBpFq8H1buuiVrEoQ7WL7HBfigPbFI9fSzdJ
-         dy4E4hsY3LBpiwH+C3zPhgW3ce2SvpNFPrXmEGLdHqmHQVjeaKi5rQLKCZIOvXPjo8Fe
-         oRpg==
-X-Gm-Message-State: AOAM531zE9VHy5FdjwLubFT7+SvfJknmSQEsrmTcpaAfg80AvzfPjxBk
-        0Df5LTsguYoPh8a7GnRjrC7gVpJ7Ky1lIg==
-X-Google-Smtp-Source: ABdhPJxRF3HtTAPQy1InC/PX0rp3wBc3cCHRSp5RngTsCHkXQyq7cht+lu3OYkDNBl265bIMoy1VTA==
-X-Received: by 2002:a6b:8b52:: with SMTP id n79mr40121iod.8.1633121171288;
-        Fri, 01 Oct 2021 13:46:11 -0700 (PDT)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id o3sm4144856ilh.5.2021.10.01.13.46.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 01 Oct 2021 13:46:10 -0700 (PDT)
-Subject: Re: generic/095 failing in ext4 and xfs
-To:     Luis Henriques <lhenriques@suse.de>, fstests@vger.kernel.org,
+        id S1355537AbhJAWBo (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 1 Oct 2021 18:01:44 -0400
+Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:36615 "EHLO
+        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S230318AbhJAWBn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 1 Oct 2021 18:01:43 -0400
+Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
+        (authenticated bits=0)
+        (User authenticated as tytso@ATHENA.MIT.EDU)
+        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 191LxrKs015804
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 1 Oct 2021 17:59:54 -0400
+Received: by cwcc.thunk.org (Postfix, from userid 15806)
+        id 77B9015C34AA; Fri,  1 Oct 2021 17:59:53 -0400 (EDT)
+Date:   Fri, 1 Oct 2021 17:59:53 -0400
+From:   "Theodore Ts'o" <tytso@mit.edu>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Luis Henriques <lhenriques@suse.de>, fstests@vger.kernel.org,
         fio@vger.kernel.org
+Subject: Re: generic/095 failing in ext4 and xfs
+Message-ID: <YVeE2ZVkpGbTKZpG@mit.edu>
 References: <YVdBVdOjPLCayG1k@suse.de>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk>
-Date:   Fri, 1 Oct 2021 14:46:09 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk>
 MIME-Version: 1.0
-In-Reply-To: <YVdBVdOjPLCayG1k@suse.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 10/1/21 11:11 AM, Luis Henriques wrote:
-> Hi!
+On Fri, Oct 01, 2021 at 02:46:09PM -0600, Jens Axboe wrote:
 > 
-> I'm seeing generic/095 failing both with ext4 and xfs (but not on btrfs).
-> Here's what I'm getting:
-> 
-> # cat results/generic/095.out.bad 
-> QA output created by 095
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=51200, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=133120, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=92160, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=158720, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=513024, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=33792, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=449536, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=45056, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=30720, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=222208, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=342016, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=177152, buflen=1024
-> fio: pid=4090, got signal=11
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=43008, buflen=1024
-> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=308224, buflen=1024
-> fio: pid=4086, got signal=11
-> Silence is golden
-> 
-> This was for ext4 but the output for xfs is similar.  Since fio is getting
-> killed I suspect this may be an issue with this tool.  Thus I'm sending
-> this to both fio and fstests mailing-lists.
-> 
-> I'm using a 5.15-rc3 kernel and fio-3.28.  Is anyone else seeing something
-> similar?
+> Hmm, do older versions fail? I see Ted suggested that 3.27 doesn't, can
+> you give that a go? If that does work, would be great if you could try
+> and bisect it.
 
-Hmm, do older versions fail? I see Ted suggested that 3.27 doesn't, can
-you give that a go? If that does work, would be great if you could try
-and bisect it.
+I just tried fio 3.28, and it worked for me.  So I don't think it's
+fio.
 
--- 
-Jens Axboe
+Luis, could it be related to a  kernel config option?
 
+Here's the kernel config that I'm using.  Can you try copying the
+attached file to your .config, and then run "make olddefconfig", and
+then rebuild your kernel, and see if that works for you?  If so, then
+we'll try to narrow down which kernel config is making the difference.
+
+The other potential difference is that my test appliance is currently
+built using Debian 10 ("Buster").  There can be glibc or other
+userspace dependencies which make be making a difference, but that
+seems unlikely given that generic/095 is a pretty old test, and it's
+not trying to use anything new/exotic like io_uring.
+
+      	     	    	       	      	     - Ted
+
+CONFIG_LOCALVERSION="-xfstests"
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_NO_HZ=y
+CONFIG_HIGH_RES_TIMERS=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_CGROUPS=y
+CONFIG_MEMCG=y
+CONFIG_BLK_CGROUP=y
+CONFIG_CGROUP_SCHED=y
+CONFIG_CGROUP_PIDS=y
+CONFIG_CGROUP_RDMA=y
+CONFIG_CGROUP_FREEZER=y
+CONFIG_CPUSETS=y
+CONFIG_CGROUP_DEVICE=y
+CONFIG_CGROUP_CPUACCT=y
+CONFIG_CGROUP_PERF=y
+CONFIG_CGROUP_BPF=y
+CONFIG_USER_NS=y
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_BPF_SYSCALL=y
+# CONFIG_COMPAT_BRK is not set
+CONFIG_SLAB=y
+CONFIG_SMP=y
+CONFIG_X86_X2APIC=y
+# CONFIG_X86_EXTENDED_PLATFORM is not set
+CONFIG_HYPERVISOR_GUEST=y
+CONFIG_PARAVIRT=y
+CONFIG_PARAVIRT_SPINLOCKS=y
+CONFIG_PARAVIRT_TIME_ACCOUNTING=y
+CONFIG_MCORE2=y
+CONFIG_NR_CPUS=48
+# CONFIG_X86_MCE_AMD is not set
+# CONFIG_MICROCODE is not set
+CONFIG_NUMA=y
+# CONFIG_AMD_NUMA is not set
+CONFIG_X86_PMEM_LEGACY=y
+CONFIG_X86_CHECK_BIOS_CORRUPTION=y
+CONFIG_EFI=y
+CONFIG_EFI_STUB=y
+CONFIG_HZ_300=y
+CONFIG_KEXEC=y
+# CONFIG_SUSPEND is not set
+# CONFIG_ACPI_REV_OVERRIDE_POSSIBLE is not set
+# CONFIG_ACPI_TABLE_UPGRADE is not set
+# CONFIG_PCI_MMCONFIG is not set
+CONFIG_IA32_EMULATION=y
+# CONFIG_DMIID is not set
+CONFIG_EFI_VARS=y
+CONFIG_JUMP_LABEL=y
+CONFIG_MEMORY_HOTPLUG=y
+CONFIG_MEMORY_HOTREMOVE=y
+CONFIG_ZONE_DEVICE=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_DIAG=y
+CONFIG_UNIX=y
+CONFIG_UNIX_DIAG=y
+CONFIG_INET=y
+CONFIG_SYN_COOKIES=y
+CONFIG_INET_UDP_DIAG=y
+CONFIG_NETLINK_DIAG=y
+# CONFIG_WIRELESS is not set
+CONFIG_NET_9P=y
+CONFIG_NET_9P_VIRTIO=y
+CONFIG_PCI=y
+CONFIG_PCI_MSI=y
+CONFIG_DEVTMPFS=y
+CONFIG_MTD=y
+CONFIG_MTD_BLOCK2MTD=y
+CONFIG_MTD_UBI=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_VIRTIO_BLK=y
+CONFIG_BLK_DEV_NVME=y
+CONFIG_SCSI=y
+# CONFIG_SCSI_PROC_FS is not set
+CONFIG_BLK_DEV_SD=y
+CONFIG_SCSI_VIRTIO=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_DM_SNAPSHOT=y
+CONFIG_DM_THIN_PROVISIONING=y
+CONFIG_DM_ZERO=y
+CONFIG_DM_FLAKEY=y
+CONFIG_NETDEVICES=y
+CONFIG_VIRTIO_NET=y
+# CONFIG_ETHERNET is not set
+# CONFIG_WLAN is not set
+# CONFIG_INPUT_MOUSE is not set
+# CONFIG_SERIO_SERPORT is not set
+# CONFIG_LEGACY_PTYS is not set
+CONFIG_SERIAL_8250=y
+# CONFIG_SERIAL_8250_DEPRECATED_OPTIONS is not set
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=32
+CONFIG_SERIAL_8250_RUNTIME_UARTS=32
+# CONFIG_HW_RANDOM_INTEL is not set
+# CONFIG_HW_RANDOM_AMD is not set
+# CONFIG_HW_RANDOM_VIA is not set
+CONFIG_HW_RANDOM_VIRTIO=y
+CONFIG_RANDOM_TRUST_CPU=y
+# CONFIG_HWMON is not set
+# CONFIG_X86_PKG_TEMP_THERMAL is not set
+# CONFIG_HID is not set
+# CONFIG_USB_SUPPORT is not set
+CONFIG_RTC_CLASS=y
+# CONFIG_RTC_DRV_CMOS is not set
+CONFIG_VIRT_DRIVERS=y
+CONFIG_VIRTIO_PCI=y
+CONFIG_VIRTIO_BALLOON=y
+# CONFIG_X86_PLATFORM_DEVICES is not set
+# CONFIG_IOMMU_SUPPORT is not set
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT4_FS=y
+CONFIG_EXT4_FS_POSIX_ACL=y
+CONFIG_EXT4_FS_SECURITY=y
+CONFIG_EXT4_DEBUG=y
+CONFIG_JBD2_DEBUG=y
+CONFIG_REISERFS_FS=y
+CONFIG_REISERFS_FS_XATTR=y
+CONFIG_REISERFS_FS_POSIX_ACL=y
+CONFIG_REISERFS_FS_SECURITY=y
+CONFIG_JFS_FS=y
+CONFIG_JFS_POSIX_ACL=y
+CONFIG_JFS_SECURITY=y
+CONFIG_XFS_FS=y
+CONFIG_XFS_QUOTA=y
+CONFIG_XFS_POSIX_ACL=y
+CONFIG_XFS_RT=y
+CONFIG_OCFS2_FS=y
+CONFIG_BTRFS_FS=y
+CONFIG_BTRFS_FS_POSIX_ACL=y
+CONFIG_BTRFS_DEBUG=y
+CONFIG_BTRFS_ASSERT=y
+CONFIG_NILFS2_FS=y
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_FS_SECURITY=y
+CONFIG_F2FS_CHECK_FS=y
+CONFIG_FS_DAX=y
+CONFIG_FS_ENCRYPTION=y
+CONFIG_FS_VERITY=y
+CONFIG_FS_VERITY_BUILTIN_SIGNATURES=y
+CONFIG_QUOTA_NETLINK_INTERFACE=y
+# CONFIG_PRINT_QUOTA_WARNING is not set
+CONFIG_QFMT_V2=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_FUSE_FS=y
+CONFIG_VIRTIO_FS=y
+CONFIG_OVERLAY_FS=y
+CONFIG_UDF_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_UTF8=y
+CONFIG_NTFS_FS=y
+CONFIG_NTFS_RW=y
+CONFIG_PROC_KCORE=y
+CONFIG_PROC_CHILDREN=y
+CONFIG_TMPFS=y
+CONFIG_TMPFS_POSIX_ACL=y
+CONFIG_CONFIGFS_FS=y
+CONFIG_UBIFS_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3_ACL=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3_ACL=y
+CONFIG_NFSD_V4=y
+CONFIG_9P_FS=y
+CONFIG_NLS_DEFAULT="utf8"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ASCII=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_UTF8=y
+CONFIG_UNICODE=y
+CONFIG_SECURITY=y
+CONFIG_FORTIFY_SOURCE=y
+CONFIG_INTEGRITY_SIGNATURE=y
+CONFIG_IMA=y
+CONFIG_IMA_WRITE_POLICY=y
+CONFIG_IMA_APPRAISE=y
+CONFIG_EVM=y
+# CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set
+CONFIG_CRYPTO_ADIANTUM=y
+CONFIG_CRYPTO_ESSIV=y
+CONFIG_CRYPTO_CRC32C_INTEL=y
+CONFIG_CRYPTO_CRC32_PCLMUL=y
+CONFIG_CRYPTO_AES_NI_INTEL=y
+# CONFIG_CRYPTO_HW is not set
+CONFIG_PRINTK_TIME=y
+CONFIG_DYNAMIC_DEBUG=y
+CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_INFO_REDUCED=y
+CONFIG_DEBUG_SECTION_MISMATCH=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_DEBUG_PAGEALLOC=y
+CONFIG_DEBUG_WX=y
+CONFIG_DEBUG_OBJECTS=y
+CONFIG_DEBUG_KMEMLEAK=y
+CONFIG_DEBUG_KMEMLEAK_DEFAULT_OFF=y
+CONFIG_PANIC_TIMEOUT=5
+CONFIG_HARDLOCKUP_DETECTOR=y
+CONFIG_WQ_WATCHDOG=y
+CONFIG_PROVE_LOCKING=y
+CONFIG_LOCK_STAT=y
+CONFIG_DEBUG_ATOMIC_SLEEP=y
+CONFIG_DEBUG_LIST=y
+CONFIG_DEBUG_SG=y
+CONFIG_RCU_EQS_DEBUG=y
+CONFIG_FUNCTION_TRACER=y
+CONFIG_FUNCTION_PROFILER=y
+CONFIG_FTRACE_SYSCALLS=y
+CONFIG_TRACER_SNAPSHOT=y
+CONFIG_BLK_DEV_IO_TRACE=y
+# CONFIG_STRICT_DEVMEM is not set
+CONFIG_FAULT_INJECTION=y
+CONFIG_FAIL_MAKE_REQUEST=y
+CONFIG_FAULT_INJECTION_DEBUG_FS=y
