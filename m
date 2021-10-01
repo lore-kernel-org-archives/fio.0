@@ -2,46 +2,98 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24C14C433EF
-	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 20:07:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1ADC433FE
+	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 20:46:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08F8861ACF
-	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 20:07:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8609E61AEE
+	for <fio@archiver.kernel.org>; Fri,  1 Oct 2021 20:46:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229775AbhJAUJ2 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 1 Oct 2021 16:09:28 -0400
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:49333 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1354661AbhJAUJ2 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 1 Oct 2021 16:09:28 -0400
-Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 191K7bA1009713
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 1 Oct 2021 16:07:37 -0400
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 4635815C34AA; Fri,  1 Oct 2021 16:07:37 -0400 (EDT)
-Date:   Fri, 1 Oct 2021 16:07:37 -0400
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Luis Henriques <lhenriques@suse.de>
-Cc:     fstests@vger.kernel.org, fio@vger.kernel.org
+        id S1355412AbhJAUr5 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 1 Oct 2021 16:47:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57358 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355403AbhJAUr4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 1 Oct 2021 16:47:56 -0400
+Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3478FC06177E
+        for <fio@vger.kernel.org>; Fri,  1 Oct 2021 13:46:12 -0700 (PDT)
+Received: by mail-io1-xd29.google.com with SMTP id r75so13119697iod.7
+        for <fio@vger.kernel.org>; Fri, 01 Oct 2021 13:46:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=3DybLe1RpzKsxnKzIBemCIAZ6AMadRGjezFEaPOKcoc=;
+        b=0Mqo6jiy7LSz9NJceKhYYwz+bqIpqn86YEP1lSboYwJsyrCWFDv/zPuusAreK8LrbG
+         dOBy6xQbCFWUnsJObIKSGUolFp5JpxVy+iZDnwfjQwkq9+j/kgq9Cfk/PddfFBicXVBe
+         0rd4X6Fx2ne9F0PRJlCIOOIS/mZmvNqpFOZf1QSaBXxmORDRUi5cQDOZ7zlkH1Y+cgvA
+         PMrEFuspnAugsz6ebvjI5S77M7PiekhFkEoeKAohXo+9ql6L2QtTwpe/hMrsKT4Z/G2l
+         1mUOynhnX9wo/GgXxj7XF6oSFe6EhnG1TpL6naVXtsttClWegRM/ili06+pB91QSIPtq
+         KFDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3DybLe1RpzKsxnKzIBemCIAZ6AMadRGjezFEaPOKcoc=;
+        b=zZl5f116R3iZYJNExH6i4O/uVVXHJHMyf9SFl875nOkLhj/F8c+S0/X8ZhV1v+r7WQ
+         t8Qu7bAPW98XfNym7GdyZbuhrsHL1YOrF8zpTQqhdp+Mrtou3IzlMZLzOnkB/kZKD+aB
+         hI5Dl5tLBuZdV63Lf0oOmx89d9yXoqctw33E5agA3mN22fA1KfrO07rVDrrrS4YToSw7
+         bz3tc4Mztgl/G7hLRjjwzLDgdDXjxKHVCBpFq8H1buuiVrEoQ7WL7HBfigPbFI9fSzdJ
+         dy4E4hsY3LBpiwH+C3zPhgW3ce2SvpNFPrXmEGLdHqmHQVjeaKi5rQLKCZIOvXPjo8Fe
+         oRpg==
+X-Gm-Message-State: AOAM531zE9VHy5FdjwLubFT7+SvfJknmSQEsrmTcpaAfg80AvzfPjxBk
+        0Df5LTsguYoPh8a7GnRjrC7gVpJ7Ky1lIg==
+X-Google-Smtp-Source: ABdhPJxRF3HtTAPQy1InC/PX0rp3wBc3cCHRSp5RngTsCHkXQyq7cht+lu3OYkDNBl265bIMoy1VTA==
+X-Received: by 2002:a6b:8b52:: with SMTP id n79mr40121iod.8.1633121171288;
+        Fri, 01 Oct 2021 13:46:11 -0700 (PDT)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id o3sm4144856ilh.5.2021.10.01.13.46.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 01 Oct 2021 13:46:10 -0700 (PDT)
 Subject: Re: generic/095 failing in ext4 and xfs
-Message-ID: <YVdqiQznwuKVcPYV@mit.edu>
+To:     Luis Henriques <lhenriques@suse.de>, fstests@vger.kernel.org,
+        fio@vger.kernel.org
 References: <YVdBVdOjPLCayG1k@suse.de>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk>
+Date:   Fri, 1 Oct 2021 14:46:09 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <YVdBVdOjPLCayG1k@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, Oct 01, 2021 at 06:11:49PM +0100, Luis Henriques wrote:
+On 10/1/21 11:11 AM, Luis Henriques wrote:
 > Hi!
 > 
 > I'm seeing generic/095 failing both with ext4 and xfs (but not on btrfs).
 > Here's what I'm getting:
+> 
+> # cat results/generic/095.out.bad 
+> QA output created by 095
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=51200, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=133120, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=92160, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=158720, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=513024, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=33792, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=449536, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=45056, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=30720, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=222208, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=342016, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=177152, buflen=1024
+> fio: pid=4090, got signal=11
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=43008, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=308224, buflen=1024
+> fio: pid=4086, got signal=11
+> Silence is golden
 > 
 > This was for ext4 but the output for xfs is similar.  Since fio is getting
 > killed I suspect this may be an issue with this tool.  Thus I'm sending
@@ -50,27 +102,10 @@ On Fri, Oct 01, 2021 at 06:11:49PM +0100, Luis Henriques wrote:
 > I'm using a 5.15-rc3 kernel and fio-3.28.  Is anyone else seeing something
 > similar?
 
-Hmm, it's not failing for me.
+Hmm, do older versions fail? I see Ted suggested that 3.27 doesn't, can
+you give that a go? If that does work, would be great if you could try
+and bisect it.
 
-ext4/4k: 1 tests, 3 seconds
-  generic/095  Pass     2s
-Totals: 1 tests, 0 skipped, 0 failures, 0 errors, 2s
+-- 
+Jens Axboe
 
-root@kvm-xfstests:~# uname -a
-Linux kvm-xfstests 5.15.0-rc3-xfstests #355 SMP Fri Oct 1 14:44:55 EDT 2021 x86_64 GNU/Linux
-root@kvm-xfstests:~# ver
-blktests        62ec9d6 (Tue, 1 Jun 2021 10:08:38 -0700)
-e2fsprogs       v1.46.4-5-g4cda2545-orphan_file (Sun, 22 Aug 2021 10:07:15 -0400)
-fio             fio-3.27 (Wed, 26 May 2021 10:10:32 -0600)
-fsverity        v1.4 (Mon, 14 Jun 2021 16:14:52 -0700)
-ima-evm-utils   v1.3.2 (Wed, 28 Oct 2020 13:18:08 -0400)
-nvme-cli        v1.14-61-gf729e93 (Fri, 25 Jun 2021 10:21:17 -0600)
-quota           v4.05-40-g25f16b1 (Tue, 16 Mar 2021 17:57:19 +0100)
-util-linux      v2.37 (Tue, 1 Jun 2021 09:52:10 +0200)
-xfsprogs        v5.12.0 (Fri, 21 May 2021 15:53:24 -0400)
-xfstests        linux-v3.8-3301-ga8b2de63 (Wed, 1 Sep 2021 12:07:48 -0400)
-xfstests-bld    8c07d08 (Fri, 27 Aug 2021 22:11:13 -0400)
-
-I'm using fio 3.27, though.
-
-					- Ted
