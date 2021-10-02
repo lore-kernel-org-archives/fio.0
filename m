@@ -2,167 +2,106 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 985C3C433EF
-	for <fio@archiver.kernel.org>; Sat,  2 Oct 2021 12:01:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5240FC433EF
+	for <fio@archiver.kernel.org>; Sat,  2 Oct 2021 15:00:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7B7C961AF8
-	for <fio@archiver.kernel.org>; Sat,  2 Oct 2021 12:01:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 356CD61A81
+	for <fio@archiver.kernel.org>; Sat,  2 Oct 2021 15:00:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232927AbhJBMC6 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 2 Oct 2021 08:02:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60324 "EHLO
+        id S229560AbhJBPBp (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sat, 2 Oct 2021 11:01:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232895AbhJBMC5 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 2 Oct 2021 08:02:57 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36C72C061570
-        for <fio@vger.kernel.org>; Sat,  2 Oct 2021 05:01:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=VXJfa73YeWYIsKqQKGhQG/tTzqkyH8PxRV34MB477mE=; b=EnfNseshJ5ZoiiG/6PX4y4rulM
-        0Z5DCdqfmQnGI3EkokGsCyNOFz2JHc0lomLhfF/sD0DhYdwo90FfAxxFNtUZwm1F79ocyFTw6KsXB
-        TgNGzqqCzanDrZf71OOhcq/SrZyubUw910hc6oWvVYltkQze9bOr1s7E3XsBJLqyGyD3mfCoHnUPI
-        kJ0tCK+7XHVYZPnZXyFtlE6oNZw5nW6b2QAZZraMNUHzjbn01eVZMjeuvf9++fLP4apb8Ev7KOHno
-        bazRAMiwV6qiW7m/E/T0fqvgKpqkT3VL2VflDeYJdI6yMt+f0b4hYDf14oJYTr5itL85hcG2vppb6
-        pNE4wKhQ==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mWdgU-00EuXZ-11
-        for fio@vger.kernel.org; Sat, 02 Oct 2021 12:00:15 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 532751BC0139; Sat,  2 Oct 2021 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
+        with ESMTP id S233438AbhJBPBo (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 2 Oct 2021 11:01:44 -0400
+Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C46C0613EF
+        for <fio@vger.kernel.org>; Sat,  2 Oct 2021 07:59:59 -0700 (PDT)
+Received: by mail-il1-x12c.google.com with SMTP id l20so1351745ilk.2
+        for <fio@vger.kernel.org>; Sat, 02 Oct 2021 07:59:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=TZyxmNqQL1CC4WybscJw+J5zGLbeE6TRONeXrpjz2XM=;
+        b=nNSsV3kB7ba8hMKcUsSX4vjxFB31RED4GJ56HAc0HWFShst1etFI/AaqqZWF9or6fw
+         VyUxTtqLqCqHKz7divvkwk+2UsJHnbqltJkZhBqdLtZ5SO1yP2fe+tIqZZgwnLko9vWe
+         AEggyzQ0Pb8T56jyQ4+PKeHmzpfeb4I/+DCw52jHmOWXr7J7AB0QiWSeDmM/f+bkYCm2
+         ZZmglHfjMnRXI09Q5YxfLhBYq5NwZOhZ9am6Bu4CbeQJESC2I25xXYnyI5YLIYejOIoG
+         75467Y9pwHykYSB21PZHBoXQeitsFYgPifaST25FEE0LTPHsBPcSewRSYdMkZz5Qjlbf
+         EIeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=TZyxmNqQL1CC4WybscJw+J5zGLbeE6TRONeXrpjz2XM=;
+        b=d11iJHsrl209nDb//9Ymb3ifppB8/QJedugs/jhuakVwIh0qdQn+ZxZbHqdkX9xkaO
+         mWomMFuFkxZKwSsSs5TxAkd6HWYOVQOGAmj9rSsVU9rlo4hOpTxs/Tyh6++FN/Iw48wK
+         Xhimm+GOEqPVIt1a3kHB47hYDfTq5zpFeDBGV86di5PKIoD5l1b8LLQzErpFXBpf4PuZ
+         qjCHWURBIretYVo741oPcFHJ45oGEcwXUmjClSToFO+WpJ6Ku/C6dxNRI1xdhssEXsEe
+         Ji5ubWN5/Cx32ySmQKWyngO2bcD6coRhae0yULRgBmHXZxNodDz5G3z08pDmDPQ4NApE
+         ExnA==
+X-Gm-Message-State: AOAM533GtHbcTrbdZTdVgPSWYj7kTPIeJ8nhIDX9nuC/5oA6PqmNgIdg
+        IeLlKEjo3Waq9O2Kzb8G6lU8Hw0VHw8wfQ==
+X-Google-Smtp-Source: ABdhPJzbYUpAN8B/MpO9vd19t1yCY2RrvnpHjiSHmr92ytS7935IiGxvcEZgDNpN0F7/QLiX/cWlsg==
+X-Received: by 2002:a92:c605:: with SMTP id p5mr2161798ilm.218.1633186798102;
+        Sat, 02 Oct 2021 07:59:58 -0700 (PDT)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id a12sm5642413ilb.66.2021.10.02.07.59.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 02 Oct 2021 07:59:57 -0700 (PDT)
+Subject: Re: generic/095 failing in ext4 and xfs
+To:     Luis Henriques <lhenriques@suse.de>, Theodore Ts'o <tytso@mit.edu>
+Cc:     fstests@vger.kernel.org, fio@vger.kernel.org
+References: <YVdBVdOjPLCayG1k@suse.de>
+ <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk> <YVeE2ZVkpGbTKZpG@mit.edu>
+ <86ee93vijj.fsf@orpheus.olymp>
 From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211002120002.532751BC0139@kernel.dk>
-Date:   Sat,  2 Oct 2021 06:00:02 -0600 (MDT)
+Message-ID: <6f867fa0-c3e9-6f65-d97f-4779c029ef81@kernel.dk>
+Date:   Sat, 2 Oct 2021 08:59:57 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <86ee93vijj.fsf@orpheus.olymp>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 0f77c977ab44a10d69268546a849376efc327d47:
+On 10/2/21 4:16 AM, Luis Henriques wrote:
+> "Theodore Ts'o" <tytso@mit.edu> writes:
+> 
+>> On Fri, Oct 01, 2021 at 02:46:09PM -0600, Jens Axboe wrote:
+>>>
+>>> Hmm, do older versions fail? I see Ted suggested that 3.27 doesn't, can
+>>> you give that a go? If that does work, would be great if you could try
+>>> and bisect it.
+>>
+>> I just tried fio 3.28, and it worked for me.  So I don't think it's
+>> fio.
+> 
+> Awesome, thank you both for checking it out.  So, it's definitely
+> something in my test environment.
+> 
+>> Luis, could it be related to a  kernel config option?
+> 
+> Yeah, it could be.  I've tested this on a rolling release (openSUSE TW),
+> so it's definitely quite different from Debian 10.  It may take me a bit
+> to figure out what's going on, but I'll start with this kernel config and
+> report back any finding.
+> 
+> Again, thank you both for confirming it's working on your side.
 
-  zbd: Fix unexpected job termination by open zone search failure (2021-09-30 10:05:23 -0600)
+Do you have a core file from fio? Would be interesting to get a
+backtrace from it.
 
-are available in the Git repository at:
+In terms of why it's failing, a guess would be that your device is using 4k
+sectors and the test is trying to do 1k aligned dio. That would fail, but
+it should not cause fio to crash...
 
-  git://git.kernel.dk/fio.git master
+-- 
+Jens Axboe
 
-for you to fetch changes up to ca4eefc1b55d7f9fc03bf113d63e3d0b2d7b38ae:
-
-  Merge branch 'evelu-fixes2' of https://github.com/ErwanAliasr1/fio (2021-10-01 13:55:52 -0600)
-
-----------------------------------------------------------------
-Erwan Velu (2):
-      t/one-core-peak: Report numa as off if missing
-      t/one-core-peak: nvme-cli as optional tooling
-
-Jens Axboe (2):
-      t/io_uring: correct percentile ranking
-      Merge branch 'evelu-fixes2' of https://github.com/ErwanAliasr1/fio
-
-Shin'ichiro Kawasaki (2):
-      Revert "Fix for loop count issue when do_verify=0 (#1093)"
-      Refer td->loops instead of td->o.loops to fix loop count issue
-
- backend.c          |  4 ++--
- libfio.c           |  2 +-
- t/io_uring.c       |  2 +-
- t/one-core-peak.sh | 19 +++++++++++--------
- 4 files changed, 15 insertions(+), 12 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index 4c260747..86fa6d41 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1920,13 +1920,13 @@ static void *thread_main(void *data)
- 		if (td->error || td->terminate)
- 			break;
- 
--		clear_io_state(td, 0);
--		
- 		if (!o->do_verify ||
- 		    o->verify == VERIFY_NONE ||
- 		    td_ioengine_flagged(td, FIO_UNIDIR))
- 			continue;
- 
-+		clear_io_state(td, 0);
-+
- 		fio_gettime(&td->start, NULL);
- 
- 		do_verify(td, verify_bytes);
-diff --git a/libfio.c b/libfio.c
-index 6144a474..ed5906d4 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -104,7 +104,7 @@ static void reset_io_counters(struct thread_data *td, int all)
- 	/*
- 	 * reset file done count if we are to start over
- 	 */
--	if (td->o.time_based || td->o.loops || td->o.do_verify)
-+	if (td->o.time_based || td->loops > 1 || td->o.do_verify)
- 		td->nr_done_files = 0;
- }
- 
-diff --git a/t/io_uring.c b/t/io_uring.c
-index d7ae18b0..2ec4caeb 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -115,7 +115,7 @@ static unsigned long tsc_rate;
- static int vectored = 1;
- 
- static float plist[] = { 1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
--			80.0, 90.0, 95.0, 99.9, 99.5, 99.9, 99.95, 99.99 };
-+			80.0, 90.0, 95.0, 99.0, 99.5, 99.9, 99.95, 99.99 };
- static int plist_len = 17;
- 
- static unsigned long cycles_to_nsec(unsigned long cycles)
-diff --git a/t/one-core-peak.sh b/t/one-core-peak.sh
-index 57c45451..d0649d2e 100755
---- a/t/one-core-peak.sh
-+++ b/t/one-core-peak.sh
-@@ -192,18 +192,21 @@ show_nvme() {
-   pci_dir="/sys/bus/pci/devices/${pci_addr}/"
-   link_speed=$(cat ${pci_dir}/current_link_speed)
-   irq=$(cat ${pci_dir}/irq)
--  numa=$(cat ${pci_dir}/numa_node)
-+  numa=$([ -f ${pci_dir}/numa_node ] && cat ${pci_dir}/numa_node || echo "off")
-   cpus=$(cat ${pci_dir}/local_cpulist)
-   model=$(cat ${device_dir}/model | xargs) #xargs for trimming spaces
-   fw=$(cat ${device_dir}/firmware_rev | xargs) #xargs for trimming spaces
-   serial=$(cat ${device_dir}/serial | xargs) #xargs for trimming spaces
-   info ${device_name} "MODEL=${model} FW=${fw} serial=${serial} PCI=${pci_addr}@${link_speed} IRQ=${irq} NUMA=${numa} CPUS=${cpus} "
--  NCQA=$(nvme get-feature -H -f 0x7 ${device} |grep NCQA |cut -d ':' -f 2 | xargs)
--  NSQA=$(nvme get-feature -H -f 0x7 ${device} |grep NSQA |cut -d ':' -f 2 | xargs)
--  power_state=$(nvme get-feature -H -f 0x2 ${device} | grep PS |cut -d ":" -f 2 | xargs)
--  apste=$(nvme get-feature -H -f 0xc ${device} | grep APSTE |cut -d ":" -f 2 | xargs)
--  temp=$(nvme smart-log ${device} |grep 'temperature' |cut -d ':' -f 2 |xargs)
--  info ${device_name} "Temp:${temp}, Autonomous Power State Transition:${apste}, PowerState:${power_state}, Completion Queues:${NCQA}, Submission Queues:${NSQA}"
-+  which nvme &> /dev/null
-+  if [ $? -eq 0 ]; then
-+    NCQA=$(nvme get-feature -H -f 0x7 ${device} |grep NCQA |cut -d ':' -f 2 | xargs)
-+    NSQA=$(nvme get-feature -H -f 0x7 ${device} |grep NSQA |cut -d ':' -f 2 | xargs)
-+    power_state=$(nvme get-feature -H -f 0x2 ${device} | grep PS |cut -d ":" -f 2 | xargs)
-+    apste=$(nvme get-feature -H -f 0xc ${device} | grep APSTE |cut -d ":" -f 2 | xargs)
-+    temp=$(nvme smart-log ${device} |grep 'temperature' |cut -d ':' -f 2 |xargs)
-+    info ${device_name} "Temp:${temp}, Autonomous Power State Transition:${apste}, PowerState:${power_state}, Completion Queues:${NCQA}, Submission Queues:${NSQA}"
-+  fi
- }
- 
- show_device() {
-@@ -249,7 +252,7 @@ show_system() {
- ### MAIN
- check_args ${args}
- check_root
--check_binary t/io_uring lscpu grep taskset cpupower awk tr xargs dmidecode nvme
-+check_binary t/io_uring lscpu grep taskset cpupower awk tr xargs dmidecode
- detect_first_core
- 
- info "##################################################"
