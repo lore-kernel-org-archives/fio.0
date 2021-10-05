@@ -2,59 +2,56 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6523FC433EF
-	for <fio@archiver.kernel.org>; Mon,  4 Oct 2021 16:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E00A2C433EF
+	for <fio@archiver.kernel.org>; Tue,  5 Oct 2021 08:09:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4E4D461206
-	for <fio@archiver.kernel.org>; Mon,  4 Oct 2021 16:18:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C2272611C1
+	for <fio@archiver.kernel.org>; Tue,  5 Oct 2021 08:09:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236762AbhJDQUY (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 4 Oct 2021 12:20:24 -0400
-Received: from outgoing-auth-1.mit.edu ([18.9.28.11]:39891 "EHLO
-        outgoing.mit.edu" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S236614AbhJDQUW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 4 Oct 2021 12:20:22 -0400
-Received: from cwcc.thunk.org (pool-72-74-133-215.bstnma.fios.verizon.net [72.74.133.215])
-        (authenticated bits=0)
-        (User authenticated as tytso@ATHENA.MIT.EDU)
-        by outgoing.mit.edu (8.14.7/8.12.4) with ESMTP id 194GIPsL025709
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 4 Oct 2021 12:18:25 -0400
-Received: by cwcc.thunk.org (Postfix, from userid 15806)
-        id 05A8515C34DF; Mon,  4 Oct 2021 12:18:24 -0400 (EDT)
-Date:   Mon, 4 Oct 2021 12:18:24 -0400
-From:   "Theodore Ts'o" <tytso@mit.edu>
-To:     Luis Henriques <lhenriques@suse.de>
-Cc:     Jens Axboe <axboe@kernel.dk>, fstests@vger.kernel.org,
-        fio@vger.kernel.org
-Subject: Re: generic/095 failing in ext4 and xfs
-Message-ID: <YVspUJUSk1gB23JK@mit.edu>
-References: <YVdBVdOjPLCayG1k@suse.de>
- <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk>
- <YVeE2ZVkpGbTKZpG@mit.edu>
- <86ee93vijj.fsf@orpheus.olymp>
- <6f867fa0-c3e9-6f65-d97f-4779c029ef81@kernel.dk>
- <YVrSnW2RKP5hjxx6@suse.de>
- <YVrUX+qOJCDKp/Ng@suse.de>
- <YVrwvqOiI6CMpq2X@suse.de>
+        id S230526AbhJEILF (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 5 Oct 2021 04:11:05 -0400
+Received: from mail.foldedly.com ([212.237.10.209]:50720 "EHLO
+        mail.foldedly.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230286AbhJEILE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 5 Oct 2021 04:11:04 -0400
+X-Greylist: delayed 457 seconds by postgrey-1.27 at vger.kernel.org; Tue, 05 Oct 2021 04:11:04 EDT
+Received: by mail.foldedly.com (Postfix, from userid 1001)
+        id 2320E85962; Tue,  5 Oct 2021 09:01:30 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=foldedly.com; s=mail;
+        t=1633420892; bh=LrnK0zvEt1kljd1mU4DOdzPOwDec9w8/ii89Wf2jAkc=;
+        h=Date:From:To:Subject:From;
+        b=DsnXeMSPBHLKD/A7DzPRPtuy02WgGXWLToic22xnQTPPkHch9ib3yXL3FcDlvn+f8
+         fi0KyuQ6Bcpuqmu2a9d87olEwfizi5V4657w59weBL4no1+0Oo8FvRk2XQiUgNKq9V
+         3VTzF3uiEVzPYk6ie6bWmTUJxeuYt7dod9nLBtDsekZYgu2PRQXSjsk1hB5taWyClE
+         ip/144ceGapbie6/QsCBkMkn9PeSJMH+bCNrcAWHLMUvmglPZF3BqnhC5i0PQ24t5F
+         tbjmOPH8R1ItszLTsXrEJXeNm5/pf2lXt0lqPg7Ly6GkFU4H1KMehv3ckC0aQEdE2j
+         qMpCLh0DFusAA==
+Received: by mail.foldedly.com for <fio@vger.kernel.org>; Tue,  5 Oct 2021 08:01:28 GMT
+Message-ID: <20211005074500-0.1.s.1rhf.0.f17oizx55l@foldedly.com>
+Date:   Tue,  5 Oct 2021 08:01:28 GMT
+From:   "Nazario Davalos" <nazario.davalos@foldedly.com>
+To:     <fio@vger.kernel.org>
+Subject: Servicio de la flota
+X-Mailer: mail.foldedly.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YVrwvqOiI6CMpq2X@suse.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Mon, Oct 04, 2021 at 01:17:02PM +0100, Luis Henriques wrote:
-> 
-> Ok, I may have narrowed it a bit more.  The disks being used in my testing
-> were zram-based (I know, I should have mentioned it before :-/ ).  If I use
-> file-based disks the test passes and I see no crashes in fio.
+Buenos d=C3=ADas:
 
-What was the last kernel version where it didn't crash for you?   5.14?
+Le escribo para hablarle sobre una de las mejores herramientas GPS en el =
+mercado.
 
-And maybe we need to have a test which explicitly uses zram, since I
-suspect many/most of the fs developers who are running fstests aren't
-using zram....
+La herramienta, que me gustar=C3=ADa presentarle brevemente, dispone de m=
+uchas funciones =C3=BAtiles para su trabajo, que optimizan los procesos d=
+e transporte y le ayudan a realizar tareas de campo de manera m=C3=A1s ef=
+iciente.
 
-						- Ted
+=C2=BFQuiere conocer los detalles?
+
+
+Atentamente,
+Nazario Davalos
