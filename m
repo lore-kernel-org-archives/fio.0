@@ -2,114 +2,106 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CBFAC433F5
-	for <fio@archiver.kernel.org>; Wed,  6 Oct 2021 12:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5350DC433FE
+	for <fio@archiver.kernel.org>; Wed,  6 Oct 2021 13:39:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E87560FE3
-	for <fio@archiver.kernel.org>; Wed,  6 Oct 2021 12:00:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E9B7610CC
+	for <fio@archiver.kernel.org>; Wed,  6 Oct 2021 13:39:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238201AbhJFMC3 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 6 Oct 2021 08:02:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238167AbhJFMC3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 6 Oct 2021 08:02:29 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51419C061749
-        for <fio@vger.kernel.org>; Wed,  6 Oct 2021 05:00:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=dWTS9C6PCdWIrCNGvF0GWO6jO1z94YPyp/5h8/dv07Q=; b=gMzIOxaGKxSHojew0UgDSniPiR
-        P5pIvnGRHv5ftE4lXCYIQHrpEC8tGOPT5LnboAwP5KrEu/XwWZJU04APz9HsyCxUdzqieXfxjwcUJ
-        VeVgIhOjV0pI3bVO4NXsfODJdt3KzzbP6VtHEbHmHTAJaEjeXotC8QK5abLZwc357NL1hX3lJ7zm6
-        XHviGcyxKqU4DxXUXsEZM5ld1Wh0HopUR4oIAw2bAJLyF2oM5aR9grPKc+mtM0OuywgZAr0vhtUWS
-        2gD873cpP84uz4s3RrkB/DNijKi9FdrMM9agVfTo5DNUH6fleKgo5x8DDgq9VqYEXebl83AemVeIR
-        Q2ohnrkg==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mY5ae-000qfY-BR
-        for fio@vger.kernel.org; Wed, 06 Oct 2021 12:00:15 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 713A71BC014C; Wed,  6 Oct 2021 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211006120001.713A71BC014C@kernel.dk>
-Date:   Wed,  6 Oct 2021 06:00:01 -0600 (MDT)
+        id S231614AbhJFNlr (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 6 Oct 2021 09:41:47 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:54540 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230023AbhJFNlp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 6 Oct 2021 09:41:45 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 54783223EF;
+        Wed,  6 Oct 2021 13:39:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1633527592; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=KUvdkLi2mfwFtZD+nGEn9TuSuGzEBLmzXvDw1DutwLU=;
+        b=1fRpODniokaIUNUqoRqJUhVKGq/Eh3lBPnNHFOd0zVMSAVlaTw44dmxTmNPcYsO5bBM3tb
+        H41HbWdwS2hh5kVzJ1ZxhP2PcPRkfshKP3Z0o7QnF8OMxekPAbWa4AX3w+I1mfZNIAKuD6
+        LNHKzGll8DS+X9srz7X6fkt+loecwyA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1633527592;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=KUvdkLi2mfwFtZD+nGEn9TuSuGzEBLmzXvDw1DutwLU=;
+        b=eBAlP2uukvI230+wasq09FM3v1cvemGMzSVFtzeI8oNDADhQ9piBGGD5DND9nHBLBoCgTA
+        /53Ru5ocmF2QowDA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D36F913B37;
+        Wed,  6 Oct 2021 13:39:51 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Ra/JMCenXWGDZQAAMHmgww
+        (envelope-from <lhenriques@suse.de>); Wed, 06 Oct 2021 13:39:51 +0000
+Received: from localhost (brahms [local])
+        by brahms (OpenSMTPD) with ESMTPA id 00c85fac;
+        Wed, 6 Oct 2021 13:39:51 +0000 (UTC)
+Date:   Wed, 6 Oct 2021 14:39:50 +0100
+From:   Luis Henriques <lhenriques@suse.de>
+To:     Theodore Ts'o <tytso@mit.edu>
+Cc:     Jens Axboe <axboe@kernel.dk>, fstests@vger.kernel.org,
+        fio@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: Re: generic/095 failing in ext4 and xfs
+Message-ID: <YV2nJmYbFbD3CBXq@suse.de>
+References: <YVdBVdOjPLCayG1k@suse.de>
+ <882f4c20-2e21-219b-0ca3-7e215e2d7cfa@kernel.dk>
+ <YVeE2ZVkpGbTKZpG@mit.edu>
+ <86ee93vijj.fsf@orpheus.olymp>
+ <6f867fa0-c3e9-6f65-d97f-4779c029ef81@kernel.dk>
+ <YVrSnW2RKP5hjxx6@suse.de>
+ <YVrUX+qOJCDKp/Ng@suse.de>
+ <YVrwvqOiI6CMpq2X@suse.de>
+ <YVspUJUSk1gB23JK@mit.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YVspUJUSk1gB23JK@mit.edu>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 24a24c12a04c45174c2d68ffb7fcb3f367e40dee:
+(sorry for the delay in my replies)
 
-  t/io_uring: clean up aio wait loop (2021-10-04 17:04:04 -0600)
+On Mon, Oct 04, 2021 at 12:18:24PM -0400, Theodore Ts'o wrote:
+> On Mon, Oct 04, 2021 at 01:17:02PM +0100, Luis Henriques wrote:
+> > 
+> > Ok, I may have narrowed it a bit more.  The disks being used in my testing
+> > were zram-based (I know, I should have mentioned it before :-/ ).  If I use
+> > file-based disks the test passes and I see no crashes in fio.
+> 
+> What was the last kernel version where it didn't crash for you?   5.14?
 
-are available in the Git repository at:
+No, this is not a regression.  I tried to go as far as 5.0 and I still get
+the exact same behaviour.  Also, I've tried fio 3.24 and it still
+crashes.
 
-  git://git.kernel.dk/fio.git master
+So, this definitely looks like a zram issue.  I've added the maintainers
+to the CC list in case they have any ideas.
 
-for you to fetch changes up to 09ee86fa431939cb8f634e9ee8e1fc8d9302ea59:
+> And maybe we need to have a test which explicitly uses zram, since I
+> suspect many/most of the fs developers who are running fstests aren't
+> using zram....
+> 
+> 						- Ted
 
-  t/io_uring: get rid of old debug printfs (2021-10-05 06:58:07 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      t/io_uring: print submitter id with tid on startup
-      t/io_uring: get rid of old debug printfs
-
- t/io_uring.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/t/io_uring.c b/t/io_uring.c
-index f27a12c7..7ef2f6ce 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -552,7 +552,7 @@ static int submitter_init(struct submitter *s)
- 	int i, nr_batch;
- 
- 	s->tid = gettid();
--	printf("submitter=%d\n", s->tid);
-+	printf("submitter=%d, tid=%d\n", s->index, s->tid);
- 
- 	srand48(pthread_self());
- 
-@@ -951,7 +951,6 @@ static int setup_ring(struct submitter *s)
- 	ptr = mmap(0, p.sq_off.array + p.sq_entries * sizeof(__u32),
- 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd,
- 			IORING_OFF_SQ_RING);
--	printf("sq_ring ptr = 0x%p\n", ptr);
- 	sring->head = ptr + p.sq_off.head;
- 	sring->tail = ptr + p.sq_off.tail;
- 	sring->ring_mask = ptr + p.sq_off.ring_mask;
-@@ -963,12 +962,10 @@ static int setup_ring(struct submitter *s)
- 	s->sqes = mmap(0, p.sq_entries * sizeof(struct io_uring_sqe),
- 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd,
- 			IORING_OFF_SQES);
--	printf("sqes ptr    = 0x%p\n", s->sqes);
- 
- 	ptr = mmap(0, p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe),
- 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd,
- 			IORING_OFF_CQ_RING);
--	printf("cq_ring ptr = 0x%p\n", ptr);
- 	cring->head = ptr + p.cq_off.head;
- 	cring->tail = ptr + p.cq_off.tail;
- 	cring->ring_mask = ptr + p.cq_off.ring_mask;
-@@ -1253,10 +1250,8 @@ int main(int argc, char *argv[])
- 	printf("polled=%d, fixedbufs=%d, register_files=%d, buffered=%d, QD=%d\n", polled, fixedbufs, register_files, buffered, depth);
- 	if (!aio)
- 		printf("Engine=io_uring, sq_ring=%d, cq_ring=%d\n", *s->sq_ring.ring_entries, *s->cq_ring.ring_entries);
--#ifdef CONFIG_LIBAIO
- 	else
--		printf("Engine=aio, ctx=%p\n", &s->aio_ctx);
--#endif
-+		printf("Engine=aio\n");
- 
- 	for (j = 0; j < nthreads; j++) {
- 		s = get_submitter(j);
+Cheers,
+--
+Luís
