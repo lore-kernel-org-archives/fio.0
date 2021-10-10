@@ -2,197 +2,117 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51D8BC433F5
-	for <fio@archiver.kernel.org>; Fri,  8 Oct 2021 12:00:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C5B2C433FE
+	for <fio@archiver.kernel.org>; Sun, 10 Oct 2021 08:31:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E00360FD8
-	for <fio@archiver.kernel.org>; Fri,  8 Oct 2021 12:00:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1989961039
+	for <fio@archiver.kernel.org>; Sun, 10 Oct 2021 08:31:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240731AbhJHMCC (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 8 Oct 2021 08:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230167AbhJHMCB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 8 Oct 2021 08:02:01 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58747C061570
-        for <fio@vger.kernel.org>; Fri,  8 Oct 2021 05:00:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=rX4EwdcYUf58tt2pxrb7C1tGifY6OTl1dHIo+ueRFdA=; b=qExd7b57yCYe6sli2DBYA/Mwnc
-        KeF4+Ap5vkI7clD7GudYT9NsCA+eKBMVr5Xc/imy2g8WXboX90RXYuXP7Qj1iWSikJf9hWuw0vneY
-        ap8omXDJtjaySo8rPt9foKkSKyZm20KO67qGsShjsR14joJ0u3IY3hpPUMwpBP8Lq3+OaQgd9iwKQ
-        f7QDs81oIyzjzvTzU5eAsLHEQy/ssdR0ifbgZ9OhVQSzWKxZw1cE/xji1aCTuY2jZLeYY1msvoEY7
-        bHPYp4zVXyZ8TysNZle2WzrzzEvqTnqpR1a/XkcWnZdeE/8i9XgP2nbVEjcJTYm+gjibQatJ3lPnJ
-        yt0Q2qJw==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mYoXk-008em5-Dy
-        for fio@vger.kernel.org; Fri, 08 Oct 2021 12:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 33B811BC012A; Fri,  8 Oct 2021 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211008120002.33B811BC012A@kernel.dk>
-Date:   Fri,  8 Oct 2021 06:00:02 -0600 (MDT)
+        id S231204AbhJJIdc (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 10 Oct 2021 04:33:32 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:56849 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231131AbhJJIdb (ORCPT
+        <rfc822;fio@vger.kernel.org>); Sun, 10 Oct 2021 04:33:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633854692;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=wWm6MZEgsIqvR/LGmdBzAuow2ZxRc8S3j2PHzbeom1E=;
+        b=Qw39YqL6q5cETCBx4VmGYN0ke1YThXXJz6oXg8fxIFodH0e2Kr0Q5UZfJVv88OWcgaWCr3
+        zPvkZ7aEF+L/ab7O2/tqGtCr5BfYLhx1mjzpg3rfWAV0OYR9eyOedDCx4mp4xlw8WhgAQR
+        LPVHrIV6wufX0/6TEB2SmHYNMKlKNI0=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-545-dFzuAXIdPDODFktsEnB5zw-1; Sun, 10 Oct 2021 04:31:31 -0400
+X-MC-Unique: dFzuAXIdPDODFktsEnB5zw-1
+Received: by mail-pg1-f197.google.com with SMTP id n22-20020a6563d6000000b0029261ffde9bso5101557pgv.22
+        for <fio@vger.kernel.org>; Sun, 10 Oct 2021 01:31:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to;
+        bh=wWm6MZEgsIqvR/LGmdBzAuow2ZxRc8S3j2PHzbeom1E=;
+        b=29wWN8r7nlwHMGuY405cqlGD5Y8oIxI1bRMin4e6WOQJUbRT4WdDIQOi2WvWmuIn8o
+         W6KUlw+N7Mi/fuqwnMBERU0JO8+0q86rQ6ZI5gHf3yPST778Uo1xJ1AsA33Z5oJTp7Vd
+         pq4Kj8fFa87eTjbQ2fj5IW9q7ksoWYc3EeZNGSKZ3n3QIqNCtZrpn/YaRFUD/FMroJrz
+         xT9VQZJnSKFZq53suKepZdbQfdK008Jctz7JSCoqwvrYDndpWl1QiSZMD+xmL/ZrxsqN
+         KNmtZBP0gROAge+HHn4hlhUVUW6w0CQNY6aUt18Hs3qAG3ZHoREjFMATXqhYvcmXqiIr
+         ZoKw==
+X-Gm-Message-State: AOAM530E9kjEDrx/8lpvr8HmL3hFQ3smYtSsbi8kxJf73JE2J+I6zY+M
+        Dko+FK+SLEH2V/mgPVgS8gqYVziJzfM6rYhHS1vP/dLMFvWHWbcnWMUtsKLP9R4P50lV0JFS2Bn
+        yS6u+Iq5NuA/v
+X-Received: by 2002:a17:90b:4c4c:: with SMTP id np12mr22668211pjb.205.1633854690240;
+        Sun, 10 Oct 2021 01:31:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJylVddTVKM9QEike7OQzKOWn6zbeUYL/x8CwGY3KrZpaUXePVUcXZ5G8dw+YawN/BTqCsNjSQ==
+X-Received: by 2002:a17:90b:4c4c:: with SMTP id np12mr22668194pjb.205.1633854689960;
+        Sun, 10 Oct 2021 01:31:29 -0700 (PDT)
+Received: from fedora ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id d14sm4018034pfr.123.2021.10.10.01.31.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 10 Oct 2021 01:31:29 -0700 (PDT)
+Date:   Sun, 10 Oct 2021 16:31:25 +0800
+From:   Zorro Lang <zlang@redhat.com>
+To:     Luis Henriques <lhenriques@suse.de>
+Cc:     fstests@vger.kernel.org, fio@vger.kernel.org
+Subject: Re: generic/095 failing in ext4 and xfs
+Message-ID: <20211010083125.dne6pcjjboixdllo@fedora>
+Mail-Followup-To: Luis Henriques <lhenriques@suse.de>,
+        fstests@vger.kernel.org, fio@vger.kernel.org
+References: <YVdBVdOjPLCayG1k@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YVdBVdOjPLCayG1k@suse.de>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 09ee86fa431939cb8f634e9ee8e1fc8d9302ea59:
+On Fri, Oct 01, 2021 at 06:11:49PM +0100, Luis Henriques wrote:
+> Hi!
+> 
+> I'm seeing generic/095 failing both with ext4 and xfs (but not on btrfs).
+> Here's what I'm getting:
+> 
+> # cat results/generic/095.out.bad 
+> QA output created by 095
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=51200, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=133120, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=92160, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=158720, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=513024, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=33792, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=449536, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=45056, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=30720, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=222208, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=342016, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=177152, buflen=1024
+> fio: pid=4090, got signal=11
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=43008, buflen=1024
+> fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=308224, buflen=1024
+> fio: pid=4086, got signal=11
 
-  t/io_uring: get rid of old debug printfs (2021-10-05 06:58:07 -0600)
+I *guess* it might be caused by a striped storage(fs) of you?
 
-are available in the Git repository at:
+Thanks,
+Zorro
 
-  git://git.kernel.dk/fio.git master
+> Silence is golden
+> 
+> This was for ext4 but the output for xfs is similar.  Since fio is getting
+> killed I suspect this may be an issue with this tool.  Thus I'm sending
+> this to both fio and fstests mailing-lists.
+> 
+> I'm using a 5.15-rc3 kernel and fio-3.28.  Is anyone else seeing something
+> similar?
+> 
+> Cheers,
+> --
+> Luís
+> 
 
-for you to fetch changes up to b1ebcbce6499fed58f87d1bcbfd50899c508d3ab:
-
-  Merge branch 'evelu-ocp' of https://github.com/ErwanAliasr1/fio (2021-10-07 06:18:21 -0600)
-
-----------------------------------------------------------------
-Erwan Velu (5):
-      t/one-core-peak: Reporting BLK_CGROUP
-      t/one-core-peak: Reporting BLK_WBT_MQ
-      t/one-core-peak: Reporting kernel cmdline
-      t/one-core-peak: Reporting RETPOLINE & PAGE_TABLE_ISOLATION
-      t/io_uring: Add -r option to control the runtime
-
-Jens Axboe (1):
-      Merge branch 'evelu-ocp' of https://github.com/ErwanAliasr1/fio
-
- t/io_uring.c       | 26 ++++++++++++++++++++------
- t/one-core-peak.sh |  6 ++++--
- 2 files changed, 24 insertions(+), 8 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 7ef2f6ce..2c9fd08c 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -118,6 +118,7 @@ static int do_nop = 0;		/* no-op SQ ring commands */
- static int nthreads = 1;
- static int stats = 0;		/* generate IO stats */
- static int aio = 0;		/* use libaio */
-+static int runtime = 0;	/* runtime */
- 
- static unsigned long tsc_rate;
- 
-@@ -841,11 +842,10 @@ static struct submitter *get_submitter(int offset)
- 	return ret;
- }
- 
--static void sig_int(int sig)
-+static void do_finish(const char *reason)
- {
- 	int j;
--
--	printf("Exiting on signal %d\n", sig);
-+	printf("Exiting on %s\n", reason);
- 	for (j = 0; j < nthreads; j++) {
- 		struct submitter *s = get_submitter(j);
- 		s->finish = 1;
-@@ -853,6 +853,11 @@ static void sig_int(int sig)
- 	finish = 1;
- }
- 
-+static void sig_int(int sig)
-+{
-+	do_finish("signal");
-+}
-+
- static void arm_sig_int(void)
- {
- 	struct sigaction act;
-@@ -1000,6 +1005,8 @@ static void file_depths(char *buf)
- 
- static void usage(char *argv, int status)
- {
-+	char runtime_str[16];
-+	snprintf(runtime_str, sizeof(runtime_str), "%d", runtime);
- 	printf("%s [options] -- [filenames]\n"
- 		" -d <int>  : IO Depth, default %d\n"
- 		" -s <int>  : Batch submit, default %d\n"
-@@ -1013,9 +1020,11 @@ static void usage(char *argv, int status)
- 		" -N <bool> : Perform just no-op requests, default %d\n"
- 		" -t <bool> : Track IO latencies, default %d\n"
- 		" -T <int>  : TSC rate in HZ\n"
--		" -a <bool> : Use legacy aio, default %d\n",
-+		" -a <bool> : Use legacy aio, default %d\n"
-+		" -r <int>  : Runtime in seconds, default %s\n",
- 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
--		fixedbufs, register_files, nthreads, !buffered, do_nop, stats, aio);
-+		fixedbufs, register_files, nthreads, !buffered, do_nop, stats, aio,
-+		runtime == 0 ? "unlimited" : runtime_str);
- 	exit(status);
- }
- 
-@@ -1075,7 +1084,7 @@ int main(int argc, char *argv[])
- 	if (!do_nop && argc < 2)
- 		usage(argv[0], 1);
- 
--	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:h?")) != -1) {
-+	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:h?")) != -1) {
- 		switch (opt) {
- 		case 'a':
- 			aio = !!atoi(optarg);
-@@ -1133,6 +1142,9 @@ int main(int argc, char *argv[])
- 			tsc_rate = strtoul(optarg, NULL, 10);
- 			write_tsc_rate();
- 			break;
-+		case 'r':
-+			runtime = atoi(optarg);
-+			break;
- 		case 'h':
- 		case '?':
- 		default:
-@@ -1273,6 +1285,8 @@ int main(int argc, char *argv[])
- 		unsigned long iops, bw;
- 
- 		sleep(1);
-+		if (runtime && !--runtime)
-+			do_finish("timeout");
- 
- 		/* don't print partial run, if interrupted by signal */
- 		if (finish)
-diff --git a/t/one-core-peak.sh b/t/one-core-peak.sh
-index d0649d2e..11b1d69a 100755
---- a/t/one-core-peak.sh
-+++ b/t/one-core-peak.sh
-@@ -152,7 +152,7 @@ check_sysblock_value() {
-   sys_block_dir=$(get_sys_block_dir ${device_name})
-   target_file="${sys_block_dir}/$2"
-   value=$3
--  [ -f "${target_file}" ] || fatal "Cannot find ${target_file} for ${device_name}"
-+  [ -f "${target_file}" ] || return
-   content=$(cat ${target_file})
-   if [ "${content}" != "${value}" ]; then
-     info "${device_name}" "${target_file} set to ${value}."
-@@ -238,9 +238,10 @@ show_system() {
-   info "system" "CPU: ${CPU_MODEL}"
-   info "system" "MEMORY: ${MEMORY_SPEED}"
-   info "system" "KERNEL: ${KERNEL}"
--  for config_item in BLK_CGROUP_IOCOST HZ; do
-+  for config_item in BLK_CGROUP BLK_WBT_MQ HZ RETPOLINE PAGE_TABLE_ISOLATION; do
-     info "system" "KERNEL: $(show_kernel_config_item ${config_item})"
-   done
-+  info "system" "KERNEL: $(cat /proc/cmdline)"
-   tsc=$(journalctl -k | grep 'tsc: Refined TSC clocksource calibration:' | awk '{print $11}')
-   if [ -n "${tsc}" ]; then
-     info "system" "TSC: ${tsc} Mhz"
-@@ -263,6 +264,7 @@ for drive in ${drives}; do
-   check_sysblock_value ${drive} "queue/iostats" 0 # Ensure iostats are disabled
-   check_sysblock_value ${drive} "queue/nomerges" 2 # Ensure merge are disabled
-   check_sysblock_value ${drive} "queue/io_poll" 1 # Ensure io_poll is enabled
-+  check_sysblock_value ${drive} "queue/wbt_lat_usec" 0 # Disabling wbt lat
-   show_device ${drive}
- done
- 
