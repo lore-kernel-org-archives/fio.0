@@ -2,102 +2,123 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 605D1C433F5
-	for <fio@archiver.kernel.org>; Sun, 10 Oct 2021 12:00:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F4213C4332F
+	for <fio@archiver.kernel.org>; Mon, 11 Oct 2021 09:09:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4539060555
-	for <fio@archiver.kernel.org>; Sun, 10 Oct 2021 12:00:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E02A261040
+	for <fio@archiver.kernel.org>; Mon, 11 Oct 2021 09:09:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231838AbhJJMCk (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 10 Oct 2021 08:02:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58286 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231846AbhJJMCk (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 10 Oct 2021 08:02:40 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE1E9C061570
-        for <fio@vger.kernel.org>; Sun, 10 Oct 2021 05:00:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=xs41FO87oz8pAbZUzcWQi7u838zPZFpK7wS797eX7bQ=; b=SI/s0IOv5Ed4vXwItbp+Nv0JTW
-        wxif7jxk/KNbn+EH5Hpnk+zWqzZwNT1XLPkeDrgScsf5PeznzAWgE0QxYam7eSzQvn6iLwplf+UC+
-        VyWxFEHa7gsJbLtFWW8mMacJwqXlicl3gJgtxtN+t4OATXTEUwdU9TA19pgobdKWTmuBq3Zcd+g0g
-        5ouzXOxTHCsYJsCHGwuxlv77lFp0HJVGxpQMbP2jGKKpCzAEA4kPSyF48S73nhW0UYf6qQFq+piPc
-        yKYmOvTA7rJg+/d5vmKwXL/SIGNPy+qIS7y/5x6dypDER+bEJMfEEwNjfP/BFHoymEJ2OK1RrrMmU
-        idfk8dJQ==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mZXUs-004mv7-4A
-        for fio@vger.kernel.org; Sun, 10 Oct 2021 12:00:16 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 218D51BC013F; Sun, 10 Oct 2021 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211010120002.218D51BC013F@kernel.dk>
-Date:   Sun, 10 Oct 2021 06:00:02 -0600 (MDT)
+        id S235386AbhJKJLf (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 11 Oct 2021 05:11:35 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:56324 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235403AbhJKJLc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 11 Oct 2021 05:11:32 -0400
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 837B620041;
+        Mon, 11 Oct 2021 09:09:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1633943371; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ESRudC8uAqlDAG/p5sL7NuQ7SwM1N8WVj3zuoPUV6KM=;
+        b=Dg4AjlSK7KGlBTR43GdJGc5H3U3sSjioHig2SUi/lzje2LYjSypHBcfJlblVzr/BpBq+0I
+        ign7ePZX93/rEgEZqe8qaLmhcRbPkQyWn7ofD7Xj1hRzl2wQPbUPZk8xl3ac4uSbOyJFtr
+        jcxHt/R0GDWfpEjJ4eFhHyKIaqIERYw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1633943371;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ESRudC8uAqlDAG/p5sL7NuQ7SwM1N8WVj3zuoPUV6KM=;
+        b=xB6fXDgTidC0h6JKI3tLv1rf4cEpS00C/4JUBk+dHHaUfLF0RLDIxj6+NJSU6t0mvWjLAT
+        rw/RG1QGQu7c0nCw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 52C0D13C03;
+        Mon, 11 Oct 2021 09:09:31 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id YUXhEEv/Y2G1EQAAMHmgww
+        (envelope-from <lhenriques@suse.de>); Mon, 11 Oct 2021 09:09:31 +0000
+Received: from localhost (brahms [local])
+        by brahms (OpenSMTPD) with ESMTPA id bba1bf4b;
+        Mon, 11 Oct 2021 09:09:30 +0000 (UTC)
+Date:   Mon, 11 Oct 2021 10:09:30 +0100
+From:   =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
+To:     fstests@vger.kernel.org, fio@vger.kernel.org
+Subject: Re: generic/095 failing in ext4 and xfs
+Message-ID: <YWP/SmhG8TviBE2w@suse.de>
+References: <YVdBVdOjPLCayG1k@suse.de>
+ <20211010083125.dne6pcjjboixdllo@fedora>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20211010083125.dne6pcjjboixdllo@fedora>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit b1ebcbce6499fed58f87d1bcbfd50899c508d3ab:
+On Sun, Oct 10, 2021 at 04:31:25PM +0800, Zorro Lang wrote:
+> On Fri, Oct 01, 2021 at 06:11:49PM +0100, Luis Henriques wrote:
+> > Hi!
+> > 
+> > I'm seeing generic/095 failing both with ext4 and xfs (but not on btrfs).
+> > Here's what I'm getting:
+> > 
+> > # cat results/generic/095.out.bad 
+> > QA output created by 095
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=51200, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=133120, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=92160, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=158720, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=513024, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=33792, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=449536, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=45056, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=30720, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=222208, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=342016, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=177152, buflen=1024
+> > fio: pid=4090, got signal=11
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=43008, buflen=1024
+> > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=308224, buflen=1024
+> > fio: pid=4086, got signal=11
+> 
+> I *guess* it might be caused by a striped storage(fs) of you?
 
-  Merge branch 'evelu-ocp' of https://github.com/ErwanAliasr1/fio (2021-10-07 06:18:21 -0600)
+I'm not sure I understand what you mean by that.  As I mentioned somewhere
+else in this thread, I'm using zram devices for testing.  If I change the
+test to use file-backed storage device instead, it passes without any
+issues.
 
-are available in the Git repository at:
+Cheers,
+--
+Luís
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to d4af2ecea2930138bbaf58fe84debef8e84761c6:
-
-  t/io_uring: fix latency stats for depth == 1 (2021-10-09 12:56:11 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      t/io_uring: fix latency stats for depth == 1
-
- t/io_uring.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 2c9fd08c..cdd15986 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -531,8 +531,8 @@ static int reap_events_uring(struct submitter *s)
- 					stat_nr = 0;
- 				}
- 				last_idx = clock_index;
--			} else if (clock_index)
--				stat_nr++;
-+			}
-+			stat_nr++;
- 		}
- 		reaped++;
- 		head++;
-@@ -562,6 +562,8 @@ static int submitter_init(struct submitter *s)
- 
- 	if (stats) {
- 		nr_batch = roundup_pow2(depth / batch_submit);
-+		if (nr_batch < 2)
-+			nr_batch = 2;
- 		s->clock_batch = calloc(nr_batch, sizeof(unsigned long));
- 		s->clock_index = 1;
- 
-@@ -637,8 +639,8 @@ static int reap_events_aio(struct submitter *s, struct io_event *events, int evs
- 					stat_nr = 0;
- 				}
- 				last_idx = clock_index;
--			} else if (clock_index)
--				stat_nr++;
-+			}
-+			stat_nr++;
- 		}
- 		reaped++;
- 		evs--;
+> 
+> Thanks,
+> Zorro
+> 
+> > Silence is golden
+> > 
+> > This was for ext4 but the output for xfs is similar.  Since fio is getting
+> > killed I suspect this may be an issue with this tool.  Thus I'm sending
+> > this to both fio and fstests mailing-lists.
+> > 
+> > I'm using a 5.15-rc3 kernel and fio-3.28.  Is anyone else seeing something
+> > similar?
+> > 
+> > Cheers,
+> > --
+> > Luís
+> > 
+> 
