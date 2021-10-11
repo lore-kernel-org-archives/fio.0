@@ -2,91 +2,102 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0F1FC433EF
-	for <fio@archiver.kernel.org>; Mon, 11 Oct 2021 10:27:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 131B4C433F5
+	for <fio@archiver.kernel.org>; Mon, 11 Oct 2021 11:14:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE23260E74
-	for <fio@archiver.kernel.org>; Mon, 11 Oct 2021 10:27:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DE7E861039
+	for <fio@archiver.kernel.org>; Mon, 11 Oct 2021 11:14:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235763AbhJKK3m (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 11 Oct 2021 06:29:42 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:42298 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235446AbhJKK3m (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 11 Oct 2021 06:29:42 -0400
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id C92682004C;
-        Mon, 11 Oct 2021 10:27:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1633948061; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        id S236144AbhJKLQN (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 11 Oct 2021 07:16:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28740 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235970AbhJKLQI (ORCPT
+        <rfc822;fio@vger.kernel.org>); Mon, 11 Oct 2021 07:16:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1633950848;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=hfgwd/ccHqpk8XmWmMmBq8LMrWa4TpLfEr1d+nGp4L0=;
-        b=0v0tPJdjH/zmZKw4XV+IOIW0DGrQVY28vVfuvAW0qB2Flerxg1Z53azus/RptjqXsmZHEZ
-        uI5Mj7S0bmgPbtxbLfhYdGZswwR15QsAF4e0LFAcp4OPy2+faaQUcHwSfDCk8TzZiLccW+
-        mqhaqqPMjPuweEUJZfRNHIRo8pwZiLA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1633948061;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=hfgwd/ccHqpk8XmWmMmBq8LMrWa4TpLfEr1d+nGp4L0=;
-        b=DXx8Uk8pQEgxfWGufKlB2qmaMvl3rK5PySxjwbTx4wGS2ax0uqA8jqEpiLOKHrKc2zxx7y
-        agsy16FY0qDZqCCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        bh=PnpfxqAx5ZBl3fnKy32lAl1Jk1/daFqfsFzXCrwbgqs=;
+        b=dGXc6f+6n1ZiKNKTruPOJWqhTLGzSQyLDeWwD3vF5LP5NbkIeKX0JW2GEgdEI1GcI1oaWl
+        OPaZAJxWOD8JDHLx99rV8QsaPLTcXsPK3nEK1amoKrG8Slk5D3MuOejZZARLXfdvxuDIfk
+        7vA2gqvyqh5XhTY7dtEKIGBFXEth0VE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-552-OxrC04REOX6eD1Ngk49HTQ-1; Mon, 11 Oct 2021 07:14:06 -0400
+X-MC-Unique: OxrC04REOX6eD1Ngk49HTQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 877FE13C4C;
-        Mon, 11 Oct 2021 10:27:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 4CIPHp0RZGGVOAAAMHmgww
-        (envelope-from <lhenriques@suse.de>); Mon, 11 Oct 2021 10:27:41 +0000
-Received: from localhost (brahms [local])
-        by brahms (OpenSMTPD) with ESMTPA id 8aaebaf9;
-        Mon, 11 Oct 2021 10:27:40 +0000 (UTC)
-From:   =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     fio@vger.kernel.org,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>
-Subject: [PATCH] fio: make sure io_u->file isn't NULL before using it
-Date:   Mon, 11 Oct 2021 11:27:39 +0100
-Message-Id: <20211011102739.10429-1-lhenriques@suse.de>
-In-Reply-To: <6f867fa0-c3e9-6f65-d97f-4779c029ef81@kernel.dk>
-References: <6f867fa0-c3e9-6f65-d97f-4779c029ef81@kernel.dk>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E088410A8E02;
+        Mon, 11 Oct 2021 11:14:05 +0000 (UTC)
+Received: from T590 (ovpn-8-37.pek2.redhat.com [10.72.8.37])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5D85610023AE;
+        Mon, 11 Oct 2021 11:14:02 +0000 (UTC)
+Date:   Mon, 11 Oct 2021 19:13:57 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     =?iso-8859-1?Q?Lu=EDs?= Henriques <lhenriques@suse.de>
+Cc:     fstests@vger.kernel.org, fio@vger.kernel.org
+Subject: Re: generic/095 failing in ext4 and xfs
+Message-ID: <YWQcdTCMIFFdDnMh@T590>
+References: <YVdBVdOjPLCayG1k@suse.de>
+ <20211010083125.dne6pcjjboixdllo@fedora>
+ <YWP/SmhG8TviBE2w@suse.de>
+ <YWQEgBQLdD+zsHOZ@T590>
+ <YWQO6RdR7oUSNpxN@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YWQO6RdR7oUSNpxN@suse.de>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-While running fstests generic/095 against ext4 on a zram device I started
-seeing fio crashing.  Fix it by making sure io_u->file isn't NULL before
-accessing it.
+On Mon, Oct 11, 2021 at 11:16:09AM +0100, LuÌs Henriques wrote:
+> On Mon, Oct 11, 2021 at 05:31:44PM +0800, Ming Lei wrote:
+> > On Mon, Oct 11, 2021 at 10:09:30AM +0100, LuÌs Henriques wrote:
+> > > On Sun, Oct 10, 2021 at 04:31:25PM +0800, Zorro Lang wrote:
+> > > > On Fri, Oct 01, 2021 at 06:11:49PM +0100, Luis Henriques wrote:
+> > > > > Hi!
+> > > > > 
+> > > > > I'm seeing generic/095 failing both with ext4 and xfs (but not on btrfs).
+> > > > > Here's what I'm getting:
+> > > > > 
+> > > > > # cat results/generic/095.out.bad 
+> > > > > QA output created by 095
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=51200, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=133120, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=92160, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=158720, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=513024, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=33792, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file2: Invalid argument: write offset=449536, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=45056, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=30720, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=222208, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: read offset=342016, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=177152, buflen=1024
+> > > > > fio: pid=4090, got signal=11
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=43008, buflen=1024
+> > > > > fio: io_u error on file /tmp/mnt/scratch/file1: Invalid argument: write offset=308224, buflen=1024
+> > > > > fio: pid=4086, got signal=11
+> > 
+> > The issue should be from generic/095 test itself, which run dio with bs=1k,
+> > but logical block size is 4k. I guess the test may work after you change
+> > bs to 4k in generic/095.
+> 
+> Ah, I see what you mean.  Ok, I've used the patch bellow and the test now
+> passes.  The patch changes the block size only for the DIO jobs, there are
+> other jobs where bs=1k is still used.  Do you think other jobs should be
+> changed as well?
 
-Signed-off-by: Lu√≠s Henriques <lhenriques@suse.de>
----
- io_u.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Only DIO job need aligned bs parameter. 
 
-diff --git a/io_u.c b/io_u.c
-index 5289b5d1d9c6..b8e715d4118c 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2009,7 +2009,8 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
- 			io_u->xfer_buf += bytes;
- 			io_u->offset += bytes;
- 			td->ts.short_io_u[io_u->ddir]++;
--			if (io_u->offset < io_u->file->real_file_size) {
-+			if (io_u->file &&
-+			    (io_u->offset < io_u->file->real_file_size)) {
- 				requeue_io_u(td, io_u_ptr);
- 				return;
- 			}
+
+thanks,
+Ming
+
