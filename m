@@ -2,80 +2,90 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0378C433EF
-	for <fio@archiver.kernel.org>; Tue, 12 Oct 2021 12:01:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58E18C433EF
+	for <fio@archiver.kernel.org>; Wed, 13 Oct 2021 06:09:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AD41461074
-	for <fio@archiver.kernel.org>; Tue, 12 Oct 2021 12:01:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2E30A60E74
+	for <fio@archiver.kernel.org>; Wed, 13 Oct 2021 06:09:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236288AbhJLMDY (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 12 Oct 2021 08:03:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53320 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232665AbhJLMDX (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 12 Oct 2021 08:03:23 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8F77C061570
-        for <fio@vger.kernel.org>; Tue, 12 Oct 2021 05:01:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=0kFVdwuC6zzZ5+JGmu8eb0H4IGPlPhmzhAnxpJve/gE=; b=Und1LIp68BqcQhyZHzORVohO1R
-        YZeQnHROXD3YQlUXmSFe0Ipx/9JH/rmCCP7KGjZ2i/Tm4xZH7izYP5ilfdT11T92qxg8CKCar7JkC
-        QjMCjKACPR1QqHLL1QWEQm5vTzNPjQ570eVatneJhxtWV40ZA6ZJQbIGY2y7xr31xWzEE3V7iMZEL
-        DxDZvDdKgVkuT1S665eh3f7RKkcAhV8LUZm7cwc97DyDZ3m0wIxrky/fUbto56EllDC9szBFo9yVE
-        PUIJWBCeJeEfxGld2GAtIx2BQ+o5Fl9GQbY8xpXljF2T1x8QRMYWn4/+ZV2hgDN+uQTsmD4I5lGU6
-        OzNLUNYA==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1maGRx-006TdZ-75
-        for fio@vger.kernel.org; Tue, 12 Oct 2021 12:00:25 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 59C1F1BC0119; Tue, 12 Oct 2021 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211012120002.59C1F1BC0119@kernel.dk>
-Date:   Tue, 12 Oct 2021 06:00:02 -0600 (MDT)
+        id S229751AbhJMGLJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 13 Oct 2021 02:11:09 -0400
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:53709 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229582AbhJMGLI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 13 Oct 2021 02:11:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1634105346; x=1665641346;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=KLMjlN6wjqaD+/itKKor/omLDHEgBmoCsK14vNc5e/4=;
+  b=c4F0l3KVgR2OPZCRXdrNzqPqy7aW8sCMeDfaLsYxXjTB4/5ZKsphaeOG
+   xF7iks2MTcxiv+cr89EdvaEuS3ByTMoiHHfaor/68xeJqLFfo5/7Kfro7
+   zYBTXnpRgpBLkD31Zt85zFF4KUSrS+2rsOVn03e5cZW3eTprbxSP4fFk+
+   lAjUd/URD5ZP17WTHJdYuLdbgsIANuRoSIfeEMxeTAPG4AHda8Owr9akQ
+   mwpEbwaGu4kgINHnYcId6LOBaoBDE8mF+mnpxG8XDMxe6zgbCCtUsUqqz
+   cZQGD39DCL06RN5EUJZQIQfrR44H4BpNlTatF4w/3UwvJd7P6Za42On8Z
+   w==;
+X-IronPort-AV: E=Sophos;i="5.85,369,1624291200"; 
+   d="scan'208";a="181718909"
+Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 13 Oct 2021 14:09:05 +0800
+IronPort-SDR: aGGLqxbXM0qBmK535Iw1d8tttSoi0vlxUEIAUjv6EBJpJAwhnXvoIR6XO5KexMdYRmgEsxX1Zd
+ bHCZOmIVN5iFPtygtkx1HWT/oLXkKnl8Dxuw+MwxXI+xnMfwq2msLSSGD5zq9lc+KGEOXZ16cT
+ gLVav86Xh5IZdU/D22yni/7hbDerJPAlEMJlDnNLqOCcY4fP5TI3M8AHjHBQSY5F928iWRImdW
+ TFM1PzCG0jgVnOC9vnwgphNMF2Cqv9WoX1xFt9hj3bD6atMy6MJK6c1UDynH6TEwDWmkCF/7fK
+ 5GqH3FyUTdtmWAh5jE31t7XA
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Oct 2021 22:43:18 -0700
+IronPort-SDR: IfXET+ibavmi+1kNGYppPErWmJSHG8tHR+c8bVaKDiypw15BWnS328sozMC0zwthDXeIfFJuTH
+ RoqMh2usVEkK6E79PamLHsrmv2hCDQ8A/9xS25fCueSNqjnDbdbx9zjPDBIV7/uUS/Z1VoHLrz
+ OFj4e3AYMfue0X9R9o6oQiyauy8jsH10yYBcawfKhZ3GS0NzqN0nYbf6DPUWxl4yIbdqg5fqsA
+ Wf46PiNkgFK112M/2i0Q5BxsH5mMRa+wFVlolPBifVIXhDKVn06tEFE52LFQWgsTG4dHZeD/Wq
+ Rl8=
+WDCIronportException: Internal
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.173])
+  by uls-op-cesaip02.wdc.com with ESMTP; 12 Oct 2021 23:09:05 -0700
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc:     Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 0/5] zbd: Fix failures unique to specific zoned devices
+Date:   Wed, 13 Oct 2021 15:08:58 +0900
+Message-Id: <20211013060903.166543-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.31.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit d4af2ecea2930138bbaf58fe84debef8e84761c6:
+Recently test case failures of t/zbd/test-zoned-support were observed, which
+were unique to specific zoned block devices. Several test cases fail when the
+device has large zone size in GB order. Some test cases fail when zone capacity
+is unaligned to block sizes. Some other test cases fail when the zoned block
+device has strict open zone resource limitations.
 
-  t/io_uring: fix latency stats for depth == 1 (2021-10-09 12:56:11 -0600)
+This patch series addresses the failures. The 1st patch is a preparation for the
+next patch. The 2nd and the 3rd patches fix the failures observed due to large
+zone size. The 4th patch fixes the failures observed due to zone capacity
+unaligned to block size. The last patch adds an option to the test script to
+support strict zone resource limitations.
 
-are available in the Git repository at:
+Shin'ichiro Kawasaki (5):
+  zbd: Remove cast to unsigned long long for printf
+  zbd: Fix type of local variable min_bs
+  t/zbd: Do not use too large block size in test case #4
+  t/zbd: Align block size to zone capacity
+  t/zbd: Add -w option to ensure no open zone before write tests
 
-  git://git.kernel.dk/fio.git master
+ t/zbd/functions        |  26 ++++++++++
+ t/zbd/test-zbd-support |  40 +++++++++------
+ zbd.c                  | 107 +++++++++++++++++++----------------------
+ 3 files changed, 100 insertions(+), 73 deletions(-)
 
-for you to fetch changes up to c4cb947e8f92c10835164b67deed06828cfc01be:
+-- 
+2.31.1
 
-  io_u: don't attempt to requeue for full residual (2021-10-11 09:49:21 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      io_u: don't attempt to requeue for full residual
-
- io_u.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/io_u.c b/io_u.c
-index 5289b5d1..586a4bef 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2004,7 +2004,7 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
- 		 * Make sure we notice short IO from here, and requeue them
- 		 * appropriately!
- 		 */
--		if (io_u->resid) {
-+		if (bytes && io_u->resid) {
- 			io_u->xfer_buflen = io_u->resid;
- 			io_u->xfer_buf += bytes;
- 			io_u->offset += bytes;
