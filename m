@@ -2,162 +2,369 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 330DBC433F5
-	for <fio@archiver.kernel.org>; Wed, 13 Oct 2021 08:28:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17731C433EF
+	for <fio@archiver.kernel.org>; Wed, 13 Oct 2021 12:00:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08F4661077
-	for <fio@archiver.kernel.org>; Wed, 13 Oct 2021 08:28:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E6BDD60273
+	for <fio@archiver.kernel.org>; Wed, 13 Oct 2021 12:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234505AbhJMIaP (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 13 Oct 2021 04:30:15 -0400
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:50692 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233707AbhJMIaO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 13 Oct 2021 04:30:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1634113691; x=1665649691;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=1C9veBe+MXPvTGEjljIEl+XVVyFCONWI09YCT9IMfiI=;
-  b=oNFTCJzCzb7uJqp3007/cdMcvf4g0Bwz+ee7yJzHTkRoF1EjtMSVQSoR
-   gBkaWi8QNwzHqiaSfV8gqhdUiImYjo0iAx74sSK8ij8ubD6mFC/L6RmfA
-   kiiJAmgiRFGIX1K02cvwhnAPD2umWaRwMYwXJ6ce42xD/Vsx8AMQHlmPI
-   qwAXcQKyxSUxAEXwZ4bz5OycTff95CpwOHvBr2oXmUJNr4siXunEb2WyT
-   o1Vsg7jblF8nfU8vPYGumIEnOUCQZYb9iJ1ANX2y0L37lZGkCJjkqEXjp
-   QNMBgoJMHdcKc0iFZF3zZxqglD3a2NiDeNbAkmkc+dC/rNgbBl08P6C9O
-   w==;
-X-IronPort-AV: E=Sophos;i="5.85,370,1624291200"; 
-   d="scan'208";a="182712610"
-Received: from mail-bn7nam10lp2108.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.108])
-  by ob1.hgst.iphmx.com with ESMTP; 13 Oct 2021 16:28:10 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JFZOvrpUKGXsbPUpTcRIPx5AAvyxzdKNKtQRtNFMxHhqjlOoVaQAVmrk15Rtd/C7SkIz3+6GUTMkpe3VWmPCxo5eGiriiZiH9/RFHK1jnPO6ni36KiOwauKHtOZQj1Zxa9Anm1E/0qRS7S39nLpCBsbTwoEYvE2Kn32fW7wnDzhPiVKPtQCmJDJKdyYx6EfNuQ5UHyfyiORJZsZSHaS12vk8bZHNypxOsisqGUAO+6/eMlBK89jA24D9mLH/8KJKKhDtcXsrXBRFIXHfPx67rrgEXSYk6Kqs3Q2p8uOmLmq3bdoXHXZcx7GElIIYVMp2FRS7elW8SERRbuQiFkaqCQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1C9veBe+MXPvTGEjljIEl+XVVyFCONWI09YCT9IMfiI=;
- b=i2fgB+ZU6mVr8eJh9Hb8YcM3vLFNteMbCKEPOsRu1A/BLKA4Q1VsKSWVQxADh/k3OwNkybLG6HMFwWYxupF44q4JEaJCpyhgRZe/4DJm6mK752mAacb1Z3NOiQE+Xbrn5/YauX1i7W7e0oiQM5DbMZIS2ywQeGC8eVrv8oLZSuLXhPPvOecs+mpqPaekH0+gkZsdkaglFi58u2FddTh7BnHnBKIKzGF7CGytmUBkO5N+IpushJf0dBzzeLyNTKMsKOtdWnJhY89j1DJZrr3BGtKzUc1ABaMByXqQKLbMZp2zKACQRTeoo+8+T0G1w5FLVtUo7hRXEjdvzS+G6H6JAA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1C9veBe+MXPvTGEjljIEl+XVVyFCONWI09YCT9IMfiI=;
- b=eJwqfZhZYvb9SSON/0YXLPbHEpOUW0DtgfDbelFc8+r7mnaHuDpeDtaLnFIltfyo5vAKUCkrUDpAXQs8YbbhQYkU4+qEOb2Il6FnDOGbljuwX9lVjfwXd1cxrZwBQGk6BpCOKGbSg3VnMod+WmoO9ltXFJi2kayKIRtGF+XDsz4=
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by PH0PR04MB7735.namprd04.prod.outlook.com (2603:10b6:510:4c::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4587.22; Wed, 13 Oct
- 2021 08:28:08 +0000
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::1845:16f9:b095:31dc]) by PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::1845:16f9:b095:31dc%5]) with mapi id 15.20.4587.026; Wed, 13 Oct 2021
- 08:28:08 +0000
-From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 5/5] t/zbd: Add -w option to ensure no open zone before
- write tests
-Thread-Topic: [PATCH 5/5] t/zbd: Add -w option to ensure no open zone before
- write tests
-Thread-Index: AQHXv/jaO7XNQejT4k2+d9OS2/pQ7qvQmIcA
-Date:   Wed, 13 Oct 2021 08:28:07 +0000
-Message-ID: <YWaYkieIOBhRQqub@x1-carbon>
-References: <20211013060903.166543-1-shinichiro.kawasaki@wdc.com>
- <20211013060903.166543-6-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20211013060903.166543-6-shinichiro.kawasaki@wdc.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: wdc.com; dkim=none (message not signed)
- header.d=none;wdc.com; dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: eb587f8e-3440-4005-b231-08d98e2362c8
-x-ms-traffictypediagnostic: PH0PR04MB7735:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <PH0PR04MB7735B7A3D8124FF7793F4876F2B79@PH0PR04MB7735.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:1468;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: PNMBvG8wryVXCr0jbUdBEOOGVEIOM09+XoObe38+JiGFxT0sQZr/jHEQHWYv5kutcdLRZEVWei5oBHbJxxHpukXpRs/tNVw++i7uU+MGjuPT/RQjcBRpHaYLVeoSfg1z9OR3ay+VngwQjc7o41fylkAx3oE6vsRX7FJVbEWBExB/mJslBi5nMJHDR3EPHgLrBfVd0WhRQnHyEfaHTNmfJt9W0wVranh9u1BhxueW+r7MCVwWlu4DTpphM+w8+Paoy04KE5a+q9p9T+snFZ6sFEZ+oDETge9RURETdRU80jseJQ1HFH5oYr0DqB6IEfTBIuc/TWnAEYkaTIVf6iQwBI9Eb6uDPYyMmG8RjTqoL4mRf72nyCkHxAiUbgW4YyJEPurUgHOgVJoCSB7fUVnQFzKIZDkTTWGEDYAvQpBeQzvIsRvulDNki20AYkWj+Gw6N7Udc7HPJ/W6bjU6J0DVXZe+dCn6wNtUQj6xYzeZFP2PkwaavPrIL5O7yZgdQManyJsT8nsLsQ7kfqiqIrcMVxyKzVjs5C/owrHHyLpQbMiBbY1yfePMBFXMo5UqGCA1R+6PgJXko5ciZ7JQSnnnF6su33UcR+qqiQMYn1DcGWQafAlHJDK9Wxs3/ndmn4glIJrX1X/VK/55PgYUZkaTppVQRxaOV9c89dn4ZbpzmAh1lGQADBtTWU8JySbS623JPXlqPtunNwBcN3w3ujSGPA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(366004)(5660300002)(8936002)(186003)(8676002)(9686003)(6512007)(83380400001)(6506007)(71200400001)(508600001)(6862004)(38070700005)(6636002)(86362001)(4326008)(38100700002)(66446008)(64756008)(91956017)(66476007)(54906003)(2906002)(66556008)(122000001)(76116006)(66946007)(316002)(6486002)(33716001)(82960400001)(26005);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?1Yt1CLVNL4hfVRnrikzrgFSoq5K5oYIFdH+i8LfPbYWUiiOUKau06OKuwEpV?=
- =?us-ascii?Q?Bjh2FC7lvcTgBUAYEATjHVGM45/gq718TQ6QXHYxVrir4Ux6+T+i54OI2SOU?=
- =?us-ascii?Q?DImfMFmh9Z56vhQd9VqbscNvIHDPkDgETrKJoHsmPsBiEJs7ox/XGSMifIZ/?=
- =?us-ascii?Q?AU0WDMhCvH+eR+6kdIAtzZNz+EOonmx2YxqmfzWqKNlTnYvXXleyiuhX8HDa?=
- =?us-ascii?Q?ciFCJHnJYRZRSEfVpWLX3/aT8mh7+LJm5BNafxpFm0f1ItcylbWhpwxRYN+/?=
- =?us-ascii?Q?QeJ/MahV+rWsjYSVeWbbE3xehyaELvwCBPNp21R23Dmv24t0N+j1S46RhbZb?=
- =?us-ascii?Q?uWKiRg3SuNryUaUKGoyYUTCn9Ai6sXO5/C5vzV1zZ5YT77T1KMz/3SEKQQzu?=
- =?us-ascii?Q?jnVDxn9+fnf4r5j5o5r+WhfHwBuPb6LfTLehkNzrWmz4S77nZ4FEbuCQh2l8?=
- =?us-ascii?Q?p6KDO/yiKiD7kXskOrjPo1vPXS9R80dP6DsXFIzfftQXAXiL3+aOMPoYERju?=
- =?us-ascii?Q?pW21VAf8cVWgSXoN+2LHBbDYtxt/6Dh1qoT4hOMPH4J/erQTsDBvGpRCmI3u?=
- =?us-ascii?Q?cVer0IcvE1GD+NYs81u0i7GnriRCdS7Le4WGlBAiRPwd1wtWvaaNCXaEfcPY?=
- =?us-ascii?Q?CsGMqtokkD0L8aOxzdjBgiHenTHnsjdPfYD3VDvTwfWgSL62aZ6KxQok7px9?=
- =?us-ascii?Q?6/KUfsE+YfFhyCxD6gVKR7cw6/5LZDlSYJ2a3Shz0/qdcQxgAv+jM5Vfh0TQ?=
- =?us-ascii?Q?K8AbyoBmgwvL7wTIqLd4bovxMnuZw0PVVuG77ZzRKpzDl++lqFgibA0AYTUR?=
- =?us-ascii?Q?Z9l6j7Yu0j5yZKjC3OWwjrxbYPfwDGW9uANk6nVjtuBhoiWJ0IoWoFdtsRik?=
- =?us-ascii?Q?pODckv6pzlTOXq7cDKV9vJH9Ru0YgJIpFCg3tF5qzrB1ZOGo2lVPzsmUGgqm?=
- =?us-ascii?Q?j+uRiRxa4BqeLuf+up/94J7Fgj2X26reREfSFo39Mx8wK0t+BtaWj8yYzIwk?=
- =?us-ascii?Q?/nZoBvsQbSKt2XPPrX41UBd2Dl+VDsk0+n1Clj+2SPWqC0fymbH7ee6+l84n?=
- =?us-ascii?Q?YYCkf2kp7j5uHOnFx1kjDNIUyR3PAVne7CaaCMnQSYEGb2X0KFt/OPPE6rzr?=
- =?us-ascii?Q?/Cb2MfoL8j/t7uh7nsH6jFRrJYb+0j86A9/qTxWvL+nV8gp8i2qO7xF5raOp?=
- =?us-ascii?Q?MC6WXzTRMUa8LMmD/FrHcqGAh9HSk5ZgOftUBN4ohi8GfYbTiZdkt7DkWBul?=
- =?us-ascii?Q?wssbEkvc4Zsu7OQnceOOJlIdx6fgrA7h+7xh5/3ZphFLoZjd4KNo4oR3tU0x?=
- =?us-ascii?Q?WN3AaLeN33j4uioXSW6F3nYQmB3wOzsQ5KDS7Wyc4A4cQA=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <8BE859B7CB09CE49B5738BEE8A8A147D@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: eb587f8e-3440-4005-b231-08d98e2362c8
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Oct 2021 08:28:07.5971
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: eQrj0kMyOs3GD7N5IEahrIXyAVxjzAmkoA2EwQyIYqUXBf348Kc0reokbWGbcn/nj9hDt3Oe0XEZ1hMACWnitA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7735
+        id S229580AbhJMMCM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 13 Oct 2021 08:02:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42804 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229535AbhJMMCK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 13 Oct 2021 08:02:10 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB90EC061570
+        for <fio@vger.kernel.org>; Wed, 13 Oct 2021 05:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=c6aBhl8NTkILSe+7LJM3zCiBfB2DNMaLGMSWyuTlCuE=; b=JyQ2p1aUk9lI8av2VKV54eW7DA
+        +kZaEffZeugEky4YdjDXfMkmxWCLvg+BGrcIaJmWk6qh8z7MIPOMdg1DEyNUNYCkI2yrYYzCt8qoO
+        LcERPWxbykodedvkBy9xyGlfIeGGelLkjeOehRO6zc6JvYzTCwluRBeisyL3REXVX2enl0ix0EhSP
+        2/f9oKfdbMa9G4s5OrlA12/8UU3An5DsAKkceTBGD/+qOHMDl2UjNrt7z8OmV4321nOI8yRGeSL9Q
+        1y9JBWfTmMd3Xu47WwsahVcfKjv7//jum7qH4s1nlL0IVrPFqcVPdfX1yb2BztdtqOCWNXILgcqKK
+        J3CFchkQ==;
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1macvV-009bQP-MM
+        for fio@vger.kernel.org; Wed, 13 Oct 2021 12:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 9BCCE1BC0144; Wed, 13 Oct 2021 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20211013120001.9BCCE1BC0144@kernel.dk>
+Date:   Wed, 13 Oct 2021 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Wed, Oct 13, 2021 at 03:09:03PM +0900, Shin'ichiro Kawasaki wrote:
-> The commit b34eb155e4a6 ("t/zbd: Reset all zones before test when max
-> open zones is specified") introduced -o max_open_zones option to the
-> script t/zbd/test-zbd-support. It passes max_open_zones value to fio and
-> resets all zones of the test target device before each test case run
-> with write operation. This zone reset by the script ensures that no zone
-> out of the IO range is in open status and the write operation do not
-> exceed the max_open_zones limit.
->=20
-> On the other hand, since commit d2f442bc0bd5 ("ioengines: add
-> get_max_open_zones zoned block device operation"), fio automatically
-> fetches the max_open_zones value. So it is no longer required to pass
-> the max_open_zones value from the script to fio. To simplify the script
-> usage, introduce -w option which does not require max_open_zones value.
-> This option just resets zones before test cases with write operation.
->=20
-> Of note is that fio itself resets the zones exceeding max_open_zones
-> limit since the commit 954217b90191 ("zbd: Initialize open zones list
-> referring zone status at fio start"), but it just resets zones within
-> the fio IO range. Still zone reset by the test script is required for
-> zones out of IO range. Zone reset out of IO range by fio is not
-> implemented since it may cause unexpected data erasure.
->=20
-> Suggested-by: Niklas Cassel <niklas.cassel@wdc.com>
-> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-> ---
+The following changes since commit c4cb947e8f92c10835164b67deed06828cfc01be:
 
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
+  io_u: don't attempt to requeue for full residual (2021-10-11 09:49:21 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 702b0be2fe3b6cf5b3556920edaf0637a33b36e1:
+
+  t/io_uring: update for new DMA map buffers API (2021-10-12 18:41:14 -0600)
+
+----------------------------------------------------------------
+Brandon Paupore (1):
+      Query Windows clock frequency and use reported max
+
+Erwan Velu (1):
+      t/one-core-peak: Improving check_sysblock_value error handling
+
+Jens Axboe (6):
+      Merge branch 'windows-res' of https://github.com/bjpaupor/fio
+      t/io_uring: show IOPS in increments of 1000 IOPS if necessary
+      Merge branch 'evelu-onecore' of https://github.com/ErwanAliasr1/fio
+      t/io_uring: fix silly identical branch error
+      t/io_uring: add test support for pre mapping DMA buffers
+      t/io_uring: update for new DMA map buffers API
+
+ Makefile           |  4 ++--
+ helper_thread.c    | 21 +++++++++-----------
+ os/os.h            |  9 +++++++++
+ os/windows/dlls.c  | 33 +++++++++++++++++++++++++++++++
+ stat.c             |  4 ++++
+ t/io_uring.c       | 57 +++++++++++++++++++++++++++++++++++++++++++++++++-----
+ t/one-core-peak.sh |  5 ++---
+ 7 files changed, 111 insertions(+), 22 deletions(-)
+ create mode 100644 os/windows/dlls.c
+
+---
+
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index 5198f70e..c3feb53f 100644
+--- a/Makefile
++++ b/Makefile
+@@ -275,8 +275,8 @@ ifeq ($(CONFIG_TARGET_OS), Darwin)
+   LIBS	 += -lpthread -ldl
+ endif
+ ifneq (,$(findstring CYGWIN,$(CONFIG_TARGET_OS)))
+-  SOURCE += os/windows/cpu-affinity.c os/windows/posix.c
+-  WINDOWS_OBJS = os/windows/cpu-affinity.o os/windows/posix.o lib/hweight.o
++  SOURCE += os/windows/cpu-affinity.c os/windows/posix.c os/windows/dlls.c
++  WINDOWS_OBJS = os/windows/cpu-affinity.o os/windows/posix.o os/windows/dlls.o lib/hweight.o
+   LIBS	 += -lpthread -lpsapi -lws2_32 -lssp
+   FIO_CFLAGS += -DPSAPI_VERSION=1 -Ios/windows/posix/include -Wno-format
+ endif
+diff --git a/helper_thread.c b/helper_thread.c
+index d8e7ebfe..b9b83db3 100644
+--- a/helper_thread.c
++++ b/helper_thread.c
+@@ -9,6 +9,10 @@
+ #define DRD_IGNORE_VAR(x) do { } while (0)
+ #endif
+ 
++#ifdef WIN32
++#include "os/os-windows.h"
++#endif
++
+ #include "fio.h"
+ #include "smalloc.h"
+ #include "helper_thread.h"
+@@ -283,19 +287,12 @@ static void *helper_thread_main(void *data)
+ 		}
+ 	};
+ 	struct timespec ts;
+-	int clk_tck, ret = 0;
++	long clk_tck;
++	int ret = 0;
+ 
+-#ifdef _SC_CLK_TCK
+-	clk_tck = sysconf(_SC_CLK_TCK);
+-#else
+-	/*
+-	 * The timer frequence is variable on Windows. Instead of trying to
+-	 * query it, use 64 Hz, the clock frequency lower bound. See also
+-	 * https://carpediemsystems.co.uk/2019/07/18/windows-system-timer-granularity/.
+-	 */
+-	clk_tck = 64;
+-#endif
+-	dprint(FD_HELPERTHREAD, "clk_tck = %d\n", clk_tck);
++	os_clk_tck(&clk_tck);
++
++	dprint(FD_HELPERTHREAD, "clk_tck = %ld\n", clk_tck);
+ 	assert(clk_tck > 0);
+ 	sleep_accuracy_ms = (1000 + clk_tck - 1) / clk_tck;
+ 
+diff --git a/os/os.h b/os/os.h
+index 827b61e9..5965d7b8 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -412,4 +412,13 @@ static inline bool os_cpu_has(cpu_features feature)
+ # define fio_mkdir(path, mode)	mkdir(path, mode)
+ #endif
+ 
++#ifdef _SC_CLK_TCK
++static inline void os_clk_tck(long *clk_tck)
++{
++	*clk_tck = sysconf(_SC_CLK_TCK);
++}
++#else
++extern void os_clk_tck(long *clk_tck);
++#endif
++
+ #endif /* FIO_OS_H */
+diff --git a/os/windows/dlls.c b/os/windows/dlls.c
+new file mode 100644
+index 00000000..774b1c61
+--- /dev/null
++++ b/os/windows/dlls.c
+@@ -0,0 +1,33 @@
++#include "os/os.h"
++
++#include <windows.h>
++
++void os_clk_tck(long *clk_tck)
++{
++	/*
++	 * The timer resolution is variable on Windows. Try to query it 
++	 * or use 64 Hz, the clock frequency lower bound. See also
++	 * https://carpediemsystems.co.uk/2019/07/18/windows-system-timer-granularity/.
++	 */
++	unsigned long minRes, maxRes, curRes;
++	HMODULE lib;
++	FARPROC queryTimer;
++	FARPROC setTimer;
++
++	if (!(lib = LoadLibrary(TEXT("ntdll.dll"))) ||
++		!(queryTimer = GetProcAddress(lib, "NtQueryTimerResolution")) ||
++		!(setTimer = GetProcAddress(lib, "NtSetTimerResolution"))) {
++		dprint(FD_HELPERTHREAD, 
++			"Failed to load ntdll library, set to lower bound 64 Hz\n");
++		*clk_tck = 64;
++	} else {
++		queryTimer(&minRes, &maxRes, &curRes);
++		dprint(FD_HELPERTHREAD, 
++			"minRes = %lu, maxRes = %lu, curRes = %lu\n",
++			minRes, maxRes, curRes);
++
++		/* Use maximum resolution for most accurate timestamps */
++		setTimer(maxRes, 1, &curRes);
++		*clk_tck = (long) (10000000L / maxRes);
++	}
++}
+\ No newline at end of file
+diff --git a/stat.c b/stat.c
+index ac53463d..30f9b5c1 100644
+--- a/stat.c
++++ b/stat.c
+@@ -17,7 +17,11 @@
+ #include "zbd.h"
+ #include "oslib/asprintf.h"
+ 
++#ifdef WIN32
++#define LOG_MSEC_SLACK	2
++#else
+ #define LOG_MSEC_SLACK	1
++#endif
+ 
+ struct fio_sem *stat_sem;
+ 
+diff --git a/t/io_uring.c b/t/io_uring.c
+index cdd15986..84960ba9 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -110,6 +110,7 @@ static int batch_complete = BATCH_COMPLETE;
+ static int bs = BS;
+ static int polled = 1;		/* use IO polling */
+ static int fixedbufs = 1;	/* use fixed user buffers */
++static int dma_map;		/* pre-map DMA buffers */
+ static int register_files = 1;	/* use fixed files */
+ static int buffered = 0;	/* use buffered IO, not O_DIRECT */
+ static int sq_thread_poll = 0;	/* use kernel submission/poller thread */
+@@ -130,6 +131,17 @@ static float plist[] = { 1.0, 5.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
+ 			80.0, 90.0, 95.0, 99.0, 99.5, 99.9, 99.95, 99.99 };
+ static int plist_len = 17;
+ 
++#ifndef IORING_REGISTER_MAP_BUFFERS
++#define IORING_REGISTER_MAP_BUFFERS	20
++struct io_uring_map_buffers {
++	__s32	fd;
++	__u32	buf_start;
++	__u32	buf_end;
++	__u32	flags;
++	__u64	rsvd[2];
++};
++#endif
++
+ static unsigned long cycles_to_nsec(unsigned long cycles)
+ {
+ 	uint64_t val;
+@@ -319,6 +331,24 @@ static void add_stat(struct submitter *s, int clock_index, int nr)
+ #endif
+ }
+ 
++static int io_uring_map_buffers(struct submitter *s)
++{
++	struct io_uring_map_buffers map = {
++		.fd		= s->files[0].real_fd,
++		.buf_end	= depth,
++	};
++
++	if (do_nop)
++		return 0;
++	if (s->nr_files > 1) {
++		fprintf(stderr, "Can't map buffers with multiple files\n");
++		return -1;
++	}
++
++	return syscall(__NR_io_uring_register, s->ring_fd,
++			IORING_REGISTER_MAP_BUFFERS, &map, 1);
++}
++
+ static int io_uring_register_buffers(struct submitter *s)
+ {
+ 	if (do_nop)
+@@ -945,6 +975,14 @@ static int setup_ring(struct submitter *s)
+ 			perror("io_uring_register_buffers");
+ 			return 1;
+ 		}
++
++		if (dma_map) {
++			ret = io_uring_map_buffers(s);
++			if (ret < 0) {
++				perror("io_uring_map_buffers");
++				return 1;
++			}
++		}
+ 	}
+ 
+ 	if (register_files) {
+@@ -1016,6 +1054,7 @@ static void usage(char *argv, int status)
+ 		" -b <int>  : Block size, default %d\n"
+ 		" -p <bool> : Polled IO, default %d\n"
+ 		" -B <bool> : Fixed buffers, default %d\n"
++		" -R <bool> : DMA map fixed buffers, default %d\n"
+ 		" -F <bool> : Register files, default %d\n"
+ 		" -n <int>  : Number of threads, default %d\n"
+ 		" -O <bool> : Use O_DIRECT, default %d\n"
+@@ -1025,8 +1064,8 @@ static void usage(char *argv, int status)
+ 		" -a <bool> : Use legacy aio, default %d\n"
+ 		" -r <int>  : Runtime in seconds, default %s\n",
+ 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
+-		fixedbufs, register_files, nthreads, !buffered, do_nop, stats, aio,
+-		runtime == 0 ? "unlimited" : runtime_str);
++		fixedbufs, dma_map, register_files, nthreads, !buffered, do_nop,
++		stats, aio, runtime == 0 ? "unlimited" : runtime_str);
+ 	exit(status);
+ }
+ 
+@@ -1086,7 +1125,7 @@ int main(int argc, char *argv[])
+ 	if (!do_nop && argc < 2)
+ 		usage(argv[0], 1);
+ 
+-	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:h?")) != -1) {
++	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:h?")) != -1) {
+ 		switch (opt) {
+ 		case 'a':
+ 			aio = !!atoi(optarg);
+@@ -1147,6 +1186,9 @@ int main(int argc, char *argv[])
+ 		case 'r':
+ 			runtime = atoi(optarg);
+ 			break;
++		case 'D':
++			dma_map = !!atoi(optarg);
++			break;
+ 		case 'h':
+ 		case '?':
+ 		default:
+@@ -1162,6 +1204,8 @@ int main(int argc, char *argv[])
+ 		batch_complete = depth;
+ 	if (batch_submit > depth)
+ 		batch_submit = depth;
++	if (!fixedbufs && dma_map)
++		dma_map = 0;
+ 
+ 	submitter = calloc(nthreads, sizeof(*submitter) +
+ 				depth * sizeof(struct iovec));
+@@ -1261,7 +1305,7 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+ 	s = get_submitter(0);
+-	printf("polled=%d, fixedbufs=%d, register_files=%d, buffered=%d, QD=%d\n", polled, fixedbufs, register_files, buffered, depth);
++	printf("polled=%d, fixedbufs=%d/%d, register_files=%d, buffered=%d, QD=%d\n", polled, fixedbufs, dma_map, register_files, buffered, depth);
+ 	if (!aio)
+ 		printf("Engine=io_uring, sq_ring=%d, cq_ring=%d\n", *s->sq_ring.ring_entries, *s->cq_ring.ring_entries);
+ 	else
+@@ -1314,7 +1358,10 @@ int main(int argc, char *argv[])
+ 			bw = iops * (bs / 1048576);
+ 		else
+ 			bw = iops / (1048576 / bs);
+-		printf("IOPS=%lu, ", iops);
++		if (iops > 100000)
++			printf("IOPS=%luK, ", iops / 1000);
++		else
++			printf("IOPS=%luK, ", iops);
+ 		if (!do_nop)
+ 			printf("BW=%luMiB/s, ", bw);
+ 		printf("IOS/call=%ld/%ld, inflight=(%s)\n", rpc, ipc, fdepths);
+diff --git a/t/one-core-peak.sh b/t/one-core-peak.sh
+index 11b1d69a..fba4ec95 100755
+--- a/t/one-core-peak.sh
++++ b/t/one-core-peak.sh
+@@ -153,10 +153,9 @@ check_sysblock_value() {
+   target_file="${sys_block_dir}/$2"
+   value=$3
+   [ -f "${target_file}" ] || return
+-  content=$(cat ${target_file})
++  content=$(cat ${target_file} 2>/dev/null)
+   if [ "${content}" != "${value}" ]; then
+-    info "${device_name}" "${target_file} set to ${value}."
+-    echo ${value} > ${target_file} 2>/dev/null || hint "${device_name}: Cannot set ${value} on ${target_file}"
++    echo ${value} > ${target_file} 2>/dev/null && info "${device_name}" "${target_file} set to ${value}." || hint "${device_name}: Cannot set ${value} on ${target_file}"
+   fi
+ }
+ 
