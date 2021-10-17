@@ -2,67 +2,63 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62827C433EF
-	for <fio@archiver.kernel.org>; Sun, 17 Oct 2021 13:00:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6015EC433EF
+	for <fio@archiver.kernel.org>; Sun, 17 Oct 2021 13:23:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3D2B760F93
-	for <fio@archiver.kernel.org>; Sun, 17 Oct 2021 13:00:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A95561212
+	for <fio@archiver.kernel.org>; Sun, 17 Oct 2021 13:23:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241353AbhJQNDE (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 17 Oct 2021 09:03:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
+        id S1343661AbhJQNZX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 17 Oct 2021 09:25:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237546AbhJQNDE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 17 Oct 2021 09:03:04 -0400
-Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180FCC061765
-        for <fio@vger.kernel.org>; Sun, 17 Oct 2021 06:00:55 -0700 (PDT)
-Received: by mail-il1-x132.google.com with SMTP id w10so12083748ilc.13
-        for <fio@vger.kernel.org>; Sun, 17 Oct 2021 06:00:55 -0700 (PDT)
+        with ESMTP id S1343648AbhJQNZU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 17 Oct 2021 09:25:20 -0400
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 962D8C061765
+        for <fio@vger.kernel.org>; Sun, 17 Oct 2021 06:23:10 -0700 (PDT)
+Received: by mail-io1-xd32.google.com with SMTP id n7so13260951iod.0
+        for <fio@vger.kernel.org>; Sun, 17 Oct 2021 06:23:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=iURf0vc1j4EwKrS0waJT27loSBf8j6wLcAbz6sheQrQ=;
-        b=bmBC1P9DwYFzmqiVcH/gcAcm592seEjWZ/WLfAXx3C1FlfN6+kDWPvqhDw/NmsKwom
-         4UDVb3uBlKybwSX+y0YB4bTv04izq8HIrOQ747320oQUlqp4sfn/8I/+lZncPTqlC+9Q
-         5jLNlL/Wupi2WyL92sNKLa3StpggxwTsFBKOByoka/j/KpIHy2kJtUgTZIWTNc5NiRHn
-         uUS+/sNnJmqoIWTPx5Jcwe4Wu5E00SHzNs+X9fADnEuAK8IS1/MPE3SdvP+fcfsr31pB
-         AL9B5aAKe2uM2+k2TNZHmz6DZNIP1BOGwFJP+G4KY/WkltK95D8yMWWPyce8+SSgYFmQ
-         UL1g==
+        bh=90svJ5Dd5w7KRMqK8MF+J2Z0vTWY3I7jG1FdzY9e3N4=;
+        b=wDFXPjZDjiu2DzGRAewr0+/oTEU1aA4MtHkFD04KuVpxoA13HX5NzBxdC3ml1Y4f3U
+         Vv7CLS2Zbz7G4ZSlJaY5pJr39A6kzIUPuS7tJjkUigWe3BBgi+tyxg3EXsGV458nwnbi
+         /PEyjgrwhi9Oazfj+JzdILR7x+IbX32Oiss/S6MzrV+Q09tkRhGeLCHHor6old/q925D
+         Q9kBoxNppIlZ8UC4bIDzsLOJp5ZLdVm6fiaL9ip6nNMC9a9obRNqO3Z1bAtGlHvYBdWF
+         woUDhK0YfIfjc21RYmLJvUf71SSAtJPoqC+ly0MSSLfpV6l6ZvbytdVaRkm3X1vvCjJd
+         wEjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=iURf0vc1j4EwKrS0waJT27loSBf8j6wLcAbz6sheQrQ=;
-        b=RMQ3Fs4MHPBlJ3dwWlYdrS/qlRbimbDj//aCgBKcsqE8zUPAoYVBnXMcLV+ogdwz2Y
-         gWjwpul6SZW3WX4W9UTp12ahr8EfQlpesXi3qZ4feFFx6/qA00FUIx/K3T7Bn7DiVolt
-         1AsiPJOp/DNsFJCbpd2MwgTPkKku1XfRBz3pS6vVYq2/rERqgRSh7TdZMT9YtjUSJrb6
-         uLK0IvamM2mfu+2jaRDeUjhxt3J/LBiFGNnnV+USlfBjfJoSpQRsJjS4bzfY6KPsMgfL
-         NTaJA6nehNMK+/OcC3TIFl1dyNjFxFCYAOCPVPkULj4olJZjiKFD4/j69ymZHaJLQlsi
-         iYzQ==
-X-Gm-Message-State: AOAM533vm1hO/ey401sI6yzG+qvinOG2ARyAeryA9P/2bBFYlzL5DlO6
-        POlfS6YFT1gmoMoih9rMmuQA3Q2B6Fz7bQ==
-X-Google-Smtp-Source: ABdhPJwKAbSqnrSUZYPzI+zDycTswy5B2MuObSxEvmAzJyK0PIMQ9ubQOwa1nIPY4HuquAl0mFGgZA==
-X-Received: by 2002:a05:6e02:1807:: with SMTP id a7mr10269747ilv.285.1634475654290;
-        Sun, 17 Oct 2021 06:00:54 -0700 (PDT)
+        bh=90svJ5Dd5w7KRMqK8MF+J2Z0vTWY3I7jG1FdzY9e3N4=;
+        b=VYinWeIGWyLS+EC/TriYz60YYty9hvPrcZZs0+LPKFFqNHQasgpyV4Doi2fI4DzTAF
+         g+VGPM1Y7hmbI3LMl8okDMvMQUBywNO9cd8ylLwBVBv0xxJXcN0aFHjPlE6Jomso+ivn
+         m3tc0juEIUpbHajtDX87InJxRmngAR9naaFPUZuw1Ue/tM6r055IqurbZhq1EhkPwx8C
+         BMFgOBkP1niGQijm37QOrXRbCARgVQsWoEifLenPU7dQk0W1UcOFaflUqObGfqSxUl0U
+         03XXDfTaOTdEPorVVzAOlapBztNfXK4d4R7SRvfmr0F//b+CibtWw274OsrhUel4PAws
+         Xkjw==
+X-Gm-Message-State: AOAM531bKDP1PCxtDTDJotjGKQS1U+D+UuhQlFnD6F9Szo543qziRinh
+        1F/2ilz8XfUWl3B0Vw4f54Vyg50oxbx8VQ==
+X-Google-Smtp-Source: ABdhPJwCk0NYwNAkiNNvARC8GstqCaWfqO3EhaGl3ZfqKllLPKyb6+Vbmb6oRkPMnxFehZvjGJzzEQ==
+X-Received: by 2002:a05:6638:3396:: with SMTP id h22mr14886035jav.13.1634476989845;
+        Sun, 17 Oct 2021 06:23:09 -0700 (PDT)
 Received: from localhost.localdomain ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id l125sm5252639ioa.2.2021.10.17.06.00.53
+        by smtp.gmail.com with ESMTPSA id 188sm5362191ioa.22.2021.10.17.06.23.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 17 Oct 2021 06:00:53 -0700 (PDT)
+        Sun, 17 Oct 2021 06:23:09 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-To:     fio@vger.kernel.org,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>
-Subject: Re: [PATCH 0/5] zbd: Fix failures unique to specific zoned devices
-Date:   Sun, 17 Oct 2021 07:00:51 -0600
-Message-Id: <163447564648.89671.7279990360998687348.b4-ty@kernel.dk>
+To:     fio@vger.kernel.org, Vincent Fu <vincent.fu@samsung.com>
+Cc:     Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH v2] run-fio-tests: make test runs more resilient
+Date:   Sun, 17 Oct 2021 07:23:06 -0600
+Message-Id: <163447698332.96080.15783257566127835141.b4-ty@kernel.dk>
 X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211013060903.166543-1-shinichiro.kawasaki@wdc.com>
-References: <20211013060903.166543-1-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20210921212639.61319-1-vincent.fu@samsung.com>
+References: <CGME20210921212712uscas1p2aa572cf95c6782ee69be4dac7beb8f50@uscas1p2.samsung.com> <20210921212639.61319-1-vincent.fu@samsung.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
@@ -70,33 +66,21 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Wed, 13 Oct 2021 15:08:58 +0900, Shin'ichiro Kawasaki wrote:
-> Recently test case failures of t/zbd/test-zoned-support were observed, which
-> were unique to specific zoned block devices. Several test cases fail when the
-> device has large zone size in GB order. Some test cases fail when zone capacity
-> is unaligned to block sizes. Some other test cases fail when the zoned block
-> device has strict open zone resource limitations.
+On Tue, 21 Sep 2021 21:27:11 +0000, Vincent Fu wrote:
+> Catch exceptions that occur during test setup/running/evaluation. This
+> makes it more likely that the entire test suite can run to completion
+> even if some tests fail in an unexpected fashion.
 > 
-> This patch series addresses the failures. The 1st patch is a preparation for the
-> next patch. The 2nd and the 3rd patches fix the failures observed due to large
-> zone size. The 4th patch fixes the failures observed due to zone capacity
-> unaligned to block size. The last patch adds an option to the test script to
-> support strict zone resource limitations.
+> In particular I have seen failures in FioJobTest_t0014() when the test
+> is run on a bare metal machine. Without this patch these failures make
+> the entire script grind to a halt.
 > 
 > [...]
 
 Applied, thanks!
 
-[1/5] zbd: Remove cast to unsigned long long for printf
-      commit: ee5e3436012aad0d2a06c7638dad39f01ee44c1e
-[2/5] zbd: Fix type of local variable min_bs
-      commit: 07fc3f57d106e58e0bcfff1a46ec8b4266770388
-[3/5] t/zbd: Do not use too large block size in test case #4
-      commit: 1f5dd7fa0f2425b5c21ce2fbe2944a57df462632
-[4/5] t/zbd: Align block size to zone capacity
-      commit: 1ae82d673cf5e704b93da56655f6189f43a1592e
-[5/5] t/zbd: Add -w option to ensure no open zone before write tests
-      commit: ccf9d1efdae8a440fff750037117428f27e40b43
+[1/1] run-fio-tests: make test runs more resilient
+      commit: aa9f26276e1961fab2d33e188f5a2432360c9c14
 
 Best regards,
 -- 
