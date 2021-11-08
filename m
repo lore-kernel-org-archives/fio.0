@@ -2,175 +2,311 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7CB9C433EF
-	for <fio@archiver.kernel.org>; Thu,  4 Nov 2021 16:47:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A90D2C433EF
+	for <fio@archiver.kernel.org>; Mon,  8 Nov 2021 13:12:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9064760EC0
-	for <fio@archiver.kernel.org>; Thu,  4 Nov 2021 16:47:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8BB8260E94
+	for <fio@archiver.kernel.org>; Mon,  8 Nov 2021 13:12:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231587AbhKDQt4 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 4 Nov 2021 12:49:56 -0400
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:43433 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231651AbhKDQt4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 4 Nov 2021 12:49:56 -0400
+        id S239839AbhKHNO6 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 8 Nov 2021 08:14:58 -0500
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:5985 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238803AbhKHNO5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 8 Nov 2021 08:14:57 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1636044438; x=1667580438;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=PnyyaWIJ6GXI2jZ7+3PtlWhn4HR2seoW/BAijS2PZpY=;
-  b=AtY2lFKMmd7QGFSp9TocIv+Vajrk6oEPdMuoqDQcJEy3cw3ieQZzStdI
-   Nx3Ni/dyFjBKjmK4K6tyAyDw4XvdKIZQAMntBeM6fypxOrJgepow2bTMQ
-   p8C2ZYnmV0lyWlRs44JqtrVd7NGSnFB6/GxrDobvbAa1DiriNSJI+XsYC
-   PX+yWSWMMtbygbJRw4D34g62gZHrxBsxIF03XZfK0nKTzIbP0SnMN93Y3
-   tRgYXFt343d+GabBwLBJhVYt2NuLm3s9ttQxjvTeLrCqHHXRAyBtbwLJF
-   neavBbgYcCCczB+UmRTgq6G/rBSVDeRrZokyYHLJSzNPkERfSp0bAOSAn
-   A==;
-X-IronPort-AV: E=Sophos;i="5.87,209,1631548800"; 
-   d="scan'208";a="185705658"
-Received: from mail-dm6nam11lp2174.outbound.protection.outlook.com (HELO NAM11-DM6-obe.outbound.protection.outlook.com) ([104.47.57.174])
-  by ob1.hgst.iphmx.com with ESMTP; 05 Nov 2021 00:47:17 +0800
+  t=1636377131; x=1667913131;
+  h=from:to:cc:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=puhfTSmX2LGcgxa6GyyDnMInnGX3hzug8WhXMf1+QyM=;
+  b=ajUFK04GPyy3VJIJ749CqWaToOQuYtJ3zZwAJrHKiZ4gPc3dDBiZqfiG
+   fUskYGBgTyMJxfLMr/GlV+cOuNJyhquzBfqfp9U9JS9AQE2PgoA4Qr/Sk
+   W6jTvTh/QZhkyH6gfFQBOmz2dLxMuoZ/vt/iHLLTaB+2a3BjL1rurU8Ns
+   MTW9SsITpBAY0qZkfseEOS/UjgtsND1XfY+p2vW/MpUtjKFFIvypGpm4r
+   ejCJf3z1IneSOyqDJ1KS058j42kZpHboHfB/VmFGYdWNRVUy2r7GOKvBz
+   8gSe5zzaDI1FGohaRvhOVbBIhy0I4UHFiG244iyozgvVa92Niw9VTrS2j
+   w==;
+X-IronPort-AV: E=Sophos;i="5.87,218,1631548800"; 
+   d="scan'208";a="185019222"
+Received: from mail-bn7nam10lp2105.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.105])
+  by ob1.hgst.iphmx.com with ESMTP; 08 Nov 2021 21:12:11 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CTPRQ+Qvehp68fOCIFEhYvXNBVjpdJCVx2Khgj2PM4Gmzlk+M2dYTf4iYNN836U1I9+AZkI9lHYiWoGNi9ihjsvZlawdfnAuHZnD0seuYiwXThSaVpX6R/zDrBjFUeYMuWjBXkuZejpXJyvuW+eoDKH4R1BdG8lZGPce1hdxjZzD6z8kCaAIBuWYM/xC6enlGs8Q0kYjipaHLGrlupNvZz8wDWCeFjtWnELe88EwGQ/hryid0xOhIXo9Gf0WvThSFfqiaobJwPiLYDYpqPgf7cJU890uPgVZz8ulNN6GWCWVgOjNa5FVToDDRwuA/1XyDwmNAL8X8jC5oxwt3ybhsQ==
+ b=ZGBqN8xIEGIo9k92llQzWZm/S97JL5YuwNDJn09lneV1Vuj3tC+m8UtB7vjdJvDXm5NVYfoJoVxnrV0nLKY9Aal3kJJ5Tp+ANCHZ1uLQ85B1Jko3hkkzwChh5tDMZ4ZJW35LbdRdP7Hx9OMGgl2LJBTcKX12f6/ZAIt8YKvFxDfPq2F+kTCqj6XNV978BAadCfs6FJv2juLaXs9RCqshqh9ws6WCh5Jk20JcYap+3n5GXESiObibyrKoO9WKdxTHi+Ii8yw6Y9i/8RsB07U93nFyq4MRjbKizRVd2OH6ijGB9vpHIkFwMeiPDpAYvuaYTKYdgRIZ7u7T7jTO6cuZpQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PnyyaWIJ6GXI2jZ7+3PtlWhn4HR2seoW/BAijS2PZpY=;
- b=Q6U5ILW3sQ0m0C7G3NoT3Jm086EWUyMXDzT8nK8HTGMh4zkhPuh+sAF/WHyuxX44ghavIIT9zn3tx9ajRInQcHQ1F2hRDjc/iDZMr0Bjk614Y5V6b4R8c3k2nFI9Ra8wtDeBMJTSYp6i/9bwhoUZ6ZLuVtqqpRs7ZGZaf0I8mPLnQp47/bbZRUDlzXcL2L3AtDV/vvbbj9PQ/XYeWPPkXQz/lMzlsqM02z2hOqrBgcvFdXLnLh+m8AtfB68lV1tFwp6YqSYR6b4CdFqG0RIW+Uz9aa3unBZDL53tia3ExrZGM5CyljTgdG9hpl5bciS5a0j8do/5r2/k3/RTID96eQ==
+ bh=rnQ/So5cOv47yRkRi9zR1peDaDYKhvm0br+/tDZt2SM=;
+ b=WUXEP8eV9wvLck/i3qhXk7lp0ghg2hgZtDLoG0llAYlGN5aYBYyKDtFam0pXXox/ewhH3qfRY0iI/PEz+ALVTp6DFU+nw+kA3Q620NwMKEoU/2QzhWfZX+Ez77WWKy6mk60k9fjV+zdca7VEsyDbz3Joq2gT+AyXNPvT2OrOD5pHEwm5CmklvIkxYtXPmucJLlGf7tNQCwhVu36sJKpoWBKDSK1FwcWB6mKTdZQsuWWv4z8uilYQS1EFSokWdTGlywgBsTzOTaTtHBrbiGibB5yXXMFDW8zB5qBFOBBsrczAWMAZLLz9PQ2N++KJeRyIvg1P5MGXXoYCI85nuzsoAA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PnyyaWIJ6GXI2jZ7+3PtlWhn4HR2seoW/BAijS2PZpY=;
- b=qflrjKjbVHaQGpF/WJJdtf/yI+uiL3Ru0DqT0CLiHRx/l7kER0/mWhI/CGeqw29zGlG+IhoXmLofhZgPX210rSIQPlZXNxzrpbDsV1/kv6XePRa3NQuaF6twUmsrwNj6FB1ZHYONs6kYzTkMWmaZcMUdJ4u4p9gdMSIgRSjAK4o=
+ bh=rnQ/So5cOv47yRkRi9zR1peDaDYKhvm0br+/tDZt2SM=;
+ b=KR9Ow3/UKB5mslMFHU3SneoEXjhdKi4IbIiGtyy9d9QjXAKagpFMlvGmwGcgD0RwbVCMVc5r/NIPh398uEV0g0O7UjCj/HJG9A+D+7wsIvgeYFFvbRdVlSQ9GEVOevyVwFhfagUQJEDZwgW4vDJ7bc3vKNvpfysYvmltEGfIJS0=
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by PH0PR04MB7544.namprd04.prod.outlook.com (2603:10b6:510:59::11) with
+ by PH0PR04MB7589.namprd04.prod.outlook.com (2603:10b6:510:54::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.11; Thu, 4 Nov
- 2021 16:47:16 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.11; Mon, 8 Nov
+ 2021 13:12:09 +0000
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com
  ([fe80::a8ed:dc0e:a9e6:9fbb]) by PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::a8ed:dc0e:a9e6:9fbb%9]) with mapi id 15.20.4669.011; Thu, 4 Nov 2021
- 16:47:16 +0000
+ ([fe80::a8ed:dc0e:a9e6:9fbb%9]) with mapi id 15.20.4669.016; Mon, 8 Nov 2021
+ 13:12:09 +0000
 From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Phillip Chen <phillip.a.chen@seagate.com>
+To:     "axboe@kernel.dk" <axboe@kernel.dk>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: Any plans to support Command Duration Limit (CDL)?
-Thread-Topic: Any plans to support Command Duration Limit (CDL)?
-Thread-Index: AQHX0ZXRGTXLr4XGyE2iB64MnM5BfqvzlBKA
-Date:   Thu, 4 Nov 2021 16:47:16 +0000
-Message-ID: <YYQOk5+dGogWvjcG@x1-carbon>
-References: <DM6PR20MB3300AD21CEB20460F9893DE4DC8D9@DM6PR20MB3300.namprd20.prod.outlook.com>
-In-Reply-To: <DM6PR20MB3300AD21CEB20460F9893DE4DC8D9@DM6PR20MB3300.namprd20.prod.outlook.com>
+        Damien Le Moal <Damien.LeMoal@wdc.com>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH] stat: create a init_thread_stat_min_vals() helper
+Thread-Topic: [PATCH] stat: create a init_thread_stat_min_vals() helper
+Thread-Index: AQHX1KI83AMUEaJ6f0qlKoev9hIImQ==
+Date:   Mon, 8 Nov 2021 13:12:09 +0000
+Message-ID: <20211108131143.80158-1-Niklas.Cassel@wdc.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-authentication-results: seagate.com; dkim=none (message not signed)
- header.d=none;seagate.com; dmarc=none action=none header.from=wdc.com;
+x-mailer: git-send-email 2.33.1
+authentication-results: kernel.dk; dkim=none (message not signed)
+ header.d=none;kernel.dk; dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 460c59fa-d33e-4e89-02ee-08d99fb2c25f
-x-ms-traffictypediagnostic: PH0PR04MB7544:
-x-microsoft-antispam-prvs: <PH0PR04MB7544C6311BE4D76BB42E346AF28D9@PH0PR04MB7544.namprd04.prod.outlook.com>
+x-ms-office365-filtering-correlation-id: 772b5f96-188c-4a13-86f0-08d9a2b95f00
+x-ms-traffictypediagnostic: PH0PR04MB7589:
+x-microsoft-antispam-prvs: <PH0PR04MB758902E6C6D6915B46ED5F99F2919@PH0PR04MB7589.namprd04.prod.outlook.com>
 wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-ms-oob-tlc-oobclassifiers: OLM:2276;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: p2kmKuG04Z7r7IVRD+C7VRosFXACDPPvb8qWRWvRA+6ShMk9BXiOkeW8ZhAOM9TECJNaJQ+1z2e+XT93hCT0IaDyelE/d0LSWaKwGtph4j2pblgIa91ZPjFOWfFF3sHOEvzAQwZcI4WCQHAdNebErvp/3KH8b/zFy8PiDG5sTqbgMRFeKP61tUzHbEFAIZg2CjDRGwmrdZpOM15qqINnRLOkquxmPIMqa4VNPBTiSGG8bztTv1Jxw99hNzsvTLLKmHvC6aCyWtW3y6n7x3xKRgf6ZjpKsIFZU9KnOub7ekFqb4oOM6JiD0oBcTMl7mK/U/u/w2P5aY/raOPWRcLPJN/jDTlHf8w8AaBqM9SPARCTgJC+sUsiKhxnBtqTXIubf4XTeNAKSW5ADcx8GIaXt99GmhaxZon6qwMr+AuRn1VGdsfxlB0Xgd+1ulgkxG6AEdZrkDxoJJx+AKaWc0YsMhhJ+3hLJSoE3gHOxkhaXLqcTU5VlbpNPtHoOQILM0AU+DV9KEQFz9wH6WcJsKl+O76wP/mc3+5HGUYprbiU8rnTW9CKguiK9caSEOZrUJRj6V8aoHaVx3xW/OpI5C7lZIVkuZDYY6eocRNLKmRAlRQBiyoYZYhNo0ckfY1U7F+WvSpVGg0fV6FTGGf0rxHU4Wf4wZ7LjNtkQx8k0nyvZLa1VWvebs3unGsQtnzM7W+BTsctn2w9jzF2Zw2L4VE0iD3Xn8uLE0Q91u4yuf+PjQAuJQy27QI+XF+s8AqgzHv5d1ewLq+OK3OTUEn5FxxYmB7ZZLPyZiAkeY8MFlPOyvVHtd73vgP75+8wpIwBPiKC4BmnIvVM+eD07y/pr0R6fL9TBYcVzQGFJgEjwg+ZDA8=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(366004)(6512007)(83380400001)(86362001)(38100700002)(9686003)(966005)(26005)(66476007)(38070700005)(122000001)(508600001)(82960400001)(6916009)(91956017)(76116006)(2906002)(71200400001)(186003)(5660300002)(66946007)(66556008)(6506007)(4326008)(64756008)(66446008)(8936002)(33716001)(6486002)(8676002)(54906003)(316002)(67856001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: WWji3avtcK8ahSrWPSL/SEQzV0gWFisdQR5IsLBXno7CyxIWcoAxmdKliCcIyDOr4UoqkdSaNXZZzvi11m9/yJVeGdmzLvNRK44t8YSRDl0QEETicQ1dMLDwhcu2y6udXLAeos5UDL7UHwENCw+n7DERsep+qfBv5s6sRgQdgzZ5kfsBefff2K9GMEcIOU3GhCOjrUbaHSCYFZ+Sl5MPH9EHn9hSmMoOZTKzGfmRjkff9NxlcjD5ve/xhK06d/LRiMVKosE5oz+BKZ1+NvREinPVeQElnlp15n1xPx8F3uypDDxLhpaptUM8o7IhePyzIFUAxJZSNWdLRiSIyI4GWFfSn2NtPhsaGxBkenP+CPB9qCbtHw9jXFnJznzrDoFcomWotBbSZkeO2nl8Maph4yOQZT4+YBOti+yTiW8yeYxLeKTPzneeDp61JICcxscwQjIw0w7LR2z0UzLkeOGAYRyolF2iuGk6JQMbIEyf+TZGfBFiJww9M02KCcBDxGoDnUrtvjZUGxVraANdZUF6SIFNxTRntKxbpOaohwukTQG+nIlMb/atEep6b7p+Yekx1gzexkEi3wayugWoO9Yqrb+5f89UnSkFil7IwPNZsL0PZJfUNzOxhtExzgPn2/023r/iNANdL0pKtzBPU4WZDBN1JGcDbv2pYD60dR4z3FvC/OQkzuX05YQ1bPU/lgShCcyLKgQU+uQbPnC0+B/KVA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(66446008)(38070700005)(186003)(2906002)(4326008)(64756008)(66556008)(82960400001)(122000001)(316002)(6506007)(83380400001)(86362001)(2616005)(38100700002)(71200400001)(26005)(66476007)(6486002)(6916009)(8936002)(54906003)(508600001)(8676002)(66946007)(1076003)(76116006)(91956017)(5660300002)(6512007)(36756003);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?gGoMdPcx15illRYvfnIDvhEOEr9VEHipuDFiSKCjnaGvpRH0IQ9cm07FBUYS?=
- =?us-ascii?Q?3HK+FoCHbjScJfkAsTseUiekESR8eTgRDUKbrhDEdU+iVHNwHNn8TJ8dWI2p?=
- =?us-ascii?Q?R4nBBMNx7IVa2I0Qw5CYAbLU0HUREIkUke0bZLxyPSFJdViKqc3QgDXQuuL4?=
- =?us-ascii?Q?Ffg7NUjlZHU5LY3aBGubbcHDNjYlmPFp2V1qtzLGicAS+VQCTNLLoyx4tcaA?=
- =?us-ascii?Q?6H67ChtfDEhsdvtideNR93kWKXR0GD/p2Au4ETkB7jXUdl+xNd8vFros56mD?=
- =?us-ascii?Q?iwSZM2mPDJ3StO98mBbGyzTZCxibBoN4mJ2AZaKUuhyyHgBezvMQhF3peRmn?=
- =?us-ascii?Q?6AIIZ8dPm5JkFb4NhLJ01H6hQ1ogWEPO/f/wZkHGE6oqzDcUfbQZW2MckQu/?=
- =?us-ascii?Q?66HbrDWMO2dcQvp2uckG8X2WA5k6fDr/4I19Z7YTAADmRTPO7/C2Jq96qyET?=
- =?us-ascii?Q?iYjDetrwSwiyNTBnBssa6c84oAOFSNmbU9Y1wzl77230wv5q3cSCpGYBek3p?=
- =?us-ascii?Q?BmKdsQUMk2wvPbIBvW2aYlQQPeJZt3zU+lwT6ApcrkrfLeO1MYvdJ+2DoTCB?=
- =?us-ascii?Q?OQ6RocofXnAgqQUj2FnHJDj7IGCxB6UAZyZe1+T2WND607sUD0WDnzl3iYaj?=
- =?us-ascii?Q?K8e4/A5/A8kZ+1+ujfBJMAHzD4XiKqZVkdduaNq4I/LdeLZBLBxoagE6AOfE?=
- =?us-ascii?Q?PGMkQa5qib+fU4JcXTj8zDGRGzP7n4vS0TmxMELaP/b5uQviYM+BtxhembKF?=
- =?us-ascii?Q?yYj4FgUSdwdDWd4LQ4Um5hDv93h35Wga+HDeTZTzdWgZZFhBaigSZutF1G1g?=
- =?us-ascii?Q?FtR2eVCHnO0qr/xRAo1CVWnmPf4P+skGugiNN7ON8Pbh898iucwPJqDTDpMp?=
- =?us-ascii?Q?OoZt6grhLT/+1iG1Lahdi0ABgtb45RKhgjHlsb3Zh6skP+FmE9wspMt/f7QT?=
- =?us-ascii?Q?9BipdP7i7sXVJlI1NyC6gTBaSZFmwM6hzqlvZdmTjIz+d62Ghx2QAUl+wmwC?=
- =?us-ascii?Q?15r7vEcwfl0QOf2Dw6S93x1dWuEqF2qt5qnuLzifLyZx947Ew6efzrXwbTLH?=
- =?us-ascii?Q?MqLv43MPJE8KzlYtxUpJWmu7jWDMPJ0RPzARxDiSoMtUKJeyRkndiLxDffUX?=
- =?us-ascii?Q?WU4sbMSARNRsdRuHGgdcIMEFfwITCLwMCuf0ZZd914K92fuoZHmcrqFhbddx?=
- =?us-ascii?Q?37/vB0f9CnEhbeTwZneVvqrPmgJk8DhJnOW/j2um4lhktetpNmtNJKmzJhnU?=
- =?us-ascii?Q?zj3UNnWB8sPrcC/jHbYhIZF5jLhcXayKkM7PihjTTDYYlb4ipEjd7tAu6M6A?=
- =?us-ascii?Q?hW5PGTaFh5eJKSPMuMFQTaotG1xkRPBPiPMmNIoEK/NnUXgUh6MG9sjMFoMA?=
- =?us-ascii?Q?duMmzFYKsm8TI/Mo5cm0qD4p27bwNVGQr6jfnftZHIxQUS2mBK1QprdBTlRF?=
- =?us-ascii?Q?4W1w5QHmddUPKom/nf5wwBHTBxEglyETo02CqA/Gq3gM23aXMAkTMl4etZao?=
- =?us-ascii?Q?HYoI0oochjFDtvbta1MHrfNL9gdrWeYZsdZyvNlYeWATv2PDiM5gAfqcLksT?=
- =?us-ascii?Q?VZC2XDH6VJE1xByGbUy/61I3DUZ7NLwe3/0/KYJcuh1OAzsBr2Hw6PK7OtwP?=
- =?us-ascii?Q?4rp7gn+Wf5DSjFH1i1ibkbY=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <87EE403CAA62E543BA29F3FD6EAD3051@namprd04.prod.outlook.com>
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?Un9E1ybnFZ56tDobxmc8h/UXRMDuGqPDxvkBd6u9H8Va7ixeB4+vTAFf2p?=
+ =?iso-8859-1?Q?xgtq1fF4+/ZJ4d4sLEJoYgQRtmKmccLAdmi0C4nnnWU9RKDyEvKsRZ1B0X?=
+ =?iso-8859-1?Q?8UBoK0kHgoht/1bQtnwouk19aeMdrlQ8g/1kn1j4XDekAWuO7fIwYJ0cUp?=
+ =?iso-8859-1?Q?OD1EAI5oGpxP3IsUTLwXrVHI/O1uZ3uIvT+9UEhZsj/ZpqqypUKZLxC7Vu?=
+ =?iso-8859-1?Q?4u6nluO2ZnebbDKN5vN+HlR+q1/tJcEOH+Uji5HocC9QbcDe/tLwQ39GgZ?=
+ =?iso-8859-1?Q?MNjzISlErbLaKmc+yBTCmb8SxyIreuyJtxytUgzBG9KBZmJMrjKsKuv97m?=
+ =?iso-8859-1?Q?dXj6aXrk3S6jRnxsrPe/XQwPFuYtNe0ns2QYcYTqh6aRbgTPqnu1jc94uD?=
+ =?iso-8859-1?Q?6H/xjO4b6gyE0N5C6HZkpDD7WqEEA5gqUUG8hODxPVBc7C6W+ER6mAaClA?=
+ =?iso-8859-1?Q?u8PP9E5tJlOpl2lOx1iMaXCYrIZnMx2SsWXFHdTTWPMicmyaBnnNg5bysB?=
+ =?iso-8859-1?Q?zVDo3KgKsapvLJpiRu2DDzrkzC91aQAg9TEywibeiqIS8dMHazFZHLh4mw?=
+ =?iso-8859-1?Q?RiqWfIFlP70O8ogoCTTBvRr2Q6OL1oy7hWcTDo6apsGRKdXkRr9i6A9xvZ?=
+ =?iso-8859-1?Q?GZFeyB8Djr1SB9XKRvB5Pmhtcr5TaowlgVxWmdUh4s72IJlc+0nXvcXthJ?=
+ =?iso-8859-1?Q?Rd3HMrswcOsbTPKyjPRUqlTVySoQ/xBaMNCc70YQ7kCWE3iJcFXmbSrEV2?=
+ =?iso-8859-1?Q?vHw1mU4IVzkRctstY8OR4HMpNz53ifXPeNc0iLrOUEw9/RC7avKg4ozEd3?=
+ =?iso-8859-1?Q?TcdO+5mTgQ9M59Zn+HHwvrgI6/MvNRV6OeXVXsyVXywhEB0l6VPNa4I/wt?=
+ =?iso-8859-1?Q?SiufDQvCpkKIQ6IMZ8fbCuAcrtrrfE9GSo85T34P35NH6Puegl3XnURIbr?=
+ =?iso-8859-1?Q?E5KCZ6ZHxQgre+2nmfAzvlTbEmKIg25/N3SdE/LRerQv10RZps+fdZ54e/?=
+ =?iso-8859-1?Q?QVWX8WML/GGVd+kLbLpBPzY0kF6TBRzeukQ/dPpoHRVYRPBPvu5cD7mlQA?=
+ =?iso-8859-1?Q?+Xn1lCCDS3PISPNzxr6QrDtZEDD4pEF1wW4QW0OTOMqD1nVJh36GoSMXCR?=
+ =?iso-8859-1?Q?UnATsLOn5FoA8y/4f5IRsmVmWmN5LYjCXW784zKWO+5hFlXb3RxIfWclp2?=
+ =?iso-8859-1?Q?psH+e6Z9wqcP0RAdJAwZ+S/GA4BnI20VnACuYUZO6Uh3hlJOl7AmNUR4Dw?=
+ =?iso-8859-1?Q?jqsWaifSAaX6uPHTFqVJMGEpHH7dst+uFxL6d3pgK5rhrCLh7wkJ4zcB5+?=
+ =?iso-8859-1?Q?Q9YMVSRSMT6tpJiSKjXUiizOB+EUlypCP4+8wXYSBVtATf8sWLV7Q4X7Ww?=
+ =?iso-8859-1?Q?ER0wzcCkR/5jUGlQwKxcUZs0eByvHbVx9+022WJp85V6T6m41F2qUU7xNh?=
+ =?iso-8859-1?Q?FyNbIulL4qr0cjM5HdG2VjaKLwIT8Z03bFHm8+rntlnmXKLD12+QPK7hcc?=
+ =?iso-8859-1?Q?Fj62HcSF8PbdwSphNq4oUdcSoQfehEssllgz84sTgLuehUJEkLuKyTWwsE?=
+ =?iso-8859-1?Q?X/4+nrdYStK2PrQF7gFY2LslKsqmmhX/oe0bKF/Uw1M7X71Qb4HddSw4yy?=
+ =?iso-8859-1?Q?9WKjuiutTd9628pwdPAuc/Neg/6dnK5pe9lSdyRe2Q3CosrlzfuOgNeNtR?=
+ =?iso-8859-1?Q?5AIdacdXDHh2jVfngoI=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 460c59fa-d33e-4e89-02ee-08d99fb2c25f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Nov 2021 16:47:16.1984
+X-MS-Exchange-CrossTenant-Network-Message-Id: 772b5f96-188c-4a13-86f0-08d9a2b95f00
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Nov 2021 13:12:09.4900
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: BTyU56SaSFJ0acXYCCG26rU0nDYpzlOy7QGJ7aUCsy6B6qfPUTgX0L4/wR1NHQvFS3IhGs1U93Riknu7S9jlKA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7544
+X-MS-Exchange-CrossTenant-userprincipalname: NQVE+4q8TBDycuLmD30rpmK7SjThJ8OtPa0aesFU3U57AQcZKJNswB7Kzze2JvXXZGmUUZLs+gMedgveIeVWPQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7589
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Thu, Nov 04, 2021 at 04:26:37PM +0000, Phillip Chen wrote:
-> Hello all,
-> I've been hearing about the command duration limit feature (4.7 in the AC=
-S-5 revision 8 and 5.2 in SPC-6 revision 1) as a more flexible and powerful=
- alternative to priority commands. Does anyone have any plans to make this =
-feature compatible with FIO? I imagine it would take quite a bit of work to=
- even make CDL accessible to FIO, but I'm just curious is anyone making the=
- effort?
-> Thanks,
-> Phillip Chen
->=20
-> Seagate Internal
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-Hello Phillip,
+Create a init_thread_stat_min_vals() helper so that we can remove
+duplicated code.
 
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+---
+ init.c | 11 +---------
+ stat.c | 66 +++++++++++++++++++---------------------------------------
+ stat.h |  1 +
+ 3 files changed, 23 insertions(+), 55 deletions(-)
 
-Me and Damien Le Moal are currently working on adding support for
-command duration limits.
-
-They way that we have implemented it is to add a new IO priority class
-in the Linux IO priority API, by adding a new IO priority class
-(IOPRIO_CLASS_DL), for more info see here:
-https://www.spinics.net/lists/linux-block/msg71993.html
-
-Unfortunately the kernel patches are not shared yet, since the specs
-are in draft state.
-
-
-
-However, I'm working on improving the cmdprio support in FIO,
-so that it is easier to send in different IO prio classes + IO prio level
-combinations when using cmdprio_bssplit.
-
-The work in progress branch is here:
-https://github.com/floatious/fio/tree/cmdprio
-
-When that work is done, the only patch needed for FIO will be a one line
-patch to add IOPRIO_CLASS_DL to os/os-linux.h.
-
-
-Kind regards,
-Niklas=
+diff --git a/init.c b/init.c
+index ec1a2cac..5f069d9a 100644
+--- a/init.c
++++ b/init.c
+@@ -1548,16 +1548,7 @@ static int add_job(struct thread_data *td, const cha=
+r *jobname, int job_add_num,
+ 	memcpy(td->ts.percentile_list, o->percentile_list, sizeof(o->percentile_l=
+ist));
+ 	td->ts.sig_figs =3D o->sig_figs;
+=20
+-	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
+-		td->ts.clat_stat[i].min_val =3D ULONG_MAX;
+-		td->ts.slat_stat[i].min_val =3D ULONG_MAX;
+-		td->ts.lat_stat[i].min_val =3D ULONG_MAX;
+-		td->ts.bw_stat[i].min_val =3D ULONG_MAX;
+-		td->ts.iops_stat[i].min_val =3D ULONG_MAX;
+-		td->ts.clat_high_prio_stat[i].min_val =3D ULONG_MAX;
+-		td->ts.clat_low_prio_stat[i].min_val =3D ULONG_MAX;
+-	}
+-	td->ts.sync_stat.min_val =3D ULONG_MAX;
++	init_thread_stat_min_vals(&td->ts);
+ 	td->ddir_seq_nr =3D o->ddir_seq_nr;
+=20
+ 	if ((o->stonewall || o->new_group) && prev_group_jobs) {
+diff --git a/stat.c b/stat.c
+index 30f9b5c1..cd35b114 100644
+--- a/stat.c
++++ b/stat.c
+@@ -483,22 +483,13 @@ static void show_mixed_ddir_status(struct group_run_s=
+tats *rs, struct thread_sta
+ 	struct thread_stat *ts_lcl;
+=20
+ 	int i2p;
+-	int ddir =3D 0, i;
++	int ddir =3D 0;
+=20
+ 	/* Handle aggregation of Reads (ddir =3D 0), Writes (ddir =3D 1), and Tri=
+ms (ddir =3D 2) */
+ 	ts_lcl =3D malloc(sizeof(struct thread_stat));
+ 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
+ 	ts_lcl->unified_rw_rep =3D UNIFIED_MIXED;               /* calculate mixe=
+d stats  */
+-	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
+-		ts_lcl->clat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->slat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->lat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->bw_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->iops_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->clat_high_prio_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->clat_low_prio_stat[i].min_val =3D ULONG_MAX;
+-	}
+-	ts_lcl->sync_stat.min_val =3D ULONG_MAX;
++	init_thread_stat_min_vals(ts_lcl);
+=20
+ 	sum_thread_stats(ts_lcl, ts, 1);
+=20
+@@ -1466,22 +1457,12 @@ static void show_mixed_ddir_status_terse(struct thr=
+ead_stat *ts,
+ 				   int ver, struct buf_output *out)
+ {
+ 	struct thread_stat *ts_lcl;
+-	int i;
+=20
+ 	/* Handle aggregation of Reads (ddir =3D 0), Writes (ddir =3D 1), and Tri=
+ms (ddir =3D 2) */
+ 	ts_lcl =3D malloc(sizeof(struct thread_stat));
+ 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
+ 	ts_lcl->unified_rw_rep =3D UNIFIED_MIXED;               /* calculate mixe=
+d stats  */
+-	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
+-		ts_lcl->clat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->slat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->lat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->bw_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->iops_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->clat_high_prio_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->clat_low_prio_stat[i].min_val =3D ULONG_MAX;
+-	}
+-	ts_lcl->sync_stat.min_val =3D ULONG_MAX;
++	init_thread_stat_min_vals(ts_lcl);
+ 	ts_lcl->lat_percentiles =3D ts->lat_percentiles;
+ 	ts_lcl->clat_percentiles =3D ts->clat_percentiles;
+ 	ts_lcl->slat_percentiles =3D ts->slat_percentiles;
+@@ -1668,22 +1649,12 @@ static void add_mixed_ddir_status_json(struct threa=
+d_stat *ts,
+ 		struct group_run_stats *rs, struct json_object *parent)
+ {
+ 	struct thread_stat *ts_lcl;
+-	int i;
+=20
+ 	/* Handle aggregation of Reads (ddir =3D 0), Writes (ddir =3D 1), and Tri=
+ms (ddir =3D 2) */
+ 	ts_lcl =3D malloc(sizeof(struct thread_stat));
+ 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
+ 	ts_lcl->unified_rw_rep =3D UNIFIED_MIXED;               /* calculate mixe=
+d stats  */
+-	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
+-		ts_lcl->clat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->slat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->lat_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->bw_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->iops_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->clat_high_prio_stat[i].min_val =3D ULONG_MAX;
+-		ts_lcl->clat_low_prio_stat[i].min_val =3D ULONG_MAX;
+-	}
+-	ts_lcl->sync_stat.min_val =3D ULONG_MAX;
++	init_thread_stat_min_vals(ts_lcl);
+ 	ts_lcl->lat_percentiles =3D ts->lat_percentiles;
+ 	ts_lcl->clat_percentiles =3D ts->clat_percentiles;
+ 	ts_lcl->slat_percentiles =3D ts->slat_percentiles;
+@@ -2270,22 +2241,27 @@ void init_group_run_stat(struct group_run_stats *gs=
+)
+ 		gs->min_bw[i] =3D gs->min_run[i] =3D ~0UL;
+ }
+=20
+-void init_thread_stat(struct thread_stat *ts)
++void init_thread_stat_min_vals(struct thread_stat *ts)
+ {
+-	int j;
++	int i;
+=20
++	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
++		ts->clat_stat[i].min_val =3D ULONG_MAX;
++		ts->slat_stat[i].min_val =3D ULONG_MAX;
++		ts->lat_stat[i].min_val =3D ULONG_MAX;
++		ts->bw_stat[i].min_val =3D ULONG_MAX;
++		ts->iops_stat[i].min_val =3D ULONG_MAX;
++		ts->clat_high_prio_stat[i].min_val =3D ULONG_MAX;
++		ts->clat_low_prio_stat[i].min_val =3D ULONG_MAX;
++	}
++	ts->sync_stat.min_val =3D ULONG_MAX;
++}
++
++void init_thread_stat(struct thread_stat *ts)
++{
+ 	memset(ts, 0, sizeof(*ts));
+=20
+-	for (j =3D 0; j < DDIR_RWDIR_CNT; j++) {
+-		ts->lat_stat[j].min_val =3D -1UL;
+-		ts->clat_stat[j].min_val =3D -1UL;
+-		ts->slat_stat[j].min_val =3D -1UL;
+-		ts->bw_stat[j].min_val =3D -1UL;
+-		ts->iops_stat[j].min_val =3D -1UL;
+-		ts->clat_high_prio_stat[j].min_val =3D -1UL;
+-		ts->clat_low_prio_stat[j].min_val =3D -1UL;
+-	}
+-	ts->sync_stat.min_val =3D -1UL;
++	init_thread_stat_min_vals(ts);
+ 	ts->groupid =3D -1;
+ }
+=20
+diff --git a/stat.h b/stat.h
+index a06237e7..9ef8caa4 100644
+--- a/stat.h
++++ b/stat.h
+@@ -327,6 +327,7 @@ extern void show_running_run_stats(void);
+ extern void check_for_running_stats(void);
+ extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *=
+src, bool first);
+ extern void sum_group_stats(struct group_run_stats *dst, struct group_run_=
+stats *src);
++extern void init_thread_stat_min_vals(struct thread_stat *ts);
+ extern void init_thread_stat(struct thread_stat *ts);
+ extern void init_group_run_stat(struct group_run_stats *gs);
+ extern void eta_to_str(char *str, unsigned long eta_sec);
+--=20
+2.33.1
