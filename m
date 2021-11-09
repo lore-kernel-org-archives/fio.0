@@ -2,53 +2,53 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82860C433F5
-	for <fio@archiver.kernel.org>; Tue,  9 Nov 2021 06:19:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8696FC433EF
+	for <fio@archiver.kernel.org>; Tue,  9 Nov 2021 06:29:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 68AC1611C5
-	for <fio@archiver.kernel.org>; Tue,  9 Nov 2021 06:19:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DD5C61027
+	for <fio@archiver.kernel.org>; Tue,  9 Nov 2021 06:29:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241040AbhKIGWX (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 9 Nov 2021 01:22:23 -0500
-Received: from esa5.hgst.iphmx.com ([216.71.153.144]:53346 "EHLO
-        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230059AbhKIGWW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 9 Nov 2021 01:22:22 -0500
+        id S230212AbhKIGcW (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 9 Nov 2021 01:32:22 -0500
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:10321 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229990AbhKIGcW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 9 Nov 2021 01:32:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1636438774; x=1667974774;
+  t=1636439376; x=1667975376;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=Z3wuvVOoy8YRxbrcFbC5V66xyjL6vP1VjWntTznAf24=;
-  b=LoDgLZ9DorFJ098Jv8XaPmENOtsn8OnJal4dhIZ/CTnTqHtU/R6gb359
-   HBdPEtFB5eaXyM1WwAlIgGyY95Wms0LO8WvBF0ouOUq0vqPJ8cOdnc8PP
-   tVsDbPZn7IuS0NsF01p+22wZu8ogWQxO7RuBwHbYZTiJN+1fYK4O1TrPG
-   p/u1IfTsGDZeCMolTDf27ILMCW5X+rltYPy9kp00c4Cq9o7wwsymiOoyv
-   e4DC6edhbcWassLBZDiRW+YwLx1t3LvClZBaairfCpfOVny9ifxSahiEp
-   jwaN+jtK+bZA+35tl4g6hvpKZKWP8Y60Y4WUIHgx6rmowrjHVCu/AyOI5
-   w==;
+  bh=5Otbm4VK8GWcaLEqeAHPVaKWrvPosNwzFrv/TiWEG9w=;
+  b=OF0GBGBsM7fjYd7vIfZvrCjidqApBokoq9e4+ngyJSOprcIkJLwwD1ig
+   A1bK/srBm1C24a5sy2M93s3B69jIDysz9zi4pYSdS5bzjZKSUyZRx13aC
+   Yhcrz1H/U3RDYm3sjmxUc4ORNiJVqWixcFjd7J0UOx66LaLfkObMrwTNc
+   EeP8bkumU9qfHrQB9qHo5bcXjAG22GSGq/aWeX4U9z+PJ+pnCKGinUpn0
+   B2VTudcSd9cKa+j6JynZejQYMuvI1D0xS9ybu7+bqBqtRnjcI+rIBO+Dp
+   3lN9nJOUzWo4pw4ghf2V4DSn4zjZra7xdQIvSL6R2+Tt1h0jK02/zG6l5
+   A==;
 X-IronPort-AV: E=Sophos;i="5.87,219,1631548800"; 
-   d="scan'208";a="185093284"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 09 Nov 2021 14:19:34 +0800
-IronPort-SDR: sG8+lG2HJY3nhUoHH+Bw0PQhXl8E7hgUWYoGbSrHPNYk6P7dCTy4MGvOVC4lhY+IEVGEwnunxn
- JJK2UFLYGLcwYhvCX9+Vaht+LF3qRXkrBuLUYnYXGY634Qy6AQyaef7ZGsoeV9rozomHa4poS6
- vrzp7YAc4mXbHCixh3pAoYv8/yUV6eq5bEDN/JH0dM0ZQWVXzj/1H/+ieVjKLBAGnovBNwCGho
- OX1PB1Yz6zZJ77opuGrmD0MrOz1e9VW42VIFRyPX9LC0smrxaXXhcDpZxzzTS0737uS8D+rjRw
- AIDzMqseOlV8xjfcxfB5C1Gw
+   d="scan'208";a="184095587"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 09 Nov 2021 14:29:36 +0800
+IronPort-SDR: aNg0Kgv1Qbe1GNPlOKbVL9AG/PeVWQkP0+xWGSoafacdNBeTRgLyQaEnVLsU14LrLsgVBPYgzO
+ XRA8ICuanyAq3uHg6XhEM1pLyusTEJSlvhGPHnkheqVvzxy8tvKAWjwbvWY+py6+z0henE5nn7
+ ReRlKMFPTgqjxv/WZAb5pk/FG6Yhm7mGkOX8dEMMeR94iIeNlyJgeqzxbrR0u2js3QSYLrVKyI
+ x589g7JMnjnBobjiWsQ81QbLs56phcLGaXACqXtPDdbeFeXyFtB4SawqFujay/BCm488d6ipm2
+ e+bCsOjnc29VHbjTtLbRzwwF
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2021 21:54:48 -0800
-IronPort-SDR: P6SMH0qw64i3O4zuKfFIBVDCW0RavoMdL8ba3GsNiLIGMWD12sObySArIkbLoJGMyhlOpr8maJ
- TA2gjO52b2p/+Bj7qS6Zh3I+E1k38419NQ74sLuT0oYPpt4SlFbOe45UsS3DnyOQVkGdg0HcTo
- ME3Q12+eaE/YEDdHgaw1IlKO5tP4e2MkefIsr17zuBnWqR+wXIfymypkb+nlms9pzaVSSQJzws
- JBTJBGheXIvHUAWC6aZqo4NKFBZ/6X95ekZP8bXkax0GrAiGLGI5Sw9xYvCCOVrd+xf4J3ZqPk
- O5c=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2021 22:03:16 -0800
+IronPort-SDR: r0qOBUUxAZvxBbvRLcytOSnk5/6gvhIojx0FIy5Z/J7t7Ufj/psiUysoEcmMB8pcHx6GX4577q
+ TWVCEzZigJYyfjGSkVzdQKe1IgmowXJT5KKetou4zAxOyhdcRoftSCK8TAfUTSqptBmD1AaPkG
+ LVCemLyCU+6/Nh7gZxN9LjYjawJkVLcBWgb6Bug90ohuhNkLfhPBkVV0TnNUp+oTD1L4Fgo8SL
+ qiBdZ3eM5X389arFfX4BHng9gqbw4JzVkjveKENgq0Bx0hNY+M+OmhLDV0wxSvFcz5aAJe2d+x
+ khE=
 WDCIronportException: Internal
 Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2021 22:19:37 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2021 22:29:36 -0800
 Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4HpHrR3nKnz1RtVm
-        for <fio@vger.kernel.org>; Mon,  8 Nov 2021 22:19:35 -0800 (PST)
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4HpJ403K8Pz1RtVn
+        for <fio@vger.kernel.org>; Mon,  8 Nov 2021 22:29:36 -0800 (PST)
 Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
         reason="pass (just generated, assumed good)"
         header.d=opensource.wdc.com
@@ -56,37 +56,37 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
         opensource.wdc.com; h=content-transfer-encoding:content-type
         :in-reply-to:organization:from:references:to:content-language
         :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1636438775; x=1639030776; bh=Z3wuvVOoy8YRxbrcFbC5V66xyjL6vP1VjWn
-        tTznAf24=; b=tDgQOeq5TjVldMuwYEdNhrRe2doPoArwEi+XaDmDd0iTO4qTbe+
-        /60YaebTaYJkJx7cGMZVXFQRgVjR0UUVXYMNCMgoSXJdr2yZPJp7p+lzRIxyXW4v
-        QE+AfxSBXuvL3y0oCukqpgWomHKwpp+OjSUboBRB5MhfyZ2jyzg9noX0JSjhfxDb
-        dNQTUTS/Dc7b5vviCqWDQjYk+Wt41PK10xaizh+MhACngMqm8EFdc5i/MsQT2dO5
-        jmwaDZuzTGw9sSJDColzUwrv8Cmzf95GYd2/rwM70sHaamCWC3zeH9z8Wpii/hqw
-        s0id8dp9K8lwb2herYuUSHdzpOGgP/Ioq1Q==
+        1636439375; x=1639031376; bh=5Otbm4VK8GWcaLEqeAHPVaKWrvPosNwzFrv
+        /TiWEG9w=; b=aH0etPrQN3cnLMsRFjSe86Tg6wwRmSwttQU2BDuzOpUeUXkmdrL
+        m0wPhrvdL83i58v10U2+TSPjeE6nfFg7ZQhyI4JzOaVqXmm3rG1dgi3LNvsRISys
+        PuUG++PRunRc+of/As6V3KnhioxPoa9NtQ4MIoikDO79/cO23chNwsLqSIc1cJ+u
+        NuSPxD3o49GGC1vpbRnUOzioMx+8x8yeXYxXd8EfeyU8H9h+Cx1L2nvUKyeOMA+A
+        rgFpRxXQwIxQvnvLeM6xQaWxY7sSi0oLRDqJgqGCSAZyn5xldHZ0CQ29cZkpG5T3
+        0Uvci3BEwXYmpuCJyD1N0hts+7TOudS26RQ==
 X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
 Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
         by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id tHH4mYewTaR1 for <fio@vger.kernel.org>;
-        Mon,  8 Nov 2021 22:19:35 -0800 (PST)
+        with ESMTP id qny_KIOywSjw for <fio@vger.kernel.org>;
+        Mon,  8 Nov 2021 22:29:35 -0800 (PST)
 Received: from [10.225.54.48] (unknown [10.225.54.48])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4HpHrQ4TL0z1RtVl;
-        Mon,  8 Nov 2021 22:19:34 -0800 (PST)
-Message-ID: <060cee13-1e93-69e5-e4c5-11ffb4643352@opensource.wdc.com>
-Date:   Tue, 9 Nov 2021 15:19:33 +0900
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4HpJ3z37NHz1RtVl;
+        Mon,  8 Nov 2021 22:29:35 -0800 (PST)
+Message-ID: <c3f0c6f5-8df7-98c2-1728-49d75f0f2839@opensource.wdc.com>
+Date:   Tue, 9 Nov 2021 15:29:33 +0900
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.3.0
-Subject: Re: [PATCH 5/8] libaio,io_uring: rename prio_prep() to include
- cmdprio in the name
+Subject: Re: [PATCH 6/8] libaio,io_uring: move common cmdprio_prep() code to
+ cmdprio
 Content-Language: en-US
 To:     Niklas Cassel <Niklas.Cassel@wdc.com>,
         "axboe@kernel.dk" <axboe@kernel.dk>
 Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
 References: <20211109002655.117274-1-Niklas.Cassel@wdc.com>
- <20211109002655.117274-6-Niklas.Cassel@wdc.com>
+ <20211109002655.117274-7-Niklas.Cassel@wdc.com>
 From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Organization: Western Digital
-In-Reply-To: <20211109002655.117274-6-Niklas.Cassel@wdc.com>
+In-Reply-To: <20211109002655.117274-7-Niklas.Cassel@wdc.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -96,88 +96,198 @@ X-Mailing-List: fio@vger.kernel.org
 On 2021/11/09 9:28, Niklas Cassel wrote:
 > From: Niklas Cassel <niklas.cassel@wdc.com>
 > 
-> The default priority (which is either 0 or the value set by "prio" and
-> "prioclass" options, will now be used regardless if prio_prep() is
-> called or not. This is true for both libaio and io_uring.
-> 
-> The way to think about it is that prio_prep() is only called if
-> cmdprio_percentage/cmdprio_bssplit is used.
-> 
-> prio_prep() might then override the default priority, if the random
-> value happens to say that this I/O should use the cmdprio_value,
-> rather than the default priority.
-> 
-> Rename the prio_prep() functions to highlight that these functions
-> are now only called if cmdprio is used. (If only option
-> "prio"/"prioclass" is used, that is handled elsewhere.)
+> Move common cmdprio_prep() code to cmdprio.c to avoid code duplication.
 > 
 > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 > ---
->  engines/io_uring.c | 9 +++++----
->  engines/libaio.c   | 4 ++--
->  2 files changed, 7 insertions(+), 6 deletions(-)
+>  engines/cmdprio.c  | 40 +++++++++++++++++++++++++++++++++++++++-
+>  engines/cmdprio.h  |  3 ++-
+>  engines/io_uring.c | 32 +++++---------------------------
+>  engines/libaio.c   | 26 ++++----------------------
+>  4 files changed, 50 insertions(+), 51 deletions(-)
 > 
-> diff --git a/engines/io_uring.c b/engines/io_uring.c
-> index 8f3d6c39..de1e6cc9 100644
-> --- a/engines/io_uring.c
-> +++ b/engines/io_uring.c
-> @@ -346,8 +346,8 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
->  		 * (option prio/prioclass) to be inherited.
->  		 * td->ioprio will have the value of the "default prio", so set
->  		 * this unconditionally. This value might get overriden by
-> -		 * fio_ioring_prio_prep() if cmdprio_percentage/cmdprio_bssplit
-> -		 * is enabled.
-> +		 * fio_ioring_cmdprio_prep() if
-> +		 * cmdprio_percentage/cmdprio_bssplit is enabled.
->  		 */
->  		sqe->ioprio = td->ioprio;
->  		sqe->off = io_u->offset;
-> @@ -456,7 +456,7 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
->  	return r < 0 ? r : events;
+> diff --git a/engines/cmdprio.c b/engines/cmdprio.c
+> index 2c764e49..01e0a729 100644
+> --- a/engines/cmdprio.c
+> +++ b/engines/cmdprio.c
+> @@ -67,7 +67,7 @@ int fio_cmdprio_bssplit_parse(struct thread_data *td, const char *input,
+>  	return ret;
 >  }
 >  
-> -static void fio_ioring_prio_prep(struct thread_data *td, struct io_u *io_u)
-> +static void fio_ioring_cmdprio_prep(struct thread_data *td, struct io_u *io_u)
+> -int fio_cmdprio_percentage(struct cmdprio *cmdprio, struct io_u *io_u)
+> +static int fio_cmdprio_percentage(struct cmdprio *cmdprio, struct io_u *io_u)
 >  {
->  	struct ioring_options *o = td->eo;
->  	struct ioring_data *ld = td->io_ops_data;
-> @@ -517,7 +517,8 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
->  		return FIO_Q_BUSY;
->  
->  	if (ld->use_cmdprio)
-> -		fio_ioring_prio_prep(td, io_u);
-> +		fio_ioring_cmdprio_prep(td, io_u);
-> +
->  	ring->array[tail & ld->sq_ring_mask] = io_u->index;
->  	atomic_store_release(ring->tail, next_tail);
->  
-> diff --git a/engines/libaio.c b/engines/libaio.c
-> index dd655355..9c14dd88 100644
-> --- a/engines/libaio.c
-> +++ b/engines/libaio.c
-> @@ -205,7 +205,7 @@ static int fio_libaio_prep(struct thread_data *td, struct io_u *io_u)
+>  	enum fio_ddir ddir = io_u->ddir;
+>  	unsigned int p = cmdprio->percentage[ddir];
+> @@ -89,6 +89,44 @@ int fio_cmdprio_percentage(struct cmdprio *cmdprio, struct io_u *io_u)
 >  	return 0;
 >  }
 >  
-> -static void fio_libaio_prio_prep(struct thread_data *td, struct io_u *io_u)
-> +static void fio_libaio_cmdprio_prep(struct thread_data *td, struct io_u *io_u)
+> +/**
+> + * fio_cmdprio_ioprio_was_updated - Generates a random value. If the random
+> + * value is within the user specified percentage of I/Os that should use a
+> + * cmdprio priority value (rather than the default priority), then this
+> + * function updates the io_u with a cmdprio priority value.
+> + */
+> +bool fio_cmdprio_ioprio_was_updated(struct thread_data *td,
+> +				    struct cmdprio *cmdprio, struct io_u *io_u)
+
+What about simply calling this fio_set_cmdprio() or fio_cmdprio_set_ioprio() ?
+That is a lot shorter and the name matches the return true/false depending on if
+the io_u->ioprio was set (changed) or not.
+
+> +{
+> +	enum fio_ddir ddir = io_u->ddir;
+> +	unsigned int p = fio_cmdprio_percentage(cmdprio, io_u);
+> +	unsigned int cmdprio_value =
+> +		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
+> +
+> +	if (p && rand_between(&td->prio_state, 0, 99) < p) {
+> +		io_u->ioprio = cmdprio_value;
+> +		if (!td->ioprio || cmdprio_value < td->ioprio) {
+> +			/*
+> +			 * The async IO priority is higher (has a lower value)
+> +			 * than the default priority (which is either 0 or the
+> +			 * value set by "prio" and "prioclass" options).
+> +			 */
+> +			io_u->flags |= IO_U_F_HIGH_PRIO;
+> +		}
+> +		return true;
+> +	} else if (td->ioprio && td->ioprio < cmdprio_value) {
+
+No need for the else here.
+
+> +		/*
+> +		 * The IO will be executed with the default priority (which is
+> +		 * either 0 or the value set by "prio" and "prioclass options),
+> +		 * and this priority is higher (has a lower value) than the
+> +		 * async IO priority.
+> +		 */
+> +		io_u->flags |= IO_U_F_HIGH_PRIO;
+> +	}
+> +
+> +	return false;
+> +}
+> +
+>  int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio,
+>  		     bool *has_cmdprio)
+>  {
+> diff --git a/engines/cmdprio.h b/engines/cmdprio.h
+> index d3265741..c05679e4 100644
+> --- a/engines/cmdprio.h
+> +++ b/engines/cmdprio.h
+> @@ -22,7 +22,8 @@ struct cmdprio {
+>  int fio_cmdprio_bssplit_parse(struct thread_data *td, const char *input,
+>  			      struct cmdprio *cmdprio);
+>  
+> -int fio_cmdprio_percentage(struct cmdprio *cmdprio, struct io_u *io_u);
+> +bool fio_cmdprio_ioprio_was_updated(struct thread_data *td,
+> +				    struct cmdprio *cmdprio, struct io_u *io_u);
+>  
+>  int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio,
+>  		     bool *has_cmdprio);
+> diff --git a/engines/io_uring.c b/engines/io_uring.c
+> index de1e6cc9..46f4bc2a 100644
+> --- a/engines/io_uring.c
+> +++ b/engines/io_uring.c
+> @@ -458,35 +458,13 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
+>  
+>  static void fio_ioring_cmdprio_prep(struct thread_data *td, struct io_u *io_u)
+>  {
+> -	struct ioring_options *o = td->eo;
+>  	struct ioring_data *ld = td->io_ops_data;
+> -	struct io_uring_sqe *sqe = &ld->sqes[io_u->index];
+> +	struct ioring_options *o = td->eo;
+>  	struct cmdprio *cmdprio = &o->cmdprio;
+> -	enum fio_ddir ddir = io_u->ddir;
+> -	unsigned int p = fio_cmdprio_percentage(cmdprio, io_u);
+> -	unsigned int cmdprio_value =
+> -		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
+> -
+> -	if (p && rand_between(&td->prio_state, 0, 99) < p) {
+> -		io_u->ioprio = cmdprio_value;
+> -		sqe->ioprio = cmdprio_value;
+> -		if (!td->ioprio || cmdprio_value < td->ioprio) {
+> -			/*
+> -			 * The async IO priority is higher (has a lower value)
+> -			 * than the default priority (which is either 0 or the
+> -			 * value set by "prio" and "prioclass" options).
+> -			 */
+> -			io_u->flags |= IO_U_F_HIGH_PRIO;
+> -		}
+> -	} else if (td->ioprio && td->ioprio < cmdprio_value) {
+> -		/*
+> -		 * The IO will be executed with the default priority (which is
+> -		 * either 0 or the value set by "prio" and "prioclass options),
+> -		 * and this priority is higher (has a lower value) than the
+> -		 * async IO priority.
+> -		 */
+> -		io_u->flags |= IO_U_F_HIGH_PRIO;
+> -	}
+> +	bool ioprio_updated = fio_cmdprio_ioprio_was_updated(td, cmdprio, io_u);
+> +
+> +	if (ioprio_updated)
+> +		ld->sqes[io_u->index].ioprio = io_u->ioprio;
+
+I do not see why ioprio_updated is needed. Also, since the sqes initialization
+also needs to be done with the defualt priority, can't this be moved outside of
+this function to be common with the default prio case ?
+
+>  }
+>  
+>  static enum fio_q_status fio_ioring_queue(struct thread_data *td,
+> diff --git a/engines/libaio.c b/engines/libaio.c
+> index 9c14dd88..f0d3df7a 100644
+> --- a/engines/libaio.c
+> +++ b/engines/libaio.c
+> @@ -209,29 +209,11 @@ static void fio_libaio_cmdprio_prep(struct thread_data *td, struct io_u *io_u)
 >  {
 >  	struct libaio_options *o = td->eo;
 >  	struct cmdprio *cmdprio = &o->cmdprio;
-> @@ -369,7 +369,7 @@ static enum fio_q_status fio_libaio_queue(struct thread_data *td,
+> -	enum fio_ddir ddir = io_u->ddir;
+> -	unsigned int p = fio_cmdprio_percentage(cmdprio, io_u);
+> -	unsigned int cmdprio_value =
+> -		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
+> -
+> -	if (p && rand_between(&td->prio_state, 0, 99) < p) {
+> -		io_u->ioprio = cmdprio_value;
+> -		io_u->iocb.aio_reqprio = cmdprio_value;
+> +	bool ioprio_updated = fio_cmdprio_ioprio_was_updated(td, cmdprio, io_u);
+> +
+> +	if (ioprio_updated) {
+
+With fio_cmdprio_ioprio_was_updated() renamed as proposed above, I think you can
+get rid of the local boolean and simply do:
+
+	if (fio_cmdprio_set_ioprio(td, cmdprio, io_u)) {
+		io_u->iocb.aio_reqprio = io_u->ioprio;
+		io_u->iocb.u.c.flags |= IOCB_FLAG_IOPRIO;
+	}
+
+And I wonder if the fio_libaio_cmdprio_prep() helper is really useful given that
+it is reduced to the above tiny code. Same for io_uring.
+
+> +		io_u->iocb.aio_reqprio = io_u->ioprio;
+>  		io_u->iocb.u.c.flags |= IOCB_FLAG_IOPRIO;
+> -		if (!td->ioprio || cmdprio_value < td->ioprio) {
+> -			/*
+> -			 * The async IO priority is higher (has a lower value)
+> -			 * than the default context priority.
+> -			 */
+> -			io_u->flags |= IO_U_F_HIGH_PRIO;
+> -		}
+> -	} else if (td->ioprio && td->ioprio < cmdprio_value) {
+> -		/*
+> -		 * The IO will be executed with the default context priority,
+> -		 * and this priority is higher (has a lower value) than the
+> -		 * async IO priority.
+> -		 */
+> -		io_u->flags |= IO_U_F_HIGH_PRIO;
 >  	}
+>  }
 >  
->  	if (ld->use_cmdprio)
-> -		fio_libaio_prio_prep(td, io_u);
-> +		fio_libaio_cmdprio_prep(td, io_u);
->  
->  	ld->iocbs[ld->head] = &io_u->iocb;
->  	ld->io_us[ld->head] = io_u;
 > 
 
-Looks good.
-
-Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
 -- 
 Damien Le Moal
