@@ -2,643 +2,179 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 213AFC433F5
-	for <fio@archiver.kernel.org>; Fri, 12 Nov 2021 01:13:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0407DC433F5
+	for <fio@archiver.kernel.org>; Fri, 12 Nov 2021 09:54:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EB70661183
-	for <fio@archiver.kernel.org>; Fri, 12 Nov 2021 01:13:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E367960F5B
+	for <fio@archiver.kernel.org>; Fri, 12 Nov 2021 09:54:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229725AbhKLBPv (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 11 Nov 2021 20:15:51 -0500
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:47389 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234625AbhKLBPv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 11 Nov 2021 20:15:51 -0500
+        id S234863AbhKLJ5b (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 12 Nov 2021 04:57:31 -0500
+Received: from esa2.hgst.iphmx.com ([68.232.143.124]:31590 "EHLO
+        esa2.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234815AbhKLJ5a (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 12 Nov 2021 04:57:30 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1636679581; x=1668215581;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=Ia0MkIAp6VPSOr9WOXmATIm//tk42n46DiTXOK86I+E=;
-  b=p+/ZADE/xqpF9YK6v1hEn0pnb+oIx/Gchx7SaqrKR87EGQpkYiKWaRwA
-   QdtWPuGeoRbLVxSIc5SKLy4f7zNPxYEmrAqEtayqk4lvjK8+zsxuWDP5D
-   b7sKxA1J0cTn6ulKI2WQEAcHdBlI19mpaIG2+riEHg/8mbaEifVpsHEds
-   70a8mW0Gd6hIquvB2rD2/5s8KuoODLtrakEoFUDwUEukfiWXG5wDwmnb3
-   sVaJ0YQoYBolxL5iG5tf1a7Ti+2670xTAEkmffvfbDs0mNxVtWTPEUMfr
-   YdW8YxFtUtZxtmhnZBqkQC9HX3sjEKY+1c3jsrZiii5ou0tCvU7/nwxCK
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.87,227,1631548800"; 
-   d="scan'208";a="184397401"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 12 Nov 2021 09:13:01 +0800
-IronPort-SDR: aZ4I36no6Y1JDdhLWojSH0u0uMWEH2hgwqjfHllyrOZdIE9grGGDey/eTOZfX/a8jMjxsOZAus
- ORFepN2GFmIYAxAsol67xGxCJj83TLNqeJrUJPp9JYjVSdxBoz+OHPEz2JpPI/+2eWUs4KQRHN
- k0zMfoggPKkvfuXK+HICZiysIFZa2PcpasTqQJyZOwRKwi+KsMWBHpJn4PYg/+jNiTJTHQ5J15
- rFsCpBrCrf/YI4Gl0cPGgtoJ7LaZsXITEw5U8BnJlTs34sD9x/Ee1uc6kr1iSviweMq9EWbIB+
- 12OXDW1SF2nJR7lHrsTOOOlB
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2021 16:48:10 -0800
-IronPort-SDR: EVJ08buPxtV2ntNh2jE1t7eyab6+HpphFvvGqZG9AfGLXHEcc1pP2HOoC2Wqm/Dtmcya6PnDXQ
- zN3ocfDBmIIZgo7CEmwGOnoeQv4D2/tbJkS7HbdiWZvdRnC+r8BIoYJYC6GG/+8lTYd3g9RjFg
- kOlkZXiRHcvjWjkfpLqfxlCzgiubcgw1/tIEtmBNP60nKmdaj5blqqrwrMsqoyrE+xHgLPsbqa
- i6flLCR8Bqc1eruZ7WsdbtJ9I3/8vsZ6iUMPRV9NCeDTyvTW73MfKNBhUARhlJs6C7drCRRofO
- 56g=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2021 17:13:01 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Hr0vJ744Rz1RtVn
-        for <fio@vger.kernel.org>; Thu, 11 Nov 2021 17:13:00 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1636679580; x=1639271581; bh=Ia0MkIAp6VPSOr9WOXmATIm//tk42n46DiT
-        XOK86I+E=; b=gvcMKD7bYo7WxOUYxJbDmdVaM70AM+UCmjx2hQO+UJKtmBXJqpc
-        NqtckpTFeg5VvmIw2hs0PFkazeF7Pl4ecA/HQVk40GfT1/FtmrB3h60d2PZKDan3
-        zJ39Y1+5zOfCgJ+hD65hf/bAoR4QvjgaOkp0yXHNrM1b5XFbnchGL5UMFtZPJEbO
-        xs4YyCrkR66he4Vj64PE03aH6rI6NZ/nqb0Br0UWxxlImRBK2chSoIwFRAU/+1H3
-        J8SnnnWb262Oo0aSIeAHOrzXkAFNrcgANxq1XFffkKp33gXiwIhg8Kzj7wNaQA0z
-        J66NsaQDyPadAKHHYslXmctxK7EiicyFpuA==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id RcyG45AGe3m8 for <fio@vger.kernel.org>;
-        Thu, 11 Nov 2021 17:13:00 -0800 (PST)
-Received: from [10.225.54.48] (unknown [10.225.54.48])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Hr0vH3ZWqz1RtVl;
-        Thu, 11 Nov 2021 17:12:59 -0800 (PST)
-Message-ID: <e49b93ca-d547-6825-7d3c-ee8e2681400f@opensource.wdc.com>
-Date:   Fri, 12 Nov 2021 10:12:57 +0900
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.3.0
-Subject: Re: [PATCH v2 8/8] libaio,io_uring: make it possible to cleanup
- cmdprio malloced data
+  t=1636710880; x=1668246880;
+  h=from:to:cc:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=ovLMuSrzwJifHhku/0l9wOYdg8heiuemQHlSMCPLKYQ=;
+  b=QGdaYPMJDLdXsDidmZpFZUQDfhZ6fd5jNjS60+vi/t+fuI+uPZHvmE2D
+   ZkVAdSHoxkOPOX4QZV25Q7v0n1hAvGxrE4imuM5hAzwpoBdE6MzM7OVrv
+   Brntl+wIGe8eP+ppUhnflzSXSqQzyiF/aTbe8H0OZ8XbeOdtiSJku2Fst
+   lhMD44agfuOLCu9EjgMW5zfxWEOutvTEV3THFIpFwKDbNTnJW1ItGfrGc
+   SXBee+FrAy34uo4OHSZideVjxWB2g4PN42ZmoDpiIwcUG5kAyw4qoGSwm
+   mf7yFTNe/kWwOp/dmdq46qMUjAT5EjRC+hjthv6zf+X3Pu9gy0TMUoDyT
+   w==;
+X-IronPort-AV: E=Sophos;i="5.87,229,1631548800"; 
+   d="scan'208";a="289360570"
+Received: from mail-co1nam11lp2168.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.168])
+  by ob1.hgst.iphmx.com with ESMTP; 12 Nov 2021 17:54:39 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YlyJQc8gNbpbxSD7TaGzY72nTDuZxWYMCOvSJU8rx5BbEdFBB0vqq77k2Nx/MX9d4Q3cOwimTItQd4pfNKrzhzcW4+OzJ4SAjTMAHvB6c6jwn+iRhNx6vFE6EZyRRuC9EgppgryA5l+4XZwgAQmIIjNmzma/Tp72rh6HWp/e1mqdYc1OzTbLlxwR3ZT9zfaQyxyIaMjkXmT44oY6ylPLqH6D4j16hBwskj7qUrZ4Ha66cgnDuVUY42vFwyS4+2pVaoXIstzkjNer9OVZ0EQLF1woc47dprZ/rXbDu4tqNSQhM3+IZ6nUSuLr10LDvkz89uYRW7Ce7wFZsMOlEgyHCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Ejiuk7pGwAFSgVZIU+6WPxwSHPeWKIKqr/0G6bEHD2I=;
+ b=WxNkIoSmNY2GCzoUF9gLbiCfL4vQ7JLb4a+ugEuldrB9U04Dg1qx5uwit1nu8Qp5uNAAZYhvu934r/WYHQCLAHKzJsWO5WjLmHm3nI3JXyPmZvkG+AKu+VaKSgNbnYnh0WuC0TDxsWzxFHFR7aPwEr39/UBJSy1gN22BmNF119Zdrga7KvN2AvVspqNLWaX9/hPGdZpco4vYMZ6jRLBwq/+b+c7axSkGNHqKIutlUpwOBP/GvKeRAO7wQgeYfO12RfbVI5Tl5rCGcUJnjRVHiOXL5epVaFVgwSQE4wGO0xQ4esUm7btTiCCiM3Qkp1Zs17ucP0UyQiuVrTEmn7rKIQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ejiuk7pGwAFSgVZIU+6WPxwSHPeWKIKqr/0G6bEHD2I=;
+ b=c/1wVlTOqPe/ncpyPRCi/syd00EYgJ8mrCB/9tC25YqN5bqP5WzXVHOQOt6QfDxqWU0xldv3LZn02/r6mTkZ4S6bDJdLjGOqhcQ/nSlXWZUnrGmMMw3LQIQ5u5VOQkrrCity5JzX2wI+qreBr84bCGybvMQKeyoXzghxClCdxls=
+Received: from SA0PR04MB7161.namprd04.prod.outlook.com (2603:10b6:806:e6::22)
+ by SA0PR04MB7433.namprd04.prod.outlook.com (2603:10b6:806:e2::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4690.16; Fri, 12 Nov
+ 2021 09:54:38 +0000
+Received: from SA0PR04MB7161.namprd04.prod.outlook.com
+ ([fe80::b5f7:34b9:6998:cf2]) by SA0PR04MB7161.namprd04.prod.outlook.com
+ ([fe80::b5f7:34b9:6998:cf2%7]) with mapi id 15.20.4669.016; Fri, 12 Nov 2021
+ 09:54:38 +0000
+From:   Niklas Cassel <Niklas.Cassel@wdc.com>
+To:     "axboe@kernel.dk" <axboe@kernel.dk>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v3 0/8] cmdprio cleanup series
+Thread-Topic: [PATCH v3 0/8] cmdprio cleanup series
+Thread-Index: AQHX16tOJ6Lyb23LRkKNC2jUoWeMFg==
+Date:   Fri, 12 Nov 2021 09:54:38 +0000
+Message-ID: <20211112095428.158300-1-Niklas.Cassel@wdc.com>
+Accept-Language: en-US
 Content-Language: en-US
-To:     Niklas Cassel <Niklas.Cassel@wdc.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>
-Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-References: <20211109233804.164786-1-Niklas.Cassel@wdc.com>
- <20211109233804.164786-9-Niklas.Cassel@wdc.com>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital
-In-Reply-To: <20211109233804.164786-9-Niklas.Cassel@wdc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.33.1
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a13dff43-0ddc-4973-dce1-08d9a5c270e7
+x-ms-traffictypediagnostic: SA0PR04MB7433:
+x-microsoft-antispam-prvs: <SA0PR04MB743326E10972C31D04645B31F2959@SA0PR04MB7433.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: hOOygKjDOuIjgvbbGPUALcWtQEQPtJlOVi7wXZ3tiidFzrF3B5knbkt4dOZh1M858CmabftzH7P+FSwyAId+qn0yxlANgRZYQj55iQunzRgy1X/DpsiQAKX5xZbWo0lddTVLYW7l7SfyYLfzvkuoBJs1ux11kHuQKc9QSdRse+Cs7It3HLoNIql4Fbohc7I8P8rP6xisg8/2kUwnQuaxnSLroioxUciaMnL5L7EvSVzojLHSE3n//IUtRBdImAPIjmf/rMpASETmuWK0wp++yaZws1aLR7sBP77SvtAylQxlabTCoFP5eZA8LHdwRj8aTfo5BXoC91pFlWBpyE9PB/EzJpGiRjMqzUoWnwWMtV7GOWjn6jp7C8UG4Sk0iTLuvRHb5c4FccsOpm+28LfZt9IcrYpOx32zw/vYFaAOS7HCF2O9TZxmsdcQoya26d26YH6gmLRUeVwLWIiVHQliC6Wixa15ZzZE2wKJX1ciQXNmXkI8biDn8YdhrBgqCatoIyo8XbjfCyGmSfLRPgIrja1JxO9HKKY1QlkFWWa6tigpFanP28HoegOL+Peu+C+jdxbxuPlHPRplhwwlxZXaSVTFJqkrgjlGs0k5KoB/LD8jsoz0VIaheoq4PZn9JGx/hWJkBQLQwDbPbErvLw1hYmwLmsBawqwTpHdLMTqIt0FQgpvCv3xunp2SDJqakKQ1pjsMV/3gPswIuV3ZOhnnew==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR04MB7161.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(186003)(8676002)(83380400001)(66476007)(64756008)(71200400001)(2906002)(2616005)(4326008)(66946007)(8936002)(508600001)(86362001)(1076003)(6512007)(66556008)(91956017)(6506007)(76116006)(66446008)(26005)(82960400001)(5660300002)(6916009)(316002)(36756003)(38070700005)(122000001)(54906003)(6486002)(38100700002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?WIrKJ7becJN45eQB1bQwZqLHNg6vLF6NJB2QAu6TXPW7g66veOoiWvIHRQ?=
+ =?iso-8859-1?Q?jhQv4uhdSq54fzxXJkCOeP/CFZINspPK0osnyRId3r570KYTmISbfEAvyU?=
+ =?iso-8859-1?Q?As5mGbneXmjo90kDec52qkwbPjQ+LCCQzUvQcXEyMEBLz9Rbqoon41Qjhq?=
+ =?iso-8859-1?Q?7/RcWz+CbJJkbCQKCjjep9/d0OKTp5F9V8MHnLvnBqgtdVhW9Usha5cYRu?=
+ =?iso-8859-1?Q?GXgf8xALhr5JtIHcO33OqsYBcuvcMS3oa08ZXanTcs2/ktkghEvjelekNW?=
+ =?iso-8859-1?Q?jmzTzsMhvuzKUIF2+GpgteI4nbf7UPJ3tXY80D5WCSPRRpN6KlbVgpWS+s?=
+ =?iso-8859-1?Q?Vo7CT+lnsfgfTFFs62xVTw1MEiWNRzCZp1kNmkzTYvP3tmT3u3WFOFdgfP?=
+ =?iso-8859-1?Q?DazJSgy8Bv1m3qgMxrjEKlr1SzpcDrGxmv2mvr7FG6WDxQcohR1YM51V0E?=
+ =?iso-8859-1?Q?Vd3MRbnu4D8wRm6Aa8k6ty3Qhaa+ytD9Mj32ru/Ot3uA4ZgRdZslZzoeGN?=
+ =?iso-8859-1?Q?Ixp/VxVqw2Z1qz0kRXMp5/gRu6WOhzV8QxcTXJ9sx/DW0khEdtiEsh/wKQ?=
+ =?iso-8859-1?Q?b3Hi5XM3AyANxpOsCc9Eto+5PUc7H0eTSOAdJ3BAJXcrnE0H87lurXqFqE?=
+ =?iso-8859-1?Q?ahyX0Yu0SUs7MR4KZflahmWwCxG8rq7VnXM5eS2fhhkPgKUOS17DalcacM?=
+ =?iso-8859-1?Q?MwkkgQrcwE+blRh+XNqAg4mldAzhjnOkX/xbS0j8Vhdvr0c3sskjbKfqR+?=
+ =?iso-8859-1?Q?kbIbQdosw9DzCIulvzL3VzxgBtWqtuGvoCvLYlsz+vhA/wOq0MHzaRqabS?=
+ =?iso-8859-1?Q?9PMwDF2z69asyRCOUktNU56IgwjZOhSDbh7LU54Mk1fYqoijV6V2AmRA8i?=
+ =?iso-8859-1?Q?XEAjsHobSbMp5DB0lED7HCEmgYKMgV2kda1YTsQPN92smijQU1h4ZSCKJK?=
+ =?iso-8859-1?Q?ima6p0/0DcmG/FDiJezumswoukLb5URiq8mMoFQo0FPdXUd32Vnmd31/n9?=
+ =?iso-8859-1?Q?X/cVcBtilp8iVnjoKVse7kkk6X8pgKQ5rbAAlJ8tccwxjf5pCKjbDEOYWk?=
+ =?iso-8859-1?Q?W6a1X9CilKVjU/1sErnsetwxySVnRwhzIF6l1XR5LeaBTgUlJ9KxRRT3eM?=
+ =?iso-8859-1?Q?xZHLXum+ypRlZyE3l0G3A+sqo1eyeTgnQUP/tw7PbIjs/vmYwW6khOWDQk?=
+ =?iso-8859-1?Q?hYvzzDr+uwo3j+UFOUuKhRBRu/fn5sZONvwIrhmhuIh5Un2gzXy3+TCT7/?=
+ =?iso-8859-1?Q?9Bv6ZS6QA8hH7kC+uAk7PwWNAicyDyidG7FIPrdT5+Ti9vO6qKuhMgtcll?=
+ =?iso-8859-1?Q?wFay7DhESO98ow2hqTJF1vBi0Dn4PxQIinhMC/gWgp/Ls4jrIrVlskE+FZ?=
+ =?iso-8859-1?Q?BkANsOD96Qcru/LXq4g3s6uCIwT6ls2lzD9xPELL5BF5RlWqMd//W7gGUW?=
+ =?iso-8859-1?Q?UnekNKhgQ5jakg/zQi1nNUycisi62oYgFRHotS9EDwjQcnJmWX0+SDa4Xx?=
+ =?iso-8859-1?Q?IVeuSy3hWwuf3kxDTKe6NbdRmfwaqsb2pu3Yefef6H2aKi+UGqqsmFUm2m?=
+ =?iso-8859-1?Q?afXBqhGfVfPSFDvvUPDDoOimpheqxFzEFonuW7jYDH+TlWTV6M6t6uhvx7?=
+ =?iso-8859-1?Q?QblJJx8I0WqLCRE6vaLGM1Que2ULCgbs9uZvdO4c0PwKVQDNoL++rn4RKg?=
+ =?iso-8859-1?Q?baZDv/JOrJw+8+3awU8=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA0PR04MB7161.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a13dff43-0ddc-4973-dce1-08d9a5c270e7
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Nov 2021 09:54:38.4664
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TXKCnmWnUke52oD4ACcvkcL3FE/PvQIj5icjIe6wwmMOp6cA4zztoeTT2G932Y2xBq/0Xv2eYXtqk6lAPPjCEQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR04MB7433
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 2021/11/10 8:38, Niklas Cassel wrote:
-> From: Niklas Cassel <niklas.cassel@wdc.com>
-> 
-> The way that fio currently handles engine options:
-> options_free() will only every call free() on an option that has type
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-...will call free() only for options that have the type...
+Hello Jens,
 
-> FIO_OPT_STR_STORE. This means that any option that has a pointer in
-> either td->o or td->eo, which is not of type FIO_OPT_STR_STORE will
-> leak memory. This is true even for numjobs == 1.
-> 
-> When running with numjobs > 1, fio_options_mem_dupe() will memcpy
-> td->eo into the new td. Since off1 of the pointers in the first td
-> has already been set, the pointers in the new td will point to the
-> same data. (Regardless, options_free() will never try to free the
-> memory, for neither td.) Neither can we manually free the memory in
-> cleanup(), since the other td will still point to the same memory,
-> so this would lead to a double free.
-> 
-> These memory leaks are reported by e.g. valgrind.
-> 
-> The most obvious way to solve this is to put dynamically allocated
-> memory in {ioring,libaio}_data instead of {ioring,libaio}_options.
-> 
-> This solves the problem since {ioring,libaio}_data is dynamically
-> allocated by each td during the ioengine init callback, and is freed
-> when the ioengine cleanup callback for that td is called.
-> 
-> The downside of this is that the parsing has to be done in
-> fio_cmdprio_init() instead of in the option .cb callback, since the
-> .cb callback is called before {ioring,libaio}_data is available.
-> 
-> This patch keeps the static cmdprio options in
-> {ioring,libaio}_options, but moves the dynamically allocated memory
-> needed by cmdprio to {ioring,libaio}_data.
-> 
-> No cmdprio related memory leaks are reported after this patch.
-> 
-> Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
-> ---
->  engines/cmdprio.c  | 106 ++++++++++++++++++++++++++++++++++-----------
->  engines/cmdprio.h  |  15 ++++---
->  engines/io_uring.c |  41 +++++++-----------
->  engines/libaio.c   |  43 ++++++++----------
->  4 files changed, 124 insertions(+), 81 deletions(-)
-> 
-> diff --git a/engines/cmdprio.c b/engines/cmdprio.c
-> index 174bed7c..7ff39d93 100644
-> --- a/engines/cmdprio.c
-> +++ b/engines/cmdprio.c
-> @@ -46,22 +46,15 @@ int fio_cmdprio_bssplit_parse(struct thread_data *td, const char *input,
->  			      struct cmdprio *cmdprio)
->  {
->  	char *str, *p;
-> -	int i, ret = 0;
-> +	int ret = 0;
->  
->  	p = str = strdup(input);
->  
->  	strip_blank_front(&str);
->  	strip_blank_end(str);
->  
-> -	ret = str_split_parse(td, str, fio_cmdprio_bssplit_ddir, cmdprio, false);
-> -
-> -	if (parse_dryrun()) {
-> -		for (i = 0; i < CMDPRIO_RWDIR_CNT; i++) {
-> -			free(cmdprio->bssplit[i]);
-> -			cmdprio->bssplit[i] = NULL;
-> -			cmdprio->bssplit_nr[i] = 0;
-> -		}
-> -	}
-> +	ret = str_split_parse(td, str, fio_cmdprio_bssplit_ddir, cmdprio,
-> +			      false);
->  
->  	free(p);
->  	return ret;
-> @@ -70,11 +63,12 @@ int fio_cmdprio_bssplit_parse(struct thread_data *td, const char *input,
->  static int fio_cmdprio_percentage(struct cmdprio *cmdprio, struct io_u *io_u)
->  {
->  	enum fio_ddir ddir = io_u->ddir;
-> +	struct cmdprio_options *options = cmdprio->options;
->  	int i;
->  
->  	switch (cmdprio->mode) {
->  	case CMDPRIO_MODE_PERC:
-> -		return cmdprio->percentage[ddir];
-> +		return options->percentage[ddir];
->  	case CMDPRIO_MODE_BSSPLIT:
->  		for (i = 0; i < cmdprio->bssplit_nr[ddir]; i++) {
->  			if (cmdprio->bssplit[ddir][i].bs == io_u->buflen)
-> @@ -98,9 +92,10 @@ bool fio_cmdprio_set_ioprio(struct thread_data *td, struct cmdprio *cmdprio,
->  			    struct io_u *io_u)
->  {
->  	enum fio_ddir ddir = io_u->ddir;
-> +	struct cmdprio_options *options = cmdprio->options;
->  	unsigned int p;
->  	unsigned int cmdprio_value =
-> -		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
-> +		ioprio_value(options->class[ddir], options->level[ddir]);
->  
->  	if (cmdprio->mode == CMDPRIO_MODE_NONE) {
->  		/*
-> @@ -137,30 +132,85 @@ bool fio_cmdprio_set_ioprio(struct thread_data *td, struct cmdprio *cmdprio,
->  	return false;
->  }
->  
-> -int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio)
-> +static int fio_cmdprio_parse_and_gen_bssplit(struct thread_data *td,
-> +					     struct cmdprio *cmdprio)
->  {
-> -	struct thread_options *to = &td->o;
-> -	bool has_cmdprio_percentage = false;
-> -	bool has_cmdprio_bssplit = false;
-> +	struct cmdprio_options *options = cmdprio->options;
-> +	int ret;
-> +
-> +	ret = fio_cmdprio_bssplit_parse(td, options->bssplit_str, cmdprio);
-> +	if (ret)
-> +		goto err;
-> +
-> +	return 0;
-> +
-> +err:
-> +	fio_cmdprio_cleanup(cmdprio);
-> +
-> +	return ret;
-> +}
-> +
-> +static int fio_cmdprio_gen_data_structs(struct thread_data *td,
-> +					struct cmdprio *cmdprio)
+Here is a cleanup series that improves the cmdprio_percentage and
+cmdprio_bssplit options in libaio and io_uring ioengines.
 
-You could call this fio_cmdprio_parse_and_gen(), or simply
-fio_cmdprio_parse() ?
+I'm currently working on adding support for multiple priority class +
+priority level combinations, however that series is not quite ready yet.
 
-> +{
-> +	struct cmdprio_options *options = cmdprio->options;
-> +	int ret = 1;
->  	int i;
->  
-> +	if (cmdprio->mode == CMDPRIO_MODE_BSSPLIT)
-> +		ret = fio_cmdprio_parse_and_gen_bssplit(td, cmdprio);
-> +	else if (cmdprio->mode == CMDPRIO_MODE_PERC)
-> +		ret = 0;
-
-What about:
-
-	int ret;
-
-	if (cmdprio->mode == CMDPRIO_MODE_NONE)
-		return 1;
-
-	if (cmdprio->mode == CMDPRIO_MODE_BSSPLIT) {
-		ret = fio_cmdprio_parse_and_gen_bssplit(td, cmdprio);
-		if (ret)
-			return ret;
-	}
-
-And then "return 0;" at the end.
-
-That is easier to follow this way, no ?
-
-> +
->  	/*
->  	 * If cmdprio_percentage/cmdprio_bssplit is set and cmdprio_class
->  	 * is not set, default to RT priority class.
->  	 */
->  	for (i = 0; i < CMDPRIO_RWDIR_CNT; i++) {
-> -		if (cmdprio->percentage[i]) {
-> -			if (!cmdprio->class[i])
-> -				cmdprio->class[i] = IOPRIO_CLASS_RT;
-> -			has_cmdprio_percentage = true;
-> -		}
-> -		if (cmdprio->bssplit_nr[i]) {
-> -			if (!cmdprio->class[i])
-> -				cmdprio->class[i] = IOPRIO_CLASS_RT;
-> -			has_cmdprio_bssplit = true;
-> +		if (options->percentage[i] || cmdprio->bssplit_nr[i]) {
-> +			if (!options->class[i])
-> +				options->class[i] = IOPRIO_CLASS_RT;
->  		}
->  	}
->  
-> +	return ret;
-> +}
-> +
-> +void fio_cmdprio_cleanup(struct cmdprio *cmdprio)
-> +{
-> +	int ddir;
-> +
-> +	for (ddir = 0; ddir < CMDPRIO_RWDIR_CNT; ddir++) {
-> +		free(cmdprio->bssplit[ddir]);
-> +		cmdprio->bssplit[ddir] = NULL;
-> +		cmdprio->bssplit_nr[ddir] = 0;
-> +	}
-> +
-> +	/*
-> +	 * options points to a cmdprio_options struct that is part of td->eo.
-> +	 * td->eo itself will be freed by free_ioengine().
-> +	 */
-> +	cmdprio->options = NULL;
-> +}
-> +
-> +int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio,
-> +		     struct cmdprio_options *options)
-> +{
-> +	struct thread_options *to = &td->o;
-> +	bool has_cmdprio_percentage = false;
-> +	bool has_cmdprio_bssplit = false;
-> +	int i;
-> +
-> +	cmdprio->options = options;
-> +
-> +	if (options->bssplit_str && strlen(options->bssplit_str))
-> +		has_cmdprio_bssplit = true;
-> +
-> +	for (i = 0; i < CMDPRIO_RWDIR_CNT; i++) {
-> +		if (options->percentage[i])
-> +			has_cmdprio_percentage = true;
-> +	}
-> +
->  	/*
->  	 * Check for option conflicts
->  	 */
-> @@ -178,5 +228,9 @@ int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio)
->  	else
->  		cmdprio->mode = CMDPRIO_MODE_NONE;
->  
-> -	return 0;
-> +	/* Nothing left to do if cmdprio is not used */
-> +	if (cmdprio->mode == CMDPRIO_MODE_NONE)
-> +		return 0;
-> +
-> +	return fio_cmdprio_gen_data_structs(td, cmdprio);
->  }
-> diff --git a/engines/cmdprio.h b/engines/cmdprio.h
-> index 7e4fcf6c..0c7bd6cf 100644
-> --- a/engines/cmdprio.h
-> +++ b/engines/cmdprio.h
-> @@ -17,21 +17,26 @@ enum {
->  	CMDPRIO_MODE_BSSPLIT,
->  };
->  
-> -struct cmdprio {
-> +struct cmdprio_options {
->  	unsigned int percentage[CMDPRIO_RWDIR_CNT];
->  	unsigned int class[CMDPRIO_RWDIR_CNT];
->  	unsigned int level[CMDPRIO_RWDIR_CNT];
-> +	char *bssplit_str;
-> +};
-> +
-> +struct cmdprio {
-> +	struct cmdprio_options *options;
->  	unsigned int bssplit_nr[CMDPRIO_RWDIR_CNT];
->  	struct bssplit *bssplit[CMDPRIO_RWDIR_CNT];
->  	unsigned int mode;
->  };
->  
-> -int fio_cmdprio_bssplit_parse(struct thread_data *td, const char *input,
-> -			      struct cmdprio *cmdprio);
-> -
->  bool fio_cmdprio_set_ioprio(struct thread_data *td, struct cmdprio *cmdprio,
->  			    struct io_u *io_u);
->  
-> -int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio);
-> +void fio_cmdprio_cleanup(struct cmdprio *cmdprio);
-> +
-> +int fio_cmdprio_init(struct thread_data *td, struct cmdprio *cmdprio,
-> +		     struct cmdprio_options *options);
->  
->  #endif
-> diff --git a/engines/io_uring.c b/engines/io_uring.c
-> index 979d07d4..b2308b94 100644
-> --- a/engines/io_uring.c
-> +++ b/engines/io_uring.c
-> @@ -68,12 +68,14 @@ struct ioring_data {
->  	int prepped;
->  
->  	struct ioring_mmap mmap[3];
-> +
-> +	struct cmdprio cmdprio;
->  };
->  
->  struct ioring_options {
->  	struct thread_data *td;
->  	unsigned int hipri;
-> -	struct cmdprio cmdprio;
-> +	struct cmdprio_options cmdprio_options;
->  	unsigned int fixedbufs;
->  	unsigned int registerfiles;
->  	unsigned int sqpoll_thread;
-> @@ -104,15 +106,6 @@ static int fio_ioring_sqpoll_cb(void *data, unsigned long long *val)
->  	return 0;
->  }
->  
-> -static int str_cmdprio_bssplit_cb(void *data, const char *input)
-> -{
-> -	struct ioring_options *o = data;
-> -	struct thread_data *td = o->td;
-> -	struct cmdprio *cmdprio = &o->cmdprio;
-> -
-> -	return fio_cmdprio_bssplit_parse(td, input, cmdprio);
-> -}
-> -
->  static struct fio_option options[] = {
->  	{
->  		.name	= "hipri",
-> @@ -129,9 +122,9 @@ static struct fio_option options[] = {
->  		.lname	= "high priority percentage",
->  		.type	= FIO_OPT_INT,
->  		.off1	= offsetof(struct ioring_options,
-> -				   cmdprio.percentage[DDIR_READ]),
-> +				   cmdprio_options.percentage[DDIR_READ]),
->  		.off2	= offsetof(struct ioring_options,
-> -				   cmdprio.percentage[DDIR_WRITE]),
-> +				   cmdprio_options.percentage[DDIR_WRITE]),
->  		.minval	= 0,
->  		.maxval	= 100,
->  		.help	= "Send high priority I/O this percentage of the time",
-> @@ -143,9 +136,9 @@ static struct fio_option options[] = {
->  		.lname	= "Asynchronous I/O priority class",
->  		.type	= FIO_OPT_INT,
->  		.off1	= offsetof(struct ioring_options,
-> -				   cmdprio.class[DDIR_READ]),
-> +				   cmdprio_options.class[DDIR_READ]),
->  		.off2	= offsetof(struct ioring_options,
-> -				   cmdprio.class[DDIR_WRITE]),
-> +				   cmdprio_options.class[DDIR_WRITE]),
->  		.help	= "Set asynchronous IO priority class",
->  		.minval	= IOPRIO_MIN_PRIO_CLASS + 1,
->  		.maxval	= IOPRIO_MAX_PRIO_CLASS,
-> @@ -158,9 +151,9 @@ static struct fio_option options[] = {
->  		.lname	= "Asynchronous I/O priority level",
->  		.type	= FIO_OPT_INT,
->  		.off1	= offsetof(struct ioring_options,
-> -				   cmdprio.level[DDIR_READ]),
-> +				   cmdprio_options.level[DDIR_READ]),
->  		.off2	= offsetof(struct ioring_options,
-> -				   cmdprio.level[DDIR_WRITE]),
-> +				   cmdprio_options.level[DDIR_WRITE]),
->  		.help	= "Set asynchronous IO priority level",
->  		.minval	= IOPRIO_MIN_PRIO,
->  		.maxval	= IOPRIO_MAX_PRIO,
-> @@ -171,9 +164,9 @@ static struct fio_option options[] = {
->  	{
->  		.name   = "cmdprio_bssplit",
->  		.lname  = "Priority percentage block size split",
-> -		.type   = FIO_OPT_STR_ULL,
-> -		.cb     = str_cmdprio_bssplit_cb,
-> -		.off1   = offsetof(struct ioring_options, cmdprio.bssplit),
-> +		.type   = FIO_OPT_STR_STORE,
-> +		.off1   = offsetof(struct ioring_options,
-> +				   cmdprio_options.bssplit_str),
->  		.help   = "Set priority percentages for different block sizes",
->  		.category = FIO_OPT_C_ENGINE,
->  		.group	= FIO_OPT_G_IOURING,
-> @@ -458,8 +451,7 @@ static inline void fio_ioring_cmdprio_prep(struct thread_data *td,
->  					   struct io_u *io_u)
->  {
->  	struct ioring_data *ld = td->io_ops_data;
-> -	struct ioring_options *o = td->eo;
-> -	struct cmdprio *cmdprio = &o->cmdprio;
-> +	struct cmdprio *cmdprio = &ld->cmdprio;
->  
->  	if (fio_cmdprio_set_ioprio(td, cmdprio, io_u))
->  		ld->sqes[io_u->index].ioprio = io_u->ioprio;
-> @@ -470,7 +462,6 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
->  {
->  	struct ioring_data *ld = td->io_ops_data;
->  	struct io_sq_ring *ring = &ld->sq_ring;
-> -	struct ioring_options *o = td->eo;
->  	unsigned tail, next_tail;
->  
->  	fio_ro_check(td, io_u);
-> @@ -493,7 +484,7 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
->  	if (next_tail == atomic_load_acquire(ring->head))
->  		return FIO_Q_BUSY;
->  
-> -	if (o->cmdprio.mode != CMDPRIO_MODE_NONE)
-> +	if (ld->cmdprio.mode != CMDPRIO_MODE_NONE)
->  		fio_ioring_cmdprio_prep(td, io_u);
->  
->  	ring->array[tail & ld->sq_ring_mask] = io_u->index;
-> @@ -599,6 +590,7 @@ static void fio_ioring_cleanup(struct thread_data *td)
->  		if (!(td->flags & TD_F_CHILD))
->  			fio_ioring_unmap(ld);
->  
-> +		fio_cmdprio_cleanup(&ld->cmdprio);
->  		free(ld->io_u_index);
->  		free(ld->iovecs);
->  		free(ld->fds);
-> @@ -805,7 +797,6 @@ static int fio_ioring_init(struct thread_data *td)
->  {
->  	struct ioring_options *o = td->eo;
->  	struct ioring_data *ld;
-> -	struct cmdprio *cmdprio = &o->cmdprio;
->  	int ret;
->  
->  	/* sqthread submission requires registered files */
-> @@ -830,7 +821,7 @@ static int fio_ioring_init(struct thread_data *td)
->  
->  	td->io_ops_data = ld;
->  
-> -	ret = fio_cmdprio_init(td, cmdprio);
-> +	ret = fio_cmdprio_init(td, &ld->cmdprio, &o->cmdprio_options);
->  	if (ret) {
->  		td_verror(td, EINVAL, "fio_ioring_init");
->  		return 1;
-> diff --git a/engines/libaio.c b/engines/libaio.c
-> index 53fe7428..9c278d06 100644
-> --- a/engines/libaio.c
-> +++ b/engines/libaio.c
-> @@ -51,24 +51,17 @@ struct libaio_data {
->  	unsigned int queued;
->  	unsigned int head;
->  	unsigned int tail;
-> +
-> +	struct cmdprio cmdprio;
->  };
->  
->  struct libaio_options {
->  	struct thread_data *td;
->  	unsigned int userspace_reap;
-> -	struct cmdprio cmdprio;
-> +	struct cmdprio_options cmdprio_options;
->  	unsigned int nowait;
->  };
->  
-> -static int str_cmdprio_bssplit_cb(void *data, const char *input)
-> -{
-> -	struct libaio_options *o = data;
-> -	struct thread_data *td = o->td;
-> -	struct cmdprio *cmdprio = &o->cmdprio;
-> -
-> -	return fio_cmdprio_bssplit_parse(td, input, cmdprio);
-> -}
-> -
->  static struct fio_option options[] = {
->  	{
->  		.name	= "userspace_reap",
-> @@ -85,9 +78,9 @@ static struct fio_option options[] = {
->  		.lname	= "high priority percentage",
->  		.type	= FIO_OPT_INT,
->  		.off1	= offsetof(struct libaio_options,
-> -				   cmdprio.percentage[DDIR_READ]),
-> +				   cmdprio_options.percentage[DDIR_READ]),
->  		.off2	= offsetof(struct libaio_options,
-> -				   cmdprio.percentage[DDIR_WRITE]),
-> +				   cmdprio_options.percentage[DDIR_WRITE]),
->  		.minval	= 0,
->  		.maxval	= 100,
->  		.help	= "Send high priority I/O this percentage of the time",
-> @@ -99,9 +92,9 @@ static struct fio_option options[] = {
->  		.lname	= "Asynchronous I/O priority class",
->  		.type	= FIO_OPT_INT,
->  		.off1	= offsetof(struct libaio_options,
-> -				   cmdprio.class[DDIR_READ]),
-> +				   cmdprio_options.class[DDIR_READ]),
->  		.off2	= offsetof(struct libaio_options,
-> -				   cmdprio.class[DDIR_WRITE]),
-> +				   cmdprio_options.class[DDIR_WRITE]),
->  		.help	= "Set asynchronous IO priority class",
->  		.minval	= IOPRIO_MIN_PRIO_CLASS + 1,
->  		.maxval	= IOPRIO_MAX_PRIO_CLASS,
-> @@ -114,9 +107,9 @@ static struct fio_option options[] = {
->  		.lname	= "Asynchronous I/O priority level",
->  		.type	= FIO_OPT_INT,
->  		.off1	= offsetof(struct libaio_options,
-> -				   cmdprio.level[DDIR_READ]),
-> +				   cmdprio_options.level[DDIR_READ]),
->  		.off2	= offsetof(struct libaio_options,
-> -				   cmdprio.level[DDIR_WRITE]),
-> +				   cmdprio_options.level[DDIR_WRITE]),
->  		.help	= "Set asynchronous IO priority level",
->  		.minval	= IOPRIO_MIN_PRIO,
->  		.maxval	= IOPRIO_MAX_PRIO,
-> @@ -127,9 +120,9 @@ static struct fio_option options[] = {
->  	{
->  		.name   = "cmdprio_bssplit",
->  		.lname  = "Priority percentage block size split",
-> -		.type   = FIO_OPT_STR_ULL,
-> -		.cb     = str_cmdprio_bssplit_cb,
-> -		.off1   = offsetof(struct libaio_options, cmdprio.bssplit),
-> +		.type   = FIO_OPT_STR_STORE,
-> +		.off1   = offsetof(struct libaio_options,
-> +				   cmdprio_options.bssplit_str),
->  		.help   = "Set priority percentages for different block sizes",
->  		.category = FIO_OPT_C_ENGINE,
->  		.group	= FIO_OPT_G_LIBAIO,
-> @@ -206,8 +199,8 @@ static int fio_libaio_prep(struct thread_data *td, struct io_u *io_u)
->  static inline void fio_libaio_cmdprio_prep(struct thread_data *td,
->  					   struct io_u *io_u)
->  {
-> -	struct libaio_options *o = td->eo;
-> -	struct cmdprio *cmdprio = &o->cmdprio;
-> +	struct libaio_data *ld = td->io_ops_data;
-> +	struct cmdprio *cmdprio = &ld->cmdprio;
->  
->  	if (fio_cmdprio_set_ioprio(td, cmdprio, io_u)) {
->  		io_u->iocb.aio_reqprio = io_u->ioprio;
-> @@ -318,7 +311,6 @@ static enum fio_q_status fio_libaio_queue(struct thread_data *td,
->  					  struct io_u *io_u)
->  {
->  	struct libaio_data *ld = td->io_ops_data;
-> -	struct libaio_options *o = td->eo;
->  
->  	fio_ro_check(td, io_u);
->  
-> @@ -349,7 +341,7 @@ static enum fio_q_status fio_libaio_queue(struct thread_data *td,
->  		return FIO_Q_COMPLETED;
->  	}
->  
-> -	if (o->cmdprio.mode != CMDPRIO_MODE_NONE)
-> +	if (ld->cmdprio.mode != CMDPRIO_MODE_NONE)
->  		fio_libaio_cmdprio_prep(td, io_u);
->  
->  	ld->iocbs[ld->head] = &io_u->iocb;
-> @@ -468,6 +460,8 @@ static void fio_libaio_cleanup(struct thread_data *td)
->  		 */
->  		if (!(td->flags & TD_F_CHILD))
->  			io_destroy(ld->aio_ctx);
-> +
-> +		fio_cmdprio_cleanup(&ld->cmdprio);
->  		free(ld->aio_events);
->  		free(ld->iocbs);
->  		free(ld->io_us);
-> @@ -493,7 +487,6 @@ static int fio_libaio_init(struct thread_data *td)
->  {
->  	struct libaio_data *ld;
->  	struct libaio_options *o = td->eo;
-> -	struct cmdprio *cmdprio = &o->cmdprio;
->  	int ret;
->  
->  	ld = calloc(1, sizeof(*ld));
-> @@ -506,7 +499,7 @@ static int fio_libaio_init(struct thread_data *td)
->  
->  	td->io_ops_data = ld;
->  
-> -	ret = fio_cmdprio_init(td, cmdprio);
-> +	ret = fio_cmdprio_init(td, &ld->cmdprio, &o->cmdprio_options);
->  	if (ret) {
->  		td_verror(td, EINVAL, "fio_libaio_init");
->  		return 1;
-> 
+Getting this cleanup series merged would make it easier to get multiple
+priority class + priority level combinations added.
+(Because AFAICT we wouldn't need any further changes to engines/io_uring.c
+or engines/libaio.c after this. Most changes will be to cmdprio.c and
+stat.c.)
 
 
--- 
-Damien Le Moal
-Western Digital Research
+Changes since v2:
+-Incorporated review comments by Damien.
+-Picked up Reviewed-by tags.
+
+
+Kind regards,
+Niklas
+
+Niklas Cassel (8):
+  docs: update cmdprio_percentage documentation
+  cmdprio: move cmdprio function definitions to a new cmdprio.c file
+  cmdprio: do not allocate memory for unused data direction
+  io_uring: set async IO priority to td->ioprio in fio_ioring_prep()
+  libaio,io_uring: rename prio_prep() to include cmdprio in the name
+  libaio,io_uring: move common cmdprio_prep() code to cmdprio
+  cmdprio: add mode to make the logic easier to reason about
+  libaio,io_uring: make it possible to cleanup cmdprio malloced data
+
+ HOWTO              |   5 +-
+ Makefile           |   6 ++
+ engines/cmdprio.c  | 243 +++++++++++++++++++++++++++++++++++++++++++++
+ engines/cmdprio.h  | 150 +++++-----------------------
+ engines/io_uring.c | 100 ++++++-------------
+ engines/libaio.c   |  72 +++++---------
+ fio.1              |   3 +-
+ 7 files changed, 332 insertions(+), 247 deletions(-)
+ create mode 100644 engines/cmdprio.c
+
+--=20
+2.33.1
