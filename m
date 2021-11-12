@@ -2,220 +2,228 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4C08C433F5
-	for <fio@archiver.kernel.org>; Thu, 11 Nov 2021 13:00:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8B8DC433EF
+	for <fio@archiver.kernel.org>; Fri, 12 Nov 2021 00:41:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BE2A9611C9
-	for <fio@archiver.kernel.org>; Thu, 11 Nov 2021 13:00:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F824610A0
+	for <fio@archiver.kernel.org>; Fri, 12 Nov 2021 00:41:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232915AbhKKNC6 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 11 Nov 2021 08:02:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35720 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232513AbhKKNC4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 11 Nov 2021 08:02:56 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C03CBC061766
-        for <fio@vger.kernel.org>; Thu, 11 Nov 2021 05:00:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=pY7VnMRnYPSyBa2naJhSc6X8q4lANk17qmsoODqvBm4=; b=UVLR1SljRjiCz5yo4ar42myGjl
-        lcdrSryavnrRzrSdLl6LcteosNu8N+Yu/2qtc3vOhm79QWm9UFE80vXD0wio+nKsXPyIN1MkLVyFw
-        4URefWqNoqK7b1KfrNndPKecP/+d1N0JyWWoA4GgGc6fz1tmTQvsnFMWJnAD8gEq9RHh7L8owt72x
-        9/yjLKiIss6hU1eXJXXBA01uFN0PE/hGgA4xUw/FhWTUuJIZwCs2B2LfLKahIHFcOX8LiW7sMUlm6
-        rgLloP68XQg+VID/Ni/VzG0dBtkJ36TQaIyRkJtz7jF1yFwRDBXFArVa1oawK+LLdP1utFzhQVBCr
-        pjzmFoXQ==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ml9gT-002jpH-8z
-        for fio@vger.kernel.org; Thu, 11 Nov 2021 13:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 655561BC0184; Thu, 11 Nov 2021 06:00:02 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211111130002.655561BC0184@kernel.dk>
-Date:   Thu, 11 Nov 2021 06:00:02 -0700 (MST)
+        id S234543AbhKLAoX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 11 Nov 2021 19:44:23 -0500
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:18080 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231965AbhKLAoW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 11 Nov 2021 19:44:22 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1636677693; x=1668213693;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=UmwljDC1OfJY/UydER8U9ey9dCnTAPQTyCtPkSML4eQ=;
+  b=M9tW9ZHT0tQ07Hu9o0HgngiwqeotzGeb6tcVqHcG1y0uZfTxStW/r+it
+   /xmvxI+oFI9VSEyODO9Hud3cpr/sfH1Amuh1Iw4kvaXmfw40qkd5md7nz
+   YZIAHi0oxvzJGuO2zAm8PurboCy89bE1OCGyM90ffvtTExmqfGMGQTFjL
+   Rmp+I6hUkWLm6xhaXxnvDK1ES6IribXDB+GvJMe6wIAlgAidTgZy0TU2w
+   YBjyDKQng8RM4u6lQJlaT8+3lr73gqF+eU6/1qYBidy96avlzKJwv/3Nd
+   hQUOh98+ArIXbszJ0ER2kQXWYyxQCINzA76/Fm7tY5GHojEoU0+b6O56G
+   g==;
+X-IronPort-AV: E=Sophos;i="5.87,227,1631548800"; 
+   d="scan'208";a="186391552"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 12 Nov 2021 08:41:33 +0800
+IronPort-SDR: 1/rfYr+Tid0wgxaYbq7cfnY5jB5Hpn6MprM5PlyfHSadLVEtI+pVebarr5IvhQx1UpY+kEVT9p
+ bfmIoJ/b0DxQFjEPD1mOJVyEf9eLuxdd6f+xFMJrhzbajHhhMTp5ADpjILU3F56u5zfTgeYQhK
+ SntkxCVl8koORo+jX0tqPO+MLOx6AH4YirEx8uIj68sGw+QwgVXHI8/i3k0agXtf/HvYgQccpU
+ GsXug2KiFYgwa7CDSRSwC0+6BTqYAAZFw7/4WFDjPSflvsQWdvsvBZMvxoOhsKv/d+/MKhkVRd
+ siTjAx4Kl4Dt51zvONhVG3Qe
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2021 16:16:41 -0800
+IronPort-SDR: dP4bgjyqfQow6E8oYkcG829ikJderbF5oaMhO/iT8REThKE+SEuFsqChx1RDk+bCvTEoqxwRhX
+ 1VopXaKo5Bxfn71ngHZsoyPm/Yw38TARVTqgs7msg0Hqjg6GxjgXtovSaBlzaKVuEgJO8Ku68J
+ nMEUSoi/YxGUmimB1XEbM5hqr9til/dI6CqreBbXn0ZKRBq8gR0KwLbJG17MCDFSD0hxkZ/PZk
+ h0PvBERkFJ7G0PeZo1L9pp0m2RywMQQmxEsrhQzVHbrZHKBIMpuIBcMyaGMix1Djt13TdG7kOk
+ DFE=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Nov 2021 16:41:33 -0800
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Hr0C03LlZz1RtVn
+        for <fio@vger.kernel.org>; Thu, 11 Nov 2021 16:41:32 -0800 (PST)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:content-type
+        :in-reply-to:organization:from:references:to:content-language
+        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+        1636677692; x=1639269693; bh=UmwljDC1OfJY/UydER8U9ey9dCnTAPQTyCt
+        PkSML4eQ=; b=S49hTE8VEFycntulC4uD28NFiukFjb7frq6lo/dmdl2TON1KJ5Q
+        9z2m4spJSOweESk4aV9beMXGaslpt0qBjRA7SsP2mRSIExw0NxVrgahMcVJXRibq
+        NJy6NcqlLYSEkaJJGtLMA+FXV3WF/UULVQmtEazMeKrBTBdxU17VdYR6JsPM5oo2
+        L9AqC0kKbOB1Ntt6EUw5vTfTp7Q49I+lH5A8EgsAKktN1mR7QbyYfrej3KIpWa89
+        fT97tNnWfuIQJGtREDvNfFqehVJwGj1AiU5FUQtX9/KlpkXQCQoEmRHpP6qbISue
+        aCxUeWuPhjEisSKyXDN4GUomY3TIcdIptwQ==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id EeuFIiE66Fit for <fio@vger.kernel.org>;
+        Thu, 11 Nov 2021 16:41:32 -0800 (PST)
+Received: from [10.225.54.48] (unknown [10.225.54.48])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Hr0Bz3cwnz1RtVl;
+        Thu, 11 Nov 2021 16:41:31 -0800 (PST)
+Message-ID: <2a53e49e-c224-81ee-085c-95c45b4f81a9@opensource.wdc.com>
+Date:   Fri, 12 Nov 2021 09:41:29 +0900
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.3.0
+Subject: Re: [PATCH v2 4/8] io_uring: set async IO priority to td->ioprio in
+ fio_ioring_prep()
+Content-Language: en-US
+To:     Niklas Cassel <Niklas.Cassel@wdc.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>
+Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+References: <20211109233804.164786-1-Niklas.Cassel@wdc.com>
+ <20211109233804.164786-5-Niklas.Cassel@wdc.com>
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Organization: Western Digital
+In-Reply-To: <20211109233804.164786-5-Niklas.Cassel@wdc.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit a87ea1a869595ca57052e7645431a397d3c7d5ac:
+On 2021/11/10 8:38, Niklas Cassel wrote:
+> From: Niklas Cassel <niklas.cassel@wdc.com>
+> 
+> The default priority (which is either 0 or the value set by "prio" and
+> "prioclass" options) is now saved in td->ioprio.
+> 
+> The simplest thing is therefore to unconditionally set the async IO
+> priority to td->ioprio in fio_ioring_prep(), and let fio_ioring_prio_prep()
+> only handle the case where cmdprio_percentage/cmdprio_bssplit is enabled.
+> 
+> Therefore, fio_ioring_prio_prep() doesn't need to care if prio/prioclass
+> was enabled or not, we can simply think that fio_ioring_prio_prep()
+> might "override" the default priority, whatever the default priority may
+> be.
+> 
+> Doing it this way also has the advantage that the prio_prep() function
+> in io_uring will now look identical to the prio_prep() function in
+> libaio.
+> 
+> Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+> ---
+>  engines/io_uring.c | 51 ++++++++++++++++++++++------------------------
+>  1 file changed, 24 insertions(+), 27 deletions(-)
+> 
+> diff --git a/engines/io_uring.c b/engines/io_uring.c
+> index 27a4a678..0e66398a 100644
+> --- a/engines/io_uring.c
+> +++ b/engines/io_uring.c
+> @@ -338,6 +338,18 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+>  			sqe->rw_flags |= RWF_UNCACHED;
+>  		if (o->nowait)
+>  			sqe->rw_flags |= RWF_NOWAIT;
+> +
+> +		/*
+> +		 * Since io_uring can have a submission context (sqthread_poll)
+> +		 * that is different from the process context, we cannot rely on
+> +		 * the IO priority set by ioprio_set() (option prio/prioclass)
+> +		 * to be inherited.
+> +		 * td->ioprio will have the value of the "default prio", so set
+> +		 * this unconditionally. This value might get overriden by
 
-  Merge branch 'evelu-peak' of https://github.com/ErwanAliasr1/fio (2021-10-25 12:38:35 -0600)
+Nit: s/overriden/overridden
 
-are available in the Git repository at:
+With this fixed, looks good to me.
 
-  git://git.kernel.dk/fio.git master
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-for you to fetch changes up to 6619fc32c413c4ff3a24c819037fb9227af3f876:
 
-  stat: create a init_thread_stat_min_vals() helper (2021-11-08 06:24:48 -0700)
+> +		 * fio_ioring_prio_prep() if the option cmdprio_percentage or
+> +		 * cmdprio_bssplit is used.
+> +		 */
+> +		sqe->ioprio = td->ioprio;
+>  		sqe->off = io_u->offset;
+>  	} else if (ddir_sync(io_u->ddir)) {
+>  		sqe->ioprio = 0;
+> @@ -456,29 +468,25 @@ static void fio_ioring_prio_prep(struct thread_data *td, struct io_u *io_u)
+>  		ioprio_value(cmdprio->class[ddir], cmdprio->level[ddir]);
+>  
+>  	if (p && rand_between(&td->prio_state, 0, 99) < p) {
+> +		io_u->ioprio = cmdprio_value;
+>  		sqe->ioprio = cmdprio_value;
+>  		if (!td->ioprio || cmdprio_value < td->ioprio) {
+>  			/*
+>  			 * The async IO priority is higher (has a lower value)
+> -			 * than the priority set by "prio" and "prioclass"
+> -			 * options.
+> -			 */
+> -			io_u->flags |= IO_U_F_HIGH_PRIO;
+> -		}
+> -	} else {
+> -		sqe->ioprio = td->ioprio;
+> -		if (cmdprio_value && td->ioprio && td->ioprio < cmdprio_value) {
+> -			/*
+> -			 * The IO will be executed with the priority set by
+> -			 * "prio" and "prioclass" options, and this priority
+> -			 * is higher (has a lower value) than the async IO
+> -			 * priority.
+> +			 * than the default priority (which is either 0 or the
+> +			 * value set by "prio" and "prioclass" options).
+>  			 */
+>  			io_u->flags |= IO_U_F_HIGH_PRIO;
+>  		}
+> +	} else if (td->ioprio && td->ioprio < cmdprio_value) {
+> +		/*
+> +		 * The IO will be executed with the default priority (which is
+> +		 * either 0 or the value set by "prio" and "prioclass options),
+> +		 * and this priority is higher (has a lower value) than the
+> +		 * async IO priority.
+> +		 */
+> +		io_u->flags |= IO_U_F_HIGH_PRIO;
+>  	}
+> -
+> -	io_u->ioprio = sqe->ioprio;
+>  }
+>  
+>  static enum fio_q_status fio_ioring_queue(struct thread_data *td,
+> @@ -820,7 +828,6 @@ static int fio_ioring_init(struct thread_data *td)
+>  	struct ioring_options *o = td->eo;
+>  	struct ioring_data *ld;
+>  	struct cmdprio *cmdprio = &o->cmdprio;
+> -	bool has_cmdprio = false;
+>  	int ret;
+>  
+>  	/* sqthread submission requires registered files */
+> @@ -845,22 +852,12 @@ static int fio_ioring_init(struct thread_data *td)
+>  
+>  	td->io_ops_data = ld;
+>  
+> -	ret = fio_cmdprio_init(td, cmdprio, &has_cmdprio);
+> +	ret = fio_cmdprio_init(td, cmdprio, &ld->use_cmdprio);
+>  	if (ret) {
+>  		td_verror(td, EINVAL, "fio_ioring_init");
+>  		return 1;
+>  	}
+>  
+> -	/*
+> -	 * Since io_uring can have a submission context (sqthread_poll) that is
+> -	 * different from the process context, we cannot rely on the the IO
+> -	 * priority set by ioprio_set() (option prio/prioclass) to be inherited.
+> -	 * Therefore, we set the sqe->ioprio field when prio/prioclass is used.
+> -	 */
+> -	ld->use_cmdprio = has_cmdprio ||
+> -		fio_option_is_set(&td->o, ioprio_class) ||
+> -		fio_option_is_set(&td->o, ioprio);
+> -
+>  	return 0;
+>  }
+>  
+> 
 
-----------------------------------------------------------------
-Niklas Cassel (1):
-      stat: create a init_thread_stat_min_vals() helper
 
- init.c | 11 +----------
- stat.c | 66 +++++++++++++++++++++---------------------------------------------
- stat.h |  1 +
- 3 files changed, 23 insertions(+), 55 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/init.c b/init.c
-index ec1a2cac..5f069d9a 100644
---- a/init.c
-+++ b/init.c
-@@ -1548,16 +1548,7 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
- 	memcpy(td->ts.percentile_list, o->percentile_list, sizeof(o->percentile_list));
- 	td->ts.sig_figs = o->sig_figs;
- 
--	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
--		td->ts.clat_stat[i].min_val = ULONG_MAX;
--		td->ts.slat_stat[i].min_val = ULONG_MAX;
--		td->ts.lat_stat[i].min_val = ULONG_MAX;
--		td->ts.bw_stat[i].min_val = ULONG_MAX;
--		td->ts.iops_stat[i].min_val = ULONG_MAX;
--		td->ts.clat_high_prio_stat[i].min_val = ULONG_MAX;
--		td->ts.clat_low_prio_stat[i].min_val = ULONG_MAX;
--	}
--	td->ts.sync_stat.min_val = ULONG_MAX;
-+	init_thread_stat_min_vals(&td->ts);
- 	td->ddir_seq_nr = o->ddir_seq_nr;
- 
- 	if ((o->stonewall || o->new_group) && prev_group_jobs) {
-diff --git a/stat.c b/stat.c
-index 30f9b5c1..cd35b114 100644
---- a/stat.c
-+++ b/stat.c
-@@ -483,22 +483,13 @@ static void show_mixed_ddir_status(struct group_run_stats *rs, struct thread_sta
- 	struct thread_stat *ts_lcl;
- 
- 	int i2p;
--	int ddir = 0, i;
-+	int ddir = 0;
- 
- 	/* Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and Trims (ddir = 2) */
- 	ts_lcl = malloc(sizeof(struct thread_stat));
- 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
- 	ts_lcl->unified_rw_rep = UNIFIED_MIXED;               /* calculate mixed stats  */
--	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
--		ts_lcl->clat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->slat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->lat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->bw_stat[i].min_val = ULONG_MAX;
--		ts_lcl->iops_stat[i].min_val = ULONG_MAX;
--		ts_lcl->clat_high_prio_stat[i].min_val = ULONG_MAX;
--		ts_lcl->clat_low_prio_stat[i].min_val = ULONG_MAX;
--	}
--	ts_lcl->sync_stat.min_val = ULONG_MAX;
-+	init_thread_stat_min_vals(ts_lcl);
- 
- 	sum_thread_stats(ts_lcl, ts, 1);
- 
-@@ -1466,22 +1457,12 @@ static void show_mixed_ddir_status_terse(struct thread_stat *ts,
- 				   int ver, struct buf_output *out)
- {
- 	struct thread_stat *ts_lcl;
--	int i;
- 
- 	/* Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and Trims (ddir = 2) */
- 	ts_lcl = malloc(sizeof(struct thread_stat));
- 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
- 	ts_lcl->unified_rw_rep = UNIFIED_MIXED;               /* calculate mixed stats  */
--	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
--		ts_lcl->clat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->slat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->lat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->bw_stat[i].min_val = ULONG_MAX;
--		ts_lcl->iops_stat[i].min_val = ULONG_MAX;
--		ts_lcl->clat_high_prio_stat[i].min_val = ULONG_MAX;
--		ts_lcl->clat_low_prio_stat[i].min_val = ULONG_MAX;
--	}
--	ts_lcl->sync_stat.min_val = ULONG_MAX;
-+	init_thread_stat_min_vals(ts_lcl);
- 	ts_lcl->lat_percentiles = ts->lat_percentiles;
- 	ts_lcl->clat_percentiles = ts->clat_percentiles;
- 	ts_lcl->slat_percentiles = ts->slat_percentiles;
-@@ -1668,22 +1649,12 @@ static void add_mixed_ddir_status_json(struct thread_stat *ts,
- 		struct group_run_stats *rs, struct json_object *parent)
- {
- 	struct thread_stat *ts_lcl;
--	int i;
- 
- 	/* Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and Trims (ddir = 2) */
- 	ts_lcl = malloc(sizeof(struct thread_stat));
- 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
- 	ts_lcl->unified_rw_rep = UNIFIED_MIXED;               /* calculate mixed stats  */
--	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
--		ts_lcl->clat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->slat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->lat_stat[i].min_val = ULONG_MAX;
--		ts_lcl->bw_stat[i].min_val = ULONG_MAX;
--		ts_lcl->iops_stat[i].min_val = ULONG_MAX;
--		ts_lcl->clat_high_prio_stat[i].min_val = ULONG_MAX;
--		ts_lcl->clat_low_prio_stat[i].min_val = ULONG_MAX;
--	}
--	ts_lcl->sync_stat.min_val = ULONG_MAX;
-+	init_thread_stat_min_vals(ts_lcl);
- 	ts_lcl->lat_percentiles = ts->lat_percentiles;
- 	ts_lcl->clat_percentiles = ts->clat_percentiles;
- 	ts_lcl->slat_percentiles = ts->slat_percentiles;
-@@ -2270,22 +2241,27 @@ void init_group_run_stat(struct group_run_stats *gs)
- 		gs->min_bw[i] = gs->min_run[i] = ~0UL;
- }
- 
--void init_thread_stat(struct thread_stat *ts)
-+void init_thread_stat_min_vals(struct thread_stat *ts)
- {
--	int j;
-+	int i;
- 
-+	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
-+		ts->clat_stat[i].min_val = ULONG_MAX;
-+		ts->slat_stat[i].min_val = ULONG_MAX;
-+		ts->lat_stat[i].min_val = ULONG_MAX;
-+		ts->bw_stat[i].min_val = ULONG_MAX;
-+		ts->iops_stat[i].min_val = ULONG_MAX;
-+		ts->clat_high_prio_stat[i].min_val = ULONG_MAX;
-+		ts->clat_low_prio_stat[i].min_val = ULONG_MAX;
-+	}
-+	ts->sync_stat.min_val = ULONG_MAX;
-+}
-+
-+void init_thread_stat(struct thread_stat *ts)
-+{
- 	memset(ts, 0, sizeof(*ts));
- 
--	for (j = 0; j < DDIR_RWDIR_CNT; j++) {
--		ts->lat_stat[j].min_val = -1UL;
--		ts->clat_stat[j].min_val = -1UL;
--		ts->slat_stat[j].min_val = -1UL;
--		ts->bw_stat[j].min_val = -1UL;
--		ts->iops_stat[j].min_val = -1UL;
--		ts->clat_high_prio_stat[j].min_val = -1UL;
--		ts->clat_low_prio_stat[j].min_val = -1UL;
--	}
--	ts->sync_stat.min_val = -1UL;
-+	init_thread_stat_min_vals(ts);
- 	ts->groupid = -1;
- }
- 
-diff --git a/stat.h b/stat.h
-index a06237e7..9ef8caa4 100644
---- a/stat.h
-+++ b/stat.h
-@@ -327,6 +327,7 @@ extern void show_running_run_stats(void);
- extern void check_for_running_stats(void);
- extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src, bool first);
- extern void sum_group_stats(struct group_run_stats *dst, struct group_run_stats *src);
-+extern void init_thread_stat_min_vals(struct thread_stat *ts);
- extern void init_thread_stat(struct thread_stat *ts);
- extern void init_group_run_stat(struct group_run_stats *gs);
- extern void eta_to_str(char *str, unsigned long eta_sec);
+-- 
+Damien Le Moal
+Western Digital Research
