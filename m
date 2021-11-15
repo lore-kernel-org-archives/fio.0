@@ -2,62 +2,62 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F27BCC433F5
-	for <fio@archiver.kernel.org>; Mon, 15 Nov 2021 21:14:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FF97C4321E
+	for <fio@archiver.kernel.org>; Mon, 15 Nov 2021 21:14:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D9B7961B4C
-	for <fio@archiver.kernel.org>; Mon, 15 Nov 2021 21:14:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1802561B4D
+	for <fio@archiver.kernel.org>; Mon, 15 Nov 2021 21:14:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243995AbhKOVRJ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 15 Nov 2021 16:17:09 -0500
-Received: from mailout1.w2.samsung.com ([211.189.100.11]:37202 "EHLO
+        id S1345070AbhKOVRT (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 15 Nov 2021 16:17:19 -0500
+Received: from mailout1.w2.samsung.com ([211.189.100.11]:37224 "EHLO
         mailout1.w2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346514AbhKOUSM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 15 Nov 2021 15:18:12 -0500
-X-Greylist: delayed 409 seconds by postgrey-1.27 at vger.kernel.org; Mon, 15 Nov 2021 15:18:12 EST
-Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20211115200821usoutp01abb460c858164f830c43d06b73dab4d8~30RqniumF2139421394usoutp01n;
-        Mon, 15 Nov 2021 20:08:21 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20211115200821usoutp01abb460c858164f830c43d06b73dab4d8~30RqniumF2139421394usoutp01n
+        with ESMTP id S1346515AbhKOUSO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 15 Nov 2021 15:18:14 -0500
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20211115200822usoutp0119b2145e7de0a0a1d5f67e0350734f12~30RrVwBc52191621916usoutp01b;
+        Mon, 15 Nov 2021 20:08:22 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20211115200822usoutp0119b2145e7de0a0a1d5f67e0350734f12~30RrVwBc52191621916usoutp01b
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
         s=mail20170921; t=1637006902;
-        bh=6LsOdNUpyxHBHFQtSwglorEZpRoHTWETiaZ2vVnyM1c=;
+        bh=YBnfryWtueAG91LIYGZGShsPP8Ybgt3+ZSc8SwCZOXo=;
         h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=dxQJawEYk6QgvTqNwTloJPrms4cpAFdicvUU9E3XS4ZAdEx6NKTff51U4espz0LAv
-         ArQT87UpOCSCvtfXiyuChvS/qoJfON+c3UULjnUMCPaF7VFk8XhnSMPP/m9qIoJ57b
-         UrnXM31Yj4IiQH/foT/pUu8nDCH0NPtwel2IMyio=
-Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
-        [203.254.195.112]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20211115200821uscas1p1a3e1b8ecf52c58324136740c9849f2ca~30RqZVX2w1399213992uscas1p1Q;
-        Mon, 15 Nov 2021 20:08:21 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges3new.samsung.com (USCPEMTA) with SMTP id E1.25.19318.53EB2916; Mon,
-        15 Nov 2021 15:08:21 -0500 (EST)
-Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
-        [203.254.195.92]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20211115200821uscas1p2e7dc56386571a492e3379b718ca2770c~30RqNDh852403524035uscas1p20;
-        Mon, 15 Nov 2021 20:08:21 +0000 (GMT)
-X-AuditID: cbfec370-c37ff70000014b76-26-6192be354161
-Received: from SSI-EX1.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id 2F.0C.56110.43EB2916; Mon,
-        15 Nov 2021 15:08:21 -0500 (EST)
+        b=klrBylGbpTNxuzVAyPzXDykoZ0xl1KHOkgDDD/TCEYxTDwO+2G871yIt5yD0DqvEQ
+         uYNwT8lgY1LDkYTE5ibTZMd3m/OEMtidGd9uDmMNIHNUbraSsVaro88pPbshs+Q390
+         AwthhyfQCKTqv6QTViGm5uHiOuzMT+yAjmPrlx+k=
+Received: from ussmges1new.samsung.com (u109.gpu85.samsung.co.kr
+        [203.254.195.109]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20211115200822uscas1p25db8675ec4fa006470ea2eb44ee8ac93~30RrORP2I1716117161uscas1p2b;
+        Mon, 15 Nov 2021 20:08:22 +0000 (GMT)
+Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
+        ussmges1new.samsung.com (USCPEMTA) with SMTP id 9D.23.32368.63EB2916; Mon,
+        15 Nov 2021 15:08:22 -0500 (EST)
+Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
+        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20211115200822uscas1p16f41fc3283e4f36e668ff9ea189f16c5~30Rq3gWs-1400814008uscas1p1E;
+        Mon, 15 Nov 2021 20:08:22 +0000 (GMT)
+X-AuditID: cbfec36d-c03ff70000017e70-8d-6192be36f6ea
+Received: from SSI-EX1.ssi.samsung.com ( [105.128.2.145]) by
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id A1.22.47905.53EB2916; Mon,
+        15 Nov 2021 15:08:22 -0500 (EST)
 Received: from SSI-EX1.ssi.samsung.com (105.128.2.226) by
         SSI-EX1.ssi.samsung.com (105.128.2.226) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2242.4; Mon, 15 Nov 2021 12:07:17 -0800
+        15.1.2242.4; Mon, 15 Nov 2021 12:07:18 -0800
 Received: from SSI-EX1.ssi.samsung.com ([fe80::dd36:6f1d:cf50:1fb7]) by
         SSI-EX1.ssi.samsung.com ([fe80::dd36:6f1d:cf50:1fb7%13]) with mapi id
-        15.01.2242.008; Mon, 15 Nov 2021 12:07:17 -0800
+        15.01.2242.008; Mon, 15 Nov 2021 12:07:18 -0800
 From:   Vincent Fu <vincent.fu@samsung.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 1/6] sg: add support for VERIFY command using write modes
-Thread-Topic: [PATCH 1/6] sg: add support for VERIFY command using write
-        modes
-Thread-Index: AQHX2lxj16gK4axd1kagUO8N3Degkg==
+Subject: [PATCH 5/6] sg: allow fio to open and close streams for WRITE
+ STREAM(16) commands
+Thread-Topic: [PATCH 5/6] sg: allow fio to open and close streams for WRITE
+        STREAM(16) commands
+Thread-Index: AQHX2lxjCgmt2hM4QEKeN9DYahjsyg==
 Date:   Mon, 15 Nov 2021 20:07:17 +0000
-Message-ID: <20211115200807.117138-2-vincent.fu@samsung.com>
+Message-ID: <20211115200807.117138-6-vincent.fu@samsung.com>
 In-Reply-To: <20211115200807.117138-1-vincent.fu@samsung.com>
 Accept-Language: en-US
 Content-Language: en-US
@@ -68,347 +68,255 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGIsWRmVeSWpSXmKPExsWy7djXc7qm+yYlGkz4pmGx+m4/m8XHWS+Y
-        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoErY+PFy8wFS30qnh/dytjAeMemi5GTQ0LARGLq
-        uuusXYxcHEICKxkl9rxuYodwWpkk+jdNYoWpali4jhEisZZR4tOzPewgCSGBj4wSX/s0IOyD
-        jBLHNip1MXJwsAloSrzdXwASFhEIk/j5aDvYHGYBdaCKDWwgtrCAp8SJh6tZIWoCJKbOf80M
-        YetJ9ExuYQGxWQRUJW6emsYIYvMK2Ej0Pn/BBGJzCthKLJ13EuwERgExie+n1jBBzBeXuPVk
-        PhPEzYISi2bvYYawxST+7XrIBmErStz//pIdol5P4sbUKWwQtrbEsoUQN/AC9Z6c+YQFol5S
-        4uCKGywgv0sIdHJIvG5aBDXIReLwtFPsELa0xPQ1l6EazjFKPPgXDNFwnVFixZfF0FC0llj4
-        Zz3UpXwSf389YpzAqDwLyeGzkBw1C8lRs5ActYCRZRWjeGlxcW56arFxXmq5XnFibnFpXrpe
-        cn7uJkZg0jj973DBDsZbtz7qHWJk4mA8xCjBwawkwssSPSlRiDclsbIqtSg/vqg0J7X4EKM0
-        B4uSOO/pPw2JQgLpiSWp2ampBalFMFkmDk6pBqaEdYFXRd0D+25z/78UcyRvccfF2BfZOeJr
-        zRZq9jIYvH2+1Hbj2VjBrolT2n5PWdbLrHbf8LSEmeXZ8yfcoz97tn1xWxSR2cRSof2FKeyL
-        v+Ktl1qHUxgKHJlLn0e+k5vmv8tRsMOeq2P1Dh3BNc+OXLw6QWyy26KiG3O89J6+5jr8KNc1
-        trqzjCdK6sti54dOURdtC855KqxOSJbkK2cwO+hZJyQx423TrtOn7qqttj2ywqfHufPT+9lL
-        t946skGDZZ3Vhsb5jpbn78xl+lf7vfixbKn/gcQL3vMfLp2j8NBjx7Er34UDvMRtXLboPtf5
-        vDtu6hbLf6nH9kWIr3rPJJ05Obxy4vb0QxeOGZkosRRnJBpqMRcVJwIA8gAQK4kDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgkeLIzCtJLcpLzFFi42LJbGCapGu6b1Kiwc39bBar7/azWXyc9YLZ
-        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyNl68zFyw1Kfi+dGtjA2Md2y6GDk5JARMJBoW
-        rmPsYuTiEBJYzSgx/9hfJgjnI6PEvE0LWSCcg4wSP29sYO1i5OBgE9CUeLu/AKRbRCBM4uej
-        7awgNrOAusSxjRvYQGxhAU+JEw9Xs0LU+En82nKCBcLWk+iZ3AJmswioStw8NY0RxOYVsJHo
-        ff6CCcQWArI3be0HszkFbCWWzjvJDmIzCohJfD+1hglil7jErSfzmSA+EJBYsuc8M4QtKvHy
-        8T9WCFtR4v73l+wQ9XoSN6ZOYYOwtSWWLXzNDLFXUOLkzCcsEPWSEgdX3GCZwCg+C8mKWUja
-        ZyFpn4WkfQEjyypG8dLi4tz0imLjvNRyveLE3OLSvHS95PzcTYzAyDr973DMDsZ7tz7qHWJk
-        4mA8xCjBwawkwssSPSlRiDclsbIqtSg/vqg0J7X4EKM0B4uSOK9H7MR4IYH0xJLU7NTUgtQi
-        mCwTB6dUA5N8nqsT88frK8vb51QvE7LvvXrvgkO8bQrPJZ2SW4eCS5ekrpt2R92pTm2Op9G7
-        Lb9efGS98F4zvfZFaaiUYGvr3kgmjdDYSp8l+2TucN0MbzDtd06eKRCx+8gG7T7F3O+xZ4wk
-        l/0yyt1w8MXkI4vS9NYfneKzbZ/6fGep9X9nsrSt5bqT7Gm+rzLXcadv+bzDC1vz9morSP35
-        evRcVeLsTJ4Yv4VPL7258LfzwLV0C862lNyJAYcf91+LYnTtvuXmvGE/Z5l98RKRJN7SnRu1
-        dD/tELs5s+FlYmPJXUZv+bVR1a/YtPXtFY4HWtp83i6QdMGnUVznyqktJ7gUpi0UqXSb9vRC
-        UDvH9ZYESyWW4oxEQy3mouJEAJKqlTYbAwAA
-X-CMS-MailID: 20211115200821uscas1p2e7dc56386571a492e3379b718ca2770c
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBIsWRmVeSWpSXmKPExsWy7djX87pm+yYlGiz5oGCx+m4/m8XHWS+Y
+        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoErY/O5buaCx2YV246fZ2lgXKvTxcjJISFgIjGl
+        8yNzFyMXh5DASkaJc3/3MEI4rUwSD79+Y4Wp+nb3HAtEYi2jROO7+VBVHxkltr8+DZU5yCjR
+        u2kfkMPBwSagKfF2fwFIt4hAmMTPR9vBJjELqEsc27iBDcQWFoiRmP/5NjNETaLEls657BC2
+        nsSa2cvB4iwCqhI3T01jBLF5BWwknq/9AlbDKWArsXTeSTCbUUBM4vupNUwQ88Ulbj2ZzwRx
+        taDEotl7mCFsMYl/ux6yQdiKEve/v2SHqNeTuDF1ChuErS2xbOFrZohdghInZz5hgaiXlDi4
+        4gbYjxICnRwS377Mgkq4SExuPgM1VFri6vWpUMvOMUo8+BcM0XCdUWLFl8XQcLSWWPhnPdSl
+        fBJ/fz1inMCoPAvJ4bOQHDULyVGzkBy1gJFlFaN4aXFxbnpqsWFearlecWJucWleul5yfu4m
+        RmDiOP3vcO4Oxh23PuodYmTiYDzEKMHBrCTCyxI9KVGINyWxsiq1KD++qDQntfgQozQHi5I4
+        7+k/DYlCAumJJanZqakFqUUwWSYOTqkGJsG3YrHfJr9xXfEq+P7DLayssqd/+TL1JQppL3zU
+        83PxpfRi8R1vTljW8Jy4NVX4ndPR3Wnq08zjhLN21ihM4QplOCZr6P9Xb9rab297m80tWT5U
+        3shlWqK654nBsaaGg/9Xbp3866pjxvkHNUc/eXZXKiXanJ5yMWKCkbnG+qTLM8VnbDr8+5Hz
+        2zsrcl0+fzn3wz1IepqDJktHXXzUs6jDHO+lLh5McxO0Wf1ZrD4icqmDVAH/tv1XdvMfiZ3s
+        0Mu6YSe79vOvMU/i0yp7b4Xv3HnP5gXTeS7FRNbL3Sf27jmwrUgv8Ke70Dqt4vXK95msfraL
+        v1pwonKvwA3tiUoXly+6ynh8wp2Hm4Pjd71VYinOSDTUYi4qTgQAM0l1XIsDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCaqGu2b1KiwY1VXBar7/azWXyc9YLZ
+        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyNp/rZi54bFax7fh5lgbGtTpdjJwcEgImEt/u
+        nmMBsYUEVjNKTLxr08XIBWR/ZJQ48e4DO4RzkFHiwtTlzF2MHBxsApoSb/cXgDSICIRJ/Hy0
+        nRXEZhZQlzi2cQMbiC0sECMx//NtZoiaRImOf9OZIGw9iTWzl4PFWQRUJW6emsYIYvMK2Eg8
+        X/uFHeIIG4lNW/vB6jkFbCWWzjsJFmcUEJP4fmoNE8QucYlbT+YzQTwgILFkz3lmCFtU4uXj
+        f6wQtqLE/e8v2SHq9SRuTJ3CBmFrSyxb+JoZYq+gxMmZT1gg6iUlDq64wTKBUXwWkhWzkLTP
+        QtI+C0n7AkaWVYzipcXFuekVxYZ5qeV6xYm5xaV56XrJ+bmbGIFxdfrf4cgdjEdvfdQ7xMjE
+        wXiIUYKDWUmElyV6UqIQb0piZVVqUX58UWlOavEhRmkOFiVxXiHXifFCAumJJanZqakFqUUw
+        WSYOTqkGJicG3WMnpzuxZpd+nCr45VJsj2zhwtfdPcLtxmJJK7PCP5j9n63l82f6qsAP3hPz
+        Y9iLfzP8rQ+cVsUwe8O19QudD0m2h2uYbvJazceYvuVb4BVB+wOPF/Xr3ZP62Rypt/ZBa9EL
+        Fn6tM30KzF/X+ixJYWNZKyJsdjNFNUY/5bFd0Pz+oztUjizledKrmC7e/iyuwXJyzZ207PwV
+        Yr+2Jfo8ETwSu9TwmAT/OYcqh1k3Sj/svqdws9dW6LelQ/PyZ1e65KznHki+4meTpLUw5Frj
+        tmd7SzpurG0O/Xhg5QrL7pfrez6IaImf7tQWM4liOF348NdyZkuFnLxLotYcVdJtH64Vqupt
+        /+8fazZHiaU4I9FQi7moOBEA+7Ev7hoDAAA=
+X-CMS-MailID: 20211115200822uscas1p16f41fc3283e4f36e668ff9ea189f16c5
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20211115200821uscas1p2e7dc56386571a492e3379b718ca2770c
+X-CMS-RootMailID: 20211115200822uscas1p16f41fc3283e4f36e668ff9ea189f16c5
 References: <20211115200807.117138-1-vincent.fu@samsung.com>
-        <CGME20211115200821uscas1p2e7dc56386571a492e3379b718ca2770c@uscas1p2.samsung.com>
+        <CGME20211115200822uscas1p16f41fc3283e4f36e668ff9ea189f16c5@uscas1p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-fio does not have an explicit verify data direction and creating a new data
-direction just for SCSI VERIFY commands probably is not worthwhile. The for=
-mat
-of SCSI VERIFY commands matches that of write operations since VERIFY comma=
-nds
-can include data transfer to the device. So it seems reasonable to have VER=
-IFY
-commands be accounted for as write operations by fio.
+If --stream_id=3D0 then fio will open a stream for WRITE STREAM(16) command=
+s and
+close the stream when the device file is closed.
 
-Use the sg_write_mode option to support SCSI VERIFY commands with different
-BYTCHK values.
+Example:
+./fio --name=3Dtest --filename=3D/dev/sdb --ioengine=3Dsg --number_ios=3D1 =
+--debug=3Dfile,io --sg_write_mode=3Dwrite_stream --rw=3Drandwrite
+fio: set debug option file
+fio: set debug option io
+test: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 4096B-4096B, (T) 4=
+096B-4096B, ioengine=3Dsg, iodepth=3D1
+fio-3.27
+Starting 1 process
+file     1072297 setup files
+file     1072297 get file size for 0x7f0306fa5110/0//dev/sdb
+file     1072307 trying file /dev/sdb 290
+file     1072307 fd open /dev/sdb
+file     1072307 file not found in hash /dev/sdb
+file     1072307 sgio_stream_control: opened stream 1
+file     1072307 get file /dev/sdb, ref=3D0
+io       1072307 drop page cache /dev/sdb
+file     1072307 goodf=3D1, badf=3D2, ff=3D2b1
+file     1072307 get_next_file_rr: 0x7f0306fa5110
+file     1072307 get_next_file: 0x7f0306fa5110 [/dev/sdb]
+file     1072307 get file /dev/sdb, ref=3D1
+io       1072307 fill: io_u 0xb55700: off=3D0x35ef554000,len=3D0x1000,ddir=
+=3D1,file=3D/dev/sdb
+io       1072307 prep: io_u 0xb55700: off=3D0x35ef554000,len=3D0x1000,ddir=
+=3D1,file=3D/dev/sdb
+io       1072307 prep: io_u 0xb55700: ret=3D0
+io       1072307 queue: io_u 0xb55700: off=3D0x35ef554000,len=3D0x1000,ddir=
+=3D1,file=3D/dev/sdb
+io       1072307 complete: io_u 0xb55700: off=3D0x35ef554000,len=3D0x1000,d=
+dir=3D1,file=3D/dev/sdb
+file     1072307 put file /dev/sdb, ref=3D2
+file     1072307 close files
+file     1072307 put file /dev/sdb, ref=3D1
+file     1072307 sgio_stream_control: closed stream 1
+file     1072307 fd close /dev/sdb
+io       1072307 close ioengine sg
+io       1072307 free ioengine sg
 
-BYTCHK	Description
-00	No data is transferred to the device; device data is checked
-01	Device data is compared with data transferred to device
-11	Same as 01 except that only one sector of data is transferred to the
-device and each sector specified in the verification extent is compared aga=
-inst
-this transferred data.
+test: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D1072307: Mon Aug 16 14:25:45=
+ 2021
+  write: IOPS=3D200, BW=3D800KiB/s (819kB/s)(4096B/5msec); 0 zone resets
+    clat (nsec): min=3D93339, max=3D93339, avg=3D93339.00, stdev=3D 0.00
+     lat (nsec): min=3D96201, max=3D96201, avg=3D96201.00, stdev=3D 0.00
+    clat percentiles (nsec):
+     |  1.00th=3D[93696],  5.00th=3D[93696], 10.00th=3D[93696], 20.00th=3D[=
+93696],
+     | 30.00th=3D[93696], 40.00th=3D[93696], 50.00th=3D[93696], 60.00th=3D[=
+93696],
+     | 70.00th=3D[93696], 80.00th=3D[93696], 90.00th=3D[93696], 95.00th=3D[=
+93696],
+     | 99.00th=3D[93696], 99.50th=3D[93696], 99.90th=3D[93696], 99.95th=3D[=
+93696],
+     | 99.99th=3D[93696]
+  lat (usec)   : 100=3D100.00%
+  cpu          : usr=3D100.00%, sys=3D0.00%, ctx=3D2, majf=3D0, minf=3D20
+  IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
+0.0%, >=3D64=3D0.0%
+     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+     issued rwts: total=3D0,1,0,0 short=3D0,0,0,0 dropped=3D0,0,0,0
+     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
 
-Also update documentation and add a couple example jobs files.
+Run status group 0 (all jobs):
+  WRITE: bw=3D800KiB/s (819kB/s), 800KiB/s-800KiB/s (819kB/s-819kB/s), io=
+=3D4096B (4096B), run=3D5-5msec
 
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- HOWTO                       | 14 +++++++++
- engines/sg.c                | 41 ++++++++++++++++++++++++--
- examples/sg_verify-fail.fio | 48 +++++++++++++++++++++++++++++++
- examples/sg_verify.fio      | 57 +++++++++++++++++++++++++++++++++++++
- fio.1                       | 24 +++++++++++++---
- 5 files changed, 178 insertions(+), 6 deletions(-)
- create mode 100644 examples/sg_verify-fail.fio
- create mode 100644 examples/sg_verify.fio
+ engines/sg.c | 84 ++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 82 insertions(+), 2 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 196bca6c..c641a2a5 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2501,6 +2501,20 @@ with the caveat that when used on the command line, =
-they must come after the
- 		for each command but only the first 512 bytes will be used and
- 		transferred to the device. The writefua option is ignored with this
- 		selection.
-+	**verify_bytchk_00**
-+		Issue VERIFY commands with BYTCHK set to 00. This directs the
-+		device to carry out a medium verification with no data comparison.
-+	**verify_bytchk_01**
-+		Issue VERIFY commands with BYTCHK set to 01. This directs the device to
-+		compare the data on the device with the data transferred to the device.
-+	**verify_bytchk_11**
-+		Issue VERIFY commands with BYTCHK set to 11. This transfers a
-+		single block to the device and compares the contents of this block with =
-the
-+		data on the device beginning at the specified offset. fio's block size
-+		parameter specifies the total amount of data compared with this command.
-+		However, only one block (sector) worth of data is transferred to the dev=
-ice.
-+		This is similar to the WRITE SAME command except that data is compared i=
-nstead
-+		of written.
-=20
- .. option:: hipri : [sg]
-=20
 diff --git a/engines/sg.c b/engines/sg.c
-index 1c019384..0c525fae 100644
+index b51edb07..72ee07ba 100644
 --- a/engines/sg.c
 +++ b/engines/sg.c
-@@ -66,8 +66,11 @@
-=20
- enum {
- 	FIO_SG_WRITE		=3D 1,
--	FIO_SG_WRITE_VERIFY	=3D 2,
--	FIO_SG_WRITE_SAME	=3D 3
-+	FIO_SG_WRITE_VERIFY,
-+	FIO_SG_WRITE_SAME,
-+	FIO_SG_VERIFY_BYTCHK_00,
-+	FIO_SG_VERIFY_BYTCHK_01,
-+	FIO_SG_VERIFY_BYTCHK_11,
+@@ -217,6 +217,11 @@ struct sgio_data {
+ #endif
  };
 =20
- struct sg_options {
-@@ -128,6 +131,18 @@ static struct fio_option options[] =3D {
- 			    .oval =3D FIO_SG_WRITE_SAME,
- 			    .help =3D "Issue SCSI WRITE SAME commands",
- 			  },
-+			  { .ival =3D "verify_bytchk_00",
-+			    .oval =3D FIO_SG_VERIFY_BYTCHK_00,
-+			    .help =3D "Issue SCSI VERIFY commands with BYTCHK set to 00",
-+			  },
-+			  { .ival =3D "verify_bytchk_01",
-+			    .oval =3D FIO_SG_VERIFY_BYTCHK_01,
-+			    .help =3D "Issue SCSI VERIFY commands with BYTCHK set to 01",
-+			  },
-+			  { .ival =3D "verify_bytchk_11",
-+			    .oval =3D FIO_SG_VERIFY_BYTCHK_11,
-+			    .help =3D "Issue SCSI VERIFY commands with BYTCHK set to 11",
-+			  },
- 		},
- 		.category =3D FIO_OPT_C_ENGINE,
- 		.group	=3D FIO_OPT_G_SG,
-@@ -576,6 +591,28 @@ static int fio_sgio_prep(struct thread_data *td, struc=
-t io_u *io_u)
- 			else
- 				hdr->cmdp[0] =3D 0x93; // write same(16)
++static inline uint16_t sgio_get_be16(uint8_t *buf)
++{
++	return be16_to_cpu(*((uint16_t *) buf));
++}
++
+ static inline uint32_t sgio_get_be32(uint8_t *buf)
+ {
+ 	return be32_to_cpu(*((uint32_t *) buf));
+@@ -632,7 +637,7 @@ static int fio_sgio_prep(struct thread_data *td, struct=
+ io_u *io_u)
+ 			if (o->writefua)
+ 				hdr->cmdp[1] |=3D 0x08;
+ 			sgio_set_be64(lba, &hdr->cmdp[2]);
+-			sgio_set_be16(o->stream_id, &hdr->cmdp[10]);
++			sgio_set_be16((uint16_t) io_u->file->engine_pos, &hdr->cmdp[10]);
+ 			sgio_set_be16((uint16_t) nr_blocks, &hdr->cmdp[12]);
  			break;
-+		case FIO_SG_VERIFY_BYTCHK_00:
-+			if (lba < MAX_10B_LBA)
-+				hdr->cmdp[0] =3D 0x2f; // VERIFY(10)
-+			else
-+				hdr->cmdp[0] =3D 0x8f; // VERIFY(16)
-+			hdr->dxfer_len =3D 0;
-+			break;
-+		case FIO_SG_VERIFY_BYTCHK_01:
-+			if (lba < MAX_10B_LBA)
-+				hdr->cmdp[0] =3D 0x2f; // VERIFY(10)
-+			else
-+				hdr->cmdp[0] =3D 0x8f; // VERIFY(16)
-+			hdr->cmdp[1] |=3D 0x02;		// BYTCHK =3D 01b
-+			break;
-+		case FIO_SG_VERIFY_BYTCHK_11:
-+			if (lba < MAX_10B_LBA)
-+				hdr->cmdp[0] =3D 0x2f; // VERIFY(10)
-+			else
-+				hdr->cmdp[0] =3D 0x8f; // VERIFY(16)
-+			hdr->cmdp[1] |=3D 0x06;		// BYTCHK =3D 11b
-+			hdr->dxfer_len =3D sd->bs;
-+			break;
- 		};
+ 		case FIO_SG_VERIFY_BYTCHK_00:
+@@ -1053,9 +1058,60 @@ static int fio_sgio_type_check(struct thread_data *t=
+d, struct fio_file *f)
+ 	return 0;
+ }
 =20
- 		fio_sgio_rw_lba(hdr, lba, nr_blocks);
-diff --git a/examples/sg_verify-fail.fio b/examples/sg_verify-fail.fio
-new file mode 100644
-index 00000000..64feece3
---- /dev/null
-+++ b/examples/sg_verify-fail.fio
-@@ -0,0 +1,48 @@
-+#
-+# **********************************
-+# * !!THIS IS A DESTRUCTIVE TEST!! *
-+# * IF NOT CHANGED THIS TEST WILL  *
-+# * DESTROY DATA ON /dev/sdb       *
-+# **********************************
-+#
-+# Test SCSI VERIFY commands issued via the sg ioengine
-+# The jobs with fail in the name should produce errors
-+#
-+# job			description
-+# precon		precondition the device by writing with a known
-+#			pattern
-+# verify01		verify each block one at a time by comparing to known
-+#			pattern
-+# verify01-fail		verifying one too many blocks should produce a failure
-+# verify11-one_ios	verify all 20 blocks by sending only 512 bytes
-+# verify11-fail		verifying beyond the preconditioned region should
-+#			produce a failure
++static int fio_sgio_stream_control(struct fio_file *f, bool open_stream, u=
+int16_t *stream_id)
++{
++	struct sg_io_hdr hdr;
++	unsigned char cmd[16];
++	unsigned char sb[64];
++	unsigned char buf[8];
++	int ret;
 +
-+[global]
-+filename=3D/dev/sdb
-+buffer_pattern=3D0x01
-+ioengine=3Dsg
-+rw=3Dwrite
-+bs=3D512
-+number_ios=3D20
-+stonewall
++	memset(&hdr, 0, sizeof(hdr));
++	memset(cmd, 0, sizeof(cmd));
++	memset(sb, 0, sizeof(sb));
++	memset(buf, 0, sizeof(buf));
 +
-+[precon]
++	hdr.interface_id =3D 'S';
++	hdr.cmdp =3D cmd;
++	hdr.cmd_len =3D 16;
++	hdr.sbp =3D sb;
++	hdr.mx_sb_len =3D sizeof(sb);
++	hdr.timeout =3D SCSI_TIMEOUT_MS;
++	hdr.cmdp[0] =3D 0x9e;
++	hdr.dxfer_direction =3D SG_DXFER_FROM_DEV;
++	hdr.dxferp =3D buf;
++	hdr.dxfer_len =3D sizeof(buf);
++	sgio_set_be32(sizeof(buf), &hdr.cmdp[10]);
 +
-+[verify01]
-+sg_write_mode=3Dverify_bytchk_01
-+number_ios=3D20
++	if (open_stream)
++		hdr.cmdp[1] =3D 0x34;
++	else {
++		hdr.cmdp[1] =3D 0x54;
++		sgio_set_be16(*stream_id, &hdr.cmdp[4]);
++	}
 +
-+[verify01-fail]
-+sg_write_mode=3Dverify_bytchk_01
-+number_ios=3D21
++	ret =3D ioctl(f->fd, SG_IO, &hdr);
 +
-+[verify11-one_ios]
-+sg_write_mode=3Dverify_bytchk_11
-+number_ios=3D1
-+bs=3D10240
++	if (ret < 0)
++		return ret;
 +
-+[verify11-fail]
-+sg_write_mode=3Dverify_bytchk_11
-+number_ios=3D1
-+bs=3D10752
-diff --git a/examples/sg_verify.fio b/examples/sg_verify.fio
-new file mode 100644
-index 00000000..6db0dd0a
---- /dev/null
-+++ b/examples/sg_verify.fio
-@@ -0,0 +1,57 @@
-+#
-+# **********************************
-+# * !!THIS IS A DESTRUCTIVE TEST!! *
-+# * IF NOT CHANGED THIS TEST WILL  *
-+# * DESTROY DATA ON /dev/sdb       *
-+# **********************************
-+#
-+# Test SCSI VERIFY commands issued via the sg ioengine
-+# All of the jobs below should complete without error
-+#
-+# job			description
-+# precon		precondition the device by writing with a known
-+#			pattern
-+# verify00		verify written data on medium only
-+# verify01		verify each block one at a time by comparing to known
-+#			pattern
-+# verify01-two_ios	verify same data but with only two VERIFY operations
-+# verify11		verify each block one at a time
-+# verify11-five_ios	verify data with five IOs, four blocks at a time,
-+#			sending 512 bytes for each IO
-+# verify11-one_ios	verify all 20 blocks by sending only 512 bytes
-+#
++	if (hdr.info & SG_INFO_CHECK)
++		return 1;
 +
-+[global]
-+filename=3D/dev/sdb
-+buffer_pattern=3D0x01
-+ioengine=3Dsg
-+rw=3Dwrite
-+bs=3D512
-+number_ios=3D20
-+stonewall
++	if (open_stream) {
++		*stream_id =3D sgio_get_be16(&buf[4]);
++		dprint(FD_FILE, "sgio_stream_control: opened stream %u\n", (unsigned int=
+) *stream_id);
++		assert(*stream_id !=3D 0);
++	} else
++		dprint(FD_FILE, "sgio_stream_control: closed stream %u\n", (unsigned int=
+) *stream_id);
 +
-+[precon]
++	return 0;
++}
 +
-+[verify00]
-+sg_write_mode=3Dverify_bytchk_00
+ static int fio_sgio_open(struct thread_data *td, struct fio_file *f)
+ {
+ 	struct sgio_data *sd =3D td->io_ops_data;
++	struct sg_options *o =3D td->eo;
+ 	int ret;
+=20
+ 	ret =3D generic_open_file(td, f);
+@@ -1067,9 +1123,33 @@ static int fio_sgio_open(struct thread_data *td, str=
+uct fio_file *f)
+ 		return ret;
+ 	}
+=20
++	if (o->write_mode =3D=3D FIO_SG_WRITE_STREAM) {
++		if (o->stream_id)
++			f->engine_pos =3D o->stream_id;
++		else {
++			ret =3D fio_sgio_stream_control(f, true, (uint16_t *) &f->engine_pos);
++			if (ret)
++				return ret;
++		}
++	}
 +
-+[verify01]
-+sg_write_mode=3Dverify_bytchk_01
+ 	return 0;
+ }
+=20
++int fio_sgio_close(struct thread_data *td, struct fio_file *f)
++{
++	struct sg_options *o =3D td->eo;
++	int ret;
 +
-+[verify01-two_ios]
-+sg_write_mode=3Dverify_bytchk_01
-+bs=3D5120
-+number_ios=3D2
++	if (!o->stream_id && o->write_mode =3D=3D FIO_SG_WRITE_STREAM) {
++		ret =3D fio_sgio_stream_control(f, false, (uint16_t *) &f->engine_pos);
++		if (ret)
++			return ret;
++	}
 +
-+[verify11]
-+sg_write_mode=3Dverify_bytchk_11
++	return generic_close_file(td, f);
++}
 +
-+[verify11-five_ios]
-+sg_write_mode=3Dverify_bytchk_11
-+bs=3D2048
-+number_ios=3D5
-+
-+[verify11-one_ios]
-+sg_write_mode=3Dverify_bytchk_11
-+bs=3D10240
-+number_ios=3D1
-diff --git a/fio.1 b/fio.1
-index e3c3feae..2d69615b 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2281,7 +2281,7 @@ With writefua option set to 1, write operations inclu=
-de the force
- unit access (fua) flag. Default: 0.
- .TP
- .BI (sg)sg_write_mode \fR=3D\fPstr
--Specify the type of write commands to issue. This option can take three
-+Specify the type of write commands to issue. This option can take multiple
- values:
- .RS
- .RS
-@@ -2290,9 +2290,9 @@ values:
- Write opcodes are issued as usual
- .TP
- .B verify
--Issue WRITE AND VERIFY commands. The BYTCHK bit is set to 0. This
--directs the device to carry out a medium verification with no data
--comparison. The writefua option is ignored with this selection.
-+Issue WRITE AND VERIFY commands. The BYTCHK bit is set to 00b. This direct=
-s the
-+device to carry out a medium verification with no data comparison for the =
-data
-+that was written. The writefua option is ignored with this selection.
- .TP
- .B same
- Issue WRITE SAME commands. This transfers a single block to the device
-@@ -2305,6 +2305,22 @@ blocksize=3D8k will write 16 sectors with each comma=
-nd. fio will still
- generate 8k of data for each command butonly the first 512 bytes will
- be used and transferred to the device. The writefua option is ignored
- with this selection.
-+.TP
-+.B verify_bytchk_00
-+Issue VERIFY commands with BYTCHK set to 00. This directs the device to ca=
-rry
-+out a medium verification with no data comparison.
-+.TP
-+.B verify_bytchk_01
-+Issue VERIFY commands with BYTCHK set to 01. This directs the device to
-+compare the data on the device with the data transferred to the device.
-+.TP
-+.B verify_bytchk_11
-+Issue VERIFY commands with BYTCHK set to 11. This transfers a single block=
- to
-+the device and compares the contents of this block with the data on the de=
-vice
-+beginning at the specified offset. fio's block size parameter specifies th=
-e
-+total amount of data compared with this command. However, only one block
-+(sector) worth of data is transferred to the device. This is similar to th=
-e
-+WRITE SAME command except that data is compared instead of written.
- .RE
- .RE
- .TP
+ /*
+  * Build an error string with details about the driver, host or scsi
+  * error contained in the sg header Caller will use as necessary.
+@@ -1344,7 +1424,7 @@ static struct ioengine_ops ioengine =3D {
+ 	.event		=3D fio_sgio_event,
+ 	.cleanup	=3D fio_sgio_cleanup,
+ 	.open_file	=3D fio_sgio_open,
+-	.close_file	=3D generic_close_file,
++	.close_file	=3D fio_sgio_close,
+ 	.get_file_size	=3D fio_sgio_get_file_size,
+ 	.flags		=3D FIO_SYNCIO | FIO_RAWIO,
+ 	.options	=3D options,
 --=20
 2.25.1
