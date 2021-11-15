@@ -2,60 +2,60 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71C8DC433EF
-	for <fio@archiver.kernel.org>; Tue, 16 Nov 2021 00:22:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36964C433FE
+	for <fio@archiver.kernel.org>; Tue, 16 Nov 2021 00:22:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C00A61131
-	for <fio@archiver.kernel.org>; Tue, 16 Nov 2021 00:22:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E65861131
+	for <fio@archiver.kernel.org>; Tue, 16 Nov 2021 00:22:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239784AbhKPAZ3 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 15 Nov 2021 19:25:29 -0500
-Received: from mailout2.w2.samsung.com ([211.189.100.12]:47816 "EHLO
+        id S1343612AbhKPAZb (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 15 Nov 2021 19:25:31 -0500
+Received: from mailout2.w2.samsung.com ([211.189.100.12]:47806 "EHLO
         mailout2.w2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349827AbhKOUUI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 15 Nov 2021 15:20:08 -0500
+        with ESMTP id S1349828AbhKOUUJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 15 Nov 2021 15:20:09 -0500
 Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20211115200823usoutp022a262130241932f44b5ad3f3f4389a05~30RrrZ3fE0457904579usoutp02J;
-        Mon, 15 Nov 2021 20:08:23 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20211115200823usoutp022a262130241932f44b5ad3f3f4389a05~30RrrZ3fE0457904579usoutp02J
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20211115200822usoutp02a18d052a1291282f5c53e70b0dff3f78~30RrVwRA60463804638usoutp02A;
+        Mon, 15 Nov 2021 20:08:22 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20211115200822usoutp02a18d052a1291282f5c53e70b0dff3f78~30RrVwRA60463804638usoutp02A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1637006903;
-        bh=71/vtNl8s7M5lLKfToAQKIe2X23ArSK7+FKKRYlQRMw=;
+        s=mail20170921; t=1637006902;
+        bh=HBVeGLsHY5ENfGUs5ykKKFNwnkR3s0g1bzKIPzq7A34=;
         h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=cDlmtwqTmtGsfPItO3GOkubiE+n8tOp+P3k77oG0SDNgpZX26MbAIW1SnLl6HZZQW
-         ecJtxFhRHsGoqHH1ncV6RyyzxQoSU4RgN+Sf1NipHvtF1OEcrtBgkDsZDyiYY/SMIV
-         qOldYmjYejU21UjEiOTf/ySBjeF9RiwHh4W86Z6c=
-Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
-        [203.254.195.112]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20211115200822uscas1p1d53debe65c571a555d5cde373f449a38~30Rra94Pw1398413984uscas1p1Q;
+        b=MOQMO9c0Od/zucC2+lFQ+0c3K5UZpMraAT6wM71/SQj7VXabULRDdtIIw1ctZQXpm
+         eiL5UJqyNAj7hpfvZjHghC5euy/axuJOcXpsKmotMKOSLOMcTk75X1uik2uxMcp5qX
+         I4wmNMaySXzyIb6uYiXOb2rkOkH8rxCJns/NGvi4=
+Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
+        [203.254.195.111]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20211115200822uscas1p2aada212f80f7c9fca074f2e671388847~30Rq-L01Y1819518195uscas1p2C;
         Mon, 15 Nov 2021 20:08:22 +0000 (GMT)
 Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
-        ussmges3new.samsung.com (USCPEMTA) with SMTP id 42.25.19318.63EB2916; Mon,
+        ussmges2new.samsung.com (USCPEMTA) with SMTP id 3E.71.03480.63EB2916; Mon,
         15 Nov 2021 15:08:22 -0500 (EST)
 Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
         [203.254.195.89]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20211115200822uscas1p2795a33fbed15d3f1b6029116a8123d05~30RrH6MBs2405024050uscas1p2u;
-        Mon, 15 Nov 2021 20:08:22 +0000 (GMT)
-X-AuditID: cbfec370-c4fff70000014b76-29-6192be3692e6
+        20211115200821uscas1p28671af8f28d8326c7dd2dc2ff1204d4b~30RqljLDH1717017170uscas1p2U;
+        Mon, 15 Nov 2021 20:08:21 +0000 (GMT)
+X-AuditID: cbfec36f-edfff70000010d98-c8-6192be36ff5a
 Received: from SSI-EX1.ssi.samsung.com ( [105.128.2.145]) by
-        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id D1.22.47905.63EB2916; Mon,
-        15 Nov 2021 15:08:22 -0500 (EST)
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 71.22.47905.53EB2916; Mon,
+        15 Nov 2021 15:08:21 -0500 (EST)
 Received: from SSI-EX1.ssi.samsung.com (105.128.2.226) by
         SSI-EX1.ssi.samsung.com (105.128.2.226) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2242.4; Mon, 15 Nov 2021 12:07:18 -0800
+        15.1.2242.4; Mon, 15 Nov 2021 12:07:17 -0800
 Received: from SSI-EX1.ssi.samsung.com ([fe80::dd36:6f1d:cf50:1fb7]) by
         SSI-EX1.ssi.samsung.com ([fe80::dd36:6f1d:cf50:1fb7%13]) with mapi id
-        15.01.2242.008; Mon, 15 Nov 2021 12:07:18 -0800
+        15.01.2242.008; Mon, 15 Nov 2021 12:07:17 -0800
 From:   Vincent Fu <vincent.fu@samsung.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 6/6] docs: documentation for sg WRITE STREAM(16)
-Thread-Topic: [PATCH 6/6] docs: documentation for sg WRITE STREAM(16)
-Thread-Index: AQHX2lxjJI5Ma5KSi0SZtYbQ8+YzgQ==
+Subject: [PATCH 4/6] sg: add support for WRITE STREAM(16) commands
+Thread-Topic: [PATCH 4/6] sg: add support for WRITE STREAM(16) commands
+Thread-Index: AQHX2lxjiTiwV9c9yUafN6+5nkkOAQ==
 Date:   Mon, 15 Nov 2021 20:07:17 +0000
-Message-ID: <20211115200807.117138-7-vincent.fu@samsung.com>
+Message-ID: <20211115200807.117138-5-vincent.fu@samsung.com>
 In-Reply-To: <20211115200807.117138-1-vincent.fu@samsung.com>
 Accept-Language: en-US
 Content-Language: en-US
@@ -66,113 +66,135 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBIsWRmVeSWpSXmKPExsWy7djX87pm+yYlGjT3aFusvtvPZvFx1gtm
-        ByaPy2dLPT5vkgtgiuKySUnNySxLLdK3S+DKOPTnPlvBJqGK9cuPsTcw7ubrYuTkkBAwkTg2
-        t4Oli5GLQ0hgJaPEoS2zmCGcViaJdW1rWWGqLu9cDlW1llHi5onzTBDOR0aJ7a9PQ2UOMkr0
-        btoH5HBwsAloSrzdXwDSLSIQJvHz0XawScwC6hLHNm5gA7GFBRwk3k5exAJR4yqx7tsfdghb
-        T+JE+1MmEJtFQFXi5qlpjCA2r4CNxIMLn8F6OQVsJZbOOwlWzyggJvH91BomiPniEreezGeC
-        uFpQYtHsPcwQtpjEv10P2SBsRYn731+yQ9TrSdyYOoUNwtaWWLbwNTPELkGJkzOfsEDUS0oc
-        XHED7EcJgU4OiVm7GqASLhKvDrUxQtjSElevT4Vado5R4sG/YIiG64wSK74shoajtcTCP+uh
-        LuWT+PvrEeMERuVZSA6fheSoWUiOmoXkqAWMLKsYxUuLi3PTU4uN81LL9YoTc4tL89L1kvNz
-        NzECE8fpf4cLdjDeuvVR7xAjEwfjIUYJDmYlEV6W6EmJQrwpiZVVqUX58UWlOanFhxilOViU
-        xHlP/2lIFBJITyxJzU5NLUgtgskycXBKNTAlqslMui3a3DBTe/WD7i0pZ2Y+X3sjZolWqvvG
-        YBPbz4knTMISnF883s699ldYJ7vbvKAAMz1uweCXE0yvbNCzV5Tfz1NzWsus2tDitOUVYXbF
-        nX+Ozn9dJqfXWCDkMufGNLVil6K4u2pzyp6EL1ilvVJqau1pRlO9mxufu08NFzldfM7XmUnI
-        qNx/iX6LX0t0bA7nezOLcieR6g6+0G9aps+M+z6tLnKaYbXBZn+H84bN08/OSTOw6ey57Vl/
-        qPXA+amaYuEhhScEUxPvlnU9mHxncp/RFCZX3c83119OmTihuM54+V2vkB1Lzzb9KekxF96U
-        zP2B2cytxTWVdX3HizsZOXXT8jxcHFjnKrEUZyQaajEXFScCACN+1P+LAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgkeLIzCtJLcpLzFFi42LJbGCaqGu2b1KiweKpUhar7/azWXyc9YLZ
-        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyDv25z1awSahi/fJj7A2Mu/m6GDk5JARMJC7v
-        XM7SxcjFISSwmlHi0bHn7BDOR0aJE+8+QDkHGSUuTF3O3MXIwcEmoCnxdn8BSLeIQJjEz0fb
-        WUFsZgF1iWMbN7CB2MICDhJvJy9igahxlVj37Q87hK0ncaL9KROIzSKgKnHz1DRGEJtXwEbi
-        wYXPYL1CQPamrf1gNZwCthJL550E62UUEJP4fmoNE8QucYlbT+YzQXwgILFkz3lmCFtU4uXj
-        f6wQtqLE/e8v2SHq9SRuTJ3CBmFrSyxb+JoZYq+gxMmZT1gg6iUlDq64wTKBUXwWkhWzkLTP
-        QtI+C0n7AkaWVYzipcXFuekVxYZ5qeV6xYm5xaV56XrJ+bmbGIGRdfrf4cgdjEdvfdQ7xMjE
-        wXiIUYKDWUmElyV6UqIQb0piZVVqUX58UWlOavEhRmkOFiVxXiHXifFCAumJJanZqakFqUUw
-        WSYOTqkGphiFf2umfV+xKWtxYWXS+52Kb1juM55tnDXpvMvXCbZTmSLSi8Qcl+1fY3N+ThxD
-        loz31c8uP/7b77/qNG2Sh/XtvQUzlG+vcFUNf8+f1LFR0+1qUeveyfv8ziywsHX1ZDr2p20C
-        07NLTPZaNrWHfIoKF8r7ez+yTAg2EEs9xzpvw6ncNd117mfUuz9VxW+0Yw1f6+v2XenOwsqn
-        LxTEhXfESfusFUgMezz1f/2HXVKFwuHCaseX6W030dz5qCQwbOVPzdn9zreVb89eqOh2Vkby
-        xDmuRYrmYRLb5rscu5CzoepOFPfOcyJaP6Vdtp+tfOXj8ISNYcnOZeorNnsotOyufhIr93ix
-        k6lBVun9N0osxRmJhlrMRcWJAKIVYxobAwAA
-X-CMS-MailID: 20211115200822uscas1p2795a33fbed15d3f1b6029116a8123d05
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKIsWRmVeSWpSXmKPExsWy7djX87pm+yYlGqy/IGix+m4/m8XHWS+Y
+        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoErY/KHx+wFG8Uqpt1sZ2tgfCXYxcjJISFgIrF4
+        4UvGLkYuDiGBlYwSp//vgHJamSTunZrBAlM183IfO0RiLaNE155+dpCEkMBHRomvfRoQ9kFG
+        iWMblboYOTjYBDQl3u4vAAmLCIRJ/Hy0nRXEZhZQB6rYwAZiCws4Sbw/85IVosZd4kbTfDYI
+        W09i4rv3YHtZBFQlbp6axghi8wrYSNzcdRAszilgK7F03kmwExgFxCS+n1rDBDFfXOLWk/lM
+        EDcLSiyavYcZwhaT+LfrIRuErShx//tLdoh6PYkbU6ewQdjaEssWvmaG2CUocXLmE6jfJSUO
+        rrgBZXdySGzalQphu0g0XL0JNV9a4ur1qVD2OUaJB/+CQWElIXCdUWLFl8WsEAlriYV/1kMd
+        yifx99cjxgmMyrOQ3D0LyU2zkNw0C8lNCxhZVjGKlxYX56anFhvlpZbrFSfmFpfmpesl5+du
+        YgSmjNP/DufvYLx+66PeIUYmDsZDjBIczEoivCzRkxKFeFMSK6tSi/Lji0pzUosPMUpzsCiJ
+        857+05AoJJCeWJKanZpakFoEk2Xi4JRqYBI4ozLR6PqL5nhL1Y/sxmZ6aYZ3bJznbW34nPZ7
+        q6dQWPDC302/9EMKuqrWzjltesWhKYlx3pLXN0KVuR2Ca80b5xQctpH/pMeRpcNqtPJspIGg
+        zH5bcVcnJSMjJYPg/RtFHaS2aHntWTl/YzJb2wWH+3eWbIps+LHElOdjhuJT/rt186KTNtzX
+        6fsjmmZbxTLXsaHhmVxd5tGsjf97v3/Py3DZcjD6nv+Nn63zNtj9ipYJKlYxX5mZYS+87vOZ
+        +99WTjzNcWJjUflTZQdHHb3JM56WRvu9/9Mr+O3hcunUtxfbdm39KS9mcS7lme/dhpVeeeJK
+        C2rfsW1Yl7/74bw9fnoRljzvjK7ZfVnYqMRSnJFoqMVcVJwIAMlsbeyIAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgkeLIzCtJLcpLzFFi42LJbGCaqGu6b1Kiwfe/Zhar7/azWXyc9YLZ
+        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyJn94zF6wUaxi2s12tgbGV4JdjJwcEgImEjMv
+        97F3MXJxCAmsZpQ4MO82C4TzkVFi3qaFUM5BRomfNzawdjFycLAJaEq83V8A0i0iECbx89F2
+        VhCbWUBd4tjGDWwgtrCAk8T7My9ZIWrcJW40zWeDsPUkJr57zwJiswioStw8NY0RxOYVsJG4
+        uesgWFwIyN60tZ8JxOYUsJVYOu8kO4jNKCAm8f3UGiaIXeISt57MZ4L4QEBiyZ7zzBC2qMTL
+        x/9YIWxFifvfX7JD1OtJ3Jg6hQ3C1pZYtvA1M8ReQYmTM5+wQNRLShxccYNlAqP4LCQrZiFp
+        n4WkfRaS9gWMLKsYxUuLi3PTK4oN81LL9YoTc4tL89L1kvNzNzECI+v0v8OROxiP3vqod4iR
+        iYPxEKMEB7OSCC9L9KREId6UxMqq1KL8+KLSnNTiQ4zSHCxK4rxCrhPjhQTSE0tSs1NTC1KL
+        YLJMHJxSDUw3pTbxtzY63HuTK3DC84mqq6Z2366b7ZsFvtxnm3hkz9Z+o6979toeOV/QnFPm
+        GFspohW5a6KOp/gBGz+W0pnPJ0SEr3saKLe+/BfXmjXiCa+vck78ZXV11xHD/t2x09UXXX6x
+        /fsnyz4LH5Wru3q0a5X+llXfrN6Y9sfQ5qzusR1lGrKa6btNt6jrJa/P9fmt/+yR1+XOxqKv
+        pnKsJSuur2cO2Chccarz5X2vaXUuwYYKNTWhSYXzp+h5bqu97adnVpO8IyLse3fQOZknHF7l
+        oaZXNM6yzDp4VX1qSnMe4/srZ8MUDojGtwdWm888E7pPnXuu86rCDaomNjK7nu3Xs+TReVHk
+        mrX/RvC2TCWW4oxEQy3mouJEAOQIaxwbAwAA
+X-CMS-MailID: 20211115200821uscas1p28671af8f28d8326c7dd2dc2ff1204d4b
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20211115200822uscas1p2795a33fbed15d3f1b6029116a8123d05
+X-CMS-RootMailID: 20211115200821uscas1p28671af8f28d8326c7dd2dc2ff1204d4b
 References: <20211115200807.117138-1-vincent.fu@samsung.com>
-        <CGME20211115200822uscas1p2795a33fbed15d3f1b6029116a8123d05@uscas1p2.samsung.com>
+        <CGME20211115200821uscas1p28671af8f28d8326c7dd2dc2ff1204d4b@uscas1p2.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
+Add the "write_stream" option to sg_write_mode to send WRITE STREAM(16)
+commands. Use the new stream_id option to set the stream identifier.
+
+Example:
+
+sg_stream_ctl -o /dev/sdb
+Assigned stream id: 1
+./fio --name=3Dtest --filename=3D/dev/sdb --ioengine=3Dsg --sg_write_mode=
+=3Dwrite_stream --stream_id=3D1 --rw=3Drandwrite --time_based --runtime=3D1=
+0s
+...
+sg_stream_ctl -c --id=3D1 /dev/sdb
+
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- HOWTO | 9 +++++++++
- fio.1 | 9 +++++++++
- 2 files changed, 18 insertions(+)
+ engines/sg.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
 
-diff --git a/HOWTO b/HOWTO
-index 0f204afa..ccf2442d 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -2510,6 +2510,9 @@ with the caveat that when used on the command line, t=
-hey must come after the
- 		Buffer (NDOB) bit set. No data will be transferred to the device with
- 		this bit set. Data written will be a pre-determined pattern such as
- 		all zeroes.
-+	**write_stream**
-+		Issue WRITE STREAM(16) commands. Use the **stream_id** option to specify
-+		the stream identifier.
- 	**verify_bytchk_00**
- 		Issue VERIFY commands with BYTCHK set to 00. This directs the
- 		device to carry out a medium verification with no data comparison.
-@@ -2525,6 +2528,12 @@ with the caveat that when used on the command line, =
-they must come after the
- 		This is similar to the WRITE SAME command except that data is compared i=
-nstead
- 		of written.
+diff --git a/engines/sg.c b/engines/sg.c
+index d15b438f..b51edb07 100644
+--- a/engines/sg.c
++++ b/engines/sg.c
+@@ -69,6 +69,7 @@ enum {
+ 	FIO_SG_WRITE_VERIFY,
+ 	FIO_SG_WRITE_SAME,
+ 	FIO_SG_WRITE_SAME_NDOB,
++	FIO_SG_WRITE_STREAM,
+ 	FIO_SG_VERIFY_BYTCHK_00,
+ 	FIO_SG_VERIFY_BYTCHK_01,
+ 	FIO_SG_VERIFY_BYTCHK_11,
+@@ -80,6 +81,7 @@ struct sg_options {
+ 	unsigned int readfua;
+ 	unsigned int writefua;
+ 	unsigned int write_mode;
++	uint16_t stream_id;
+ };
 =20
-+.. option:: stream_id=3Dint : [sg]
-+
-+	Set the stream identifier for WRITE STREAM commands. If this is set to 0 =
-(which is not
-+	a valid stream identifier) fio will open a stream and then close it when =
-done. Default
-+	is 0.
-+
- .. option:: hipri : [sg]
+ static struct fio_option options[] =3D {
+@@ -158,10 +160,24 @@ static struct fio_option options[] =3D {
+ 			    .oval =3D FIO_SG_VERIFY_BYTCHK_11,
+ 			    .help =3D "Issue SCSI VERIFY commands with BYTCHK set to 11",
+ 			  },
++			  { .ival =3D "write_stream",
++			    .oval =3D FIO_SG_WRITE_STREAM,
++			    .help =3D "Issue SCSI WRITE STREAM(16) commands",
++			  },
+ 		},
+ 		.category =3D FIO_OPT_C_ENGINE,
+ 		.group	=3D FIO_OPT_G_SG,
+ 	},
++	{
++		.name	=3D "stream_id",
++		.lname	=3D "stream id for WRITE STREAM(16) commands",
++		.type	=3D FIO_OPT_INT,
++		.off1	=3D offsetof(struct sg_options, stream_id),
++		.help	=3D "Stream ID for WRITE STREAM(16) commands",
++		.def	=3D "0",
++		.category =3D FIO_OPT_C_ENGINE,
++		.group	=3D FIO_OPT_G_SG,
++	},
+ 	{
+ 		.name	=3D NULL,
+ 	},
+@@ -611,6 +627,14 @@ static int fio_sgio_prep(struct thread_data *td, struc=
+t io_u *io_u)
+ 			hdr->cmdp[1] |=3D 0x1; // no data output buffer
+ 			hdr->dxfer_len =3D 0;
+ 			break;
++		case FIO_SG_WRITE_STREAM:
++			hdr->cmdp[0] =3D 0x9a; // write stream (16)
++			if (o->writefua)
++				hdr->cmdp[1] |=3D 0x08;
++			sgio_set_be64(lba, &hdr->cmdp[2]);
++			sgio_set_be16(o->stream_id, &hdr->cmdp[10]);
++			sgio_set_be16((uint16_t) nr_blocks, &hdr->cmdp[12]);
++			break;
+ 		case FIO_SG_VERIFY_BYTCHK_00:
+ 			if (lba < MAX_10B_LBA)
+ 				hdr->cmdp[0] =3D 0x2f; // VERIFY(10)
+@@ -635,8 +659,9 @@ static int fio_sgio_prep(struct thread_data *td, struct=
+ io_u *io_u)
+ 			break;
+ 		};
 =20
- 	If this option is set, fio will attempt to use polled IO completions.
-diff --git a/fio.1 b/fio.1
-index 71f98135..823c925d 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2318,6 +2318,10 @@ Buffer (NDOB) bit set. No data will be transferred t=
-o the device with
- this bit set. Data written will be a pre-determined pattern such as
- all zeroes.
- .TP
-+.B write_stream
-+Issue WRITE STREAM(16) commands. Use the stream_id option to specify
-+the stream identifier.
-+.TP
- .B verify_bytchk_00
- Issue VERIFY commands with BYTCHK set to 00. This directs the device to ca=
-rry
- out a medium verification with no data comparison.
-@@ -2336,6 +2340,11 @@ WRITE SAME command except that data is compared inst=
-ead of written.
- .RE
- .RE
- .TP
-+.BI (sg)stream_id \fR=3D\fPint
-+Set the stream identifier for WRITE STREAM commands. If this is set to 0 (=
-which is not
-+a valid stream identifier) fio will open a stream and then close it when d=
-one. Default
-+is 0.
-+.TP
- .BI (nbd)uri \fR=3D\fPstr
- Specify the NBD URI of the server to test.
- The string is a standard NBD URI (see
+-		fio_sgio_rw_lba(hdr, lba, nr_blocks,
+-			o->write_mode =3D=3D FIO_SG_WRITE_SAME_NDOB);
++		if (o->write_mode !=3D FIO_SG_WRITE_STREAM)
++			fio_sgio_rw_lba(hdr, lba, nr_blocks,
++				o->write_mode =3D=3D FIO_SG_WRITE_SAME_NDOB);
+=20
+ 	} else if (io_u->ddir =3D=3D DDIR_TRIM) {
+ 		struct sgio_trim *st;
 --=20
 2.25.1
