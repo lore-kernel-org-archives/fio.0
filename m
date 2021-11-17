@@ -2,90 +2,86 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E987C433EF
-	for <fio@archiver.kernel.org>; Wed, 17 Nov 2021 22:19:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD04CC433F5
+	for <fio@archiver.kernel.org>; Wed, 17 Nov 2021 23:14:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1022061B51
-	for <fio@archiver.kernel.org>; Wed, 17 Nov 2021 22:19:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B254C61269
+	for <fio@archiver.kernel.org>; Wed, 17 Nov 2021 23:14:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbhKQWW0 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 17 Nov 2021 17:22:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51678 "EHLO
+        id S241516AbhKQXRp (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 17 Nov 2021 18:17:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241132AbhKQWWY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 17 Nov 2021 17:22:24 -0500
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4045C061570
-        for <fio@vger.kernel.org>; Wed, 17 Nov 2021 14:19:25 -0800 (PST)
-Received: by mail-pg1-x52d.google.com with SMTP id r132so3479895pgr.9
-        for <fio@vger.kernel.org>; Wed, 17 Nov 2021 14:19:25 -0800 (PST)
+        with ESMTP id S241501AbhKQXRn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 17 Nov 2021 18:17:43 -0500
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C675C061570
+        for <fio@vger.kernel.org>; Wed, 17 Nov 2021 15:14:44 -0800 (PST)
+Received: by mail-il1-x135.google.com with SMTP id l19so4564765ilk.0
+        for <fio@vger.kernel.org>; Wed, 17 Nov 2021 15:14:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=eFTlo7G3ixVhX7veOgeCjAnFukP6MnNv2fMLWYHdCtw=;
-        b=b+nNmGma5wo+7dmFva7Y/QyzwwMXzig50CVNf9Cxt4AitdUXKczdXpp7LMyMa0BSOa
-         DtiQfwOBxzKt0BWqYEjKc0/YVHL+oDoUS7yWr71+2Av2bhW1gObUZxzUovpdr0ro/jNz
-         r9I+iqXmKnIHusn999qFzAkWZeKH6ZKkY9roU=
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=MJSWZ0kMQ2/iqa8VBGfEAvd+qkM3H7Va2vRjaK5YC0U=;
+        b=hRsAJK2sTKCEvLZjyqqqbhIQFEOLPQim4BJuplkcRry38+V4sEugMS2YPGhB/Hd9yf
+         bqZB7grrlMJLtVcU11clIwu9mNTDCFjpBzrw47PlV50/0kr+vEqp5SriHSSk5ZS7NLJT
+         cXaHC/WQZasabxzI0rBB/p1rbjMbCabyn6MuCBdpIgk/w4aKAgMUSisKaeYP6GyVX1ZX
+         IxD4hca4cB1255RbRPlL8G7BcWVr069GmJWVH8bUBDrHIwAWvh9yPcXx7PAwZcioJvgJ
+         qutWt4eqm0al6Yb3qsCFDsJas65lHxtSt+LZiMkeWY/o+eG3NymLze/IcqPKe7EFQagp
+         VGBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=eFTlo7G3ixVhX7veOgeCjAnFukP6MnNv2fMLWYHdCtw=;
-        b=L8Wbq8fUDqbwmj8KnEMnsyKEPL/5fn+3PiVFemGWYBNbyH7xCpuatcko8AOi/Uhczq
-         JIR93G2ilSof4DdOWzMPK3Zhsneko8+wroY/TkFApceMpSJjX60jEpuXtau1NmKu5U0q
-         +QCSk/VPhTKgTLOwvYeQ9/MxMzvtFGrUlmqxvKSS0JOOEBGGgLoR6pEEdKJGBYxQBv4h
-         8BIS/vVCffvnLQXtHq8pn/sTJUtRYiATRCLarNQuO3Es5ehIAciOLoxIzLCctlkm9Z/h
-         qyeCBtIDpLVPX1jEV7vG2Hk7l6D4NC1lWgzNUa5/gesHuAFWQnSrJPSQWug+VEpNb05I
-         09YA==
-X-Gm-Message-State: AOAM532gO1NB94X+T99M8Yk9t1Rx5jCoK0ePeXDQ3DGHa/PkpcmIO0Mv
-        /YEuMTZfrXinuRowxAGMVrfLsLOkw4/USQ==
-X-Google-Smtp-Source: ABdhPJyNQSx4GQ6MfctNqoYcPoO5iQgZUVBxWk1OrvmMWFiaBrLSfD6iF5EYKAyzs/4Dbbr0zYuw5g==
-X-Received: by 2002:a05:6a00:1a16:b0:49f:ed6d:c48e with SMTP id g22-20020a056a001a1600b0049fed6dc48emr10186386pfv.14.1637187565183;
-        Wed, 17 Nov 2021 14:19:25 -0800 (PST)
-Received: from localhost ([2620:15c:202:201:327f:7baa:380e:33a3])
-        by smtp.gmail.com with UTF8SMTPSA id l12sm589674pfu.100.2021.11.17.14.19.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 17 Nov 2021 14:19:24 -0800 (PST)
-From:   Gwendal Grignou <gwendal@chromium.org>
-To:     axboe@kernel.dk, niklas.cassel@wdc.com
-Cc:     fio@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>
-Subject: [PATCH] Makefile: Fix android compilation
-Date:   Wed, 17 Nov 2021 14:19:18 -0800
-Message-Id: <20211117221918.3050439-1-gwendal@chromium.org>
-X-Mailer: git-send-email 2.34.0.rc1.387.gb447b232ab-goog
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=MJSWZ0kMQ2/iqa8VBGfEAvd+qkM3H7Va2vRjaK5YC0U=;
+        b=qRmBm+LeqQiU7mQKBO8A/P2S6SGzVfBpBEMtg+B95RTzntCb4Yo7dr0Q9lNrTLkUkt
+         rsaGQ0DDXvOaHFewdSEK7nLmv/5Z/W8tjYUFLh3LZPMnxPdQqYqq162DM+0s9Yp98F68
+         7steHQDAp6oNNso2UPpzbYw+XLOB3PKY6NUeZNf/eIUHjnCQmCR/rMhjilQ8CGgy6MTB
+         rdk/j3vfFFJw3LTSz6QEDQRUOO36ViNK6KMZSg89oOEfWZPh3TFnkWOuLo9y612j3CrB
+         IDKILxmSr26GRXx1pePqbuTxomfmPdfeYjPC/xgjP6BK+6MaC8Ww48nvgtiGgKU/+QLO
+         UIkg==
+X-Gm-Message-State: AOAM533mzUYwbQr9CgHD1NWZukUWN/ggQBJUg6S4vd09qzMUCvlO7icI
+        /BTXm6jQjF6c6pk3Kz3YoME96Xd++DF28DUT
+X-Google-Smtp-Source: ABdhPJz5lUHE+Q7bQi6OVvdlwiq+/gvC1b/qMKjYFcR/ZmPdHi75N911UackLV10rEZr5cWtH6iL0g==
+X-Received: by 2002:a05:6e02:190b:: with SMTP id w11mr13158642ilu.211.1637190883691;
+        Wed, 17 Nov 2021 15:14:43 -0800 (PST)
+Received: from [127.0.1.1] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id r3sm759344ila.42.2021.11.17.15.14.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Nov 2021 15:14:43 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     niklas.cassel@wdc.com, Gwendal Grignou <gwendal@chromium.org>
+Cc:     fio@vger.kernel.org
+In-Reply-To: <20211117221918.3050439-1-gwendal@chromium.org>
+References: <20211117221918.3050439-1-gwendal@chromium.org>
+Subject: Re: [PATCH] Makefile: Fix android compilation
+Message-Id: <163719088335.258518.739015978128297012.b4-ty@kernel.dk>
+Date:   Wed, 17 Nov 2021 16:14:43 -0700
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Inclue cmdprio for Android as well.
-Without the patch, make for Android fails at link time:
+On Wed, 17 Nov 2021 14:19:18 -0800, Gwendal Grignou wrote:
+> Inclue cmdprio for Android as well.
+> Without the patch, make for Android fails at link time:
+> 
+> engines/io_uring.c:824: error: undefined reference to 'fio_cmdprio_init'
+> engines/io_uring.c:456: error: undefined reference to 'fio_cmdprio_set_ioprio'
+> ...
+> 
+> [...]
 
-engines/io_uring.c:824: error: undefined reference to 'fio_cmdprio_init'
-engines/io_uring.c:456: error: undefined reference to 'fio_cmdprio_set_ioprio'
-...
+Applied, thanks!
 
-Fixes e27b9ff0e ("cmdprio: move cmdprio function definitions to a new cmdprio.c file")
+[1/1] Makefile: Fix android compilation
+      commit: 5711325cbb37d10c21a6975d1f1ebea11799c05e
 
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
----
- Makefile | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/Makefile b/Makefile
-index e9028dce..04c1e0a7 100644
---- a/Makefile
-+++ b/Makefile
-@@ -236,6 +236,7 @@ endif
- ifeq ($(CONFIG_TARGET_OS), Android)
-   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c profiles/tiobench.c \
- 		oslib/linux-dev-lookup.c engines/io_uring.c
-+  cmdprio_SRCS = engines/cmdprio.c
- ifdef CONFIG_HAS_BLKZONED
-   SOURCE += oslib/linux-blkzoned.c
- endif
+Best regards,
 -- 
-2.34.0.rc1.387.gb447b232ab-goog
+Jens Axboe
+
 
