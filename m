@@ -2,209 +2,388 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE2B7C433F5
-	for <fio@archiver.kernel.org>; Sat, 20 Nov 2021 02:08:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA4F0C433EF
+	for <fio@archiver.kernel.org>; Sat, 20 Nov 2021 13:00:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233478AbhKTCL4 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 19 Nov 2021 21:11:56 -0500
-Received: from esa4.hgst.iphmx.com ([216.71.154.42]:45637 "EHLO
-        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233013AbhKTCLy (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 19 Nov 2021 21:11:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1637374132; x=1668910132;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=0z/f8+fIGQPHzpQ53Y5AKYqVqdVaakBRPxv8OAC3B7w=;
-  b=U/s+sYVlxOLk97zY+W4TdkZBTF0IrpFBpsXwd7jYDfPzX6GXrzcV7mAU
-   0FVAWKYo6mPGYAqv/Oa9+qxKS/lq1tQefADxyNT4PxEsy94vQLM9BWb6y
-   8ORImxyGx/dWbFYdFtiEtO8R7e0CACfSQwQ/5MxjDFFSxYAcs0R+W2KgR
-   0KgPr3NSblAXVn27zK4gCFNEqtG1I+5OJ1d8jSggqWMPs9msCqIBPnSu0
-   wtZME/OFd3RW2Rx+WQaxPw9C4pP36hZYPbauaHAC0c5v6h3xww7ZYkhrm
-   QHkvEk4OOxFon4hhqMeAnGTVrtWsd/juwyCOB4V7Ajll9dP8OglKrgjjq
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.87,249,1631548800"; 
-   d="scan'208";a="185149905"
-Received: from mail-dm6nam10lp2106.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.106])
-  by ob1.hgst.iphmx.com with ESMTP; 20 Nov 2021 10:08:51 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jRQZvZX9sy4B1a8G/9BTDY/pOprMTlCZkSupfv7d4p1ZlligMVAvgVLNILBwGqfQcugqNxYfA810CpgdnVQvY5uVyRKyMwqGfYMSs2CRA3KChdJicGIQ1Ejbfk2xCsvhz+aquGvVxJsON+wEzzuKQm+AmX6PmKr4iY9ZF/+2AEB5ctHIwxuuKUtV6sCMU1vy69L+Gcz5S4caLj7iIrJPmgDxJwTy28ZETqYHvRn1Hd/KQmy8WG4Xg2DcBRaidn3ix8EwKs3l+53LYtjaRDv5xutkDX++b8VFuI3LJaa+RLYQmjsUojlINkeQc2hFmtAadQyT7DCobJ0LuWtPecWtTg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7FrBXNLUm3yMtfw8O0YC0XOBfnuF7y5Hb0pS5FZ5jsE=;
- b=haqjQBAXyspPAYZVoWVdzBZ/vdOgedkNjt3QPMhMEJLeZHNH2bF0Oo7IHYCbNfqgPJpgqDuIynCjuCji0O8B97h7iBBRH99eUXo14oat4Wm+FEmfEoWntVbQ3vt/nJcOcLJij2Y9xrHdC4PnYVW+0lJ2ppXyNaz6Pgt5HmJG4ap+b4Zq1+fNEEqvUjvxvOGKEe8NmaGeu85AU/RqH69B+t3efV+ApdjjSGNxuhqGQLc+TPJc4WtZmVesNELZYxvYAE52/WpaOjmS3+mmNGkGDdRqFEBTcjRtxS7oE88P5N8kB784y3RzH4DPH5k8Ri2g2q/IycK/33yVGJzSR9BYrw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7FrBXNLUm3yMtfw8O0YC0XOBfnuF7y5Hb0pS5FZ5jsE=;
- b=mJFynALHcvWO7b5CVk+L7WYw23aowBwpZML6S6o9fHSFzK52Zmjycj5BgkxTog9gUHTYGXuCgOrVH4K0ZSlLCQjidoqr9DA2RC33AMfpAb4p73k3ibjWf0WFEF4AVIWbOCwEVd3eKtEmJaJgWCe9YMJpMnWaECkKBJwTqLrruxs=
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by PH0PR04MB7622.namprd04.prod.outlook.com (2603:10b6:510:4f::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19; Sat, 20 Nov
- 2021 02:08:49 +0000
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::c504:3d44:5aef:f3ca]) by PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::c504:3d44:5aef:f3ca%4]) with mapi id 15.20.4713.022; Sat, 20 Nov 2021
- 02:08:49 +0000
-From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     "axboe@kernel.dk" <axboe@kernel.dk>
-CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 5/5] stat: add comments describing the quirky behavior of clat
- prio samples
-Thread-Topic: [PATCH 5/5] stat: add comments describing the quirky behavior of
- clat prio samples
-Thread-Index: AQHX3bOOttdDQ8a5ZEeejDvIb2Nw0Q==
-Date:   Sat, 20 Nov 2021 02:08:49 +0000
-Message-ID: <20211120020837.127453-6-Niklas.Cassel@wdc.com>
-References: <20211120020837.127453-1-Niklas.Cassel@wdc.com>
-In-Reply-To: <20211120020837.127453-1-Niklas.Cassel@wdc.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.33.1
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: b22b70f2-febd-407a-7709-08d9abcab12f
-x-ms-traffictypediagnostic: PH0PR04MB7622:
-x-microsoft-antispam-prvs: <PH0PR04MB7622E751995682737E1590F2F29D9@PH0PR04MB7622.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:972;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: XwncDdA0eC5Crw+P9BWykTE0LL4iShM58BF9PFdkEVvm69RxBE1ObXXG2R6ZPm28XlelTdeJkoO6kGeks2uH+dhTelSfgsANw5EVxjgEgs49QoLFvuwmQ+ql7ye7Yq2eP82oMD9uQSI9rtHbnhznuIKW1YZ5iK/d3SboEYJaGHD3qIUq6I38slogbNsoY1nucv5flGpwXfo/MgVyYU+JhUMh49XFj9t5RDNSNs3Np8lGxQZnB0F7H0JOUS6aNCZ/2XYEWrfOllbb2RWURug1vQVmu+NeBwp1WDZDNuKduDRcw+4qaXYYJS3Sl63O3W5p3oFBVElKy8Utu/EZsbfuijGFYRX8FJNbWsuANPYDkSSD0gn5TrGEce6JNU9KHqFJ97jMwOSnuAcfu4+1XYiX92R8FTdpN9birVZAcS5vX8VMWiHn0mrpDcLbSv0J/8T70Hz2XJa3ykHzZoPpS8I43Ap6VR4NpMqfyZrMU+OM4UIqgQ5l9BW+i0DG+is8NSJYwHGApYVhLD6FPFHyOTOiscF3QonbnKSzkSZwc3bqicRnR2J+BbOwrSmpi91pmCD6wzxfOAouZG/tvjcPq0dMmYAaB/CxCxaxBXQdlztEfpeCbzd0rdx7eIr9zP5DpSqqp+3ImemX8LHEx44vHCPkYiQ2XasZ4mizjKmeYQ/Xaixf9nNxlQLBbKF03mCB95iUPI2Y4F1epXtwX0cVhPxxwg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(54906003)(6506007)(8936002)(4326008)(38070700005)(8676002)(1076003)(26005)(86362001)(2906002)(91956017)(76116006)(66446008)(66556008)(64756008)(5660300002)(66476007)(186003)(66946007)(6512007)(6916009)(71200400001)(508600001)(316002)(36756003)(6486002)(2616005)(122000001)(38100700002)(82960400001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?fHa+J4os/uoSTii1RUwcLcZpcEsjc7T518K0qP3zIl2zoensxDKWu3V7lh?=
- =?iso-8859-1?Q?JqtnyyYfUfXZKXsBsg0g7WneHyePpJ9Lwm/xm6tG2oKhSYUmzFKa8xAAyV?=
- =?iso-8859-1?Q?8WHCCZpNjDD/vY6vZhnA7iOj5c4nnzRLLhlSIgBAZBNkU0SJQlR8zKeB4J?=
- =?iso-8859-1?Q?YeKbmQHprh81X2OK+r5VRgYYwJ1VgXPH0YOPR2LexP4X6iWiHa5hAzx2s9?=
- =?iso-8859-1?Q?cl60uq+WVhHcy/xG0+oCVawn6c9+CLXuM5BI3HntKNHH3OhfHRRPzFTKLA?=
- =?iso-8859-1?Q?mF/K6p0Ib9b6CdyqaafCC6EoV1ppEkDpHvf4rVkFgehCAGEvhxqy8luM9y?=
- =?iso-8859-1?Q?fxg0W2/81/S/IGn4ly4ax8MtcJefoMJChmW/FOQDMzRowH0q+iRag0njmL?=
- =?iso-8859-1?Q?yvF5Paib7bxJ1FyifZgQn/g7zRqJ5votgSJl1fwTygpofGM0HdMFtlh/o8?=
- =?iso-8859-1?Q?Fg0/IUCXkEzPCZDHJgiYvfKlFq/lfo2Go/V6Jr5GqvlbPddAwq6Vvgi6/u?=
- =?iso-8859-1?Q?BFqNEYD/x0dHmpMgrV2mv1zgr86Vd9H5fYGePlDrp45NFhHqy79/vyQGfm?=
- =?iso-8859-1?Q?8zyHAKZgpGAmtNkXzApJimfzZLTlIMaOwTpLOHB6CLY99GYj3+jw7hr80Q?=
- =?iso-8859-1?Q?MbKDI1A6kItnOuPBwjGWTgAm8bkceG8TyS5rQNE4Vn9RmAGRXnQ1epsMPM?=
- =?iso-8859-1?Q?OtjbDqKabnWSbQ0hH58eUS7459uU0/woOdTySMjNkc2gElV9R1RwEQNcAe?=
- =?iso-8859-1?Q?0+Axu/yxml6lZHRVpc2a2OWYtyJcvkPx/8E0FPWcmivyEYbnuDwgJ/2JId?=
- =?iso-8859-1?Q?iZOCLSZ6OyboDKOGCumztqwDd09RsoYZIZiNsAk+osFahE7fo/elkFF+8k?=
- =?iso-8859-1?Q?3Jw309BMut9lra3wf+vRsAURqE8GM9SRNChLzey5d/lB3fZjg1ksRXZW7F?=
- =?iso-8859-1?Q?dNKfGRVdmttAXzijkKCs5a4pxu94oWg5bucZIqqDJBlSlubdeNJecLQwDN?=
- =?iso-8859-1?Q?SAg/+93G8S4J6Ezb84hmdSeUzjGf26DP0VJgJVZ9IB4mWy3uWhCWRSc8ij?=
- =?iso-8859-1?Q?g4J3IP99IzqMevSlowthU6Al77WGXdPXjdl29NbG73kxs6HNklALXmjLXF?=
- =?iso-8859-1?Q?FHuxzpMum0BRZ8sCyIprTc3xYlmYa/Zt5XTB9iPNAddURYCDJ4a9DFLDhZ?=
- =?iso-8859-1?Q?BZDHn1ieiiWeosFimUkJ4G2A3dZifUVdoUxFzf4Z2GdSscv1At7QwtbGp+?=
- =?iso-8859-1?Q?r8ph9763ZayvBFG67G2n47LMwc9hKrb6pY0p9wnjLeOkyyLjVcfPjjc5wJ?=
- =?iso-8859-1?Q?2FxErOT3UB1owbPX3MSySkmzOAnjBNX/fDHHIeMuPisTOTqD83ufeZ9AWF?=
- =?iso-8859-1?Q?7mv7dplPnXo1LewVrAXJ1juR7guKx5DDxWv00hIFVbEnxQ0uVz7735nsZL?=
- =?iso-8859-1?Q?SFLk2gtSMzEozAPjQ81TWmvsnI1vyMGFFs94hCRQM1krgkSJz3diP5Cjmw?=
- =?iso-8859-1?Q?nn30CwZc8/mrFkdV4K5hywz74wtCdIosTGTUaZVGynu8gMsxDnLbNbVYLC?=
- =?iso-8859-1?Q?lLf0RY5W/9zrxQxGLVL1FmagrJk2UIxs4Hi6arVH0Wp+ZsjwguK9lA7L5F?=
- =?iso-8859-1?Q?OpT04jDp+R3wgIxYHYmchd79wj+WshUxKb7Qlv+1sTQTYTggxctnso/uUM?=
- =?iso-8859-1?Q?c53YIOoVCd7f+jLOcek=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b22b70f2-febd-407a-7709-08d9abcab12f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Nov 2021 02:08:49.2912
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Eu1D4Tzke1ipVd4RcNuTQe/RJNkmiTfQKvNN5G17pSqRPNJ1CSE0yUtjuKbVN1jVesfzEshfSHERW0mt9gdaNw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7622
+        id S229794AbhKTNDM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sat, 20 Nov 2021 08:03:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48410 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237427AbhKTNDL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 20 Nov 2021 08:03:11 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557CFC061574
+        for <fio@vger.kernel.org>; Sat, 20 Nov 2021 05:00:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=qwr90Bw/PLWLgjEf3OC/IvIuLdi/KFDfr60RB3w+878=; b=i+N6MePp0p79QGJkwp4trtGFTo
+        bdWv2ftFgJ4owwWykY3VJ5Z5gYTnLfnU/fXb8Ol5Jq/NeAx2OAP4wgQVwsYJatj/cBBQdJJau23oF
+        MuuL/XohTqOr1jHo+CK+bnBs6bJc/021BmCzqyWUdl0u9nKKslUkgyCrLS3Fv1FEIP1hSywxLAxGm
+        lThe6sqwqh4gMl2rcy8MsghPJmj8pkO4ZHlW2jlhSyvr3XdI6rPbkc6wzWbNQowccIccKdA7bH1zq
+        K1I+goTgzyX0GzY5MhvEPoVet2FyZFcoUVKttqEwEVjmlHhJGWD9P6CI1MV+EDk03JA7cSF52YdIh
+        T2yJLScQ==;
+Received: from [65.144.74.35] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1moPyP-00AcV7-Kd
+        for fio@vger.kernel.org; Sat, 20 Nov 2021 13:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id A069D1BC0174; Sat, 20 Nov 2021 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20211120130001.A069D1BC0174@kernel.dk>
+Date:   Sat, 20 Nov 2021 06:00:01 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+The following changes since commit 5711325cbb37d10c21a6975d1f1ebea11799c05e:
 
-It is not obvious why add_clat_sample() shouldn't add a high/low
-clat prio sample when ts->lat_percentiles is set.
+  Makefile: Fix android compilation (2021-11-17 16:14:27 -0700)
 
-Especially considering that ts->lat_percentiles is used for controlling
-if total latency percentiles should be displayed or not.
+are available in the Git repository at:
 
-Neither did I manage to find anything in the man page related to this.
+  git://git.kernel.dk/fio.git master
 
-Luckily, I managed to find commit 38ec5c514104 ("stat: make priority
-summary statistics consistent with percentiles") that describes why
-things are implemented the way they are.
+for you to fetch changes up to beda9d8d9e9148ff34eaa0eeb0cde19a36f47494:
 
-Add comments to describe why add_clat_sample() has to care about
-ts->lat_percentiles.
+  t/io_uring: add -R option for random/sequential IO (2021-11-19 10:44:15 -0700)
 
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+----------------------------------------------------------------
+Damien Le Moal (1):
+      fio: Introduce the log_entries option
+
+Jens Axboe (2):
+      t/io_uring: use internal random generator
+      t/io_uring: add -R option for random/sequential IO
+
+ HOWTO            | 12 ++++++++++++
+ Makefile         |  3 +--
+ cconv.c          |  2 ++
+ fio.1            | 11 +++++++++++
+ lib/rand.c       |  2 +-
+ lib/rand.h       |  1 +
+ options.c        | 12 ++++++++++++
+ server.h         |  2 +-
+ stat.c           | 12 +++++-------
+ t/io_uring.c     | 34 +++++++++++++++++++++++++++-------
+ thread_options.h |  2 ++
+ 11 files changed, 75 insertions(+), 18 deletions(-)
+
 ---
- stat.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
 
+Diff of recent changes:
+
+diff --git a/HOWTO b/HOWTO
+index 196bca6c..a3b3acfe 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -3537,6 +3537,18 @@ Measurements and reporting
+ 	:option:`write_bw_log` for details about the filename format and `Log
+ 	File Formats`_ for how data is structured within the file.
+ 
++.. option:: log_entries=int
++
++	By default, fio will log an entry in the iops, latency, or bw log for
++	every I/O that completes. The initial number of I/O log entries is 1024.
++	When the log entries are all used, new log entries are dynamically
++	allocated.  This dynamic log entry allocation may negatively impact
++	time-related statistics such as I/O tail latencies (e.g. 99.9th percentile
++	completion latency). This option allows specifying a larger initial
++	number of log entries to avoid run-time allocations of new log entries,
++	resulting in more precise time-related I/O statistics.
++	Also see :option:`log_avg_msec`. Defaults to 1024.
++
+ .. option:: log_avg_msec=int
+ 
+ 	By default, fio will log an entry in the iops, latency, or bw log for every
+diff --git a/Makefile b/Makefile
+index 04c1e0a7..5d17bcab 100644
+--- a/Makefile
++++ b/Makefile
+@@ -375,8 +375,7 @@ T_VS_PROGS = t/fio-verify-state
+ T_PIPE_ASYNC_OBJS = t/read-to-pipe-async.o
+ T_PIPE_ASYNC_PROGS = t/read-to-pipe-async
+ 
+-T_IOU_RING_OBJS = t/io_uring.o
+-T_IOU_RING_OBJS += t/arch.o
++T_IOU_RING_OBJS = t/io_uring.o lib/rand.o lib/pattern.o lib/strntol.o
+ T_IOU_RING_PROGS = t/io_uring
+ 
+ T_MEMLOCK_OBJS = t/memlock.o
+diff --git a/cconv.c b/cconv.c
+index 2104308c..4f8d27eb 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -187,6 +187,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->rand_repeatable = le32_to_cpu(top->rand_repeatable);
+ 	o->allrand_repeatable = le32_to_cpu(top->allrand_repeatable);
+ 	o->rand_seed = le64_to_cpu(top->rand_seed);
++	o->log_entries = le32_to_cpu(top->log_entries);
+ 	o->log_avg_msec = le32_to_cpu(top->log_avg_msec);
+ 	o->log_hist_msec = le32_to_cpu(top->log_hist_msec);
+ 	o->log_hist_coarseness = le32_to_cpu(top->log_hist_coarseness);
+@@ -416,6 +417,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->rand_repeatable = cpu_to_le32(o->rand_repeatable);
+ 	top->allrand_repeatable = cpu_to_le32(o->allrand_repeatable);
+ 	top->rand_seed = __cpu_to_le64(o->rand_seed);
++	top->log_entries = cpu_to_le32(o->log_entries);
+ 	top->log_avg_msec = cpu_to_le32(o->log_avg_msec);
+ 	top->log_max = cpu_to_le32(o->log_max);
+ 	top->log_offset = cpu_to_le32(o->log_offset);
+diff --git a/fio.1 b/fio.1
+index e3c3feae..a6469541 100644
+--- a/fio.1
++++ b/fio.1
+@@ -3243,6 +3243,17 @@ logging (see \fBlog_avg_msec\fR) has been enabled. See
+ \fBwrite_bw_log\fR for details about the filename format and \fBLOG
+ FILE FORMATS\fR for how data is structured within the file.
+ .TP
++.BI log_entries \fR=\fPint
++By default, fio will log an entry in the iops, latency, or bw log for
++every I/O that completes. The initial number of I/O log entries is 1024.
++When the log entries are all used, new log entries are dynamically
++allocated.  This dynamic log entry allocation may negatively impact
++time-related statistics such as I/O tail latencies (e.g. 99.9th percentile
++completion latency). This option allows specifying a larger initial
++number of log entries to avoid run-time allocation of new log entries,
++resulting in more precise time-related I/O statistics.
++Also see \fBlog_avg_msec\fR as well. Defaults to 1024.
++.TP
+ .BI log_avg_msec \fR=\fPint
+ By default, fio will log an entry in the iops, latency, or bw log for every
+ I/O that completes. When writing to the disk log, that can quickly grow to a
+diff --git a/lib/rand.c b/lib/rand.c
+index e74da609..6e893e80 100644
+--- a/lib/rand.c
++++ b/lib/rand.c
+@@ -59,7 +59,7 @@ static void __init_rand32(struct taus88_state *state, unsigned int seed)
+ 		__rand32(state);
+ }
+ 
+-static void __init_rand64(struct taus258_state *state, uint64_t seed)
++void __init_rand64(struct taus258_state *state, uint64_t seed)
+ {
+ 	int cranks = 6;
+ 
+diff --git a/lib/rand.h b/lib/rand.h
+index a8060045..2b4be788 100644
+--- a/lib/rand.h
++++ b/lib/rand.h
+@@ -162,6 +162,7 @@ static inline uint64_t __get_next_seed(struct frand_state *fs)
+ 
+ extern void init_rand(struct frand_state *, bool);
+ extern void init_rand_seed(struct frand_state *, uint64_t seed, bool);
++void __init_rand64(struct taus258_state *state, uint64_t seed);
+ extern void __fill_random_buf(void *buf, unsigned int len, uint64_t seed);
+ extern uint64_t fill_random_buf(struct frand_state *, void *buf, unsigned int len);
+ extern void __fill_random_buf_percentage(uint64_t, void *, unsigned int, unsigned int, unsigned int, char *, unsigned int);
+diff --git a/options.c b/options.c
+index 460cf4ff..102bcf56 100644
+--- a/options.c
++++ b/options.c
+@@ -4244,6 +4244,18 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.category = FIO_OPT_C_LOG,
+ 		.group	= FIO_OPT_G_INVALID,
+ 	},
++	{
++		.name	= "log_entries",
++		.lname	= "Log entries",
++		.type	= FIO_OPT_INT,
++		.off1	= offsetof(struct thread_options, log_entries),
++		.help	= "Initial number of entries in a job IO log",
++		.def	= __fio_stringify(DEF_LOG_ENTRIES),
++		.minval	= DEF_LOG_ENTRIES,
++		.maxval	= MAX_LOG_ENTRIES,
++		.category = FIO_OPT_C_LOG,
++		.group	= FIO_OPT_G_INVALID,
++	},
+ 	{
+ 		.name	= "log_avg_msec",
+ 		.lname	= "Log averaging (msec)",
+diff --git a/server.h b/server.h
+index 44b8da12..25b6bbdc 100644
+--- a/server.h
++++ b/server.h
+@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
+ };
+ 
+ enum {
+-	FIO_SERVER_VER			= 94,
++	FIO_SERVER_VER			= 95,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
 diff --git a/stat.c b/stat.c
-index 514f08eb..48c70072 100644
+index cd35b114..e0dc99b6 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -3090,6 +3090,15 @@ void add_clat_sample(struct thread_data *td, enum fi=
-o_ddir ddir,
-=20
- 	add_stat_sample(&ts->clat_stat[ddir], nsec);
-=20
-+	/*
-+	 * When lat_percentiles=3D1 (default 0), the reported high/low priority
-+	 * percentiles and stats are used for describing total latency values,
-+	 * even though the variable names themselves start with clat_.
-+	 *
-+	 * Because of the above definition, only let this function add a prio
-+	 * stat sample when lat_percentiles=3D0 (add_lat_sample() will add the
-+	 * prio stat sample when lat_percentiles=3D1).
-+	 */
- 	if (!ts->lat_percentiles) {
- 		if (high_prio)
- 			add_stat_sample(&ts->clat_high_prio_stat[ddir], nsec);
-@@ -3103,6 +3112,12 @@ void add_clat_sample(struct thread_data *td, enum fi=
-o_ddir ddir,
-=20
- 	if (ts->clat_percentiles) {
- 		add_lat_percentile_sample(ts, nsec, ddir, FIO_CLAT);
-+		/*
-+		 * Because of the above definition, only let this function add a
-+		 * prio lat percentile sample when lat_percentiles=3D0
-+		 * (add_lat_sample() will add the prio lat percentile sample
-+		 * when lat_percentiles=3D1).
-+		 */
- 		if (!ts->lat_percentiles)
- 			add_lat_percentile_prio_sample(ts, nsec, ddir,
- 						       high_prio);
-@@ -3195,6 +3210,16 @@ void add_lat_sample(struct thread_data *td, enum fio=
-_ddir ddir,
- 		add_log_sample(td, td->lat_log, sample_val(nsec), ddir, bs,
- 			       offset, ioprio);
-=20
-+	/*
-+	 * When lat_percentiles=3D1 (default 0), the reported high/low priority
-+	 * percentiles and stats are used for describing total latency values,
-+	 * even though the variable names themselves start with clat_.
-+	 *
-+	 * Because of the above definition, only let this function add a prio
-+	 * stat and prio lat percentile sample when lat_percentiles=3D1
-+	 * (add_clat_sample() will add the prio stat and prio lat percentile
-+	 * sample when lat_percentiles=3D0).
-+	 */
- 	if (ts->lat_percentiles) {
- 		add_lat_percentile_sample(ts, nsec, ddir, FIO_LAT);
- 		add_lat_percentile_prio_sample(ts, nsec, ddir, high_prio);
---=20
-2.33.1
+@@ -2688,27 +2688,25 @@ static inline void add_stat_sample(struct io_stat *is, unsigned long long data)
+  */
+ static struct io_logs *get_new_log(struct io_log *iolog)
+ {
+-	size_t new_size, new_samples;
++	size_t new_samples;
+ 	struct io_logs *cur_log;
+ 
+ 	/*
+ 	 * Cap the size at MAX_LOG_ENTRIES, so we don't keep doubling
+ 	 * forever
+ 	 */
+-	if (!iolog->cur_log_max)
+-		new_samples = DEF_LOG_ENTRIES;
+-	else {
++	if (!iolog->cur_log_max) {
++		new_samples = iolog->td->o.log_entries;
++	} else {
+ 		new_samples = iolog->cur_log_max * 2;
+ 		if (new_samples > MAX_LOG_ENTRIES)
+ 			new_samples = MAX_LOG_ENTRIES;
+ 	}
+ 
+-	new_size = new_samples * log_entry_sz(iolog);
+-
+ 	cur_log = smalloc(sizeof(*cur_log));
+ 	if (cur_log) {
+ 		INIT_FLIST_HEAD(&cur_log->list);
+-		cur_log->log = malloc(new_size);
++		cur_log->log = calloc(new_samples, log_entry_sz(iolog));
+ 		if (cur_log->log) {
+ 			cur_log->nr_samples = 0;
+ 			cur_log->max_samples = new_samples;
+diff --git a/t/io_uring.c b/t/io_uring.c
+index f758a6d9..b79822d7 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -28,6 +28,7 @@
+ #include "../arch/arch.h"
+ #include "../lib/types.h"
+ #include "../lib/roundup.h"
++#include "../lib/rand.h"
+ #include "../minmax.h"
+ #include "../os/linux/io_uring.h"
+ 
+@@ -59,6 +60,8 @@ static unsigned sq_ring_mask, cq_ring_mask;
+ 
+ struct file {
+ 	unsigned long max_blocks;
++	unsigned long max_size;
++	unsigned long cur_off;
+ 	unsigned pending_ios;
+ 	int real_fd;
+ 	int fixed_fd;
+@@ -86,6 +89,8 @@ struct submitter {
+ 
+ 	__s32 *fds;
+ 
++	struct taus258_state rand_state;
++
+ 	unsigned long *clock_batch;
+ 	int clock_index;
+ 	unsigned long *plat;
+@@ -120,7 +125,8 @@ static int do_nop = 0;		/* no-op SQ ring commands */
+ static int nthreads = 1;
+ static int stats = 0;		/* generate IO stats */
+ static int aio = 0;		/* use libaio */
+-static int runtime = 0;	/* runtime */
++static int runtime = 0;		/* runtime */
++static int random_io = 1;	/* random or sequential IO */
+ 
+ static unsigned long tsc_rate;
+ 
+@@ -448,8 +454,15 @@ static void init_io(struct submitter *s, unsigned index)
+ 	}
+ 	f->pending_ios++;
+ 
+-	r = lrand48();
+-	offset = (r % (f->max_blocks - 1)) * bs;
++	if (random_io) {
++		r = __rand64(&s->rand_state);
++		offset = (r % (f->max_blocks - 1)) * bs;
++	} else {
++		offset = f->cur_off;
++		f->cur_off += bs;
++		if (f->cur_off + bs > f->max_size)
++			f->cur_off = 0;
++	}
+ 
+ 	if (register_files) {
+ 		sqe->flags = IOSQE_FIXED_FILE;
+@@ -517,9 +530,11 @@ static int get_file_size(struct file *f)
+ 			return -1;
+ 
+ 		f->max_blocks = bytes / bs;
++		f->max_size = bytes;
+ 		return 0;
+ 	} else if (S_ISREG(st.st_mode)) {
+ 		f->max_blocks = st.st_size / bs;
++		f->max_size = st.st_size;
+ 		return 0;
+ 	}
+ 
+@@ -586,6 +601,7 @@ static int submitter_init(struct submitter *s)
+ 	s->tid = gettid();
+ 	printf("submitter=%d, tid=%d\n", s->index, s->tid);
+ 
++	__init_rand64(&s->rand_state, pthread_self());
+ 	srand48(pthread_self());
+ 
+ 	for (i = 0; i < MAX_FDS; i++)
+@@ -1066,11 +1082,12 @@ static void usage(char *argv, int status)
+ 		" -N <bool> : Perform just no-op requests, default %d\n"
+ 		" -t <bool> : Track IO latencies, default %d\n"
+ 		" -T <int>  : TSC rate in HZ\n"
+-		" -a <bool> : Use legacy aio, default %d\n"
+-		" -r <int>  : Runtime in seconds, default %s\n",
++		" -r <int>  : Runtime in seconds, default %s\n"
++		" -R <bool> : Use random IO, default %d\n"
++		" -a <bool> : Use legacy aio, default %d\n",
+ 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
+ 		fixedbufs, dma_map, register_files, nthreads, !buffered, do_nop,
+-		stats, aio, runtime == 0 ? "unlimited" : runtime_str);
++		stats, runtime == 0 ? "unlimited" : runtime_str, aio, random_io);
+ 	exit(status);
+ }
+ 
+@@ -1130,7 +1147,7 @@ int main(int argc, char *argv[])
+ 	if (!do_nop && argc < 2)
+ 		usage(argv[0], 1);
+ 
+-	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:h?")) != -1) {
++	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:R:h?")) != -1) {
+ 		switch (opt) {
+ 		case 'a':
+ 			aio = !!atoi(optarg);
+@@ -1194,6 +1211,9 @@ int main(int argc, char *argv[])
+ 		case 'D':
+ 			dma_map = !!atoi(optarg);
+ 			break;
++		case 'R':
++			random_io = !!atoi(optarg);
++			break;
+ 		case 'h':
+ 		case '?':
+ 		default:
+diff --git a/thread_options.h b/thread_options.h
+index 6e1a2cdd..8f4c8a59 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -377,6 +377,7 @@ struct thread_options {
+ 	fio_fp64_t zrt;
+ 	fio_fp64_t zrf;
+ 
++	unsigned int log_entries;
+ 	unsigned int log_prio;
+ };
+ 
+@@ -683,6 +684,7 @@ struct thread_options_pack {
+ 	int32_t max_open_zones;
+ 	uint32_t ignore_zone_limits;
+ 
++	uint32_t log_entries;
+ 	uint32_t log_prio;
+ } __attribute__((packed));
+ 
