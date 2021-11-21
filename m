@@ -2,388 +2,378 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA4F0C433EF
-	for <fio@archiver.kernel.org>; Sat, 20 Nov 2021 13:00:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91970C433FE
+	for <fio@archiver.kernel.org>; Sun, 21 Nov 2021 13:00:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229794AbhKTNDM (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 20 Nov 2021 08:03:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48410 "EHLO
+        id S237911AbhKUNDM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 21 Nov 2021 08:03:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237427AbhKTNDL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 20 Nov 2021 08:03:11 -0500
+        with ESMTP id S237803AbhKUNDM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 21 Nov 2021 08:03:12 -0500
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 557CFC061574
-        for <fio@vger.kernel.org>; Sat, 20 Nov 2021 05:00:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794FEC061574
+        for <fio@vger.kernel.org>; Sun, 21 Nov 2021 05:00:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
         Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=qwr90Bw/PLWLgjEf3OC/IvIuLdi/KFDfr60RB3w+878=; b=i+N6MePp0p79QGJkwp4trtGFTo
-        bdWv2ftFgJ4owwWykY3VJ5Z5gYTnLfnU/fXb8Ol5Jq/NeAx2OAP4wgQVwsYJatj/cBBQdJJau23oF
-        MuuL/XohTqOr1jHo+CK+bnBs6bJc/021BmCzqyWUdl0u9nKKslUkgyCrLS3Fv1FEIP1hSywxLAxGm
-        lThe6sqwqh4gMl2rcy8MsghPJmj8pkO4ZHlW2jlhSyvr3XdI6rPbkc6wzWbNQowccIccKdA7bH1zq
-        K1I+goTgzyX0GzY5MhvEPoVet2FyZFcoUVKttqEwEVjmlHhJGWD9P6CI1MV+EDk03JA7cSF52YdIh
-        T2yJLScQ==;
+        bh=lA6GY6Ip9mPDvPqGcyXcUDvLMXgT09HeSlRiuczmKN0=; b=NDctqt1zirZBd2CQb86+8Suo8V
+        pGVo+7cI7Jx/vrD7LvlBNhLb/XXStwXx8Er40Cz9iYIldjB5dxdGWv9sMVf25hogrpGnxDGFvDuxx
+        ebF7jAvvp8KxoRO9tr2/tOuRbNGRjpwU7eLwE+R4L42jYnwlCaAQIYg6s3Ir9XAdHM+dv18BbFcuV
+        58uFdugVJsMzYHDmNmN0QK8zwAJdCuzPeTbedYVYT2NIkqFLkJEmvHIDRTvCucx4jWNl3o/SPOLp0
+        CaEmC9eH9lFAEbr3qQpoomsNyg8GS25AKFajv+/iRJMsRu1eLbrxSybKBp8Ps2VYiHLVL79//xjah
+        wqXCV62g==;
 Received: from [65.144.74.35] (helo=kernel.dk)
         by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1moPyP-00AcV7-Kd
-        for fio@vger.kernel.org; Sat, 20 Nov 2021 13:00:06 +0000
+        id 1momRw-00C4GK-G8
+        for fio@vger.kernel.org; Sun, 21 Nov 2021 13:00:05 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id A069D1BC0174; Sat, 20 Nov 2021 06:00:01 -0700 (MST)
+        id 6DDE71BC0145; Sun, 21 Nov 2021 06:00:02 -0700 (MST)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211120130001.A069D1BC0174@kernel.dk>
-Date:   Sat, 20 Nov 2021 06:00:01 -0700 (MST)
+Message-Id: <20211121130002.6DDE71BC0145@kernel.dk>
+Date:   Sun, 21 Nov 2021 06:00:02 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 5711325cbb37d10c21a6975d1f1ebea11799c05e:
+The following changes since commit beda9d8d9e9148ff34eaa0eeb0cde19a36f47494:
 
-  Makefile: Fix android compilation (2021-11-17 16:14:27 -0700)
+  t/io_uring: add -R option for random/sequential IO (2021-11-19 10:44:15 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to beda9d8d9e9148ff34eaa0eeb0cde19a36f47494:
+for you to fetch changes up to 9f51d89c683d70cd8ab23ba09ec6e628a548af5a:
 
-  t/io_uring: add -R option for random/sequential IO (2021-11-19 10:44:15 -0700)
+  Sync io_uring header with the kernel (2021-11-20 07:31:20 -0700)
 
 ----------------------------------------------------------------
-Damien Le Moal (1):
-      fio: Introduce the log_entries option
-
 Jens Axboe (2):
-      t/io_uring: use internal random generator
-      t/io_uring: add -R option for random/sequential IO
+      io_uring: clamp CQ size to SQ size
+      Sync io_uring header with the kernel
 
- HOWTO            | 12 ++++++++++++
- Makefile         |  3 +--
- cconv.c          |  2 ++
- fio.1            | 11 +++++++++++
- lib/rand.c       |  2 +-
- lib/rand.h       |  1 +
- options.c        | 12 ++++++++++++
- server.h         |  2 +-
- stat.c           | 12 +++++-------
- t/io_uring.c     | 34 +++++++++++++++++++++++++++-------
- thread_options.h |  2 ++
- 11 files changed, 75 insertions(+), 18 deletions(-)
+ engines/io_uring.c  |   7 ++
+ os/linux/io_uring.h | 186 ++++++++++++++++++++++++++++++++++++++++++----------
+ t/io_uring.c        |   7 ++
+ 3 files changed, 167 insertions(+), 33 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO b/HOWTO
-index 196bca6c..a3b3acfe 100644
---- a/HOWTO
-+++ b/HOWTO
-@@ -3537,6 +3537,18 @@ Measurements and reporting
- 	:option:`write_bw_log` for details about the filename format and `Log
- 	File Formats`_ for how data is structured within the file.
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 8b8f35f1..00ae3482 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -692,6 +692,13 @@ static int fio_ioring_queue_init(struct thread_data *td)
+ 		}
+ 	}
  
-+.. option:: log_entries=int
++	/*
++	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
++	 * than that.
++	 */
++	p.flags |= IORING_SETUP_CQSIZE;
++	p.cq_entries = depth;
 +
-+	By default, fio will log an entry in the iops, latency, or bw log for
-+	every I/O that completes. The initial number of I/O log entries is 1024.
-+	When the log entries are all used, new log entries are dynamically
-+	allocated.  This dynamic log entry allocation may negatively impact
-+	time-related statistics such as I/O tail latencies (e.g. 99.9th percentile
-+	completion latency). This option allows specifying a larger initial
-+	number of log entries to avoid run-time allocations of new log entries,
-+	resulting in more precise time-related I/O statistics.
-+	Also see :option:`log_avg_msec`. Defaults to 1024.
-+
- .. option:: log_avg_msec=int
+ 	ret = syscall(__NR_io_uring_setup, depth, &p);
+ 	if (ret < 0)
+ 		return ret;
+diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
+index d39b45fd..c45b5e9a 100644
+--- a/os/linux/io_uring.h
++++ b/os/linux/io_uring.h
+@@ -11,10 +11,6 @@
+ #include <linux/fs.h>
+ #include <linux/types.h>
  
- 	By default, fio will log an entry in the iops, latency, or bw log for every
-diff --git a/Makefile b/Makefile
-index 04c1e0a7..5d17bcab 100644
---- a/Makefile
-+++ b/Makefile
-@@ -375,8 +375,7 @@ T_VS_PROGS = t/fio-verify-state
- T_PIPE_ASYNC_OBJS = t/read-to-pipe-async.o
- T_PIPE_ASYNC_PROGS = t/read-to-pipe-async
- 
--T_IOU_RING_OBJS = t/io_uring.o
--T_IOU_RING_OBJS += t/arch.o
-+T_IOU_RING_OBJS = t/io_uring.o lib/rand.o lib/pattern.o lib/strntol.o
- T_IOU_RING_PROGS = t/io_uring
- 
- T_MEMLOCK_OBJS = t/memlock.o
-diff --git a/cconv.c b/cconv.c
-index 2104308c..4f8d27eb 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -187,6 +187,7 @@ void convert_thread_options_to_cpu(struct thread_options *o,
- 	o->rand_repeatable = le32_to_cpu(top->rand_repeatable);
- 	o->allrand_repeatable = le32_to_cpu(top->allrand_repeatable);
- 	o->rand_seed = le64_to_cpu(top->rand_seed);
-+	o->log_entries = le32_to_cpu(top->log_entries);
- 	o->log_avg_msec = le32_to_cpu(top->log_avg_msec);
- 	o->log_hist_msec = le32_to_cpu(top->log_hist_msec);
- 	o->log_hist_coarseness = le32_to_cpu(top->log_hist_coarseness);
-@@ -416,6 +417,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->rand_repeatable = cpu_to_le32(o->rand_repeatable);
- 	top->allrand_repeatable = cpu_to_le32(o->allrand_repeatable);
- 	top->rand_seed = __cpu_to_le64(o->rand_seed);
-+	top->log_entries = cpu_to_le32(o->log_entries);
- 	top->log_avg_msec = cpu_to_le32(o->log_avg_msec);
- 	top->log_max = cpu_to_le32(o->log_max);
- 	top->log_offset = cpu_to_le32(o->log_offset);
-diff --git a/fio.1 b/fio.1
-index e3c3feae..a6469541 100644
---- a/fio.1
-+++ b/fio.1
-@@ -3243,6 +3243,17 @@ logging (see \fBlog_avg_msec\fR) has been enabled. See
- \fBwrite_bw_log\fR for details about the filename format and \fBLOG
- FILE FORMATS\fR for how data is structured within the file.
- .TP
-+.BI log_entries \fR=\fPint
-+By default, fio will log an entry in the iops, latency, or bw log for
-+every I/O that completes. The initial number of I/O log entries is 1024.
-+When the log entries are all used, new log entries are dynamically
-+allocated.  This dynamic log entry allocation may negatively impact
-+time-related statistics such as I/O tail latencies (e.g. 99.9th percentile
-+completion latency). This option allows specifying a larger initial
-+number of log entries to avoid run-time allocation of new log entries,
-+resulting in more precise time-related I/O statistics.
-+Also see \fBlog_avg_msec\fR as well. Defaults to 1024.
-+.TP
- .BI log_avg_msec \fR=\fPint
- By default, fio will log an entry in the iops, latency, or bw log for every
- I/O that completes. When writing to the disk log, that can quickly grow to a
-diff --git a/lib/rand.c b/lib/rand.c
-index e74da609..6e893e80 100644
---- a/lib/rand.c
-+++ b/lib/rand.c
-@@ -59,7 +59,7 @@ static void __init_rand32(struct taus88_state *state, unsigned int seed)
- 		__rand32(state);
- }
- 
--static void __init_rand64(struct taus258_state *state, uint64_t seed)
-+void __init_rand64(struct taus258_state *state, uint64_t seed)
- {
- 	int cranks = 6;
- 
-diff --git a/lib/rand.h b/lib/rand.h
-index a8060045..2b4be788 100644
---- a/lib/rand.h
-+++ b/lib/rand.h
-@@ -162,6 +162,7 @@ static inline uint64_t __get_next_seed(struct frand_state *fs)
- 
- extern void init_rand(struct frand_state *, bool);
- extern void init_rand_seed(struct frand_state *, uint64_t seed, bool);
-+void __init_rand64(struct taus258_state *state, uint64_t seed);
- extern void __fill_random_buf(void *buf, unsigned int len, uint64_t seed);
- extern uint64_t fill_random_buf(struct frand_state *, void *buf, unsigned int len);
- extern void __fill_random_buf_percentage(uint64_t, void *, unsigned int, unsigned int, unsigned int, char *, unsigned int);
-diff --git a/options.c b/options.c
-index 460cf4ff..102bcf56 100644
---- a/options.c
-+++ b/options.c
-@@ -4244,6 +4244,18 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_LOG,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	= "log_entries",
-+		.lname	= "Log entries",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct thread_options, log_entries),
-+		.help	= "Initial number of entries in a job IO log",
-+		.def	= __fio_stringify(DEF_LOG_ENTRIES),
-+		.minval	= DEF_LOG_ENTRIES,
-+		.maxval	= MAX_LOG_ENTRIES,
-+		.category = FIO_OPT_C_LOG,
-+		.group	= FIO_OPT_G_INVALID,
-+	},
- 	{
- 		.name	= "log_avg_msec",
- 		.lname	= "Log averaging (msec)",
-diff --git a/server.h b/server.h
-index 44b8da12..25b6bbdc 100644
---- a/server.h
-+++ b/server.h
-@@ -48,7 +48,7 @@ struct fio_net_cmd_reply {
+-#ifdef __cplusplus
+-extern "C" {
+-#endif
+-
+ /*
+  * IO submission data structure (Submission Queue Entry)
+  */
+@@ -46,23 +42,25 @@ struct io_uring_sqe {
+ 		__u32		statx_flags;
+ 		__u32		fadvise_advice;
+ 		__u32		splice_flags;
++		__u32		rename_flags;
++		__u32		unlink_flags;
++		__u32		hardlink_flags;
+ 	};
+ 	__u64	user_data;	/* data to be passed back at completion time */
++	/* pack this to avoid bogus arm OABI complaints */
+ 	union {
+-		struct {
+-			/* pack this to avoid bogus arm OABI complaints */
+-			union {
+-				/* index into fixed buffers, if used */
+-				__u16	buf_index;
+-				/* for grouped buffer selection */
+-				__u16	buf_group;
+-			} __attribute__((packed));
+-			/* personality to use, if used */
+-			__u16	personality;
+-			__s32	splice_fd_in;
+-		};
+-		__u64	__pad2[3];
++		/* index into fixed buffers, if used */
++		__u16	buf_index;
++		/* for grouped buffer selection */
++		__u16	buf_group;
++	} __attribute__((packed));
++	/* personality to use, if used */
++	__u16	personality;
++	union {
++		__s32	splice_fd_in;
++		__u32	file_index;
+ 	};
++	__u64	__pad2[2];
  };
  
  enum {
--	FIO_SERVER_VER			= 94,
-+	FIO_SERVER_VER			= 95,
+@@ -99,6 +97,7 @@ enum {
+ #define IORING_SETUP_CQSIZE	(1U << 3)	/* app defines CQ size */
+ #define IORING_SETUP_CLAMP	(1U << 4)	/* clamp SQ/CQ ring sizes */
+ #define IORING_SETUP_ATTACH_WQ	(1U << 5)	/* attach to existing wq */
++#define IORING_SETUP_R_DISABLED	(1U << 6)	/* start with ring disabled */
  
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/stat.c b/stat.c
-index cd35b114..e0dc99b6 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2688,27 +2688,25 @@ static inline void add_stat_sample(struct io_stat *is, unsigned long long data)
+ enum {
+ 	IORING_OP_NOP,
+@@ -135,6 +134,12 @@ enum {
+ 	IORING_OP_PROVIDE_BUFFERS,
+ 	IORING_OP_REMOVE_BUFFERS,
+ 	IORING_OP_TEE,
++	IORING_OP_SHUTDOWN,
++	IORING_OP_RENAMEAT,
++	IORING_OP_UNLINKAT,
++	IORING_OP_MKDIRAT,
++	IORING_OP_SYMLINKAT,
++	IORING_OP_LINKAT,
+ 
+ 	/* this goes last, obviously */
+ 	IORING_OP_LAST,
+@@ -148,14 +153,35 @@ enum {
+ /*
+  * sqe->timeout_flags
   */
- static struct io_logs *get_new_log(struct io_log *iolog)
- {
--	size_t new_size, new_samples;
-+	size_t new_samples;
- 	struct io_logs *cur_log;
- 
- 	/*
- 	 * Cap the size at MAX_LOG_ENTRIES, so we don't keep doubling
- 	 * forever
- 	 */
--	if (!iolog->cur_log_max)
--		new_samples = DEF_LOG_ENTRIES;
--	else {
-+	if (!iolog->cur_log_max) {
-+		new_samples = iolog->td->o.log_entries;
-+	} else {
- 		new_samples = iolog->cur_log_max * 2;
- 		if (new_samples > MAX_LOG_ENTRIES)
- 			new_samples = MAX_LOG_ENTRIES;
- 	}
- 
--	new_size = new_samples * log_entry_sz(iolog);
+-#define IORING_TIMEOUT_ABS	(1U << 0)
 -
- 	cur_log = smalloc(sizeof(*cur_log));
- 	if (cur_log) {
- 		INIT_FLIST_HEAD(&cur_log->list);
--		cur_log->log = malloc(new_size);
-+		cur_log->log = calloc(new_samples, log_entry_sz(iolog));
- 		if (cur_log->log) {
- 			cur_log->nr_samples = 0;
- 			cur_log->max_samples = new_samples;
-diff --git a/t/io_uring.c b/t/io_uring.c
-index f758a6d9..b79822d7 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -28,6 +28,7 @@
- #include "../arch/arch.h"
- #include "../lib/types.h"
- #include "../lib/roundup.h"
-+#include "../lib/rand.h"
- #include "../minmax.h"
- #include "../os/linux/io_uring.h"
++#define IORING_TIMEOUT_ABS		(1U << 0)
++#define IORING_TIMEOUT_UPDATE		(1U << 1)
++#define IORING_TIMEOUT_BOOTTIME		(1U << 2)
++#define IORING_TIMEOUT_REALTIME		(1U << 3)
++#define IORING_LINK_TIMEOUT_UPDATE	(1U << 4)
++#define IORING_TIMEOUT_ETIME_SUCCESS	(1U << 5)
++#define IORING_TIMEOUT_CLOCK_MASK	(IORING_TIMEOUT_BOOTTIME | IORING_TIMEOUT_REALTIME)
++#define IORING_TIMEOUT_UPDATE_MASK	(IORING_TIMEOUT_UPDATE | IORING_LINK_TIMEOUT_UPDATE)
+ /*
+  * sqe->splice_flags
+  * extends splice(2) flags
+  */
+ #define SPLICE_F_FD_IN_FIXED	(1U << 31) /* the last bit of __u32 */
  
-@@ -59,6 +60,8 @@ static unsigned sq_ring_mask, cq_ring_mask;
- 
- struct file {
- 	unsigned long max_blocks;
-+	unsigned long max_size;
-+	unsigned long cur_off;
- 	unsigned pending_ios;
- 	int real_fd;
- 	int fixed_fd;
-@@ -86,6 +89,8 @@ struct submitter {
- 
- 	__s32 *fds;
- 
-+	struct taus258_state rand_state;
++/*
++ * POLL_ADD flags. Note that since sqe->poll_events is the flag space, the
++ * command flags for POLL_ADD are stored in sqe->len.
++ *
++ * IORING_POLL_ADD_MULTI	Multishot poll. Sets IORING_CQE_F_MORE if
++ *				the poll handler will continue to report
++ *				CQEs on behalf of the same SQE.
++ *
++ * IORING_POLL_UPDATE		Update existing poll request, matching
++ *				sqe->addr as the old user_data field.
++ */
++#define IORING_POLL_ADD_MULTI	(1U << 0)
++#define IORING_POLL_UPDATE_EVENTS	(1U << 1)
++#define IORING_POLL_UPDATE_USER_DATA	(1U << 2)
 +
- 	unsigned long *clock_batch;
- 	int clock_index;
- 	unsigned long *plat;
-@@ -120,7 +125,8 @@ static int do_nop = 0;		/* no-op SQ ring commands */
- static int nthreads = 1;
- static int stats = 0;		/* generate IO stats */
- static int aio = 0;		/* use libaio */
--static int runtime = 0;	/* runtime */
-+static int runtime = 0;		/* runtime */
-+static int random_io = 1;	/* random or sequential IO */
+ /*
+  * IO completion data structure (Completion Queue Entry)
+  */
+@@ -169,8 +195,10 @@ struct io_uring_cqe {
+  * cqe->flags
+  *
+  * IORING_CQE_F_BUFFER	If set, the upper 16 bits are the buffer ID
++ * IORING_CQE_F_MORE	If set, parent SQE will generate more CQE entries
+  */
+ #define IORING_CQE_F_BUFFER		(1U << 0)
++#define IORING_CQE_F_MORE		(1U << 1)
  
- static unsigned long tsc_rate;
+ enum {
+ 	IORING_CQE_BUFFER_SHIFT		= 16,
+@@ -228,6 +256,8 @@ struct io_cqring_offsets {
+  */
+ #define IORING_ENTER_GETEVENTS	(1U << 0)
+ #define IORING_ENTER_SQ_WAKEUP	(1U << 1)
++#define IORING_ENTER_SQ_WAIT	(1U << 2)
++#define IORING_ENTER_EXT_ARG	(1U << 3)
  
-@@ -448,8 +454,15 @@ static void init_io(struct submitter *s, unsigned index)
- 	}
- 	f->pending_ios++;
+ /*
+  * Passed in for io_uring_setup(2). Copied back with updated info on success
+@@ -255,28 +285,85 @@ struct io_uring_params {
+ #define IORING_FEAT_CUR_PERSONALITY	(1U << 4)
+ #define IORING_FEAT_FAST_POLL		(1U << 5)
+ #define IORING_FEAT_POLL_32BITS 	(1U << 6)
++#define IORING_FEAT_SQPOLL_NONFIXED	(1U << 7)
++#define IORING_FEAT_EXT_ARG		(1U << 8)
++#define IORING_FEAT_NATIVE_WORKERS	(1U << 9)
++#define IORING_FEAT_RSRC_TAGS		(1U << 10)
  
--	r = lrand48();
--	offset = (r % (f->max_blocks - 1)) * bs;
-+	if (random_io) {
-+		r = __rand64(&s->rand_state);
-+		offset = (r % (f->max_blocks - 1)) * bs;
-+	} else {
-+		offset = f->cur_off;
-+		f->cur_off += bs;
-+		if (f->cur_off + bs > f->max_size)
-+			f->cur_off = 0;
-+	}
+ /*
+  * io_uring_register(2) opcodes and arguments
+  */
+-#define IORING_REGISTER_BUFFERS		0
+-#define IORING_UNREGISTER_BUFFERS	1
+-#define IORING_REGISTER_FILES		2
+-#define IORING_UNREGISTER_FILES		3
+-#define IORING_REGISTER_EVENTFD		4
+-#define IORING_UNREGISTER_EVENTFD	5
+-#define IORING_REGISTER_FILES_UPDATE	6
+-#define IORING_REGISTER_EVENTFD_ASYNC	7
+-#define IORING_REGISTER_PROBE		8
+-#define IORING_REGISTER_PERSONALITY	9
+-#define IORING_UNREGISTER_PERSONALITY	10
++enum {
++	IORING_REGISTER_BUFFERS			= 0,
++	IORING_UNREGISTER_BUFFERS		= 1,
++	IORING_REGISTER_FILES			= 2,
++	IORING_UNREGISTER_FILES			= 3,
++	IORING_REGISTER_EVENTFD			= 4,
++	IORING_UNREGISTER_EVENTFD		= 5,
++	IORING_REGISTER_FILES_UPDATE		= 6,
++	IORING_REGISTER_EVENTFD_ASYNC		= 7,
++	IORING_REGISTER_PROBE			= 8,
++	IORING_REGISTER_PERSONALITY		= 9,
++	IORING_UNREGISTER_PERSONALITY		= 10,
++	IORING_REGISTER_RESTRICTIONS		= 11,
++	IORING_REGISTER_ENABLE_RINGS		= 12,
++
++	/* extended with tagging */
++	IORING_REGISTER_FILES2			= 13,
++	IORING_REGISTER_FILES_UPDATE2		= 14,
++	IORING_REGISTER_BUFFERS2		= 15,
++	IORING_REGISTER_BUFFERS_UPDATE		= 16,
++
++	/* set/clear io-wq thread affinities */
++	IORING_REGISTER_IOWQ_AFF		= 17,
++	IORING_UNREGISTER_IOWQ_AFF		= 18,
++
++	/* set/get max number of io-wq workers */
++	IORING_REGISTER_IOWQ_MAX_WORKERS	= 19,
  
- 	if (register_files) {
- 		sqe->flags = IOSQE_FIXED_FILE;
-@@ -517,9 +530,11 @@ static int get_file_size(struct file *f)
- 			return -1;
- 
- 		f->max_blocks = bytes / bs;
-+		f->max_size = bytes;
- 		return 0;
- 	} else if (S_ISREG(st.st_mode)) {
- 		f->max_blocks = st.st_size / bs;
-+		f->max_size = st.st_size;
- 		return 0;
- 	}
- 
-@@ -586,6 +601,7 @@ static int submitter_init(struct submitter *s)
- 	s->tid = gettid();
- 	printf("submitter=%d, tid=%d\n", s->index, s->tid);
- 
-+	__init_rand64(&s->rand_state, pthread_self());
- 	srand48(pthread_self());
- 
- 	for (i = 0; i < MAX_FDS; i++)
-@@ -1066,11 +1082,12 @@ static void usage(char *argv, int status)
- 		" -N <bool> : Perform just no-op requests, default %d\n"
- 		" -t <bool> : Track IO latencies, default %d\n"
- 		" -T <int>  : TSC rate in HZ\n"
--		" -a <bool> : Use legacy aio, default %d\n"
--		" -r <int>  : Runtime in seconds, default %s\n",
-+		" -r <int>  : Runtime in seconds, default %s\n"
-+		" -R <bool> : Use random IO, default %d\n"
-+		" -a <bool> : Use legacy aio, default %d\n",
- 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
- 		fixedbufs, dma_map, register_files, nthreads, !buffered, do_nop,
--		stats, aio, runtime == 0 ? "unlimited" : runtime_str);
-+		stats, runtime == 0 ? "unlimited" : runtime_str, aio, random_io);
- 	exit(status);
- }
- 
-@@ -1130,7 +1147,7 @@ int main(int argc, char *argv[])
- 	if (!do_nop && argc < 2)
- 		usage(argv[0], 1);
- 
--	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:h?")) != -1) {
-+	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:R:h?")) != -1) {
- 		switch (opt) {
- 		case 'a':
- 			aio = !!atoi(optarg);
-@@ -1194,6 +1211,9 @@ int main(int argc, char *argv[])
- 		case 'D':
- 			dma_map = !!atoi(optarg);
- 			break;
-+		case 'R':
-+			random_io = !!atoi(optarg);
-+			break;
- 		case 'h':
- 		case '?':
- 		default:
-diff --git a/thread_options.h b/thread_options.h
-index 6e1a2cdd..8f4c8a59 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -377,6 +377,7 @@ struct thread_options {
- 	fio_fp64_t zrt;
- 	fio_fp64_t zrf;
- 
-+	unsigned int log_entries;
- 	unsigned int log_prio;
++	/* this goes last */
++	IORING_REGISTER_LAST
++};
++
++/* io-wq worker categories */
++enum {
++	IO_WQ_BOUND,
++	IO_WQ_UNBOUND,
++};
++
++/* deprecated, see struct io_uring_rsrc_update */
+ struct io_uring_files_update {
+ 	__u32 offset;
+ 	__u32 resv;
+ 	__aligned_u64 /* __s32 * */ fds;
  };
  
-@@ -683,6 +684,7 @@ struct thread_options_pack {
- 	int32_t max_open_zones;
- 	uint32_t ignore_zone_limits;
++struct io_uring_rsrc_register {
++	__u32 nr;
++	__u32 resv;
++	__u64 resv2;
++	__aligned_u64 data;
++	__aligned_u64 tags;
++};
++
++struct io_uring_rsrc_update {
++	__u32 offset;
++	__u32 resv;
++	__aligned_u64 data;
++};
++
++struct io_uring_rsrc_update2 {
++	__u32 offset;
++	__u32 resv;
++	__aligned_u64 data;
++	__aligned_u64 tags;
++	__u32 nr;
++	__u32 resv2;
++};
++
++/* Skip updating fd indexes set to this value in the fd table */
++#define IORING_REGISTER_FILES_SKIP	(-2)
++
+ #define IO_URING_OP_SUPPORTED	(1U << 0)
  
-+	uint32_t log_entries;
- 	uint32_t log_prio;
- } __attribute__((packed));
+ struct io_uring_probe_op {
+@@ -294,8 +381,41 @@ struct io_uring_probe {
+ 	struct io_uring_probe_op ops[0];
+ };
+ 
+-#ifdef __cplusplus
+-}
+-#endif
++struct io_uring_restriction {
++	__u16 opcode;
++	union {
++		__u8 register_op; /* IORING_RESTRICTION_REGISTER_OP */
++		__u8 sqe_op;      /* IORING_RESTRICTION_SQE_OP */
++		__u8 sqe_flags;   /* IORING_RESTRICTION_SQE_FLAGS_* */
++	};
++	__u8 resv;
++	__u32 resv2[3];
++};
++
++/*
++ * io_uring_restriction->opcode values
++ */
++enum {
++	/* Allow an io_uring_register(2) opcode */
++	IORING_RESTRICTION_REGISTER_OP		= 0,
++
++	/* Allow an sqe opcode */
++	IORING_RESTRICTION_SQE_OP		= 1,
++
++	/* Allow sqe flags */
++	IORING_RESTRICTION_SQE_FLAGS_ALLOWED	= 2,
++
++	/* Require sqe flags (these flags must be set on each submission) */
++	IORING_RESTRICTION_SQE_FLAGS_REQUIRED	= 3,
++
++	IORING_RESTRICTION_LAST
++};
++
++struct io_uring_getevents_arg {
++	__u64	sigmask;
++	__u32	sigmask_sz;
++	__u32	pad;
++	__u64	ts;
++};
+ 
+ #endif
+diff --git a/t/io_uring.c b/t/io_uring.c
+index b79822d7..7bf215c7 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -384,6 +384,13 @@ static int io_uring_register_files(struct submitter *s)
+ 
+ static int io_uring_setup(unsigned entries, struct io_uring_params *p)
+ {
++	/*
++	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
++	 * than that.
++	 */
++	p->flags |= IORING_SETUP_CQSIZE;
++	p->cq_entries = entries;
++
+ 	return syscall(__NR_io_uring_setup, entries, p);
+ }
  
