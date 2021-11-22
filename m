@@ -2,378 +2,595 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91970C433FE
-	for <fio@archiver.kernel.org>; Sun, 21 Nov 2021 13:00:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC725C433EF
+	for <fio@archiver.kernel.org>; Mon, 22 Nov 2021 13:00:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237911AbhKUNDM (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 21 Nov 2021 08:03:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47688 "EHLO
+        id S230322AbhKVNDN (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 22 Nov 2021 08:03:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237803AbhKUNDM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 21 Nov 2021 08:03:12 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 794FEC061574
-        for <fio@vger.kernel.org>; Sun, 21 Nov 2021 05:00:07 -0800 (PST)
+        with ESMTP id S230406AbhKVNDM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 22 Nov 2021 08:03:12 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8DAC061574
+        for <fio@vger.kernel.org>; Mon, 22 Nov 2021 05:00:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=lA6GY6Ip9mPDvPqGcyXcUDvLMXgT09HeSlRiuczmKN0=; b=NDctqt1zirZBd2CQb86+8Suo8V
-        pGVo+7cI7Jx/vrD7LvlBNhLb/XXStwXx8Er40Cz9iYIldjB5dxdGWv9sMVf25hogrpGnxDGFvDuxx
-        ebF7jAvvp8KxoRO9tr2/tOuRbNGRjpwU7eLwE+R4L42jYnwlCaAQIYg6s3Ir9XAdHM+dv18BbFcuV
-        58uFdugVJsMzYHDmNmN0QK8zwAJdCuzPeTbedYVYT2NIkqFLkJEmvHIDRTvCucx4jWNl3o/SPOLp0
-        CaEmC9eH9lFAEbr3qQpoomsNyg8GS25AKFajv+/iRJMsRu1eLbrxSybKBp8Ps2VYiHLVL79//xjah
-        wqXCV62g==;
+        bh=7RIISr9Dn37+wUdXP5Bc6GJYkYKAV1HAyCEJQ5KQ7qc=; b=EaQUQPMMMTfSJgRjisWGhbHOZh
+        yoQVTI0n9SriqHzBh0MxpeygVoy8LlcZzEOdOHckREOXnPPh+FjLBweXbpCpjKx9Pmx5hqOTzrqez
+        vYQTnIoxgyE6CZs7t0TzR05M2ozNABINZWpH6rYkKeTaayAGAZFd61kXeaf8/oNK7rQFmxfdBb3iR
+        VzLTIB8XHZYBX54L+PtebTp2WMwBMCGr4xzS/vGwIsgG8oEMX4m9fyHxprbEmnRb8rUU5s50ONNKd
+        mjDnqL7GGI8FF26vGpfVrValdm8+Z9XTvGyAx7dfdjnJmcczwunzhns011hYDbSmX9MiYqNA6tDe1
+        vmpCk77w==;
 Received: from [65.144.74.35] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1momRw-00C4GK-G8
-        for fio@vger.kernel.org; Sun, 21 Nov 2021 13:00:05 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1mp8vU-00HUdg-6y
+        for fio@vger.kernel.org; Mon, 22 Nov 2021 13:00:04 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id 6DDE71BC0145; Sun, 21 Nov 2021 06:00:02 -0700 (MST)
+        id AC0C61BC0156; Mon, 22 Nov 2021 06:00:01 -0700 (MST)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211121130002.6DDE71BC0145@kernel.dk>
-Date:   Sun, 21 Nov 2021 06:00:02 -0700 (MST)
+Message-Id: <20211122130001.AC0C61BC0156@kernel.dk>
+Date:   Mon, 22 Nov 2021 06:00:01 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit beda9d8d9e9148ff34eaa0eeb0cde19a36f47494:
+The following changes since commit 9f51d89c683d70cd8ab23ba09ec6e628a548af5a:
 
-  t/io_uring: add -R option for random/sequential IO (2021-11-19 10:44:15 -0700)
+  Sync io_uring header with the kernel (2021-11-20 07:31:20 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 9f51d89c683d70cd8ab23ba09ec6e628a548af5a:
+for you to fetch changes up to 1d08bfb018e600cc47f122fb78c02bf74b84dee8:
 
-  Sync io_uring header with the kernel (2021-11-20 07:31:20 -0700)
+  t/dedupe: style fixups (2021-11-21 06:51:11 -0700)
 
 ----------------------------------------------------------------
-Jens Axboe (2):
-      io_uring: clamp CQ size to SQ size
-      Sync io_uring header with the kernel
+Bar David (2):
+      Mixed dedup and compression
+      fio-dedup: adjusted the binary to support compression
 
- engines/io_uring.c  |   7 ++
- os/linux/io_uring.h | 186 ++++++++++++++++++++++++++++++++++++++++++----------
- t/io_uring.c        |   7 ++
- 3 files changed, 167 insertions(+), 33 deletions(-)
+Jens Axboe (3):
+      Merge branch 'dedupe_and_compression' of https://github.com/bardavid/fio
+      t/io_uring: fix 32-bit compile warnings
+      t/dedupe: style fixups
+
+ DEDUPE-TODO  |   3 --
+ dedupe.c     |  12 ++++-
+ io_u.c       |  29 ++++++-----
+ t/dedupe.c   | 167 +++++++++++++++++++++++++++++++++++++++++++++++------------
+ t/io_uring.c |   4 +-
+ 5 files changed, 161 insertions(+), 54 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 8b8f35f1..00ae3482 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -692,6 +692,13 @@ static int fio_ioring_queue_init(struct thread_data *td)
+diff --git a/DEDUPE-TODO b/DEDUPE-TODO
+index 1f3ee9da..4b0bfd1d 100644
+--- a/DEDUPE-TODO
++++ b/DEDUPE-TODO
+@@ -1,6 +1,3 @@
+-- Mixed buffers of dedupe-able and compressible data.
+-  Major usecase in performance benchmarking of storage subsystems.
+-
+ - Shifted dedup-able data.
+   Allow for dedup buffer generation to shift contents by random number
+   of sectors (fill the gaps with uncompressible data). Some storage
+diff --git a/dedupe.c b/dedupe.c
+index 043a376c..fd116dfb 100644
+--- a/dedupe.c
++++ b/dedupe.c
+@@ -2,12 +2,14 @@
+ 
+ int init_dedupe_working_set_seeds(struct thread_data *td)
+ {
+-	unsigned long long i;
++	unsigned long long i, j, num_seed_advancements;
+ 	struct frand_state dedupe_working_set_state = {0};
+ 
+ 	if (!td->o.dedupe_percentage || !(td->o.dedupe_mode == DEDUPE_MODE_WORKING_SET))
+ 		return 0;
+ 
++	num_seed_advancements = td->o.min_bs[DDIR_WRITE] /
++		min_not_zero(td->o.min_bs[DDIR_WRITE], (unsigned long long) td->o.compress_chunk);
+ 	/*
+ 	 * The dedupe working set keeps seeds of unique data (generated by buf_state).
+ 	 * Dedupe-ed pages will be generated using those seeds.
+@@ -21,7 +23,13 @@ int init_dedupe_working_set_seeds(struct thread_data *td)
+ 	frand_copy(&dedupe_working_set_state, &td->buf_state);
+ 	for (i = 0; i < td->num_unique_pages; i++) {
+ 		frand_copy(&td->dedupe_working_set_states[i], &dedupe_working_set_state);
+-		__get_next_seed(&dedupe_working_set_state);
++		/*
++		 * When compression is used the seed is advanced multiple times to
++		 * generate the buffer. We want to regenerate the same buffer when
++		 * deduping against this page
++		 */
++		for (j = 0; j < num_seed_advancements; j++)
++			__get_next_seed(&dedupe_working_set_state);
+ 	}
+ 
+ 	return 0;
+diff --git a/io_u.c b/io_u.c
+index 586a4bef..3c72d63d 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -2230,27 +2230,30 @@ void fill_io_buffer(struct thread_data *td, void *buf, unsigned long long min_wr
+ 
+ 	if (o->compress_percentage || o->dedupe_percentage) {
+ 		unsigned int perc = td->o.compress_percentage;
+-		struct frand_state *rs;
++		struct frand_state *rs = NULL;
+ 		unsigned long long left = max_bs;
+ 		unsigned long long this_write;
+ 
+ 		do {
+-			rs = get_buf_state(td);
++			/*
++			 * Buffers are either entirely dedupe-able or not.
++			 * If we choose to dedup, the buffer should undergo
++			 * the same manipulation as the original write. Which
++			 * means we should retrack the steps we took for compression
++			 * as well.
++			 */
++			if (!rs)
++				rs = get_buf_state(td);
+ 
+ 			min_write = min(min_write, left);
+ 
+-			if (perc) {
+-				this_write = min_not_zero(min_write,
+-							(unsigned long long) td->o.compress_chunk);
++			this_write = min_not_zero(min_write,
++						(unsigned long long) td->o.compress_chunk);
+ 
+-				fill_random_buf_percentage(rs, buf, perc,
+-					this_write, this_write,
+-					o->buffer_pattern,
+-					o->buffer_pattern_bytes);
+-			} else {
+-				fill_random_buf(rs, buf, min_write);
+-				this_write = min_write;
+-			}
++			fill_random_buf_percentage(rs, buf, perc,
++				this_write, this_write,
++				o->buffer_pattern,
++				o->buffer_pattern_bytes);
+ 
+ 			buf += this_write;
+ 			left -= this_write;
+diff --git a/t/dedupe.c b/t/dedupe.c
+index 8b659c76..109ea1af 100644
+--- a/t/dedupe.c
++++ b/t/dedupe.c
+@@ -24,19 +24,25 @@
+ 
+ #include "../lib/bloom.h"
+ #include "debug.h"
++#include "zlib.h"
++
++struct zlib_ctrl {
++	z_stream stream;
++	unsigned char *buf_in;
++	unsigned char *buf_out;
++};
+ 
+ struct worker_thread {
++	struct zlib_ctrl zc;
+ 	pthread_t thread;
+-
+-	volatile int done;
+-
+-	int fd;
+ 	uint64_t cur_offset;
+ 	uint64_t size;
+-
++	unsigned long long unique_capacity;
+ 	unsigned long items;
+ 	unsigned long dupes;
+ 	int err;
++	int fd;
++	volatile int done;
+ };
+ 
+ struct extent {
+@@ -68,6 +74,7 @@ static unsigned int odirect;
+ static unsigned int collision_check;
+ static unsigned int print_progress = 1;
+ static unsigned int use_bloom = 1;
++static unsigned int compression = 0;
+ 
+ static uint64_t total_size;
+ static uint64_t cur_offset;
+@@ -87,8 +94,9 @@ static uint64_t get_size(struct fio_file *f, struct stat *sb)
+ 			return 0;
+ 		}
+ 		ret = bytes;
+-	} else
++	} else {
+ 		ret = sb->st_size;
++	}
+ 
+ 	return (ret & ~((uint64_t)blocksize - 1));
+ }
+@@ -120,9 +128,9 @@ static int __read_block(int fd, void *buf, off_t offset, size_t count)
+ 	if (ret < 0) {
+ 		perror("pread");
+ 		return 1;
+-	} else if (!ret)
++	} else if (!ret) {
+ 		return 1;
+-	else if (ret != count) {
++	} else if (ret != count) {
+ 		log_err("dedupe: short read on block\n");
+ 		return 1;
+ 	}
+@@ -135,6 +143,34 @@ static int read_block(int fd, void *buf, off_t offset)
+ 	return __read_block(fd, buf, offset, blocksize);
+ }
+ 
++static void account_unique_capacity(uint64_t offset, uint64_t *unique_capacity,
++				    struct zlib_ctrl *zc)
++{
++	z_stream *stream = &zc->stream;
++	unsigned int compressed_len;
++	int ret;
++
++	if (read_block(file.fd, zc->buf_in, offset))
++		return;
++
++	stream->next_in = zc->buf_in;
++	stream->avail_in = blocksize;
++	stream->avail_out = deflateBound(stream, blocksize);
++	stream->next_out = zc->buf_out;
++
++	ret = deflate(stream, Z_FINISH);
++	assert(ret != Z_STREAM_ERROR);
++	compressed_len = blocksize - stream->avail_out;
++
++	if (dump_output)
++		printf("offset 0x%lx compressed to %d blocksize %d ratio %.2f \n",
++				(unsigned long) offset, compressed_len, blocksize,
++				(float)compressed_len / (float)blocksize);
++
++	*unique_capacity += compressed_len;
++	deflateReset(stream);
++}
++
+ static void add_item(struct chunk *c, struct item *i)
+ {
+ 	/*	
+@@ -182,13 +218,15 @@ static struct chunk *alloc_chunk(void)
+ 	if (collision_check || dump_output) {
+ 		c = malloc(sizeof(struct chunk) + sizeof(struct flist_head));
+ 		INIT_FLIST_HEAD(&c->extent_list[0]);
+-	} else
++	} else {
+ 		c = malloc(sizeof(struct chunk));
++	}
+ 
+ 	return c;
+ }
+ 
+-static void insert_chunk(struct item *i)
++static void insert_chunk(struct item *i, uint64_t *unique_capacity,
++			 struct zlib_ctrl *zc)
+ {
+ 	struct fio_rb_node **p, *parent;
+ 	struct chunk *c;
+@@ -201,11 +239,11 @@ static void insert_chunk(struct item *i)
+ 
+ 		c = rb_entry(parent, struct chunk, rb_node);
+ 		diff = memcmp(i->hash, c->hash, sizeof(i->hash));
+-		if (diff < 0)
++		if (diff < 0) {
+ 			p = &(*p)->rb_left;
+-		else if (diff > 0)
++		} else if (diff > 0) {
+ 			p = &(*p)->rb_right;
+-		else {
++		} else {
+ 			int ret;
+ 
+ 			if (!collision_check)
+@@ -228,12 +266,15 @@ static void insert_chunk(struct item *i)
+ 	memcpy(c->hash, i->hash, sizeof(i->hash));
+ 	rb_link_node(&c->rb_node, parent, p);
+ 	rb_insert_color(&c->rb_node, &rb_root);
++	if (compression)
++		account_unique_capacity(i->offset, unique_capacity, zc);
+ add:
+ 	add_item(c, i);
+ }
+ 
+ static void insert_chunks(struct item *items, unsigned int nitems,
+-			  uint64_t *ndupes)
++			  uint64_t *ndupes, uint64_t *unique_capacity,
++			  struct zlib_ctrl *zc)
+ {
+ 	int i;
+ 
+@@ -248,7 +289,7 @@ static void insert_chunks(struct item *items, unsigned int nitems,
+ 			r = bloom_set(bloom, items[i].hash, s);
+ 			*ndupes += r;
+ 		} else
+-			insert_chunk(&items[i]);
++			insert_chunk(&items[i], unique_capacity, zc);
+ 	}
+ 
+ 	fio_sem_up(rb_lock);
+@@ -277,11 +318,13 @@ static int do_work(struct worker_thread *thread, void *buf)
+ 	off_t offset;
+ 	int nitems = 0;
+ 	uint64_t ndupes = 0;
++	uint64_t unique_capacity = 0;
+ 	struct item *items;
+ 
+ 	offset = thread->cur_offset;
+ 
+-	nblocks = read_blocks(thread->fd, buf, offset, min(thread->size, (uint64_t)chunk_size));
++	nblocks = read_blocks(thread->fd, buf, offset,
++				min(thread->size, (uint64_t) chunk_size));
+ 	if (!nblocks)
+ 		return 1;
+ 
+@@ -296,20 +339,39 @@ static int do_work(struct worker_thread *thread, void *buf)
+ 		nitems++;
+ 	}
+ 
+-	insert_chunks(items, nitems, &ndupes);
++	insert_chunks(items, nitems, &ndupes, &unique_capacity, &thread->zc);
+ 
+ 	free(items);
+ 	thread->items += nitems;
+ 	thread->dupes += ndupes;
++	thread->unique_capacity += unique_capacity;
+ 	return 0;
+ }
+ 
++static void thread_init_zlib_control(struct worker_thread *thread)
++{
++	size_t sz;
++
++	z_stream *stream = &thread->zc.stream;
++	stream->zalloc = Z_NULL;
++	stream->zfree = Z_NULL;
++	stream->opaque = Z_NULL;
++
++	if (deflateInit(stream, Z_DEFAULT_COMPRESSION) != Z_OK)
++		return;
++
++	thread->zc.buf_in = fio_memalign(blocksize, blocksize, false);
++	sz = deflateBound(stream, blocksize);
++	thread->zc.buf_out = fio_memalign(blocksize, sz, false);
++}
++
+ static void *thread_fn(void *data)
+ {
+ 	struct worker_thread *thread = data;
+ 	void *buf;
+ 
+ 	buf = fio_memalign(blocksize, chunk_size, false);
++	thread_init_zlib_control(thread);
+ 
+ 	do {
+ 		if (get_work(&thread->cur_offset, &thread->size)) {
+@@ -362,15 +424,17 @@ static void show_progress(struct worker_thread *threads, unsigned long total)
+ 			printf("%3.2f%% done (%luKiB/sec)\r", perc, this_items);
+ 			last_nitems = nitems;
+ 			fio_gettime(&last_tv, NULL);
+-		} else
++		} else {
+ 			printf("%3.2f%% done\r", perc);
++		}
+ 		fflush(stdout);
+ 		usleep(250000);
+ 	};
+ }
+ 
+ static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
+-			      uint64_t *nextents, uint64_t *nchunks)
++			      uint64_t *nextents, uint64_t *nchunks,
++			      uint64_t *unique_capacity)
+ {
+ 	struct worker_thread *threads;
+ 	unsigned long nitems, total_items;
+@@ -398,11 +462,13 @@ static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
+ 	nitems = 0;
+ 	*nextents = 0;
+ 	*nchunks = 1;
++	*unique_capacity = 0;
+ 	for (i = 0; i < num_threads; i++) {
+ 		void *ret;
+ 		pthread_join(threads[i].thread, &ret);
+ 		nitems += threads[i].items;
+ 		*nchunks += threads[i].dupes;
++		*unique_capacity += threads[i].unique_capacity;
+ 	}
+ 
+ 	printf("Threads(%u): %lu items processed\n", num_threads, nitems);
+@@ -416,7 +482,7 @@ static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
+ }
+ 
+ static int dedupe_check(const char *filename, uint64_t *nextents,
+-			uint64_t *nchunks)
++			uint64_t *nchunks, uint64_t *unique_capacity)
+ {
+ 	uint64_t dev_size;
+ 	struct stat sb;
+@@ -451,9 +517,11 @@ static int dedupe_check(const char *filename, uint64_t *nextents,
+ 		bloom = bloom_new(bloom_entries);
+ 	}
+ 
+-	printf("Will check <%s>, size <%llu>, using %u threads\n", filename, (unsigned long long) dev_size, num_threads);
++	printf("Will check <%s>, size <%llu>, using %u threads\n", filename,
++				(unsigned long long) dev_size, num_threads);
+ 
+-	return run_dedupe_threads(&file, dev_size, nextents, nchunks);
++	return run_dedupe_threads(&file, dev_size, nextents, nchunks,
++					unique_capacity);
+ err:
+ 	if (file.fd != -1)
+ 		close(file.fd);
+@@ -466,18 +534,38 @@ static void show_chunk(struct chunk *c)
+ 	struct flist_head *n;
+ 	struct extent *e;
+ 
+-	printf("c hash %8x %8x %8x %8x, count %lu\n", c->hash[0], c->hash[1], c->hash[2], c->hash[3], (unsigned long) c->count);
++	printf("c hash %8x %8x %8x %8x, count %lu\n", c->hash[0], c->hash[1],
++			c->hash[2], c->hash[3], (unsigned long) c->count);
+ 	flist_for_each(n, &c->extent_list[0]) {
+ 		e = flist_entry(n, struct extent, list);
+ 		printf("\toffset %llu\n", (unsigned long long) e->offset);
+ 	}
+ }
+ 
+-static void show_stat(uint64_t nextents, uint64_t nchunks, uint64_t ndupextents)
++static const char *capacity_unit[] = {"b","KB", "MB", "GB", "TB", "PB", "EB"};
++
++static uint64_t bytes_to_human_readable_unit(uint64_t n, const char **unit_out)
++{
++	uint8_t i = 0;
++
++	while (n >= 1024) {
++		i++;
++		n /= 1024;
++	}
++
++	*unit_out = capacity_unit[i];
++	return n;
++}
++
++static void show_stat(uint64_t nextents, uint64_t nchunks, uint64_t ndupextents,
++		      uint64_t unique_capacity)
+ {
+ 	double perc, ratio;
++	const char *unit;
++	uint64_t uc_human;
+ 
+-	printf("Extents=%lu, Unique extents=%lu", (unsigned long) nextents, (unsigned long) nchunks);
++	printf("Extents=%lu, Unique extents=%lu", (unsigned long) nextents,
++						(unsigned long) nchunks);
+ 	if (!bloom)
+ 		printf(" Duplicated extents=%lu", (unsigned long) ndupextents);
+ 	printf("\n");
+@@ -485,22 +573,29 @@ static void show_stat(uint64_t nextents, uint64_t nchunks, uint64_t ndupextents)
+ 	if (nchunks) {
+ 		ratio = (double) nextents / (double) nchunks;
+ 		printf("De-dupe ratio: 1:%3.2f\n", ratio - 1.0);
+-	} else
++	} else {
+ 		printf("De-dupe ratio: 1:infinite\n");
++	}
+ 
+-	if (ndupextents)
+-		printf("De-dupe working set at least: %3.2f%%\n", 100.0 * (double) ndupextents / (double) nextents);
++	if (ndupextents) {
++		printf("De-dupe working set at least: %3.2f%%\n",
++			100.0 * (double) ndupextents / (double) nextents);
++	}
+ 
+ 	perc = 1.00 - ((double) nchunks / (double) nextents);
+ 	perc *= 100.0;
+ 	printf("Fio setting: dedupe_percentage=%u\n", (int) (perc + 0.50));
+ 
++
++	if (compression) {
++		uc_human = bytes_to_human_readable_unit(unique_capacity, &unit);
++		printf("Unique capacity %lu%s\n", (unsigned long) uc_human, unit);
++	}
+ }
+ 
+ static void iter_rb_tree(uint64_t *nextents, uint64_t *nchunks, uint64_t *ndupextents)
+ {
+ 	struct fio_rb_node *n;
+-
+ 	*nchunks = *nextents = *ndupextents = 0;
+ 
+ 	n = rb_first(&rb_root);
+@@ -532,18 +627,19 @@ static int usage(char *argv[])
+ 	log_err("\t-c\tFull collision check\n");
+ 	log_err("\t-B\tUse probabilistic bloom filter\n");
+ 	log_err("\t-p\tPrint progress indicator\n");
++	log_err("\t-C\tCalculate compressible size\n");
+ 	return 1;
+ }
+ 
+ int main(int argc, char *argv[])
+ {
+-	uint64_t nextents = 0, nchunks = 0, ndupextents = 0;
++	uint64_t nextents = 0, nchunks = 0, ndupextents = 0, unique_capacity;
+ 	int c, ret;
+ 
+ 	arch_init(argv);
+ 	debug_init();
+ 
+-	while ((c = getopt(argc, argv, "b:t:d:o:c:p:B:")) != -1) {
++	while ((c = getopt(argc, argv, "b:t:d:o:c:p:B:C:")) != -1) {
+ 		switch (c) {
+ 		case 'b':
+ 			blocksize = atoi(optarg);
+@@ -566,13 +662,16 @@ int main(int argc, char *argv[])
+ 		case 'B':
+ 			use_bloom = atoi(optarg);
+ 			break;
++		case 'C':
++			compression = atoi(optarg);
++			break;
+ 		case '?':
+ 		default:
+ 			return usage(argv);
  		}
  	}
  
-+	/*
-+	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
-+	 * than that.
-+	 */
-+	p.flags |= IORING_SETUP_CQSIZE;
-+	p.cq_entries = depth;
-+
- 	ret = syscall(__NR_io_uring_setup, depth, &p);
- 	if (ret < 0)
- 		return ret;
-diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
-index d39b45fd..c45b5e9a 100644
---- a/os/linux/io_uring.h
-+++ b/os/linux/io_uring.h
-@@ -11,10 +11,6 @@
- #include <linux/fs.h>
- #include <linux/types.h>
+-	if (collision_check || dump_output)
++	if (collision_check || dump_output || compression)
+ 		use_bloom = 0;
  
--#ifdef __cplusplus
--extern "C" {
--#endif
--
- /*
-  * IO submission data structure (Submission Queue Entry)
-  */
-@@ -46,23 +42,25 @@ struct io_uring_sqe {
- 		__u32		statx_flags;
- 		__u32		fadvise_advice;
- 		__u32		splice_flags;
-+		__u32		rename_flags;
-+		__u32		unlink_flags;
-+		__u32		hardlink_flags;
- 	};
- 	__u64	user_data;	/* data to be passed back at completion time */
-+	/* pack this to avoid bogus arm OABI complaints */
- 	union {
--		struct {
--			/* pack this to avoid bogus arm OABI complaints */
--			union {
--				/* index into fixed buffers, if used */
--				__u16	buf_index;
--				/* for grouped buffer selection */
--				__u16	buf_group;
--			} __attribute__((packed));
--			/* personality to use, if used */
--			__u16	personality;
--			__s32	splice_fd_in;
--		};
--		__u64	__pad2[3];
-+		/* index into fixed buffers, if used */
-+		__u16	buf_index;
-+		/* for grouped buffer selection */
-+		__u16	buf_group;
-+	} __attribute__((packed));
-+	/* personality to use, if used */
-+	__u16	personality;
-+	union {
-+		__s32	splice_fd_in;
-+		__u32	file_index;
- 	};
-+	__u64	__pad2[2];
- };
+ 	if (!num_threads)
+@@ -586,13 +685,13 @@ int main(int argc, char *argv[])
+ 	rb_root = RB_ROOT;
+ 	rb_lock = fio_sem_init(FIO_SEM_UNLOCKED);
  
- enum {
-@@ -99,6 +97,7 @@ enum {
- #define IORING_SETUP_CQSIZE	(1U << 3)	/* app defines CQ size */
- #define IORING_SETUP_CLAMP	(1U << 4)	/* clamp SQ/CQ ring sizes */
- #define IORING_SETUP_ATTACH_WQ	(1U << 5)	/* attach to existing wq */
-+#define IORING_SETUP_R_DISABLED	(1U << 6)	/* start with ring disabled */
+-	ret = dedupe_check(argv[optind], &nextents, &nchunks);
++	ret = dedupe_check(argv[optind], &nextents, &nchunks, &unique_capacity);
  
- enum {
- 	IORING_OP_NOP,
-@@ -135,6 +134,12 @@ enum {
- 	IORING_OP_PROVIDE_BUFFERS,
- 	IORING_OP_REMOVE_BUFFERS,
- 	IORING_OP_TEE,
-+	IORING_OP_SHUTDOWN,
-+	IORING_OP_RENAMEAT,
-+	IORING_OP_UNLINKAT,
-+	IORING_OP_MKDIRAT,
-+	IORING_OP_SYMLINKAT,
-+	IORING_OP_LINKAT,
+ 	if (!ret) {
+ 		if (!bloom)
+ 			iter_rb_tree(&nextents, &nchunks, &ndupextents);
  
- 	/* this goes last, obviously */
- 	IORING_OP_LAST,
-@@ -148,14 +153,35 @@ enum {
- /*
-  * sqe->timeout_flags
-  */
--#define IORING_TIMEOUT_ABS	(1U << 0)
--
-+#define IORING_TIMEOUT_ABS		(1U << 0)
-+#define IORING_TIMEOUT_UPDATE		(1U << 1)
-+#define IORING_TIMEOUT_BOOTTIME		(1U << 2)
-+#define IORING_TIMEOUT_REALTIME		(1U << 3)
-+#define IORING_LINK_TIMEOUT_UPDATE	(1U << 4)
-+#define IORING_TIMEOUT_ETIME_SUCCESS	(1U << 5)
-+#define IORING_TIMEOUT_CLOCK_MASK	(IORING_TIMEOUT_BOOTTIME | IORING_TIMEOUT_REALTIME)
-+#define IORING_TIMEOUT_UPDATE_MASK	(IORING_TIMEOUT_UPDATE | IORING_LINK_TIMEOUT_UPDATE)
- /*
-  * sqe->splice_flags
-  * extends splice(2) flags
-  */
- #define SPLICE_F_FD_IN_FIXED	(1U << 31) /* the last bit of __u32 */
+-		show_stat(nextents, nchunks, ndupextents);
++		show_stat(nextents, nchunks, ndupextents, unique_capacity);
+ 	}
  
-+/*
-+ * POLL_ADD flags. Note that since sqe->poll_events is the flag space, the
-+ * command flags for POLL_ADD are stored in sqe->len.
-+ *
-+ * IORING_POLL_ADD_MULTI	Multishot poll. Sets IORING_CQE_F_MORE if
-+ *				the poll handler will continue to report
-+ *				CQEs on behalf of the same SQE.
-+ *
-+ * IORING_POLL_UPDATE		Update existing poll request, matching
-+ *				sqe->addr as the old user_data field.
-+ */
-+#define IORING_POLL_ADD_MULTI	(1U << 0)
-+#define IORING_POLL_UPDATE_EVENTS	(1U << 1)
-+#define IORING_POLL_UPDATE_USER_DATA	(1U << 2)
-+
- /*
-  * IO completion data structure (Completion Queue Entry)
-  */
-@@ -169,8 +195,10 @@ struct io_uring_cqe {
-  * cqe->flags
-  *
-  * IORING_CQE_F_BUFFER	If set, the upper 16 bits are the buffer ID
-+ * IORING_CQE_F_MORE	If set, parent SQE will generate more CQE entries
-  */
- #define IORING_CQE_F_BUFFER		(1U << 0)
-+#define IORING_CQE_F_MORE		(1U << 1)
- 
- enum {
- 	IORING_CQE_BUFFER_SHIFT		= 16,
-@@ -228,6 +256,8 @@ struct io_cqring_offsets {
-  */
- #define IORING_ENTER_GETEVENTS	(1U << 0)
- #define IORING_ENTER_SQ_WAKEUP	(1U << 1)
-+#define IORING_ENTER_SQ_WAIT	(1U << 2)
-+#define IORING_ENTER_EXT_ARG	(1U << 3)
- 
- /*
-  * Passed in for io_uring_setup(2). Copied back with updated info on success
-@@ -255,28 +285,85 @@ struct io_uring_params {
- #define IORING_FEAT_CUR_PERSONALITY	(1U << 4)
- #define IORING_FEAT_FAST_POLL		(1U << 5)
- #define IORING_FEAT_POLL_32BITS 	(1U << 6)
-+#define IORING_FEAT_SQPOLL_NONFIXED	(1U << 7)
-+#define IORING_FEAT_EXT_ARG		(1U << 8)
-+#define IORING_FEAT_NATIVE_WORKERS	(1U << 9)
-+#define IORING_FEAT_RSRC_TAGS		(1U << 10)
- 
- /*
-  * io_uring_register(2) opcodes and arguments
-  */
--#define IORING_REGISTER_BUFFERS		0
--#define IORING_UNREGISTER_BUFFERS	1
--#define IORING_REGISTER_FILES		2
--#define IORING_UNREGISTER_FILES		3
--#define IORING_REGISTER_EVENTFD		4
--#define IORING_UNREGISTER_EVENTFD	5
--#define IORING_REGISTER_FILES_UPDATE	6
--#define IORING_REGISTER_EVENTFD_ASYNC	7
--#define IORING_REGISTER_PROBE		8
--#define IORING_REGISTER_PERSONALITY	9
--#define IORING_UNREGISTER_PERSONALITY	10
-+enum {
-+	IORING_REGISTER_BUFFERS			= 0,
-+	IORING_UNREGISTER_BUFFERS		= 1,
-+	IORING_REGISTER_FILES			= 2,
-+	IORING_UNREGISTER_FILES			= 3,
-+	IORING_REGISTER_EVENTFD			= 4,
-+	IORING_UNREGISTER_EVENTFD		= 5,
-+	IORING_REGISTER_FILES_UPDATE		= 6,
-+	IORING_REGISTER_EVENTFD_ASYNC		= 7,
-+	IORING_REGISTER_PROBE			= 8,
-+	IORING_REGISTER_PERSONALITY		= 9,
-+	IORING_UNREGISTER_PERSONALITY		= 10,
-+	IORING_REGISTER_RESTRICTIONS		= 11,
-+	IORING_REGISTER_ENABLE_RINGS		= 12,
-+
-+	/* extended with tagging */
-+	IORING_REGISTER_FILES2			= 13,
-+	IORING_REGISTER_FILES_UPDATE2		= 14,
-+	IORING_REGISTER_BUFFERS2		= 15,
-+	IORING_REGISTER_BUFFERS_UPDATE		= 16,
-+
-+	/* set/clear io-wq thread affinities */
-+	IORING_REGISTER_IOWQ_AFF		= 17,
-+	IORING_UNREGISTER_IOWQ_AFF		= 18,
-+
-+	/* set/get max number of io-wq workers */
-+	IORING_REGISTER_IOWQ_MAX_WORKERS	= 19,
- 
-+	/* this goes last */
-+	IORING_REGISTER_LAST
-+};
-+
-+/* io-wq worker categories */
-+enum {
-+	IO_WQ_BOUND,
-+	IO_WQ_UNBOUND,
-+};
-+
-+/* deprecated, see struct io_uring_rsrc_update */
- struct io_uring_files_update {
- 	__u32 offset;
- 	__u32 resv;
- 	__aligned_u64 /* __s32 * */ fds;
- };
- 
-+struct io_uring_rsrc_register {
-+	__u32 nr;
-+	__u32 resv;
-+	__u64 resv2;
-+	__aligned_u64 data;
-+	__aligned_u64 tags;
-+};
-+
-+struct io_uring_rsrc_update {
-+	__u32 offset;
-+	__u32 resv;
-+	__aligned_u64 data;
-+};
-+
-+struct io_uring_rsrc_update2 {
-+	__u32 offset;
-+	__u32 resv;
-+	__aligned_u64 data;
-+	__aligned_u64 tags;
-+	__u32 nr;
-+	__u32 resv2;
-+};
-+
-+/* Skip updating fd indexes set to this value in the fd table */
-+#define IORING_REGISTER_FILES_SKIP	(-2)
-+
- #define IO_URING_OP_SUPPORTED	(1U << 0)
- 
- struct io_uring_probe_op {
-@@ -294,8 +381,41 @@ struct io_uring_probe {
- 	struct io_uring_probe_op ops[0];
- };
- 
--#ifdef __cplusplus
--}
--#endif
-+struct io_uring_restriction {
-+	__u16 opcode;
-+	union {
-+		__u8 register_op; /* IORING_RESTRICTION_REGISTER_OP */
-+		__u8 sqe_op;      /* IORING_RESTRICTION_SQE_OP */
-+		__u8 sqe_flags;   /* IORING_RESTRICTION_SQE_FLAGS_* */
-+	};
-+	__u8 resv;
-+	__u32 resv2[3];
-+};
-+
-+/*
-+ * io_uring_restriction->opcode values
-+ */
-+enum {
-+	/* Allow an io_uring_register(2) opcode */
-+	IORING_RESTRICTION_REGISTER_OP		= 0,
-+
-+	/* Allow an sqe opcode */
-+	IORING_RESTRICTION_SQE_OP		= 1,
-+
-+	/* Allow sqe flags */
-+	IORING_RESTRICTION_SQE_FLAGS_ALLOWED	= 2,
-+
-+	/* Require sqe flags (these flags must be set on each submission) */
-+	IORING_RESTRICTION_SQE_FLAGS_REQUIRED	= 3,
-+
-+	IORING_RESTRICTION_LAST
-+};
-+
-+struct io_uring_getevents_arg {
-+	__u64	sigmask;
-+	__u32	sigmask_sz;
-+	__u32	pad;
-+	__u64	ts;
-+};
- 
- #endif
+ 	fio_sem_remove(rb_lock);
 diff --git a/t/io_uring.c b/t/io_uring.c
-index b79822d7..7bf215c7 100644
+index 7bf215c7..a98f78fd 100644
 --- a/t/io_uring.c
 +++ b/t/io_uring.c
-@@ -384,6 +384,13 @@ static int io_uring_register_files(struct submitter *s)
+@@ -192,7 +192,7 @@ unsigned int calc_clat_percentiles(unsigned long *io_u_plat, unsigned long nr,
+ 	unsigned long *ovals = NULL;
+ 	bool is_last;
  
- static int io_uring_setup(unsigned entries, struct io_uring_params *p)
- {
-+	/*
-+	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
-+	 * than that.
-+	 */
-+	p->flags |= IORING_SETUP_CQSIZE;
-+	p->cq_entries = entries;
-+
- 	return syscall(__NR_io_uring_setup, entries, p);
+-	*minv = -1ULL;
++	*minv = -1UL;
+ 	*maxv = 0;
+ 
+ 	ovals = malloc(len * sizeof(*ovals));
+@@ -498,7 +498,7 @@ static void init_io(struct submitter *s, unsigned index)
+ 	sqe->off = offset;
+ 	sqe->user_data = (unsigned long) f->fileno;
+ 	if (stats && stats_running)
+-		sqe->user_data |= ((unsigned long)s->clock_index << 32);
++		sqe->user_data |= ((uint64_t)s->clock_index << 32);
  }
  
+ static int prep_more_ios_uring(struct submitter *s, int max_ios)
