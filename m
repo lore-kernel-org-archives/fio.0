@@ -2,595 +2,163 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC725C433EF
-	for <fio@archiver.kernel.org>; Mon, 22 Nov 2021 13:00:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E204FC433EF
+	for <fio@archiver.kernel.org>; Tue, 23 Nov 2021 14:27:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230322AbhKVNDN (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 22 Nov 2021 08:03:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230406AbhKVNDM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 22 Nov 2021 08:03:12 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8DAC061574
-        for <fio@vger.kernel.org>; Mon, 22 Nov 2021 05:00:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=7RIISr9Dn37+wUdXP5Bc6GJYkYKAV1HAyCEJQ5KQ7qc=; b=EaQUQPMMMTfSJgRjisWGhbHOZh
-        yoQVTI0n9SriqHzBh0MxpeygVoy8LlcZzEOdOHckREOXnPPh+FjLBweXbpCpjKx9Pmx5hqOTzrqez
-        vYQTnIoxgyE6CZs7t0TzR05M2ozNABINZWpH6rYkKeTaayAGAZFd61kXeaf8/oNK7rQFmxfdBb3iR
-        VzLTIB8XHZYBX54L+PtebTp2WMwBMCGr4xzS/vGwIsgG8oEMX4m9fyHxprbEmnRb8rUU5s50ONNKd
-        mjDnqL7GGI8FF26vGpfVrValdm8+Z9XTvGyAx7dfdjnJmcczwunzhns011hYDbSmX9MiYqNA6tDe1
-        vmpCk77w==;
-Received: from [65.144.74.35] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1mp8vU-00HUdg-6y
-        for fio@vger.kernel.org; Mon, 22 Nov 2021 13:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id AC0C61BC0156; Mon, 22 Nov 2021 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211122130001.AC0C61BC0156@kernel.dk>
-Date:   Mon, 22 Nov 2021 06:00:01 -0700 (MST)
+        id S237907AbhKWOaf (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 23 Nov 2021 09:30:35 -0500
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:26312 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229786AbhKWOaf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 23 Nov 2021 09:30:35 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1637677647; x=1669213647;
+  h=from:to:cc:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=nfktGsXYBA8JZx7alYF77Vg7druLlRciXjtnkI5gKyA=;
+  b=IvJvT9pP/Oi7IOaCnxx2bIpztDcSPWtYYZMzipQ1fSjis6kCSQTHxLVS
+   up6wtaiotLnX2RTfM3pQyfa1hw8jRMaIEOx23buniWgz5p0ANJaH+hNYh
+   VSF2kerK7TRtiItKhFe9V0YQPgg+4otwHgunZRrKfYBJCaCWPexBXoswc
+   Wcd4fBW0CmpF259sffbAiVYb1nwSzupTG5dSsyL1NvzrN7I2UE91MjbsZ
+   9ObKHXbUdjMwKwN/pga++Nj2YBK4DLgEelaOiklNmAtAyPAgQKpe9yrhw
+   P05s7bbKdsf4Hux3fY1rg+2nVRdKdZc630AODtRfy2+leuwqQtCmJjt+0
+   A==;
+X-IronPort-AV: E=Sophos;i="5.87,257,1631548800"; 
+   d="scan'208";a="298250418"
+Received: from mail-bn8nam12lp2175.outbound.protection.outlook.com (HELO NAM12-BN8-obe.outbound.protection.outlook.com) ([104.47.55.175])
+  by ob1.hgst.iphmx.com with ESMTP; 23 Nov 2021 22:27:26 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Ohqdll1hBkKVDWpRyPWm2v+4TFEvkGoitmmki6Q461BVPjSkIm7L/0ER6b0CoynQqxQbPCXWS+qI/RwZUwUyfisMPq/Aq5xHIwO5dHKPHzjWQoJnIrAwWnn8FHNBPWfpE09vuEkBmBtWLBzS+HAUVEcS5DwuM+6ElbsqT7ccG8iP+KKYoOuApldoCxJ1gmw5bWsCfAB3ZedD40MT+4UYBCKW3FReVaIXfVmHslQ1ARW397t+g4qUrjR2wW5MbTOiA82svqDT+zc/HNmyw2bdtVdIv4C+gFqBe+1HoeA5Ah8hMNTtSdNxX/xTkNbyL3bRUwltlEQnjRJ93HtPtH9qJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QB4S+9n1fRx2xoOtnA/tngbsJ99M6HPJW05mAdSuo+4=;
+ b=bC8gZ9CiHx/gnA1Lykjrv4qI2ZHC4dFf5XUjaGCr7BWks2kAme0I3wJHFndLnZbp3orUgGDGFQKKVBLdFvfI4LKa1ejqaDbXDBIY1JVAVFUZLY4huCOUQOQ2eXYPSXM31O0T+CQv3Hb6Ql0i0okEDNMbMpTVUJE9c/cPxdWvcBGcsdrBiM5ML0ty34hhTnbiib0UeI+orzZRNSguh+F++mTWZrkRv/OC8o7hE2VavmrMTLWO8uTCmgZZ4Q7VvW1gfyLVyqm+Ruhn/S9vjzRVJyoXaVHoXKaJE+bjuP91ss/DgOV1X3uesXJbPRnPTsyb6UFeUyRd9rYsIkdqqNgQWQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QB4S+9n1fRx2xoOtnA/tngbsJ99M6HPJW05mAdSuo+4=;
+ b=kIzO8CD/AeEmD0lJII+VxmvkSFFaLnY3cnn+HejQ1nzSn6ecWUfyF/UKySK3HtHRVWThQCWvwIcMXrRXdrlWHnQ7z18X2Frl+cBk4XHd6y3r/E+xh6NhoQSy1TCqGU3fgf7XiwEq9QWI72vLXx1sb/gFeVEw5LQ3eslm18TO3Rk=
+Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
+ by PH0PR04MB7589.namprd04.prod.outlook.com (2603:10b6:510:54::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.21; Tue, 23 Nov
+ 2021 14:27:25 +0000
+Received: from PH0PR04MB7158.namprd04.prod.outlook.com
+ ([fe80::c504:3d44:5aef:f3ca]) by PH0PR04MB7158.namprd04.prod.outlook.com
+ ([fe80::c504:3d44:5aef:f3ca%4]) with mapi id 15.20.4713.025; Tue, 23 Nov 2021
+ 14:27:25 +0000
+From:   Niklas Cassel <Niklas.Cassel@wdc.com>
+To:     "axboe@kernel.dk" <axboe@kernel.dk>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v2 0/6] cleanup clat prio stat handling
+Thread-Topic: [PATCH v2 0/6] cleanup clat prio stat handling
+Thread-Index: AQHX4HY8flbuME9m8Uyumdu0N2LVFw==
+Date:   Tue, 23 Nov 2021 14:27:25 +0000
+Message-ID: <20211123142708.48867-1-Niklas.Cassel@wdc.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.33.1
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: c3aecefe-f42f-41a6-6a5a-08d9ae8d5ebc
+x-ms-traffictypediagnostic: PH0PR04MB7589:
+x-microsoft-antispam-prvs: <PH0PR04MB7589CE792595F8A5C169DD2FF2609@PH0PR04MB7589.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:6108;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 0MmgS/iI8K3nTR4ldS2FJ1SekVZKMn5nJDuirRKiXtLirgtl9Uuc0B/xhXG14MQsKlGyL/KMGAldSlSye3I2MEPkxMlXm3KO67uZwpDA4x0fulnkHHXASRmEnEYfx8ZzcuEDTDBsZPHqH+ykLyaPIR05fiLmgvEqQM4YfqN3TiNnbA7QFqcQl1FbpY1vJ2uPSW4tJhvBWo3TRYMqqhiyvbpk9jg5kx+QbpxEPtbsioj8crsb3rLIUr2s6zaV3E6tAdpCBJ908JeMv0qWrE31WT/7cS5xYcsAFNyg8Vj/LVfmmghtN2mdyCqZo6ZCCMy4rd1S1pmO2CoF9TfFUjx+VleMovQJx8eg0QTEjPZ3tMaUc8Eht2HL5L3uLa/dpStEeETxSGR45BBgDcrQR8KNMW5RPWek6cVwbJtJDv5qHBJ4nbUQPbRMUUIecnQ1+E2Qq9F6fWLDKLRaALS27T4+FRH45YgR8wD8gNxsP0+05b/nq4QC5VeRP9/5Jo+Erl1D6sGtd3W4qqTd48FLOfftU0UFmvWB/8qse2oOehVozzPovnMnZz9h7cS0zaxVQTw8Vl/moNKT0pmRq0BH2BPczArLKkdUxuZhlSuCpp2LD5Nn/DQO9czdhCCr3vlT9ssy2xeXmmAMJJ8VOIVMk7+5hunt08LyaarCsEuOlShrvAGpu2TNDTGjAWfCNoVo6LbcCKixUuhOgAois87UaMZaDg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(2616005)(8676002)(86362001)(186003)(8936002)(76116006)(66476007)(1076003)(71200400001)(82960400001)(64756008)(6506007)(2906002)(38100700002)(6512007)(122000001)(6916009)(66446008)(38070700005)(54906003)(508600001)(66556008)(66946007)(91956017)(83380400001)(36756003)(26005)(5660300002)(4326008)(316002)(6486002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?3pcIm3aQh5dymW0NuMyVZEN90s11bj87qlrv79jxcG/4pAea1n/I3yZOp1?=
+ =?iso-8859-1?Q?J12VucsILSfHCBRmxMa9ojDgei+tm1MckxmqAwQj7qIIxmhX8FdY50g9QV?=
+ =?iso-8859-1?Q?nup7ZIHc6iJvPQBBZb0jP5Iztx8QkisOk04J0pszKQUyQbABybQKm3Z09q?=
+ =?iso-8859-1?Q?N2k0HfNpeKutyx+P2aXynLZrUjmIQpZ2JF/BFi7uL6tHxP6LqpWGLn+wm4?=
+ =?iso-8859-1?Q?Oh86aXKG2y2q13LNZp5g/ZlC5VbrJ25ennq2H0avh1HueXbIk1cm81yEG3?=
+ =?iso-8859-1?Q?1wD33Xzr8svJ1QyfXdHV5rswSn5wVlDjOgq+P/w2TF50mUsDQW6JRNH8pI?=
+ =?iso-8859-1?Q?g0ZhN/kElsQhIEaCIQRRANik4Yjrr+T0uz3Rf252QMtMJZvJ77qOZ84rV+?=
+ =?iso-8859-1?Q?aV89VDQifAUxztiK8BYynCFBObeVM90G3UqV0YYGwJhZDxO+PG64t9RQD1?=
+ =?iso-8859-1?Q?yYH4QR+sd6RRck1f8gk7+YIIeJtDcHs56sxj4xXiht0poeO1ckFdylcOGg?=
+ =?iso-8859-1?Q?/fNpLPes7J4EunfFovJQOo6486Vgg/2zN1sAbHBwKwQw4/iWXsCC+TRUWk?=
+ =?iso-8859-1?Q?UQE+AhyZ32NWPDhU0RgUrqGYxxlcP9I/Q1pm0JVX6vZi51poGHR7m2NRFU?=
+ =?iso-8859-1?Q?JBww321jb8vH3pMOTxPJ+mPHZ7AJ0jBvjPC+OUcm2pI9dsOdRJA7W7RZhX?=
+ =?iso-8859-1?Q?RQ1xnl93jLRQYmRLEkJiT9xU1LDBZXx3UJ6Rf8aSmc3G3qgI/ZO5bLIdXr?=
+ =?iso-8859-1?Q?PfIoCU3DqdCOzaNC4fCoX16VQM2B5BPLKUnQ2F0UZffIsv1QgJw/dzxfId?=
+ =?iso-8859-1?Q?N/mCVqRM/C/SXqdV9++YewVq9tyajewXMfJjk8R9WPmCQ66XuaHzzwj1Te?=
+ =?iso-8859-1?Q?6uS0hQ4pojogkWvDrB3/qBVXqQf8JbPKBJMsm1XLHcHYqcX/PCDtSfg14w?=
+ =?iso-8859-1?Q?BlrAoLlYPxcCAqaJ8QDdAX58H1f/FK/Gqnkz72PAPk7l5n6ekPOYLHKkiC?=
+ =?iso-8859-1?Q?CLz85geuZxIbH1n69gO39RoYQucfKX8hFoad5PfwZDqT8L5QhM7XG4vH4J?=
+ =?iso-8859-1?Q?5SR+DDg5AuTOcTx8GwJV2oCLWMTsfz+3DBLWkOCZtZ+FbpmJwr+3Sjt2Z2?=
+ =?iso-8859-1?Q?SBqCegNrST9y8Skr62d2odCKdRbMkvimDMqoFnVI0dDCPMc6KacC+/1S/o?=
+ =?iso-8859-1?Q?KtakYAoSsV0Whwen6+hP+8BJiDB4kUYKRbr9ddegMSjYaGrlCSHn2R+Sew?=
+ =?iso-8859-1?Q?5GJz+7cC83Z/Ffk21/FqgxuO878fWJkjnbx071ssLyZZSodIWSL5/zXHRq?=
+ =?iso-8859-1?Q?KwBXwyMUBk6yk1EGQshXdE2PSwKVruwNFvnC6VbgA5/hLeEV0ZYFUXNE0U?=
+ =?iso-8859-1?Q?NvCBraO2s5o2jwB84zNJiiJHkXIuYj3UYyubmrnZCbeumvjjEgii183ZA9?=
+ =?iso-8859-1?Q?VNHvYeBnpI6IWzJz2eJAnAShi8JSbF0uN/27j7Y+xXjwxGpcG3ToH3Dsy8?=
+ =?iso-8859-1?Q?plA67/vROCtn9Hc3/X/JfVTDp/BA/BWwgy7j4B4DIRVg4frJWSFP+wtFHo?=
+ =?iso-8859-1?Q?kub0ZpGIso985PyLHz6Xl9d+NwNyOjmwyIwnd8imrtBUW+Ny4bt3rlLfBg?=
+ =?iso-8859-1?Q?wj1e3QTcysZi009L14gltmwMaZButCPbWyTo/B7QO/oRITGposDkrsX4e4?=
+ =?iso-8859-1?Q?DShqUmglPqJ8oWpN+J8=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c3aecefe-f42f-41a6-6a5a-08d9ae8d5ebc
+X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Nov 2021 14:27:25.1309
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Y5lhySp80/q+xTfZtGEH1AjHOmwnmiT+J4g/Nw/ipJBLZpIyu423t8jnMlLc4o608M+qyNPmg0EdayJ+03zI4Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7589
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 9f51d89c683d70cd8ab23ba09ec6e628a548af5a:
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-  Sync io_uring header with the kernel (2021-11-20 07:31:20 -0700)
+Hello Jens,
 
-are available in the Git repository at:
+Please consider this minor series which adds missing information about the
+existing behavior of the per priority stats.
+It also cleans up the per priority stat code, no functional changes,
+so that it is easier to follow.
 
-  git://git.kernel.dk/fio.git master
+Changes since v1:
+-Update man-page and HOWTO about the existing behavior of per prio stats.
+-Move the patch that adds comments to stat.c to the beginning of the series=
+,
+ to more clearly highlight that this series has no functional changes.
 
-for you to fetch changes up to 1d08bfb018e600cc47f122fb78c02bf74b84dee8:
 
-  t/dedupe: style fixups (2021-11-21 06:51:11 -0700)
+Kind regards,
+Niklas
 
-----------------------------------------------------------------
-Bar David (2):
-      Mixed dedup and compression
-      fio-dedup: adjusted the binary to support compression
+Niklas Cassel (6):
+  docs: document quirky implementation of per priority stats reporting
+  stat: add comments describing the quirky behavior of clat prio samples
+  stat: rename add_lat_percentile_sample()
+  stat: rename add_lat_percentile_sample_noprio()
+  stat: simplify add_lat_percentile_prio_sample()
+  stat: make add lat percentile functions inline
 
-Jens Axboe (3):
-      Merge branch 'dedupe_and_compression' of https://github.com/bardavid/fio
-      t/io_uring: fix 32-bit compile warnings
-      t/dedupe: style fixups
+ HOWTO  |  6 +++++-
+ fio.1  |  5 ++++-
+ stat.c | 53 ++++++++++++++++++++++++++++++++++++++++-------------
+ 3 files changed, 49 insertions(+), 15 deletions(-)
 
- DEDUPE-TODO  |   3 --
- dedupe.c     |  12 ++++-
- io_u.c       |  29 ++++++-----
- t/dedupe.c   | 167 +++++++++++++++++++++++++++++++++++++++++++++++------------
- t/io_uring.c |   4 +-
- 5 files changed, 161 insertions(+), 54 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/DEDUPE-TODO b/DEDUPE-TODO
-index 1f3ee9da..4b0bfd1d 100644
---- a/DEDUPE-TODO
-+++ b/DEDUPE-TODO
-@@ -1,6 +1,3 @@
--- Mixed buffers of dedupe-able and compressible data.
--  Major usecase in performance benchmarking of storage subsystems.
--
- - Shifted dedup-able data.
-   Allow for dedup buffer generation to shift contents by random number
-   of sectors (fill the gaps with uncompressible data). Some storage
-diff --git a/dedupe.c b/dedupe.c
-index 043a376c..fd116dfb 100644
---- a/dedupe.c
-+++ b/dedupe.c
-@@ -2,12 +2,14 @@
- 
- int init_dedupe_working_set_seeds(struct thread_data *td)
- {
--	unsigned long long i;
-+	unsigned long long i, j, num_seed_advancements;
- 	struct frand_state dedupe_working_set_state = {0};
- 
- 	if (!td->o.dedupe_percentage || !(td->o.dedupe_mode == DEDUPE_MODE_WORKING_SET))
- 		return 0;
- 
-+	num_seed_advancements = td->o.min_bs[DDIR_WRITE] /
-+		min_not_zero(td->o.min_bs[DDIR_WRITE], (unsigned long long) td->o.compress_chunk);
- 	/*
- 	 * The dedupe working set keeps seeds of unique data (generated by buf_state).
- 	 * Dedupe-ed pages will be generated using those seeds.
-@@ -21,7 +23,13 @@ int init_dedupe_working_set_seeds(struct thread_data *td)
- 	frand_copy(&dedupe_working_set_state, &td->buf_state);
- 	for (i = 0; i < td->num_unique_pages; i++) {
- 		frand_copy(&td->dedupe_working_set_states[i], &dedupe_working_set_state);
--		__get_next_seed(&dedupe_working_set_state);
-+		/*
-+		 * When compression is used the seed is advanced multiple times to
-+		 * generate the buffer. We want to regenerate the same buffer when
-+		 * deduping against this page
-+		 */
-+		for (j = 0; j < num_seed_advancements; j++)
-+			__get_next_seed(&dedupe_working_set_state);
- 	}
- 
- 	return 0;
-diff --git a/io_u.c b/io_u.c
-index 586a4bef..3c72d63d 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2230,27 +2230,30 @@ void fill_io_buffer(struct thread_data *td, void *buf, unsigned long long min_wr
- 
- 	if (o->compress_percentage || o->dedupe_percentage) {
- 		unsigned int perc = td->o.compress_percentage;
--		struct frand_state *rs;
-+		struct frand_state *rs = NULL;
- 		unsigned long long left = max_bs;
- 		unsigned long long this_write;
- 
- 		do {
--			rs = get_buf_state(td);
-+			/*
-+			 * Buffers are either entirely dedupe-able or not.
-+			 * If we choose to dedup, the buffer should undergo
-+			 * the same manipulation as the original write. Which
-+			 * means we should retrack the steps we took for compression
-+			 * as well.
-+			 */
-+			if (!rs)
-+				rs = get_buf_state(td);
- 
- 			min_write = min(min_write, left);
- 
--			if (perc) {
--				this_write = min_not_zero(min_write,
--							(unsigned long long) td->o.compress_chunk);
-+			this_write = min_not_zero(min_write,
-+						(unsigned long long) td->o.compress_chunk);
- 
--				fill_random_buf_percentage(rs, buf, perc,
--					this_write, this_write,
--					o->buffer_pattern,
--					o->buffer_pattern_bytes);
--			} else {
--				fill_random_buf(rs, buf, min_write);
--				this_write = min_write;
--			}
-+			fill_random_buf_percentage(rs, buf, perc,
-+				this_write, this_write,
-+				o->buffer_pattern,
-+				o->buffer_pattern_bytes);
- 
- 			buf += this_write;
- 			left -= this_write;
-diff --git a/t/dedupe.c b/t/dedupe.c
-index 8b659c76..109ea1af 100644
---- a/t/dedupe.c
-+++ b/t/dedupe.c
-@@ -24,19 +24,25 @@
- 
- #include "../lib/bloom.h"
- #include "debug.h"
-+#include "zlib.h"
-+
-+struct zlib_ctrl {
-+	z_stream stream;
-+	unsigned char *buf_in;
-+	unsigned char *buf_out;
-+};
- 
- struct worker_thread {
-+	struct zlib_ctrl zc;
- 	pthread_t thread;
--
--	volatile int done;
--
--	int fd;
- 	uint64_t cur_offset;
- 	uint64_t size;
--
-+	unsigned long long unique_capacity;
- 	unsigned long items;
- 	unsigned long dupes;
- 	int err;
-+	int fd;
-+	volatile int done;
- };
- 
- struct extent {
-@@ -68,6 +74,7 @@ static unsigned int odirect;
- static unsigned int collision_check;
- static unsigned int print_progress = 1;
- static unsigned int use_bloom = 1;
-+static unsigned int compression = 0;
- 
- static uint64_t total_size;
- static uint64_t cur_offset;
-@@ -87,8 +94,9 @@ static uint64_t get_size(struct fio_file *f, struct stat *sb)
- 			return 0;
- 		}
- 		ret = bytes;
--	} else
-+	} else {
- 		ret = sb->st_size;
-+	}
- 
- 	return (ret & ~((uint64_t)blocksize - 1));
- }
-@@ -120,9 +128,9 @@ static int __read_block(int fd, void *buf, off_t offset, size_t count)
- 	if (ret < 0) {
- 		perror("pread");
- 		return 1;
--	} else if (!ret)
-+	} else if (!ret) {
- 		return 1;
--	else if (ret != count) {
-+	} else if (ret != count) {
- 		log_err("dedupe: short read on block\n");
- 		return 1;
- 	}
-@@ -135,6 +143,34 @@ static int read_block(int fd, void *buf, off_t offset)
- 	return __read_block(fd, buf, offset, blocksize);
- }
- 
-+static void account_unique_capacity(uint64_t offset, uint64_t *unique_capacity,
-+				    struct zlib_ctrl *zc)
-+{
-+	z_stream *stream = &zc->stream;
-+	unsigned int compressed_len;
-+	int ret;
-+
-+	if (read_block(file.fd, zc->buf_in, offset))
-+		return;
-+
-+	stream->next_in = zc->buf_in;
-+	stream->avail_in = blocksize;
-+	stream->avail_out = deflateBound(stream, blocksize);
-+	stream->next_out = zc->buf_out;
-+
-+	ret = deflate(stream, Z_FINISH);
-+	assert(ret != Z_STREAM_ERROR);
-+	compressed_len = blocksize - stream->avail_out;
-+
-+	if (dump_output)
-+		printf("offset 0x%lx compressed to %d blocksize %d ratio %.2f \n",
-+				(unsigned long) offset, compressed_len, blocksize,
-+				(float)compressed_len / (float)blocksize);
-+
-+	*unique_capacity += compressed_len;
-+	deflateReset(stream);
-+}
-+
- static void add_item(struct chunk *c, struct item *i)
- {
- 	/*	
-@@ -182,13 +218,15 @@ static struct chunk *alloc_chunk(void)
- 	if (collision_check || dump_output) {
- 		c = malloc(sizeof(struct chunk) + sizeof(struct flist_head));
- 		INIT_FLIST_HEAD(&c->extent_list[0]);
--	} else
-+	} else {
- 		c = malloc(sizeof(struct chunk));
-+	}
- 
- 	return c;
- }
- 
--static void insert_chunk(struct item *i)
-+static void insert_chunk(struct item *i, uint64_t *unique_capacity,
-+			 struct zlib_ctrl *zc)
- {
- 	struct fio_rb_node **p, *parent;
- 	struct chunk *c;
-@@ -201,11 +239,11 @@ static void insert_chunk(struct item *i)
- 
- 		c = rb_entry(parent, struct chunk, rb_node);
- 		diff = memcmp(i->hash, c->hash, sizeof(i->hash));
--		if (diff < 0)
-+		if (diff < 0) {
- 			p = &(*p)->rb_left;
--		else if (diff > 0)
-+		} else if (diff > 0) {
- 			p = &(*p)->rb_right;
--		else {
-+		} else {
- 			int ret;
- 
- 			if (!collision_check)
-@@ -228,12 +266,15 @@ static void insert_chunk(struct item *i)
- 	memcpy(c->hash, i->hash, sizeof(i->hash));
- 	rb_link_node(&c->rb_node, parent, p);
- 	rb_insert_color(&c->rb_node, &rb_root);
-+	if (compression)
-+		account_unique_capacity(i->offset, unique_capacity, zc);
- add:
- 	add_item(c, i);
- }
- 
- static void insert_chunks(struct item *items, unsigned int nitems,
--			  uint64_t *ndupes)
-+			  uint64_t *ndupes, uint64_t *unique_capacity,
-+			  struct zlib_ctrl *zc)
- {
- 	int i;
- 
-@@ -248,7 +289,7 @@ static void insert_chunks(struct item *items, unsigned int nitems,
- 			r = bloom_set(bloom, items[i].hash, s);
- 			*ndupes += r;
- 		} else
--			insert_chunk(&items[i]);
-+			insert_chunk(&items[i], unique_capacity, zc);
- 	}
- 
- 	fio_sem_up(rb_lock);
-@@ -277,11 +318,13 @@ static int do_work(struct worker_thread *thread, void *buf)
- 	off_t offset;
- 	int nitems = 0;
- 	uint64_t ndupes = 0;
-+	uint64_t unique_capacity = 0;
- 	struct item *items;
- 
- 	offset = thread->cur_offset;
- 
--	nblocks = read_blocks(thread->fd, buf, offset, min(thread->size, (uint64_t)chunk_size));
-+	nblocks = read_blocks(thread->fd, buf, offset,
-+				min(thread->size, (uint64_t) chunk_size));
- 	if (!nblocks)
- 		return 1;
- 
-@@ -296,20 +339,39 @@ static int do_work(struct worker_thread *thread, void *buf)
- 		nitems++;
- 	}
- 
--	insert_chunks(items, nitems, &ndupes);
-+	insert_chunks(items, nitems, &ndupes, &unique_capacity, &thread->zc);
- 
- 	free(items);
- 	thread->items += nitems;
- 	thread->dupes += ndupes;
-+	thread->unique_capacity += unique_capacity;
- 	return 0;
- }
- 
-+static void thread_init_zlib_control(struct worker_thread *thread)
-+{
-+	size_t sz;
-+
-+	z_stream *stream = &thread->zc.stream;
-+	stream->zalloc = Z_NULL;
-+	stream->zfree = Z_NULL;
-+	stream->opaque = Z_NULL;
-+
-+	if (deflateInit(stream, Z_DEFAULT_COMPRESSION) != Z_OK)
-+		return;
-+
-+	thread->zc.buf_in = fio_memalign(blocksize, blocksize, false);
-+	sz = deflateBound(stream, blocksize);
-+	thread->zc.buf_out = fio_memalign(blocksize, sz, false);
-+}
-+
- static void *thread_fn(void *data)
- {
- 	struct worker_thread *thread = data;
- 	void *buf;
- 
- 	buf = fio_memalign(blocksize, chunk_size, false);
-+	thread_init_zlib_control(thread);
- 
- 	do {
- 		if (get_work(&thread->cur_offset, &thread->size)) {
-@@ -362,15 +424,17 @@ static void show_progress(struct worker_thread *threads, unsigned long total)
- 			printf("%3.2f%% done (%luKiB/sec)\r", perc, this_items);
- 			last_nitems = nitems;
- 			fio_gettime(&last_tv, NULL);
--		} else
-+		} else {
- 			printf("%3.2f%% done\r", perc);
-+		}
- 		fflush(stdout);
- 		usleep(250000);
- 	};
- }
- 
- static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
--			      uint64_t *nextents, uint64_t *nchunks)
-+			      uint64_t *nextents, uint64_t *nchunks,
-+			      uint64_t *unique_capacity)
- {
- 	struct worker_thread *threads;
- 	unsigned long nitems, total_items;
-@@ -398,11 +462,13 @@ static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
- 	nitems = 0;
- 	*nextents = 0;
- 	*nchunks = 1;
-+	*unique_capacity = 0;
- 	for (i = 0; i < num_threads; i++) {
- 		void *ret;
- 		pthread_join(threads[i].thread, &ret);
- 		nitems += threads[i].items;
- 		*nchunks += threads[i].dupes;
-+		*unique_capacity += threads[i].unique_capacity;
- 	}
- 
- 	printf("Threads(%u): %lu items processed\n", num_threads, nitems);
-@@ -416,7 +482,7 @@ static int run_dedupe_threads(struct fio_file *f, uint64_t dev_size,
- }
- 
- static int dedupe_check(const char *filename, uint64_t *nextents,
--			uint64_t *nchunks)
-+			uint64_t *nchunks, uint64_t *unique_capacity)
- {
- 	uint64_t dev_size;
- 	struct stat sb;
-@@ -451,9 +517,11 @@ static int dedupe_check(const char *filename, uint64_t *nextents,
- 		bloom = bloom_new(bloom_entries);
- 	}
- 
--	printf("Will check <%s>, size <%llu>, using %u threads\n", filename, (unsigned long long) dev_size, num_threads);
-+	printf("Will check <%s>, size <%llu>, using %u threads\n", filename,
-+				(unsigned long long) dev_size, num_threads);
- 
--	return run_dedupe_threads(&file, dev_size, nextents, nchunks);
-+	return run_dedupe_threads(&file, dev_size, nextents, nchunks,
-+					unique_capacity);
- err:
- 	if (file.fd != -1)
- 		close(file.fd);
-@@ -466,18 +534,38 @@ static void show_chunk(struct chunk *c)
- 	struct flist_head *n;
- 	struct extent *e;
- 
--	printf("c hash %8x %8x %8x %8x, count %lu\n", c->hash[0], c->hash[1], c->hash[2], c->hash[3], (unsigned long) c->count);
-+	printf("c hash %8x %8x %8x %8x, count %lu\n", c->hash[0], c->hash[1],
-+			c->hash[2], c->hash[3], (unsigned long) c->count);
- 	flist_for_each(n, &c->extent_list[0]) {
- 		e = flist_entry(n, struct extent, list);
- 		printf("\toffset %llu\n", (unsigned long long) e->offset);
- 	}
- }
- 
--static void show_stat(uint64_t nextents, uint64_t nchunks, uint64_t ndupextents)
-+static const char *capacity_unit[] = {"b","KB", "MB", "GB", "TB", "PB", "EB"};
-+
-+static uint64_t bytes_to_human_readable_unit(uint64_t n, const char **unit_out)
-+{
-+	uint8_t i = 0;
-+
-+	while (n >= 1024) {
-+		i++;
-+		n /= 1024;
-+	}
-+
-+	*unit_out = capacity_unit[i];
-+	return n;
-+}
-+
-+static void show_stat(uint64_t nextents, uint64_t nchunks, uint64_t ndupextents,
-+		      uint64_t unique_capacity)
- {
- 	double perc, ratio;
-+	const char *unit;
-+	uint64_t uc_human;
- 
--	printf("Extents=%lu, Unique extents=%lu", (unsigned long) nextents, (unsigned long) nchunks);
-+	printf("Extents=%lu, Unique extents=%lu", (unsigned long) nextents,
-+						(unsigned long) nchunks);
- 	if (!bloom)
- 		printf(" Duplicated extents=%lu", (unsigned long) ndupextents);
- 	printf("\n");
-@@ -485,22 +573,29 @@ static void show_stat(uint64_t nextents, uint64_t nchunks, uint64_t ndupextents)
- 	if (nchunks) {
- 		ratio = (double) nextents / (double) nchunks;
- 		printf("De-dupe ratio: 1:%3.2f\n", ratio - 1.0);
--	} else
-+	} else {
- 		printf("De-dupe ratio: 1:infinite\n");
-+	}
- 
--	if (ndupextents)
--		printf("De-dupe working set at least: %3.2f%%\n", 100.0 * (double) ndupextents / (double) nextents);
-+	if (ndupextents) {
-+		printf("De-dupe working set at least: %3.2f%%\n",
-+			100.0 * (double) ndupextents / (double) nextents);
-+	}
- 
- 	perc = 1.00 - ((double) nchunks / (double) nextents);
- 	perc *= 100.0;
- 	printf("Fio setting: dedupe_percentage=%u\n", (int) (perc + 0.50));
- 
-+
-+	if (compression) {
-+		uc_human = bytes_to_human_readable_unit(unique_capacity, &unit);
-+		printf("Unique capacity %lu%s\n", (unsigned long) uc_human, unit);
-+	}
- }
- 
- static void iter_rb_tree(uint64_t *nextents, uint64_t *nchunks, uint64_t *ndupextents)
- {
- 	struct fio_rb_node *n;
--
- 	*nchunks = *nextents = *ndupextents = 0;
- 
- 	n = rb_first(&rb_root);
-@@ -532,18 +627,19 @@ static int usage(char *argv[])
- 	log_err("\t-c\tFull collision check\n");
- 	log_err("\t-B\tUse probabilistic bloom filter\n");
- 	log_err("\t-p\tPrint progress indicator\n");
-+	log_err("\t-C\tCalculate compressible size\n");
- 	return 1;
- }
- 
- int main(int argc, char *argv[])
- {
--	uint64_t nextents = 0, nchunks = 0, ndupextents = 0;
-+	uint64_t nextents = 0, nchunks = 0, ndupextents = 0, unique_capacity;
- 	int c, ret;
- 
- 	arch_init(argv);
- 	debug_init();
- 
--	while ((c = getopt(argc, argv, "b:t:d:o:c:p:B:")) != -1) {
-+	while ((c = getopt(argc, argv, "b:t:d:o:c:p:B:C:")) != -1) {
- 		switch (c) {
- 		case 'b':
- 			blocksize = atoi(optarg);
-@@ -566,13 +662,16 @@ int main(int argc, char *argv[])
- 		case 'B':
- 			use_bloom = atoi(optarg);
- 			break;
-+		case 'C':
-+			compression = atoi(optarg);
-+			break;
- 		case '?':
- 		default:
- 			return usage(argv);
- 		}
- 	}
- 
--	if (collision_check || dump_output)
-+	if (collision_check || dump_output || compression)
- 		use_bloom = 0;
- 
- 	if (!num_threads)
-@@ -586,13 +685,13 @@ int main(int argc, char *argv[])
- 	rb_root = RB_ROOT;
- 	rb_lock = fio_sem_init(FIO_SEM_UNLOCKED);
- 
--	ret = dedupe_check(argv[optind], &nextents, &nchunks);
-+	ret = dedupe_check(argv[optind], &nextents, &nchunks, &unique_capacity);
- 
- 	if (!ret) {
- 		if (!bloom)
- 			iter_rb_tree(&nextents, &nchunks, &ndupextents);
- 
--		show_stat(nextents, nchunks, ndupextents);
-+		show_stat(nextents, nchunks, ndupextents, unique_capacity);
- 	}
- 
- 	fio_sem_remove(rb_lock);
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 7bf215c7..a98f78fd 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -192,7 +192,7 @@ unsigned int calc_clat_percentiles(unsigned long *io_u_plat, unsigned long nr,
- 	unsigned long *ovals = NULL;
- 	bool is_last;
- 
--	*minv = -1ULL;
-+	*minv = -1UL;
- 	*maxv = 0;
- 
- 	ovals = malloc(len * sizeof(*ovals));
-@@ -498,7 +498,7 @@ static void init_io(struct submitter *s, unsigned index)
- 	sqe->off = offset;
- 	sqe->user_data = (unsigned long) f->fileno;
- 	if (stats && stats_running)
--		sqe->user_data |= ((unsigned long)s->clock_index << 32);
-+		sqe->user_data |= ((uint64_t)s->clock_index << 32);
- }
- 
- static int prep_more_ios_uring(struct submitter *s, int max_ios)
+--=20
+2.33.1
