@@ -2,47 +2,47 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55512C433EF
-	for <fio@archiver.kernel.org>; Thu, 25 Nov 2021 13:22:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 751BFC433F5
+	for <fio@archiver.kernel.org>; Thu, 25 Nov 2021 13:22:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355292AbhKYNZn (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 25 Nov 2021 08:25:43 -0500
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:32788 "EHLO
+        id S1349428AbhKYNZo (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 25 Nov 2021 08:25:44 -0500
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:32791 "EHLO
         esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349428AbhKYNXn (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 25 Nov 2021 08:23:43 -0500
+        with ESMTP id S1355351AbhKYNXo (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 25 Nov 2021 08:23:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1637846432; x=1669382432;
-  h=from:to:cc:subject:date:message-id:
-   content-transfer-encoding:mime-version;
-  bh=1rii5OIsJ2md3ScjvER1aZaN6Mc+m9xYEc5NcOq1jQs=;
-  b=PXDJzWT3xg7eNAdyGPJDZtiU5Fy/SYqUhfjdhC5NOo6K1t7MyACl5FkJ
-   oQErsOxGsb/t7Wj6iubedAgjFJZ2sYZVG1B+A5qK0S/NNcoFiliukbNY4
-   +MNr54s1XZkUV0UQbNhoWnjee0drm3mKQMgUd1ubwN25HflLdLyUOmpYu
-   F4QX5g+9qqtbW9/Y7+IagDYtS2q1EFhCJ3xWCNQcu7JsTaV8fUm6xw1cT
-   UXgiP9uzdxSIt1YeRIeoWLFe3C+aZ+N0pwLOH03c/NTcvOKid9hMyf6Kx
-   ud/rympRIt8o+SIK+yWKFdk6Zdnhvw9mSa2DUgqH0T4v0P6AOc3LgG+GT
-   w==;
+  t=1637846433; x=1669382433;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=Rm0fg3Q44gLjdjFDXuDxdq1jc/6zjjn3h7Q5FwUNwAI=;
+  b=VaoDVMfdqnRo516qwloePxJWjzH7S5FwCFeJ6ziIIS5WTuL8CTCdVmpz
+   xMhfoMRL8UA+3p+thKdQofH0ZgSFUEJtmSKmI+sKeTR/Oid/4iliQ0PYF
+   nCGprlnjTwGr4yzMcf8ECmd4jZtHDQmei1qrP81yAk14QH/1QZoB1o5f5
+   29h99e9pQtpavn25ZQHv38RgtfHuTzj+frIIWc2Q9uLplmWY+nRBNZBVT
+   OcI4Na35lltWHKnfguegN0Jh1HkawRcty0pf6oJRZxsvq4bkFZKwEhD4i
+   hg97+ALdnTbvMMCzSYnvrWwtcRVWKOJrHFcPJBr71C9kohci0wBYRHfC0
+   g==;
 X-IronPort-AV: E=Sophos;i="5.87,263,1631548800"; 
-   d="scan'208";a="298461771"
+   d="scan'208";a="298461772"
 Received: from mail-dm6nam10lp2105.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.105])
-  by ob1.hgst.iphmx.com with ESMTP; 25 Nov 2021 21:20:31 +0800
+  by ob1.hgst.iphmx.com with ESMTP; 25 Nov 2021 21:20:32 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ybacf/idHosuRB0YtazM3SRHMQeG2WAxAms4hF0M5lbvzKR6rvNbhQ8RP4XjhatCmsnV+LMwZ1ulSHIyq374+2Qkq9KNhqXa7HvkWBNX5f0nJO7st0tns+AoFea6GASswK2rK3OM5LZ0vlx/XsQODAURP8kfqp+ARtL/W3z2JrzlIKN/uXfvYpu4Rt2gzBhIdywf0eOv8AdolXw2OvGPwSeN97aNKykD3bGuatXzBHLlW+x5x0IQPV0RWXlefjqKWVC38x1hkueR/zzekPO+oD6PuQCs4GcqEUeuzw+gbt5pzyudU2LFJy6qBGRDqsYv6Gu4pCjbDLR9SOuQXOVQnw==
+ b=kYlxwmzjAIVem1+Htl9jkmMLZ6maIHqi9l/fvWnjuZDc1JRNxoMeACMda4lP5LHCe4iIKKjscZbjqJQiKhRLXnjEzP47GHlpixJdk1EYu7MdsKIyFZ/G7zfwQsDmgMBr5cfcfUeTAE27Z5YvW6VxjNSNws6xkJuWxr0bNeDGec+chhBi0c/Sic+vaNcav0Wq2JsBSo9EbHXN3O4ulDhEG2grtQl4u01v4OrT/026TWCkkeq9Npaa/MvhDj1LDA7pjm5qUVaLGQOC3Bfi5SvT6gtZMImdlNaT2a7jLiQ8yJ2J+WUHOVuqL51BTnYcSWfSovHd9US+2jFiRaMgI0queg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tFwun+9V80KFRd1/OBFy0fdmwypvdcJvknWLQfyUpyM=;
- b=irfk4z2y2mqqrUwrykGNQodOinN5jKIOj6gR00k13P4AHX9kzBrcyqkEs9dKqtei57iRjjctQ1aDv1GrIxdTeq9CFvHw3W0OoRc4XbdlqrOUpXeNH71QjTJx5KsFuCYtsv09jGHnOiDBEQRigV6c8hGobPx3Xzc/K/wPnVa50GP7KXZYbY6oynXiRbnk8TFjoT4Zpgc3Lfb1DcIUGgvaHZmGnP+HbztD9kVJqz1XkUDOGD6Q9JrCr29p34K0BqiT3dPsMvHLV7xc97UWfU7VXf8IZ5Gr/vJgBRPl5YEYjzG8k6mOXBtkWbZg7uVuP+MA3bPyYYs9E0gRh2D0LAB5Tg==
+ bh=LyWvVGYr06AYOVXXH447R4419KdZ1OtVSuE4hcdLSRg=;
+ b=fEb3rAbV9XppsSkP4QLxzMA1sp/VHjB6SGfSpIFLPM5lx1UeRgodvUms6fuT/L9v4XrSM3axae5C2H3NzBit1zTesdNkn2y+xF3fB8B3UQ/t4CIfr0a3zaCBXnNmR1q5OQ7C+gsf3cW9SV28dv5OOLpaEYNkjffGks9rvZm6lkakDU9DnDPseo2edr9Jhu0tZjf5psAAVDZ5Uz0VAaIDvQDMNP54VV2Sh0y2tSWGN+JwMKTDHE074SxS7VvvF0S45L6UTFpES8dy4ks+zX+SKE6KlMoh/QejlWBIk4WvuDQnOQx5mVstMkw7jerjowAAGXRovWsClkE5cIdC5+ZFXA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tFwun+9V80KFRd1/OBFy0fdmwypvdcJvknWLQfyUpyM=;
- b=zwEL7cNzvQ+G6akxE+VmuWfzZVim3L9a9XZ390OZGHYtMOxccGoMQzESgvXwLgBmF2Urtdhd7EHJisWGJAzRp2DBE3WBvkjYksSMoykC++Px1hREiFk8j7sf7CQHgMFf90w8duljk4cZoWRrKHuuNwpXBLYPBK2/cSuzvB9aP/s=
+ bh=LyWvVGYr06AYOVXXH447R4419KdZ1OtVSuE4hcdLSRg=;
+ b=Za1KNTmA9HnwSVnayE87zh3YV6R2R9XzNgbrF/qWmccrax8cMTChRQUfJWvwyoqwQe0XQROI+AX3eOxDCTbIAG8DC5o9HjHZb79NRh4BM9/zvsCvO0LYlm4nUCH0oem4goY3YtDMtWSYEv/3LrgW+1JYR5F+xHAy8r0kH1SgLVw=
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
  by PH0PR04MB7591.namprd04.prod.outlook.com (2603:10b6:510:4d::8) with
  Microsoft SMTP Server (version=TLS1_2,
@@ -57,11 +57,15 @@ To:     "axboe@kernel.dk" <axboe@kernel.dk>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
         "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>,
         Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v3 0/6] cleanup clat prio stat handling
-Thread-Topic: [PATCH v3 0/6] cleanup clat prio stat handling
-Thread-Index: AQHX4f83ui/kQsA5Mk2ojZIYT/5AYA==
-Date:   Thu, 25 Nov 2021 13:20:29 +0000
-Message-ID: <20211125132020.109955-1-Niklas.Cassel@wdc.com>
+Subject: [PATCH v3 1/6] docs: document quirky implementation of per priority
+ stats reporting
+Thread-Topic: [PATCH v3 1/6] docs: document quirky implementation of per
+ priority stats reporting
+Thread-Index: AQHX4f844pwjpDwn1kK5/JIzCjClSw==
+Date:   Thu, 25 Nov 2021 13:20:30 +0000
+Message-ID: <20211125132020.109955-2-Niklas.Cassel@wdc.com>
+References: <20211125132020.109955-1-Niklas.Cassel@wdc.com>
+In-Reply-To: <20211125132020.109955-1-Niklas.Cassel@wdc.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -70,59 +74,59 @@ x-mailer: git-send-email 2.33.1
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: dbac2362-74da-45fc-d5e8-08d9b0165a51
+x-ms-office365-filtering-correlation-id: 886e010c-a4e1-4541-5377-08d9b0165a98
 x-ms-traffictypediagnostic: PH0PR04MB7591:
-x-microsoft-antispam-prvs: <PH0PR04MB7591AD39B1889377154740A6F2629@PH0PR04MB7591.namprd04.prod.outlook.com>
+x-microsoft-antispam-prvs: <PH0PR04MB75918D56428E3E59355DE530F2629@PH0PR04MB7591.namprd04.prod.outlook.com>
 wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:983;
+x-ms-oob-tlc-oobclassifiers: OLM:2201;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: OdfShszm/icB4Uk360/IGVpXVmQsTIehGp1AaPqcbtLB8MjSS5eHgze8cZPxLSV5nV6WmAoIKXRKarxc25qjj3RroO4Q5UrnVhpAxdIHo48BT59KrUniqvDtcxQenOBmRezW9zVUTuM1c8PW/o7SpYuodnvYbSQk/1sp1My+vIILYVFLvDbuEUyv0vRd4INiXRgyJhgn4iWr1+5gTZ2pICFbfwfk17CU4hDCGmWcllJPz4m6WzzwVVvvOufXuMiEuCqA2MPHoNlSyraFQiFxhVJBs4RrHvu6RCR1rJECPLrMpH+pCEwEJkT0s4vWfu+H+qQShygEzmdhPiavo9XB+iULu/YNsSItyKNzqUZMfvxtDadm5uNKxgj+jVYbj3998Z41j21trBmulTrlA7MjjUvgsn9ULPqQ48Sliu1tpc/tDX9tUo32uDCOCRqXt7omnM8H2asVCHY7EkC6WiOE9KjfpMmGUWH/X5FY/Uu4SZmr1MeEopdiiDBkwoCbRJegPewBj3a/S2lsF7fgIKnKf38162HxXvGZQCNhjHofXxQkYZFGoIckDChyZeTwELNEA6ofTZSPnF6kCIjZx9j1uyony+akvgssiaLWy9glbI+HMCeWE+MvmgtyxQEAk15LwU8Ev2MLXv/t5+4zhTS1ejiXfIVJyNhoWGfM+oJzhge5MzyaTKEt0lqNe7jrsNFMqEwztdfzxUTvNUtd6StKig==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(66446008)(66476007)(66556008)(64756008)(6486002)(6512007)(2906002)(38100700002)(8676002)(122000001)(38070700005)(5660300002)(186003)(8936002)(76116006)(6506007)(71200400001)(508600001)(4744005)(54906003)(91956017)(83380400001)(6916009)(4326008)(1076003)(26005)(36756003)(2616005)(66946007)(316002)(86362001)(82960400001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: Sg7VEgmwR2WqmowH/7JWPXd7babdcTd7Nb0FYxwKaKRC8NavZ3iQxuU8VTmRuEgPS7/McUHJIBrO49z9/U5bl/uNYYTcp3dTdTe/Y3+E0AoHLMuZtrdpK6BV+GmITRqi/QPpr93il1Vr85qnjgnE2OK27RbMg5BXg9wl8u0uhumhL4DjGgCZhKGdFg985UWIcRmYM135LdZ60hkMt7BbklUH0zMJhUuJze5XtTv04IOnSp0HQKQjme8wCMW5ItJQC0aSMK2SBB8A/YyTo9AS6eRTho1ixkkBMalKjmF7N3pgwpSYKQCQozVmSI0n04iWFVw5W77wITK88/AjRrxzwnOlwWxDpHcc0oR/gPaL76AvBKTg7R0K4U1Nlkc0HQ5S8Be7vHGLx0DYw+oOBZDo3wEYPG9hen4LLoGD1U11A6rsYLPoyBAPH6PvhZY1Lur/AHOVpZJvcReMELEBgFnZwg2dswWi3OP+hLcotY5PnHjQkizdxjJxI8IW19miZ1ZvevFQuVfYyHzMui4Z2dtuvgpEnFms/JvjlrTPJVlRlyXE6qYUmNweQyxItX7dsN0hjnMYsVaVstkHmqe869ooWvFoGE+C/sXfN5VWEpTK9kqvvqsRoDEvmsAU4F6SfgPrA/cBmb4QO2gAvpPCSFYT++i35ULm1vVWs3WtmUNd4l47vqmjD3JbqoavXXotSwSSxFfmJsuszqAeMf2UkMPEww==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(66446008)(66476007)(66556008)(64756008)(6486002)(6512007)(2906002)(38100700002)(8676002)(122000001)(38070700005)(5660300002)(186003)(8936002)(76116006)(6506007)(71200400001)(508600001)(54906003)(91956017)(83380400001)(6916009)(4326008)(1076003)(26005)(36756003)(2616005)(66946007)(316002)(86362001)(82960400001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?3MY4fS2kZQ4HyscqTHehqrVIulE8LHGXspdkIDSVf+eZEXUM0rTpu0Akbq?=
- =?iso-8859-1?Q?sbxGNqrYs+Lg3MZZmLP1ui6FRa1bqHe0X8iTgTVTd0r9LPx3iUgbktZL3g?=
- =?iso-8859-1?Q?Z8Zr9wWUReOWAI1Sf0wfF/Qrmg3+vxkbmBf1k1xugwVx7rFjvjVGSP7Coe?=
- =?iso-8859-1?Q?c7ZI9429iPaDH+85ASSQDwGKOgVVuZohC5W0JiUaZUpi5otzWEXyfnI0Yl?=
- =?iso-8859-1?Q?a24AtTTI63ruPGHRdRz8t/0mMDn2hrpdi1SYYBeS3NDCLVawgEwyabfqrV?=
- =?iso-8859-1?Q?tWsjCr/YDqPdkkGD8dsyq6P9mMrOvFN8wL0waGscVzdWmfO3c7Fs0arUi5?=
- =?iso-8859-1?Q?Fe2oI023MQMWi4gb097dYskhgKx8ZdM50gv1093JwL1R5w2IVuD8LXaj/k?=
- =?iso-8859-1?Q?MRN3ypkxoMbU1DRYWlugMbKR2NTu44Oe1ifFVz/qZiTEUtheUIgGqB6q5l?=
- =?iso-8859-1?Q?DCsFLP6WDrrdtyAkXeU2guqYde6mTTpn+wL3MLZoAUuhIfUBGooWv5KJ/z?=
- =?iso-8859-1?Q?VCVa3DBbP+JFxAC1d07inUBtxD4UdkD6zniUVp8GjIYRqpRilA+t5OYKI5?=
- =?iso-8859-1?Q?WHjwyxxvcpncOMxpz5XUSohM8xnld6xnsQTbfepv2fw9C/EBJ6zQPsXRYE?=
- =?iso-8859-1?Q?Tx8wyB7TIMDVmE6rI2CIk+7MN6OfvFiTtJ1GGA8cnXPMdgnMcg/Sm4XE6R?=
- =?iso-8859-1?Q?KckU4cq0/NayF1tqT1Y3OYi56S8cnEV/ejEGfiMqqf+OVFTPIGmE42fhan?=
- =?iso-8859-1?Q?zOo8sRRfKhfxnw698W93kkWMbUf8iU2Tc8MmcsIGHGLWqHcK6u8vF5iD+f?=
- =?iso-8859-1?Q?/9jexOZqJ0k4dXhLNyE8zwbBaDOH9U3M/WeqcmT3+BM4u3LNypmq4TOJyu?=
- =?iso-8859-1?Q?1vDceNzvG7lOILlKWBVzd6FwJgM1LlcIBS4bf5EVG/KaBzuFDTxXba0iEj?=
- =?iso-8859-1?Q?kKVkb97JwwNiZyniw94Gfjipr3XHTTgzXivAswsjdxvPElz7F09dS63Bx/?=
- =?iso-8859-1?Q?r13VBPaga4CsQ7ESE+eqMsULkgX0iMtiSzjngc/MwQQSHDLXa2wIP3endH?=
- =?iso-8859-1?Q?LvJlgqRMzZhvfpSiQgtIKDUXffFDlgeTFby1rQ9mrFNmpO/6nacKVJaWzq?=
- =?iso-8859-1?Q?jNzbeS9g7HIn6uPxOlAltj2lMY+u7eXdXQ/cWYoCy5/jxH9Wre8axhMOmM?=
- =?iso-8859-1?Q?wm7+V5eqSXVDQ/YDoIpgHFr/zKiC902bjlA1lLS7qgIMGhurYtLOPglCdy?=
- =?iso-8859-1?Q?bT4yMpS/8ZFpklgY1Ylz8xge4Y5A1sSPplLtcUtbDn+y0ro0H2fy+cYN/O?=
- =?iso-8859-1?Q?/6x8QLTZ5xLXC+0ID0WojtruVpJtVwoU363sv03tx0U9qV7i0MY2a8lQY6?=
- =?iso-8859-1?Q?eQzLFWHksyTKTFUBCCgj49OXunojGHnNZL0ufwchXH6waNUFI9DRkQL4Ex?=
- =?iso-8859-1?Q?LA13HWhjr3P724jG+hqAKyYsSt5m+PB4uyBCNDJlmLK+Bx2jNaMe40VN1V?=
- =?iso-8859-1?Q?IHPeUK+XnLmKcDAPabJyYW2TyCW2HfB1/DtsuydfhJ7qSrQJy6vnhR95gM?=
- =?iso-8859-1?Q?2igJYZNTZ8PQDQEegcnm6rAfMktyjzDHBSVdj236jKf8LxpDytJGd78iIl?=
- =?iso-8859-1?Q?LHSa6AALuSk2qYKW+E+s/xPHDYHrEkx0LQvrMCfTtl9xEof0q1gxcZ7tXm?=
- =?iso-8859-1?Q?VtwVVrmfZ+duWhtvTiQ=3D?=
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?3gv7KfqUV9b35n+Rq74HunkDy5SKqa51omT++AWu7JflFpnvaG91Nk3Vh0?=
+ =?iso-8859-1?Q?mpFb/mzyEhnwruppCP6aKn3AFCGGlogyUB1b/n+ZU5Rl92Bl8qQWCiKttq?=
+ =?iso-8859-1?Q?c9Q9gjEo036kffGfZbnwKKJ0XBOl8FDFwmxG6d0g2oWdIIygEWS9l0Gv8i?=
+ =?iso-8859-1?Q?1Q32n7mz4DdQq4W9K+4TSma1qvtCF78wCRp6UhrWWsJS9638wurEoT4DWz?=
+ =?iso-8859-1?Q?RZzHs8hBLSmTsS0C2FXV+BUKZ8EiPh4+nnNxmHzXKLTfFRlX1BqDTPaZr+?=
+ =?iso-8859-1?Q?6LlSOgSc8/fffPEk0J5v9soUWBhDRUZcY8LYcJICt4aJ5M6LX/yP56Y1z7?=
+ =?iso-8859-1?Q?XhIMwEbJzUmFgwzWhOMhliwHh3MJ8PsglpJ0CdO9cqOMnz6HjxRRH6rkT+?=
+ =?iso-8859-1?Q?nxSkArWBdUUlj+AHXamN789HbRcaAddxNyuqr3h8IstseywjS7cIR+0fqv?=
+ =?iso-8859-1?Q?zfqBRy640eJkmAusAwGnzY1SA3HhMUoMm+4H8vCeeBKq0nyIYAHIAYWhfW?=
+ =?iso-8859-1?Q?i/gfk0/FkGaclHyR50TpvPTm/kJByhnap5ePC0B7mY+F1lsjqZtoj2vFyZ?=
+ =?iso-8859-1?Q?10/bgERRrolKQiQiWmARGMNExVWkchxwV+MRvPKYv6YuHrRA3l6k5T58+E?=
+ =?iso-8859-1?Q?gqfJj2doNQzd84F0L8Z7JIBtbIWludDNk1MaYqLxoVxIchBIx4k00ivPWA?=
+ =?iso-8859-1?Q?tFodNwOZPCAZjK6SUDLX7ouzhvstM4khxntIYOoQQF2WGTyFDztDUr3dBU?=
+ =?iso-8859-1?Q?4jWWpl7hu5+0UdNtMmBNAO2z/WvFtuiPgE0Bgxjnz54WKHg7DDo1Hudzs8?=
+ =?iso-8859-1?Q?V+9AK0IuQobEWsdBzWqMaDoYGgEgSSqsehyT25Ogw42snanYD0Sjzl9vrv?=
+ =?iso-8859-1?Q?CvKBwLzzVv4w+pZxnd9Wf48j/vQfsW4BFfxNK9+5X2lVWRjdM2oaTMSbHn?=
+ =?iso-8859-1?Q?geuR2vYF3woaG/bLuGdRfohhBpan/7NNjgalhFowHl5/XpfMKA7aHr/V5H?=
+ =?iso-8859-1?Q?VPXHX/6+Qek8lTbdjDhfVRzYpCBctsn2sAKJW+Fj6qMbZIbZQiqfo/eQlr?=
+ =?iso-8859-1?Q?MNZjh0B2lUOVC+PIgdr6LVui1LC9bnhuONI78Ye8mNZNGsBx0MzVoDsOsk?=
+ =?iso-8859-1?Q?JNkAnlAXnjIESRjkWKdqnChNN2d86MQeTLkD9xp1BO+33b9H4rBSEmoUtM?=
+ =?iso-8859-1?Q?NszkcTA/wBGJZ4z4HWcZLMbftRwGgx5YfacHxvtEC8Ldq5CsI/UDuKf5dx?=
+ =?iso-8859-1?Q?+efK/3TNXqO53bd/eBQVPWtvTJal4W2LRWxQ52jp1hAkYzCaWhZJGFTMeY?=
+ =?iso-8859-1?Q?BqZbOYSx+NH0v8PkrZqqlzDulyfVf01fkr0tS3BHxliuPzEn18LLZh6kB9?=
+ =?iso-8859-1?Q?iD/yHiP5O2csajR2l/TmFH77JVp2d7GsRxmt7fri6ustKRddVgplwsVZGl?=
+ =?iso-8859-1?Q?R3UF2oGuc7BCKVtAlCk9Ez0GMBucLw99jngNzUb9U+rZyJiODrzap5+ntZ?=
+ =?iso-8859-1?Q?fdxqvpULrY9cfgSl/6TH4EsGcrp2Z/iNPTuPt0ZhKbFWpjv4ssKDqZ3BYw?=
+ =?iso-8859-1?Q?0MSnTMN1aZetD2mHvpy0q5sk+ghffB+CWjhvMcQuxW8nPF3XWtI67uBmao?=
+ =?iso-8859-1?Q?ECozOPfX390ISB/1rbg8GTrfmY5ZCCZwRUkHNwxNtwi64HxXILs2aenCMv?=
+ =?iso-8859-1?Q?KdZ69Jl1P1cpDR7uMAc=3D?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dbac2362-74da-45fc-d5e8-08d9b0165a51
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Nov 2021 13:20:29.9044
+X-MS-Exchange-CrossTenant-Network-Message-Id: 886e010c-a4e1-4541-5377-08d9b0165a98
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Nov 2021 13:20:30.3774
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: o3CEzneKW/S1waD9+J1T6AIvwgmpyfP4oeovXh7yP3wHnBYH8YHXiLtTYFxwzOV2fxdw/ZTYihuKmvgmsptTcw==
+X-MS-Exchange-CrossTenant-userprincipalname: baEYv6JpR8va5Cd+uXX3tg0C4kmCqZ7MnqzQWR5vKeGDIU5lnGQux677r4jT9FGe10Ph96CnFhZzioioGLVvHg==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7591
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
@@ -130,34 +134,88 @@ X-Mailing-List: fio@vger.kernel.org
 
 From: Niklas Cassel <niklas.cassel@wdc.com>
 
-Hello Jens,
+Commit 56440e63ac17 ("fio: report percentiles for slat, clat, lat") changed
+many things. One of the changes, from the commit message:
+"- for the new cmdprio_percentage latencies, if lat_percentiles=3D1,
+*total* latency percentiles will be tracked. Otherwise, *completion*
+latency percentiles will be tracked."
 
-Please consider this minor series which adds missing information about the
-existing behavior of the per priority stats.
-It also cleans up the per priority stat code, no functional changes,
-so that it is easier to follow.
+In other words, the commit changed the per prio stats from always tracking
+(and reporting) clat latency, to instead either track (and report) clat or
+lat latency.
 
-Changes since v2:
--Picked up tags from Damien.
--Fixed minor nit by Damien in commit message of patch 6,
- and minor rewording of the code comments in patch 2.
+Considering that a certain latency type reports two things:
+1) min/max/avg latency for the the specific latency type
+2) latency percentiles for the specific latency type
 
+If disable_clat/disable_lat is used, neither 1) nor 2) will be reported.
+If clat_percentiles/lat_percentiles is false, 2) will not be reported.
 
-Kind regards,
-Niklas
+Therefore it is unintuitive that setting lat_percentiles=3D1, an option
+usually used to enable/disable percentile reporting, also affects which
+type of latency that will be tracked (and reported) for per prio stats.
 
-Niklas Cassel (6):
-  docs: document quirky implementation of per priority stats reporting
-  stat: add comments describing the quirky behavior of clat prio samples
-  stat: rename add_lat_percentile_sample()
-  stat: rename add_lat_percentile_sample_noprio()
-  stat: simplify add_lat_percentile_prio_sample()
-  stat: make add lat percentile functions inline
+The fact that the variables are named e.g. clat_prio_stat, regardless of
+the type of latency being tracked does not help.
 
- HOWTO  |  6 +++++-
- fio.1  |  5 ++++-
- stat.c | 52 +++++++++++++++++++++++++++++++++++++++-------------
- 3 files changed, 48 insertions(+), 15 deletions(-)
+Anyway, let's document the way that the current implementation works,
+so that a user can know how per priority stats are handled, without having
+to read the source, since the commit that introduced this behavior forgot
+to update the documentation.
 
+Fixes: 56440e63ac17 ("fio: report percentiles for slat, clat, lat")
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+---
+ HOWTO | 6 +++++-
+ fio.1 | 5 ++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/HOWTO b/HOWTO
+index a3b3acfe..8c9e4135 100644
+--- a/HOWTO
++++ b/HOWTO
+@@ -2169,7 +2169,11 @@ with the caveat that when used on the command line, =
+they must come after the
+     Default: 0. A single value applies to reads and writes. Comma-separate=
+d
+     values may be specified for reads and writes. For this option to be
+     effective, NCQ priority must be supported and enabled, and `direct=3D1=
+'
+-    option must be used. fio must also be run as the root user.
++    option must be used. fio must also be run as the root user. Unlike
++    slat/clat/lat stats, which can be tracked and reported independently, =
+per
++    priority stats only track and report a single type of latency. By defa=
+ult,
++    completion latency (clat) will be reported, if :option:`lat_percentile=
+s` is
++    set, total latency (lat) will be reported.
+=20
+ .. option:: cmdprio_class=3Dint[,int] : [io_uring] [libaio]
+=20
+diff --git a/fio.1 b/fio.1
+index a6469541..a3ebb67d 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1967,7 +1967,10 @@ Set the percentage of I/O that will be issued with t=
+he highest priority.
+ Default: 0. A single value applies to reads and writes. Comma-separated
+ values may be specified for reads and writes. For this option to be effect=
+ive,
+ NCQ priority must be supported and enabled, and `direct=3D1' option must b=
+e
+-used. fio must also be run as the root user.
++used. fio must also be run as the root user. Unlike slat/clat/lat stats, w=
+hich
++can be tracked and reported independently, per priority stats only track a=
+nd
++report a single type of latency. By default, completion latency (clat) wil=
+l be
++reported, if \fBlat_percentiles\fR is set, total latency (lat) will be rep=
+orted.
+ .TP
+ .BI (io_uring,libaio)cmdprio_class \fR=3D\fPint[,int]
+ Set the I/O priority class to use for I/Os that must be issued with a
 --=20
 2.33.1
