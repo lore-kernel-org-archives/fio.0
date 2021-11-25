@@ -2,49 +2,49 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F211C433FE
-	for <fio@archiver.kernel.org>; Thu, 25 Nov 2021 13:24:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 641FCC433F5
+	for <fio@archiver.kernel.org>; Thu, 25 Nov 2021 13:24:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349527AbhKYN1o (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 25 Nov 2021 08:27:44 -0500
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:63992 "EHLO
-        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352346AbhKYNZn (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 25 Nov 2021 08:25:43 -0500
+        id S1352346AbhKYN1r (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 25 Nov 2021 08:27:47 -0500
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:44957 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355299AbhKYNZr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 25 Nov 2021 08:25:47 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1637846552; x=1669382552;
+  t=1637846557; x=1669382557;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=N3K/KloeksvHYD46PIwQAeRiX9h4ffVYjHJeTqP7XcQ=;
-  b=FzWSWsxCseurLJqkgKXEOESKrJ+EC6lZnOy3LHF5uoInLY2Abs0eQCk+
-   z3x0ln57aXzDijxOcbxIvrB29b2aGCNaAicKBgNgp36swOdeeUpn7GtWp
-   pEHhqu31XsWIx+mnukAhIBVc366wapQsQR4eD5RN6aOn1C/ELeGhR75Fj
-   DCx7jkF5fOkkhUkU/XC/FYiHZrrMHYzBBkmAF2mGDTOuzZ5qEjLF2Rqq1
-   kM/xXBu7/U373MDmG0ln9S7gnORkTuUiPBlfq4IVl0kgL46+ztCwYPIdr
-   zJX0QFPZoSNKRSMDYG1NsWiRp21fWasroPr9ttZKao/eOZ0Cduvpg7dCz
+  bh=NPe2kiEno0gC3YFjg/bNX1/h5UaEYrdFgdvo4K2OSWw=;
+  b=fOKM7hHoQ1mpTxQJRleIjx28leBR2uCjzsuSeropwkrtDcwhAskrOAbW
+   h/LWOsX2o+7dyBBBlu9mVeBqnQhlc2umv5D0zcuLomsR6a3SeDHaNXtx8
+   Nb8RgoiTkkIdbrdCD7IKEU+7h8a1Oi7SZWG+zeQmE0YuPmnz3NqEB5zrA
+   fVR8V/s7pCXorDfk5dQY1kiZ0rkUYUHuZK6tNr6H23CunPf2vFPWXLf35
+   aRSnXnyAv3n029N5KySkX5xQG/9MslC3AhzURPHH6LnniS9WjwjdiAu0A
+   tpo9OYtCYKs6ZaHOZRESxzqlU26dpm952egiv7LJ7Ho04QhKJd3ashFIc
    g==;
 X-IronPort-AV: E=Sophos;i="5.87,263,1631548800"; 
-   d="scan'208";a="298461774"
-Received: from mail-dm6nam10lp2105.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.105])
-  by ob1.hgst.iphmx.com with ESMTP; 25 Nov 2021 21:20:33 +0800
+   d="scan'208";a="187633913"
+Received: from mail-co1nam11lp2175.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.175])
+  by ob1.hgst.iphmx.com with ESMTP; 25 Nov 2021 21:20:36 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iWA7hroScLB7udeO17favQz0w+A9P568L9kI0ZuXDnEUJ5V0UBX7Uji9mdv+Cejr/IcTaw/BNFtIwfW37fsLpMXkprGLB+zT7T4y4mcOtFVGOcTP1ZDFuSnvEL0n/Yt+Mwxx1tHK+dA3mFw9mAJLNJ/DdBxAwKYykAc09Haxal9U1uALPfPhr64OgsXJkJBobpwPCnS0tlqzF8ic55u4bZ7jnOUYuYMMtPbtehFMZrO1CY1sT4RQ3LfzjCyb0oFXI1u1E0FShmWVj7JkYE21V+ULiIAbVdDruFzDdKV17tIk0n6mVSECDl1YMeCyXCKwyU1ve5feaY2RHSPkJoXrEQ==
+ b=iRKvEGyPEe28GLA+cXEPhvlLXg8IAVUxBJi3GpSk3f2qScMHndRX6EGMsAxIBx3tUg3WftNyrfkvrvQefHTDpLZOw32N2zCZglXO40lvypCjtt7T/4gHRvHkRhjyxOe1gJe29CrMiI7R1nIkvf1S2TgmHX78ZvvGDc5CP4WoYMovHGvWM8HeP7Sc+hP7mmounN9/15cFXn6y0xPPOsf29wPz9RaFVBcTb0y/RES095IS1eYtXeWRULI1tOJ7esZkhrmK9nTIhWkhfcofKOIAnRjp9XBCSaFJPVgan9ENwbKrCoEgfz5ByqCRliDv2jRlib1YTpxqBKp2hNhPAWhY/w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=to2TrV30bQYEVw5Pp/aDkZfg0gY2UOxYz523/2SYr/8=;
- b=Dn3vOTYa6RYrpCLO7qnh3++zJ6zLDxRBfHUYoEmklf8ufjwwj6on6VJA79exJgZueluzre1PoDZaNqJfiUgC2NG72wg4GfFDwu0RBqJGVQ/I/IV75ecbs5JUIZV2kv/ng01ojHdxGf4YLt96xoxtkRFrP1UVcr77RzAP+3lkt5Qw/6YQXKRIL4xmLi9L4OnGVoEyUL/CkZXW29oZkbIjiX5wBEkL+g5aqmikoIe5h59FaqxxgFu34XIWxvu+WSK3lUqKG/j/sf6YCyDfpoa8/kn1duv6yFjl2r6zmdHVurIeACDElWiCcsoWLN6aP+znHHJcXXIGUm5TUJ+sUIcExQ==
+ bh=xI946lWsucj9S40xSVIV/+QW3OouxeGSJv27FaLlWSY=;
+ b=NwCFaM04eKN6y96R+SWVQ8QYzKEnMWDlJzcHdtqIbIAjzehvdY2FB3KmwFAnP9sutF0vmNkirKBrtmK21DJrdgVr63jrLTd24j6eECWu1c3+DN1gdtztBlbBfjsyxLooI3qKRv39RXKrBCz9PgJFJDz9GXHycFD3bip3EunYxJICJhbEknueZshziz+klPN8+5FBYQIAARXHSl2CuExidMNHebggDsz0ACd+vBfCqSyRtYL42pycfnJhPMolcfCzz5zVsVZnXtfXtHp2Vg44vXTUQi0d3fV8/6k3JrMgxOycgta1HIMJyxAB+jTt/Tl8jcaTWWKfg0wWWkELGlKJxA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=to2TrV30bQYEVw5Pp/aDkZfg0gY2UOxYz523/2SYr/8=;
- b=PXRohEiXGTrVFpF1nsV32zx6Pc8gEyiQTynx68N9dGayXpnQmoGfemw7jzIoR6Cm2H2UaxfyQy923XnX+dxOaZ3oKyFUQV9rbXPx20P+tYUuZG4SbZreBk048yEsHJbhnfILzIoJPgSWYe8llHRDsssa568cg+0Rg/3uctINf3A=
+ bh=xI946lWsucj9S40xSVIV/+QW3OouxeGSJv27FaLlWSY=;
+ b=TY2oWU6KGNgUoy3j70HUA2W3mcwoOwqNfmlHehRFeQ4+YO1N6HVCr/KY0UZm+yJZIJDjjtFUJ695/u1imuk+32w9P7IllGCbmqoc1KrGW0IDDL2d4a327AyvmdKC8TWLYLSX6jYkgFE6MeGamDlnh6shiuWWpm2GVacWCw+KQpg=
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by PH0PR04MB7591.namprd04.prod.outlook.com (2603:10b6:510:4d::8) with
+ by PH0PR04MB7478.namprd04.prod.outlook.com (2603:10b6:510:4e::5) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.22; Thu, 25 Nov
  2021 13:20:32 +0000
@@ -57,11 +57,11 @@ To:     "axboe@kernel.dk" <axboe@kernel.dk>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
         "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>,
         Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH v3 5/6] stat: simplify add_lat_percentile_prio_sample()
-Thread-Topic: [PATCH v3 5/6] stat: simplify add_lat_percentile_prio_sample()
-Thread-Index: AQHX4f851P/3+K4DB0ekHNvuTy7fbA==
+Subject: [PATCH v3 6/6] stat: make add lat percentile functions inline
+Thread-Topic: [PATCH v3 6/6] stat: make add lat percentile functions inline
+Thread-Index: AQHX4f85fE2p9dLWuEize0k1MsYd8w==
 Date:   Thu, 25 Nov 2021 13:20:32 +0000
-Message-ID: <20211125132020.109955-6-Niklas.Cassel@wdc.com>
+Message-ID: <20211125132020.109955-7-Niklas.Cassel@wdc.com>
 References: <20211125132020.109955-1-Niklas.Cassel@wdc.com>
 In-Reply-To: <20211125132020.109955-1-Niklas.Cassel@wdc.com>
 Accept-Language: en-US
@@ -72,131 +72,109 @@ x-mailer: git-send-email 2.33.1
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: adec3157-3f43-466d-e598-08d9b0165bbe
-x-ms-traffictypediagnostic: PH0PR04MB7591:
-x-microsoft-antispam-prvs: <PH0PR04MB75915B9E9301C141FDB54CEAF2629@PH0PR04MB7591.namprd04.prod.outlook.com>
+x-ms-office365-filtering-correlation-id: 85437f4a-eaef-48d3-8016-08d9b0165c02
+x-ms-traffictypediagnostic: PH0PR04MB7478:
+x-microsoft-antispam-prvs: <PH0PR04MB7478B8B9A4297351ADFB8036F2629@PH0PR04MB7478.namprd04.prod.outlook.com>
 wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:2449;
+x-ms-oob-tlc-oobclassifiers: OLM:48;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: OEyXwaC3J0Ztzu0HQvsw+wu3HsqkUSURuD7c4pmMJaitjzEuvCn/9tGZ1hfkbWpfxXzq1KuezzT6zovd8TBJK8guaGwk81NE463nXwppYjTn+Q2o89iT0dz1nNtvexUrh4snK71FwfC3CLF44n8zlLL0F20LK4R1fBZBnVjbK1+Zifn8nhCiM3+nANh0ILLVa+DtGjnsd7yIgOB3hJId67PuTGI9mmromYk7XaRs3AFSTBKOlPdOWhuhtS2ZUBtz7aZ1Md0mNq4yPEYr4lF0bjvbf4JFGSP90/0Jsd5wjba1N9LMMqy7lkK6afaOwaT3oU7v83Ou7KbCgDflQ9gqaJzj5GcK2dwJNQ/IdEo/7hxseKrA50jfdRU58uaVkhZHRup9jQf2dO/5zzXts6t/zLrKUWU3M7VlO7SiweMBJctqPfvMC0yTgan9ZyCT8Q4Yy9OQ7Kgsw2h8DA8JM82yiOOvXlUpWVnSRT6X0uvwaiF5YAdXygrVFskBSl64V+o7iu/FGt4bUzarjWkDsJRQqe5A7h8dKtcMQsn2zX1mgSvqRw6UwqQc42nvSwL1iIQ1prl/RLUzie+wR2H1gjYakpoeQB1WpR79xWjrgP8JPzwyuVbA+TkgtSwwJ19KvTW/vJ/h3f0JRxFE9IvPcaqqoWa5LzXwQg+zY/LhlThVnxAV7Ypty3DgZ08SU1aaT36eUP7A84paduTGqGsFQJnJXQ==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(66446008)(66476007)(66556008)(64756008)(6486002)(6512007)(2906002)(38100700002)(8676002)(122000001)(38070700005)(5660300002)(186003)(8936002)(76116006)(6506007)(71200400001)(508600001)(54906003)(91956017)(83380400001)(6916009)(4326008)(1076003)(26005)(36756003)(2616005)(66946007)(316002)(86362001)(82960400001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: FsINvEnWqei4jROHwYEbRxmHgfyFxoIkYAWJj+6y02zAMllE2Hb3YxB49P0/J8AWLpwU8W0Yq93FmYFZLOHOpTPqjTpATMReplE145ZYvCIA3KbmdQ6SxttFg2TPbL32L8fB4QR4AiLVHLolHM6zS14aXn8SVWj/htwe0uTOMZcSfAoE9ALlI6jSzeteCdTenoh7WstPXz66jEMcOq4C6F06Hy+q07GipAi3i5WcNH+XqLUmrvdb6RRwkm4pO0VJXM7sjFQTuHcR78Z6vl2Maeh5PnkVi7MjcsMFo2dpGAM3YkEjz4TMfdu9qxw+l5VupPEHdxlaabMZ2JHSf6DSfiFTfBu38KtH5H2e3ETCdktbiiArt0Uz60I/7Xspf2Lh2myEI/x3z3DFavy89LV8OC4fMbyHjZKYgNXCGSufAxbID587YIp3L4TAWJrk019eDBDEtRYVAzPi99QE7WbTejSRQzKH86jOO5nbYxj3cwAkoJ63j//fl+S1O4Lcz8pnmSGuHgEUR3H7QFqEhO5ra5SF3AsxJauxSY38rYVWrOWZPz+Ppk3CmGP5I+5Ua52wY9YDBGPhPPDFWr1kCYRN4FEVjMxwRKis2QDbhEJ8/Z6XZ1QAHNTXxf/fLwC57+8pEorx6saK0tWpwC8ltmz2dp3UmaHCyI72+8oOA93n2zf3scLSNHIJNxlNH+bAwWiUNDqBZju2cgDnEoLQmR+Kvg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(8676002)(1076003)(6512007)(6506007)(186003)(6486002)(86362001)(4326008)(5660300002)(38070700005)(2906002)(508600001)(6916009)(316002)(66446008)(66556008)(64756008)(122000001)(83380400001)(82960400001)(26005)(54906003)(8936002)(91956017)(38100700002)(66946007)(36756003)(71200400001)(66476007)(2616005)(76116006);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?Q6jz2oSNpS9PXx+gxaj61dS9pZ/4ydHyy5Chqm5y4LQCHfHa2belQEvlzb?=
- =?iso-8859-1?Q?0witM1VIHk8MZ8wHWrPzSjXJuUz3HjW19lMebufrcp5fPnZguBccRO0Igy?=
- =?iso-8859-1?Q?NvqxYWyy71TqiBXVW+P74gzJfQhXIU4C10qspTMQSq9X7W1j+IL62Li58g?=
- =?iso-8859-1?Q?mEE+nEMqJszcIsG0wfdADpWft0GBfmzoDKirQlhQ2E93LVKLNizSGex+PM?=
- =?iso-8859-1?Q?JRXWqUCyfDtXabvRrbemYIniPci9EoIshbDRWqq1SMwBOr9ySKD3TOm1Bt?=
- =?iso-8859-1?Q?VjY7DcpKoui2rJiHL02jCtzwhuLShf8Lhz0syO9fzuXqd55eTFDuFNrAXS?=
- =?iso-8859-1?Q?rpWM25X5hQeMt+HNpWGHCP7GdfNl1vwNnOva1DNmdwiUVStmZ49WGor6pa?=
- =?iso-8859-1?Q?2HjxYowFrOqqevD+YKvl5aunS8dH+lpx6Oc8HVJwZk+h/0QM7zt+v0CY8K?=
- =?iso-8859-1?Q?6nI3J8sOVLKyWEdKZZNnR8yxyVvTfc3TNDBM/qNUOJRlmV0xJHUrLQALk3?=
- =?iso-8859-1?Q?Krx/PQDZxM4TAcRk8tHXnoVo/5zHQeHj1CFQpaKYlw5LFKkf1VC7IxBOWz?=
- =?iso-8859-1?Q?NnjEjdb9vQXymYf3YrRHcTJl+AinD4e3/DLZ+MxqINcrW31hRxEilK5cuU?=
- =?iso-8859-1?Q?OZGCpDLsQZHSoPDGjMAuJ6EMG9py/hnVCBrDpeUAZv3PBQRjeeRSuI2Dtk?=
- =?iso-8859-1?Q?Qbw42+PLF2cvD0ubPWcuAyOc0MQAr6xsNgx4VGgN1j0147tfm+8cz6qIxK?=
- =?iso-8859-1?Q?VfLj+/hbBi7lYX9mkJBShTYjpPdIir57NWrf8Z4L6L9ex89KBWmeW1nlyi?=
- =?iso-8859-1?Q?o7Miv+VCJCMvFrQE0i9ymNxt+mJF1jAJHXL5CbKQ3vG/0WJClQXAcsQgk/?=
- =?iso-8859-1?Q?Q+ocYMWVWW87Y99WdjWeQ9xWyUUC0DPcqsc60qBPJn/M8Vf1oOT+70dH92?=
- =?iso-8859-1?Q?CuAi9ie4Cs7V22WWYI75dkTrN1g9Sh4XYYTbv0pYN102jER6OnfWdWW9iN?=
- =?iso-8859-1?Q?iOseLV7Ti9tOiY3W4H9HtO2wUaXD0iFnCmv0sRcnv8vyzrAKePeD5K5KP3?=
- =?iso-8859-1?Q?cFeQvuJFat/5sLEsxxk+rQD8mIeLVBHzgxpPqrj7OA7/kkQtE5ojSRRRps?=
- =?iso-8859-1?Q?PhoChqJxasXNkipyFMFEc+LQeL1qoo0WG3Jrw6vUkIkBn98VpXbXxpaSMs?=
- =?iso-8859-1?Q?cHsqaqdPBYHYeeEx0ZkW/siCnUR6ucQH03i81HqHtCW6MOyR1TqSKkCygw?=
- =?iso-8859-1?Q?e4/QTEW2Yf2DCkYPiMBjY8uzLU2xlVmiQeTxXmXKhzpa+vCm+P70Xw1Vf6?=
- =?iso-8859-1?Q?n4TthIvkDFZXwlHsRR/pn9KYqrMC/y9TqKkzI2rFcKNMfIlvGn0l0sz9OG?=
- =?iso-8859-1?Q?tUUFa2v8HievNBmDtUGtu+Q/xBwMSMTVAh2Ti/ECXl/E7tEYVvH+8tdV8p?=
- =?iso-8859-1?Q?hZxxs8id06zMa7BYK/w4xDK0wUI1z5jigWL9GEdvknpctqcsmR3SbSqXIt?=
- =?iso-8859-1?Q?clR89tXrAjVcjSg5zSHPmhobxzR0X2a13+9Bjqxo2+yVMjuy345cW3zGQ+?=
- =?iso-8859-1?Q?gFBcOy/2BZ1NqwXj1/E61g8nu54g2/UKwzy8FwLXJ65ytPCucdGrO/rV0U?=
- =?iso-8859-1?Q?GGyjMYjl8UcLJWu1hnCmFHx/ILJVZ55SqaoU3RZlTcADSfciEw7S8i5a3E?=
- =?iso-8859-1?Q?fTC37FwbBxnwaLJuCkc=3D?=
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?iXwI8HbxQb/F6WzQs1+5x5QonCznKO4vOsqErk8VAzo8IPipwADYdqPytW?=
+ =?iso-8859-1?Q?ci1tmvOvRy2LJVR6Qgb2gr7Q2ytr/QgqJw7OA0WNdUgLuklI9JFgG3KTG3?=
+ =?iso-8859-1?Q?SWuXSq5atpAj+eQ9ln35ZlQsfWTb5ydqIyqjyPukYDKk4kZUYAGP7NIZiV?=
+ =?iso-8859-1?Q?84m5OQlchIGLnXn20osN/RSWxv00s3irL4lDSrBgNaNybt8qyPDubBR3dl?=
+ =?iso-8859-1?Q?ERCeCLjeHKSiYVWxo8XyagwBGeafI4srbcw4Uvp37T3nmf40Ow0X1ic9vU?=
+ =?iso-8859-1?Q?sTAi4xJZisfHt9MufZBhq9aTRz3SlqbFoowCd9ZDdrgJFYu4B3sfpa8k5c?=
+ =?iso-8859-1?Q?ujJTvAO/1i7c0aZI+2PYvafIx98tTmNRF4Emq7z6qylb/aqhGsolFOt4kt?=
+ =?iso-8859-1?Q?r0EsfGxWMooYgMzSDeJXWGHc0Dm/f78Uat6FA8Yl8DeGHEXQVH3R9DrKY1?=
+ =?iso-8859-1?Q?0hn2cuWi2u6dK3wKCN3CjPybF+I1ZlN6DEqLk4Yye6brbNDxO7GUoSoMri?=
+ =?iso-8859-1?Q?MkheO4sBaDVdMLHfRQoLTYrQ7uweJLtlcMEYNPCsoUB4ajSRL152tFJ9eU?=
+ =?iso-8859-1?Q?QtNK7GknbMhprXy7RwfObqde7LXP1E6vtEHGaBIMfNeChxgQFxha2d8SIY?=
+ =?iso-8859-1?Q?Jjy9qUy9kh7NVmm6xTEvDqPdANgLa4gwdYByLKGmYvq4NVoi2YCAeHpC6G?=
+ =?iso-8859-1?Q?YuiKfePja5QUp2mdOUDjT5AcoSDi0TR7ISi7o5DZfz0Df8d7wVeZCJtKYV?=
+ =?iso-8859-1?Q?0N5JveWFVavE1wdCL5gb30iYAiS+OfsepHglw+wKnOPZ5s5BdzyhbJTyvq?=
+ =?iso-8859-1?Q?vBDr4GrZtA1u9TPZIwCSAolRagrYTCq/u3OkkIKbgR+ai4CY9UenRCf5h7?=
+ =?iso-8859-1?Q?hvigpOR83sR+Vp+ZhZ29XmZUZDUTqiVA3KjosPzjylCXsgzbymjeM7s9q/?=
+ =?iso-8859-1?Q?Vl5FobkZ8FNjmgksfonvNNfSeqkA1FI+7UQhI0Qf4MhHDCRSHEQskNWuNu?=
+ =?iso-8859-1?Q?8xDoJJfyj94kEwZoCEGuY6yPuuieUkHxMHhb7E0iXCFuoD8zLEy5UmBRfn?=
+ =?iso-8859-1?Q?2XAT/K0UT7QFZjy8BSFxkXN5Qyq6WM5wPVXwO+9MZzWe7orp2TQuyoFtnr?=
+ =?iso-8859-1?Q?EB15I8cTVd8B9I6MK+4+apNV/LwqV5LzT/7/+yuiIXSsnQQXiNMMhtr72O?=
+ =?iso-8859-1?Q?C/GhOi8iuHCW7HrjXM4tni9mXBGuwsG+jfVTxUU4qLJ8cTYNqy4h5Df+SB?=
+ =?iso-8859-1?Q?OUZ6M6l9Ms+IPwSZ8Y48812492Ga9vUUNG9Kqh+ywsBuWfwM+udu8+Lc0P?=
+ =?iso-8859-1?Q?6+dTYrydtzAYXHp3Ghg7OVPSLctKoGzrrXMXoQbtHW+BrUhbhapVUmsKsa?=
+ =?iso-8859-1?Q?7aDGN8JVden6LgbU9i1jg2vYtrE4LhYvBMlif0hd3pjxyDXxSAyRj18zDU?=
+ =?iso-8859-1?Q?EEfqY7xUFvKHnyN1hKpZeCvnLERhj2+MHGn+0Mh/1rUahLe4EUcXPm9Uwg?=
+ =?iso-8859-1?Q?JGyAWkjQroq/5TEWK1XPGVEa6vV1U8D1ivBXoecojPxmBqtUGlR6js20RQ?=
+ =?iso-8859-1?Q?cniD6jPKjSQSnOA0//2wwjXrxSvb+ahlh2iC7kG3v29bZIv6VcJdoWGUlc?=
+ =?iso-8859-1?Q?sPI1aFypmOfzVqmgThoEscpUpVcc5jLV3A06DrNjwghVs4xTRv3Cl6xR7C?=
+ =?iso-8859-1?Q?yiwqWtdsWvkX8lsTYRY=3D?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: adec3157-3f43-466d-e598-08d9b0165bbe
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Nov 2021 13:20:32.3248
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85437f4a-eaef-48d3-8016-08d9b0165c02
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Nov 2021 13:20:32.8037
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: QkypNXdo3M2cGoPAtIWxoww1U2V640Ts7ZXNO2yVb+adBG4aF0g/9meSrehdkiqoJtHxSFEn773msSHGQNGQpA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7591
+X-MS-Exchange-CrossTenant-userprincipalname: 4uq6N2Y5C14nczQMYzYoAXRGNCjtmE21kOU1aaNyRFTJdcs2dc/yMfQXYcDq+tQXkd7VLng3jySyRLmedSQLPA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7478
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 From: Niklas Cassel <niklas.cassel@wdc.com>
 
-add_lat_percentile_prio_sample() currently adds both a per priority sample
-and a regular sample.
-
-Since these two samples are completely unrelated, it is very confusing that
-the add_lat_percentile_prio_sample() also adds a regular sample.
-
-Remove the add_lat_percentile_sample() function call from
-add_lat_percentile_prio_sample(), and let functions calling
-add_lat_percentile_prio_sample() call add_lat_percentile_sample()
-explicitly. This makes the flow in e.g. add_clat_sample() much easier to
-follow.
+Now that add_lat_percentile_prio_sample() has been simplified,
+make both add lat percentile functions inline, just like add_stat_sample().
 
 Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 ---
- stat.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ stat.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/stat.c b/stat.c
-index 28e49a89..f78899c8 100644
+index f78899c8..7e84058d 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -3065,12 +3065,10 @@ static void add_lat_percentile_sample(struct thread=
+@@ -3052,9 +3052,10 @@ void add_sync_clat_sample(struct thread_stat *ts, un=
+signed long long nsec)
+ 	add_stat_sample(&ts->sync_stat, nsec);
+ }
+=20
+-static void add_lat_percentile_sample(struct thread_stat *ts,
+-				      unsigned long long nsec,
+-				      enum fio_ddir ddir, enum fio_lat lat)
++static inline void add_lat_percentile_sample(struct thread_stat *ts,
++					     unsigned long long nsec,
++					     enum fio_ddir ddir,
++					     enum fio_lat lat)
+ {
+ 	unsigned int idx =3D plat_val_to_idx(nsec);
+ 	assert(idx < FIO_IO_U_PLAT_NR);
+@@ -3062,10 +3063,10 @@ static void add_lat_percentile_sample(struct thread=
 _stat *ts,
- static void add_lat_percentile_prio_sample(struct thread_stat *ts,
- 					   unsigned long long nsec,
- 					   enum fio_ddir ddir,
--					   bool high_prio, enum fio_lat lat)
-+					   bool high_prio)
+ 	ts->io_u_plat[lat][ddir][idx]++;
+ }
+=20
+-static void add_lat_percentile_prio_sample(struct thread_stat *ts,
+-					   unsigned long long nsec,
+-					   enum fio_ddir ddir,
+-					   bool high_prio)
++static inline void add_lat_percentile_prio_sample(struct thread_stat *ts,
++						  unsigned long long nsec,
++						  enum fio_ddir ddir,
++						  bool high_prio)
  {
  	unsigned int idx =3D plat_val_to_idx(nsec);
 =20
--	add_lat_percentile_sample(ts, nsec, ddir, lat);
--
- 	if (!high_prio)
- 		ts->io_u_plat_low_prio[ddir][idx]++;
- 	else
-@@ -3117,11 +3115,10 @@ void add_clat_sample(struct thread_data *td, enum f=
-io_ddir ddir,
- 		 * sample only when lat_percentiles=3D0. add_lat_sample() will add
- 		 * the prio lat percentile sample when lat_percentiles=3D1.
- 		 */
--		if (ts->lat_percentiles)
--			add_lat_percentile_sample(ts, nsec, ddir, FIO_CLAT);
--		else
--			add_lat_percentile_prio_sample(ts, nsec, ddir, high_prio,
--						       FIO_CLAT);
-+		add_lat_percentile_sample(ts, nsec, ddir, FIO_CLAT);
-+		if (!ts->lat_percentiles)
-+			add_lat_percentile_prio_sample(ts, nsec, ddir,
-+						       high_prio);
- 	}
-=20
- 	if (iolog && iolog->hist_msec) {
-@@ -3222,8 +3219,8 @@ void add_lat_sample(struct thread_data *td, enum fio_=
-ddir ddir,
- 	 * lat_percentiles=3D0.
- 	 */
- 	if (ts->lat_percentiles) {
--		add_lat_percentile_prio_sample(ts, nsec, ddir, high_prio,
--					       FIO_LAT);
-+		add_lat_percentile_sample(ts, nsec, ddir, FIO_LAT);
-+		add_lat_percentile_prio_sample(ts, nsec, ddir, high_prio);
- 		if (high_prio)
- 			add_stat_sample(&ts->clat_high_prio_stat[ddir], nsec);
- 		else
 --=20
 2.33.1
