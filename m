@@ -2,112 +2,87 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52C3FC433F5
-	for <fio@archiver.kernel.org>; Fri,  3 Dec 2021 21:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BF8AC433F5
+	for <fio@archiver.kernel.org>; Fri,  3 Dec 2021 21:46:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353853AbhLCVOk (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 3 Dec 2021 16:14:40 -0500
-Received: from mailout2.w2.samsung.com ([211.189.100.12]:13297 "EHLO
-        mailout2.w2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353850AbhLCVOi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 3 Dec 2021 16:14:38 -0500
-Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20211203211113usoutp02e0136cd36985cd544b7a85857596c06a~9WvrzYvs_2655726557usoutp02m;
-        Fri,  3 Dec 2021 21:11:13 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20211203211113usoutp02e0136cd36985cd544b7a85857596c06a~9WvrzYvs_2655726557usoutp02m
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1638565873;
-        bh=8nxqXlRgGzadelM3p6OewjXL1mGriI2Pgd+Fghoaf14=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=k8jPrGuST7rwjhzHRMl6xZ8K9rsWPvGflYpMTQ5/wX3BQujCLYYsjREofxfWbUKt+
-         AyNc8aYSexk/dyq2N1BMnOOl7JBjMoFWSN248BiD8GJQqcNyfjSq7t5ChSy88RTbND
-         JMeofg0YlXRoYxFcHEsyyYJG6OYuR/3BvwWKZaKM=
-Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
-        [203.254.195.112]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20211203211113uscas1p290ca585025d1758453ddfa5d928a9585~9WvrlovMv2327923279uscas1p2t;
-        Fri,  3 Dec 2021 21:11:13 +0000 (GMT)
-Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
-        ussmges3new.samsung.com (USCPEMTA) with SMTP id 5D.53.09687.1F78AA16; Fri, 
-        3 Dec 2021 16:11:13 -0500 (EST)
-Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
-        [203.254.195.89]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20211203211112uscas1p2e92f1c3a04f7bfe27d6fe69d519995d2~9WvrQuxdo1871618716uscas1p2M;
-        Fri,  3 Dec 2021 21:11:12 +0000 (GMT)
-X-AuditID: cbfec370-9c5ff700000025d7-58-61aa87f18c17
-Received: from SSI-EX1.ssi.samsung.com ( [105.128.2.145]) by
-        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 05.8B.09671.0F78AA16; Fri, 
-        3 Dec 2021 16:11:12 -0500 (EST)
-Received: from SSI-EX1.ssi.samsung.com (105.128.2.226) by
-        SSI-EX1.ssi.samsung.com (105.128.2.226) with Microsoft SMTP Server
-        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2242.4; Fri, 3 Dec 2021 13:10:10 -0800
-Received: from SSI-EX1.ssi.samsung.com ([::1]) by SSI-EX1.ssi.samsung.com
-        ([fe80::f93d:5544:8666:3356%7]) with mapi id 15.01.2242.008; Fri, 3 Dec 2021
-        13:10:10 -0800
-From:   Vincent Fu <vincent.fu@samsung.com>
-To:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 0/2] two small cleanup patches
-Thread-Topic: [PATCH 0/2] two small cleanup patches
-Thread-Index: AQHX6Ion97xP2BbixE21iY8pEtSbMw==
-Date:   Fri, 3 Dec 2021 21:10:09 +0000
-Message-ID: <20211203211050.51241-1-vincent.fu@samsung.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [105.128.2.176]
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S1383297AbhLCVuF (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 3 Dec 2021 16:50:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1383295AbhLCVuF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 3 Dec 2021 16:50:05 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BBEC061751
+        for <fio@vger.kernel.org>; Fri,  3 Dec 2021 13:46:40 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id b13so3012125plg.2
+        for <fio@vger.kernel.org>; Fri, 03 Dec 2021 13:46:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:in-reply-to:references:subject:message-id:date:mime-version
+         :content-transfer-encoding;
+        bh=VMDGUe1dwVF9hJtJ0Fm/O6JacM45Rlj+m7/hZOKZQFo=;
+        b=VT7b1svg/ESu5LIyil2HQIJU4NsdhuSX2O7xhwPrKk1D7b8O00Z29MaKVnLN5AFOVH
+         Z51922woCp+5bsUeNlTsGJi8xX496dKxZzmgRX0Sc9AIehL//p3BqDbMfI4jaFMajDC5
+         IxxinLtw99lWEhX/OqOyhSVlepodu4uA3t6DCbM86GAElksx9/j512NefPFyF92VlKlc
+         A+3HrY0Wjbycl9spnOPFeTjuscmzplSeiF2Ah0uOJvkiRp2Rm/Fp0hB9lZguzIvlM7k0
+         ngRHs6V6Gx/HhS1oOMApycKmapdVzjiD0Ud0dl18b5YyRy7oqCVKYOgj8o+DYB0iYQDL
+         ttbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=VMDGUe1dwVF9hJtJ0Fm/O6JacM45Rlj+m7/hZOKZQFo=;
+        b=BCzv7ZDTDPiYwxBCSlg6juPSjheqt4WM+7Gv5zPM5l45KjwxRlgUKs51KX/Kp/RFJD
+         reqUm4i+uiPLIB6+qSHMSpgSvVqVXtg1SWyW+Xr5uyeHwt3JK8xo5kZA90pDpFRPeRDm
+         ERYrfFeq59i6nZCMFiGFufdG54Ji0WwSbxAV7rYjPHuJ7oUi9mlDwB+kW5AHqFp1u+RE
+         tUbUvAqURFSltyd1Z44IqyXKjbGqvT1owpmkADml1px5qBdPuAOzOFwEc8rS0DqhG1MO
+         8zThpq8cwVarmKUkR8HjRhKUd6BjOhXu6NvftyYbjAmS1zyIHxUMECi40a52/qiWGQfL
+         IQCw==
+X-Gm-Message-State: AOAM533edRkiIt9D0aM9/3CBWRg+3VS8Wq7BcS/gEmu2SBTJh3j/9HMy
+        vxmPz/gjJx41p/aB4a+LBU5ePAEuztT8/jVJ
+X-Google-Smtp-Source: ABdhPJwxKNcZXF5HIq9TU6bAdJeh0Qd+dcXowVLb0P99i1XxwbYJV0uTDOiCAyk4f4udlohFr7SmzA==
+X-Received: by 2002:a17:902:bcc4:b0:141:bfc4:ada with SMTP id o4-20020a170902bcc400b00141bfc40adamr25609868pls.20.1638568000191;
+        Fri, 03 Dec 2021 13:46:40 -0800 (PST)
+Received: from [127.0.1.1] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id j15sm4225713pfh.35.2021.12.03.13.46.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Dec 2021 13:46:39 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Vincent Fu <vincent.fu@samsung.com>, fio@vger.kernel.org
+In-Reply-To: <20211203211050.51241-1-vincent.fu@samsung.com>
+References: <CGME20211203211112uscas1p2e92f1c3a04f7bfe27d6fe69d519995d2@uscas1p2.samsung.com> <20211203211050.51241-1-vincent.fu@samsung.com>
+Subject: Re: [PATCH 0/2] two small cleanup patches
+Message-Id: <163856799961.343715.7693852508365217654.b4-ty@kernel.dk>
+Date:   Fri, 03 Dec 2021 14:46:39 -0700
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrMIsWRmVeSWpSXmKPExsWy7djX87of21clGsy7w2ax+m4/m8XHWS+Y
-        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoEr4/bL1WwFM5kq1m1YxNbAeIuxi5GTQ0LARGLe
-        1C7WLkYuDiGBlYwS83a/YYJwWpkkvi+8AeRwgFUd3+UMEV/LKPHm3FRmCOcDo8Txpi2McO2/
-        7m5mB+lgE9CUeLu/AGSFiECYxM9H21lBbGYBdYljGzewgZQIC+hJnF0tBlFiLLGisZkZwtaT
-        +HCzDayERUBF4lpvFEiYV8BaYkrfV7CjGQXEJL6fWsMEMVFc4taT+UwQzwhKLJq9hxnCFpP4
-        t+shG4StKHH/+0t2iHo9iRtTp7BB2NoSyxa+ZoaYLyhxcuYTFoh6SYmDK25A2W/ZJV7eVYCw
-        XSR+bFwDNV9a4ur1qVD2OUaJB/+CQaEgIXCdUWLFl8WsEAlriYV/1kMdyifx99cjRkh48kp0
-        tAlNYFSaheSFWUjOm4XkvFlIzlvAyLKKUby0uDg3PbXYOC+1XK84Mbe4NC9dLzk/dxMjMF2c
-        /ne4YAfjrVsf9Q4xMnEwHmKU4GBWEuE1qVyVKMSbklhZlVqUH19UmpNafIhRmoNFSZz39J+G
-        RCGB9MSS1OzU1ILUIpgsEwenVANT9xW5y6qBd4sDTVRqXlul/ZTdWNffbXBlX2FUwJo+Zgdv
-        yYVTxdljPvJVHpNY+GHq0lLv86/3iX1foZmYp/Hzl8nuufcyj8h3WvJIxvUvW//sRoOc4rnU
-        5YazLfbnzCxepFIXeLpaQSHx822zf788Sxp3tDgnVibf7/ZK3bf6yBfJnvVzH7PbPA2RvfyA
-        2cD8oW7K3i0b26cJLNBRiFSemSq/d0NBpPQ/Vd3CbxFVF17skXjpxRi3UirwRZ1EdAX35Y8/
-        WLqmz4/3Od5WcYxT2DXrfL/h5dTnypvLqs+k62lNzbVf0VUXJJB4kr+Oi2PFOn6f2MYPqxk/
-        POV2ybuptrR/kufEikWNzCyT9ZRYijMSDbWYi4oTAf8yjAKGAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrLLMWRmVeSWpSXmKPExsWS2cA0UfdD+6pEg/knZC1W3+1ns/g46wWz
-        A5PH5bOlHp83yQUwRXHZpKTmZJalFunbJXBl3H65mq1gJlPFug2L2BoYbzF2MXJwSAiYSBzf
-        5dzFyMUhJLCaUeLflW8sEM4HRokTmzcyQjgrGSW6W36DdbAJaEq83V/QxcjJISIQJvHz0XZW
-        EJtZQF3i2MYNbCAlwgJ6EmdXi0GUGEusaGxmhrD1JD7cbAMrYRFQkbjWGwUS5hWwlpjS95UR
-        xGYUEJP4fmoNE8REcYlbT+aD2RICAhJL9pxnhrBFJV4+/scKYStK3P/+kh2iXk/ixtQpbBC2
-        tsSyha+ZIeYLSpyc+YQFol5S4uCKGywTGEVnIVkxC0n7LCTts5C0L2BkWcUoXlpcnJteUWyY
-        l1quV5yYW1yal66XnJ+7iREYI6f/HY7cwXj01ke9Q4xMHIyHGCU4mJVEeE0qVyUK8aYkVlal
-        FuXHF5XmpBYfYpTmYFES5xVynRgvJJCeWJKanZpakFoEk2Xi4JRqYApjkNzW6fBi1r79ktNz
-        wxxv6O7+eOxdYtPNz+vkTR7c0ZB9H1q6rGCFyzmWzXe9WzIniOVdq7XvaXuw68ndZ9+yH4TH
-        VgpwMwf/ZGwtb3saWp2f7VTSeiu46vuxm0E53++oP57V2viWUfnwlbvbE2M65votmL7wX0yO
-        pb/IhavXLvFz5R35GeMrfjlG2meSy833X7JDtjipyjVOcf5kKWTMsaU94363S8Uff4mdpa9K
-        BLUWKr72WtT3dt1kphMxK84yPTz+UFNGlz9fjXHKbj9dvnC263pB1mX2QSoF23Z+VJiX9fX8
-        A/Pw5dnqzJ+utjfpz3wl5nv6+oRnSy+2749axXh/estCg5L1xoaRJkosxRmJhlrMRcWJAMRG
-        OogAAwAA
-X-CMS-MailID: 20211203211112uscas1p2e92f1c3a04f7bfe27d6fe69d519995d2
-CMS-TYPE: 301P
-X-CMS-RootMailID: 20211203211112uscas1p2e92f1c3a04f7bfe27d6fe69d519995d2
-References: <CGME20211203211112uscas1p2e92f1c3a04f7bfe27d6fe69d519995d2@uscas1p2.samsung.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Jens, please consider these two small cleanup patches.
+On Fri, 3 Dec 2021 21:10:09 +0000, Vincent Fu wrote:
+> Jens, please consider these two small cleanup patches.
+> 
+> Vincent Fu (2):
+>   io_ddir: return appropriate string for DDIR_INVAL
+>   libfio: drop unneeded reset of rwmix_issues
+> 
+> io_ddir.h | 2 +-
+>  libfio.c  | 1 -
+>  2 files changed, 1 insertion(+), 2 deletions(-)
+> 
+> [...]
 
-Vincent Fu (2):
-  io_ddir: return appropriate string for DDIR_INVAL
-  libfio: drop unneeded reset of rwmix_issues
+Applied, thanks!
 
- io_ddir.h | 2 +-
- libfio.c  | 1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+[1/2] io_ddir: return appropriate string for DDIR_INVAL
+      commit: 5ea6ec73f15e7eaa4fda497f76fd9dacba36c284
+[2/2] libfio: drop unneeded reset of rwmix_issues
+      commit: 57fd8dfa7be234bc3a810587c0d0081437786cca
 
---=20
-2.25.1
+Best regards,
+-- 
+Jens Axboe
+
+
