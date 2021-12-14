@@ -2,78 +2,78 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07765C433F5
-	for <fio@archiver.kernel.org>; Tue, 14 Dec 2021 01:24:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 004A0C433EF
+	for <fio@archiver.kernel.org>; Tue, 14 Dec 2021 01:24:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243257AbhLNBY0 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 13 Dec 2021 20:24:26 -0500
+        id S243269AbhLNBY2 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 13 Dec 2021 20:24:28 -0500
 Received: from esa1.hgst.iphmx.com ([68.232.141.245]:60902 "EHLO
         esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243119AbhLNBY0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 13 Dec 2021 20:24:26 -0500
+        with ESMTP id S243119AbhLNBY1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 13 Dec 2021 20:24:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1639445066; x=1670981066;
+  t=1639445067; x=1670981067;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=9JjX8CpEtnNlG/iY+mmE8GCt0xYxl+2+4gA6IJZLGO8=;
-  b=QXcuAAOQZqibnkDoRuhcFULNLbW+MkgyihBg56hmR/hZImGzkijnF2YR
-   BeWKlu1OZw45pzja+9fwlsnspkZsUNLd0aEygLvvHLDx2o7uz/DKXpm8B
-   /bTzATtNeS4WQ4m7P78v3yyf1/EQx0dMsJ3eibAVCbBDNIvl9Pjk5W/H9
-   V57t0XI+R8bg03mivxh0XCxVE7n6fo16PRcGfEA5RIu9cwfhJlJfb4HGo
-   Am4NteIyKR9a8NtjOp9wMQywLfic6/bmCo4UQ+SLUA/6XxLe8gnJiG0AX
-   RpHpCK24vTPjvzajgFm+eBMDfjx7RMUY53ZcyIXcmj8w4UxcJnjB+4/nW
-   w==;
+  bh=pTHgjAOGlaPiUVJpM8q3RIZQhsgB2cODkJp7bBzgPdg=;
+  b=iEKw/urxMispS3V8/g9OmEU0Mo7S8tJYvqALJX6zKO3YXfPFcApfWg3y
+   oxTGSNQh4AhcjY6GbRu1srFI8uPwpg9PzC1P1aQ/uNZT8eCc6u8Y/e00I
+   T9Xn7wmkdIMLtBywYmdU0NnEh4yKDLRAocW856q7YPHCUrdEbahjrWdKP
+   2ode1qGb5NaXfhVM8fy7k9xhhg2fOXZl5HL8vmgpo3BMtR7K9qonWmQ55
+   0q5k3r67Y5jSueuWEta4p9MlYrPbuyfVSNMvEM46Acs9Db2XajmFAhXp2
+   fPyORC+WIm2QHYj4w1n/gOzoPsHe4SxFkQaoqQTksEGiiImGOE/Wa3AfT
+   g==;
 X-IronPort-AV: E=Sophos;i="5.88,204,1635177600"; 
-   d="scan'208";a="300014507"
+   d="scan'208";a="300014508"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 14 Dec 2021 09:24:26 +0800
-IronPort-SDR: 283cAY/MOwVkj/6zRoxsL8XbDJJOip6TpCuENedElG5rYSo4JyS1ROCWHmOTyKA1dY7n/buvjp
- 9k4jw0YZKIW+woaPTzESXptD/u8YCrqUFgJlc49F/fhaEGwL2rtGBQ/+13bscihXfzhbZtthVT
- j5Zc5F6S04iFUbfV9iSx++0zIbaaLT+xzVu3kPXdc4svEW0TfaI/EqKyH7gvD62fktK/Wow/KW
- DLHRGVHmVaovXglyCkezuy2oKVjHQswzLykuSTDAnY4ueAnppdU2mbJ5ntGCF7uTqRxiEBUkEY
- 2kibLGHACDf6aLALu3zl5bvf
+  by ob1.hgst.iphmx.com with ESMTP; 14 Dec 2021 09:24:27 +0800
+IronPort-SDR: 9tG+EilG0nS5DT2ySgDmG3rm41XuoeS4GFspMeodWOU2nEHKJxgRIg5CnKI7TNp8XtF9kt6xgN
+ QrA2YhdkqivBwnp//Lr+9r0oZcVxySSuwgfWhfr/Vs0LpaoT1XCsrA5jALMYHRGUZuNPJwcRbE
+ GQw1sdT0pB5leA1UNnQ86blcRv3ZtpeenW16mfwGsH8T1KKlycbv17qpOMmYzSRkXteFdR07wj
+ KvcxemRxVdKpJCXnYsT4nOWGN1DANzB8m+yO7Ow7Fa4PN3/OT7Ykw4ORR7n1KUgXpj56lQHgcV
+ 066KoNB4+Pnssvy2bpkbwLrr
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 16:58:52 -0800
-IronPort-SDR: VJXnglQurfYXPDilmpan7EWpjviKkXtkmzvKwxEhIUZmHOpVC0Tw9aGhndL4BWkBtv33JiPIXd
- pRDb6A+MI9ZvS+CKja1iZjwyX94wt51LCVLAByP9vpLjN+FESPTj8GG0qG177gBtn4nHMaq1s/
- cJqGT68rh+g3uWuwia1uUHpHbBI9P+CJdR6UE72bQmQn+bS0T3UkrHLaeBleix9C8qCUCBfXD4
- 5a62oZQ8mTftzmbQxxn/hB34L6RRHq/u8NcT0C5ho8SCeozbDXt+2eLdNOhpmpf8SHgDKi0Pmr
- mGI=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 16:58:53 -0800
+IronPort-SDR: uGk/q8S2tPg4mjP7Krj5TZjQUydS9v21R8FMhzu0+/CewiQdoRQJjDhSLrISF2gMNjYKQJxh7H
+ 4Mxsnktg6gXQQVdd1RVQEUpXgTIUhW0xB79p+WXi7MVvZDZs16yfN8qIPUew0kN+xmjpYi830m
+ Iox4kZV/6Cxpgd6EB4I+sk9loWsSGhVEaETXLc6u7i30JqJ1Nb8ridHIjHHaEZ2fF7Z5S/Rs6b
+ r+N7Xw2QQppNB3XbWxMoi4MnkUsd/6iL8sPwLWwGE5wBZEyHzjVrAvAA9BOG45WxWpTjNgO+M1
+ NDw=
 WDCIronportException: Internal
 Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 17:24:26 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 17:24:27 -0800
 Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4JCgdj6lTpz1RwFN
-        for <fio@vger.kernel.org>; Mon, 13 Dec 2021 17:24:25 -0800 (PST)
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4JCgdk6YYtz1Rwnx
+        for <fio@vger.kernel.org>; Mon, 13 Dec 2021 17:24:26 -0800 (PST)
 Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
         reason="pass (just generated, assumed good)"
         header.d=opensource.wdc.com
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
         opensource.wdc.com; h=content-transfer-encoding:mime-version
         :references:in-reply-to:x-mailer:message-id:date:subject:to
-        :from; s=dkim; t=1639445065; x=1642037066; bh=9JjX8CpEtnNlG/iY+m
-        mE8GCt0xYxl+2+4gA6IJZLGO8=; b=Me0GESQL443FHvs4RqtAa2DxsIjjvok9cJ
-        DHOQg+T+keniq7kbDO8XssSbc/7vAZ+CLJz3LFW5zZXgC5wA4Nmk0L0sQlFMSq+H
-        a+S3UYI+posHx5XU/jPHBTz1N1oNZBlGgDBspLZM3+GwrwlX0g+zGbvEs/89nyc9
-        MYF4lNiX+0PFwLCDkBFi4doYHgWmQ/49VMzquto8jYEwIP1T/SszuOy/FTbctxuC
-        YXt3EEbezmKcmI7H9jEBLsfBkHEm+VC4i3j/ZG6bAy3/3w3buHAQsl2nEjYyI5zg
-        vC7OFMlEnt7SyC1o1mEKRkuourtBKUTxZeDHsvxedajaN1Kt6QxQ==
+        :from; s=dkim; t=1639445066; x=1642037067; bh=pTHgjAOGlaPiUVJpM8
+        q3RIZQhsgB2cODkJp7bBzgPdg=; b=jit98j0PJ/46qQqtv6qoIKHKLeZo7AqmPj
+        dnQT5WIT50xM/XfZd/Wzj6AYSFfBBh15t0iqVwDmxwJHFN2uBmfVFBC6mr2CMXDx
+        wBsBOiJ2KQf6uRnOJetvswT7o8cfBkfXD62sBUeDQO2UTeucp582SgFnC2jDkHIu
+        LybBl8sQBpG+L4N8BithhSN13vscLfWSrP/bAWGLkQY8eAY+YZCffMJNAdESLKtW
+        sra0T2RS7vcXgwrXAzZtDEQ0EBdWQE8zTfnblLlFSrgj9d0CfTMWCaoQ9XJooC0/
+        bdBC2haQNaiEya6+HTlMt9CXdXgZYchx796eqaBYEQrICA4z2ODg==
 X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
 Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
         by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id FCS3wWwmJJt4 for <fio@vger.kernel.org>;
-        Mon, 13 Dec 2021 17:24:25 -0800 (PST)
+        with ESMTP id Erp-I8WTWAEl for <fio@vger.kernel.org>;
+        Mon, 13 Dec 2021 17:24:26 -0800 (PST)
 Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4JCgdh4S9sz1RvTh;
-        Mon, 13 Dec 2021 17:24:24 -0800 (PST)
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4JCgdj5NQJz1RtVG;
+        Mon, 13 Dec 2021 17:24:25 -0800 (PST)
 From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc:     Niklas Cassel <niklas.cassel@wdc.com>,
         Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 09/12] zbd: rename zbd_zone_idx() and zbd_zone_nr()
-Date:   Tue, 14 Dec 2021 10:24:10 +0900
-Message-Id: <20211214012413.464798-10-damien.lemoal@opensource.wdc.com>
+Subject: [PATCH v2 10/12] zbd: rename get_zone()
+Date:   Tue, 14 Dec 2021 10:24:11 +0900
+Message-Id: <20211214012413.464798-11-damien.lemoal@opensource.wdc.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211214012413.464798-1-damien.lemoal@opensource.wdc.com>
 References: <20211214012413.464798-1-damien.lemoal@opensource.wdc.com>
@@ -83,204 +83,208 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Rename zbd_zone_idx() to zbd_offset_to_zone_idx() to make it clear that
-the argument determining the zone is a file offset. To be consistent,
-rename zbd_zone_nr() to zbd_zone_idx() to avoid confusion with a number
-of zones. While at it, have both functions return value be of the same
-unsigned int type.
+Rename get_zone() to zbd_get_zone() to be consistent with the naming
+pattern of most zbd functions.
 
 No functional changes.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
- zbd.c | 45 ++++++++++++++++++++++++---------------------
- 1 file changed, 24 insertions(+), 21 deletions(-)
+ zbd.c | 44 ++++++++++++++++++++++----------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
 diff --git a/zbd.c b/zbd.c
-index b917fa42..592f7c03 100644
+index 592f7c03..095a6bad 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -27,19 +27,20 @@ static bool is_valid_offset(const struct fio_file *f,=
- uint64_t offset)
- 	return (uint64_t)(offset - f->file_offset) < f->io_size;
+@@ -123,10 +123,10 @@ static inline void zone_unlock(struct fio_zone_info=
+ *z)
+ 	assert(!ret);
  }
 =20
--static inline unsigned int zbd_zone_nr(const struct fio_file *f,
--				       struct fio_zone_info *zone)
-+static inline unsigned int zbd_zone_idx(const struct fio_file *f,
-+					struct fio_zone_info *zone)
+-static inline struct fio_zone_info *get_zone(const struct fio_file *f,
+-					     unsigned int zone_nr)
++static inline struct fio_zone_info *zbd_get_zone(const struct fio_file *=
+f,
++						 unsigned int zone_idx)
  {
- 	return zone - f->zbd_info->zone_info;
+-	return &f->zbd_info->zone_info[zone_nr];
++	return &f->zbd_info->zone_info[zone_idx];
  }
 =20
  /**
-- * zbd_zone_idx - convert an offset into a zone number
-+ * zbd_offset_to_zone_idx - convert an offset into a zone number
-  * @f: file pointer.
-  * @offset: offset in bytes. If this offset is in the first zone_size by=
-tes
-  *	    past the disk size then the index of the sentinel is returned.
-  */
--static uint32_t zbd_zone_idx(const struct fio_file *f, uint64_t offset)
-+static unsigned int zbd_offset_to_zone_idx(const struct fio_file *f,
-+					   uint64_t offset)
- {
- 	uint32_t zone_idx;
-=20
-@@ -253,7 +254,7 @@ static int zbd_reset_zone(struct thread_data *td, str=
-uct fio_file *f,
- 	assert(is_valid_offset(f, offset + length - 1));
-=20
- 	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n",
--	       f->file_name, zbd_zone_nr(f, z));
-+	       f->file_name, zbd_zone_idx(f, z));
-=20
- 	switch (f->zbd_info->model) {
- 	case ZBD_HOST_AWARE:
-@@ -303,7 +304,7 @@ static void zbd_close_zone(struct thread_data *td, co=
+@@ -297,7 +297,7 @@ static void zbd_close_zone(struct thread_data *td, co=
 nst struct fio_file *f,
  		return;
 =20
- 	dprint(FD_ZBD, "%s: closing zone %u\n",
--	       f->file_name, zbd_zone_nr(f, z));
-+	       f->file_name, zbd_zone_idx(f, z));
-=20
- 	memmove(f->zbd_info->open_zones + ozi,
- 		f->zbd_info->open_zones + ozi + 1,
-@@ -335,7 +336,7 @@ static int zbd_reset_zones(struct thread_data *td, st=
-ruct fio_file *f,
- 	assert(min_bs);
-=20
- 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n",
--	       f->file_name, zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
-+	       f->file_name, zbd_zone_idx(f, zb), zbd_zone_idx(f, ze));
-=20
- 	for (z =3D zb; z < ze; z++) {
- 		if (!z->has_wp)
-@@ -348,7 +349,7 @@ static int zbd_reset_zones(struct thread_data *td, st=
-ruct fio_file *f,
-=20
- 		if (z->wp !=3D z->start) {
- 			dprint(FD_ZBD, "%s: resetting zone %u\n",
--			       f->file_name, zbd_zone_nr(f, z));
-+			       f->file_name, zbd_zone_idx(f, z));
- 			if (zbd_reset_zone(td, f, z) < 0)
- 				res =3D 1;
- 		}
-@@ -404,7 +405,7 @@ static bool zbd_open_zone(struct thread_data *td, con=
-st struct fio_file *f,
- {
- 	const uint64_t min_bs =3D td->o.min_bs[DDIR_WRITE];
- 	struct zoned_block_device_info *zbdi =3D f->zbd_info;
--	uint32_t zone_idx =3D zbd_zone_nr(f, z);
-+	uint32_t zone_idx =3D zbd_zone_idx(f, z);
- 	bool res =3D true;
-=20
- 	if (z->cond =3D=3D ZBD_ZONE_COND_OFFLINE)
-@@ -489,8 +490,9 @@ static bool zbd_is_seq_job(struct fio_file *f)
- 	if (f->io_size =3D=3D 0)
- 		return false;
-=20
--	zone_idx_b =3D zbd_zone_idx(f, f->file_offset);
--	zone_idx_e =3D zbd_zone_idx(f, f->file_offset + f->io_size - 1);
-+	zone_idx_b =3D zbd_offset_to_zone_idx(f, f->file_offset);
-+	zone_idx_e =3D
-+		zbd_offset_to_zone_idx(f, f->file_offset + f->io_size - 1);
+ 	for (ozi =3D 0; ozi < f->zbd_info->num_open_zones; ozi++) {
+-		if (get_zone(f, f->zbd_info->open_zones[ozi]) =3D=3D z)
++		if (zbd_get_zone(f, f->zbd_info->open_zones[ozi]) =3D=3D z)
+ 			break;
+ 	}
+ 	if (ozi =3D=3D f->zbd_info->num_open_zones)
+@@ -494,7 +494,7 @@ static bool zbd_is_seq_job(struct fio_file *f)
+ 	zone_idx_e =3D
+ 		zbd_offset_to_zone_idx(f, f->file_offset + f->io_size - 1);
  	for (zone_idx =3D zone_idx_b; zone_idx <=3D zone_idx_e; zone_idx++)
- 		if (get_zone(f, zone_idx)->has_wp)
+-		if (get_zone(f, zone_idx)->has_wp)
++		if (zbd_get_zone(f, zone_idx)->has_wp)
  			return true;
-@@ -538,7 +540,7 @@ static bool zbd_zone_align_file_sizes(struct thread_d=
+=20
+ 	return false;
+@@ -541,7 +541,7 @@ static bool zbd_zone_align_file_sizes(struct thread_d=
 ata *td,
- 		return false;
  	}
 =20
--	zone_idx =3D zbd_zone_idx(f, f->file_offset);
-+	zone_idx =3D zbd_offset_to_zone_idx(f, f->file_offset);
- 	z =3D get_zone(f, zone_idx);
+ 	zone_idx =3D zbd_offset_to_zone_idx(f, f->file_offset);
+-	z =3D get_zone(f, zone_idx);
++	z =3D zbd_get_zone(f, zone_idx);
  	if ((f->file_offset !=3D z->start) &&
  	    (td->o.td_ddir !=3D TD_DDIR_READ)) {
-@@ -555,7 +557,7 @@ static bool zbd_zone_align_file_sizes(struct thread_d=
+ 		new_offset =3D zbd_zone_end(z);
+@@ -558,7 +558,7 @@ static bool zbd_zone_align_file_sizes(struct thread_d=
 ata *td,
- 		f->file_offset =3D new_offset;
  	}
 =20
--	zone_idx =3D zbd_zone_idx(f, f->file_offset + f->io_size);
-+	zone_idx =3D zbd_offset_to_zone_idx(f, f->file_offset + f->io_size);
- 	z =3D get_zone(f, zone_idx);
+ 	zone_idx =3D zbd_offset_to_zone_idx(f, f->file_offset + f->io_size);
+-	z =3D get_zone(f, zone_idx);
++	z =3D zbd_get_zone(f, zone_idx);
  	new_end =3D z->start;
  	if ((td->o.td_ddir !=3D TD_DDIR_READ) &&
-@@ -1046,8 +1048,9 @@ int zbd_setup_files(struct thread_data *td)
+ 	    (f->file_offset + f->io_size !=3D new_end)) {
+@@ -1156,8 +1156,8 @@ static uint64_t zbd_process_swd(struct thread_data =
+*td,
+ 	uint64_t swd =3D 0;
+ 	uint64_t wp_swd =3D 0;
 =20
- 		assert(zbd);
+-	zb =3D get_zone(f, f->min_zone);
+-	ze =3D get_zone(f, f->max_zone);
++	zb =3D zbd_get_zone(f, f->min_zone);
++	ze =3D zbd_get_zone(f, f->max_zone);
+ 	for (z =3D zb; z < ze; z++) {
+ 		if (z->has_wp) {
+ 			zone_lock(td, f, z);
+@@ -1209,8 +1209,8 @@ void zbd_file_reset(struct thread_data *td, struct =
+fio_file *f)
+ 	if (!f->zbd_info || !td_write(td))
+ 		return;
 =20
--		f->min_zone =3D zbd_zone_idx(f, f->file_offset);
--		f->max_zone =3D zbd_zone_idx(f, f->file_offset + f->io_size);
-+		f->min_zone =3D zbd_offset_to_zone_idx(f, f->file_offset);
-+		f->max_zone =3D
-+			zbd_offset_to_zone_idx(f, f->file_offset + f->io_size);
+-	zb =3D get_zone(f, f->min_zone);
+-	ze =3D get_zone(f, f->max_zone);
++	zb =3D zbd_get_zone(f, f->min_zone);
++	ze =3D zbd_get_zone(f, f->max_zone);
+ 	swd =3D zbd_process_swd(td, f, SET_SWD);
 =20
- 		/*
- 		 * When all zones in the I/O range are conventional, io_size
-@@ -1275,7 +1278,7 @@ static struct fio_zone_info *zbd_convert_to_open_zo=
+ 	dprint(FD_ZBD, "%s(%s): swd =3D %" PRIu64 "\n",
+@@ -1298,7 +1298,7 @@ static struct fio_zone_info *zbd_convert_to_open_zo=
 ne(struct thread_data *td,
- 		 */
- 		zone_idx =3D zbdi->open_zones[pick_random_zone_idx(f, io_u)];
- 	} else {
--		zone_idx =3D zbd_zone_idx(f, io_u->offset);
-+		zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
- 	}
- 	if (zone_idx < f->min_zone)
- 		zone_idx =3D f->min_zone;
-@@ -1597,7 +1600,7 @@ static void zbd_queue_io(struct thread_data *td, st=
-ruct io_u *io_u, int q,
+ 	for (;;) {
+ 		uint32_t tmp_idx;
 =20
- 	assert(zbd_info);
+-		z =3D get_zone(f, zone_idx);
++		z =3D zbd_get_zone(f, zone_idx);
+ 		if (z->has_wp)
+ 			zone_lock(td, f, z);
 =20
--	zone_idx =3D zbd_zone_idx(f, io_u->offset);
-+	zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
- 	assert(zone_idx < zbd_info->nr_zones);
- 	z =3D get_zone(f, zone_idx);
+@@ -1404,7 +1404,7 @@ retry:
+ 		if (!is_valid_offset(f, z->start)) {
+ 			/* Wrap-around. */
+ 			zone_idx =3D f->min_zone;
+-			z =3D get_zone(f, zone_idx);
++			z =3D zbd_get_zone(f, zone_idx);
+ 		}
+ 		assert(is_valid_offset(f, z->start));
+ 		if (!z->has_wp)
+@@ -1427,7 +1427,7 @@ retry:
+ 		pthread_mutex_unlock(&zbdi->mutex);
+ 		zone_unlock(z);
 =20
-@@ -1655,7 +1658,7 @@ static void zbd_put_io(struct thread_data *td, cons=
-t struct io_u *io_u)
+-		z =3D get_zone(f, zone_idx);
++		z =3D zbd_get_zone(f, zone_idx);
 =20
- 	assert(zbd_info);
-=20
--	zone_idx =3D zbd_zone_idx(f, io_u->offset);
-+	zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
- 	assert(zone_idx < zbd_info->nr_zones);
- 	z =3D get_zone(f, zone_idx);
-=20
-@@ -1711,7 +1714,7 @@ void setup_zbd_zone_mode(struct thread_data *td, st=
-ruct io_u *io_u)
- 	assert(td->o.zone_size);
- 	assert(f->zbd_info);
-=20
--	zone_idx =3D zbd_zone_idx(f, f->last_pos[ddir]);
-+	zone_idx =3D zbd_offset_to_zone_idx(f, f->last_pos[ddir]);
- 	z =3D get_zone(f, zone_idx);
+ 		zone_lock(td, f, z);
+ 		if (z->wp + min_bs <=3D zbd_zone_capacity_end(z))
+@@ -1522,7 +1522,7 @@ zbd_find_zone(struct thread_data *td, struct io_u *=
+io_u, uint64_t min_bytes,
+ {
+ 	struct fio_file *f =3D io_u->file;
+ 	struct fio_zone_info *z1, *z2;
+-	const struct fio_zone_info *const zf =3D get_zone(f, f->min_zone);
++	const struct fio_zone_info *const zf =3D zbd_get_zone(f, f->min_zone);
 =20
  	/*
-@@ -1819,7 +1822,7 @@ enum io_u_action zbd_adjust_block(struct thread_dat=
+ 	 * Skip to the next non-empty zone in case of sequential I/O and to
+@@ -1602,7 +1602,7 @@ static void zbd_queue_io(struct thread_data *td, st=
+ruct io_u *io_u, int q,
+=20
+ 	zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
+ 	assert(zone_idx < zbd_info->nr_zones);
+-	z =3D get_zone(f, zone_idx);
++	z =3D zbd_get_zone(f, zone_idx);
+=20
+ 	assert(z->has_wp);
+=20
+@@ -1660,7 +1660,7 @@ static void zbd_put_io(struct thread_data *td, cons=
+t struct io_u *io_u)
+=20
+ 	zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
+ 	assert(zone_idx < zbd_info->nr_zones);
+-	z =3D get_zone(f, zone_idx);
++	z =3D zbd_get_zone(f, zone_idx);
+=20
+ 	assert(z->has_wp);
+=20
+@@ -1715,7 +1715,7 @@ void setup_zbd_zone_mode(struct thread_data *td, st=
+ruct io_u *io_u)
+ 	assert(f->zbd_info);
+=20
+ 	zone_idx =3D zbd_offset_to_zone_idx(f, f->last_pos[ddir]);
+-	z =3D get_zone(f, zone_idx);
++	z =3D zbd_get_zone(f, zone_idx);
+=20
+ 	/*
+ 	 * When the zone capacity is smaller than the zone size and the I/O is
+@@ -1823,7 +1823,7 @@ enum io_u_action zbd_adjust_block(struct thread_dat=
 a *td, struct io_u *io_u)
- 	assert(is_valid_offset(f, io_u->offset));
  	assert(io_u->buflen);
 =20
--	zone_idx_b =3D zbd_zone_idx(f, io_u->offset);
-+	zone_idx_b =3D zbd_offset_to_zone_idx(f, io_u->offset);
- 	zb =3D get_zone(f, zone_idx_b);
+ 	zone_idx_b =3D zbd_offset_to_zone_idx(f, io_u->offset);
+-	zb =3D get_zone(f, zone_idx_b);
++	zb =3D zbd_get_zone(f, zone_idx_b);
  	orig_zb =3D zb;
 =20
-@@ -2102,7 +2105,7 @@ int zbd_do_io_u_trim(const struct thread_data *td, =
+ 	if (!zb->has_wp) {
+@@ -1886,7 +1886,7 @@ enum io_u_action zbd_adjust_block(struct thread_dat=
+a *td, struct io_u *io_u)
+ 		if (range < min_bs ||
+ 		    ((!td_random(td)) && (io_u->offset + min_bs > zb->wp))) {
+ 			zone_unlock(zb);
+-			zl =3D get_zone(f, f->max_zone);
++			zl =3D zbd_get_zone(f, f->max_zone);
+ 			zb =3D zbd_find_zone(td, io_u, min_bs, zb, zl);
+ 			if (!zb) {
+ 				dprint(FD_ZBD,
+@@ -2030,7 +2030,7 @@ enum io_u_action zbd_adjust_block(struct thread_dat=
+a *td, struct io_u *io_u)
+=20
+ 		/* Find out a non-empty zone to trim */
+ 		zone_unlock(zb);
+-		zl =3D get_zone(f, f->max_zone);
++		zl =3D zbd_get_zone(f, f->max_zone);
+ 		zb =3D zbd_find_zone(td, io_u, 1, zb, zl);
+ 		if (zb) {
+ 			io_u->offset =3D zb->start;
+@@ -2106,7 +2106,7 @@ int zbd_do_io_u_trim(const struct thread_data *td, =
 struct io_u *io_u)
- 	uint32_t zone_idx;
  	int ret;
 =20
--	zone_idx =3D zbd_zone_idx(f, io_u->offset);
-+	zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
- 	z =3D get_zone(f, zone_idx);
+ 	zone_idx =3D zbd_offset_to_zone_idx(f, io_u->offset);
+-	z =3D get_zone(f, zone_idx);
++	z =3D zbd_get_zone(f, zone_idx);
 =20
  	if (!z->has_wp)
+ 		return 0;
 --=20
 2.31.1
 
