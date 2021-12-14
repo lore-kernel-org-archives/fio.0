@@ -2,49 +2,49 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA963C433EF
-	for <fio@archiver.kernel.org>; Tue, 14 Dec 2021 01:24:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 222DDC4332F
+	for <fio@archiver.kernel.org>; Tue, 14 Dec 2021 01:24:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243162AbhLNBYV (ORCPT <rfc822;fio@archiver.kernel.org>);
+        id S243142AbhLNBYV (ORCPT <rfc822;fio@archiver.kernel.org>);
         Mon, 13 Dec 2021 20:24:21 -0500
 Received: from esa5.hgst.iphmx.com ([216.71.153.144]:51731 "EHLO
         esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243142AbhLNBYU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 13 Dec 2021 20:24:20 -0500
+        with ESMTP id S243119AbhLNBYV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 13 Dec 2021 20:24:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1639445060; x=1670981060;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=w88FJvM2+sCA5cML6Xhcgcj7dcZnKbRFwKl2YGIHfWY=;
-  b=i2hrgeIJBjD0lGWGlV/isZ+629Yw3siolQxOJFwJGB1RFvIiAuyNfCOn
-   AQHguCUuFC5Y5yJxZIR5So+s4Pvu4r2sZwtfG50J3drNnsSsWiAskmClj
-   APz1fXF5WEOP/UcBlbLRl5Lt5cTGdeCcqZLrmdoUXGEVGJLENLZzF5A1W
-   Fxhg3G9SV10HbEHyWoH+uqJNJi3Z+Y6/llzNC1MyoSZZIjza3o5lc6q96
-   0YWxBk2YbBGYmaX75xSiiCsHKTkFnx0ji8EC2vTnyH1ecJjUQ9+oq44RB
-   dro7mI/uZIPHPuDwr1X1U8Z+Wik0C0H3sIk3EJ3BgwhbTWttIF+y9jmmh
-   A==;
+  bh=QvtPsge/jUWqON/2mLe8jTt1lhdmX33+BeLW3DssfQI=;
+  b=G0e5yOxEs4Ln+0YY/fpxt2jITHwbOm5yCthU/TGTUnd8DOmsPjAG7dti
+   sjqGsS/eSkwfI3hcBlrVCOGA/uQgQKA/6cXcA4BQj9Optqrs547JdJZlR
+   y0ca07Epb/nmCjmD0GFe/VU43APZ0JwKK1zAF9xyPxRezn1JYJWzR7kCU
+   XeATPGeaZFi3fnZXfjSIiaO3GBTRKhnPJjfQVialS/lFD6Wysmiprd7ic
+   qGQpF7rej783N57hmbV0SikzVNcWURrrJ74Db0lQBdPC9Q1Ibbc7NABAI
+   ddABfgMuVohK/auJXzRFpWw8WoHdrERnvw3mT3q/G8Nag7v1xkJ9fJCWl
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.88,204,1635177600"; 
-   d="scan'208";a="188163306"
+   d="scan'208";a="188163308"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
   by ob1.hgst.iphmx.com with ESMTP; 14 Dec 2021 09:24:20 +0800
-IronPort-SDR: Eu3ESnahiiJoMsu7oW2KPAdLZNRARDBADPNY0oyMxZKla1JVbXN6aOPi/GChZCbi0Nd97IqO7S
- Gsnek9SezFZ8hxqL8YaVLHrlcLcq/ag+CbP6SNwKaM8/nmPfW1rW0ifOa6yPSFevn/R6BTh3Ol
- vWxq/e5orqkV+VHPgbd171wNKIs6PvBy56NSG+KInw/Z+p7QOe5fGMrGCV7HwINMAcH3iYpUOj
- jNgTXfW5DcGAvri0260BDvgJd9B54tcYbemQkX85oy2G+f3f4ZCsJ0QQvZt0Ua7nf7gCTrwBNs
- iNnKhnVINtOdRfrBux97Ph60
+IronPort-SDR: fcP5kPSnSqnoqLaSH3QTuj/sJm03YN8w1QLggxOAENZgcT6N/e0HGq1Sifi3U2xKAp8ZyEAvpp
+ 72T8qVdAQ9TtdB/aNmy4eJIXar8GO2qMiujJSbKs/qyzmHwGFHxZKZi6Zx9/4t496knEsVg0KP
+ ridZXLAFRFX+JuXji6CxUgXHbhgeX0Qjw9UJ82LdULkCuu3ixyw/PmZ6yPvnw65qqbOfoL1L5s
+ I9ufyJQbIx+WAaFc5cdBl2uX1chXa0sNWZq+dpniMvmKH6aQPXFb4iCcR1L9o+jOJ1Vhak4DNk
+ b2Bnh5IxTWgtldj3j6uRpo1L
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
   by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 16:58:46 -0800
-IronPort-SDR: AzO7PRC7WJp1l2WfRAxyHpvQR1ttCIlEqPnQxGJc8JqhTlqcpxiOs0Y1bKL8zI0yG0391QBrht
- c2bmhQOXjMFfIT0u8X7d+gwp2Dcs4Mk0XGnJTd7091UtUhSZKEQKyXnVGfCb60CeQ27YGjNMzC
- 4kiRIEChpnuZ2zNOb7V+5WmfxrJtYNnEskMZ+w9UGmrYERWhCjcS+00C0LYT410oQIOT3usOvt
- c51No1b24aUtBz/Lun1B66xr5nJjNGbcVLNOHJswtqygRks2FPs+OQXJ1SRIMdAUePEpl929Av
- iL8=
+IronPort-SDR: YW9h80X0ctMq2JS3bgLbJbsHZJXV5ujNOwC97lF+jEFCbOjwIoBUSXHVEk5BHhzRLXdlW7dSXr
+ Qy/tJuW0cE/2xdbe34KLVLYIcKRWAbG4AInAXzqxFNHH5EWXWiI7Lqutjx+Hbxz4nMW2P/76SY
+ pqw5A3ptBTcj/l31nYhb76Rgfj/L2CB36y5kCkdqoaq0vYnAbV3y3l1ynlRcjPjHMfX8LhOeCt
+ g3HfawacJDwmZpEWUceeOjLGsyK8SGJaKVhvV7EsLxvE7UWOMDWE/tO4WjasXJNQ+Fn9/dR713
+ H74=
 WDCIronportException: Internal
 Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
   by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 17:24:21 -0800
 Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4JCgdc2cyDz1Rwnx
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4JCgdc3pGtz1Rvlf
         for <fio@vger.kernel.org>; Mon, 13 Dec 2021 17:24:20 -0800 (PST)
 Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
         reason="pass (just generated, assumed good)"
@@ -52,28 +52,28 @@ Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
         opensource.wdc.com; h=content-transfer-encoding:mime-version
         :references:in-reply-to:x-mailer:message-id:date:subject:to
-        :from; s=dkim; t=1639445059; x=1642037060; bh=w88FJvM2+sCA5cML6X
-        hcgcj7dcZnKbRFwKl2YGIHfWY=; b=DlUOyU8BLAXmWlXF5QZKyfWndzevIbytcX
-        cNfQyS23yq8sI0Nkc7tAyR8CEo2A3JJkmgXSLGOQjXNF9CwLPXuRMUFH0iHUA8B7
-        B9kDjaq0nbTl49TRwP3wuJSSxWs4V4HS7k5dXGnlLwthXVP+MEdPv6BINbL/ymhz
-        4CmyGxIxy7BhPdksYw2pQwWQyCa4asHQ8hbIqRMdscxvBVCqElHr9n6CZacipAxK
-        OZP0dolAOf+ZtFgZyrOuPTQUfN6V0YyB7QsUXDM6W6LZcap5gzTNCS9/jdvtdYG9
-        xJ9efzEDwh9pSPOrj3laxEOLF2s1QjvBLTPpUsVE+YaVoPoM2gNw==
+        :from; s=dkim; t=1639445058; x=1642037059; bh=QvtPsge/jUWqON/2mL
+        e8jTt1lhdmX33+BeLW3DssfQI=; b=E+3OBQ7j4NFLyvg11+ckFJPUBNaktwgoiS
+        rB/TJiaBO1XjUVJOe5IChuCAXxOg0sjx131mfHlYNg8KzFMMkPnk1aN+i60oJgnD
+        KUALnfNB1EKA6iOU3ds3B9GcfZqwMOT9HEVPRTvvXBFNeKAUkzVx2+J8E5MjsNAc
+        yFt/4Ahs4ONh/nWUon04XIOZxiJR3pK9BGI3P+zFyDsY0EmmqmzWxvLo/Kx/Q+fd
+        e0fuC6pEYi0LCcVMmhAb0MX+RDLfHFZRqyRyaabnuEYUfsgKLGHvSKesIWTjMx5/
+        3YfPFpF6VU/jL8+iZZtrrTlqZk6i8tnZbTvY8nX5xuS12TZAKfRQ==
 X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
 Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
         by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id JZ4eFS0aXX_3 for <fio@vger.kernel.org>;
-        Mon, 13 Dec 2021 17:24:19 -0800 (PST)
-Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4JCgdZ6x1Kz1RtVG;
+        with ESMTP id X5ECzC2e6Rqk for <fio@vger.kernel.org>;
         Mon, 13 Dec 2021 17:24:18 -0800 (PST)
+Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4JCgdZ0GR7z1RvTh;
+        Mon, 13 Dec 2021 17:24:17 -0800 (PST)
 From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc:     Niklas Cassel <niklas.cassel@wdc.com>,
         Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 04/12] zbd: remove is_zone_open() helper
-Date:   Tue, 14 Dec 2021 10:24:05 +0900
-Message-Id: <20211214012413.464798-5-damien.lemoal@opensource.wdc.com>
+Subject: [PATCH v2 03/12] zbd: move and cleanup code
+Date:   Tue, 14 Dec 2021 10:24:04 +0900
+Message-Id: <20211214012413.464798-4-damien.lemoal@opensource.wdc.com>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20211214012413.464798-1-damien.lemoal@opensource.wdc.com>
 References: <20211214012413.464798-1-damien.lemoal@opensource.wdc.com>
@@ -83,33 +83,612 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The helper function is_zone_open() is useless as a each zone has an open
-flag indicating if it is part of the array of open zones. Remove this
-function code and use the zone open flag in zbd_open_zone().
+Move zone manipulation helper functions at the beginning of the zbd.c
+file to avoid forward declarations and to group these functions
+together apart from the IO manipulation functions.
+Also fix function comments.
+
+No functional changes.
 
 Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
- zbd.c | 38 +++++---------------------------------
- 1 file changed, 5 insertions(+), 33 deletions(-)
+ zbd.c | 582 ++++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 301 insertions(+), 281 deletions(-)
 
 diff --git a/zbd.c b/zbd.c
-index 20d53b15..70afdd82 100644
+index 44e77227..20d53b15 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -377,36 +377,6 @@ static int zbd_get_max_open_zones(struct thread_data=
- *td, struct fio_file *f,
+@@ -22,6 +22,112 @@
+ #include "pshared.h"
+ #include "zbd.h"
+=20
++static bool is_valid_offset(const struct fio_file *f, uint64_t offset)
++{
++	return (uint64_t)(offset - f->file_offset) < f->io_size;
++}
++
++static inline unsigned int zbd_zone_nr(const struct fio_file *f,
++				       struct fio_zone_info *zone)
++{
++	return zone - f->zbd_info->zone_info;
++}
++
++/**
++ * zbd_zone_idx - convert an offset into a zone number
++ * @f: file pointer.
++ * @offset: offset in bytes. If this offset is in the first zone_size by=
+tes
++ *	    past the disk size then the index of the sentinel is returned.
++ */
++static uint32_t zbd_zone_idx(const struct fio_file *f, uint64_t offset)
++{
++	uint32_t zone_idx;
++
++	if (f->zbd_info->zone_size_log2 > 0)
++		zone_idx =3D offset >> f->zbd_info->zone_size_log2;
++	else
++		zone_idx =3D offset / f->zbd_info->zone_size;
++
++	return min(zone_idx, f->zbd_info->nr_zones);
++}
++
++/**
++ * zbd_zone_end - Return zone end location
++ * @z: zone info pointer.
++ */
++static inline uint64_t zbd_zone_end(const struct fio_zone_info *z)
++{
++	return (z+1)->start;
++}
++
++/**
++ * zbd_zone_capacity_end - Return zone capacity limit end location
++ * @z: zone info pointer.
++ */
++static inline uint64_t zbd_zone_capacity_end(const struct fio_zone_info =
+*z)
++{
++	return z->start + z->capacity;
++}
++
++/**
++ * zbd_zone_full - verify whether a minimum number of bytes remain in a =
+zone
++ * @f: file pointer.
++ * @z: zone info pointer.
++ * @required: minimum number of bytes that must remain in a zone.
++ *
++ * The caller must hold z->mutex.
++ */
++static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info=
+ *z,
++			  uint64_t required)
++{
++	assert((required & 511) =3D=3D 0);
++
++	return z->has_wp &&
++		z->wp + required > zbd_zone_capacity_end(z);
++}
++
++static void zone_lock(struct thread_data *td, const struct fio_file *f,
++		      struct fio_zone_info *z)
++{
++	struct zoned_block_device_info *zbd =3D f->zbd_info;
++	uint32_t nz =3D z - zbd->zone_info;
++
++	/* A thread should never lock zones outside its working area. */
++	assert(f->min_zone <=3D nz && nz < f->max_zone);
++
++	assert(z->has_wp);
++
++	/*
++	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
++	 * is changed or when io_u completes and zbd_put_io() executed.
++	 * To avoid multiple jobs doing asynchronous I/Os from deadlocking each
++	 * other waiting for zone locks when building an io_u batch, first
++	 * only trylock the zone. If the zone is already locked by another job,
++	 * process the currently queued I/Os so that I/O progress is made and
++	 * zones unlocked.
++	 */
++	if (pthread_mutex_trylock(&z->mutex) !=3D 0) {
++		if (!td_ioengine_flagged(td, FIO_SYNCIO))
++			io_u_quiesce(td);
++		pthread_mutex_lock(&z->mutex);
++	}
++}
++
++static inline void zone_unlock(struct fio_zone_info *z)
++{
++	int ret;
++
++	assert(z->has_wp);
++	ret =3D pthread_mutex_unlock(&z->mutex);
++	assert(!ret);
++}
++
++static inline struct fio_zone_info *get_zone(const struct fio_file *f,
++					     unsigned int zone_nr)
++{
++	return &f->zbd_info->zone_info[zone_nr];
++}
++
+ /**
+  * zbd_get_zoned_model - Get a device zoned model
+  * @td: FIO thread data
+@@ -123,6 +229,126 @@ static int zbd_reset_wp(struct thread_data *td, str=
+uct fio_file *f,
  	return ret;
  }
 =20
++/**
++ * zbd_reset_zone - reset the write pointer of a single zone
++ * @td: FIO thread data.
++ * @f: FIO file associated with the disk for which to reset a write poin=
+ter.
++ * @z: Zone to reset.
++ *
++ * Returns 0 upon success and a negative error code upon failure.
++ *
++ * The caller must hold z->mutex.
++ */
++static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
++			  struct fio_zone_info *z)
++{
++	uint64_t offset =3D z->start;
++	uint64_t length =3D (z+1)->start - offset;
++	uint64_t data_in_zone =3D z->wp - z->start;
++	int ret =3D 0;
++
++	if (!data_in_zone)
++		return 0;
++
++	assert(is_valid_offset(f, offset + length - 1));
++
++	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
++		zbd_zone_nr(f, z));
++	switch (f->zbd_info->model) {
++	case ZBD_HOST_AWARE:
++	case ZBD_HOST_MANAGED:
++		ret =3D zbd_reset_wp(td, f, offset, length);
++		if (ret < 0)
++			return ret;
++		break;
++	default:
++		break;
++	}
++
++	pthread_mutex_lock(&f->zbd_info->mutex);
++	f->zbd_info->sectors_with_data -=3D data_in_zone;
++	f->zbd_info->wp_sectors_with_data -=3D data_in_zone;
++	pthread_mutex_unlock(&f->zbd_info->mutex);
++	z->wp =3D z->start;
++	z->verify_block =3D 0;
++
++	td->ts.nr_zone_resets++;
++
++	return ret;
++}
++
++/**
++ * zbd_close_zone - Remove a zone from the open zones array.
++ * @td: FIO thread data.
++ * @f: FIO file associated with the disk for which to reset a write poin=
+ter.
++ * @zone_idx: Index of the zone to remove.
++ *
++ * The caller must hold f->zbd_info->mutex.
++ */
++static void zbd_close_zone(struct thread_data *td, const struct fio_file=
+ *f,
++			   unsigned int zone_idx)
++{
++	uint32_t open_zone_idx =3D 0;
++
++	for (; open_zone_idx < f->zbd_info->num_open_zones; open_zone_idx++) {
++		if (f->zbd_info->open_zones[open_zone_idx] =3D=3D zone_idx)
++			break;
++	}
++	if (open_zone_idx =3D=3D f->zbd_info->num_open_zones)
++		return;
++
++	dprint(FD_ZBD, "%s: closing zone %d\n", f->file_name, zone_idx);
++	memmove(f->zbd_info->open_zones + open_zone_idx,
++		f->zbd_info->open_zones + open_zone_idx + 1,
++		(ZBD_MAX_OPEN_ZONES - (open_zone_idx + 1)) *
++		sizeof(f->zbd_info->open_zones[0]));
++	f->zbd_info->num_open_zones--;
++	td->num_open_zones--;
++	get_zone(f, zone_idx)->open =3D 0;
++}
++
++/**
++ * zbd_reset_zones - Reset a range of zones.
++ * @td: fio thread data.
++ * @f: fio file for which to reset zones
++ * @zb: first zone to reset.
++ * @ze: first zone not to reset.
++ *
++ * Returns 0 upon success and 1 upon failure.
++ */
++static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
++			   struct fio_zone_info *const zb,
++			   struct fio_zone_info *const ze)
++{
++	struct fio_zone_info *z;
++	const uint64_t min_bs =3D td->o.min_bs[DDIR_WRITE];
++	int res =3D 0;
++
++	assert(min_bs);
++
++	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
++		zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
++	for (z =3D zb; z < ze; z++) {
++		uint32_t nz =3D zbd_zone_nr(f, z);
++
++		if (!z->has_wp)
++			continue;
++		zone_lock(td, f, z);
++		pthread_mutex_lock(&f->zbd_info->mutex);
++		zbd_close_zone(td, f, nz);
++		pthread_mutex_unlock(&f->zbd_info->mutex);
++		if (z->wp !=3D z->start) {
++			dprint(FD_ZBD, "%s: resetting zone %u\n",
++			       f->file_name, zbd_zone_nr(f, z));
++			if (zbd_reset_zone(td, f, z) < 0)
++				res =3D 1;
++		}
++		zone_unlock(z);
++	}
++
++	return res;
++}
++
+ /**
+  * zbd_get_max_open_zones - Get the maximum number of open zones
+  * @td: FIO thread data
+@@ -152,103 +378,99 @@ static int zbd_get_max_open_zones(struct thread_da=
+ta *td, struct fio_file *f,
+ }
+=20
+ /**
+- * zbd_zone_idx - convert an offset into a zone number
+- * @f: file pointer.
+- * @offset: offset in bytes. If this offset is in the first zone_size by=
+tes
+- *	    past the disk size then the index of the sentinel is returned.
++ * is_zone_open - Test if a zone is already in the array of open zones.
++ * @td: fio thread data.
++ * @f: fio file for which to test zones.
++ * @zone_idx: Index of the zone to check.
++ *
++ * The caller must hold f->zbd_info->mutex.
+  */
+-static uint32_t zbd_zone_idx(const struct fio_file *f, uint64_t offset)
++static bool is_zone_open(const struct thread_data *td, const struct fio_=
+file *f,
++			 unsigned int zone_idx)
+ {
+-	uint32_t zone_idx;
+-
+-	if (f->zbd_info->zone_size_log2 > 0)
+-		zone_idx =3D offset >> f->zbd_info->zone_size_log2;
+-	else
+-		zone_idx =3D offset / f->zbd_info->zone_size;
++	struct zoned_block_device_info *zbdi =3D f->zbd_info;
++	int i;
+=20
+-	return min(zone_idx, f->zbd_info->nr_zones);
+-}
++	/*
++	 * This function should never be called when zbdi->max_open_zones =3D=3D=
+ 0.
++	 */
++	assert(zbdi->max_open_zones);
++	assert(td->o.job_max_open_zones =3D=3D 0 ||
++	       td->num_open_zones <=3D td->o.job_max_open_zones);
++	assert(td->o.job_max_open_zones <=3D zbdi->max_open_zones);
++	assert(zbdi->num_open_zones <=3D zbdi->max_open_zones);
+=20
 -/**
-- * is_zone_open - Test if a zone is already in the array of open zones.
-- * @td: fio thread data.
-- * @f: fio file for which to test zones.
-- * @zone_idx: Index of the zone to check.
-- *
-- * The caller must hold f->zbd_info->mutex.
+- * zbd_zone_end - Return zone end location
+- * @z: zone info pointer.
 - */
+-static inline uint64_t zbd_zone_end(const struct fio_zone_info *z)
+-{
+-	return (z+1)->start;
+-}
++	for (i =3D 0; i < zbdi->num_open_zones; i++)
++		if (zbdi->open_zones[i] =3D=3D zone_idx)
++			return true;
+=20
+-/**
+- * zbd_zone_capacity_end - Return zone capacity limit end location
+- * @z: zone info pointer.
+- */
+-static inline uint64_t zbd_zone_capacity_end(const struct fio_zone_info =
+*z)
+-{
+-	return z->start + z->capacity;
++	return false;
+ }
+=20
+ /**
+- * zbd_zone_full - verify whether a minimum number of bytes remain in a =
+zone
+- * @f: file pointer.
+- * @z: zone info pointer.
+- * @required: minimum number of bytes that must remain in a zone.
++ * zbd_open_zone - Add a zone to the array of open zones.
++ * @td: fio thread data.
++ * @f: fio file that has the open zones to add.
++ * @zone_idx: Index of the zone to add.
+  *
+- * The caller must hold z->mutex.
++ * Open a ZBD zone if it is not already open. Returns true if either the=
+ zone
++ * was already open or if the zone was successfully added to the array o=
+f open
++ * zones without exceeding the maximum number of open zones. Returns fal=
+se if
++ * the zone was not already open and opening the zone would cause the zo=
+ne limit
++ * to be exceeded.
+  */
+-static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info=
+ *z,
+-			  uint64_t required)
+-{
+-	assert((required & 511) =3D=3D 0);
+-
+-	return z->has_wp &&
+-		z->wp + required > zbd_zone_capacity_end(z);
+-}
+-
+-static void zone_lock(struct thread_data *td, const struct fio_file *f,
+-		      struct fio_zone_info *z)
++static bool zbd_open_zone(struct thread_data *td, const struct fio_file =
+*f,
++			  uint32_t zone_idx)
+ {
+-	struct zoned_block_device_info *zbd =3D f->zbd_info;
+-	uint32_t nz =3D z - zbd->zone_info;
+-
+-	/* A thread should never lock zones outside its working area. */
+-	assert(f->min_zone <=3D nz && nz < f->max_zone);
++	const uint64_t min_bs =3D td->o.min_bs[DDIR_WRITE];
++	struct zoned_block_device_info *zbdi =3D f->zbd_info;
++	struct fio_zone_info *z =3D get_zone(f, zone_idx);
++	bool res =3D true;
+=20
+-	assert(z->has_wp);
++	if (z->cond =3D=3D ZBD_ZONE_COND_OFFLINE)
++		return false;
+=20
+ 	/*
+-	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
+-	 * is changed or when io_u completes and zbd_put_io() executed.
+-	 * To avoid multiple jobs doing asynchronous I/Os from deadlocking each
+-	 * other waiting for zone locks when building an io_u batch, first
+-	 * only trylock the zone. If the zone is already locked by another job,
+-	 * process the currently queued I/Os so that I/O progress is made and
+-	 * zones unlocked.
++	 * Skip full zones with data verification enabled because resetting a
++	 * zone causes data loss and hence causes verification to fail.
+ 	 */
+-	if (pthread_mutex_trylock(&z->mutex) !=3D 0) {
+-		if (!td_ioengine_flagged(td, FIO_SYNCIO))
+-			io_u_quiesce(td);
+-		pthread_mutex_lock(&z->mutex);
+-	}
+-}
+-
+-static inline void zone_unlock(struct fio_zone_info *z)
+-{
+-	int ret;
++	if (td->o.verify !=3D VERIFY_NONE && zbd_zone_full(f, z, min_bs))
++		return false;
+=20
+-	assert(z->has_wp);
+-	ret =3D pthread_mutex_unlock(&z->mutex);
+-	assert(!ret);
+-}
++	/*
++	 * zbdi->max_open_zones =3D=3D 0 means that there is no limit on the ma=
+ximum
++	 * number of open zones. In this case, do no track open zones in
++	 * zbdi->open_zones array.
++	 */
++	if (!zbdi->max_open_zones)
++		return true;
+=20
+-static bool is_valid_offset(const struct fio_file *f, uint64_t offset)
+-{
+-	return (uint64_t)(offset - f->file_offset) < f->io_size;
+-}
++	pthread_mutex_lock(&zbdi->mutex);
++	if (is_zone_open(td, f, zone_idx)) {
++		/*
++		 * If the zone is already open and going to be full by writes
++		 * in-flight, handle it as a full zone instead of an open zone.
++		 */
++		if (z->wp >=3D zbd_zone_capacity_end(z))
++			res =3D false;
++		goto out;
++	}
++	res =3D false;
++	/* Zero means no limit */
++	if (td->o.job_max_open_zones > 0 &&
++	    td->num_open_zones >=3D td->o.job_max_open_zones)
++		goto out;
++	if (zbdi->num_open_zones >=3D zbdi->max_open_zones)
++		goto out;
++	dprint(FD_ZBD, "%s: opening zone %d\n", f->file_name, zone_idx);
++	zbdi->open_zones[zbdi->num_open_zones++] =3D zone_idx;
++	td->num_open_zones++;
++	z->open =3D 1;
++	res =3D true;
+=20
+-static inline struct fio_zone_info *get_zone(const struct fio_file *f,
+-					     unsigned int zone_nr)
+-{
+-	return &f->zbd_info->zone_info[zone_nr];
++out:
++	pthread_mutex_unlock(&zbdi->mutex);
++	return res;
+ }
+=20
+ /* Verify whether direct I/O is used for all host-managed zoned drives. =
+*/
+@@ -751,11 +973,6 @@ static int zbd_init_zone_info(struct thread_data *td=
+, struct fio_file *file)
+ 	return ret;
+ }
+=20
+-static bool zbd_open_zone(struct thread_data *td, const struct fio_file =
+*f,
+-			  uint32_t zone_idx);
+-static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+-			  struct fio_zone_info *z);
+-
+ int zbd_init_files(struct thread_data *td)
+ {
+ 	struct fio_file *f;
+@@ -879,123 +1096,6 @@ int zbd_setup_files(struct thread_data *td)
+ 	return 0;
+ }
+=20
+-static inline unsigned int zbd_zone_nr(const struct fio_file *f,
+-				       struct fio_zone_info *zone)
+-{
+-	return zone - f->zbd_info->zone_info;
+-}
+-
+-/**
+- * zbd_reset_zone - reset the write pointer of a single zone
+- * @td: FIO thread data.
+- * @f: FIO file associated with the disk for which to reset a write poin=
+ter.
+- * @z: Zone to reset.
+- *
+- * Returns 0 upon success and a negative error code upon failure.
+- *
+- * The caller must hold z->mutex.
+- */
+-static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
+-			  struct fio_zone_info *z)
+-{
+-	uint64_t offset =3D z->start;
+-	uint64_t length =3D (z+1)->start - offset;
+-	uint64_t data_in_zone =3D z->wp - z->start;
+-	int ret =3D 0;
+-
+-	if (!data_in_zone)
+-		return 0;
+-
+-	assert(is_valid_offset(f, offset + length - 1));
+-
+-	dprint(FD_ZBD, "%s: resetting wp of zone %u.\n", f->file_name,
+-		zbd_zone_nr(f, z));
+-	switch (f->zbd_info->model) {
+-	case ZBD_HOST_AWARE:
+-	case ZBD_HOST_MANAGED:
+-		ret =3D zbd_reset_wp(td, f, offset, length);
+-		if (ret < 0)
+-			return ret;
+-		break;
+-	default:
+-		break;
+-	}
+-
+-	pthread_mutex_lock(&f->zbd_info->mutex);
+-	f->zbd_info->sectors_with_data -=3D data_in_zone;
+-	f->zbd_info->wp_sectors_with_data -=3D data_in_zone;
+-	pthread_mutex_unlock(&f->zbd_info->mutex);
+-	z->wp =3D z->start;
+-	z->verify_block =3D 0;
+-
+-	td->ts.nr_zone_resets++;
+-
+-	return ret;
+-}
+-
+-/* The caller must hold f->zbd_info->mutex */
+-static void zbd_close_zone(struct thread_data *td, const struct fio_file=
+ *f,
+-			   unsigned int zone_idx)
+-{
+-	uint32_t open_zone_idx =3D 0;
+-
+-	for (; open_zone_idx < f->zbd_info->num_open_zones; open_zone_idx++) {
+-		if (f->zbd_info->open_zones[open_zone_idx] =3D=3D zone_idx)
+-			break;
+-	}
+-	if (open_zone_idx =3D=3D f->zbd_info->num_open_zones)
+-		return;
+-
+-	dprint(FD_ZBD, "%s: closing zone %d\n", f->file_name, zone_idx);
+-	memmove(f->zbd_info->open_zones + open_zone_idx,
+-		f->zbd_info->open_zones + open_zone_idx + 1,
+-		(ZBD_MAX_OPEN_ZONES - (open_zone_idx + 1)) *
+-		sizeof(f->zbd_info->open_zones[0]));
+-	f->zbd_info->num_open_zones--;
+-	td->num_open_zones--;
+-	get_zone(f, zone_idx)->open =3D 0;
+-}
+-
+-/*
+- * Reset a range of zones. Returns 0 upon success and 1 upon failure.
+- * @td: fio thread data.
+- * @f: fio file for which to reset zones
+- * @zb: first zone to reset.
+- * @ze: first zone not to reset.
+- */
+-static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+-			   struct fio_zone_info *const zb,
+-			   struct fio_zone_info *const ze)
+-{
+-	struct fio_zone_info *z;
+-	const uint64_t min_bs =3D td->o.min_bs[DDIR_WRITE];
+-	int res =3D 0;
+-
+-	assert(min_bs);
+-
+-	dprint(FD_ZBD, "%s: examining zones %u .. %u\n", f->file_name,
+-		zbd_zone_nr(f, zb), zbd_zone_nr(f, ze));
+-	for (z =3D zb; z < ze; z++) {
+-		uint32_t nz =3D zbd_zone_nr(f, z);
+-
+-		if (!z->has_wp)
+-			continue;
+-		zone_lock(td, f, z);
+-		pthread_mutex_lock(&f->zbd_info->mutex);
+-		zbd_close_zone(td, f, nz);
+-		pthread_mutex_unlock(&f->zbd_info->mutex);
+-		if (z->wp !=3D z->start) {
+-			dprint(FD_ZBD, "%s: resetting zone %u\n",
+-			       f->file_name, zbd_zone_nr(f, z));
+-			if (zbd_reset_zone(td, f, z) < 0)
+-				res =3D 1;
+-		}
+-		zone_unlock(z);
+-	}
+-
+-	return res;
+-}
+-
+ /*
+  * Reset zbd_info.write_cnt, the counter that counts down towards the ne=
+xt
+  * zone reset.
+@@ -1112,86 +1212,6 @@ void zbd_file_reset(struct thread_data *td, struct=
+ fio_file *f)
+ 	zbd_reset_write_cnt(td, f);
+ }
+=20
+-/* The caller must hold f->zbd_info->mutex. */
 -static bool is_zone_open(const struct thread_data *td, const struct fio_=
 file *f,
 -			 unsigned int zone_idx)
@@ -117,13 +696,11 @@ file *f,
 -	struct zoned_block_device_info *zbdi =3D f->zbd_info;
 -	int i;
 -
--	/*
--	 * This function should never be called when zbdi->max_open_zones =3D=3D=
- 0.
--	 */
+-	/* This function should never be called when zbdi->max_open_zones =3D=3D=
+ 0 */
 -	assert(zbdi->max_open_zones);
--	assert(td->o.job_max_open_zones =3D=3D 0 ||
--	       td->num_open_zones <=3D td->o.job_max_open_zones);
+-	assert(td->o.job_max_open_zones =3D=3D 0 || td->num_open_zones <=3D td-=
+>o.job_max_open_zones);
 -	assert(td->o.job_max_open_zones <=3D zbdi->max_open_zones);
 -	assert(zbdi->num_open_zones <=3D zbdi->max_open_zones);
 -
@@ -134,26 +711,74 @@ file *f,
 -	return false;
 -}
 -
- /**
-  * zbd_open_zone - Add a zone to the array of open zones.
-  * @td: fio thread data.
-@@ -446,10 +416,12 @@ static bool zbd_open_zone(struct thread_data *td, c=
-onst struct fio_file *f,
- 		return true;
-=20
- 	pthread_mutex_lock(&zbdi->mutex);
+-/*
+- * Open a ZBD zone if it was not yet open. Returns true if either the zo=
+ne was
+- * already open or if opening a new zone is allowed. Returns false if th=
+e zone
+- * was not yet open and opening a new zone would cause the zone limit to=
+ be
+- * exceeded.
+- */
+-static bool zbd_open_zone(struct thread_data *td, const struct fio_file =
+*f,
+-			  uint32_t zone_idx)
+-{
+-	const uint64_t min_bs =3D td->o.min_bs[DDIR_WRITE];
+-	struct zoned_block_device_info *zbdi =3D f->zbd_info;
+-	struct fio_zone_info *z =3D get_zone(f, zone_idx);
+-	bool res =3D true;
+-
+-	if (z->cond =3D=3D ZBD_ZONE_COND_OFFLINE)
+-		return false;
+-
+-	/*
+-	 * Skip full zones with data verification enabled because resetting a
+-	 * zone causes data loss and hence causes verification to fail.
+-	 */
+-	if (td->o.verify !=3D VERIFY_NONE && zbd_zone_full(f, z, min_bs))
+-		return false;
+-
+-	/*
+-	 * zbdi->max_open_zones =3D=3D 0 means that there is no limit on the ma=
+ximum
+-	 * number of open zones. In this case, do no track open zones in
+-	 * zbdi->open_zones array.
+-	 */
+-	if (!zbdi->max_open_zones)
+-		return true;
+-
+-	pthread_mutex_lock(&zbdi->mutex);
 -	if (is_zone_open(td, f, zone_idx)) {
-+
-+	if (z->open) {
- 		/*
+-		/*
 -		 * If the zone is already open and going to be full by writes
 -		 * in-flight, handle it as a full zone instead of an open zone.
-+		 * If the zone is going to be completely filled by writes
-+		 * already in-flight, handle it as a full zone instead of an
-+		 * open zone.
- 		 */
- 		if (z->wp >=3D zbd_zone_capacity_end(z))
- 			res =3D false;
+-		 */
+-		if (z->wp >=3D zbd_zone_capacity_end(z))
+-			res =3D false;
+-		goto out;
+-	}
+-	res =3D false;
+-	/* Zero means no limit */
+-	if (td->o.job_max_open_zones > 0 &&
+-	    td->num_open_zones >=3D td->o.job_max_open_zones)
+-		goto out;
+-	if (zbdi->num_open_zones >=3D zbdi->max_open_zones)
+-		goto out;
+-	dprint(FD_ZBD, "%s: opening zone %d\n", f->file_name, zone_idx);
+-	zbdi->open_zones[zbdi->num_open_zones++] =3D zone_idx;
+-	td->num_open_zones++;
+-	z->open =3D 1;
+-	res =3D true;
+-
+-out:
+-	pthread_mutex_unlock(&zbdi->mutex);
+-	return res;
+-}
+-
+ /* Return random zone index for one of the open zones. */
+ static uint32_t pick_random_zone_idx(const struct fio_file *f,
+ 				     const struct io_u *io_u)
 --=20
 2.31.1
 
