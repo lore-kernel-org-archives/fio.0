@@ -2,123 +2,146 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 896D8C4332F
-	for <fio@archiver.kernel.org>; Tue, 14 Dec 2021 01:24:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5225FC433F5
+	for <fio@archiver.kernel.org>; Tue, 14 Dec 2021 08:33:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243388AbhLNBYa (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 13 Dec 2021 20:24:30 -0500
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:60902 "EHLO
+        id S229735AbhLNIdm (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 14 Dec 2021 03:33:42 -0500
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:64119 "EHLO
         esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243270AbhLNBY3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 13 Dec 2021 20:24:29 -0500
+        with ESMTP id S231835AbhLNIdm (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 14 Dec 2021 03:33:42 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1639445069; x=1670981069;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=fmrMcVQDbkhBGCSb/F0hNhqheiWK/sw12Bybdj1UPHk=;
-  b=fRRsHfi3PFokpmPDWcsAX337Pob0z19Bkm1BfjEvg4hEEm5uR89sGCuV
-   9pmRdByC00LGJV71PkAQF0RVR+1jCQdhpD8OguyD5phlYSEl5JufV9nsx
-   HQ9f85OpvG1AGPPEVaBXq4rwVE/Ej5KvnrJlYvi3C2VZcP8++EctXrsNd
-   O7hjsqS0IKyfdexV1TLyJDDvZ0ARdhEvGDnSvjggjmZ43ewuQT4vxpZP+
-   79j0I7OuDrSRE6YFosWXHIa46gTPzXn4gmIxJu6rB3OmqHxQp9jwzjSow
-   sM2fJKauJsQw1LhGLpt4KCTzY89QKXlWSel71nwmYM5zHiTZWtJKUE+sX
+  t=1639470822; x=1671006822;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=annpgPr6H35fI2wBpTnUjCinQktHBL8pf2IMBgtEO5w=;
+  b=O8e3RX0uUhLUMkm6hAIeT/ny/mji8BeDP8r6A//yVOFD2jClonevJR3R
+   aKbf6CuUcNLMXv9U6CJ9Iy6g7iKtThiABKBfHdbbxkAj01ZfRGyo1xgR9
+   N5UA1H7qDgAJIzHOjGNf9wNJcwI7yBCcZ2zJRLQmWKIU/0S0D0jWUTv+G
+   0dBgrIi4rO1t49guC3iBgjO0zK3PZYisQja0DzkOyvmR3sWEph+d06Qfm
+   QvhSgMZtCpRVMBeQXcd2CBtCi7vq9rDAYovsKCBKWLFX6lZbn7IMMGxgz
+   7fXW13G3r6TP01bvIH6GJ9uwP8Q8PDxfbcW/6P2tZR5xCCg6aHuhTLC+w
    g==;
 X-IronPort-AV: E=Sophos;i="5.88,204,1635177600"; 
-   d="scan'208";a="300014512"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 14 Dec 2021 09:24:29 +0800
-IronPort-SDR: vo/3tFH1909mwIwCL/j+g/TEBhDt6Ij060uJXEqb/zhluCcVsBy5fZTUiWD2poZzvmk1jL6E39
- Mod8J2da9Irc5mz1QR0i1XxJLjgK1zU74dxg9jzMTodmp7UmWewFC9RWDfeaHxpGVKjX3+xtmo
- nPIu6G89pPmTle3wKpjQ6VnUfhF1JXfHH/Mzg2gc2Cppq7EAjYfjYVUkLZY40pplSbq4f9k8xD
- xqBOY98dcv88p8T8m+Iwz17RVaEMmOWjTQz9GMe2l/HzFsX8DQ6uLwW7q4mgdkMsltV0zSyfCa
- LG9sdAjklUBqYDsy2jftiSH1
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 16:58:55 -0800
-IronPort-SDR: sBM3nERk5fynWAPv/vKpyK2WsJD2uRDr1CLOWBMJEW6a63TVICgg9eSOB6+prxcI//R5hLW3nW
- E6Uxjmuk3l6et+kXQy142Nn1lmGN0mzlfEKoGI34LSZbeiAwJP1Eg7nA+WJ2uCSMZQr97FRBzf
- 9/5/8w6UMvpoRMv0CF6iCkgea47xQVdomlkq2Avd5UNF++AF1zOKrQRF73Xg8w8ZlHrAivO7te
- fUQ4rXiZEe6Q+YUQE1eAForzvD6eUKcJ/Q+EK0kXPZ94I48/o6TLk5munPfwaXBGPd11X+V8QB
- u5o=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Dec 2021 17:24:29 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4JCgdm73h5z1Rwns
-        for <fio@vger.kernel.org>; Mon, 13 Dec 2021 17:24:28 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:mime-version
-        :references:in-reply-to:x-mailer:message-id:date:subject:to
-        :from; s=dkim; t=1639445068; x=1642037069; bh=fmrMcVQDbkhBGCSb/F
-        0hNhqheiWK/sw12Bybdj1UPHk=; b=DCDYjRKLIO/LX9COsL3glJpuGRVOi16fXI
-        skwJtHuy7uxqyZdnMnWY6At172YUbHLwggSCNgQaR8mckJQZCbruYj1XnXCnVyXn
-        FSlHgfP1Z7uJ8poM4PSwhsMyArMAlQGCo5UOa+pajlw1iR30qEaA5jzhWu+awfXx
-        i3WCURR2N63MaS6ETb9FFSwaC+gM2dh7Nq8JIIceda1m4KxBRptDJz2INyc38Lff
-        9y0tbH4Fpx8h7z5Eug8o3k5zXhlmO5NVG+MU2GochXoiKFmqkcUUaRc0WOpF4E8/
-        zbvA1mdtv09KSsBafKSdBDnjqXZeGeqpg55VgAZrL2e6hXjqMiIQ==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id VV315X2kIOy4 for <fio@vger.kernel.org>;
-        Mon, 13 Dec 2021 17:24:28 -0800 (PST)
-Received: from washi.fujisawa.hgst.com (washi.fujisawa.hgst.com [10.149.53.254])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4JCgdl680Rz1RtVG;
-        Mon, 13 Dec 2021 17:24:27 -0800 (PST)
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc:     Niklas Cassel <niklas.cassel@wdc.com>,
+   d="scan'208";a="300043809"
+Received: from mail-co1nam11lp2169.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.169])
+  by ob1.hgst.iphmx.com with ESMTP; 14 Dec 2021 16:33:41 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ebRv6yKVwnNpYM+JH51prKEUn5RwHFaMr4Ax58fKVqpV9uJftvA+AGhoquqFYaqhKT0g7f2cgDQ3I8dyF+MolI+zvNP6yDEVeqxzdbUjDjJtSXJ4WZCOSgfuMOMcVtKS6CjlUdjPLmZDFrBK3duO+/UPWJC4/s7/95YPokAgDyHvC1i/43GV0yrxRmJ2ZkoKxXYTX2jApjOtL7j6/0J3XhJffozEGnxrpT+GEInn5izrgJRC44mUys7aGXRl+/4oPjdxyudAymMzoHS0ryIEU2ETjFbxw27KxdRK5mHRgjRD8wIz98R+y8oScFejzf1XtmeuA2CWLyVtbPNEPgvhow==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=annpgPr6H35fI2wBpTnUjCinQktHBL8pf2IMBgtEO5w=;
+ b=GhpwvrLZc7uOCesN/zpRpN4f1xstuReLaFJKZdejVfaLeCL6TCvcwpeGVYUoz7ezTnnr/fskXShWE/clXVBr8DEKt04bPS3+kwNjnSdX0Yr8jrtZhooXHJ/bSQCzQkjNK0VZXWKeeQ6B8xHNYj03fa6AQGLmyX+rKszChiqD2h/Pmorcukdma514Un/VADU4DnN36loY+kyuMxZdUGbveQSTE5JKjC+AXa6BivBy0C32H2wZ4oVkyAA4SH/CIJGUO//pMefSVTh2rqleF8jXPqcjFTR6Wl2ZEhp7I+Swces6aF0dXJmcpXhALWQ001x5YNVO5xzZCaIsxj+4SkphEw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=annpgPr6H35fI2wBpTnUjCinQktHBL8pf2IMBgtEO5w=;
+ b=vZDvqnWiECW08AsbptLI5uPETkcrI0XF8vVIyqnsvjuZz+Ml5xzyFkY5Ral/J5Mw2XCKk4O1mggEhAg+BmLdqBuGkEUs246r4zrxZBEakwQX65wmdfsQ1G3RWsRS238XntHph5BjzIYyhZ2OLEHMNjm9X9jl+Rv43Ov8WCOEBT0=
+Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
+ by PH0PR04MB7527.namprd04.prod.outlook.com (2603:10b6:510:4c::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.16; Tue, 14 Dec
+ 2021 08:33:40 +0000
+Received: from PH0PR04MB7158.namprd04.prod.outlook.com
+ ([fe80::c504:3d44:5aef:f3ca]) by PH0PR04MB7158.namprd04.prod.outlook.com
+ ([fe80::c504:3d44:5aef:f3ca%5]) with mapi id 15.20.4778.018; Tue, 14 Dec 2021
+ 08:33:40 +0000
+From:   Niklas Cassel <Niklas.Cassel@wdc.com>
+To:     Damien Le Moal <damien.lemoal@opensource.wdc.com>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
         Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 12/12] t/zbd: Avoid inappropriate blkzone command call in zone_cap_bs
-Date:   Tue, 14 Dec 2021 10:24:13 +0900
-Message-Id: <20211214012413.464798-13-damien.lemoal@opensource.wdc.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20211214012413.464798-1-damien.lemoal@opensource.wdc.com>
+Subject: Re: [PATCH v2 05/12] zbd: introduce zbd_zone_align_file_sizes()
+ helper
+Thread-Topic: [PATCH v2 05/12] zbd: introduce zbd_zone_align_file_sizes()
+ helper
+Thread-Index: AQHX8IlUYqzuJ9RTuEieCqLAlgrTcKwxqYOA
+Date:   Tue, 14 Dec 2021 08:33:40 +0000
+Message-ID: <YbhW46wg2hquOmK2@x1-carbon>
 References: <20211214012413.464798-1-damien.lemoal@opensource.wdc.com>
-MIME-Version: 1.0
+ <20211214012413.464798-6-damien.lemoal@opensource.wdc.com>
+In-Reply-To: <20211214012413.464798-6-damien.lemoal@opensource.wdc.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a8b474e3-1f09-4b92-101d-08d9bedc6ea8
+x-ms-traffictypediagnostic: PH0PR04MB7527:EE_
+x-microsoft-antispam-prvs: <PH0PR04MB7527EB27304D6B372CEFBA02F2759@PH0PR04MB7527.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:3044;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: bgNlIm7DucZnclyLqsQkfpXkcjkZm2/KOHkC9QXIXCfrgmd42SFPGotHaJhUEBgq24slUQrCZRhGtxnAxLA6VT83hQgj2DXoDLuRCwrOAKNTSIIGCsWw9DCYqnPRVWVy3fXDcmgY/CLhh5ymOwz8gvZHUe1KlXN0qskaUcZbt3iBZVG/krsW1zdbFHgJzutBqDct6jckfR3VbwLEGfMGuedtbe5G5s1OzeyrcF2MowwmGi+5UfCeJTXtxLj+Br8c8Mj9DYybj+wNhMxd+GTMJvmGIbLkhlXwmtx9tcEusiPwzNp9lDR8YOQL5+j4ngVYJoacKOSCWTzqMGefsd7JAu/erpv/Jz+dsHKLSOuQa8hEw76XJjVbkS7gBtNUZb1+OarWKRLJvRM1h0kl0RtPsYk0N6nES+yyhX69IpHH0M6B7TPTDvchFzpbeCg3FNzcmYPxa0KWvKqYvP2L55zmI4fzmH2jo7T1pzSPlfTWgCWxpWM95VH+cMwx9XYDAbfECiQtFqap1pqSM28V52qQ7Cd74+udavFllF89rty8Dp0Uz+iWXMTyampwPHpvoSXDgQAtYv+CZCL4aSVNzjN82QngWFOEKJpcEdUFbTPhS0E13yg7udHnL/sAyqZmLS1SYNnkvxRAi2wdShhjxL6D9jCT+dRDmlTYdLyUi1M/1ka8tjUdZK8qXu7Zc5ryqZHWg5GSPf1g3r9ObzIbMlurMA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(366004)(8936002)(4744005)(2906002)(6486002)(6506007)(83380400001)(122000001)(64756008)(82960400001)(8676002)(38100700002)(66556008)(66446008)(71200400001)(508600001)(9686003)(54906003)(6512007)(76116006)(91956017)(33716001)(26005)(6862004)(66476007)(86362001)(66946007)(38070700005)(186003)(316002)(5660300002)(4326008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?AobO4S7oqdHZ8Q9r9zYoqzRXIpQkfPT0xJxTOMGQ0kCrBr+SXyo+vNBDlh/C?=
+ =?us-ascii?Q?eWIJ44EOLXQJ21nDP/qvc7ljZfTIQLJQ/BeWELHyEwacoEu6KA3/P4ySvioV?=
+ =?us-ascii?Q?iodYXL8zxVuBcBHKdy6X27bompvtyCL+I4Na7xWFHxxBqOKh0g22islcG7Dy?=
+ =?us-ascii?Q?Yd2ey6hU///pdqfVbrJFHiWQOeto7YPmcO99QxZL+f/Zksd1HIUxduSco1OD?=
+ =?us-ascii?Q?73v5uPbkQpJYhhIZ093JJjf1YiiRyW7hClqXKD1y21uUA6FpuzUk8Q8xUoWk?=
+ =?us-ascii?Q?NUScWQhIfdc+7Tta3KO0FLncEgikZRH/3OPBpQ2YrJOyvo6q0Pz4W8gNHMfX?=
+ =?us-ascii?Q?mqFJRQP/u1/YyBdUMX+g2mDPyesBYvpikO7NT71Uqx+2441lQwzq323KgLVX?=
+ =?us-ascii?Q?I2Q61suHYffXENh35xUG7xqcDsughZiK01V1I1rQ1ndKPy3UimLNcatKCApw?=
+ =?us-ascii?Q?kLC7kZjpEQnnXHBK32axye++2y9NztPTlIPfWSt+vwglJFDYXDiQc9RIHWQQ?=
+ =?us-ascii?Q?9YolAoD8aef9HQPeDFBW2KTNCd3eL0eIKdHXNoC2PjWnQ3ctQXGCB4G8fFC5?=
+ =?us-ascii?Q?KyUKo7VQP8gIFLaQQ/ZTvgb2N8ewYL878dL4i9hyiqP21RlJ/5WJWRZ8TL6l?=
+ =?us-ascii?Q?J7iG4smDY5+rXaoLJitPAFLkPIprPEAWg5dFlNX9JA3EdwocOpuzBCArTGdl?=
+ =?us-ascii?Q?6zno5+HwyHzpAidfB0XAMR9v0OfJf9kz/aN8/dH/oGeGe46n4aB/TB+4+nr9?=
+ =?us-ascii?Q?qgMrY4lmgKlZ7xxBq5rMMEC290ZCaZCFyTeGG4kRxgjBA7eTN6gRY1hFPfKO?=
+ =?us-ascii?Q?8KmNqM3sa7SS9d9nrbhQEWWnaoGBHST71vvIrzXBq0qDRuauXkAOc9Z6BY2u?=
+ =?us-ascii?Q?DWYURGcyL4YTMLvn9i1VJPBmjULBRFRku6Vma7VstH2DzCI+tY2p+QlG34WT?=
+ =?us-ascii?Q?j6UsD2cHSSUZHgLM0XtJ53NxB2brip2Q1Zf8Fry7Jb8kDmaOR7yImgc+MzY/?=
+ =?us-ascii?Q?kLGmKP2IwxLVFpE2S+bAg7wK2mt4PM9oXWZEkJq6yKsY0AGPTqZrirAB42pW?=
+ =?us-ascii?Q?vdoKFuDzb+//udOLjjl+Q3oybkmZFsj/XvGPOKdx6tomQxXTVgGh7fEV8rL+?=
+ =?us-ascii?Q?G032w1dOximPS1EfpWHpxIf5HxKMWrUU0OZboLhkCFUWhjq26vj6ZV83a0O/?=
+ =?us-ascii?Q?Oi77blJmgqp+DkQpxTqoFgwxL8huAxFM4XP7/1KDqAN8N6ohxPZXbvX52K/n?=
+ =?us-ascii?Q?vjPJH7jVEIKXTpH/CBr30lVn+xaqGTVrIsKZy15BYLTzTgwGqym+L4jxDFGk?=
+ =?us-ascii?Q?AntEGypD5ugrK75PQXfCM5axX+t0YP2rLF30IVKnYgORlbXCxKaFiA+XXf+D?=
+ =?us-ascii?Q?PPAenrdX+lo9AiJWlmhA5xVLgw4UAmMU1TktrzDJPrPZ1SFZfadfBzguoNZ1?=
+ =?us-ascii?Q?Q502udYU9vZMfSEBupIFVJpElHNcH+Y8WlnCIw9wAJ/SdbX6KjS40eGFqQsC?=
+ =?us-ascii?Q?P5ugHV8qi7srkZZewpHKJOG+FDEgJpM8Eh8CDhK1CrbcsCs1S8NCx1LU1s98?=
+ =?us-ascii?Q?SqQm2lmUhi/8U7M4IOzqOqPxy5SouA8b/z1UAeDc107Y6JHRdYrEXu78M32E?=
+ =?us-ascii?Q?UY/d++S9Mwv+4sy4dZki4ys=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <07E136252E200E4EA4344A36BCCBEFD2@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a8b474e3-1f09-4b92-101d-08d9bedc6ea8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Dec 2021 08:33:40.7310
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: syW6K2vv0Gz51/n+vklf2nW+y/JCn0vKJ/0URv8+n2KnClRzlMD26vefwQS4qDI+2+hXpDq4OALYrobac7lwpA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7527
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+On Tue, Dec 14, 2021 at 10:24:06AM +0900, Damien Le Moal wrote:
+> Move the code for the innermost loop of the function zbd_verify_sizes()
+> to the new helper function zbd_zone_align_file_sizes(). This helper
+> avoids large indentation of the code in zbd_verify_sizes() and makes
+> the code easier to read.
+>=20
+> No functional changes.
+>=20
+> Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+> ---
 
-When the script test-zbd-support is run for regular block devices or
-SG nodes, blkzone command shall not be called. However, zone_cap_bs()
-helper function calls the command regardless of the zone model or
-device type, and results in error messages such as "unable to determine
-zone size" or "not a block device". Avoid the command call by returning
-the zone size argument passed to this function when the test device is
-a regular block device or a SG node.
-
-Fixes: 1ae82d673cf5 ("t/zbd: Align block size to zone capacity")
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
----
- t/zbd/functions | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/t/zbd/functions b/t/zbd/functions
-index e4e248b9..7cff18fd 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -72,9 +72,11 @@ zone_cap_bs() {
- 	local sed_str=3D's/.*len \([0-9A-Za-z]*\), cap \([0-9A-Za-z]*\).*/\1 \2=
-/p'
- 	local cap bs=3D"$zone_size"
-=20
--	# When blkzone is not available or blkzone does not report capacity,
-+	# When blkzone command is neither available nor relevant to the
-+	# test device, or when blkzone command does not report capacity,
- 	# assume that zone capacity is same as zone size for all zones.
--	if [ -z "${blkzone}" ] || ! blkzone_reports_capacity "${dev}"; then
-+	if [ -z "${blkzone}" ] || [ -z "$is_zbd" ] || [ -c "$dev" ] ||
-+		   ! blkzone_reports_capacity "${dev}"; then
- 		echo "$zone_size"
- 		return
- 	fi
---=20
-2.31.1
-
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
