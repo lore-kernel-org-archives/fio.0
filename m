@@ -2,317 +2,348 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FFF8C433F5
-	for <fio@archiver.kernel.org>; Sun, 19 Dec 2021 13:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF625C433EF
+	for <fio@archiver.kernel.org>; Sun, 19 Dec 2021 22:15:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235688AbhLSNAI (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 19 Dec 2021 08:00:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60028 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235685AbhLSNAH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 19 Dec 2021 08:00:07 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EEEBC061574
-        for <fio@vger.kernel.org>; Sun, 19 Dec 2021 05:00:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=pZrubykCYw6ComLIqu/XDDeI7O7jsoag0HQo4C9xRg4=; b=up1PTb64VDI0nhikFm2rFh4lS+
-        BQ898Koylt08ZpPMf85UlK/0iLB/j/bF5Iy5KBl5z87YxUCSS4DeAswUYAtDXAQ40i8YNmVYyehXp
-        3mEm5C8j7Bzmxk7L/DHuA0yTr4YHLHNXxaDpHyPTaDw281C4YXdbxComwtnZvbdHRiua+KVd2bkOs
-        1OOK8EjNypOSSrxtGcivAUBgapFzxq2xLAfDkFvO8boLn6teESBJHCqcNDEC01Ue4woVciRIWP+1h
-        iI7OL+Fh+7efDHhza2K0UdPMjju0DsJRTMdzKkRVsesIupzwPN22BquKlJ0bQyw+jIz0XvAtoxJLx
-        Hr6mwAAA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1myvnI-000kde-7E
-        for fio@vger.kernel.org; Sun, 19 Dec 2021 13:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 13D601BC0179; Sun, 19 Dec 2021 06:00:02 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20211219130002.13D601BC0179@kernel.dk>
-Date:   Sun, 19 Dec 2021 06:00:02 -0700 (MST)
+        id S233594AbhLSWPG (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 19 Dec 2021 17:15:06 -0500
+Received: from esa5.hgst.iphmx.com ([216.71.153.144]:19946 "EHLO
+        esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231572AbhLSWPF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 19 Dec 2021 17:15:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1639952105; x=1671488105;
+  h=from:to:cc:subject:date:message-id:
+   content-transfer-encoding:mime-version;
+  bh=dZGK2aQg6V5EaDo66foi9citmks/mMUUGHkTff/WG7c=;
+  b=YW81GsMYIF4eYyY4xkr9hDTFm6J6KsDlRxq9i2eIqq4V/3dteT2IFIm3
+   B5i0vycasCOj5RNPQtmWwlMW0mE5XlU1LchgeoCMLc/CqMbn8MJqoAM81
+   pbiNRzbiFacQSj55AAMm4CnTTEoOULju88TnkCTf9Zq4kY5nriLTDgBI6
+   b1f3aluIcFFEMBYYpI/4cd2AlGepXJUgsTLknkxLsgDVaF1Twoo+ZNJyP
+   3J7ftFdwwQjRLiCww0E+Qun98P2vDrEq41OB+k0SlAXUlqVxrNLJ7ZwQj
+   2ItqXBlWsS6+Iar7wKCE7PugT3pW1Edxwofw5XcY9julswdpKzHvZsMAy
+   g==;
+X-IronPort-AV: E=Sophos;i="5.88,219,1635177600"; 
+   d="scan'208";a="188627681"
+Received: from mail-co1nam11lp2169.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.169])
+  by ob1.hgst.iphmx.com with ESMTP; 20 Dec 2021 06:15:04 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=eugJ2bklLKm7/xXugy8em6djjLq6NZaGzQvwz+m30unBCEdWxfHXZrr58H3r/iPshEiqWYBM7DM+de7qGvybtiwTpx47csdGuwPae136VuxlABHlvvHbtgwBZVhf4k/xa7N7+g6yQ0deKG2CIovjkePMr+pY/yuCCQHMEA7GBFiMrw3FvAGa5+R8pXBpepLA9arCiF0UbVpLnfsOO95kvjvDlAClbmshj8+KUSHwncNjGeCcN1qm3pq5+HzJKMlnwtRLyL8u68NDTLuQAwDjkDLtlV5qE7bYUsvHGUxH9NXAk1pJ6xdEaGZz+Psu/+F0k+T7ews/DAn1DghymecVtg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MdaLWPCweizg/JO+zaZPEhM8EtWNIlIS5nOco+VPfY0=;
+ b=m5ds8buRbijAEkIVCtmxGHDmV8bg6l+LcPnIUB56H1WRNLVI5suAR+k3q/g87f5EM2rMI6yf6Ngmw+TwvJx6z5xBP7C04AjAHKPVssiywyCYlIeVqp52LZQu3fRPN5xe6PG3Se4CvBqHl4bcO2HIdk+gt6W61a61r34PCSUJDa3Lfp6dhE39wnWUz1aFE+Sq4lTEdz4za32y2+oo4dWJG9/gm+8PNFQ5cj4uPVwrXP3iW3C949LCnFR3L3qezNvNnUe6h5NASmwrXOz7admMY2t/Yh4XWfEDH5JoQQNgm4PmG2Qfq8IQVP+VVJfJrgrkwkAwCC25hdynR8Ucwb+50g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MdaLWPCweizg/JO+zaZPEhM8EtWNIlIS5nOco+VPfY0=;
+ b=NqfQO4qpN6h3VbbIAzITYYnP3JBnJIUTYAuVWl039mfMQhUDpZVoYqiLaj+liLjthgIHkY6F7M/BQo+VwGfy6LmIP6Lpzcl+qlAzrOgKT8w41ySnz3FOp+zKRYo3GUMNZ9nDo99E5IE7a5TyRhenE185ytwEOuocpauuhRfN6Ew=
+Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
+ by PH0PR04MB7255.namprd04.prod.outlook.com (2603:10b6:510:9::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4801.18; Sun, 19 Dec
+ 2021 22:15:03 +0000
+Received: from PH0PR04MB7158.namprd04.prod.outlook.com
+ ([fe80::c504:3d44:5aef:f3ca]) by PH0PR04MB7158.namprd04.prod.outlook.com
+ ([fe80::c504:3d44:5aef:f3ca%4]) with mapi id 15.20.4801.020; Sun, 19 Dec 2021
+ 22:15:03 +0000
+From:   Niklas Cassel <Niklas.Cassel@wdc.com>
+To:     "axboe@kernel.dk" <axboe@kernel.dk>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>
+Subject: [PATCH v2] stat: remove unnecessary bool parameter to
+ sum_thread_stats()
+Thread-Topic: [PATCH v2] stat: remove unnecessary bool parameter to
+ sum_thread_stats()
+Thread-Index: AQHX9SXex3tjn82/6ki5TlDDxL9zBg==
+Date:   Sun, 19 Dec 2021 22:15:02 +0000
+Message-ID: <20211219221440.67551-1-Niklas.Cassel@wdc.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: git-send-email 2.33.1
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: e9209d31-eb24-4a0e-f46c-08d9c33d0157
+x-ms-traffictypediagnostic: PH0PR04MB7255:EE_
+x-microsoft-antispam-prvs: <PH0PR04MB7255878A27B3D8BF40256305F27A9@PH0PR04MB7255.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: bPf+7Mw/LQvIKpW9hFDBnISBYi2C5ff6FDoQXMfxA45TfhG0RuB2IQ2P0mXMtP6Xg7kpdSgqUMAbbQaIx7KTJTXhGr+EHhOI2x6L2q0GMSbxTo+FhuT/TmIQDZZomtXFFOfpxov49X4XOTXnur/OP+eGrnwHtMtObtPoa9sp7CkKjb0SnQ3nl7SYUyxgH55SJKcbhh6Kt6YJWKhuOsnHBoLFcSPjryWWco9tSI2x5aOsuXWNiK58PmDzWaFNrxbkLcVlmuzDU5FKmXrIrZzfaIRS5uMdRGNGwucWZNTWwZriU2JhPyncXhhdMFlu8y1HkYNhl+6nSD+dt9t+uKeSSt+u6Wy0/sw3Y2q+Y3bbf+6d31TTDnBSuP8pleLKk6NVTVhsbWs+8ucMgykng6eSv0c+tfqcxFnXbn3zoD3FdSS9vO/T8hJxbPtafYxFEywUg4TW222Z0pDSsubfc3AqX8JKFlyyuOc1egmxj+/w5EO5dinQwlh5FoUbs+Gko1NQrNnNkKr/qa/YXJsDOlhx5GoyO5rASlVR+7mzFwEnL1eQutIN69lg61WSSjKf8KWW1vZQLf5SquCeyIZMUVtOvnwF3eYv3IK6hNPelv3JMNoXizrdSsb2FR1uT9Du7DWS3KIjrDKkVAeV6e/SCc97OlxQq9FNAIKoLV8ePIK8Q0k4vHLUv1uiUaR2B/1Q4xQsGIc+FulLTTMp0JZCmi0JUw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(38070700005)(26005)(6506007)(4326008)(508600001)(2616005)(316002)(186003)(2906002)(54906003)(6512007)(71200400001)(83380400001)(8676002)(1076003)(64756008)(91956017)(122000001)(38100700002)(86362001)(82960400001)(66946007)(76116006)(66556008)(6486002)(66446008)(66476007)(8936002)(5660300002)(6916009)(36756003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?E8GJQFFKJGhF3Bm+YRS5bVMwmbRJK53Tneq+du8uCUK8Damg7GVVD/mmtp?=
+ =?iso-8859-1?Q?cEaeF8m+pYpYt2CsIMrlnVp5ADvSEwLwT0jcUdcs7nLnbUAh9fCxn8pR8s?=
+ =?iso-8859-1?Q?oAOy2MzY5s8n+eslFQJt6AtXxLGNnhzlSjjb6j6xL9b5j5RJr+djYoQCAw?=
+ =?iso-8859-1?Q?s4ptMmipYPBbrgDzWyt4GEBp5YLux3fWppz7CIyfK35q7ClGl1Wi1lVqPm?=
+ =?iso-8859-1?Q?+HkVMa0llY+CxcegOEGw2wsTQD7yrHkUqae5iKW3phPdnRFSslAqgg8duA?=
+ =?iso-8859-1?Q?mueA6qAOqO+Bmlnm1Qi81/3ZKkmCKD7vcqPopkDGeUxaCSB9oWNmTy3Kgy?=
+ =?iso-8859-1?Q?hCVZWQR7ezKqL8qp0JbtTrC0SVcjZwiBiuf1FJ0woFam75bIHFy4ymcIYb?=
+ =?iso-8859-1?Q?UXLpV+do3jW0ld4sThTn1qs0wes/gdqIF4ZFeNTivzXJgDHxEDmrxENHU6?=
+ =?iso-8859-1?Q?VAAbKmyXobSXXKdjNAoRiOkiHaCRXarHWvz4aVnsSkzUN5KWgGr8xLEk7T?=
+ =?iso-8859-1?Q?lL7tKQUUl4Ria21rSQEHBVXG+tIqksj59cgDtjMnsRsCVZW+QixcolrVw9?=
+ =?iso-8859-1?Q?qP8agUuvZKX352yxRuCo1A4Rxs6LOqU9IdEP04u5F48xFr/GKeGlboAMAL?=
+ =?iso-8859-1?Q?w17jYUeiOMwYhw/7n/XKH29qIOv/Kw0XGlqVzmkfmtoGO9+fEd9nONTgB/?=
+ =?iso-8859-1?Q?uCJRROnpsjaSvIs+eg2HUgzB5GrYMN/X619Po1gGUQHxrPGIw7Cz6uHDIN?=
+ =?iso-8859-1?Q?nSuqD414gak+Kz0k3hDI+w6YQmPOZ6RQqZX1Ldr9IJkG+dVS4YqzKEIB+C?=
+ =?iso-8859-1?Q?6fa79nUjvlrRBzXVA/j7XwmMakgnnLNeszSc+UMX00s3ayTAd1cNdeaefV?=
+ =?iso-8859-1?Q?gGQm5yyO5B+JpS0U5M8YpwWC17ktMpHlaK3BYyk42jPBNhU/yBgb8udWod?=
+ =?iso-8859-1?Q?TkIm9HmtQ7Ybdx7EoN3dgFliOA9yTTMWmbvCzOYiLCUA/7y85XYl5FfuJV?=
+ =?iso-8859-1?Q?Rf8v84uPyfNc82Mq0pi/zqOoasCE76cj64yc0fJ4vTlpc5tx8+sWPwPvZk?=
+ =?iso-8859-1?Q?VlY+K/rIyKU3KxF4UhjTh/MDI4vh8DuM5kfcjeMCw4uTw0UrVikEKw4ciX?=
+ =?iso-8859-1?Q?hi7BzpfnxmB8S7VoMXmBZcwezNiD8tvo2IYzBAOpZ4slPzDtukN5D9TpZL?=
+ =?iso-8859-1?Q?awH05pziGY8m4cLTAYH+d+9IGg9Kc2PpDGP6FlRv0oAqMLR2mZ3vT3Pc7h?=
+ =?iso-8859-1?Q?6lf4x1uWUIRZL/HFFPcws0hjxszQoh1Z9APoqk75TuvLMFj7gRLexqQr3u?=
+ =?iso-8859-1?Q?2Bu/vMMxxvOXL+WXTGc5ysfc94Oy9syARysRk5sYAg/7nr4QznFps+Allg?=
+ =?iso-8859-1?Q?HbOpYU2arlJzM1Zg/FWih3zbgwQeQPQ0wSGx5Ac7IdexqPwO/zFJvtXgXg?=
+ =?iso-8859-1?Q?fy3XHxm+VbjCK46GprXVNzIAIf/h2Tv3Y0b55+EoDhdiUNyCxKbz1AIXa8?=
+ =?iso-8859-1?Q?b6sxksdFpCRksm8HfnLOMHcMEzFV2vU9hHoz0oofJvILUdQfdk/mbdm1ur?=
+ =?iso-8859-1?Q?wloW4/6ly8pH9tIEmG+2EOE3s4pakF9Kay/5wu1V745hrAWwh8RKekx+DT?=
+ =?iso-8859-1?Q?R0SWE+v6bvbyaNBaSVmdREb+Vw7ouC2h0n26PxtQgiYGcFFhOvEEnGi3yg?=
+ =?iso-8859-1?Q?diJ5M5TQ7gEV6gE43a4=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e9209d31-eb24-4a0e-f46c-08d9c33d0157
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Dec 2021 22:15:03.0896
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: QrTwELoWGQh7AUqazE7EF7EGfMc1o57eG0eRrfYwtQqZrNJNzmItm05azGs3Kp80e9cwa7X+mDB4CwMkPl7VKQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7255
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit e86afa536b175a90546e20d7d19f2418ee1bca78:
+From: Niklas Cassel <niklas.cassel@wdc.com>
 
-  stat: sum sync_stat before reassigning bool first (2021-12-15 08:45:32 -0700)
+We can deduce if it is the first struct io_stat src being added to the
+struct io_stat dst by checking if the current amount of samples in dst
+is zero.
 
-are available in the Git repository at:
+Therefore, remove the bool parameter "first" to sum_stat().
+Since sum_stat() was the only user of the bool parameter "first" to
+the sum_thread_stats() function, we can remove it from sum_thread_stats()
+as well.
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 9b46661c289d01dbfe5182189a7abea9ce2f9e04:
-
-  Fio 3.29 (2021-12-18 07:09:32 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      stat: code cleanup and leak free
-      Fio 3.29
-
- FIO-VERSION-GEN |  2 +-
- stat.c          | 84 ++++++++++++++++++++++++++++++++++-----------------------
- 2 files changed, 51 insertions(+), 35 deletions(-)
-
+Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
+Changes since v1:
+- Rebased so that the patch can be applied without conflicts.
 
-Diff of recent changes:
+ client.c      |  2 +-
+ gclient.c     |  2 +-
+ rate-submit.c |  2 +-
+ stat.c        | 53 ++++++++++++++++++++++-----------------------------
+ stat.h        |  2 +-
+ 5 files changed, 27 insertions(+), 34 deletions(-)
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index e9d563c1..60f7bb21 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.28
-+DEF_VER=fio-3.29
- 
- LF='
- '
+diff --git a/client.c b/client.c
+index 8b230617..be8411d8 100644
+--- a/client.c
++++ b/client.c
+@@ -1111,7 +1111,7 @@ static void handle_ts(struct fio_client *client, stru=
+ct fio_net_cmd *cmd)
+ 	if (sum_stat_clients <=3D 1)
+ 		return;
+=20
+-	sum_thread_stats(&client_ts, &p->ts, sum_stat_nr =3D=3D 1);
++	sum_thread_stats(&client_ts, &p->ts);
+ 	sum_group_stats(&client_gs, &p->rs);
+=20
+ 	client_ts.members++;
+diff --git a/gclient.c b/gclient.c
+index e0e0e7bf..ac063536 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -292,7 +292,7 @@ static void gfio_thread_status_op(struct fio_client *cl=
+ient,
+ 	if (sum_stat_clients =3D=3D 1)
+ 		return;
+=20
+-	sum_thread_stats(&client_ts, &p->ts, sum_stat_nr =3D=3D 1);
++	sum_thread_stats(&client_ts, &p->ts);
+ 	sum_group_stats(&client_gs, &p->rs);
+=20
+ 	client_ts.members++;
+diff --git a/rate-submit.c b/rate-submit.c
+index 13dbe7a2..752c30a5 100644
+--- a/rate-submit.c
++++ b/rate-submit.c
+@@ -195,7 +195,7 @@ static void io_workqueue_exit_worker_fn(struct submit_w=
+orker *sw,
+ 	struct thread_data *td =3D sw->priv;
+=20
+ 	(*sum_cnt)++;
+-	sum_thread_stats(&sw->wq->td->ts, &td->ts, *sum_cnt =3D=3D 1);
++	sum_thread_stats(&sw->wq->td->ts, &td->ts);
+=20
+ 	fio_options_free(td);
+ 	close_and_free_files(td);
 diff --git a/stat.c b/stat.c
-index ec44c79e..99de1294 100644
+index 99de1294..36742a25 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -289,9 +289,10 @@ void show_mixed_group_stats(struct group_run_stats *rs, struct buf_output *out)
- {
- 	char *io, *agg, *min, *max;
- 	char *ioalt, *aggalt, *minalt, *maxalt;
--	uint64_t io_mix = 0, agg_mix = 0, min_mix = -1, max_mix = 0, min_run = -1, max_run = 0;
--	int i;
-+	uint64_t io_mix = 0, agg_mix = 0, min_mix = -1, max_mix = 0;
-+	uint64_t min_run = -1, max_run = 0;
- 	const int i2p = is_power_of_2(rs->kb_base);
-+	int i;
- 
- 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
- 		if (!rs->max_run[i])
-@@ -363,9 +364,9 @@ void show_group_stats(struct group_run_stats *rs, struct buf_output *out)
- 		free(minalt);
- 		free(maxalt);
- 	}
--	
-+
- 	/* Need to aggregate statisitics to show mixed values */
--	if (rs->unified_rw_rep == UNIFIED_BOTH) 
-+	if (rs->unified_rw_rep == UNIFIED_BOTH)
- 		show_mixed_group_stats(rs, out);
- }
- 
-@@ -473,30 +474,35 @@ static double convert_agg_kbytes_percent(struct group_run_stats *rs, int ddir, i
- 	return p_of_agg;
- }
- 
--static void show_mixed_ddir_status(struct group_run_stats *rs, struct thread_stat *ts,
--			     struct buf_output *out)
-+static void show_mixed_ddir_status(struct group_run_stats *rs,
-+				   struct thread_stat *ts,
-+				   struct buf_output *out)
- {
- 	unsigned long runt;
- 	unsigned long long min, max, bw, iops;
- 	double mean, dev;
- 	char *io_p, *bw_p, *bw_p_alt, *iops_p, *post_st = NULL;
- 	struct thread_stat *ts_lcl;
--
- 	int i2p;
- 	int ddir = 0;
- 
--	/* Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and Trims (ddir = 2) */
-+	/*
-+	 * Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and
-+	 * Trims (ddir = 2) */
- 	ts_lcl = malloc(sizeof(struct thread_stat));
- 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
--	ts_lcl->unified_rw_rep = UNIFIED_MIXED;               /* calculate mixed stats  */
-+	/* calculate mixed stats  */
-+	ts_lcl->unified_rw_rep = UNIFIED_MIXED;
+@@ -495,7 +495,7 @@ static void show_mixed_ddir_status(struct group_run_sta=
+ts *rs,
+ 	ts_lcl->unified_rw_rep =3D UNIFIED_MIXED;
  	init_thread_stat_min_vals(ts_lcl);
- 
- 	sum_thread_stats(ts_lcl, ts, 1);
- 
+=20
+-	sum_thread_stats(ts_lcl, ts, 1);
++	sum_thread_stats(ts_lcl, ts);
+=20
  	assert(ddir_rw(ddir));
- 
--	if (!ts_lcl->runtime[ddir])
-+	if (!ts_lcl->runtime[ddir]) {
-+		free(ts_lcl);
- 		return;
-+	}
- 
- 	i2p = is_power_of_2(rs->kb_base);
- 	runt = ts_lcl->runtime[ddir];
-@@ -560,10 +566,9 @@ static void show_mixed_ddir_status(struct group_run_stats *rs, struct thread_sta
- 		else
- 			samples = ts_lcl->clat_stat[ddir].samples;
- 
--		/* Only print this if some high and low priority stats were collected */
-+		/* Only print if high and low priority stats were collected */
- 		if (ts_lcl->clat_high_prio_stat[ddir].samples > 0 &&
--				ts_lcl->clat_low_prio_stat[ddir].samples > 0)
--		{
-+				ts_lcl->clat_low_prio_stat[ddir].samples > 0) {
- 			sprintf(prio_name, "high prio (%.2f%%) %s",
- 					100. * (double) ts_lcl->clat_high_prio_stat[ddir].samples / (double) samples,
- 					name);
-@@ -1222,9 +1227,8 @@ void show_disk_util(int terse, struct json_object *parent,
- 	if (!is_running_backend())
- 		return;
- 
--	if (flist_empty(&disk_list)) {
-+	if (flist_empty(&disk_list))
- 		return;
--	}
- 
- 	if ((output_format & FIO_OUTPUT_JSON) && parent)
- 		do_json = true;
-@@ -1234,9 +1238,9 @@ void show_disk_util(int terse, struct json_object *parent,
- 	if (!terse && !do_json)
- 		log_buf(out, "\nDisk stats (read/write):\n");
- 
--	if (do_json)
-+	if (do_json) {
- 		json_object_add_disk_utils(parent, &disk_list);
--	else if (output_format & ~(FIO_OUTPUT_JSON | FIO_OUTPUT_JSON_PLUS)) {
-+	} else if (output_format & ~(FIO_OUTPUT_JSON | FIO_OUTPUT_JSON_PLUS)) {
- 		flist_for_each(entry, &disk_list) {
- 			du = flist_entry(entry, struct disk_util, list);
- 
-@@ -1396,19 +1400,20 @@ static void show_ddir_status_terse(struct thread_stat *ts,
- 	else
- 		log_buf(out, ";%llu;%llu;%f;%f", 0ULL, 0ULL, 0.0, 0.0);
- 
--	if (ts->lat_percentiles)
-+	if (ts->lat_percentiles) {
- 		len = calc_clat_percentiles(ts->io_u_plat[FIO_LAT][ddir],
- 					ts->lat_stat[ddir].samples,
- 					ts->percentile_list, &ovals, &maxv,
- 					&minv);
--	else if (ts->clat_percentiles)
-+	} else if (ts->clat_percentiles) {
- 		len = calc_clat_percentiles(ts->io_u_plat[FIO_CLAT][ddir],
- 					ts->clat_stat[ddir].samples,
- 					ts->percentile_list, &ovals, &maxv,
- 					&minv);
--	else
-+	} else {
- 		len = 0;
--	
-+	}
+=20
+@@ -1479,7 +1479,7 @@ static void show_mixed_ddir_status_terse(struct threa=
+d_stat *ts,
+ 	ts_lcl->percentile_precision =3D ts->percentile_precision;
+ 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentil=
+e_list));
+ =09
+-	sum_thread_stats(ts_lcl, ts, 1);
++	sum_thread_stats(ts_lcl, ts);
+=20
+ 	/* add the aggregated stats to json parent */
+ 	show_ddir_status_terse(ts_lcl, rs, DDIR_READ, ver, out);
+@@ -1677,7 +1677,7 @@ static void add_mixed_ddir_status_json(struct thread_=
+stat *ts,
+ 	ts_lcl->percentile_precision =3D ts->percentile_precision;
+ 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentil=
+e_list));
+=20
+-	sum_thread_stats(ts_lcl, ts, 1);
++	sum_thread_stats(ts_lcl, ts);
+=20
+ 	/* add the aggregated stats to json parent */
+ 	add_ddir_status_json(ts_lcl, rs, DDIR_READ, parent);
+@@ -2089,9 +2089,10 @@ static void __sum_stat(struct io_stat *dst, struct i=
+o_stat *src, bool first)
+  * numbers. For group_reporting, we should just add those up, not make
+  * them the mean of everything.
+  */
+-static void sum_stat(struct io_stat *dst, struct io_stat *src, bool first,
+-		     bool pure_sum)
++static void sum_stat(struct io_stat *dst, struct io_stat *src, bool pure_s=
+um)
+ {
++	bool first =3D dst->samples =3D=3D 0;
 +
- 	for (i = 0; i < FIO_IO_U_LIST_MAX_LEN; i++) {
- 		if (i >= len) {
- 			log_buf(out, ";0%%=0");
-@@ -1435,8 +1440,9 @@ static void show_ddir_status_terse(struct thread_stat *ts,
- 		}
- 
- 		log_buf(out, ";%llu;%llu;%f%%;%f;%f", min, max, p_of_agg, mean, dev);
--	} else
-+	} else {
- 		log_buf(out, ";%llu;%llu;%f%%;%f;%f", 0ULL, 0ULL, 0.0, 0.0, 0.0);
-+	}
- 
- 	if (ver == 5) {
- 		if (bw_stat)
-@@ -1458,15 +1464,19 @@ static void show_mixed_ddir_status_terse(struct thread_stat *ts,
- {
- 	struct thread_stat *ts_lcl;
- 
--	/* Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and Trims (ddir = 2) */
-+	/*
-+	 * Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and
-+	 * Trims (ddir = 2)
-+	 */
- 	ts_lcl = malloc(sizeof(struct thread_stat));
- 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
--	ts_lcl->unified_rw_rep = UNIFIED_MIXED;               /* calculate mixed stats  */
-+	/* calculate mixed stats  */
-+	ts_lcl->unified_rw_rep = UNIFIED_MIXED;
- 	init_thread_stat_min_vals(ts_lcl);
- 	ts_lcl->lat_percentiles = ts->lat_percentiles;
- 	ts_lcl->clat_percentiles = ts->clat_percentiles;
- 	ts_lcl->slat_percentiles = ts->slat_percentiles;
--	ts_lcl->percentile_precision = ts->percentile_precision;		
-+	ts_lcl->percentile_precision = ts->percentile_precision;
- 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentile_list));
- 	
- 	sum_thread_stats(ts_lcl, ts, 1);
-@@ -1476,8 +1486,10 @@ static void show_mixed_ddir_status_terse(struct thread_stat *ts,
- 	free(ts_lcl);
+ 	if (src->samples =3D=3D 0)
+ 		return;
+=20
+@@ -2141,49 +2142,41 @@ void sum_group_stats(struct group_run_stats *dst, s=
+truct group_run_stats *src)
+ 		dst->sig_figs =3D src->sig_figs;
  }
- 
--static struct json_object *add_ddir_lat_json(struct thread_stat *ts, uint32_t percentiles,
--		struct io_stat *lat_stat, uint64_t *io_u_plat)
-+static struct json_object *add_ddir_lat_json(struct thread_stat *ts,
-+					     uint32_t percentiles,
-+					     struct io_stat *lat_stat,
-+					     uint64_t *io_u_plat)
+=20
+-void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
+-		      bool first)
++void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src)
  {
- 	char buf[120];
- 	double mean, dev;
-@@ -1650,15 +1662,19 @@ static void add_mixed_ddir_status_json(struct thread_stat *ts,
- {
- 	struct thread_stat *ts_lcl;
- 
--	/* Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and Trims (ddir = 2) */
-+	/*
-+	 * Handle aggregation of Reads (ddir = 0), Writes (ddir = 1), and
-+	 * Trims (ddir = 2)
-+	 */
- 	ts_lcl = malloc(sizeof(struct thread_stat));
- 	memset((void *)ts_lcl, 0, sizeof(struct thread_stat));
--	ts_lcl->unified_rw_rep = UNIFIED_MIXED;               /* calculate mixed stats  */
-+	/* calculate mixed stats  */
-+	ts_lcl->unified_rw_rep = UNIFIED_MIXED;
- 	init_thread_stat_min_vals(ts_lcl);
- 	ts_lcl->lat_percentiles = ts->lat_percentiles;
- 	ts_lcl->clat_percentiles = ts->clat_percentiles;
- 	ts_lcl->slat_percentiles = ts->slat_percentiles;
--	ts_lcl->percentile_precision = ts->percentile_precision;		
-+	ts_lcl->percentile_precision = ts->percentile_precision;
- 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentile_list));
- 
- 	sum_thread_stats(ts_lcl, ts, 1);
-@@ -2133,7 +2149,7 @@ void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
- 	sum_stat(&dst->sync_stat, &src->sync_stat, first, false);
- 
- 	for (l = 0; l < DDIR_RWDIR_CNT; l++) {
--		if (!(dst->unified_rw_rep == UNIFIED_MIXED)) {
-+		if (dst->unified_rw_rep != UNIFIED_MIXED) {
- 			sum_stat(&dst->clat_stat[l], &src->clat_stat[l], first, false);
- 			sum_stat(&dst->clat_high_prio_stat[l], &src->clat_high_prio_stat[l], first, false);
- 			sum_stat(&dst->clat_low_prio_stat[l], &src->clat_low_prio_stat[l], first, false);
-@@ -2188,7 +2204,7 @@ void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
- 		dst->io_u_lat_m[k] += src->io_u_lat_m[k];
- 
- 	for (k = 0; k < DDIR_RWDIR_CNT; k++) {
--		if (!(dst->unified_rw_rep == UNIFIED_MIXED)) {
-+		if (dst->unified_rw_rep != UNIFIED_MIXED) {
- 			dst->total_io_u[k] += src->total_io_u[k];
- 			dst->short_io_u[k] += src->short_io_u[k];
- 			dst->drop_io_u[k] += src->drop_io_u[k];
-@@ -2204,7 +2220,7 @@ void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
- 	for (k = 0; k < FIO_LAT_CNT; k++)
- 		for (l = 0; l < DDIR_RWDIR_CNT; l++)
- 			for (m = 0; m < FIO_IO_U_PLAT_NR; m++)
--				if (!(dst->unified_rw_rep == UNIFIED_MIXED))
-+				if (dst->unified_rw_rep != UNIFIED_MIXED)
- 					dst->io_u_plat[k][l][m] += src->io_u_plat[k][l][m];
- 				else
- 					dst->io_u_plat[k][0][m] += src->io_u_plat[k][l][m];
-@@ -2214,7 +2230,7 @@ void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
- 
- 	for (k = 0; k < DDIR_RWDIR_CNT; k++) {
- 		for (m = 0; m < FIO_IO_U_PLAT_NR; m++) {
--			if (!(dst->unified_rw_rep == UNIFIED_MIXED)) {
-+			if (dst->unified_rw_rep != UNIFIED_MIXED) {
- 				dst->io_u_plat_high_prio[k][m] += src->io_u_plat_high_prio[k][m];
- 				dst->io_u_plat_low_prio[k][m] += src->io_u_plat_low_prio[k][m];
- 			} else {
+ 	int k, l, m;
+=20
+-	sum_stat(&dst->sync_stat, &src->sync_stat, first, false);
+-
+ 	for (l =3D 0; l < DDIR_RWDIR_CNT; l++) {
+ 		if (dst->unified_rw_rep !=3D UNIFIED_MIXED) {
+-			sum_stat(&dst->clat_stat[l], &src->clat_stat[l], first, false);
+-			sum_stat(&dst->clat_high_prio_stat[l], &src->clat_high_prio_stat[l], fi=
+rst, false);
+-			sum_stat(&dst->clat_low_prio_stat[l], &src->clat_low_prio_stat[l], firs=
+t, false);
+-			sum_stat(&dst->slat_stat[l], &src->slat_stat[l], first, false);
+-			sum_stat(&dst->lat_stat[l], &src->lat_stat[l], first, false);
+-			sum_stat(&dst->bw_stat[l], &src->bw_stat[l], first, true);
+-			sum_stat(&dst->iops_stat[l], &src->iops_stat[l], first, true);
++			sum_stat(&dst->clat_stat[l], &src->clat_stat[l], false);
++			sum_stat(&dst->clat_high_prio_stat[l], &src->clat_high_prio_stat[l], fa=
+lse);
++			sum_stat(&dst->clat_low_prio_stat[l], &src->clat_low_prio_stat[l], fals=
+e);
++			sum_stat(&dst->slat_stat[l], &src->slat_stat[l], false);
++			sum_stat(&dst->lat_stat[l], &src->lat_stat[l], false);
++			sum_stat(&dst->bw_stat[l], &src->bw_stat[l], true);
++			sum_stat(&dst->iops_stat[l], &src->iops_stat[l], true);
+=20
+ 			dst->io_bytes[l] +=3D src->io_bytes[l];
+=20
+ 			if (dst->runtime[l] < src->runtime[l])
+ 				dst->runtime[l] =3D src->runtime[l];
+ 		} else {
+-			sum_stat(&dst->clat_stat[0], &src->clat_stat[l], first, false);
+-			sum_stat(&dst->clat_high_prio_stat[0], &src->clat_high_prio_stat[l], fi=
+rst, false);
+-			sum_stat(&dst->clat_low_prio_stat[0], &src->clat_low_prio_stat[l], firs=
+t, false);
+-			sum_stat(&dst->slat_stat[0], &src->slat_stat[l], first, false);
+-			sum_stat(&dst->lat_stat[0], &src->lat_stat[l], first, false);
+-			sum_stat(&dst->bw_stat[0], &src->bw_stat[l], first, true);
+-			sum_stat(&dst->iops_stat[0], &src->iops_stat[l], first, true);
++			sum_stat(&dst->clat_stat[0], &src->clat_stat[l], false);
++			sum_stat(&dst->clat_high_prio_stat[0], &src->clat_high_prio_stat[l], fa=
+lse);
++			sum_stat(&dst->clat_low_prio_stat[0], &src->clat_low_prio_stat[l], fals=
+e);
++			sum_stat(&dst->slat_stat[0], &src->slat_stat[l], false);
++			sum_stat(&dst->lat_stat[0], &src->lat_stat[l], false);
++			sum_stat(&dst->bw_stat[0], &src->bw_stat[l], true);
++			sum_stat(&dst->iops_stat[0], &src->iops_stat[l], true);
+=20
+ 			dst->io_bytes[0] +=3D src->io_bytes[l];
+=20
+ 			if (dst->runtime[0] < src->runtime[l])
+ 				dst->runtime[0] =3D src->runtime[l];
+-
+-			/*
+-			 * We're summing to the same destination, so override
+-			 * 'first' after the first iteration of the loop
+-			 */
+-			first =3D false;
+ 		}
+ 	}
+=20
++	sum_stat(&dst->sync_stat, &src->sync_stat, false);
+ 	dst->usr_time +=3D src->usr_time;
+ 	dst->sys_time +=3D src->sys_time;
+ 	dst->ctx +=3D src->ctx;
+@@ -2417,7 +2410,7 @@ void __show_run_stats(void)
+ 		for (k =3D 0; k < ts->nr_block_infos; k++)
+ 			ts->block_infos[k] =3D td->ts.block_infos[k];
+=20
+-		sum_thread_stats(ts, &td->ts, idx =3D=3D 1);
++		sum_thread_stats(ts, &td->ts);
+=20
+ 		if (td->o.ss_dur) {
+ 			ts->ss_state =3D td->ss.state;
+diff --git a/stat.h b/stat.h
+index 9ef8caa4..15ca4eff 100644
+--- a/stat.h
++++ b/stat.h
+@@ -325,7 +325,7 @@ extern void __show_run_stats(void);
+ extern int __show_running_run_stats(void);
+ extern void show_running_run_stats(void);
+ extern void check_for_running_stats(void);
+-extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *=
+src, bool first);
++extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *=
+src);
+ extern void sum_group_stats(struct group_run_stats *dst, struct group_run_=
+stats *src);
+ extern void init_thread_stat_min_vals(struct thread_stat *ts);
+ extern void init_thread_stat(struct thread_stat *ts);
+--=20
+2.33.1
