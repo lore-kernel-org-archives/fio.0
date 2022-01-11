@@ -2,88 +2,239 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ACF7C433F5
-	for <fio@archiver.kernel.org>; Mon, 10 Jan 2022 16:22:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 625D3C433F5
+	for <fio@archiver.kernel.org>; Tue, 11 Jan 2022 13:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237236AbiAJQWf (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 10 Jan 2022 11:22:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60628 "EHLO
+        id S239090AbiAKNAJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 11 Jan 2022 08:00:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237222AbiAJQWf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 10 Jan 2022 11:22:35 -0500
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39013C06173F
-        for <fio@vger.kernel.org>; Mon, 10 Jan 2022 08:22:35 -0800 (PST)
-Received: by mail-io1-xd2d.google.com with SMTP id y70so18297562iof.2
-        for <fio@vger.kernel.org>; Mon, 10 Jan 2022 08:22:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=F6Mxd3iNA+DRMxLi1b1yRi8E7ZLnYew+GXTWz4ZlL/Y=;
-        b=zEb0PCp7f8Wiw5ThFIDJcRDjsgnDBqU4VYm8eO5DgXbjdPn40eCunV0v+h7siBmQ7A
-         V3R5kt/c8vlnbM7a8G8b5/+8dotvbjlAaWxvi+xMJ5NwfAktEn9Cgh8N2qclcoEHokw5
-         K2tx3y329vvqm9u3n3gGo8Rasg0hML/KIPzX3HPdtpWgLwX2cUHfpsXGuv0X2zKrU5tz
-         AvQdJV/KCiWCRJ0V7n4lWHIOr9AtNRhng1sU+FnTaT6Pd0NPKjhAwDe5Z5tsgjR8QO8c
-         6PW+Q6Gj3bFw3CdnKMxzDXADCQBNiTHqX4PMNF3euhKG1GWIdasrBZMT2DqzZuWaHfS4
-         wW+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=F6Mxd3iNA+DRMxLi1b1yRi8E7ZLnYew+GXTWz4ZlL/Y=;
-        b=u2m45lrGNEKFAU41ehWzkJceNXFtPQpXf1OumjrYnMyRSTxf/Gy3vehOMwa3iI/H0w
-         oMmfrJr1tcEB0nl/+2dsyJ32OiYIKSah2+dDL9DSyXKXEErl9JZjPfp4kzpLJCsL8sVG
-         5tNyg6SGfrxx1Sz03Gppl4swL79Ha1hkAVgDmy0b1A01F/U4gw216aoqQPjOQfEdC8pi
-         5gSTRpBH7uMWGI/o4RVmGZax02Qq34Is/GpTBDV7zptle6iQcsWepcx1J99xqP7czhnl
-         DKnxMIEP40BbtdxKrycmxDguJaW8F6fINbAMaGoPbIG3qnyXFLgqjIKROsc9u+B0ybOR
-         QwEA==
-X-Gm-Message-State: AOAM532g8T4BYb9ag5lNJZztzXLYdbWEq4Yk2zl20iOpn6cPgF8iI+E+
-        NEVtp6pm/Xd/V7MsTWuH6gG5wQ==
-X-Google-Smtp-Source: ABdhPJyJoMF6kyNvpijULIC6X4cLmqW/jqInLOw/gnzs02+4GVBsqQk0lsY15d/P7wpyOwtBkCkPUw==
-X-Received: by 2002:a6b:e508:: with SMTP id y8mr103716ioc.177.1641831754519;
-        Mon, 10 Jan 2022 08:22:34 -0800 (PST)
-Received: from x1.localdomain ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id j2sm4303172ilr.71.2022.01.10.08.22.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Jan 2022 08:22:34 -0800 (PST)
+        with ESMTP id S236707AbiAKNAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 11 Jan 2022 08:00:09 -0500
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183E2C06173F
+        for <fio@vger.kernel.org>; Tue, 11 Jan 2022 05:00:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=VIDGgNDe9Nu1T07AOUDDPG2ncYyPzHbWpNS690BotOs=; b=Ir/s4IXNkwkQiWbF3W4o2PIvF3
+        Hctz35Uy9mA+rf1qk7NK4r/ZqwCnbp2JrZM0tZ+VFRPTDqB3tsRZeG+dUZv5fsFk+aR5yheWOtHTE
+        7G3IplbS+4+NczUVO8yV8Qdk4NzlGXjCjeAgbHUszQndTEGgvPGhIUkGQjl/MhUzweqH2Fms22Iey
+        sdv09jm4jLSjFqg8/sth9TwdqhS5uTEANfk5DvZFB7yPN8+ryHgLY+vtyQuSLE3kKA3vprDhqfkyw
+        YYtHGkzZN06gb3ntKKuFNxg60wKUfc5WtmfgADVbKDrjZRlB+va8hDhBJlGMwyd5U+YrpasgtiKzm
+        vIOv4Brg==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1n7Gkx-000bxI-02
+        for fio@vger.kernel.org; Tue, 11 Jan 2022 13:00:07 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id ED05A1BC0126; Tue, 11 Jan 2022 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
-To:     Niklas Cassel <Niklas.Cassel@wdc.com>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        fio@vger.kernel.org
-In-Reply-To: <20220110090133.69955-1-Niklas.Cassel@wdc.com>
-References: <20220110090133.69955-1-Niklas.Cassel@wdc.com>
-Subject: Re: [PATCH v3] stat: remove unnecessary bool parameter to sum_thread_stats()
-Message-Id: <164183175404.18253.4958206462679209031.b4-ty@kernel.dk>
-Date:   Mon, 10 Jan 2022 09:22:34 -0700
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220111130001.ED05A1BC0126@kernel.dk>
+Date:   Tue, 11 Jan 2022 06:00:01 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Mon, 10 Jan 2022 09:01:39 +0000, Niklas Cassel wrote:
-> From: Niklas Cassel <niklas.cassel@wdc.com>
-> 
-> We can deduce if it is the first struct io_stat src being added to the
-> struct io_stat dst by checking if the current amount of samples in dst
-> is zero.
-> 
-> Therefore, remove the bool parameter "first" to sum_stat().
-> Since sum_stat() was the only user of the bool parameter "first" to
-> the sum_thread_stats() function, we can remove it from sum_thread_stats()
-> as well.
-> 
-> [...]
+The following changes since commit b5e99df6ec605b4dc6a3488203f32d5c5bfce8df:
 
-Applied, thanks!
+  engines/io_uring: don't set CQSIZE clamp unconditionally (2022-01-09 19:34:27 -0700)
 
-[1/1] stat: remove unnecessary bool parameter to sum_thread_stats()
-      commit: 016869bebe9bef7cae5a7f9dc0762162b0612226
+are available in the Git repository at:
 
-Best regards,
--- 
-Jens Axboe
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 016869bebe9bef7cae5a7f9dc0762162b0612226:
 
+  stat: remove unnecessary bool parameter to sum_thread_stats() (2022-01-10 09:22:14 -0700)
+
+----------------------------------------------------------------
+Niklas Cassel (1):
+      stat: remove unnecessary bool parameter to sum_thread_stats()
+
+ client.c      |  2 +-
+ gclient.c     |  2 +-
+ rate-submit.c |  2 +-
+ stat.c        | 53 +++++++++++++++++++++++------------------------------
+ stat.h        |  2 +-
+ 5 files changed, 27 insertions(+), 34 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/client.c b/client.c
+index 8b230617..be8411d8 100644
+--- a/client.c
++++ b/client.c
+@@ -1111,7 +1111,7 @@ static void handle_ts(struct fio_client *client, struct fio_net_cmd *cmd)
+ 	if (sum_stat_clients <= 1)
+ 		return;
+ 
+-	sum_thread_stats(&client_ts, &p->ts, sum_stat_nr == 1);
++	sum_thread_stats(&client_ts, &p->ts);
+ 	sum_group_stats(&client_gs, &p->rs);
+ 
+ 	client_ts.members++;
+diff --git a/gclient.c b/gclient.c
+index e0e0e7bf..ac063536 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -292,7 +292,7 @@ static void gfio_thread_status_op(struct fio_client *client,
+ 	if (sum_stat_clients == 1)
+ 		return;
+ 
+-	sum_thread_stats(&client_ts, &p->ts, sum_stat_nr == 1);
++	sum_thread_stats(&client_ts, &p->ts);
+ 	sum_group_stats(&client_gs, &p->rs);
+ 
+ 	client_ts.members++;
+diff --git a/rate-submit.c b/rate-submit.c
+index 13dbe7a2..752c30a5 100644
+--- a/rate-submit.c
++++ b/rate-submit.c
+@@ -195,7 +195,7 @@ static void io_workqueue_exit_worker_fn(struct submit_worker *sw,
+ 	struct thread_data *td = sw->priv;
+ 
+ 	(*sum_cnt)++;
+-	sum_thread_stats(&sw->wq->td->ts, &td->ts, *sum_cnt == 1);
++	sum_thread_stats(&sw->wq->td->ts, &td->ts);
+ 
+ 	fio_options_free(td);
+ 	close_and_free_files(td);
+diff --git a/stat.c b/stat.c
+index 99de1294..36742a25 100644
+--- a/stat.c
++++ b/stat.c
+@@ -495,7 +495,7 @@ static void show_mixed_ddir_status(struct group_run_stats *rs,
+ 	ts_lcl->unified_rw_rep = UNIFIED_MIXED;
+ 	init_thread_stat_min_vals(ts_lcl);
+ 
+-	sum_thread_stats(ts_lcl, ts, 1);
++	sum_thread_stats(ts_lcl, ts);
+ 
+ 	assert(ddir_rw(ddir));
+ 
+@@ -1479,7 +1479,7 @@ static void show_mixed_ddir_status_terse(struct thread_stat *ts,
+ 	ts_lcl->percentile_precision = ts->percentile_precision;
+ 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentile_list));
+ 	
+-	sum_thread_stats(ts_lcl, ts, 1);
++	sum_thread_stats(ts_lcl, ts);
+ 
+ 	/* add the aggregated stats to json parent */
+ 	show_ddir_status_terse(ts_lcl, rs, DDIR_READ, ver, out);
+@@ -1677,7 +1677,7 @@ static void add_mixed_ddir_status_json(struct thread_stat *ts,
+ 	ts_lcl->percentile_precision = ts->percentile_precision;
+ 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentile_list));
+ 
+-	sum_thread_stats(ts_lcl, ts, 1);
++	sum_thread_stats(ts_lcl, ts);
+ 
+ 	/* add the aggregated stats to json parent */
+ 	add_ddir_status_json(ts_lcl, rs, DDIR_READ, parent);
+@@ -2089,9 +2089,10 @@ static void __sum_stat(struct io_stat *dst, struct io_stat *src, bool first)
+  * numbers. For group_reporting, we should just add those up, not make
+  * them the mean of everything.
+  */
+-static void sum_stat(struct io_stat *dst, struct io_stat *src, bool first,
+-		     bool pure_sum)
++static void sum_stat(struct io_stat *dst, struct io_stat *src, bool pure_sum)
+ {
++	bool first = dst->samples == 0;
++
+ 	if (src->samples == 0)
+ 		return;
+ 
+@@ -2141,49 +2142,41 @@ void sum_group_stats(struct group_run_stats *dst, struct group_run_stats *src)
+ 		dst->sig_figs = src->sig_figs;
+ }
+ 
+-void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src,
+-		      bool first)
++void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src)
+ {
+ 	int k, l, m;
+ 
+-	sum_stat(&dst->sync_stat, &src->sync_stat, first, false);
+-
+ 	for (l = 0; l < DDIR_RWDIR_CNT; l++) {
+ 		if (dst->unified_rw_rep != UNIFIED_MIXED) {
+-			sum_stat(&dst->clat_stat[l], &src->clat_stat[l], first, false);
+-			sum_stat(&dst->clat_high_prio_stat[l], &src->clat_high_prio_stat[l], first, false);
+-			sum_stat(&dst->clat_low_prio_stat[l], &src->clat_low_prio_stat[l], first, false);
+-			sum_stat(&dst->slat_stat[l], &src->slat_stat[l], first, false);
+-			sum_stat(&dst->lat_stat[l], &src->lat_stat[l], first, false);
+-			sum_stat(&dst->bw_stat[l], &src->bw_stat[l], first, true);
+-			sum_stat(&dst->iops_stat[l], &src->iops_stat[l], first, true);
++			sum_stat(&dst->clat_stat[l], &src->clat_stat[l], false);
++			sum_stat(&dst->clat_high_prio_stat[l], &src->clat_high_prio_stat[l], false);
++			sum_stat(&dst->clat_low_prio_stat[l], &src->clat_low_prio_stat[l], false);
++			sum_stat(&dst->slat_stat[l], &src->slat_stat[l], false);
++			sum_stat(&dst->lat_stat[l], &src->lat_stat[l], false);
++			sum_stat(&dst->bw_stat[l], &src->bw_stat[l], true);
++			sum_stat(&dst->iops_stat[l], &src->iops_stat[l], true);
+ 
+ 			dst->io_bytes[l] += src->io_bytes[l];
+ 
+ 			if (dst->runtime[l] < src->runtime[l])
+ 				dst->runtime[l] = src->runtime[l];
+ 		} else {
+-			sum_stat(&dst->clat_stat[0], &src->clat_stat[l], first, false);
+-			sum_stat(&dst->clat_high_prio_stat[0], &src->clat_high_prio_stat[l], first, false);
+-			sum_stat(&dst->clat_low_prio_stat[0], &src->clat_low_prio_stat[l], first, false);
+-			sum_stat(&dst->slat_stat[0], &src->slat_stat[l], first, false);
+-			sum_stat(&dst->lat_stat[0], &src->lat_stat[l], first, false);
+-			sum_stat(&dst->bw_stat[0], &src->bw_stat[l], first, true);
+-			sum_stat(&dst->iops_stat[0], &src->iops_stat[l], first, true);
++			sum_stat(&dst->clat_stat[0], &src->clat_stat[l], false);
++			sum_stat(&dst->clat_high_prio_stat[0], &src->clat_high_prio_stat[l], false);
++			sum_stat(&dst->clat_low_prio_stat[0], &src->clat_low_prio_stat[l], false);
++			sum_stat(&dst->slat_stat[0], &src->slat_stat[l], false);
++			sum_stat(&dst->lat_stat[0], &src->lat_stat[l], false);
++			sum_stat(&dst->bw_stat[0], &src->bw_stat[l], true);
++			sum_stat(&dst->iops_stat[0], &src->iops_stat[l], true);
+ 
+ 			dst->io_bytes[0] += src->io_bytes[l];
+ 
+ 			if (dst->runtime[0] < src->runtime[l])
+ 				dst->runtime[0] = src->runtime[l];
+-
+-			/*
+-			 * We're summing to the same destination, so override
+-			 * 'first' after the first iteration of the loop
+-			 */
+-			first = false;
+ 		}
+ 	}
+ 
++	sum_stat(&dst->sync_stat, &src->sync_stat, false);
+ 	dst->usr_time += src->usr_time;
+ 	dst->sys_time += src->sys_time;
+ 	dst->ctx += src->ctx;
+@@ -2417,7 +2410,7 @@ void __show_run_stats(void)
+ 		for (k = 0; k < ts->nr_block_infos; k++)
+ 			ts->block_infos[k] = td->ts.block_infos[k];
+ 
+-		sum_thread_stats(ts, &td->ts, idx == 1);
++		sum_thread_stats(ts, &td->ts);
+ 
+ 		if (td->o.ss_dur) {
+ 			ts->ss_state = td->ss.state;
+diff --git a/stat.h b/stat.h
+index 9ef8caa4..15ca4eff 100644
+--- a/stat.h
++++ b/stat.h
+@@ -325,7 +325,7 @@ extern void __show_run_stats(void);
+ extern int __show_running_run_stats(void);
+ extern void show_running_run_stats(void);
+ extern void check_for_running_stats(void);
+-extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src, bool first);
++extern void sum_thread_stats(struct thread_stat *dst, struct thread_stat *src);
+ extern void sum_group_stats(struct group_run_stats *dst, struct group_run_stats *src);
+ extern void init_thread_stat_min_vals(struct thread_stat *ts);
+ extern void init_thread_stat(struct thread_stat *ts);
