@@ -2,167 +2,184 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6611DC433F5
-	for <fio@archiver.kernel.org>; Mon, 17 Jan 2022 07:49:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D21AC433EF
+	for <fio@archiver.kernel.org>; Mon, 17 Jan 2022 09:51:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237706AbiAQHtD (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 17 Jan 2022 02:49:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59094 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237705AbiAQHtC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 17 Jan 2022 02:49:02 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFD7C061574
-        for <fio@vger.kernel.org>; Sun, 16 Jan 2022 23:49:02 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id q75so2420950pgq.5
-        for <fio@vger.kernel.org>; Sun, 16 Jan 2022 23:49:02 -0800 (PST)
+        id S237619AbiAQJvg (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 17 Jan 2022 04:51:36 -0500
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:62557 "EHLO
+        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235893AbiAQJvg (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 17 Jan 2022 04:51:36 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1642413097; x=1673949097;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=dVTxcvrZu8FGF7QqKAwKdzsDrUqMZN2yRAcXB+Xgj8Q=;
+  b=kWKEGFyKGLrvfNRqDj4L2tqBZm0zxEEodZkZV83SFpF9RSTG4pnWM90w
+   UyHb6/xcIWMT2+Zt+VSf59usjpOV2MHml5COkeM0XAe2zwyDW7gHWDYja
+   eeRKWQfE1VQuPqfLjp5A1njMRhhdFju6IgUuhMvtXuHH2ZCMnvq0Cruez
+   whd/MUljr/jM7Uow13Ccb1KodyM0NZMdRo/YwKD0O2mzG9i6u+UrAV1wr
+   7gUWtylCEUODX7bqZ1Qm5OjaXYbrqi1MMqtnhjgJD8aYiM8HNzq7v5oDS
+   3c8Yt5zhtLhM9eVquTNf9Ga5Iip+rH1y6n54EHOCFkW90aFS6gNtGovK1
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.88,295,1635177600"; 
+   d="scan'208";a="191651322"
+Received: from mail-bn8nam12lp2175.outbound.protection.outlook.com (HELO NAM12-BN8-obe.outbound.protection.outlook.com) ([104.47.55.175])
+  by ob1.hgst.iphmx.com with ESMTP; 17 Jan 2022 17:51:37 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CmJWNIsv8QYi38Awbyi2CFh6DbkGvDrZYlXsgbhSBDyetxbsjWyCkSFkVcGc7D3gJrvP/66ZJZitYqyZLJj/96NxMbJKbRkk+uKIH0NHwvIlLdX+q0lRx8Ei1kHPybNqfFOJO8MWTtRN0Tu33zdHyj3ALnPxO0N9i+CNSUR4zv0EzBK0xtyKuDpC+A7ChhFCZ0nRK7gRUTw5BJstaJg3d3IJsg5klrjodkBIvQTP1uB+87cAa3Ubaixr7pvIFSVNiQjGCrSk9rt5Mg2g/Pw5Ozp0+/XWE589ZJaG9CyNWIfDbnTIq0lKCYYFmF8yI+ccN8fuPppu/5lm7GDJ8of+1g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CT1ZVLesnJLKmt+1VFKiJz6H7U6N7ecSrCFw5ABySAo=;
+ b=RqXOUaOzDPCBwvi1vWOta1+LoFwiaWVPu0pGA/6cfuXRSloCq5wlRvb407Yu/sVagwP3s7Lu1SAU5neA5OFtM7r2jVwu2UHn4fdfRrX+k74Te3M9W0PiqS5D+I78PtWae0PrLrh3B7+qs6LYvV0nm50Ob98k2rFN8PHRG4dJbDX+4aAZGQK+F4raGJJsJdqjx2jQOy6KbeSk/ZwHgDfW1nfgj7l+3rWM7CTzSp/hWGWiKSvbm/rZr7zD76SFfffuRhUMCXnRZdH4CRYJg13p2sQjB4RS2RPuOFLWk2pQmodm1FWhF9QE8arvVAa2qWCkHFYWnLPh7qv93dZ2II2+aQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=iaRvs715EsxsSycp6UAGm9LP2VthtQmtdTUNy8VsPVo=;
-        b=CLgWNK5a/bDkfwkJWbHruHZ7TLKkgaE02DGVNopmm/t5emUmLcp05PTecxf6hkGVS4
-         DGF2cRtyAiy/ZBTYbJNk2ZNZWPhkOHl//q5/LW20loeD4RHc/PymZfZ3MdcDaWxaZuUE
-         dCtcGdxZiYUFGoGTPk+ewz0RPP1N0JrUj6kw8VoSkVBfgmyyIpjQ+7rQK0mwp9yu6jhn
-         6mozvsO/nmZ/MncsTthRgqaH5KoZs57RFDgAQzajg5/5WI65mHk1BbR1Q8svDEtqdfxR
-         LgMsaQiBmhFOqrEuboMeiCQYTsmeSS8n9sNNZB/1LjwmPR6jfY7sFvJ9EwQOVTpg9gbX
-         /WTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=iaRvs715EsxsSycp6UAGm9LP2VthtQmtdTUNy8VsPVo=;
-        b=NOI2kD7nc5a8uuzrJkKrjlGXdJ+BAGA3DSuJJvYSEVFIFWmGaIZu7pYJaESZ9yS0bs
-         +apK+U2fibbGiZSjtFGeadn1FyGxW0oros3NamtynJw/yLDeEWsgd7pRVGIcUIOk7nhx
-         Zsidhtxu69cKcoXVoWCP7Sk+eanF5tUvsTNmaKpf5Vy8vtDhQe5tlFcVzKVfXrCvIjGM
-         SgLIND5FZ1aICy4xGRqxrpVml1ndI75oOMtwPMfN5oqJA0rjOiPbP9ugr2v2bxYXVO33
-         ARgWpmMr8NZa/h7poytctRBS6cAQkfxdug0u20FO2KHBw5HGA8tRHPFE4ousQw6f0AzF
-         3FNQ==
-X-Gm-Message-State: AOAM530At1oqGkU4SZe7v0FCHdcZk6D3iUkigj7KxYsvVmJNg2JGZDvy
-        CfD2f0rAp9gT4cHNvGPstOwanrDKGa6ZCZPIytADDAlRnmk=
-X-Google-Smtp-Source: ABdhPJy4VwxjBculV9wE918BCYkbPaKkGiiKw7gCfkvhfJ9BMGDQVX6KBixr9rYdyM+5PRo50L3jU5NYIPe3srM0W7s=
-X-Received: by 2002:a05:6a00:26c5:b0:4bd:4ad6:9c71 with SMTP id
- p5-20020a056a0026c500b004bd4ad69c71mr19832481pfw.45.1642405741702; Sun, 16
- Jan 2022 23:49:01 -0800 (PST)
-MIME-Version: 1.0
-References: <CAA4OwwXP+YTqcGdsS6Dbi7WwCQh1HRTd=4zc=e3ytMmn8Ke=Zw@mail.gmail.com>
- <17570043-aa80-3ed1-3fd0-23eb235f0d0b@opensource.wdc.com> <CAA4OwwVU9Pg595xu99E621f-LspUcDd=sg2zOqZ_jyTTfPQaaw@mail.gmail.com>
- <CAM5EYbmExSVAtEKzYWE+quTQk-5J4iSnnW4+qoMLg0+MF5sbJw@mail.gmail.com>
-In-Reply-To: <CAM5EYbmExSVAtEKzYWE+quTQk-5J4iSnnW4+qoMLg0+MF5sbJw@mail.gmail.com>
-From:   Robert Balogh <ethrbh@gmail.com>
-Date:   Mon, 17 Jan 2022 08:48:50 +0100
-Message-ID: <CAA4OwwVv+364MrZ8=1zUrWf2-+uechnkmdLVj_aa176H3pA2sw@mail.gmail.com>
-Subject: Re: FIO performance measurement between volumes
-To:     Ben England <bengland@redhat.com>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        fio <fio@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CT1ZVLesnJLKmt+1VFKiJz6H7U6N7ecSrCFw5ABySAo=;
+ b=xJRtg9Z8r8pOK7JoWMqxd3xeRvDc7CHHZqQ9w6/EZvO/cCWEz8VOdQIglzyBvD89kSVqPyFvEuhkI6QimAYtyYjP7KauTr71DQxTtWAsyVpE5m0YTp56hHdIaxTx0OWz2slClHpklofhalXA0QSTFSdF+kIPUT7QFiPy0Hgjg6s=
+Received: from SJ0PR04MB7165.namprd04.prod.outlook.com (2603:10b6:a03:2a3::21)
+ by MN2PR04MB6333.namprd04.prod.outlook.com (2603:10b6:208:1a5::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4888.11; Mon, 17 Jan
+ 2022 09:51:34 +0000
+Received: from SJ0PR04MB7165.namprd04.prod.outlook.com
+ ([fe80::878:3eda:afd:cecb]) by SJ0PR04MB7165.namprd04.prod.outlook.com
+ ([fe80::878:3eda:afd:cecb%5]) with mapi id 15.20.4888.014; Mon, 17 Jan 2022
+ 09:51:33 +0000
+From:   Niklas Cassel <Niklas.Cassel@wdc.com>
+To:     Damien Le Moal <Damien.LeMoal@wdc.com>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH] init: do not create lat logs when not needed
+Thread-Topic: [PATCH] init: do not create lat logs when not needed
+Thread-Index: AQHYC0eNlKPS80rONkOKqxhWa2Lf+Kxm+Q0A
+Date:   Mon, 17 Jan 2022 09:51:33 +0000
+Message-ID: <YeU8JHc1ZsgZE2Yq@x1-carbon>
+References: <20220117021127.9259-1-damien.lemoal@wdc.com>
+In-Reply-To: <20220117021127.9259-1-damien.lemoal@wdc.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 52b71172-63da-4ec2-b28e-08d9d99ef219
+x-ms-traffictypediagnostic: MN2PR04MB6333:EE_
+x-microsoft-antispam-prvs: <MN2PR04MB633384D13DE07E3F4F193C6EF2579@MN2PR04MB6333.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:1728;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: TXdA6gh3xdRnP6WhJoqtQOFlVUFPcId6fyIFAyEaqoamRYEFwrlv8zGdCrvi7gp3YDHlBjz19czWiYLnv92OAbCGZ8yXc5sRgFBtLV4y3krFBwXxsD/wFEl5nL5Ns8BlOLHl4RgfxfhFU+sTGH7uvNGSD1jwdTVhQdz4mMMe4zDWQ/9xx52E7G3cIAgRwwn3ZIVoKK6p7Qjth2kTSq070vtMPQa1yCEOA0Q2g+B8GAdzJZelfPPrD1n0S0JntSC4o73gMRXizNeeu5YMPwYx/WGBF9hreEX8QfPClJU0ADqaKz0iIejyVoZkO0Zkom2KLx6B8Jf6bMTVrD2zxnktK5VrzzreX6sOUaghecPu0Z5jHmvsDMU+n0XKvHVhOqhzpNY794kRpWAtO/sWmeSMCK/5dTUmIa0MYLoMLRTdlTknFdW/Z9u+cEmhrM4lP201nYAqdip6aoi4S340A17uZbINP1DKj5cZe9wRfKtQy4ljlCvv3uZXWL18CNETDuG7Fpp1BFWrSt3ePAeyYyPHBHZgG06WWUoPgZ7yWh6kRY4T0XsNg8e9ow28RtLxHvFyqJury+R/K0jnIY3AsRiA1mE8Wx9gmLHcjEKuUT7KFkKMWtct++/D3BsOM/NN0ixJw2PhxeIVL6BlqdmQG3/Mm5WS/Lzie0iKHdbdr61l8hyhKJb+1R+Xn4mtDDiSAXbBg8qm3j/DyDf3ksw4VLHe9Q==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR04MB7165.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(366004)(91956017)(82960400001)(26005)(4326008)(8936002)(54906003)(186003)(66476007)(71200400001)(38070700005)(66946007)(38100700002)(33716001)(66556008)(64756008)(66446008)(86362001)(6486002)(83380400001)(2906002)(6636002)(508600001)(122000001)(9686003)(6512007)(316002)(6862004)(8676002)(5660300002)(76116006)(6506007);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?uEZZRQwsfn3IcY6tSa52gpKxv1tuLCZh+uG0xaGI7Wz1FoE3PVCJkxh9P/6C?=
+ =?us-ascii?Q?cOCGP0yA8tWFbLJSrcsPO+46E4gXjjgjSxvRLz/5EredKuhO7iLj0zczncRJ?=
+ =?us-ascii?Q?ur8tOvifiza9R4j/8A3cMCaeetn1NbFyCIRKqHrrdrENvnar2/QRImghhzjz?=
+ =?us-ascii?Q?mn0JT2AE6AHw/9PNul1Rj0YlxwTTiiRA5sYMcZyCGyAV4n92nbQ0E6Ja6W/0?=
+ =?us-ascii?Q?AnthKnM9400imbdY7hEeXIKRmwYAI9phCNsczB2mQDPasAfp+NTVR5G58vir?=
+ =?us-ascii?Q?eUPlsH2tXsr6Toak/BSbW3xQGY89vxBwLlSw4NIR8SH6WdZbyAGNgE3KLJRu?=
+ =?us-ascii?Q?gJRDeqXL93kOKEMIO90GF/GlYhZxIM9I4ARoe/Vope4YlGT2EisZEwi1w39I?=
+ =?us-ascii?Q?9CsdwmPv5gG2Lc+ukgvF6dE8JTFUa9NwNcXLpiWMIJMIsExL/fgKjhjJfx9C?=
+ =?us-ascii?Q?EdbeYKs187jE9djrwI3pw4r3ODNzogPdjK506T0Fy61bGblvCsEJTF8ULcLd?=
+ =?us-ascii?Q?I8Er5rUDOAEomTEvN4xAdFd3AKdlEEy6GLF5iYiaNhE4zJL9AzDQt+iVan0e?=
+ =?us-ascii?Q?RcXTmzUtdM/0xYM7JGaruKhoiZEB5tOcG35uUGquFI1Hobpc1cC9K8DTBesw?=
+ =?us-ascii?Q?Jd8bb6X58FCMy3GUT/NZihxyO6SUj1+9CMEeDavMngrP6QL/z9CcTBj8ubG8?=
+ =?us-ascii?Q?ML9SvvfOov702LnAg873c0GSSW82syD2ydcJeUkKSjvM0Cyj5beHmvUu2Tcs?=
+ =?us-ascii?Q?SP4CJ+01mUTE5YIt8fut1Wfu95grFEr9XOkVEAQF9leBNdm2yb58KIRUlOyL?=
+ =?us-ascii?Q?sLehX4cRjqxMIl3vcEtMczWpSyCIZtzmqzO4DFHpzfygxRM+2MOzJk2JGjf2?=
+ =?us-ascii?Q?3BYvjh26UalJXyOCwC52UuVGBZp+8MqmlaaCpGLjqUXB9n96DFB2J+DD0BBw?=
+ =?us-ascii?Q?ef7zvhRikyTJAZRUTLHm5AKdb325AVOvAOuQo2JGu8yKKkFcOSr8R+Tzs8Hm?=
+ =?us-ascii?Q?arFCwYcO8QTpyxPiE+Kwrfqok35WyCGfQ2hJ9LY+dDNmUv7+epCqH959lfyV?=
+ =?us-ascii?Q?UzWCn76by0bMu4jLTPO/d8PtxXVCNMJvaIUvWTcQTb9yhqxzAp81m6mc9iBq?=
+ =?us-ascii?Q?FGwLkMyy03WQt08Hv/cAc/KIgi1feYTXrXcTPx55lMm8AAMmxWVw5rpHCcZ6?=
+ =?us-ascii?Q?sOeMLVZzXhQKDrYi0x83A/uGY7WzlbsSptSSRTSkazXOfz6kIxUqIyF/4boA?=
+ =?us-ascii?Q?k7MTURIF7M7DQFoEhIAxMTrIdCciYQuFBSnvPaEhhU1JFWU9jMIwb6VuRkEX?=
+ =?us-ascii?Q?MrmkAuEpPTXd0/o9JoTmTLB22DIf9oRyiIlveXlqTTUEofKYLOBj1a5AazgZ?=
+ =?us-ascii?Q?HS7gdYGp0LRkf5XKdYautJc7yMw2Rdx66joezOHNgPuftiNh9X7bUDoYQ575?=
+ =?us-ascii?Q?pi/fKuk8PJ+zhYm4OmUI9t1qlM3R+MuhYmpaGgWyrjbz70CBHWichRl5kzzV?=
+ =?us-ascii?Q?iILm45spO60SUdYE5PD+uDDJxpjF9xi5USFdozb6ot3tMlaRGPEY32GMIRWJ?=
+ =?us-ascii?Q?hvVn8t1I1dkTpJj8k64rOB4MJLJsZ955lXZxeu+psQEVZTwYpdFCzPr4cqJJ?=
+ =?us-ascii?Q?FkjKvjy8/4Lpt3RbTSwCK2k=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <12C6CBE8DB09B1499CCA88F930B4D78B@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SJ0PR04MB7165.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 52b71172-63da-4ec2-b28e-08d9d99ef219
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Jan 2022 09:51:33.8060
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: D8Yk86AnX3NRWMhlhAspzwudCRioH4R+hzTrHDasZf0XtRcuzEcoPAreIXUvooajjY1OBWK5U8d2WlQIh0R9Uw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR04MB6333
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-hello Ben,
+On Mon, Jan 17, 2022 at 11:11:27AM +0900, Damien Le Moal wrote:
+> When any of the options disable_lat, disable_slat and disable_clat are
+> used, there is no need to create the lat log associated with the
+> disabled latency. In addition, when write_lat_log is also specified,
+> this change avoids the creation of empty latency log files.
+>=20
+> Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+> ---
+>  init.c | 24 +++++++++++++++---------
+>  1 file changed, 15 insertions(+), 9 deletions(-)
+>=20
+> diff --git a/init.c b/init.c
+> index 5f069d9a..07daaa84 100644
+> --- a/init.c
+> +++ b/init.c
+> @@ -1586,17 +1586,23 @@ static int add_job(struct thread_data *td, const =
+char *jobname, int job_add_num,
+>  		else
+>  			suf =3D "log";
+> =20
+> -		gen_log_name(logname, sizeof(logname), "lat", pre,
+> -				td->thread_number, suf, o->per_job_logs);
+> -		setup_log(&td->lat_log, &p, logname);
+> +		if (!o->disable_lat) {
+> +			gen_log_name(logname, sizeof(logname), "lat", pre,
+> +				     td->thread_number, suf, o->per_job_logs);
+> +			setup_log(&td->lat_log, &p, logname);
+> +		}
+> =20
+> -		gen_log_name(logname, sizeof(logname), "slat", pre,
+> -				td->thread_number, suf, o->per_job_logs);
+> -		setup_log(&td->slat_log, &p, logname);
+> +		if (!o->disable_slat) {
+> +			gen_log_name(logname, sizeof(logname), "slat", pre,
+> +				     td->thread_number, suf, o->per_job_logs);
+> +			setup_log(&td->slat_log, &p, logname);
+> +		}
+> =20
+> -		gen_log_name(logname, sizeof(logname), "clat", pre,
+> -				td->thread_number, suf, o->per_job_logs);
+> -		setup_log(&td->clat_log, &p, logname);
+> +		if (!o->disable_clat) {
+> +			gen_log_name(logname, sizeof(logname), "clat", pre,
+> +				     td->thread_number, suf, o->per_job_logs);
+> +			setup_log(&td->clat_log, &p, logname);
+> +		}
+> =20
+>  	}
+> =20
+> --=20
+> 2.34.1
+>=20
 
-Thanks for your reply. I will try out how dd works for me.
-
-thanks again,
-/Robi
-
-On Fri, Jan 14, 2022 at 2:59 PM Ben England <bengland@redhat.com> wrote:
->
-> dd can do this.   Beware of caching effects, you can drop cache + use dd =
-conv=3Dfsync  to ensure the data makes it to the target volume.
->
-> On Fri, Jan 14, 2022 at 2:48 AM Robert Balogh <ethrbh@gmail.com> wrote:
->>
->> hello Damien,
->>
->> Thanks for your quick reply. I am afraid I made a mistake to not
->> describe clearly what my goal is. So I can perform the FIO test for
->> the 2nd attached volume similar to what is done for the 1st volume.
->> But now I would like to do a performance measurement between the
->> volumes.
->>
->> So my idea is, there is a e.g: 10G size file stored in volume1, and
->> this file is going to write to volume2, then read back. But now, I am
->> not sure this can be done with the FIO tool.
->>
->> Thanks for your help.
->> /Robi
->>
->> On Fri, Jan 14, 2022 at 12:20 AM Damien Le Moal
->> <damien.lemoal@opensource.wdc.com> wrote:
->> >
->> > On 1/13/22 20:47, Robert Balogh wrote:
->> > > hello FIO experts,
->> > >
->> > > I am a beginner in FIO, and I met with a problem.
->> > >
->> > > Currently in my Ubuntu based server the "/dev/vdb1" volume is attach=
-ed
->> > > to the "/home/batman/fio/cindervolume" path. FIO job is configured
->> > > like this
->> > >
->> > >     [global]
->> > >     filename=3Dfio-172_20_2_13
->> > >     directory=3D/home/batman/fio/cindervolume rw=3Drw
->> > >     rwmixread=3D60
->> > >     rwmixwrite=3D40
->> > >     bs=3D4k
->> > >     rate=3D500k
->> > >     direct=3D1
->> > >     numjobs=3D1
->> > >     time_based=3D1
->> > >     runtime=3D14d
->> > >     verify=3Dcrc32c
->> > >     continue_on_error=3Dall
->> > >     group_reporting=3D1
->> > >
->> > >     [file1]
->> > >     iodepth=3D1
->> > >     ; -- end job file --
->> > >
->> > > FIO is started like this and works well:
->> > >     /usr/bin/fio --size=3D10G
->> > > --output=3D/home/batman/fio/cindervolume/fio-172_20_2_13-process.log
->> > > /home/batman/fioApp/fio-seq-RW.job &
->> > >
->> > > FIO version I use: fio-3.25
->> > >
->> > > My next step would be to attach a 2nd volume for example "/dev/vdc" =
-to
->> > > "/home/batman/fio/cindervolume-2" path, and I would do performance
->> > > measurement between the volumes. I was checking the FIO user=E2=80=
-=99s guide,
->> > > https://fio.readthedocs.io/en/latest/fio_doc.html but unfortunately =
-I
->> > > cannot figure out which parameter might help me to solve this topic.
->> > >
->> > > By-the-way is this possible to do with FIO? If so, could you please
->> > > help me by giving some direction/hints?
->> >
->> > Move the directory=3D/... option from global section into the job sect=
-ion
->> > and add a job for your other volume with directory=3D again added in t=
-hat
->> > job section to point to the new volume directory. The 2 jobs will run
->> > simultaneously targetting different volumes, unless you add "stonewall=
-",
->> > in which case the jobs will run one after the other.
->> >
->> > Or you could just write another fio script for the second volume.
->> >
->> > It is not clear if you want to run the perf tests on the 2 volumes in
->> > parallel or one after the other.
->> >
->> > >
->> > > thanks for your help,
->> > >
->> > > /Robi
->> >
->> >
->> > --
->> > Damien Le Moal
->> > Western Digital Research
->>
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
