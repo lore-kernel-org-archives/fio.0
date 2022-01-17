@@ -2,101 +2,87 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11112C433F5
-	for <fio@archiver.kernel.org>; Mon, 17 Jan 2022 20:04:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3111C433EF
+	for <fio@archiver.kernel.org>; Mon, 17 Jan 2022 23:21:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242969AbiAQUEC (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 17 Jan 2022 15:04:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58866 "EHLO
+        id S235277AbiAQXVq (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 17 Jan 2022 18:21:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231292AbiAQUEB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 17 Jan 2022 15:04:01 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 709B6C061574
-        for <fio@vger.kernel.org>; Mon, 17 Jan 2022 12:04:01 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id w26so22925438wmi.0
-        for <fio@vger.kernel.org>; Mon, 17 Jan 2022 12:04:01 -0800 (PST)
+        with ESMTP id S234551AbiAQXVq (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 17 Jan 2022 18:21:46 -0500
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D5A0C061574
+        for <fio@vger.kernel.org>; Mon, 17 Jan 2022 15:21:46 -0800 (PST)
+Received: by mail-io1-xd2e.google.com with SMTP id f24so17526819ioc.0
+        for <fio@vger.kernel.org>; Mon, 17 Jan 2022 15:21:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BJDCVdf91MjituI02xtOfySDiO/9z6NOPeINSZ5cREk=;
-        b=GOq7wnAEbn+Z1W1cj3PakxDqIcXW5IqS+74tFJytJpJ/gleQii2GYf5N7Qcmsug8f6
-         /8ejwZO/1HRd0rLRzanfDS5SDv8m+WrPtzAjmaiC0F4mJkmV0zjAc5aNx6kEc/Ruy9FR
-         Y+MH7D0/lM+VI1P3jx77fj2xfnYaca52xgE4//L6VqNE0KVO3okw1n9FIfmG81v8Ratb
-         XHKuyUpvsi0oZuay6Q0j9RPprfps1l+pDHqv9eujsk3BoohFKyvWNRE+4F98sClFSMD4
-         0V5cguksJE8FTMbBzY3RaI/tldzZ/ErUYYzpvDdFIi9mibzqWaP+y4MDRJTGNiaqTCbn
-         SCtQ==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=RPAZKid5wzn4VqIRXd+tYZcyGRQuAj/WAO3m5RVkvjg=;
+        b=xOkq/GkrchyW7vC5wbf8W4WkHPHLTL/n+9M6IHTcB/dWqaQzIxB2JwXZBNfETupPYJ
+         qypWJCTeGzWwQZ3UCs8sN2CW/cTNtDYNv4R421K3RdER10l/F/LWWAm96pnXn1ynL7u7
+         6ewWMJj7Rf1XxDAZToI4L07AecP3PHyXXyNLtEbSL3SEfjqtiQmOOVrYRJ92xHDkpuST
+         ml0LH1wHjPtM4eTX9eA/cTHhbms2ugbawYhWqLnWewLYcjcXjO0n1pXApVmAQU1GzZK2
+         eLOH2AZy2pU1jfgz9/4SxIIdLmsJgUvkuavAvQvis0UP35VhDu6XmqbERuVPwKwUVVuJ
+         lebA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BJDCVdf91MjituI02xtOfySDiO/9z6NOPeINSZ5cREk=;
-        b=QY1hcJNL0qNHJ0uCZ6gj2ICz11gBkMrmKkeJ5jrqLXYjZTQvLWMLuyED8cuX8o2Zn3
-         zBMwM/K78cuCo4MQ+Wcrx8g30DFbJP/8zkFLhKc3z+MOuygGi+Q55KrhZAKYCRxRYRSH
-         /k0r9EjYi+YATftZDQbL+bz72W/k/uPMgFcjHSU+eGbhac8oobXpc6tkAwvr1p175C1M
-         2t97RqejMGXLiYCZZmc+0dg31nOKlk7+z0IzyyFuy0NgWL0AsbrRAbsDZHY8d4802XLL
-         ROLtEE4FNhqIiP9pfLLcml/qLzBP8srt6ydqgK/4mdLe7oYzBuv5mQRKU+ytjI8bthZG
-         02YA==
-X-Gm-Message-State: AOAM530WaSesJtIccf+Ma9Kwgjyp8gWvgp3ukgKLppKMTzweVrJ/hdeJ
-        0EljY7aq8DQpsHXgkdMoC/Ru30jx97NvzSFed6yMtQ0ylQY=
-X-Google-Smtp-Source: ABdhPJzBVFR4sRTxQNzv3uHc1ZOQw194SJFScTzFynjFjDKT7cvl+f++zsM/EQjVTC/Qq4sYImiUE2cItW+7w7k9780=
-X-Received: by 2002:a05:6000:168e:: with SMTP id y14mr12485184wrd.267.1642449840031;
- Mon, 17 Jan 2022 12:04:00 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=RPAZKid5wzn4VqIRXd+tYZcyGRQuAj/WAO3m5RVkvjg=;
+        b=R+bO9gvVK9iQTvjIllwUk/Rer1i0nlYaVss3VYqcatjrHbwWu6McOoDB7t2UzRNZos
+         q15gVCrZrZE6kfX/dmAzSZMUERvsC7kJl4ruYgcCa8YVtCSav4xEZ7weY3DvE7H5GWzz
+         i+wiDHbGFECwuH8JukefUp/Vcxl8OsuB+C9T+rrKgEgGEl3iFW5A3W/nr1lOY2K7Rc0d
+         OesBGMcHTnhsJNLA28PloCUuYfx6R1Hj4tdD0ozlIac5sZNYl1yfOrCz0G+MepklWhFv
+         dexUPL782vYH88KlzaHyEKVqY++bGmwjP0eAcAqOxZadTOQYms8labl8kMFocnCqtobf
+         aI9Q==
+X-Gm-Message-State: AOAM533/X5dHd70dxZCK+eyBMD3H4hxuClCpuvrKTg6yyoD8AcCCj3OI
+        p3ZbtzCqFNpYLoUsq0h8n2xIG/uDZTyT7Q==
+X-Google-Smtp-Source: ABdhPJyWXc0Ilo7pzSzaACYvsjNb8Yiu6yC86jpwPlv/1CPgJ+OZWI0KsLSklQruXFAeaVxXw6CQZQ==
+X-Received: by 2002:a5d:9d96:: with SMTP id ay22mr6543687iob.130.1642461705847;
+        Mon, 17 Jan 2022 15:21:45 -0800 (PST)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id c3sm11817774iow.28.2022.01.17.15.21.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Jan 2022 15:21:45 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Niklas Cassel <Niklas.Cassel@wdc.com>
+Cc:     damien.lemoal@opensource.wdc.com, fio@vger.kernel.org
+In-Reply-To: <20220117155045.311453-1-Niklas.Cassel@wdc.com>
+References: <20220117155045.311453-1-Niklas.Cassel@wdc.com>
+Subject: Re: [PATCH v3 0/2] cleanup mixed stat functions
+Message-Id: <164246170529.353841.4149720922233727100.b4-ty@kernel.dk>
+Date:   Mon, 17 Jan 2022 16:21:45 -0700
 MIME-Version: 1.0
-References: <SJ0PR84MB1434F97AE046381C181A3514F4529@SJ0PR84MB1434.NAMPRD84.PROD.OUTLOOK.COM>
- <SJ0PR84MB1434CE895980F3953C93BA6FF4529@SJ0PR84MB1434.NAMPRD84.PROD.OUTLOOK.COM>
- <SJ0PR84MB143421DA1431C54AAEA77699F4529@SJ0PR84MB1434.NAMPRD84.PROD.OUTLOOK.COM>
- <CALjAwxiV7s8FgH7c4K+2zWEU_8Ds_XKntr1GF-NPujDfd9gfEQ@mail.gmail.com> <SJ0PR84MB143421C31B114BEB957C925DF4559@SJ0PR84MB1434.NAMPRD84.PROD.OUTLOOK.COM>
-In-Reply-To: <SJ0PR84MB143421C31B114BEB957C925DF4559@SJ0PR84MB1434.NAMPRD84.PROD.OUTLOOK.COM>
-From:   Sitsofe Wheeler <sitsofe@gmail.com>
-Date:   Mon, 17 Jan 2022 20:03:33 +0000
-Message-ID: <CALjAwxiy0oa9CoXTbj-WzYapsHUxVzhgGaX56xK4bnyCEqe_fw@mail.gmail.com>
-Subject: Re: FW: re; fio / test result diffs
-To:     "Gibson, Thomas" <thomas.gibson@hpe.com>
-Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Sat, 15 Jan 2022 at 22:41, Gibson, Thomas <thomas.gibson@hpe.com> wrote:
->
-> I wasn't sure if I should reply to you directly or not.  So I did for now.
-> But I cc'c the fio mailing list as well.
->
-> I've attached a test data tarfile on the fio test runs for each fio test.
-> tom...
+On Mon, 17 Jan 2022 15:50:52 +0000, Niklas Cassel wrote:
+> From: Niklas Cassel <niklas.cassel@wdc.com>
+> 
+> The mixed stat functions are called in case option
+> unified_rw_reporting=both was used.
+> 
+> Patch 1/2 simplifies show_mixed_ddir_status().
+> Patch 2/2 moves common code from the mixed stat functions
+> to a new helper.
+> 
+> [...]
 
-From SSSTC_CVB-8D120_FW_CZJG801_2ndrun_r640-randrd_seqwr.txt:
-[...]
-SSSTC_CVB-8D120_FW_CZJG801_2ndrun_r640-RandRd: (groupid=0, jobs=1):
-err= 0: pid=42215: Mon Dec 20 16:53:45 2021
-   read: IOPS=597, BW=146MiB/s (153MB/s)(1026GiB/7200022msec)
-    slat (nsec): min=5512, max=99489, avg=8598.67, stdev=981.29
-    clat (usec): min=1156, max=329247, avg=26747.47, stdev=8216.72
-     lat (usec): min=1223, max=329255, avg=26756.16, stdev=8216.72
-[...]
-  cpu          : usr=0.15%, sys=0.64%, ctx=4305429, majf=0, minf=1267
-SSSTC_CVB-8D120_FW_CZJG801_2ndrun_r640-SeqWr: (groupid=0, jobs=1):
-err= 0: pid=42216: Mon Dec 20 16:53:45 2021
-  write: IOPS=597, BW=146MiB/s (153MB/s)(1026GiB/7200021msec)
-    slat (usec): min=7, max=143, avg=14.13, stdev= 2.23
-    clat (msec): min=9, max=329, avg=26.74, stdev= 8.21
-     lat (msec): min=9, max=329, avg=26.76, stdev= 8.21
-[...]
-  cpu          : usr=0.51%, sys=0.59%, ctx=4137284, majf=0, minf=270
-[...]
-Disk stats (read/write):
-  sde: ios=4305116/4304491, merge=0/0, ticks=115166190/115134060,
-in_queue=18446744069644883850, util=100.00%
+Applied, thanks!
 
-You have plenty of CPU left but your disk utilisation is 100% so for
-whatever reason the disk can't accept more I/O. Your problem is that
-for whatever reason something below the kernel is bottlenecking...
+[1/2] stat: remove duplicated code in show_mixed_ddir_status()
+      commit: 53d966f8177e0ada3bf52930f75f7b30817ea8c2
+[2/2] stat: move unified=both mixed allocation and calculation to new helper
+      commit: b182f07738d39f7969c3376375131dd2d3d7016a
 
-My only thought is maybe your mixed workloads are better at exhausting
-the disk's cache than a solo workload does?
-
+Best regards,
 -- 
-Sitsofe
+Jens Axboe
+
+
