@@ -2,152 +2,92 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30074C433F5
-	for <fio@archiver.kernel.org>; Tue, 18 Jan 2022 13:08:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4480FC433F5
+	for <fio@archiver.kernel.org>; Tue, 18 Jan 2022 13:37:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234632AbiARNI4 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 18 Jan 2022 08:08:56 -0500
-Received: from mailout1.w2.samsung.com ([211.189.100.11]:10111 "EHLO
-        mailout1.w2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232013AbiARNI4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 18 Jan 2022 08:08:56 -0500
-X-Greylist: delayed 303 seconds by postgrey-1.27 at vger.kernel.org; Tue, 18 Jan 2022 08:08:56 EST
-Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220118130353usoutp0106907717d1810e7e57e8b2f694e29941~LXxUHcCAx0263502635usoutp01Z;
-        Tue, 18 Jan 2022 13:03:53 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220118130353usoutp0106907717d1810e7e57e8b2f694e29941~LXxUHcCAx0263502635usoutp01Z
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1642511033;
-        bh=WXHumSkO6ll05x8YWbdqInmfo5vpYN3dJBClNnn+UwA=;
-        h=From:To:Subject:Date:References:From;
-        b=GnJR6ilS+AZKJ+hbzxOVUa/f3XEAF77/xAD/aVs/RK9drwgOFKrrpgmzaRpgflSIH
-         gCKM4DMDxLamBxPTODtdJA205P3guPg+GuSGYLRq4insfq5hD7csbmbjNIjqwYee2B
-         w6n4vh95PzM2EIG/sDlertEYh/TAd+DbLPJX+OgE=
-Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
-        [203.254.195.112]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220118130352uscas1p14990ea8739fbe9e0323c67adddbb110e~LXxTrDe9t1842618426uscas1p1p;
-        Tue, 18 Jan 2022 13:03:52 +0000 (GMT)
-Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
-        ussmges3new.samsung.com (USCPEMTA) with SMTP id 20.31.09687.8BAB6E16; Tue,
-        18 Jan 2022 08:03:52 -0500 (EST)
-Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
-        [203.254.195.92]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220118130352uscas1p1a51e58ff20951777a16d2d201d63cbdb~LXxTatLvR1857818578uscas1p1k;
-        Tue, 18 Jan 2022 13:03:52 +0000 (GMT)
-X-AuditID: cbfec370-9c5ff700000025d7-83-61e6bab888dd
-Received: from SSI-EX1.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id 39.F9.09657.7BAB6E16; Tue,
-        18 Jan 2022 08:03:52 -0500 (EST)
-Received: from SSI-EX1.ssi.samsung.com (105.128.2.226) by
-        SSI-EX1.ssi.samsung.com (105.128.2.226) with Microsoft SMTP Server
-        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2242.4; Tue, 18 Jan 2022 05:02:49 -0800
-Received: from SSI-EX1.ssi.samsung.com ([fe80::d97c:6fde:c243:46bb]) by
-        SSI-EX1.ssi.samsung.com ([fe80::d97c:6fde:c243:46bb%7]) with mapi id
-        15.01.2242.008; Tue, 18 Jan 2022 05:02:49 -0800
-From:   Vincent Fu <vincent.fu@samsung.com>
-To:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-Subject: RE: [PATCH 0/6] additional sg ionegine commands
-Thread-Topic: [PATCH 0/6] additional sg ionegine commands
-Thread-Index: AQHX2lxjUrDOD8EjW0ioWasKJ4gq36was/eAgE5ugJA=
-Date:   Tue, 18 Jan 2022 13:02:49 +0000
-Message-ID: <edae2223f97d4abeae2c38bc3c0ecd6f@samsung.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [105.128.2.176]
-x-exchange-save: DSA
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S241937AbiARNhr (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 18 Jan 2022 08:37:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44888 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239194AbiARNhr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 18 Jan 2022 08:37:47 -0500
+Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D42C061574
+        for <fio@vger.kernel.org>; Tue, 18 Jan 2022 05:37:47 -0800 (PST)
+Received: by mail-il1-x132.google.com with SMTP id d3so17543839ilr.10
+        for <fio@vger.kernel.org>; Tue, 18 Jan 2022 05:37:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:in-reply-to:references:subject:message-id:date:mime-version
+         :content-transfer-encoding;
+        bh=IbNwLEPdFO4X6cY+TlmnNo4jZ8g9kgi+72wJ920UMVg=;
+        b=SQQZe+sOdHcLGcgXk9V2LhCFQP3WHfgV6e0xiMctdwiV2aFwwQbm9OsAuYHGkZ7dKe
+         TQoJfWCTxxVb2BaO5uxVauZXjSV/M7tZsTwFDc+xYucVlWtKai4vN7iFiciNX7dbRDd/
+         SbukZ8138z3Liufc0GNkmr6g5C4wF2HxTs/GXwtveiNLwR0WdlU0h2QKHHCxMEX88sFg
+         r2ur3PKvp7Gu3DwFJR5+rj/9E+ordrAQBOAGGzRNMzW9EUIEE74hqaB+NEm250vczKAk
+         MuN1LJWy4zBaJ9FyJBwXBWYxAtnyXy9cMr1OpFYcbYkn851sc9ukSOZ0L7b+BBeKGLzT
+         t6cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=IbNwLEPdFO4X6cY+TlmnNo4jZ8g9kgi+72wJ920UMVg=;
+        b=KXe1gmdHqwYu3O2xhod7/lZKD0OBX4gUDVkIqnOrc3L8/6G3yqA+wYSbDRAA8uh8ZU
+         xOHOM+0YK94Uws5pZDXGskcMYNvkKctxQ5fWcXFVpdEaOWci3sBDBqwdWgb7CyRLb3zt
+         FH974/MMOaqJgskTRIjyqbuMKGlb/3N2Ig1+yfdIh11yjJn19745vFF1boEbWXcfhNVh
+         5Gw5feZDSdXas7jS0owWCfMRkJWNIzGrUh29FN5VabrJeiURnkvokSCPyJc6zO48LHZx
+         EyjeVFn/j4XYHssH0GWRxZvwpfTg5XS6JxfgmgMJWLRrEQ56ueovgvz20uduKFsAk72N
+         dfpQ==
+X-Gm-Message-State: AOAM533cgMoZgwyhcpMHj3VhyZ2yDiTO9ChqrJgn7ctlGS1HccmUeD7T
+        KhNg9+P/gBrnAjsTXV2/+DD3sQ==
+X-Google-Smtp-Source: ABdhPJw6RySDn6j/0sQ+poIn44Qs3ncBuGopa9WdMRg57uPhiHABWUtWdRx0Jc7CMCK+gTHG4cjw4A==
+X-Received: by 2002:a92:cd81:: with SMTP id r1mr5891875ilb.31.1642513065986;
+        Tue, 18 Jan 2022 05:37:45 -0800 (PST)
+Received: from [192.168.1.116] ([66.219.217.159])
+        by smtp.gmail.com with ESMTPSA id a14sm11351614ilm.48.2022.01.18.05.37.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 05:37:45 -0800 (PST)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     Vincent Fu <vincent.fu@samsung.com>, fio@vger.kernel.org
+In-Reply-To: <20211115200807.117138-1-vincent.fu@samsung.com>
+References: <CGME20211115200821uscas1p12939025b77aaf0ec414bf1427cf1b72a@uscas1p1.samsung.com> <20211115200807.117138-1-vincent.fu@samsung.com>
+Subject: Re: [PATCH 0/6] additional sg ionegine commands
+Message-Id: <164251306548.363973.17641802387670405205.b4-ty@kernel.dk>
+Date:   Tue, 18 Jan 2022 06:37:45 -0700
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrCIsWRmVeSWpSXmKPExsWy7djX87o7dj1LNHj2Q9pi9d1+NouPs14w
-        OzB5XD5b6vF5k1wAUxSXTUpqTmZZapG+XQJXxr6d91gKfvBWnFtS3cB4kKuLkZNDQsBEounU
-        NbYuRi4OIYGVjBL3ps5jh3BamSQ2vHvHAlP1YO56ZojEWkaJo38OskA4HxklerddZ4VwDjBK
-        7OieAdTPwcEmoCnxdn8BSLeIQJjEz0fbWUFsYQELicXbrzBBxC0lWlp3sEPYVhLnnu0Ci7MI
-        qEqsvvkPLM4LFL/4ZQJYL6OAmMT3U2vAapgFxCVuPZnPBHGdoMSi2XuYIWwxiX+7HrJB2IoS
-        97+/ZIewRSTWfX/LBtGrI7Fg9ycoW1ti2cLXzBC7BCVOznwC9bGkxMEVN6Dsn+wSiz96g7wl
-        IeAicflqEURYWmL6msvgcJAQ6GaUOLNmBdQNUxgl+vfnQtjWEgv/rIe6mU/i769HjBBzeCU6
-        2oQmMCrNQvLNLCTXzUJy3Swk1y1gZFnFKF5aXJybnlpsnJdarlecmFtcmpeul5yfu4kRmDBO
-        /ztcsIPx1q2PeocYmTgYDzFKcDArifBK1T9LFOJNSaysSi3Kjy8qzUktPsQozcGiJM67LHND
-        opBAemJJanZqakFqEUyWiYNTqoFJ5bXDuljFL99jth1na376YMPRmAN2Oj0yrM+TnM1qQya6
-        HLrfUi/8Mmhpm9vfvBoGDVOuZxsubbPdX7PLt0pLTmCF2CGdEMU9X58LXOxaffSQs17MNZ3Q
-        pFTzM863Nc8//Od/dPLDw6naTX+Z1TLy3MNOCleZLy9VUMxd/sNrWZgYc6y92k4b93snVUVX
-        Gp5oPv5FWPj/xTVcD6J/ndtU+GLPlY1Ti+4ePR6hc6Z660Zjl7evDL6ftjZLPT7vwe2F5z7E
-        WDy4Ef/56q7k0vo1D32XBu8+7hDeuvZRyadZCnXpq/aEPlyS9/KwlsK6jwtuHWQt40/mWqUS
-        vn9ebtp7g3eeRsuf9T1p2PXhr7xWrxJLcUaioRZzUXEiANgN6OiHAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrNLMWRmVeSWpSXmKPExsWS2cA0SXfHrmeJBgvus1usvtvPZvFx1gtm
-        ByaPy2dLPT5vkgtgiuKySUnNySxLLdK3S+DK2LfzHkvBD96Kc0uqGxgPcnUxcnJICJhIPJi7
-        nrmLkYtDSGA1o8S6jseMEM5HRonNTyYyQTgHGCV+XrnF1sXIwcEmoCnxdn8BSLeIQJjEz0fb
-        WUFsYQELicXbrzBBxC0lWlp3sEPYVhLnnu0Ci7MIqEqsvvkPLM4LFL/4ZQJYr5CArcTmB0sZ
-        QWxGATGJ76fWgNUzC4hL3HoynwniUgGJJXvOM0PYohIvH/9jhbAVJe5/f8kOYYtIrPv+lg2i
-        V0diwe5PULa2xLKFr5kh9gpKnJz5hAWiXlLi4IobLBMYxWYhWTcLSfssJO2zkLQvYGRZxShe
-        Wlycm15RbJyXWq5XnJhbXJqXrpecn7uJERg/p/8djtnBeO/WR71DjEwcjIcYJTiYlUR4peqf
-        JQrxpiRWVqUW5ccXleakFh9ilOZgURLn9YidGC8kkJ5YkpqdmlqQWgSTZeLglGpgYhQ40Nri
-        E7BuuYH4ujtryjtOq19sU3lnfSbHcN6MYFWFml+zZne8U/WJn73hoOeWsjXZU/tL99YHCDNX
-        mM1+wT0xeq67WjznHY0X1/aH3oy8ueFUYOIEBZO5hfsljebU2gm/keFQPxvy3WbfneyIEMWy
-        75ruU5/FctX1PHMXXPG6ZcGEtYk/PSwlP1yvmvJ3n+/R8w+8Rad3T+Q+8MX30tatP2tnLL6R
-        V3Q95ei/1iCGO2tEnx9cUSFV5s3ZJRkzTytyVf2/9+e9Zm7YYVA8aWKL9cQ55dOF9oa+8Pf/
-        yqJ6hZVdk3H6agNft2pr6/6wem3WbsvgHZWHHu5M+evU7Hn0wURl/WXTS/xX3wyJUGIpzkg0
-        1GIuKk4EAGk8UgkOAwAA
-X-CMS-MailID: 20220118130352uscas1p1a51e58ff20951777a16d2d201d63cbdb
-CMS-TYPE: 301P
-X-CMS-RootMailID: 20220118130352uscas1p1a51e58ff20951777a16d2d201d63cbdb
-References: <20211115200807.117138-1-vincent.fu@samsung.com>
-        <CGME20220118130352uscas1p1a51e58ff20951777a16d2d201d63cbdb@uscas1p1.samsung.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Jens, please let me know your feedback on this series.
-
-Vincent
-
-> -----Original Message-----
-> From: Vincent Fu
-> Sent: Monday, November 29, 2021 10:20 AM
-> To: axboe@kernel.dk; fio@vger.kernel.org
-> Subject: RE: [PATCH 0/6] additional sg ionegine commands
->=20
-> Jens, please let me know if you have any feedback about this patch series=
-.
->=20
-> Vincent
->=20
-> > -----Original Message-----
-> > From: Vincent Fu
-> > Sent: Monday, November 15, 2021 3:07 PM
-> > To: axboe@kernel.dk; fio@vger.kernel.org
-> > Cc: Vincent Fu <vincent.fu@samsung.com>
-> > Subject: [PATCH 0/6] additional sg ionegine commands
-> >
-> > Jens, please consider this patch series that adds to the sg ioengine
-> > support for the SCSI commands VERIFY, WRITE SAME(16), and WRITE
+On Mon, 15 Nov 2021 20:07:17 +0000, Vincent Fu wrote:
+> Jens, please consider this patch series that adds to the sg ioengine
+> support for the SCSI commands VERIFY, WRITE SAME(16), and WRITE
 > STREAM(16).
-> >
-> > Vincent
-> >
-> >
-> > Vincent Fu (6):
-> >   sg: add support for VERIFY command using write modes
-> >   sg: add support for WRITE SAME(16) commands with NDOB flag set
-> >   sg: improve sg_write_mode option names
-> >   sg: add support for WRITE STREAM(16) commands
-> >   sg: allow fio to open and close streams for WRITE STREAM(16) commands
-> >   docs: documentation for sg WRITE STREAM(16)
-> >
-> >  HOWTO                           |  36 ++++++-
-> >  engines/sg.c                    | 181 ++++++++++++++++++++++++++++++--
-> >  examples/sg_verify-fail.fio     |  48 +++++++++
-> >  examples/sg_verify.fio          |  57 ++++++++++
-> >  examples/sg_write_same_ndob.fio |  44 ++++++++
-> >  fio.1                           |  47 ++++++++-
-> >  6 files changed, 397 insertions(+), 16 deletions(-)  create mode
-> > 100644 examples/sg_verify-fail.fio  create mode 100644
-> > examples/sg_verify.fio create mode 100644
-> > examples/sg_write_same_ndob.fio
-> >
-> > --
-> > 2.25.1
+> 
+> Vincent
+> 
+> 
+> [...]
+
+Applied, thanks!
+
+[1/6] sg: add support for VERIFY command using write modes
+      commit: e8ab121c88d61624c0925b54013cd57c2dc171f2
+[2/6] sg: add support for WRITE SAME(16) commands with NDOB flag set
+      commit: 91e13ff509253667c11fce864693849d2cb77b67
+[3/6] sg: improve sg_write_mode option names
+      commit: eadf32608213dc2a44303fce0b417fbb95d1a0a6
+[4/6] sg: add support for WRITE STREAM(16) commands
+      commit: 9917adb5d3b9c480ac710af4bc2c9c0421c6a5df
+[5/6] sg: allow fio to open and close streams for WRITE STREAM(16) commands
+      commit: 5f647ee93b0b8ee07d6cbcef571986f8a18b1234
+[6/6] docs: documentation for sg WRITE STREAM(16)
+      commit: 71efbed61dfb157dfa7fe550f500b53f9731e1cb
+
+Best regards,
+-- 
+Jens Axboe
+
+
