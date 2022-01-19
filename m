@@ -2,112 +2,122 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16EFAC433EF
-	for <fio@archiver.kernel.org>; Wed, 19 Jan 2022 21:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8840C433F5
+	for <fio@archiver.kernel.org>; Wed, 19 Jan 2022 21:14:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245220AbiASVOQ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 19 Jan 2022 16:14:16 -0500
-Received: from mout.web.de ([212.227.15.4]:33179 "EHLO mout.web.de"
+        id S245349AbiASVOX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 19 Jan 2022 16:14:23 -0500
+Received: from mout.web.de ([212.227.15.4]:50513 "EHLO mout.web.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229564AbiASVOP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 19 Jan 2022 16:14:15 -0500
+        id S229564AbiASVOW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 19 Jan 2022 16:14:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1642626853;
-        bh=ZKAvlaMlVybRp1/mf55pq+dXbg6OVwcpuHtBpG77eQg=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=TzX/QEuEkTQxnFjz8vyCnYATxfJZXTJ1QpE1D3gQY8W1tjnA6v1vh/eaxi/b9aZXz
-         m5/34MdmXx4u2VOINgPJi9/ReVa8Q51ORgpclAXQ2l6uawrs/qpH2BLrHSBjBay1/j
-         NvsG2RzxESxs9cq/PEN/pfdIAjNkIu6sNNuEVXdY=
+        s=dbaedf251592; t=1642626861;
+        bh=eXiQHLmodAY0ZfOw+H0CxeLgwNzTwq6oM745kkwl+pY=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:In-Reply-To:References;
+        b=ePWea7g/5lxkk0uEyIDvAWsSN7ugSaQIdxPE8J4JwYY6G7HKk7iIBFCZWZaTg7AXY
+         Md3AI36w2dl7xEHd0xiF2rEYXp5yl+vqhZU2/FAwLxZKCU6npMB4zDt47/oG7Kw9rW
+         JtVucS9Vkqba5M+qFDz/dQ5UedJqmdEEupjsL5ng=
 X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
 Received: from gecko.fritz.box ([88.130.61.24]) by smtp.web.de (mrweb005
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1M1JB0-1n8dKB2LRy-00368P; Wed, 19
- Jan 2022 22:14:13 +0100
-Date:   Wed, 19 Jan 2022 21:14:04 +0000
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1M1JB0-1n8dK246Cg-0036Hs; Wed, 19
+ Jan 2022 22:14:21 +0100
+Date:   Wed, 19 Jan 2022 21:14:20 +0000
 From:   Lukas Straub <lukasstraub2@web.de>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>
 Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-Subject: [PATCH 0/8] blktrace: Add support for read_iolog_chunked and fixes
-Message-ID: <cover.1642626314.git.lukasstraub2@web.de>
+Subject: [PATCH 2/8] iolog.c: Make iolog_items_to_fetch public
+Message-ID: <81c9fbb31bbf0c487dc0ebff5eb85ca764fb14ef.1642626314.git.lukasstraub2@web.de>
+In-Reply-To: <cover.1642626314.git.lukasstraub2@web.de>
+References: <cover.1642626314.git.lukasstraub2@web.de>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/yOVvGzZZ0O+xTHBIt39upLz";
+Content-Type: multipart/signed; boundary="Sig_/I0=Kk7A4yz8LOZfYZQ4C_.H";
  protocol="application/pgp-signature"; micalg=pgp-sha256
-X-Provags-ID: V03:K1:peMPwnFtSsgYQJTnhq/uEAnDV6Lcs9KVNpoywKy6cB1s5cuKP2e
- nnazY3HpFXU2VyOxHYwdo3MJy83GsBzTP4VYMKDTRBW+4q5UaQYN7+TxSX60whyjCeW2dke
- 6uUfVTVEAGnKskPDLEbTZ1OleEggtDCOwgH20nxcO7AsTlQPrxbJQEg2kypAImXew4bP3Gn
- /LJci54bYgn4Ep431RCAw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:URQlrorlVHo=:mIhStDl12aH81rp9vjBguq
- nEaD+hBJcg6ytjFh+tuvblXwxihKGB7BihvMvgKnjEPcs1le+86xQ7PnmLcLRJqv/wh860h26
- D6dsDs7D0mqSiJ+K0mjc0WzFo83uauNfvwDlqQOQ0DqoOSsvVSorp5HtkyBDOIwKoYczIsyRB
- rk40c4vdzKXbagn4HhJ2PVUNe4AJuK9qf7ulX4Xs1J3AjXlQkiM8o9L79lrLvU+QYntX+kKHP
- CaUHs/ng20mHHsQ2UMMflEt314g25uLun8jSF2H0Kp694z2TO7TBNFA63dZqf0TWBkvW1eFfM
- gwPioVXfe8Z7XCtRo/ltjV78EF6r9eqJp0+VMZIjVvJiDVOOhKtPZubCo+sMmpOLL6e/2vyHS
- eZBdxv43If1h2XZbS5nIj2H83O4KhY+XAGAO1eO8URT0onCnokPPteK3PV1HOAJLjIAbWpIR0
- Ew6hDGvtXnXNyBDwN9jv4EyJDWD78XlYsvvc8Qev0OUrnaOg2NmsHHjeRbFDFSNiKBxvBnrO4
- 0+aYiJydOlOFt0aYRwVO3yoYv5VT5ZZ6eiU3xgsG2vVqZiz+wBBsGXxId0af6u6wbD/0s9CVq
- sJlRi2dHdFsQnFT6T0zu6uud17u4+3CM8zVwA5ykwWIWzquwljKJViYHxYArncNJ2LVeBS1y4
- mYrJ1FfF+M1+4takeuo3M7Jq6udMu57QEqQqVc9QuIHqjMlLXoN5Hv7aEx76KgGvzxgssTYRe
- xo7YPMr1K/Ii58lBbucBtMqLWGlaSIYANSWGHcbXKUuz16n3MZnCtYf8aV6KGmIh0FMxUv7Z6
- GcYT5tj7y9v0EmsOWSdGXYf0Au1fYEF2RG1WtPKfslxouFo9aPvqTI/ECRT0P+efkV6thT6P9
- DEmFc2Xh55x+Ht8yC6vj5nnDj43Z2w5Ve6M/2EOz6HeU4DWc7ItQsyt3TRXb/tafLdJjc2xXd
- N6n7P1tst4PmJZ1CnQCw6uos67dfeh87d72klvzznujGQYvG86CP/rnHKp/H9zFCHXyWccGPk
- gsOLEdWOROrZpjThFRnqZHqxwVBVqaqr4Ygr7JObV3zmQF2besVrufRlYWg+dle5Z8eUFJBG+
- H2T0WG77LHMggw=
+X-Provags-ID: V03:K1:AgC6NncmXMvTyYBBXkygUNt39fZw4cHI7IKB9eM7UBiByYgHODb
+ 5Fwx//MTQqJ+aIiEPP4v2qZtYYCDrO0+QcCyjU6PvzM0Fp920cwWQ0AFwh5UcHg8VQnP8hL
+ e24CG7rICiL7yLAyWNvskgnhKyfF9rB2cQDtJMZ++2+8qYl6e27/c44SlrqBHuZCjiFkS+R
+ LTfbgxgyqpwY4WTsHRLag==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:amTIqceGYLc=:QTJ/GL5OucqGQL2v9ukjvW
+ u9tnSb8PKSDfThcbXPL7TpeJKUY8lkt/y7hGFzYWfci4Fhm8AzioWk2ZcLWthbPKMyDyk66Nk
+ HdTY+X6B26S7VZ8cMle4E7dPrh5l4vZKX2sAB2wLvdlT0vWfbvGSi2i5Du3T0wiZA7zbDfWQW
+ lGk499HhZ7ceLNI/g6Dt6ff4zf3NhxPXE2YogLwzeR0BG7XbwpipdfvFJQPxmL0otTzubn9IA
+ pjc/4zhGiO2culbkZMX64NfBvIjuLv5RfM/fjyahRWbwgHA3pz2HVrCcfEvQDny5hGLF1CPEe
+ E5gMdVb0Uq23C6a7G6Wro49GDdUth1KhGH4S3r2qa9jEsy4Fn00PLIl3T1QaatAGGqKhm75Cw
+ 4XgvVDEo1UwA87ZhAdLifjzjILJ3USZXVERNKq/Q09FVYBNRITgK+CpZZBgcftazGsFWa72io
+ 3cBNT3zaaB/AzDLB2DdaAK8KMMi+l5PHgE0xRNolHD36A27csg4ATo85YSkG9XcidLt5xA1l/
+ qtyuxUCAl+XRrEE8tkn4oioZ1V11Hw2Yl9Mmzimo5KRVM+A8Ethmp6b+LERzFrYFxnWfBHKj/
+ muAB5xwRbW/BcXrkSSUPT+pjmz4YA5cfidDE4vXIrHMd35j6EGVgWwWp4SDl4rPa+InaGR+9h
+ N+QMvY329nOnogg8k07w/k8nyMI+vXKMfsbAaXdVa31ryf3rPcu29l1vG4MHG1j9DYMcdGR7Z
+ KC02bHGQPaQo40rM3V7CY50QqjQH6HX2GESH3AqUmNsM7UJbFbNFIMXrt8lf+54gu5vXnZ24r
+ wt57cL6omixjCrZHw58+dXbHGjKbnAmDSxb7N5jWk3eF5+cfXuDTHmhTxwDAQS9u5aaJ4azN0
+ D7ThjI5lcD/vde9N5MSlONYLK/7HKtA/puATRyz7pbrJ4W+qrVy1VoT5eIFk93OQ9UYCuFX4p
+ r5F4ei/PXRwVJ3fDeil/fmwGKZI2e0TPuNVPCoVn3qHkTkr1MBaAOAjnXP3NLIRdKwwU9qOT2
+ Si09ZFbRbjeYNDZ+VIAizXA3K6DcIFF6s9NXzKo30mvGby9pC2ozS0FwfNqV8jhJHrf73J+rg
+ ZQezs5aNKabINo=
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
---Sig_/yOVvGzZZ0O+xTHBIt39upLz
+--Sig_/I0=Kk7A4yz8LOZfYZQ4C_.H
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-Hello Everyone,
-This series adds support for read_iolog_chunked to blktrace and fixes some =
-bugs
-along the way.
+This function be needed in the next patch.
 
-Regards,
-Lukas Straub
+Signed-off-by: Lukas Straub <lukasstraub2@web.de>
+---
+ iolog.c | 2 +-
+ iolog.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-Lukas Straub (8):
-  blktrace.c: Use file stream interface instead of fifo
-  iolog.c: Make iolog_items_to_fetch public
-  blktrace.c: Add support for read_iolog_chunked
-  linux-dev-lookup.c: Put the check for replay_redirect in the beginning
-  blktrace.c: Don't hardcode direct-io
-  blktrace.c: Don't sleep indefinitely if there is a wrong timestamp
-  blktrace.c: Make thread-safe by removing local static variables
-  iolog.c: Fix memory leak for blkparse case
-
- blktrace.c               | 325 ++++++++++++++++++++-------------------
- blktrace.h               |  14 +-
- fio.h                    |   2 +
- iolog.c                  |  18 ++-
- iolog.h                  |   1 +
- oslib/linux-dev-lookup.c |  21 ++-
- 6 files changed, 203 insertions(+), 178 deletions(-)
-
+diff --git a/iolog.c b/iolog.c
+index 1aeb7a76..3d4646a8 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -355,7 +355,7 @@ void write_iolog_close(struct thread_data *td)
+ 	td->iolog_buf =3D NULL;
+ }
+=20
+-static int64_t iolog_items_to_fetch(struct thread_data *td)
++int64_t iolog_items_to_fetch(struct thread_data *td)
+ {
+ 	struct timespec now;
+ 	uint64_t elapsed;
+diff --git a/iolog.h b/iolog.h
+index 7d66b7c4..a3986309 100644
+--- a/iolog.h
++++ b/iolog.h
+@@ -254,6 +254,7 @@ extern void trim_io_piece(const struct io_u *);
+ extern void queue_io_piece(struct thread_data *, struct io_piece *);
+ extern void prune_io_piece_log(struct thread_data *);
+ extern void write_iolog_close(struct thread_data *);
++int64_t iolog_items_to_fetch(struct thread_data *td);
+ extern int iolog_compress_init(struct thread_data *, struct sk_out *);
+ extern void iolog_compress_exit(struct thread_data *);
+ extern size_t log_chunk_sizes(struct io_log *);
 --=20
 2.34.1
 
---Sig_/yOVvGzZZ0O+xTHBIt39upLz
+
+--Sig_/I0=Kk7A4yz8LOZfYZQ4C_.H
 Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEg/qxWKDZuPtyYo+kNasLKJxdslgFAmHofxwACgkQNasLKJxd
-slgbKA//QW3I8Y6XKWWFj3+IXPlcMvJQjz7ewffdlMo8b5UFXdSZNnJxr5c8l5tu
-CtbHt6I1LwJqeKKrBE4i+H9Ez/OFRZk+gGz9iPWYS5gALlqPcDVarPmlRsypVjNZ
-YLXF+l4sT/afS2UqKIhD80H/lM/jtkSNmsxV1yPMRfHehod+8oggpYMWzr8obYeQ
-bdQjczJu7yei8vY+I1ZA8S5jJqG1N5Irci8ouZgMJUOrF/4XsWsNc6ABwxm50aiE
-ez+AaqzldQJrELdXKyoDeR509g6+EcNGXw2z1RdwqmgeF3olCdBwkxoedlwSVEI5
-uqBwAIiK7Ima+m3XTgy+KmnE2Uyf6QegpoJYpo5sbQqUFE59M6wPjd8RPnUUUYl2
-LLAVEy2scSB97qfBoN+T9ZO+u8qO1LB6gClKGsracc1S2L3Vyt2e4AtO9cuynLM3
-PbMTT0cR/00DHP+nJQTo7YxUt7pTlu6oNBwvzIfHidDOVCitU4oc6btIRSkb3Kap
-ihKyQcPq0q6mXDM7mSof1yLw+WWGHmxchJ99wSR8mfxzny2gFzlra5wl60/jK3o2
-DSU+jwW2IvVxsJKvw3Fb9F9/Ur1k5XR4GE6575llFNLRLuQN7+YBEspMzj6+Fqkn
-DShHh9op3Zmat1cug/lZ8AJDpXTWMTjjMMGwZ1QoKTbhf4Lq8xk=
-=lscO
+iQIzBAEBCAAdFiEEg/qxWKDZuPtyYo+kNasLKJxdslgFAmHofywACgkQNasLKJxd
+slgVRw//WJDrfPqpoOjHTW0cI8tgctYigbGG9dJd1tg1uidLiXW/Yy79EgMlWyLa
+Ir/m4ErTgMYEn4xA8PDD9kGZyd/8GtVzC7efMKfZm9taWsylx58rQMCpTfWHYbxK
+cmldBTwN7Y3SH8LquDQ0suOw85kZVvOxxKNoT/R42YV4ZECHEyDSubbBQbzFpd88
+xJ90OyWkqLramTU3QOVd4rgicML1UrIWaF9sfGNN8eJYmVFavE24Zl/IQsvxGsSL
+Ri57biEHx0fIfOeT14Pza8Lazg6NWqBawoiTxntfaY8AmifCnketXdC3ZGgFR3c3
+HH1siGgXvknnPkoXHHUNWORCSLQxdZWd0eLg6uCio3Plz93taw8e0eR2wHFpXxXD
+xqbxfWM0GdhshvLicFUwu8gtW68ICxZK2z/Eqq/4jxPhh4LIeecJ7aMXWEOWplv7
+fkf7c+YliJhQeod+Pk2HzwWonKju8IMzsNpV9WbMj4SHo4zqLNhLFv30WItKAmHw
+6oXyRZ5M+dS5K59bKtWhxV9laszv87UD/y1khxO7qusfblqLdyDa1CzmoVqno4bz
+g4VFJTolxpeXpRgpCDqdiMcXmcYxuzGoUSfInkfJiUUBL60Sg7wWADDUAJDRJ4la
+AnzJbBdJTVrHuPRzhnofMTUOfZrbxP1sDObH/KB56pgHDNUiEu8=
+=D0N6
 -----END PGP SIGNATURE-----
 
---Sig_/yOVvGzZZ0O+xTHBIt39upLz--
+--Sig_/I0=Kk7A4yz8LOZfYZQ4C_.H--
