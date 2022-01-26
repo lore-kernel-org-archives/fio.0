@@ -2,78 +2,81 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD90AC28CF5
-	for <fio@archiver.kernel.org>; Wed, 26 Jan 2022 14:49:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F5F8C2BA4C
+	for <fio@archiver.kernel.org>; Wed, 26 Jan 2022 20:13:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235625AbiAZOtt (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 26 Jan 2022 09:49:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:24921 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235611AbiAZOts (ORCPT
-        <rfc822;fio@vger.kernel.org>); Wed, 26 Jan 2022 09:49:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643208588;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Fs/2RtJJ7sW2PEcobARhyu03+XGUpy6ASTY4S7THB5o=;
-        b=Rkp+kaoB9E27xEaB/de/RpEEfG094cBUTWWXgIjbOHnaf+gvZBV/yk4fsAc+opSI1IEIg5
-        b8yylIDon2HbBzgR7knNdwpHbV8ihij8WRr6dMZg5XfyhLURWCaREpRrTy3IdcztrcOQep
-        biujoCm8P+FnVRmtVEgIDmiCF+vz64U=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-314-wlf6Ed97NQuXxVY5UMCKYw-1; Wed, 26 Jan 2022 09:49:46 -0500
-X-MC-Unique: wlf6Ed97NQuXxVY5UMCKYw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 160901853028;
-        Wed, 26 Jan 2022 14:49:46 +0000 (UTC)
-Received: from [127.0.0.1] (ovpn04.gateway.prod.ext.rdu2.redhat.com [10.11.146.4])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C61DD6F199;
-        Wed, 26 Jan 2022 14:49:45 +0000 (UTC)
-Message-ID: <b215d78b-55e5-a5a7-5669-c4d9aae28ae0@redhat.com>
-Date:   Wed, 26 Jan 2022 08:49:45 -0600
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.5.1
-Content-Language: en-US
-From:   Eric Sandeen <esandeen@redhat.com>
-To:     fio <fio@vger.kernel.org>
-Cc:     Jens Axboe <axboe@kernel.dk>
-Reply-To: sandeen@redhat.com
+        id S230077AbiAZUNQ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 26 Jan 2022 15:13:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229849AbiAZUNP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 26 Jan 2022 15:13:15 -0500
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 928EFC06161C
+        for <fio@vger.kernel.org>; Wed, 26 Jan 2022 12:13:15 -0800 (PST)
+Received: by mail-io1-xd2a.google.com with SMTP id w7so1012907ioj.5
+        for <fio@vger.kernel.org>; Wed, 26 Jan 2022 12:13:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=Y7s4BAH18YIak//3LjiUdztqARZWa1oXLDOag2z4iHM=;
+        b=ZUJA0RRCYzCMWI4eHQB41ilqbP406SHvYjLYiHAgUSDGdCfXxsGh0LtsJ5AKboHzcF
+         cgIyYurhZo9IiEYa9h5ZdIE9JSZ8u07ZPIqzf6EZvloI7fyVnHuG+WntOd14WxT8ihJW
+         aE4l4UgAiSpOYWTzCAR7a5qx8+dtMsGzmSaoXxLEKAiERxrlK7nv1xHdPFw6JkHXQ7V9
+         BjeZuQm7xPc15lXmINKMfL7zwfhIRkqrErvLDt+Ty6+gYIgKaR895vG02Z1WfDilVWl6
+         UNn4KqhK798Z6meLrC2hzH3OEdSETrzXC1KIuUG6iWkfV/+ZlfeauZRqS8FFAJ9VpQIt
+         lR9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=Y7s4BAH18YIak//3LjiUdztqARZWa1oXLDOag2z4iHM=;
+        b=AGxd0/O3HlPs8nlOUa+SipkvGZZsLcrp8GZUUCxKO6nuMKJQ3SmIeBcGu4XB3AVjzM
+         NdBHtzwiTZLJn8EOa2qxlJCnhPRKpcQQpcd3PsXBWakBCFB1evuq7+DCdxl1KW8bea/w
+         aRpmnEjC3zP5qgQVGJep7jDVmtqbcjtk8d2ZteuukUmQBKdBw5ycg2XretuL5boOSW2t
+         2In2UjcP0CSxtpf4OY66N2M4Y2gqNUTJgiVWyKMBSG1Tp6NGO+FxtCXzgXCku3V9O2aQ
+         Pe2feVX5Nc0qBt8nPAT6dCMZ4rOD1FB6vqYPdKIeU+Yd6RuA20g7sYuklHI1kh8A3/yW
+         3fAA==
+X-Gm-Message-State: AOAM533gQDDlw+YJ4At8i8low4Rxvubqanh3ibDf7a+TF83IvENOU+pr
+        HPUO2GhBZu5s11zN00P5E8o1xFiXCxH2/Q==
+X-Google-Smtp-Source: ABdhPJxQzeL59qepn70mDFixQkzVNDYDcu/8X08Of+kfeIvKS0oZTB6v6lIO3Xt829ZvX5Ybg6PNiw==
+X-Received: by 2002:a05:6638:687:: with SMTP id i7mr186497jab.180.1643227994585;
+        Wed, 26 Jan 2022 12:13:14 -0800 (PST)
+Received: from [192.168.1.30] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id p11sm11239545iov.38.2022.01.26.12.13.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 26 Jan 2022 12:13:14 -0800 (PST)
+Subject: Re: [PATCH 0/2] fio: a couple build fixes
+To:     Eric Sandeen <esandeen@redhat.com>, fio <fio@vger.kernel.org>
 References: <7b124b69-1b3e-bc2b-e251-2b1ef165ef89@redhat.com>
- <0c2fadc9-ab31-d6cb-9209-d2b4030febde@redhat.com>
-Subject: [PATCH 2/2 V2] fio: use LDFLAGS when linking dynamic engines
-In-Reply-To: <0c2fadc9-ab31-d6cb-9209-d2b4030febde@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <a84a4015-f53c-5a99-a0f5-e7dd65a59dcc@kernel.dk>
+Date:   Wed, 26 Jan 2022 13:13:13 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <7b124b69-1b3e-bc2b-e251-2b1ef165ef89@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Without this, locally defined LDFLAGS won't be applied when
-linking the dynamically loaded IO engines.
+On 1/25/22 11:55 AM, Eric Sandeen wrote:
+> Maybe it's just me, but t/io_uring.c doesn't link for me without -laio when CONFIG_LIBAIO
+> is set.
+> 
+> I also got a report that dynamic engines aren't properly picking up LDFLAGS set by the
+> build system (in this case, -Wl,-z,now).
+> 
+> So these two patches try to resolve those issues.
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
----
+Applied, thanks Eric. On the patches, looks like format=flowed is set, which
+may explain why it ends up being borken.
 
-V2: Seems like V1 inexplicably got whitespace damaged, sorry,
-let's try again :/
-
-diff --git a/Makefile b/Makefile
-index 5d17bca..00e7953 100644
-@@ -294,7 +295,7 @@ define engine_template =
-  $(1)_OBJS := $$($(1)_SRCS:.c=.o)
-  $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
-  engines/fio-$(1).so: $$($(1)_OBJS)
--	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 -o $$@ $$< $$($(1)_LIBS)
-+	$$(QUIET_LINK)$(CC) $(DYNAMIC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 -o $$@ $$< $$($(1)_LIBS)
-  ENGS_OBJS += engines/fio-$(1).so
-  endef
-  else # !CONFIG_DYNAMIC_ENGINES
+-- 
+Jens Axboe
 
