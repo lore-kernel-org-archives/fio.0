@@ -2,114 +2,251 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07C73C433EF
-	for <fio@archiver.kernel.org>; Wed, 26 Jan 2022 23:41:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 233A6C433EF
+	for <fio@archiver.kernel.org>; Thu, 27 Jan 2022 13:00:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbiAZXln (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 26 Jan 2022 18:41:43 -0500
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:20571 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229942AbiAZXlm (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 26 Jan 2022 18:41:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1643240503; x=1674776503;
-  h=message-id:date:mime-version:subject:to:references:from:
-   in-reply-to:content-transfer-encoding;
-  bh=BhtJUJi30NwylHHKV0Q+R3B+Nbvw32gCSHTmqJqHXRA=;
-  b=eypvt44e3Oskf0WlCxIEZiVJfG+heKacpoLcTBxwFOxRVnJ/8hd93Za1
-   IbGol6g78Ud4SWkDsvIVWTvOV5V1eVyl7RwhayrpHVBwY31lBFr77mR4Z
-   +/qJwgpgM7YfZD4Zu/C6kyALJbRFndT5Ayy29kLflDmWJDHIzXybEQCf3
-   ESlQkpLUGwXjKRDUOrhlmmow0LY0hI8bsfOdYpwpdI9SWrdaSddaSsmMh
-   ijg2TvWj8Us4wc8siNkYrFb2x5EXIR20jm0IW0oTEGEaMRWgp+DlTVUC5
-   glUMcD80AAn7gY0xSCIWT50pwp5zVI4dMWV51Q71m4Vt9sqmr4RwHqNnJ
-   A==;
-X-IronPort-AV: E=Sophos;i="5.88,319,1635177600"; 
-   d="scan'208";a="192465705"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Jan 2022 07:41:42 +0800
-IronPort-SDR: SaadIfjAU8Ddles5gC+DZNpii0WibU34mX/9+z0Tw2KjUfTXIWmYRbugT0DOr6LjGeiBqWphp6
- rQEUnO3KhyZsEYtRKZx9jfO2D46kD9OjhPmtoX283FFAUSvEgItsYQH/9qHluzDDvKjS3DyitK
- CjBV+u/YU2CaaDFTwgJibG7dvcK1UMMaq3xPHM8qUOyiaW8CV309fHbbX9gk2FCalTSFZyNPH9
- P+C3NPJQmbcqmbWizS3uGbdK4W2IAYyhtpdBvZJm+SKFJfnTPae5dFbI+Z9nQsjIzWtmQEYRDh
- k3//WqYkCVYidMGNcgMMOe9g
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2022 15:15:01 -0800
-IronPort-SDR: pgP9Nruggt8UagsPlDcgpr34y91pI1isso593T3mXTvvrbzDkZ58Eo1dx2pTeTHujYi6cwH44L
- UuniGV7xr3Kh37dBsOnDgvFVMDL3pJP9tqb4Rhlp6/7aJeWuDfAZm8vqnL4Yc1Fw74dRzfR5iE
- SsqmmiXO8UeSesRErcRD+ZXdmwvT5w87wqd+YJPHzrAxOZShr3a/zNTubkOnt3IXDPmvdrmBsw
- 6va3gnc0Gs1W/s/KgrcNj0rM/eU3VlGnuvc3/Ql3GNPXp/GuBLHYjoEisP7X4lxvhfCcoXQzdP
- Ozo=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2022 15:41:43 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4JkgGt1DD6z1Rwrw
-        for <fio@vger.kernel.org>; Wed, 26 Jan 2022 15:41:42 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1643240501; x=1645832502; bh=BhtJUJi30NwylHHKV0Q+R3B+Nbvw32gCSHT
-        mqJqHXRA=; b=nkMP0UC6rHwSTTncvNII8DEarorQYD025zXoagFl5J6+DgXrrtL
-        6WM/TMhBtEv8MNmOuIbzSOTM4347JwVHPu6W6VDDHTVeC0AbSr6/6AXOGh78Ci8c
-        YK6dnwa8n7iKV9lUM83WpuLn/vR5Cm4aRamsl42Sf8/0C3gcFnvVM2ccY6QQZWbz
-        2RTo6OT7oXNPGDwbISIulHS+DKhK3Kv4tAkD6XMHzMTO5xIgwPb+5TV50h4Y4Xg4
-        pMvL3B7RMoFllwdJet6B6CuxoWwx5KOtfqz4ahfSGWffVW0k0pcH97jQv+lvzAut
-        sWOFF+qcQpzxmaCyv2G4gbWPR1/AdzKt67Q==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 9ExymwrTxtng for <fio@vger.kernel.org>;
-        Wed, 26 Jan 2022 15:41:41 -0800 (PST)
-Received: from [10.225.54.48] (unknown [10.225.54.48])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4JkgGs3V0Dz1RvlN;
-        Wed, 26 Jan 2022 15:41:41 -0800 (PST)
-Message-ID: <83721719-aeb7-2a64-2cd2-ccc9b5b2113e@opensource.wdc.com>
-Date:   Thu, 27 Jan 2022 08:41:39 +0900
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.5.1
-Subject: Re: A fio job that just waits?
-Content-Language: en-US
-To:     Nick Neumann <nick@pcpartpicker.com>, fio@vger.kernel.org
-References: <CADqNVTpfbX2WiuzUxap5iOEaBJV0H7nup7b78acd9BAin4DAfA@mail.gmail.com>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital
-In-Reply-To: <CADqNVTpfbX2WiuzUxap5iOEaBJV0H7nup7b78acd9BAin4DAfA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        id S241421AbiA0NAH (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 27 Jan 2022 08:00:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241435AbiA0NAH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Jan 2022 08:00:07 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9BFDC061714
+        for <fio@vger.kernel.org>; Thu, 27 Jan 2022 05:00:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=E+J6s8Dlo9Oftq34dm2fpxshByOnTPl6vGT7Na+tHxo=; b=QzR+66UnnsRuv7DGEddBgVCYDN
+        gEedhmLh3MlZfAB8MovA0PAxjQyAlVnQEfkBV+SI9/Ltc3v7cV9T0w0YrbxsE8lrp/C7i2DKo3ape
+        65g6NyXEhI/OWnEpZZa7wMEx+tmbFiv6LCiOt/NMNLGnR8Ox0E8j1x1nNQ8bSWfWm7oPhwQ/MGt32
+        zZLACPxGhsZvHs+qKndgmv91kN1JAPHwa/xFACbcCdIjozxB+Xg+CdPBBth35hypTesRyXVu6VaHi
+        mDRK3Xuoexm57leybYjwJaO5BPhkz5mUhGihSDCjVTPn3MTC1F1FxUFhYMvPlNiMyjLW4OBYIUk+y
+        NCXXmWdQ==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nD4Ng-005F7Z-Q5
+        for fio@vger.kernel.org; Thu, 27 Jan 2022 13:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 72D071BC0130; Thu, 27 Jan 2022 06:00:02 -0700 (MST)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220127130002.72D071BC0130@kernel.dk>
+Date:   Thu, 27 Jan 2022 06:00:02 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 2022/01/27 8:08, Nick Neumann wrote:
-> Is there a clean way to create a fio job that just waits for a fixed
-> time period? I'm fairly new to fio, and want a delay between two
-> consecutive jobs. I use "wait_for" to serialize as needed, and
-> expected "startdelay" to allow me to put the desired delay between the
-> two. But it looks like the startdelay for a job begins when fio starts
-> and not when the job referenced in a "wait_for" finishes.
+The following changes since commit 2f0b54419a6ab039c677e41008391b8c53ae2e6b:
 
-The job that needs to be started after a delay should have both wait_for and
-startdelay options. That should work.
+  Merge branch 'master' of https://github.com/ben-ihelputech/fio (2022-01-21 10:46:26 -0700)
 
-> 
-> I can play games with a job with a very low bandwidth limit (e.g.
-> 1B/s) and "runtime" and "time_based", but it feels hacky.
-> 
-> Am I thinking about how to get a delay between two jobs wrong? Is
-> there a better way? I realize I could just run fio multiple times with
-> command line delays between the runs, but I'd like the results of the
-> runs to share the same time basis and output/log files.
-> 
-> Thanks,
-> Nick
+are available in the Git repository at:
 
+  git://git.kernel.dk/fio.git master
 
--- 
-Damien Le Moal
-Western Digital Research
+for you to fetch changes up to 2b3d4a6a924e0aa82654d3b96fb134085af7a98a:
+
+  fio: use LDFLAGS when linking dynamic engines (2022-01-26 13:12:14 -0700)
+
+----------------------------------------------------------------
+Eric Sandeen (2):
+      t/io_uring: link with libaio when necessary
+      fio: use LDFLAGS when linking dynamic engines
+
+Jens Axboe (1):
+      Merge branch 'rpma-add-support-for-File-System-DAX' of https://github.com/ldorau/fio
+
+Lukasz Dorau (1):
+      rpma: RPMA engine requires librpma>=v0.10.0 with rpma_mr_advise()
+
+Wang, Long (1):
+      rpma: add support for File System DAX
+
+ Makefile              |  3 ++-
+ configure             |  9 ++++-----
+ engines/librpma_fio.c | 44 +++++++++++++++++++++++++++++++++-----------
+ engines/librpma_fio.h |  2 +-
+ 4 files changed, 40 insertions(+), 18 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/Makefile b/Makefile
+index 5d17bcab..00e79539 100644
+--- a/Makefile
++++ b/Makefile
+@@ -99,6 +99,7 @@ endif
+ ifdef CONFIG_LIBAIO
+   libaio_SRCS = engines/libaio.c
+   cmdprio_SRCS = engines/cmdprio.c
++  LIBS += -laio
+   libaio_LIBS = -laio
+   ENGINES += libaio
+ endif
+@@ -294,7 +295,7 @@ define engine_template =
+ $(1)_OBJS := $$($(1)_SRCS:.c=.o)
+ $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
+ engines/fio-$(1).so: $$($(1)_OBJS)
+-	$$(QUIET_LINK)$(CC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 -o $$@ $$< $$($(1)_LIBS)
++	$$(QUIET_LINK)$(CC) $(DYNAMIC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 -o $$@ $$< $$($(1)_LIBS)
+ ENGS_OBJS += engines/fio-$(1).so
+ endef
+ else # !CONFIG_DYNAMIC_ENGINES
+diff --git a/configure b/configure
+index 84ccce04..0efde7d6 100755
+--- a/configure
++++ b/configure
+@@ -955,17 +955,16 @@ print_config "rdmacm" "$rdmacm"
+ 
+ ##########################################
+ # librpma probe
++# The librpma engine requires librpma>=v0.10.0 with rpma_mr_advise().
+ if test "$librpma" != "yes" ; then
+   librpma="no"
+ fi
+ cat > $TMPC << EOF
+-#include <stdio.h>
+ #include <librpma.h>
+-int main(int argc, char **argv)
++int main(void)
+ {
+-  enum rpma_conn_event event = RPMA_CONN_REJECTED;
+-  (void) event; /* unused */
+-  rpma_log_set_threshold(RPMA_LOG_THRESHOLD, RPMA_LOG_LEVEL_INFO);
++  void *ptr = rpma_mr_advise;
++  (void) ptr; /* unused */
+   return 0;
+ }
+ EOF
+diff --git a/engines/librpma_fio.c b/engines/librpma_fio.c
+index 3d605ed6..9d6ebf38 100644
+--- a/engines/librpma_fio.c
++++ b/engines/librpma_fio.c
+@@ -108,7 +108,7 @@ char *librpma_fio_allocate_dram(struct thread_data *td, size_t size,
+ 	return mem_ptr;
+ }
+ 
+-char *librpma_fio_allocate_pmem(struct thread_data *td, const char *filename,
++char *librpma_fio_allocate_pmem(struct thread_data *td, struct fio_file *f,
+ 		size_t size, struct librpma_fio_mem *mem)
+ {
+ 	size_t size_mmap = 0;
+@@ -122,18 +122,24 @@ char *librpma_fio_allocate_pmem(struct thread_data *td, const char *filename,
+ 		return NULL;
+ 	}
+ 
+-	ws_offset = (td->thread_number - 1) * size;
++	if (f->filetype == FIO_TYPE_CHAR) {
++		/* Each thread uses a separate offset within DeviceDAX. */
++		ws_offset = (td->thread_number - 1) * size;
++	} else {
++		/* Each thread uses a separate FileSystemDAX file. No offset is needed. */
++		ws_offset = 0;
++	}
+ 
+-	if (!filename) {
++	if (!f->file_name) {
+ 		log_err("fio: filename is not set\n");
+ 		return NULL;
+ 	}
+ 
+ 	/* map the file */
+-	mem_ptr = pmem_map_file(filename, 0 /* len */, 0 /* flags */,
++	mem_ptr = pmem_map_file(f->file_name, 0 /* len */, 0 /* flags */,
+ 			0 /* mode */, &size_mmap, &is_pmem);
+ 	if (mem_ptr == NULL) {
+-		log_err("fio: pmem_map_file(%s) failed\n", filename);
++		log_err("fio: pmem_map_file(%s) failed\n", f->file_name);
+ 		/* pmem_map_file() sets errno on failure */
+ 		td_verror(td, errno, "pmem_map_file");
+ 		return NULL;
+@@ -142,7 +148,7 @@ char *librpma_fio_allocate_pmem(struct thread_data *td, const char *filename,
+ 	/* pmem is expected */
+ 	if (!is_pmem) {
+ 		log_err("fio: %s is not located in persistent memory\n",
+-			filename);
++			f->file_name);
+ 		goto err_unmap;
+ 	}
+ 
+@@ -150,12 +156,12 @@ char *librpma_fio_allocate_pmem(struct thread_data *td, const char *filename,
+ 	if (size_mmap < ws_offset + size) {
+ 		log_err(
+ 			"fio: %s is too small to handle so many threads (%zu < %zu)\n",
+-			filename, size_mmap, ws_offset + size);
++			f->file_name, size_mmap, ws_offset + size);
+ 		goto err_unmap;
+ 	}
+ 
+ 	log_info("fio: size of memory mapped from the file %s: %zu\n",
+-		filename, size_mmap);
++		f->file_name, size_mmap);
+ 
+ 	mem->mem_ptr = mem_ptr;
+ 	mem->size_mmap = size_mmap;
+@@ -893,6 +899,7 @@ int librpma_fio_server_open_file(struct thread_data *td, struct fio_file *f,
+ 	size_t mem_size = td->o.size;
+ 	size_t mr_desc_size;
+ 	void *ws_ptr;
++	bool is_dram;
+ 	int usage_mem_type;
+ 	int ret;
+ 
+@@ -910,14 +917,14 @@ int librpma_fio_server_open_file(struct thread_data *td, struct fio_file *f,
+ 		return -1;
+ 	}
+ 
+-	if (strcmp(f->file_name, "malloc") == 0) {
++	is_dram = !strcmp(f->file_name, "malloc");
++	if (is_dram) {
+ 		/* allocation from DRAM using posix_memalign() */
+ 		ws_ptr = librpma_fio_allocate_dram(td, mem_size, &csd->mem);
+ 		usage_mem_type = RPMA_MR_USAGE_FLUSH_TYPE_VISIBILITY;
+ 	} else {
+ 		/* allocation from PMEM using pmem_map_file() */
+-		ws_ptr = librpma_fio_allocate_pmem(td, f->file_name,
+-				mem_size, &csd->mem);
++		ws_ptr = librpma_fio_allocate_pmem(td, f, mem_size, &csd->mem);
+ 		usage_mem_type = RPMA_MR_USAGE_FLUSH_TYPE_PERSISTENT;
+ 	}
+ 
+@@ -934,6 +941,21 @@ int librpma_fio_server_open_file(struct thread_data *td, struct fio_file *f,
+ 		goto err_free;
+ 	}
+ 
++	if (!is_dram && f->filetype == FIO_TYPE_FILE) {
++		ret = rpma_mr_advise(mr, 0, mem_size,
++				IBV_ADVISE_MR_ADVICE_PREFETCH_WRITE,
++				IBV_ADVISE_MR_FLAG_FLUSH);
++		if (ret) {
++			librpma_td_verror(td, ret, "rpma_mr_advise");
++			/* an invalid argument is an error */
++			if (ret == RPMA_E_INVAL)
++				goto err_mr_dereg;
++
++			/* log_err used instead of log_info to avoid corruption of the JSON output */
++			log_err("Note: having rpma_mr_advise(3) failed because of RPMA_E_NOSUPP or RPMA_E_PROVIDER may come with a performance penalty, but it is not a blocker for running the benchmark.\n");
++		}
++	}
++
+ 	/* get size of the memory region's descriptor */
+ 	if ((ret = rpma_mr_get_descriptor_size(mr, &mr_desc_size))) {
+ 		librpma_td_verror(td, ret, "rpma_mr_get_descriptor_size");
+diff --git a/engines/librpma_fio.h b/engines/librpma_fio.h
+index fb89d99d..2c507e9c 100644
+--- a/engines/librpma_fio.h
++++ b/engines/librpma_fio.h
+@@ -77,7 +77,7 @@ struct librpma_fio_mem {
+ char *librpma_fio_allocate_dram(struct thread_data *td, size_t size,
+ 		struct librpma_fio_mem *mem);
+ 
+-char *librpma_fio_allocate_pmem(struct thread_data *td, const char *filename,
++char *librpma_fio_allocate_pmem(struct thread_data *td, struct fio_file *f,
+ 		size_t size, struct librpma_fio_mem *mem);
+ 
+ void librpma_fio_free(struct librpma_fio_mem *mem);
