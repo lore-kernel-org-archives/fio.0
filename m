@@ -2,83 +2,102 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E3FC433F5
-	for <fio@archiver.kernel.org>; Fri, 28 Jan 2022 21:49:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1554C433F5
+	for <fio@archiver.kernel.org>; Fri, 28 Jan 2022 23:09:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351645AbiA1VtX (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 28 Jan 2022 16:49:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59644 "EHLO
+        id S245608AbiA1XJh (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 28 Jan 2022 18:09:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229608AbiA1VtW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Jan 2022 16:49:22 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A98C061714
-        for <fio@vger.kernel.org>; Fri, 28 Jan 2022 13:49:22 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id d5so7662795pjk.5
-        for <fio@vger.kernel.org>; Fri, 28 Jan 2022 13:49:22 -0800 (PST)
+        with ESMTP id S243573AbiA1XJh (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 28 Jan 2022 18:09:37 -0500
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34172C061714
+        for <fio@vger.kernel.org>; Fri, 28 Jan 2022 15:09:37 -0800 (PST)
+Received: by mail-qt1-x835.google.com with SMTP id b5so6515886qtq.11
+        for <fio@vger.kernel.org>; Fri, 28 Jan 2022 15:09:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=gPtMpV6GtCpNMRLa1nTgfgtM1XqksQOPuNvQQ0EYj4I=;
-        b=Lzmiz89/fZa6PhlHQ1/hq30Ab7CkjKvoTKuFmjvv5XbAijqunSEHCuTHa2Ml/z1gAd
-         6Tv5VPr7f+uuFKVCtOGLPNdq/cfFX0uwN+V3l2O2IFak0ZE8Ciwd8aSFmJAk74Xhsvvs
-         oey3lu+Zl/M3NwY3UnU9IcxXzJ0BjuuPRefQxxHoVyfSKpqVS/4mWZpfKCG9/4RjurzA
-         V+ta9u6Jb1xGF2J4nT0qeIZY3T/tYB23RoXzAp4hDTV+aAmsXzWzMH57i6rCiX8akcnw
-         5q7Ikq0NHUP6D/A42VwbKPBWd4j6+Nf/yxfoMtzQwJ8CAlbbwoQHaIMWaq5WbPDtEqov
-         xFdw==
+        d=pcpartpicker.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=29oTknzxjm/zbcKzYVkhlKUGhhcAuCUnDcTnKdQMMKI=;
+        b=pJLY4PLHC/5NQ5Dv1HGbqIbv4XjuKbHdgkNUzngtaRtdkJVspoiipuToDWuh0H52/X
+         PsOPB4KpbqvrBC3FmRxeYp9f+/Y52kp6Gly5pnH7s8XhJZNuiFlYLMDitt89sHA/fUVT
+         8CM9iZnUVniwMwdsTwWuOkjMAkHh1z6lQopEBK0Yt9XHiHwBN3oWlNjk7cl6X7K/qi/6
+         lK4LTMjU04efafKk7+X9NIq+15cggjQBSMhRvFucRfGaLG/CeBwWimJwYy642pFRP/A7
+         NggicwyiKX/oCYuYNzW/FYMKJJYV0ZnuGQ2NbdNCtqzFRwkyWW1uKp/3geKLVLjC3+hA
+         5VwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=gPtMpV6GtCpNMRLa1nTgfgtM1XqksQOPuNvQQ0EYj4I=;
-        b=N8IGf2fh5xrJ+E+smf+CkD1BUfdLiiOlsPuT7UhmBl13XTbd6EINL6H1Quzl94Sbyt
-         vvimey7/hx/mf0pp2Wy9+hXnUPRU8cM7xT/IHsb7vXwkdWil0TKmUP/67HSWAb38mV+d
-         m0jD01A25hqKoPAdqS93sVrFsxJL/kooXLDXB/iJLkI9GxsbcXshG8DiVDiPWsCyvLUo
-         5c/kXIAV+UNcjcd3y8mt0C+L385s8ITmuPdcNK4u8O3YaCJairLdHk5sEapuClECzf8E
-         TOErLYLxttgViQLXCCvTtlv2NXjbiqXZKsJw6KwPlZBQC51RSDp2UJCvtnbj3nUYf/BJ
-         UnvA==
-X-Gm-Message-State: AOAM533bXUvURPbWf+oXV+D63uWbLu76KgieTlNVculvYQ5Prf8jPvAy
-        4fVOCrWptkecERwDu9bZ4LytJdSviUSQnQ==
-X-Google-Smtp-Source: ABdhPJz8G/gVvLL/b/3rOexdo9r38+xxQ8VIwNC3QKXRimCU1SR3sdk2de8/9Pqe5Vqt41mBPw9v+A==
-X-Received: by 2002:a17:902:b40b:: with SMTP id x11mr5975901plr.75.1643406562045;
-        Fri, 28 Jan 2022 13:49:22 -0800 (PST)
-Received: from [192.168.1.116] ([66.219.217.159])
-        by smtp.gmail.com with ESMTPSA id x17sm10126061pfa.105.2022.01.28.13.49.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Jan 2022 13:49:21 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     fio@vger.kernel.org, Vincent Fu <vincent.fu@samsung.com>
-Cc:     Professor Pro <annivation@gmail.com>
-In-Reply-To: <20220128214611.165312-1-vincent.fu@samsung.com>
-References: <CGME20220128214648uscas1p1093b2602603486134890a51b38270e45@uscas1p1.samsung.com> <20220128214611.165312-1-vincent.fu@samsung.com>
-Subject: Re: [PATCH] Makefile: build t/fio-dedupe only if zlib support is found
-Message-Id: <164340656149.379855.17440986206155843998.b4-ty@kernel.dk>
-Date:   Fri, 28 Jan 2022 14:49:21 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=29oTknzxjm/zbcKzYVkhlKUGhhcAuCUnDcTnKdQMMKI=;
+        b=Ymb9LUmh4ATvDdeoSq2R1/moUm/in2lcBdiurjYubuaT3uHeceg8Wd32sFL2HylOSf
+         d6L5kyx7ON3J0ho+uoRPaMmI7ziVddfpseFNs6Q1UDVjVkezekHVcCew0asWRIdeJ0TH
+         ZguJFLOR26PevM8VYYt9cH/yRjJFdM49MWT3crVp9ULiFNlmZrPVMx28ohyhALl7JCtX
+         y00widywmUhAHtdhFw+HkQT4G1XcpI7hIR1o2UDVO8SdhM0Jstu8A0S/P/Ij6HemtL58
+         9acksouwRtYe1XTEXzjdeLmDQHPkc572GgWYsp34mIgeE2EuUYyzkix6SU5dreos/Hu+
+         NMkQ==
+X-Gm-Message-State: AOAM533+OsNqbTNBaSAh0ezSdr//6qVkF9rIOQXwtKlZ4aSrrM1NRm+m
+        jjeUY10F7K8rLjQGmZC+HLfL/JkSxBc42jDQe67OSQ==
+X-Google-Smtp-Source: ABdhPJzBFpkzpf3t66+TgV9uzIVTAQCYykDQmRDoLOnaQLnRDr4Ea2tH0d1C2GkpYTVcYD3+3pF/Rv4H+AMayPMFVfg=
+X-Received: by 2002:ac8:7f09:: with SMTP id f9mr3055550qtk.143.1643411375958;
+ Fri, 28 Jan 2022 15:09:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+References: <CADqNVTpfbX2WiuzUxap5iOEaBJV0H7nup7b78acd9BAin4DAfA@mail.gmail.com>
+ <5f2cbacd-16dc-bc98-3bcb-24a24f160476@criteo.com> <CADqNVTpO8MeB0A_Xa_rTkCXmYNr-nKAq8kcW6pbMXjxy0T0igA@mail.gmail.com>
+In-Reply-To: <CADqNVTpO8MeB0A_Xa_rTkCXmYNr-nKAq8kcW6pbMXjxy0T0igA@mail.gmail.com>
+From:   Nick Neumann <nick@pcpartpicker.com>
+Date:   Fri, 28 Jan 2022 17:09:23 -0600
+Message-ID: <CADqNVTo=dXoFtnR0x-NnB4ui-J=r3fbh08OnJmAkeZg5Sd9heQ@mail.gmail.com>
+Subject: Re: A fio job that just waits?
+To:     Erwan Velu <e.velu@criteo.com>
+Cc:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, 28 Jan 2022 21:46:37 +0000, Vincent Fu wrote:
-> df284fbdc23974c931865a8ddb7d171606b3c778 added zlib support as a
-> requirement for building fio-dedupe.
-> 
-> The current patch changes the Makefile to avoid trying to build
-> fio-dedupe when zlib support is not present.
-> 
-> 
-> [...]
+On Fri, Jan 28, 2022 at 11:11 AM Nick Neumann <nick@pcpartpicker.com> wrote:
+> Oooh, that looks really nice, and so flexible too. I will definitely
+> give it a try. On linux I'm running ubuntu 20 so it's an older version
+> of fio by default, but I can definitely deal with that. I'm also
+> running fio on windows too though, so unfortunately it doesn't help
+> there yet.
+>
+> Thanks very much for pointing me to this.
 
-Applied, thanks!
+Your pointer to the exec engine got me to look more carefully at the
+other engines. While not nearly as extensible or pure, there is the
+"cpuio" ioengine. Setting its cpuload to 1 and making a time_based job
+with desired runtime seems to work pretty well. I was hopeful it would
+work on windows as well. While a cpuio task runs fine on windows,
+there is something wrong when you try to run a task after it. For
+example, running this:
 
-[1/1] Makefile: build t/fio-dedupe only if zlib support is found
-      commit: dd75d6d0d4121ab9ca6ca571fbc1b2bf7fe89dad
+time sudo fio --ioengine=libaio --direct=1 --filename=/dev/nvme1n1
+--rw=write --iodepth=16 --bs=128k --name=job1 --size=15GB
+--runtime=10s --time_based --name=job2 --ioengine=cpuio --cpuload=1
+--runtime=5s --time_based --wait_for=job1 --name=job3 --size=15GB
+--runtime=10s --time_based --wait_for=job2
 
-Best regards,
--- 
-Jens Axboe
+does exactly what I expect on linux. 10 seconds of write for job 1,
+then 5 seconds of idle for job 2, then 10 seconds of write for job 3.
+Total runtime 25 seconds. But the equivalent on windows (just changing
+the global ioengine and filename):
 
+.\fio.exe --thread --ioengine=windowsaio
+--filename='\\.\PhysicalDrive1' --rw=write --iodepth=16 --bs=128k
+--name=job1 --size=15GB --runtime=10s --time_based --name=job2
+--ioengine=null --size=1GB --runtime=5s --time_based --wait_for=job1
+--name=job3 --size=15GB --runtime=10s --time_based --wait_for=job2
 
+finishes and never even starts job3. Total runtime 15 seconds.
+
+It seems to be something with the cpuio option, because changing it to
+the null engine with --size=1GB gives the expected idle delay (but
+pollutes logs/stats with job2 which doesn't really write).
+
+Also, just examining the code in backend.c, it indeed looks like
+startdelay is evaluated based on time since fio began, not since the
+job itself became eligible to run due to a wait_for finishing..
