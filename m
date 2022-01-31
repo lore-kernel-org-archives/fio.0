@@ -2,67 +2,67 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8FCBC433EF
-	for <fio@archiver.kernel.org>; Mon, 31 Jan 2022 21:13:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67CEBC433FE
+	for <fio@archiver.kernel.org>; Mon, 31 Jan 2022 21:13:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232184AbiAaVNF (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 31 Jan 2022 16:13:05 -0500
+        id S245263AbiAaVNG (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 31 Jan 2022 16:13:06 -0500
 Received: from esa6.hgst.iphmx.com ([216.71.154.45]:6676 "EHLO
         esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245263AbiAaVNE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 31 Jan 2022 16:13:04 -0500
+        with ESMTP id S1344367AbiAaVNF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 31 Jan 2022 16:13:05 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1643663585; x=1675199585;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=fd28ersQbVZtkPZiOzdKj4usOT5imhvSTc+FWmhAJtI=;
-  b=ZUV5XfgM0qeE3QjfwZFHLQA8jyh3yA0kE3zG0RH2GKFRww6P2tYA5C4j
-   c7Dce1LtaenHVtxpshZnUXQow3Qbc8sO51LFoLr5ltKWhbOyO1YgKdHLQ
-   8QGniaPsdjLL+tjZh0BvCZBqyEtxOt+aJLJXtSzFuWOhxxdojcE8NFUeR
-   ck7H9f23+VYAK2mq5IfIADYyruiF0WODjKjPmhZYdyjJtvgWqL9IPbtJV
-   SA9+z+khOVAUzNAZXQ6ZK35p3luQT2o8KTlGXK2yiHwoFjSgbKKOWoo5h
-   KTNMaXCrXh1Atedhr2+M/LPzxnc8IjTmJLRXeC59AQp3/iJOBY69nHnO7
+  bh=SVvT+jO6ZdoD6+ax8zfynWHdzoX4bfMialer5bVVkTw=;
+  b=aICtqR2BOqbaIdF/uyuLJ2zabjaElMK8mRuB4+gp42QWYB7LwzOUqXb7
+   p84G2BVcJ4sBL007N66NWd+zVLeaVYUNrnnBX1Wyv2JGld140Qr3/2yr0
+   PqjpZiOaAWDGe6HzOZUn3elIb4Awrr+T52KlTlpQYBWjkZ3LaPTzBglcd
+   AC63RWNVVlPyiBw9Rw1avMxRvBGXi/64KQ1tVIi+6juho8MIUmSanzOxT
+   YqDYGB7k8U0nVPgoPzMLendkxjGG/sdsMpge1KcfKSXcvITXsxZwSD5aL
+   IrgFeGeVQ9UNXLTvLFCeJPAiHyOLYhuDcBp0SntR7Z5b+N/KGq3peodOT
    Q==;
 X-IronPort-AV: E=Sophos;i="5.88,331,1635177600"; 
-   d="scan'208";a="192828122"
+   d="scan'208";a="192828124"
 Received: from mail-bn8nam11lp2174.outbound.protection.outlook.com (HELO NAM11-BN8-obe.outbound.protection.outlook.com) ([104.47.58.174])
   by ob1.hgst.iphmx.com with ESMTP; 01 Feb 2022 05:13:04 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PREdJho46OwBABl0v5/z/sUXx5Py9ZcM/fM9dr+GJBGP5WOfSuWBXz8TF46/VbtMUKkNQOO1m2OPY7kaIeP630VQAzAdQOz7ePcyj1Pormo6JJr9YuS2E7LxEKgriBsFNjKiCIwEFMfUpshTEz0mgama9SrXkGEr4v0V0iKddpaDK8CpshvFnxgnDVtratMAhhz5Tp7DJysPOc4Ni8PTopwIZitvOyxHMUEXHmh/GyYKogk2kqttxHPSOhlfz0SmHkQ2d8ibOeHTVnRQqx4DiWjS1aa0fRpf9LPVsiNBwfHqAa8PkWA0s0M/l4k0PRBlpbUV0+JllHQWpjxDFLBU3w==
+ b=RpimgGw1ju6Oyzz4nfm20kWY9qG2nk94WS6BjFXJ1QMPW24YIHkWCEQ5/vdJnQC8ovhMpxW1B0ofj7gDoxgKi8hgJKrOnc1JFwVxRQK2s7yt/LE/OXPiEdm/tH//cleP/vbfMfD4Rq6Q/ye3QnBJ+5fBQDpOwSm4lisXzH5LHJgtbSxmepAisWuEyhYcSK4ggLBUXLMGuT9RuCC5yUCPRgllw0Y6IOJveSDiyI0/Jq1SzWrmOUEEcYRJlcQYGZyFLWQV9LMa/FxaqF0nFt+uVXT97kgYX54VtYQFwW9IzG1xM0LSBU4tMRK9hVe+ToibKObQJ7dHm7e3kXs6uYODRA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=c+BP174MMsh6/tsJpj3Mx5eIgtf/0XusnHqjH/Pmlak=;
- b=oGH/sbRpXlI3/RFq6HQzxPHQZTI8RSpZOJtLkmuC19IQUzUXDa9Qm/ivgQt3uFwrBQVkqt3hEiXX+5k8retxeiKTVRQg0jaq/FrZggqONOYws/ne4/F+Xntchj0awYPR+sab/Ui1eZnq1l+ALyYsUmQBx20Rt/m/qzHgEeh5qmvqQCmsh+83b6TdbFq9KAAjTFuATSxPeaRy43kDSog0UqNziQGihhgP5bOmrcsPuHjafYhdmuAXOY/GZp/n7JVd4oZZ86tR6g4YKyOs/hexLsX5C1yPeUZ0sUiBa7j+wKZFd7qoOaPKUXnCvqLzksplkMTmDDFug7SkGLaWGw0JMg==
+ bh=urhqKl1iJco6GJbHkbIzNKk6cst00mH7rOmVi+E55VQ=;
+ b=aN7zMmpZvg3weitLDbhmr8xJTckqw8j3GZ3+SzBGJ6aN68Ukw+QWorBeJPkj1tSZStJZlklE4FX1devJAYbgiPA83TEer511CKVeCz02i4XDq539dlTMc1lRWyxzJl8CW9BnDYGBaBBe99jzowyIysb97V8qkS6nd6K0bZH/fFsjKiSnr8Lpz1XMU+94+nZoaOxCN3LmhvyJtjptwKFz2Kon43UKry05iQUnbnZpwGoLQZKyAQaNeSj3Romxq+n+aC1LzTzUTd2LETcfu/CkpE9RwB3F6ZZZSEYMNOpsK9nUP3Dz6px7AdTu7OX2XJqPm8a6YUdtnDAYUXOloIy85g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=c+BP174MMsh6/tsJpj3Mx5eIgtf/0XusnHqjH/Pmlak=;
- b=jMCLHmVjC07JcnTGR9JZ57GpI1r07PTI3zUHoD3oPGBM2pbNPpLAR0LIYl8obT531RyiWgX0vkQfEuUF+JaAzhKSO+7RXpR3Ub8OTXzHgdPs0sA7RyXqMsRacQg+5+mEPQonOEsfsMTJZ3wzUx2Xop+LV0PRYMfeUbXu/rMK2IE=
+ bh=urhqKl1iJco6GJbHkbIzNKk6cst00mH7rOmVi+E55VQ=;
+ b=D/BIDxV7K1NBiSny616wLkXnCCjRJpU8e/Q6YDCbHv2jP0Gs3/NeBUbMyLl69qx+5R43AMMwOnn/rLU08CTmunKrxZnYGYLpXHU5sCBxon9D9M0+zemryCpz6QClkS1VwA2FFie5UJpMkaI/nd2eIC6U3gs9yUIMC+TsRy94k2o=
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
  by BL0PR04MB5154.namprd04.prod.outlook.com (2603:10b6:208:5a::29) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.17; Mon, 31 Jan
- 2022 21:13:02 +0000
+ 2022 21:13:03 +0000
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com
  ([fe80::ad7c:72b0:de53:f5d2]) by PH0PR04MB7158.namprd04.prod.outlook.com
  ([fe80::ad7c:72b0:de53:f5d2%8]) with mapi id 15.20.4930.022; Mon, 31 Jan 2022
- 21:13:02 +0000
+ 21:13:03 +0000
 From:   Niklas Cassel <Niklas.Cassel@wdc.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
         "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>,
         Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 01/17] init: verify option lat_percentiles consistency for all
- jobs in group
-Thread-Topic: [PATCH 01/17] init: verify option lat_percentiles consistency
- for all jobs in group
-Thread-Index: AQHYFudUHdln7Vb/pkC0R96hufmdzg==
+Subject: [PATCH 02/17] backend: do ioprio_set() before calling the ioengine
+ init callback
+Thread-Topic: [PATCH 02/17] backend: do ioprio_set() before calling the
+ ioengine init callback
+Thread-Index: AQHYFudUV3tM6pjOgkuCsR6qjL5Kpw==
 Date:   Mon, 31 Jan 2022 21:13:01 +0000
-Message-ID: <20220131211249.106820-2-Niklas.Cassel@wdc.com>
+Message-ID: <20220131211249.106820-3-Niklas.Cassel@wdc.com>
 References: <20220131211249.106820-1-Niklas.Cassel@wdc.com>
 In-Reply-To: <20220131211249.106820-1-Niklas.Cassel@wdc.com>
 Accept-Language: en-US
@@ -73,59 +73,59 @@ x-mailer: git-send-email 2.34.1
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: f9b82fb1-200b-48fb-56cb-08d9e4fe774c
+x-ms-office365-filtering-correlation-id: a07ee200-25e2-4051-0489-08d9e4fe77b3
 x-ms-traffictypediagnostic: BL0PR04MB5154:EE_
-x-microsoft-antispam-prvs: <BL0PR04MB51549D35AC9594641D71EE06F2259@BL0PR04MB5154.namprd04.prod.outlook.com>
+x-microsoft-antispam-prvs: <BL0PR04MB51547DEF0684F896A2E58824F2259@BL0PR04MB5154.namprd04.prod.outlook.com>
 wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:5236;
+x-ms-oob-tlc-oobclassifiers: OLM:7219;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 4qE/2vhufmNyn4k7jkrzrN4MS+lrkdKzEilqC+cgPnSY2YQ/m2P0h1ZL2R3WSqBqQiNBzAZlKditEKtOuZI3N5Otf4kc69nKYaWRnCNpRaHSZzRSnVWDMGczsDgaT73ky9UxPxftGZmJLD/HKTvahn/670fiHIZHRv/eTSk6+EIPgWwdXDRnEMOz8k4MH8KAZscwmwiyCbGxnBz0eqZuuDeJt7gHCVsoAvlhr1ZN0mvCZFS1Klg2f03SNxwHmVN1VquF/HjvSz/qCqC7kJDACqgJc1GQEALfAOqv92ZyOEepllFm3FDzcVaYFIy2AvTJzpzHC5lIKwZieP1MpVREzGXJvtC2ZWVwv9oKDWw79YErDSiTt8bjvzdsecN1pnxHgLV1feB5RWePCFYYkkkGws5GGkWwAegjcM8gZrfGPobcNe34JwFAf62TkB6iWXK/iLBEe53uOKGxCCPmruj+85fEIFIKLVWdd+prhfSQ7sZv7rD6t0K21f5tcnRmMtiA3kfWJCTTa/BkKZJWo0WiYE86fRI0+Ludoa9QKJaFVlk5bMVPFlEiolvN2g6O/jNjW3aArhMRfUfYje8XGKgZbnm5selZzYhJXbipxBLnKsiw1GZ5n3p28iG39jjMTQW02f/MB0gVwlvaOmZMCd+W+EZo5dstyURLGbycdA+PwCUaUk0jH2z4hDIPpCvxLunwhIBX3xxDKVC2zo6rL+oc4g==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(122000001)(66446008)(66476007)(6916009)(66946007)(66556008)(2906002)(64756008)(54906003)(76116006)(4326008)(8676002)(8936002)(91956017)(36756003)(82960400001)(15650500001)(5660300002)(2616005)(71200400001)(38100700002)(26005)(1076003)(186003)(6486002)(316002)(83380400001)(38070700005)(86362001)(6506007)(6512007)(508600001)(20210929001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: SxcbbZ9y1h3P8HiuyptT0vFVBS5FEaXwStvp4+OivrQUsUfyHNV8jqztnhWfc54+islSH6WAzKujJ9A5HRZ9wGFI16ByGWwXus/QPZVC6QKWayOApwhe9ENFi3Uw0P6on/hiRBQQqzAAWc6DLI409Vg7/rFFApxj1VG2SypXq0FxMmubvj8xRhdVFVPZFLi0CbJo2Jh2rARetev2jjvvnulrDXh6HJippiRLQcJiCAsDDlIIB3gXnDRix38D4coBGr0Xk1HYtT0/zDbRPh9kJaa4GrIPvSXbPKDI3wQNFCfInte0fDUfVM8St55m/4nLFLPy5ay0Xj5OKhf/2fraj76RG3PJQrs47wc5NyrLDmZZIh0mA9ap+A65FnAOZlEx3MkgU2hosjXcmIiPURS4GJ4D0K5cx3hCMafJz97CVhiAZ5I3HXfGOd07Y5IIyAca3crgPBWQ70taAwcI+C+OuVFVrnxNIerok3nxM4oMWsGDud/GwJV1IR0w2ggJtPv6VJ7hFCxUPbQEDbxiydu0Lv5XD1I8014CKrDQNPshZYfeyAWcZcWQ10LFfAcuzfsAnFELlpmvTeNaXHEqiyHZhRePh9QVk7uabNXK+pQ39Ik44SeDHgzpGppUnf5ZBp5Qagh0ynICXb7u3c/yuyjrBOpiLrHCqVjfFNJPgPKQYGMKU7NrarL6A/6G+cnGTZfi5QGjXifLJi4O6BszRK9IkQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(122000001)(66446008)(66476007)(6916009)(66946007)(66556008)(2906002)(64756008)(54906003)(76116006)(4326008)(8676002)(8936002)(91956017)(36756003)(82960400001)(5660300002)(2616005)(71200400001)(38100700002)(26005)(1076003)(186003)(6486002)(316002)(83380400001)(38070700005)(86362001)(6506007)(6512007)(508600001)(20210929001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?3imhzuixKMfz0JZMXSEpHOI9klEPPyVY0cVT0DBlLq6RU4B0Ixrz8pT60a?=
- =?iso-8859-1?Q?O4QNDEfiti70Cj/Y+S2bp00QNf8b/hzrwaCHUyA+EdyhdPWaq4cj4pCpJw?=
- =?iso-8859-1?Q?001X/3BYUEzgNinEZBLQqPpI0BXm2DcFXe4hzdtI0Z3FRSIvyCQAI1bqUE?=
- =?iso-8859-1?Q?dy6m3vzP+n0Hdrxtx7g8g7xrnERymxkjnMNaWLWbZkfwsL22ZVgwpcTwxc?=
- =?iso-8859-1?Q?3bITPWcnFlnliqEZ+k4PRVF8rhn22z94zonelrbtQCFQDSSl99gB8TnoET?=
- =?iso-8859-1?Q?YktciavlZYQVR+A4Mw2aR3DJl/VoWAi6sA4Z+rzUrm2RnA499lo02MnZRx?=
- =?iso-8859-1?Q?q8XXD7EcDaD7qM63moTCTgPSQZgkPLBalBMVIVJHaxZGrpoHrah4tcSl2D?=
- =?iso-8859-1?Q?Lr46qTAS6VDkUszeMNJUKAKie6tuzueSeff85wkvAmfSShQmRQlifr8KYk?=
- =?iso-8859-1?Q?ylYeTb05uv0TaISJzfJRgJP2e+4Pti2moJVRHaFMMgM8f+7Cc4DZP2SxqH?=
- =?iso-8859-1?Q?8rJl36rSlwJKzs1ZmkG3tJEF4Jy0W2r5C0XIZRG4EX7HGF7MrzNAkWC+K/?=
- =?iso-8859-1?Q?T9HZEj6pFHR2hlyCmEpGjPN8IiCQwhAmALm4Hb3souBes9MBPA/wqwmgkY?=
- =?iso-8859-1?Q?J46ytpvc0o5l4LfE2oXziiItcW9OnO7FqE1Tvr8k6DZH54QH9l7CVTtI1I?=
- =?iso-8859-1?Q?QiR8R17F+Ta25IVzSsqq0/9ieahqZ9o/soUacr+hi4wz11pxISiTUwM+dK?=
- =?iso-8859-1?Q?/tXSYEgnDbk2xC7yMuv+0cz4+k9JlVn2qS1mpCEafoqFewXKJoeDX3dynQ?=
- =?iso-8859-1?Q?R3pDI4e0D58bv8N2IBHfVN5JSUtr6EGAG5W806a36xnTzGw0DNwi5gjXf4?=
- =?iso-8859-1?Q?sVcBy+iNyzU0eGrZn8Nf7755fXya5EhrZqmqWsRu/wHfcy3G5b2x11X4Hy?=
- =?iso-8859-1?Q?Sasdk6Wr2WjrDK+eWgcZEVkp9/EoEQEvod5PSQplhRLWIkJj+mgFNq310E?=
- =?iso-8859-1?Q?gVGV0ajASG24l38WbyjYUIHC2d6h1pUxlzQ1ngKQa5xDjE5D1Vi0fNs1vk?=
- =?iso-8859-1?Q?bLYar9Ff8+RL4uzpMZL9+miPcKkQkNFWRSy3f1GRUHjEoCJE3Pt90SNTvd?=
- =?iso-8859-1?Q?cjTNrqc1ZYdbzt7VW7Fn9215sCMqvI0Ys9ndEDcVLglEWzm1ycIgVyHuw8?=
- =?iso-8859-1?Q?ighDVaeitZNuCgYGO60OJ0ZUcxSjV2yqdIWVircgQ2Un1pq3EcgEKPWT91?=
- =?iso-8859-1?Q?h4dHKxHv2E16gVj035HXBg3EqZ3Rq7fz1wQ5D/uKhiLWfVOKkQWmNGkeyh?=
- =?iso-8859-1?Q?6fby8MvI5gyMQALfeGqDrMCePPv2ju6mlxH+e8MMROQF0IrjvzVkQ4yVZV?=
- =?iso-8859-1?Q?CMHub3NeNu7csJ6XANolxrzPUyIe8emIIFvNn1hgS58xBZSRwm6nVGz+VY?=
- =?iso-8859-1?Q?9HlfnGGPNVN7rgiCd88B+tI9XCnWK8eZ6I27+dILzWD9i2VouHchqx/YC/?=
- =?iso-8859-1?Q?RSazcd7FeDjyV34+hO4Ft77cw4L5Tj+ofgDZ6ns16wGSoMwdbatSqaWLvd?=
- =?iso-8859-1?Q?54qR+E80xgh8i+6Qk/6qMs4qSHZvlIMLH3XNeLt8sgphJg/MGRRmtSx8ia?=
- =?iso-8859-1?Q?psu1y8UqYjPlvGkvNnuID8TzV+0/5EEAeE5Y1hiMvWqphDesGKcn6TT+Mo?=
- =?iso-8859-1?Q?GAGk8nqKh3rFDQK/RLs=3D?=
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?Tf28yIYzsvNThsbkrxQ1R/Kr9sVRFlUzDVI/XvJwbHQsBkXU9rv/BCRPP6?=
+ =?iso-8859-1?Q?6qUUzWDm31XL7egqFeBt8xZlJ0y2ZPm9qIRtg0tMmhs36pDkhb7FXbg6DC?=
+ =?iso-8859-1?Q?EzzpD+McVorS0GRE5NwZ0vlTD6PxEgaPuBRj5fw/3eeX3LXojVKiur3L4i?=
+ =?iso-8859-1?Q?y82dv2m8GCGk18HHZ6LJa/xDimJHktiJgil5t1bNKcbn/39VJk1Pd/9b1p?=
+ =?iso-8859-1?Q?F4G1/LlANx2DMxOCQAGvK4l35EXQ3WcdAdke1D3wiVN6Db5Kn0sSDFwBAz?=
+ =?iso-8859-1?Q?kobYjKAk8OJf2i+G23IINOPP0dKWthAeDSa6AnNO6pTuXmjWwo5P2MusUo?=
+ =?iso-8859-1?Q?X/v++OiTSu4qJK7fTCQDjWJ3/OCaLY9yxNM97ivT0h6l6PNRC7VKY366qy?=
+ =?iso-8859-1?Q?wZLVZFhXVuW8ZvG9zVOptyp1oyMThfhPjO7qUwFLB2C0FBeTEmdGrgFJAx?=
+ =?iso-8859-1?Q?V+Agssoy0XDOLu35B8euBmTmqWPmc5lCe2/zvjcRz57z6fsvueFQ3A0E0k?=
+ =?iso-8859-1?Q?3RjP+3Umppcb3sCj6IaVwdV95njOlScG14dwrM7QCDO2H+rulSTn6rfu7R?=
+ =?iso-8859-1?Q?86dvPaOtVvMOkwSnI3SrpFz+ZOpZkO/XOJ3Puyz7lNVXnNSIdLvEJ/ZC/T?=
+ =?iso-8859-1?Q?AQuxcKRUJl+R/AzKOzRpgKgE5p5Gj8aIQvaPI3+3/dZCrjmJfzlRCtMFQC?=
+ =?iso-8859-1?Q?MCNy8FzugAk6+HCmJl5N/hMwoQiw/RKZhRXGpZf0LtFS65rZj5jqGYa8ed?=
+ =?iso-8859-1?Q?jN6miobe3WbAmyfhE7a7Z5cBfbDNq8u65/TmC2QnT9p60prBcmha3I05SR?=
+ =?iso-8859-1?Q?pUxD6gfUzgxCz8EiYAljuV1nb24iUsx+xi+D12/Yf+1jHyFiQ+4Fr8RsLl?=
+ =?iso-8859-1?Q?HyLHbpbrjnJznOK4eJ7cPzWaksrzQ/90/Z/5jwu3IBHK53+H5vGGAoJbfo?=
+ =?iso-8859-1?Q?OiKcG3yCm50eKAjMUgJV98tcy0OE0TfHTt5LTHFv9IRwAXNUT2PoLhOz3S?=
+ =?iso-8859-1?Q?/Hj1sp5JtU6436BVwcDwvpaf+1gI4f17Vqsj1MISyt1B+5Dj9eyoBmBh0k?=
+ =?iso-8859-1?Q?2M46mOIEYhub5swOCljnwOKVSyw2gAsA447qjJYc5r1esKwtsVdAFZhzLn?=
+ =?iso-8859-1?Q?xJIQUC+9wXGroEsrU3oaJ+6dbwRIiPjdwPEDk/MOj+jJEp2XhAYZLFmvXa?=
+ =?iso-8859-1?Q?XRjo4O+jeoZlDrTUvNuFlXyAcqKlx5l25cX3GoCuMRW1hABQ7K0M/371Ro?=
+ =?iso-8859-1?Q?OCza1DDE2asZu2dVkpIeKq3KV/COBCIr1zESUNSbCjvjhazYstaGN3WbmZ?=
+ =?iso-8859-1?Q?1+d9UW/w8w39WxphgBGhMskqIpKyQApQJ7ehTvI+o/yuVtEPRoD9ZMEF1n?=
+ =?iso-8859-1?Q?FaLs678xQF5F1cP6mMokv1E7KKtHZG1SZ7MsTf3wijROqWIx8OOeeV5Mky?=
+ =?iso-8859-1?Q?7rw7sEQlN7hqUFC1ONCnnPgVKoJWv7ZYse9jr64trOEXz+myC1JrBKcMTj?=
+ =?iso-8859-1?Q?uuRMhRq8s4ad14Fv+J1IfUlDNmwoGdVigW8/pzbBvyYoHNpFPSmxGWtIVo?=
+ =?iso-8859-1?Q?RXAMN/Rdxh6VEiQE6d4K/v5avD3e1AeBP65V6fYFfz/MNoUZfYGKAgJo8c?=
+ =?iso-8859-1?Q?7RPsaj3aoIt+BpiBxRjURUFZ47qphD8QAXKdiiu5W/XkeQM5SND4UvuNt5?=
+ =?iso-8859-1?Q?DKgBZFQH8o5O8X0mnzU=3D?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f9b82fb1-200b-48fb-56cb-08d9e4fe774c
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jan 2022 21:13:01.1599
+X-MS-Exchange-CrossTenant-Network-Message-Id: a07ee200-25e2-4051-0489-08d9e4fe77b3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jan 2022 21:13:01.8160
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: oaeV9wbrEA7yXJye5GSI+/GJB/nodLUmhDrZ47SAKr51VkeqC8KdWKumIw62en7+9T9tJSxkVQoHPj73v65Hlw==
+X-MS-Exchange-CrossTenant-userprincipalname: pjrFJsrl1GX/CXlTuqA3i0KCdkqzMH7c2/kJrsksHbly9NxgVVvqrdMazHPDyPWWhBWRNYbbkpWezGdcKHUkBw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR04MB5154
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
@@ -133,69 +133,60 @@ X-Mailing-List: fio@vger.kernel.org
 
 From: Niklas Cassel <niklas.cassel@wdc.com>
 
-lat_percentiles is used to control if the high/low latency statistics
-(which are saved in ts->io_u_plat_high_prio/ts->io_u_plat_high_prio)
-should collect and display total latencies instead of completion latencies.
+To be able to report clat stats on a per priority granularity (instead of
+only high/low priority), we need to do ioprio_set(), and the matching
+td->ioprio assignment, before calling the io engine init callback.
 
-When doing group reporting, stat.c:__show_run_stats() happily overwrites
-the dst ts with the setting of each job, which means that the summing can
-take total lat samples for some jobs, and clat samples for some jobs, while
-adding samples into the same group result.
+When a thread is using more than a single priority (e.g. option
+cmdprio_percentage is used), fio_cmdprio_init() will need to allocate and
+initialize an array that will hold the clat stats for all the different
+priorities that will be used by the struct td.
 
-The output summary will claim that the results are of whatever type the
-final job in the group is set to.
-
-To make sure that this cannot happen, verify that the option
-lat_percentiles is consistent for all jobs in group.
+For fio_cmdprio_init() to be able to initialize a per priority clat array
+properly, we need to assign td->ioprio before calling td_io_init().
 
 Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
- init.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ backend.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/init.c b/init.c
-index 07daaa84..7d5f2221 100644
---- a/init.c
-+++ b/init.c
-@@ -1445,6 +1445,26 @@ static bool wait_for_ok(const char *jobname, struct =
-thread_options *o)
- 	return true;
- }
+diff --git a/backend.c b/backend.c
+index c167f908..f7398b23 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1777,6 +1777,17 @@ static void *thread_main(void *data)
+ 	if (!init_iolog(td))
+ 		goto err;
 =20
-+static int verify_per_group_options(struct thread_data *td, const char *jo=
-bname)
-+{
-+	struct thread_data *td2;
-+	int i;
-+
-+	for_each_td(td2, i) {
-+		if (td->groupid !=3D td2->groupid)
-+			continue;
-+
-+		if (td->o.stats &&
-+		    td->o.lat_percentiles !=3D td2->o.lat_percentiles) {
-+			log_err("fio: lat_percentiles in job: %s differs from group\n",
-+				jobname);
-+			return 1;
++	/* ioprio_set() has to be done before td_io_init() */
++	if (fio_option_is_set(o, ioprio) ||
++	    fio_option_is_set(o, ioprio_class)) {
++		ret =3D ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class, o->ioprio);
++		if (ret =3D=3D -1) {
++			td_verror(td, errno, "ioprio_set");
++			goto err;
 +		}
++		td->ioprio =3D ioprio_value(o->ioprio_class, o->ioprio);
 +	}
 +
-+	return 0;
-+}
-+
- /*
-  * Treat an empty log file name the same as a one not given
-  */
-@@ -1563,6 +1583,10 @@ static int add_job(struct thread_data *td, const cha=
-r *jobname, int job_add_num,
- 	td->groupid =3D groupid;
- 	prev_group_jobs++;
+ 	if (td_io_init(td))
+ 		goto err;
 =20
-+	if (td->o.group_reporting && prev_group_jobs > 1 &&
-+	    verify_per_group_options(td, jobname))
-+		goto err;
-+
- 	if (setup_rate(td))
+@@ -1789,16 +1800,6 @@ static void *thread_main(void *data)
+ 	if (o->verify_async && verify_async_init(td))
+ 		goto err;
+=20
+-	if (fio_option_is_set(o, ioprio) ||
+-	    fio_option_is_set(o, ioprio_class)) {
+-		ret =3D ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class, o->ioprio);
+-		if (ret =3D=3D -1) {
+-			td_verror(td, errno, "ioprio_set");
+-			goto err;
+-		}
+-		td->ioprio =3D ioprio_value(o->ioprio_class, o->ioprio);
+-	}
+-
+ 	if (o->cgroup && cgroup_setup(td, cgroup_list, &cgroup_mnt))
  		goto err;
 =20
 --=20
