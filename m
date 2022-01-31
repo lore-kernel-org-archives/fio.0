@@ -2,67 +2,65 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81C73C43217
-	for <fio@archiver.kernel.org>; Mon, 31 Jan 2022 21:13:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B09C433F5
+	for <fio@archiver.kernel.org>; Mon, 31 Jan 2022 21:13:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379861AbiAaVNT (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 31 Jan 2022 16:13:19 -0500
-Received: from esa1.hgst.iphmx.com ([68.232.141.245]:15176 "EHLO
+        id S1351155AbiAaVNU (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 31 Jan 2022 16:13:20 -0500
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:15178 "EHLO
         esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351142AbiAaVNJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S1351154AbiAaVNJ (ORCPT <rfc822;fio@vger.kernel.org>);
         Mon, 31 Jan 2022 16:13:09 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1643663589; x=1675199589;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-transfer-encoding:mime-version;
-  bh=68cvvJQgEZIUX8SEuaH6V+/6ofRc/j/Vt32E6hYwU0M=;
-  b=D0dXOZK2L8I4VIJ+Ig4E06UwIqfltugjaz0Ar4s+AQm1s6HmX9VVM87t
-   8+Ai1zLASE4wujtnb+4LZHcuw4IZuoIYtNrEqPKJQbnXEQW5BGfmvpSV1
-   +IJl9pPFVnQPRe2z0kIXFbSsOhj/bmomyfmgdlIwjvNmTYW4mW4RHsd6v
-   aNeyJtAW+K8DT2zXMGWeYpjrA0Ojavt80koHNNTIPHApHxW3PCiqUqm7t
-   vqfuxOVwjH2dW1yt99KMj6JO5hEMKY6Ei9KBVVcmLyn/C5Rqnpr90tOO0
-   xfODAWnqppWmtD3m3u1B11kHpUuoB/gxqHx9gtuztU+kTiEyoLyvos1VM
-   g==;
+  bh=/iSq98tXltOPhl/aeYE4U+gwD70V2FX/+Y2P+HbpAos=;
+  b=KTNHilreRFNqVCZwjA8yyEPru7qYP7bf2Up4TjesHaUwAxiLotRYUQZW
+   aFSKBr1fNRRt1WdadTOk1+M86aqXHYtAlLw/56WGTRbOZzWBuz50/TFTT
+   wbaOFaUVBKppJ/783q6ZHG/1mEb4n0MrUENFCW6UTDZGjXYw6+IOfA1/h
+   zgcjc77yzNL/Nwgk1A4S0mI1WdnUNEjXQYQgy1hbdJuZhyeuwY7ZxWJPh
+   AfAr7m/cFcyvb480MFHXJw9bwuchK+JLLVA+DrSp9AKz10npyMIUmor8e
+   7aFky+C+3PY4G6Y2HzTCZT6EtWGYRlnvPqJwEvnqIDlSnKZwoqRNB+sGI
+   w==;
 X-IronPort-AV: E=Sophos;i="5.88,331,1635177600"; 
-   d="scan'208";a="303720259"
-Received: from mail-dm6nam10lp2107.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.107])
-  by ob1.hgst.iphmx.com with ESMTP; 01 Feb 2022 05:13:08 +0800
+   d="scan'208";a="303720261"
+Received: from mail-dm6nam10lp2109.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.109])
+  by ob1.hgst.iphmx.com with ESMTP; 01 Feb 2022 05:13:09 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=B1Y8yTI18RANvvNh3ecm3pMR4cBYnKQgH81iECqYOy9pugldlBa8Zobfx5vQi50o2XMIC0B6vu8JqLHILpOufU8UYsBKLqvWbovPYvUx0B6wuv/qOCccvrd2m+FfJzPbahSGoPF873xZGYdofK2BwQFolS5WbYjtPytbu7+OCrW1rUSzq58AvdnYJJLG6afwQCZIg9DlKWJymN/i+JLzGU+egLpno/7MuUJiNtbMqYCILufcPhSgAPh8Pfm8koLD6i/c5WWEHvLjYFcEubAE7A9TNfDsQq5bWADZ4MYiijBd12drzQHR/4gaFHt6y+jjaZ6fejQ7i9k0u6cBSxQmYQ==
+ b=m+tMcP+HHtVkEhqU6oQVqt12ikjajLeg7q90NmrziiH3BjIql4YgChLGhL52b6q2Qjlza+NrSnX9qva31fzD7wgtsAp9T8jwKdtkqTSPFgcLd/2DZ1Ja839g3NuJfZ5UkPc4/FOOmIzYfo0asojJdl3wQC9wkuFeu8GVCyYiUAYnFbSdZtB1cSpr+lo7C/ZRNhKMQ9hkpSCrHvf5l+MKQ7VCA+uKrGiVJfJu4/lDHwYaOLNq3WXXxdJKNn2scSEdE+0KKh1E/7nmgc2bu0O/bWkZclXDYHnl+QVQZx5AfaSYBvYYHbSoShcXHcKBGRMDqSJATAby8oKpDMMwV6PCRg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KUS4Ich6mP8ooHgexoWmB65ZzAJtXXSCwStRqMjJCSQ=;
- b=YYHhN5RbXB1eH7q0kdjyX3QHAs7uASApqfxvWTYjVIIdcI/jT8Fo3w3auH/EBapauECgMiJwLndajawGbkVSEk+JDKAClRxXQgnlH0GZTjwvOxJb4sBQvQ2s/tOTiI4l1NVsBsL5G+NksqG8zKx8CyZVhsze92RSsKRUNt8d6S/bqn45VKa1NqEZYu+IL6T8SPgk0TRBE+0nCUvlNq+H05Hk+t8ahjdY8jX/Nvitk+iEw7HSt9IqLoPGDPQ00q/8iPiEcgXjjJrRik4hG2qcuqKlWHzmY3Z1wxeDCf95UZTh2PO6aHwwpgkjgfzeL1y+xmw0DsTE4cgLkv22X437RQ==
+ bh=8ghEheX/dKfbGeooTyO0WVSghguURfk9DvLFjKgN0OI=;
+ b=RH/pfGSEsrL+F0neL+dPmHPoB63tO4e4JbD7TbTV1r8HKDtnfSDFXgEXlzV/kXNTrQ8hsFWtofuh40IZ46ZAU1Xp4Ai44Cn2oTxbh9ouzU05st3NS5MX+eEvaovThkcCigf/lMZC1kDAa0O0XOq7EjHGJMYnJQL07nKtf5L8oJ40R1OQ32tTjimAGE/PL6VA+UjoPwOam9aWq7/ETsfqQnM26FDmKnK2wAq24cKepKepR2AiZQpWMfoLH98N+axtM5xbUVpn+3USIaEJblQnE6yD+S+W7WRrrzJ6kap7JNwZix7It3OnHeVLm8doA87WY3F2SvkSEg1orcOdaQcfRQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KUS4Ich6mP8ooHgexoWmB65ZzAJtXXSCwStRqMjJCSQ=;
- b=faeIEO6zF1Xyp5NpW6TdkCNrSSGy+t0GfEDSCsOQ5Bh50YasYqm9X9TIUBJ6OjRoP3ZAmEze1uequi4Ivk5JPwDG9jxeYssYbi011r2QqIGbWQ0Yrm1CV1aNuOsfI+yXiH5E1DATOrzE/KuggN6mNFrOogHUBkRjJnkkUVrU8rE=
+ bh=8ghEheX/dKfbGeooTyO0WVSghguURfk9DvLFjKgN0OI=;
+ b=ySkC3zyNKQpkBG/4Rmxbx9G2kdFJjpBH96TUdqaCRVrliK1964oJ3aDkoM8aQzXTmoDJIjzVkSymQlIIrqnNvlehCa+CeWOnjgVYL+YFctKx6EswxhPRjsWjlhCgYfv2skLyrhsTpGcU32poeDsVc+lajYTojepJ0Nfm8e+8fAw=
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
  by PH0PR04MB7576.namprd04.prod.outlook.com (2603:10b6:510:4e::8) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.19; Mon, 31 Jan
- 2022 21:13:06 +0000
+ 2022 21:13:08 +0000
 Received: from PH0PR04MB7158.namprd04.prod.outlook.com
  ([fe80::ad7c:72b0:de53:f5d2]) by PH0PR04MB7158.namprd04.prod.outlook.com
  ([fe80::ad7c:72b0:de53:f5d2%8]) with mapi id 15.20.4930.022; Mon, 31 Jan 2022
- 21:13:06 +0000
+ 21:13:08 +0000
 From:   Niklas Cassel <Niklas.Cassel@wdc.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
         "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>,
         Niklas Cassel <Niklas.Cassel@wdc.com>
-Subject: [PATCH 10/17] stat: increment members counter after call to
- sum_thread_stats()
-Thread-Topic: [PATCH 10/17] stat: increment members counter after call to
- sum_thread_stats()
-Thread-Index: AQHYFudXCeZ5Oz/1GkyaI63BKzc+9g==
-Date:   Mon, 31 Jan 2022 21:13:06 +0000
-Message-ID: <20220131211249.106820-11-Niklas.Cassel@wdc.com>
+Subject: [PATCH 12/17] stat: disable per prio stats where not needed
+Thread-Topic: [PATCH 12/17] stat: disable per prio stats where not needed
+Thread-Index: AQHYFudYrzFjpdE4ZEiFTaSjyHMqxg==
+Date:   Mon, 31 Jan 2022 21:13:07 +0000
+Message-ID: <20220131211249.106820-13-Niklas.Cassel@wdc.com>
 References: <20220131211249.106820-1-Niklas.Cassel@wdc.com>
 In-Reply-To: <20220131211249.106820-1-Niklas.Cassel@wdc.com>
 Accept-Language: en-US
@@ -73,59 +71,59 @@ x-mailer: git-send-email 2.34.1
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: c0669b93-e758-4d44-9c96-08d9e4fe79fd
+x-ms-office365-filtering-correlation-id: 73012fa7-2298-43fb-b0e7-08d9e4fe7ab3
 x-ms-traffictypediagnostic: PH0PR04MB7576:EE_
-x-microsoft-antispam-prvs: <PH0PR04MB757666AE7A8D6A57BD95D0F3F2259@PH0PR04MB7576.namprd04.prod.outlook.com>
+x-microsoft-antispam-prvs: <PH0PR04MB7576F4B28BD3EDBC6973DFA9F2259@PH0PR04MB7576.namprd04.prod.outlook.com>
 wdcipoutbound: EOP-TRUE
-x-ms-oob-tlc-oobclassifiers: OLM:7219;
+x-ms-oob-tlc-oobclassifiers: OLM:8273;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: PyLzjJJ2pe5JjL2OhBWKsx1qTkxytVuJFIibdohMlFZtRD/mTvcUWAuR0lO7YVowa1KCTkF0w4zdZXBEUuVDw6h4E5eHbIiaRxqFEo4jyv8wmnFlWs98vyucodb0FxiGbBLNI3ohEOMx4P1PvjfHGnGIe8mWtLmFf/dgF/FZ8Nj/ohd5uWwP+XorwTM6pLNq72qoir0Wk78i13nNUM4vqLMUJz9cTrItP3Bk90XntFoG18BaccFQWxsG5pZJk3LqYQDdYlSnVv4WW8OqSwqGwwf2F83YKY1HSBsQcMBxITQV8oBTnZEXXhGwnksB/mzfY8oA7bn6XpduQfhf9n5JugCbpUlgAjPd7mwydGShTQ4z4BdO9AW+qDRADWUrXkYWq0gu+15hR8CsLQLhMumrdJRE6FgWHXmFHaw7rl/p4tCLPVNKwhpdnLkEU20FuoF+0qYbeIA6CWSbXl9CKLU/FhGOoVTIQCdzxzFMDbvOVA5zy2RIXOatUOedYYxOGErd3tmffyTXhnUCnWm0uEjNzGgPaxiD/eN7Q59TqIB2imMVEucuhpKovuUktZ8mGVhs/Pr2LWhwEgi/JZSV50iqB9a7UUKflMEYgafEAZ0mYwTAUc9eVgKwFOF+pkWZWHAaYwzu2Jl5YGgcX9+j/fn9VVpXOsPyqbGz9/+cHixQ5LAMrVIkBv9kJMFo9abUFtFOGhAoDpOs1xNgzlyAGtsMVw==
+x-microsoft-antispam-message-info: di9N30vUfbHTrTFMC3ugc4NdiRlt5e87lOIChXFJ0ZI37rfzR2z9lSgZBuxt5Aqb1E1ch4S4xHZlDBpcg8iANc66w/xytlXZFf08AjsmPdjblJbz5jhUxc2uJ/9ALhnX1arJ+gVTQauS/TvYl9OnoR3i/pHcFMM2Y9u3/P3xbReKRDOUZzSUvl1AjKnUsKBELtfPz5KF0SVo2y9etoIcorAiyeCuo6ypHXw8FpdU0zwuM5LxDMsVX/5Ct3flA1jf4K+5mSMzWEynholpvSf0DCM1LaJP1MQstzAn7Q6G6a8JnN7ueOU4uM1SxlVTOV/he2Q/kecf0ATG6tQT2UULCCUQCy4De9uq7n7Ks+49xQP6eJ86W/Ls7zCL0gHXEQcoXf/tHo4kTXWq+ZyqSOJ0U0fEvDAUDCugAnGkLuvb02FW88MEYjryKqmHkMwaGJ9NLFM13YzcVZ7WK+IUY0WcvBIHWCGLvGE1MizYx3geAELyAmXuVc+0UXPHDye4kU38eJIIrOCOUbdQYAYb4oySUioad6hq//Y1QCENd+87ylp7xUHqdEOfA5IDdhMeN9bQ12ukASoopKZh1K5gjeTPUeas9jEBO9C0GIbGffbWNWXplqqjsKJk6HHqNRt2OkPvDbVnVbub4xdy+F15ePO9Q0TX9BxHOpj+G6x6vLP2d2Zac8F53FpWncOKQpSiEkuUiLNc2OuZAkN6orYdXyF+iA==
 x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(2906002)(2616005)(1076003)(26005)(82960400001)(122000001)(186003)(38070700005)(83380400001)(66946007)(76116006)(38100700002)(36756003)(6506007)(316002)(71200400001)(86362001)(4326008)(8676002)(8936002)(64756008)(66446008)(66476007)(66556008)(91956017)(6512007)(508600001)(6486002)(54906003)(6916009)(5660300002)(20210929001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?fEmCi983t4aksoxylVMIXTVPwOjK3rmo+v30vqTHKSUii7CpPxVPJ6ljkT?=
- =?iso-8859-1?Q?MjTIUtG0OydOru6b1IeABvA2f5IUA8c+Y0QO3By/03coBy6b+eqiICcVDT?=
- =?iso-8859-1?Q?1bgjZSIw/2Z2qRHjbmwFVlPli2t4dwVr6YaRVZuZpBblu6WFKvdqoCqtMr?=
- =?iso-8859-1?Q?Z1k/+OO0ZmTJ2KfLcMqo3eH21EMKSfg53eT2jNJJf7gI1FIzu10H55CFtm?=
- =?iso-8859-1?Q?80JQlBsb3sFklE7ir9qrO1dWr27IOk45JcTsE0+GiGF2sTJZhAJtjvVcex?=
- =?iso-8859-1?Q?7+pXX5uMTFvO+tLofIWiPeIbzT/2bFSX9r37P4EYnGeMRxRuCxyMwIr420?=
- =?iso-8859-1?Q?vOtUBqRtvXBsp2PXE6F2qx+Y6Lnq4LwtPQnZGZHMYBe1PG7REhUY1IkEJI?=
- =?iso-8859-1?Q?bztB7B9tYO5bFsE36uzqQnyikqQniRzin79aKYhO9rSdpgwVNpZeVah+8h?=
- =?iso-8859-1?Q?YDAGK527E9TjI0evs6aiReRL9CqKtPy9sCUilR2YEDFpITok4FQlRmBRv4?=
- =?iso-8859-1?Q?x0TUiz5rgZ6JXomgKl4qhswflvTCh8o8WzdTrF/07+WzYnSzPh5fe5d4gp?=
- =?iso-8859-1?Q?6dDtrqCR/xrCGS0vLAykh/2GAcVqUitdHD1Fdi4GjikZzRVSbuM7cy/4+b?=
- =?iso-8859-1?Q?mm1eIKA1OHitmH4+Uco5pezrDpZcXr3nWLn7GKH820S1hoAoIbRkSvoWe3?=
- =?iso-8859-1?Q?4sR1ksf47ipRYwh9sDksfbjtODF0V+8/k5CD+ic4Kh6iI4Q8Nvj1NLIs1Y?=
- =?iso-8859-1?Q?xjH5lRGQ5XZ8feOGz4PzYm9LT7L4v6l6bBFaVI6pIy5OA7zG/7TMkGrEa2?=
- =?iso-8859-1?Q?QOJFnmnC8d2Ya/QaF7pDTXQnxf7xycWl8ZU8YH8W0uTYHxFVs4XEMQic1S?=
- =?iso-8859-1?Q?aapKzQbynNhO01IMJj9bUc01YsPl7PbZsb0vnO1VRbJqsbWhPTA6udxj2R?=
- =?iso-8859-1?Q?jp0Ze9Ivf9UPU9S0uSq9MTglU5O+a3HLDrRQ4PI3yaoa+YsRN6cQa6cKbY?=
- =?iso-8859-1?Q?VIeoFK2dQJY9lxtU8zt0+k+WDqLsOzcNIhM7KKQudjrUWlRpHAtREsVP/q?=
- =?iso-8859-1?Q?0zA9p5R2Qf6mXY2vypJZcTVhe1NianvoY5ugOLEf3Y49AoFfCZHUn+CHz5?=
- =?iso-8859-1?Q?Y8bWnLien11gN7WnsHCZx77OUFFwudo/cuEO3c1n840uiFaGm1r0fqFHa0?=
- =?iso-8859-1?Q?kNl8ZiqhbZggTVfr97bX/47RgKyyCICTq6/8WGaBc2CUwWoUq4kAKI+6q2?=
- =?iso-8859-1?Q?9mIB6YdgPQUM8aiFs9bID7zliYQBNsbUJB8rtb3/SKPEBEh0Wa2s4qadjg?=
- =?iso-8859-1?Q?lw1Yai6m5drQSItD5eeThvcddZrYRsgr7NcU7RJDiwafBhtEeDENPCJoFy?=
- =?iso-8859-1?Q?OdcPzT+fj2PpFcs9VpRMtHnD3caFin8YSX9RoY03YGZkYtJV4pSC4Zk1oE?=
- =?iso-8859-1?Q?6S7j6Bxtz71xgOxTu5hwdEIvrz3lSHOzu1a5J3xXuzO4lq/CY9kb193cb9?=
- =?iso-8859-1?Q?N78uqYeJbDv6aoQ3+H+FwoNiyRTJkCEM5BmA0bF5Xm+oYyOUfYAbZ4EZXW?=
- =?iso-8859-1?Q?JvTtBiBSqK7xbCQHudWyg/oXnekawTNa7+mtbbn8o/WftmktSbSn+Bvhov?=
- =?iso-8859-1?Q?OK9rGR1pClL+juoojB4NapQpizhwToCcD//QP/jxkn0pT5L3OEUrrtt9M9?=
- =?iso-8859-1?Q?Dh45WRSOZIJyfg0i6bZTqGk44WOQxnw61aJ1R31r?=
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?yEpr33g5wtR+fWBSe1U2ju1j3ZBLXINjvtB9VbRU2Ja7NBpC0iGdfLZn2+?=
+ =?iso-8859-1?Q?fGh//3aylQlP2nbO/GMM74qp2df1UAYkgNXVN/cWQbWMFg70RV6HsuhcNm?=
+ =?iso-8859-1?Q?UTn4yiebuZ4cVLfWS+cqBijKosAGGMy6fX1b4VruI/yGRovwF+CRKRuJ8i?=
+ =?iso-8859-1?Q?Mz8Jdz7PEHaK8A3BhgpmUl93mbI7mwee61fsX0Fw6e3fxDEayS/nVgHl3z?=
+ =?iso-8859-1?Q?OHZy2Xr3GvembYrHj4VrTaGOaJS0NePT80LF48QNCmT8LrdgBxEIM5sK1x?=
+ =?iso-8859-1?Q?aM0380ELdmz1sK8wsZddvB1Im+unqt1x5108RN4WrHQN0fcr14acB8fZLk?=
+ =?iso-8859-1?Q?ozVT+T0wP4QKu9G60F75DIOPJ8yG4pp2s23YLjqjrceGEWoQVIWS9XVCeT?=
+ =?iso-8859-1?Q?yMK5g7vqVYxag3n2vamiWDX7dawoZwjSQi/k1868FnF30uvPG62AKbONqm?=
+ =?iso-8859-1?Q?rjrIkvWSboJ3PbQDk3gWS++3/AQEQILGAg6cCWlSc7sEC1C33rKR4UHPXH?=
+ =?iso-8859-1?Q?0ysilQv2FQq8apI01/Pv5qHkHvFbMkI+VrDoq/zr7olzjIvKdSnxJWfXz7?=
+ =?iso-8859-1?Q?t+WSM4ELbnSUVaCPu01xhxGgtMlcaGf6g4fbYjvmRKkfjVwkRsy7IIJS/L?=
+ =?iso-8859-1?Q?J2WD1UoWlo1pkd9ff8hrshMFUAcD62dwGH2CsHsBDwPXOQ0dMZFhP9rJqW?=
+ =?iso-8859-1?Q?Pwv6rwVhpGUZ1Nn1FzlmuxY2HIkXQJqkC3dkJOX5/NQDpreeSM5xYN7koj?=
+ =?iso-8859-1?Q?0Rd749dKd6y+Zmk5B231Z1vdVRGK0oqrWolBMdOtdVGWWbGAcWRyc3h/Cr?=
+ =?iso-8859-1?Q?l9qs7zNFlFwH508KpkTzd0kBDQ5RSxHpOHOmjoU1h3MxiMHn+mqhglPOOy?=
+ =?iso-8859-1?Q?d0po5MU3cm+x6bXvefaVgvf+FZGCPFA24BWhbkrEGNihuuLMh36vWJDj3M?=
+ =?iso-8859-1?Q?/VKwamGxrAnqSzdO5vM+yh2a+Z2sG69RQ5V9ig7XdLhlvb6N1tWh/4mEQe?=
+ =?iso-8859-1?Q?IWVZ6VDEUS9zS601WlILaa6LIaQZ9r1HbmYA0jfYYqfnYNpN/AXy5D4K4Y?=
+ =?iso-8859-1?Q?VOMqN7HgNh0Ql22b7DJHHEuCaDHaLxChsWMeyWUGB4Z3bh/s2Fz/IagiWY?=
+ =?iso-8859-1?Q?iQ6RqduvgtWvaAKMe9cIXZaRDSkvi45zIaXhQtGCUMiQlGAVD8zo9efznK?=
+ =?iso-8859-1?Q?bR8GrXat0cWLVJCsHo1G8Ad39p4uKtaZtQfarFRO6x4los70dtSzvuv1RI?=
+ =?iso-8859-1?Q?0VDM8WgxxcpTC8SlN0MDPH7RjF4iwUVHB8sx7MUEfJuA6n6Je07ZCR1YbN?=
+ =?iso-8859-1?Q?m0shBrkFo3iE2yy0xbn0evVyGKmf5Dm0KdDiJ+IugYVdgcgxxmBB+VaXa3?=
+ =?iso-8859-1?Q?sQNds5O7/FgtCbWaR0Gt4P5fUAnpx/YxFIOZn7930/bml1BlY3UbOQK3g5?=
+ =?iso-8859-1?Q?SR9rDaTJ8RDQrTjf1iisu0mN0j2lQCMluqShEdG6xS32Ye7S8WwlSFUJRw?=
+ =?iso-8859-1?Q?l1+zGy/CXxqDGS9fja/Qd1niTdJZEhe6PpIJrc3OIDeq5VU7X5Q/XKY6hm?=
+ =?iso-8859-1?Q?rRbcoG9pKCJRGHUQALNNP4zXGmL1rTsL4sNmqYb3/nFDJ6pLYziWLnu9/v?=
+ =?iso-8859-1?Q?mG4DCm0qIyHMiRhPP/I94tbGxGqbKi7+daJ/TFndkUPogjDR0HdmDXob4C?=
+ =?iso-8859-1?Q?jR5ipfLuOlwJJdufW9FYP+etdVtXxc125RzKoOdl?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c0669b93-e758-4d44-9c96-08d9e4fe79fd
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jan 2022 21:13:06.8032
+X-MS-Exchange-CrossTenant-Network-Message-Id: 73012fa7-2298-43fb-b0e7-08d9e4fe7ab3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jan 2022 21:13:07.9653
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 0PmDfrK1+z1BJzNHqzzGNCrbN4BsvUEJvsowBVX4Uuho/XT9dEEJPmt8fBcGptecmhkOYvG8p0QHppJwpvHtqg==
+X-MS-Exchange-CrossTenant-userprincipalname: VruKOcJjqOlgiV1XUBZkyqKdX6On/VY2UOYlMCOXdsU9++pxWDSvNqcvI0+v1lNgUSmq1UuxslVlMBX9nIDNew==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB7576
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
@@ -133,43 +131,155 @@ X-Mailing-List: fio@vger.kernel.org
 
 From: Niklas Cassel <niklas.cassel@wdc.com>
 
-Increment ts->members after the call to sum_thread_stats(), just like how
-it's done in client.c and gclient.c.
+In order to avoid allocating a clat_prio_stat array for threadstats that we
+know will never be able to contain more than a single priority, introduce a
+new member disable_prio_stat in struct thread_stat.
 
-There is no reason why stat.c should increment ts->members before calling
-sum_thread_stats(). Change stat.c so that it is consistent with client.c
-and gclient.c. This way, sum_thread_stats() could actually make use of
-ts->members (if it wanted to), since it is now being updated consistently.
-
-No logical change, as currently, ts->members is only used in
-show_thread_status_normal(), which is always called after the call to
-sum_thread_stats().
+The naming prefix is disable, since we want the default value to be 0
+(enabled). This is because in default case, we do want sum_thread_stats()
+to generate a per prio stat array. Only in the case where we know that we
+don't want per stats to be generated, should this member be set to 1.
 
 Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
- stat.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ client.c      |  1 +
+ rate-submit.c |  9 +++++++++
+ server.c      |  1 +
+ stat.c        | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ stat.h        |  1 +
+ 5 files changed, 66 insertions(+)
 
+diff --git a/client.c b/client.c
+index e51138ee..e5f6cfa7 100644
+--- a/client.c
++++ b/client.c
+@@ -954,6 +954,7 @@ static void convert_ts(struct thread_stat *dst, struct =
+thread_stat *src)
+ 	dst->members		=3D le32_to_cpu(src->members);
+ 	dst->unified_rw_rep	=3D le32_to_cpu(src->unified_rw_rep);
+ 	dst->ioprio		=3D le32_to_cpu(src->ioprio);
++	dst->disable_prio_stat	=3D le32_to_cpu(src->disable_prio_stat);
+=20
+ 	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
+ 		convert_io_stat(&dst->clat_stat[i], &src->clat_stat[i]);
+diff --git a/rate-submit.c b/rate-submit.c
+index 752c30a5..e3a71168 100644
+--- a/rate-submit.c
++++ b/rate-submit.c
+@@ -195,6 +195,15 @@ static void io_workqueue_exit_worker_fn(struct submit_=
+worker *sw,
+ 	struct thread_data *td =3D sw->priv;
+=20
+ 	(*sum_cnt)++;
++
++	/*
++	 * io_workqueue_update_acct_fn() doesn't support per prio stats, and
++	 * even if it did, offload can't be used with all async IO engines.
++	 * If group reporting is set in the parent td, the group result
++	 * generated by __show_run_stats() can still contain multiple prios
++	 * from different offloaded jobs.
++	 */
++	sw->wq->td->ts.disable_prio_stat =3D 1;
+ 	sum_thread_stats(&sw->wq->td->ts, &td->ts);
+=20
+ 	fio_options_free(td);
+diff --git a/server.c b/server.c
+index 4ddf682b..d82c7e5b 100644
+--- a/server.c
++++ b/server.c
+@@ -1486,6 +1486,7 @@ void fio_server_send_ts(struct thread_stat *ts, struc=
+t group_run_stats *rs)
+ 	p.ts.members		=3D cpu_to_le32(ts->members);
+ 	p.ts.unified_rw_rep	=3D cpu_to_le32(ts->unified_rw_rep);
+ 	p.ts.ioprio		=3D cpu_to_le32(ts->ioprio);
++	p.ts.disable_prio_stat	=3D cpu_to_le32(ts->disable_prio_stat);
+=20
+ 	for (i =3D 0; i < DDIR_RWDIR_CNT; i++) {
+ 		convert_io_stat(&p.ts.clat_stat[i], &ts->clat_stat[i]);
 diff --git a/stat.c b/stat.c
-index 5aa6d588..ff33174e 100644
+index 7f134d35..3345c7c4 100644
 --- a/stat.c
 +++ b/stat.c
-@@ -2241,7 +2241,6 @@ void __show_run_stats(void)
- 		opt_lists[j] =3D &td->opt_list;
+@@ -2171,6 +2171,58 @@ void init_thread_stat(struct thread_stat *ts)
+ 	ts->groupid =3D -1;
+ }
 =20
- 		idx++;
--		ts->members++;
-=20
- 		if (ts->groupid =3D=3D -1) {
- 			/*
-@@ -2308,6 +2307,8 @@ void __show_run_stats(void)
-=20
- 		sum_thread_stats(ts, &td->ts);
-=20
-+		ts->members++;
++static void init_per_prio_stats(struct thread_stat *threadstats, int nr_ts=
+)
++{
++	struct thread_data *td;
++	struct thread_stat *ts;
++	int i, j, last_ts, idx;
++	enum fio_ddir ddir;
 +
- 		if (td->o.ss_dur) {
- 			ts->ss_state =3D td->ss.state;
- 			ts->ss_dur =3D td->ss.dur;
++	j =3D 0;
++	last_ts =3D -1;
++	idx =3D 0;
++
++	/*
++	 * Loop through all tds, if a td requires per prio stats, temporarily
++	 * store a 1 in ts->disable_prio_stat, and then do an additional
++	 * loop at the end where we invert the ts->disable_prio_stat values.
++	 */
++	for_each_td(td, i) {
++		if (!td->o.stats)
++			continue;
++		if (idx &&
++		    (!td->o.group_reporting ||
++		     (td->o.group_reporting && last_ts !=3D td->groupid))) {
++			idx =3D 0;
++			j++;
++		}
++
++		last_ts =3D td->groupid;
++		ts =3D &threadstats[j];
++
++		/* idx =3D=3D 0 means first td in group, or td is not in a group. */
++		if (idx =3D=3D 0)
++			ts->ioprio =3D td->ioprio;
++		else if (td->ioprio !=3D ts->ioprio)
++			ts->disable_prio_stat =3D 1;
++
++		for (ddir =3D 0; ddir < DDIR_RWDIR_CNT; ddir++) {
++			if (td->ts.clat_prio[ddir]) {
++				ts->disable_prio_stat =3D 1;
++				break;
++			}
++		}
++
++		idx++;
++	}
++
++	/* Loop through all dst threadstats and fixup the values. */
++	for (i =3D 0; i < nr_ts; i++) {
++		ts =3D &threadstats[i];
++		ts->disable_prio_stat =3D !ts->disable_prio_stat;
++	}
++}
++
+ void __show_run_stats(void)
+ {
+ 	struct group_run_stats *runstats, *rs;
+@@ -2217,6 +2269,8 @@ void __show_run_stats(void)
+ 		opt_lists[i] =3D NULL;
+ 	}
+=20
++	init_per_prio_stats(threadstats, nr_ts);
++
+ 	j =3D 0;
+ 	last_ts =3D -1;
+ 	idx =3D 0;
+diff --git a/stat.h b/stat.h
+index 1e720ad8..4b1d4cb8 100644
+--- a/stat.h
++++ b/stat.h
+@@ -174,6 +174,7 @@ struct thread_stat {
+ 	char description[FIO_JOBDESC_SIZE];
+ 	uint32_t members;
+ 	uint32_t unified_rw_rep;
++	uint32_t disable_prio_stat;
+=20
+ 	/*
+ 	 * bandwidth and latency stats
 --=20
 2.34.1
