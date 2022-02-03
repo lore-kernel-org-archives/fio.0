@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89E30C433F5
-	for <fio@archiver.kernel.org>; Thu,  3 Feb 2022 01:43:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 475E4C433EF
+	for <fio@archiver.kernel.org>; Thu,  3 Feb 2022 01:44:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347979AbiBCBne (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 2 Feb 2022 20:43:34 -0500
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:61151 "EHLO
+        id S1348732AbiBCBoj (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 2 Feb 2022 20:44:39 -0500
+Received: from esa6.hgst.iphmx.com ([216.71.154.45]:21493 "EHLO
         esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239984AbiBCBnc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 2 Feb 2022 20:43:32 -0500
+        with ESMTP id S239984AbiBCBoi (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Feb 2022 20:44:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1643852612; x=1675388612;
+  t=1643852679; x=1675388679;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=0RyoFfdhFjsjSGFr06GeckUw4mpyrgDukQlsh4XYvgU=;
-  b=NZ4akjgNVusz9kPNbw8XHBQoG0nnQYSZKeBgy3BbkPy6oXB+OPMfwrPR
-   I7DNJqmXM6/gG2nsUNJXoVtqK7V9OULpf/xqGyxBKehs5p2n45BUgLb6D
-   AGyTvCAweZiBt8gtBwP0iYkVyjjK0z33wBuGEgkvnv/2fLaE4RncjB5VE
-   8ODN/G/sWPun5s0BIuBtRJ50wmrXdDAJftZSQOXEn/ib3IpQ0MbDukTw8
-   o5cOSr9Uc0UeLnCHLYsMGG+SnU5HgDUjv4Cn5ZMvo66CpJTcf2rbrFzzh
-   BlykAwMIJ8v61XN6oSk3l6hG3N4/IUF0itc2rPOFzhzQG9lbFrqeUrZoS
-   w==;
+  bh=B5v1KE+z24jkXHRhLL0JV57Of3VJvpXfbl25umFldjE=;
+  b=dH+9K/sNgpv7KOD1+E0lhwMRJ8k++oxjjeO3dqaD5xNn/mS4kKPtZZVw
+   cR70fXv0w12+fgkG3oU/E4geb4iF+tBGZY/dv2IKdt/UrdLcfazXk68fT
+   h2iOdb9AGgdOjaH2tSh+/2O9OtrJbwt6eM3YWb3Ct5GDPzQG6m/lXRZAB
+   SYjewXRmTtcbIh1AhrkzGLFwM5+Vc92lHJh1aQDPoGuKuyQZtNRcU23qN
+   9IRgnhhkg1Pb3o5VnEyWgNln+qvv4tGmwPvQMSLutLWv49yFpt7kghzUZ
+   Tjm0f8QnShW/pjttoa4eoIeTZSbOdFj8FbEboqzbt7Exi15+i/6MqEyfp
+   A==;
 X-IronPort-AV: E=Sophos;i="5.88,338,1635177600"; 
-   d="scan'208";a="193017137"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 03 Feb 2022 09:43:32 +0800
-IronPort-SDR: IsxNlPcK+X3BIK2vBWLnHAzhjr0LVk6FCVG72RKEvg/RGsqiL6O7XsPIXf9Kpz5pVHNR5/Z1yM
- etpe+ykF0XAYt1DAYqt3S1Z9fl9aqKz+pDY/opQ5YLczge/hmkctVoVNVkKl7IKWjXAVtlj1En
- jzhqW+vHxEWKV/33K5ih4Pb8PAtR9Q5xjvc3zjkrbJIK9+9iZaqefM4yq2waacRiTSo6/TfKiu
- v1+M2Os2VQr1DloaneDir4Z8BWBk64W3o6OyJDKB4qEs3z/Yq5oZlyX9C92v1RrDnyGhfSwMoZ
- aBwzditf0zR8ezLAmHm61ppG
+   d="scan'208";a="193017208"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 03 Feb 2022 09:44:39 +0800
+IronPort-SDR: cUgi0wRQSMF+Ly88yRb2v/yhpFBKhpI+SQLdp6qzQws49ENrNJy0LB2f9UrV42Rk9m+6/lTbpV
+ WrRIz4shUWGvrKfRjQykE9S2a8/0uO0J79bbffGuq2SzXTQS201sbwM8EefTPyBHf+vmropV0t
+ /z5Z79nLKV6K7ns2sdUaNaTMQJrkar7FgZNAlN0a9ovaGJUcF1AQLdY/OJpFjYHt37pml/5AJh
+ 304r14NLRNW+LEoM2UxteGRnm/qYIC9YQyA6mWo8Nvsp5t+itaWxqXJ/Cymkw7d9LZEfSdozVJ
+ MussBWXp/7uxTkdGv0xYdzuz
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2022 17:15:28 -0800
-IronPort-SDR: dyk/Gx6vk948fToTUDqW/zzXEGnzn6Wu0rap3PCqyKSiYARj8Ml4LrC2NjaHKfjt8SKVjoRyFy
- 0DZmPkpwSpjd93lOIOYUKVJK+qU8xzEoQGbiyXeT7A/W3274MBZ1V+UPBAG5CAUuOVrExjbglH
- Ds/1UA4LHoS1rtVmg+LffRLaxAMXgKsSFsR1kyBGFCtn+U/2PZW6CoB6sG4u8r6IFz/GHd9+HA
- xppLGMaSuoM+ABIcxJFODSqYCipYzMzY9S0VFmnnIllKBmfp/qdzkB5kzgkAnS83oXEIsNGsbu
- RfU=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2022 17:17:47 -0800
+IronPort-SDR: 5KU7JPzIc30L2/Fezk3JmSt2vMOPhO9Rfx5jCPpjAlByfrokfweXm/2EkfIIjtyGdBt0AAbaNs
+ SEdKoIDXWP0DBRoU84vBAEjAV2uHCB5lEdW0zvvHJ1tYHhgcrpfEqycAgfAIHqEwFL+F9JXahl
+ tnjTWkWnoo+qLeqZWj95KcxrO+dlTMJtOIumOGto6PKYq4hZPnip8xLVUDtw+aFEqR3wjkDryJ
+ h+7CsOnIUFNo0b/uwGbPbg7VGY7Sy79zyo7RDIXASJqaIBpM+TzkqUL4J+fcYyGHSJYJX8xdpO
+ fZA=
 WDCIronportException: Internal
 Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2022 17:43:32 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2022 17:44:39 -0800
 Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Jq1fC6BNhz1SVny
-        for <fio@vger.kernel.org>; Wed,  2 Feb 2022 17:43:31 -0800 (PST)
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4Jq1gV2hSqz1SHwl
+        for <fio@vger.kernel.org>; Wed,  2 Feb 2022 17:44:38 -0800 (PST)
 Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
         reason="pass (just generated, assumed good)"
         header.d=opensource.wdc.com
@@ -53,37 +53,37 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
         opensource.wdc.com; h=content-transfer-encoding:content-type
         :in-reply-to:organization:from:references:to:content-language
         :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1643852611; x=1646444612; bh=0RyoFfdhFjsjSGFr06GeckUw4mpyrgDukQl
-        sh4XYvgU=; b=DjH2eWFHqjzN2lcNGWqGpf5Bnhj4JXtjqXZyBvIbARJuM2d4H+l
-        W2x14hQ0BOUQ7uT94c/NRE01VlRYbs6TGRLsaFVsvJJV4f2ry24dndccWHDtfdE7
-        JGVaot2qRztBzkJSTUIYA3azkwnXPkAmsGlwnDZrg1ApN1gtpsH8n96UzOtuWaOv
-        IYQJudziJEcOurKfxqbBMOiLumbDHl8FykW+YKuvNESroaaP3sUZxvnqnluvQH/r
-        IPPI0vJ7wkVNqdl8K686+qs4BCBPnPsfOiZ+aW1CGRR7jrPtOAv8sDeZ29iSU/7m
-        A8TwHpydfLckJWSvScZaLaIXs/H0nFzy5sg==
+        1643852677; x=1646444678; bh=B5v1KE+z24jkXHRhLL0JV57Of3VJvpXfbl2
+        5umFldjE=; b=Hu9ShQcNm2X/KSLU9VrjVAjxEPXb+KZwd6OQB1drLtzdR/UMQcZ
+        iD3hJrfyuUy7YX7gu4BxL7R4rA4WZC5mtX8LEvv9Urt5oXUbcri67vtmKvR3ZyZ6
+        ciECuu2T6/EGGRx2PUIEVN1VwLSJsiqgIzC9M6XlEV0v90z8YM/RQkmN/G4XfDfl
+        msdNtMmyOS2P9t+M2N+if9neZyQFWH3FcVQ6NrwlZuFLH0IVlxxQoLbD5KTqLkye
+        EoaEg1X9+Ll67pzlvKmhGd45zdy0MS5Ix0fdqu/k4J4GXlEojONYEYH0z5EiNXdM
+        YqjtZoWzA46NyrHWy+B5H2dINTdWcXF1BNg==
 X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
 Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
         by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id gg2BCe4iabaZ for <fio@vger.kernel.org>;
-        Wed,  2 Feb 2022 17:43:31 -0800 (PST)
+        with ESMTP id k58cZkE5LxBG for <fio@vger.kernel.org>;
+        Wed,  2 Feb 2022 17:44:37 -0800 (PST)
 Received: from [10.225.163.63] (unknown [10.225.163.63])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Jq1fB3L3rz1Rwrw;
-        Wed,  2 Feb 2022 17:43:30 -0800 (PST)
-Message-ID: <071d74c2-3a07-3792-1f79-a1358387eb2f@opensource.wdc.com>
-Date:   Thu, 3 Feb 2022 10:43:29 +0900
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4Jq1gT3ZGTz1Rwrw;
+        Wed,  2 Feb 2022 17:44:37 -0800 (PST)
+Message-ID: <474faac3-ef2a-79db-98d8-764c269a6d6d@opensource.wdc.com>
+Date:   Thu, 3 Feb 2022 10:44:36 +0900
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [PATCH 14/17] stat: convert json output to a new per priority
- granularity format
+Subject: Re: [PATCH 15/17] gfio: drop support for high/low priority latency
+ results
 Content-Language: en-US
 To:     Niklas Cassel <Niklas.Cassel@wdc.com>,
         "axboe@kernel.dk" <axboe@kernel.dk>
 Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
 References: <20220131211249.106820-1-Niklas.Cassel@wdc.com>
- <20220131211249.106820-15-Niklas.Cassel@wdc.com>
+ <20220131211249.106820-16-Niklas.Cassel@wdc.com>
 From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Organization: Western Digital Research
-In-Reply-To: <20220131211249.106820-15-Niklas.Cassel@wdc.com>
+In-Reply-To: <20220131211249.106820-16-Niklas.Cassel@wdc.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -93,352 +93,134 @@ X-Mailing-List: fio@vger.kernel.org
 On 2/1/22 06:13, Niklas Cassel wrote:
 > From: Niklas Cassel <niklas.cassel@wdc.com>
 > 
-> The JSON output will no longer contain high_prio/low_prio entries, but will
-> instead include a new list "prios", which will include an object per
-> prioclass/priolevel combination. Each of these objects will either have a
-> "clat_ns" object or a "lat_ns" object, depending on which latency type was
-> being tracked.
+> High/low priority latencies have been replaced by a per prio array.
+> This allows us to have latency results for more than just two priorities.
 > 
-> This JSON structure should make it easy if the per priority stats were ever
-> extended to be able to track multiple latency types at the same time, as
-> each prioclass/priolevel object will then simply contain (e.g.) both a
-> "clat_ns" and a "lat_ns" object.
+> Unfortunately this currently means that we have to drop the support for
+> visualizing the high/low priority latencies.
 > 
-> Convert the JSON output to this new per priority granularity format,
-> and convert the tests to work with the new JSON output.
+> If someone wants to know the per prio latency results, both the regular
+> output and the json output contain this information.
+> 
+> The GUI could be extended to support the new per priority format at a
+> later time, if anyone has a huge need for this feature.
 > 
 > Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
 > ---
->  stat.c                   |  44 +++++++++------
->  t/latency_percentiles.py | 118 +++++++++++++++++++--------------------
->  2 files changed, 87 insertions(+), 75 deletions(-)
+>  gclient.c | 55 ++++---------------------------------------------------
+>  1 file changed, 4 insertions(+), 51 deletions(-)
 > 
-> diff --git a/stat.c b/stat.c
-> index 096457a2..3d30eda4 100644
-> --- a/stat.c
-> +++ b/stat.c
-> @@ -1493,25 +1493,37 @@ static void add_ddir_status_json(struct thread_stat *ts,
->  	if (!ddir_rw(ddir))
->  		return;
+> diff --git a/gclient.c b/gclient.c
+> index ac063536..c59bcfe2 100644
+> --- a/gclient.c
+> +++ b/gclient.c
+> @@ -1155,21 +1155,18 @@ out:
+>  #define GFIO_CLAT	1
+>  #define GFIO_SLAT	2
+>  #define GFIO_LAT	4
+> -#define GFIO_HILAT	8
+> -#define GFIO_LOLAT	16
 >  
-> -	/* Only print PRIO latencies if some high priority samples were gathered */
-> -	if (ts->clat_high_prio_stat[ddir].samples > 0) {
-> -		const char *high, *low;
-> +	/* Only include per prio stats if there are >= 2 prios with samples */
-> +	if (get_nr_prios_with_samples(ts, ddir) >= 2) {
-> +		struct json_array *array = json_create_array();
-> +		const char *obj_name;
-> +		int i;
+>  static void gfio_show_ddir_status(struct gfio_client *gc, GtkWidget *mbox,
+>  				  struct group_run_stats *rs,
+>  				  struct thread_stat *ts, int ddir)
+>  {
+>  	const char *ddir_label[3] = { "Read", "Write", "Trim" };
+> -	const char *hilat, *lolat;
+>  	GtkWidget *frame, *label, *box, *vbox, *main_vbox;
+> -	unsigned long long min[5], max[5];
+> +	unsigned long long min[3], max[3];
+>  	unsigned long runt;
+>  	unsigned long long bw, iops;
+>  	unsigned int flags = 0;
+> -	double mean[5], dev[5];
+> +	double mean[3], dev[3];
+>  	char *io_p, *io_palt, *bw_p, *bw_palt, *iops_p;
+>  	char tmp[128];
+>  	int i2p;
+> @@ -1268,14 +1265,6 @@ static void gfio_show_ddir_status(struct gfio_client *gc, GtkWidget *mbox,
+>  		flags |= GFIO_CLAT;
+>  	if (calc_lat(&ts->lat_stat[ddir], &min[2], &max[2], &mean[2], &dev[2]))
+>  		flags |= GFIO_LAT;
+> -	if (calc_lat(&ts->clat_high_prio_stat[ddir], &min[3], &max[3], &mean[3], &dev[3])) {
+> -		flags |= GFIO_HILAT;
+> -		if (calc_lat(&ts->clat_low_prio_stat[ddir], &min[4], &max[4], &mean[4], &dev[4]))
+> -			flags |= GFIO_LOLAT;
+> -		/* we only want to print low priority statistics if other IOs were
+> -		 * submitted with the priority bit set
+> -		 */
+> -	}
+>  
+>  	if (flags) {
+>  		frame = gtk_frame_new("Latency");
+> @@ -1284,24 +1273,12 @@ static void gfio_show_ddir_status(struct gfio_client *gc, GtkWidget *mbox,
+>  		vbox = gtk_vbox_new(FALSE, 3);
+>  		gtk_container_add(GTK_CONTAINER(frame), vbox);
 >  
 > -		if (ts->lat_percentiles) {
-> -			high = "lat_high_prio";
-> -			low = "lat_low_prio";
+> -			hilat = "High priority total latency";
+> -			lolat = "Low priority total latency";
 > -		} else {
-> -			high = "clat_high_prio";
-> -			low = "clat_low_prio";
+> -			hilat = "High priority completion latency";
+> -			lolat = "Low priority completion latency";
 > -		}
-> +		if (ts->lat_percentiles)
-> +			obj_name = "lat_ns";
-> +		else
-> +			obj_name = "clat_ns";
->  
-> -		tmp_object = add_ddir_lat_json(ts, ts->clat_percentiles | ts->lat_percentiles,
-> -				&ts->clat_high_prio_stat[ddir], ts->io_u_plat_high_prio[ddir]);
-> -		json_object_add_value_object(dir_object, high, tmp_object);
-> +		json_object_add_value_array(dir_object, "prios", array);
->  
-> -		tmp_object = add_ddir_lat_json(ts, ts->clat_percentiles | ts->lat_percentiles,
-> -				&ts->clat_low_prio_stat[ddir], ts->io_u_plat_low_prio[ddir]);
-> -		json_object_add_value_object(dir_object, low, tmp_object);
-> +		for (i = 0; i < ts->nr_clat_prio[ddir]; i++) {
-> +			if (ts->clat_prio[ddir][i].clat_stat.samples > 0) {
-> +				struct json_object *obj = json_create_object();
-> +				unsigned long long class, level;
-> +
-> +				class = ts->clat_prio[ddir][i].ioprio >> 13;
-> +				json_object_add_value_int(obj, "prioclass", class);
-> +				level = ts->clat_prio[ddir][i].ioprio & 7;
-> +				json_object_add_value_int(obj, "prio", level);
-> +
-> +				tmp_object = add_ddir_lat_json(ts,
-> +							       ts->clat_percentiles | ts->lat_percentiles,
-> +							       &ts->clat_prio[ddir][i].clat_stat,
-> +							       ts->clat_prio[ddir][i].io_u_plat);
-> +				json_object_add_value_object(obj, obj_name, tmp_object);
-> +				json_array_add_value_object(array, obj);
-> +			}
-> +		}
+> -
+>  		if (flags & GFIO_SLAT)
+>  			gfio_show_lat(vbox, "Submission latency", min[0], max[0], mean[0], dev[0]);
+>  		if (flags & GFIO_CLAT)
+>  			gfio_show_lat(vbox, "Completion latency", min[1], max[1], mean[1], dev[1]);
+>  		if (flags & GFIO_LAT)
+>  			gfio_show_lat(vbox, "Total latency", min[2], max[2], mean[2], dev[2]);
+> -		if (flags & GFIO_HILAT)
+> -			gfio_show_lat(vbox, hilat, min[3], max[3], mean[3], dev[3]);
+> -		if (flags & GFIO_LOLAT)
+> -			gfio_show_lat(vbox, lolat, min[4], max[4], mean[4], dev[4]);
 >  	}
 >  
->  	if (calc_lat(&ts->bw_stat[ddir], &min, &max, &mean, &dev)) {
-> diff --git a/t/latency_percentiles.py b/t/latency_percentiles.py
-> index cc437426..62c4cc91 100755
-> --- a/t/latency_percentiles.py
-> +++ b/t/latency_percentiles.py
-> @@ -80,6 +80,7 @@ import time
->  import argparse
->  import platform
->  import subprocess
-> +from collections import Counter
->  from pathlib import Path
+>  	if (ts->slat_percentiles && flags & GFIO_SLAT)
+> @@ -1309,40 +1286,16 @@ static void gfio_show_ddir_status(struct gfio_client *gc, GtkWidget *mbox,
+>  				ts->io_u_plat[FIO_SLAT][ddir],
+>  				ts->slat_stat[ddir].samples,
+>  				"Submission");
+> -	if (ts->clat_percentiles && flags & GFIO_CLAT) {
+> +	if (ts->clat_percentiles && flags & GFIO_CLAT)
+>  		gfio_show_clat_percentiles(gc, main_vbox, ts, ddir,
+>  				ts->io_u_plat[FIO_CLAT][ddir],
+>  				ts->clat_stat[ddir].samples,
+>  				"Completion");
+> -		if (!ts->lat_percentiles) {
+> -			if (flags & GFIO_HILAT)
+> -				gfio_show_clat_percentiles(gc, main_vbox, ts, ddir,
+> -						ts->io_u_plat_high_prio[ddir],
+> -						ts->clat_high_prio_stat[ddir].samples,
+> -						"High priority completion");
+> -			if (flags & GFIO_LOLAT)
+> -				gfio_show_clat_percentiles(gc, main_vbox, ts, ddir,
+> -						ts->io_u_plat_low_prio[ddir],
+> -						ts->clat_low_prio_stat[ddir].samples,
+> -						"Low priority completion");
+> -		}
+> -	}
+> -	if (ts->lat_percentiles && flags & GFIO_LAT) {
+> +	if (ts->lat_percentiles && flags & GFIO_LAT)
+>  		gfio_show_clat_percentiles(gc, main_vbox, ts, ddir,
+>  				ts->io_u_plat[FIO_LAT][ddir],
+>  				ts->lat_stat[ddir].samples,
+>  				"Total");
+> -		if (flags & GFIO_HILAT)
+> -			gfio_show_clat_percentiles(gc, main_vbox, ts, ddir,
+> -					ts->io_u_plat_high_prio[ddir],
+> -					ts->clat_high_prio_stat[ddir].samples,
+> -					"High priority total");
+> -		if (flags & GFIO_LOLAT)
+> -			gfio_show_clat_percentiles(gc, main_vbox, ts, ddir,
+> -					ts->io_u_plat_low_prio[ddir],
+> -					ts->clat_low_prio_stat[ddir].samples,
+> -					"Low priority total");
+> -	}
 >  
->  
-> @@ -363,20 +364,19 @@ class FioLatTest():
->  
->      def check_nocmdprio_lat(self, job):
->          """
-> -        Make sure no high/low priority latencies appear.
-> +        Make sure no per priority latencies appear.
->  
->          job         JSON object to check
->          """
->  
->          for ddir in ['read', 'write', 'trim']:
->              if ddir in job:
-> -                if 'lat_high_prio' in job[ddir] or 'lat_low_prio' in job[ddir] or \
-> -                    'clat_high_prio' in job[ddir] or 'clat_low_prio' in job[ddir]:
-> -                    print("Unexpected high/low priority latencies found in %s output" % ddir)
-> +                if 'prios' in job[ddir]:
-> +                    print("Unexpected per priority latencies found in %s output" % ddir)
->                      return False
->  
->          if self.debug:
-> -            print("No high/low priority latencies found")
-> +            print("No per priority latencies found")
->  
->          return True
->  
-> @@ -497,7 +497,7 @@ class FioLatTest():
->          return retval
->  
->      def check_prio_latencies(self, jsondata, clat=True, plus=False):
-> -        """Check consistency of high/low priority latencies.
-> +        """Check consistency of per priority latencies.
->  
->          clat                True if we should check clat data; other check lat data
->          plus                True if we have json+ format data where additional checks can
-> @@ -506,78 +506,78 @@ class FioLatTest():
->          """
->  
->          if clat:
-> -            high = 'clat_high_prio'
-> -            low = 'clat_low_prio'
-> -            combined = 'clat_ns'
-> +            obj = combined = 'clat_ns'
->          else:
-> -            high = 'lat_high_prio'
-> -            low = 'lat_low_prio'
-> -            combined = 'lat_ns'
-> +            obj = combined = 'lat_ns'
->  
-> -        if not high in jsondata or not low in jsondata or not combined in jsondata:
-> -            print("Error identifying high/low priority latencies")
-> +        if not 'prios' in jsondata or not combined in jsondata:
-> +            print("Error identifying per priority latencies")
->              return False
->  
-> -        if jsondata[high]['N'] + jsondata[low]['N'] != jsondata[combined]['N']:
-> -            print("High %d + low %d != combined sample size %d" % \
-> -                    (jsondata[high]['N'], jsondata[low]['N'], jsondata[combined]['N']))
-> +        sum_sample_size = sum([x[obj]['N'] for x in jsondata['prios']])
-> +        if sum_sample_size != jsondata[combined]['N']:
-> +            print("Per prio sample size sum %d != combined sample size %d" %
-> +                  (sum_sample_size, jsondata[combined]['N']))
->              return False
->          elif self.debug:
-> -            print("High %d + low %d == combined sample size %d" % \
-> -                    (jsondata[high]['N'], jsondata[low]['N'], jsondata[combined]['N']))
-> +            print("Per prio sample size sum %d == combined sample size %d" %
-> +                  (sum_sample_size, jsondata[combined]['N']))
->  
-> -        if min(jsondata[high]['min'], jsondata[low]['min']) != jsondata[combined]['min']:
-> -            print("Min of high %d, low %d min latencies does not match min %d from combined data" % \
-> -                    (jsondata[high]['min'], jsondata[low]['min'], jsondata[combined]['min']))
-> +        min_val = min([x[obj]['min'] for x in jsondata['prios']])
-> +        if min_val != jsondata[combined]['min']:
-> +            print("Min per prio min latency %d does not match min %d from combined data" %
-> +                  (min_val, jsondata[combined]['min']))
->              return False
->          elif self.debug:
-> -            print("Min of high %d, low %d min latencies matches min %d from combined data" % \
-> -                    (jsondata[high]['min'], jsondata[low]['min'], jsondata[combined]['min']))
-> +            print("Min per prio min latency %d matches min %d from combined data" %
-> +                  (min_val, jsondata[combined]['min']))
->  
-> -        if max(jsondata[high]['max'], jsondata[low]['max']) != jsondata[combined]['max']:
-> -            print("Max of high %d, low %d max latencies does not match max %d from combined data" % \
-> -                    (jsondata[high]['max'], jsondata[low]['max'], jsondata[combined]['max']))
-> +        max_val = max([x[obj]['max'] for x in jsondata['prios']])
-> +        if max_val != jsondata[combined]['max']:
-> +            print("Max per prio max latency %d does not match max %d from combined data" %
-> +                  (max_val, jsondata[combined]['max']))
->              return False
->          elif self.debug:
-> -            print("Max of high %d, low %d max latencies matches max %d from combined data" % \
-> -                    (jsondata[high]['max'], jsondata[low]['max'], jsondata[combined]['max']))
-> +            print("Max per prio max latency %d matches max %d from combined data" %
-> +                  (max_val, jsondata[combined]['max']))
->  
-> -        weighted_avg = (jsondata[high]['mean'] * jsondata[high]['N'] + \
-> -                        jsondata[low]['mean'] * jsondata[low]['N']) / jsondata[combined]['N']
-> +        weighted_vals = [x[obj]['mean'] * x[obj]['N'] for x in jsondata['prios']]
-> +        weighted_avg = sum(weighted_vals) / jsondata[combined]['N']
->          delta = abs(weighted_avg - jsondata[combined]['mean'])
->          if (delta / jsondata[combined]['mean']) > 0.0001:
-> -            print("Difference between weighted average %f of high, low means "
-> +            print("Difference between merged per prio weighted average %f mean "
->                    "and actual mean %f exceeds 0.01%%" % (weighted_avg, jsondata[combined]['mean']))
->              return False
->          elif self.debug:
-> -            print("Weighted average %f of high, low means matches actual mean %f" % \
-> -                    (weighted_avg, jsondata[combined]['mean']))
-> +            print("Merged per prio weighted average %f mean matches actual mean %f" %
-> +                  (weighted_avg, jsondata[combined]['mean']))
->  
->          if plus:
-> -            if not self.check_jsonplus(jsondata[high]):
-> -                return False
-> -            if not self.check_jsonplus(jsondata[low]):
-> -                return False
-> +            for prio in jsondata['prios']:
-> +                if not self.check_jsonplus(prio[obj]):
-> +                    return False
->  
-> -            bins = {**jsondata[high]['bins'], **jsondata[low]['bins']}
-> -            for duration in bins.keys():
-> -                if duration in jsondata[high]['bins'] and duration in jsondata[low]['bins']:
-> -                    bins[duration] = jsondata[high]['bins'][duration] + \
-> -                            jsondata[low]['bins'][duration]
-> +            counter = Counter()
-> +            for prio in jsondata['prios']:
-> +                counter.update(prio[obj]['bins'])
-> +
-> +            bins = dict(counter)
->  
->              if len(bins) != len(jsondata[combined]['bins']):
-> -                print("Number of combined high/low bins does not match number of overall bins")
-> +                print("Number of merged bins %d does not match number of overall bins %d" %
-> +                      (len(bins), len(jsondata[combined]['bins'])))
->                  return False
->              elif self.debug:
-> -                print("Number of bins from merged high/low data matches number of overall bins")
-> +                print("Number of merged bins %d matches number of overall bins %d" %
-> +                      (len(bins), len(jsondata[combined]['bins'])))
->  
->              for duration in bins.keys():
->                  if bins[duration] != jsondata[combined]['bins'][duration]:
-> -                    print("Merged high/low count does not match overall count for duration %d" \
-> -                            % duration)
-> +                    print("Merged per prio count does not match overall count for duration %d" %
-> +                          duration)
->                      return False
->  
-> -        print("Merged high/low priority latency data match combined latency data")
-> +        print("Merged per priority latency data match combined latency data")
->          return True
->  
->      def check(self):
-> @@ -602,7 +602,7 @@ class Test001(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['read'], 0, slat=False)
-> @@ -626,7 +626,7 @@ class Test002(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['write'], 1, slat=False, clat=False)
-> @@ -650,7 +650,7 @@ class Test003(FioLatTest):
->              print("Unexpected write data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['trim'], 2, slat=False, tlat=False)
-> @@ -674,7 +674,7 @@ class Test004(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['read'], 0, plus=True)
-> @@ -698,7 +698,7 @@ class Test005(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['write'], 1, slat=False, plus=True)
-> @@ -722,7 +722,7 @@ class Test006(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['read'], 0, slat=False, tlat=False, plus=True)
-> @@ -743,7 +743,7 @@ class Test007(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['read'], 0, clat=False, tlat=False, plus=True)
-> @@ -765,7 +765,7 @@ class Test008(FioLatTest):
->              print("Unexpected data direction found in fio output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['mixed'], 0, plus=True, unified=True)
-> @@ -792,7 +792,7 @@ class Test009(FioLatTest):
->              print("Error checking fsync latency data")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['write'], 1, slat=False, plus=True)
-> @@ -813,7 +813,7 @@ class Test010(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['read'], 0, plus=True)
-> @@ -839,7 +839,7 @@ class Test011(FioLatTest):
->              print("Unexpected trim data found in output")
->              retval = False
->          if not self.check_nocmdprio_lat(job):
-> -            print("Unexpected high/low priority latencies found")
-> +            print("Unexpected per priority latencies found")
->              retval = False
->  
->          retval &= self.check_latencies(job['read'], 0, slat=False, clat=False, plus=True)
-
-Looks OK to me.
+>  	free(io_p);
+>  	free(bw_p);
 
 Reviewed-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
