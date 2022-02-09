@@ -2,77 +2,86 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BC6AC433F5
-	for <fio@archiver.kernel.org>; Wed,  9 Feb 2022 13:00:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A31F8C433FE
+	for <fio@archiver.kernel.org>; Wed,  9 Feb 2022 21:41:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230475AbiBINAE (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 9 Feb 2022 08:00:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37282 "EHLO
+        id S229653AbiBIVlJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 9 Feb 2022 16:41:09 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:51110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233764AbiBINAE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 9 Feb 2022 08:00:04 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABB01C0613CA
-        for <fio@vger.kernel.org>; Wed,  9 Feb 2022 05:00:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=qtZ/hrvyjP7qHgS9rlNSasLQHgl3i8VgF5JCqBpAjZA=; b=MeRPFGlLJUi7Jy2pSAWV4wkh+p
-        YdWM3yZpG1AOsUieCWIRyFe1SvFcQL0qUj+D4a/dPRQv4H9jQ5qfpi5r4JgsqhxqirbUEZSysitUD
-        51ThUOh7BNt8uT50i722RBVtu6zT5ABXLsaNV0RkJrrOHGjGdL70w+a3VozA0LZ/J6HyNsUazGUvy
-        7m5O2nxIekgc0+zMA4blG7Csu+SwzAcz/KlpDllYhGYfK6u26OxnbJ0/o7hmR1i/1D5fCZxk/9+MZ
-        8D+pssUU9eSux33mDR2zekKfk8DmAzdt2Y6e3EIfk9WTP/cqGRzyi9YS7+6hwjnuqDvGDbpAoQDcp
-        gsC9ipWw==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nHmZo-008QVF-P0
-        for fio@vger.kernel.org; Wed, 09 Feb 2022 13:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 0BBC81BC0181; Wed,  9 Feb 2022 06:00:02 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220209130002.0BBC81BC0181@kernel.dk>
-Date:   Wed,  9 Feb 2022 06:00:02 -0700 (MST)
+        with ESMTP id S233557AbiBIVlG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 9 Feb 2022 16:41:06 -0500
+Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61301DF28A39
+        for <fio@vger.kernel.org>; Wed,  9 Feb 2022 13:41:04 -0800 (PST)
+Received: by mail-qt1-x830.google.com with SMTP id g4so2449523qto.1
+        for <fio@vger.kernel.org>; Wed, 09 Feb 2022 13:41:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pcpartpicker.com; s=google;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=JlT97AhYpaTO2vdc1e5MizOolQMqEfteUIViHkaIEhY=;
+        b=ok0tEHbY694IazeFQkTNwfA4BPdHOtrbFt8Z6vIOMJnYakhV9KiQFjf0gjW/EJ9V7N
+         a6X19oZ7d3ls6APGAnF6uLpxpVoPE77Lgl9zYoZE5xlZjmojMC3vOaOsbWsFgEnl1wkQ
+         NOJpYG5XiIxVX8F0RXVpKACSug13URSIzRUX3k6+YM8VC6B7p28993PbC7KkLndrmDif
+         O3CYQ2I94aqNYHjrLbmxGLGbdP2hkAmfmHRNCvoCRsn2/2P9txODVYjj67W4EDUs54f7
+         tXadgmfsLjRr2MYL0VS3Xfo9ug+6JwrR0fwwOPxWUA7Mh2KA3Hi2+OobfP5ndxpBZ3Z0
+         QzzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=JlT97AhYpaTO2vdc1e5MizOolQMqEfteUIViHkaIEhY=;
+        b=QE0lzoRfndhXTpTKbLzZzdW0SVkUpfXNI4vvL7EWu6iwaKr5Ri4Di3feIcMEsiES0E
+         OB9RlCm4WQLRaCkZDXGzvDa7E/6hHIP+dUu6qDyqvOm0zGTYuLPQpbhRRa1pkJhBedNw
+         D0ACYyNwroBhNhsyYPPD4pxSyT05mbB7NYyKj/uRVc3Fhfr0g7VKe5d6OofHbdKg5Pml
+         5sR61pvhxFp5fEzBJ0bSlcbWr2YJjeCMQA/IgKRqkLfW8ytU07sgbunSNN2tLdHZeXOJ
+         Pd/ynaFj0cJh0sMJMs4WlkXAp+IBgDJb9hlzUt1G0IYGDDwnSFXBsALO19yYcwLLi86u
+         eKgw==
+X-Gm-Message-State: AOAM531cUd6bJDxETerRZmFU9LBHkkJSFh9HlTj0kkRYuOgPPboeDz0Y
+        r+IHdUApOBiNWlBg212GXBVBXtprsxAPFD/kN1aDSCPlJrI=
+X-Google-Smtp-Source: ABdhPJxjrpMWDnXdo0Czzvy4CuXqwLv/zGSnZv6d+wdFdcR599c1gotkO/au7ycE9sUq3vUVLYR+vOiasqhiVNpofjk=
+X-Received: by 2002:a05:622a:d1:: with SMTP id p17mr2861600qtw.441.1644442863277;
+ Wed, 09 Feb 2022 13:41:03 -0800 (PST)
+MIME-Version: 1.0
+From:   Nick Neumann <nick@pcpartpicker.com>
+Date:   Wed, 9 Feb 2022 15:40:49 -0600
+Message-ID: <CADqNVToXpXgH-1XVeSyrv-Hw0bMfkPPhQSm1=-iLjBxnkGN1+Q@mail.gmail.com>
+Subject: Problems with check_min_rate and io_submit_mode=offload ?
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit b65c1fc07d4794920224312c56c785de2f3f1692:
+I started trying to use the rate_min and rate_iops_min options. I was
+trying to use them with io_submit_mode=offload. There appear to be
+some significant issues with it though.
 
-  t/io_uring: fix warnings for !ARCH_HAVE_CPU_CLOCK (2022-02-04 09:02:49 -0700)
+The first is that it will intermittently assert and generally ignore
+any minimum specified rate. Why? Because in do_io in backend.c, in the
+IO_OFFLOAD case, comp_time is never set. This means that later when
+check_min_rate is passed comp_time, it is checking using a time for
+"now" that is an uninitialized variable. Sometimes that will trip the
+assert in rel_time_since, sometimes not. And when not, any rate
+checking is not going to be right.
 
-are available in the Git repository at:
+So I added a call to fio_gettime in the IO_OFFLOAD case under the
+if(should_check_rate(td)...)
 
-  git://git.kernel.dk/fio.git master
+Now the job will catch when rate_min is not met, but something goes
+wrong in the shutdown. Fio ends up in a state where IO appears to
+stop, but fio doesn't exit, and ctrl-C will not cause an exit either.
+This is because td->error is (rightly) set, so the code after the main
+loop in do_io will enter the "else cleanup_pending_aio(td)" and hang
+in its second call to io_u_queued_complete.
 
-for you to fetch changes up to df597be63e26ef59c1538b3ce2026c83684ff7fb:
+I think the right fix is to call workqueue_flush before
+cleanup_pending_aio (in the error, offload case), so that there is
+nothing left in the work queues and cleanup can proceed as it does in
+the non-offload case.
 
-  fio: really use LDFLAGS when linking dynamic engines (2022-02-08 09:28:30 -0700)
+Two questions before I submit a PR for this:
+1) Does adding the fio_gettime() call in the offload case seem right?
+2) Does adding the workqueue_flush in the error case before cleanup seem right?
 
-----------------------------------------------------------------
-Eric Sandeen (1):
-      fio: really use LDFLAGS when linking dynamic engines
-
- Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index 2432f519..0ab4f82c 100644
---- a/Makefile
-+++ b/Makefile
-@@ -295,7 +295,7 @@ define engine_template =
- $(1)_OBJS := $$($(1)_SRCS:.c=.o)
- $$($(1)_OBJS): CFLAGS := -fPIC $$($(1)_CFLAGS) $(CFLAGS)
- engines/fio-$(1).so: $$($(1)_OBJS)
--	$$(QUIET_LINK)$(CC) $(DYNAMIC) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 -o $$@ $$< $$($(1)_LIBS)
-+	$$(QUIET_LINK)$(CC) $(LDFLAGS) -shared -rdynamic -fPIC -Wl,-soname,fio-$(1).so.1 -o $$@ $$< $$($(1)_LIBS)
- ENGS_OBJS += engines/fio-$(1).so
- endef
- else # !CONFIG_DYNAMIC_ENGINES
+Thanks,
+Nick
