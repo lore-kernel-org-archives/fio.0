@@ -2,69 +2,80 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A74C4C433EF
-	for <fio@archiver.kernel.org>; Thu, 10 Feb 2022 23:08:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB2AC433F5
+	for <fio@archiver.kernel.org>; Fri, 11 Feb 2022 04:35:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345403AbiBJXIa (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 10 Feb 2022 18:08:30 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:58194 "EHLO
+        id S236979AbiBKEfQ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 10 Feb 2022 23:35:16 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:54782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238904AbiBJXI3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 10 Feb 2022 18:08:29 -0500
-Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com [IPv6:2607:f8b0:4864:20::72c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE912C66
-        for <fio@vger.kernel.org>; Thu, 10 Feb 2022 15:08:29 -0800 (PST)
-Received: by mail-qk1-x72c.google.com with SMTP id o12so6555179qke.5
-        for <fio@vger.kernel.org>; Thu, 10 Feb 2022 15:08:29 -0800 (PST)
+        with ESMTP id S229483AbiBKEfQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 10 Feb 2022 23:35:16 -0500
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C4C2F4B
+        for <fio@vger.kernel.org>; Thu, 10 Feb 2022 20:35:14 -0800 (PST)
+Received: by mail-qt1-x82a.google.com with SMTP id p14so7940359qtx.0
+        for <fio@vger.kernel.org>; Thu, 10 Feb 2022 20:35:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=pcpartpicker.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=U4WJX9CwgR64onSn+0HZB322kfbdhpQsQJ9BT4ZF9VI=;
-        b=oylPX5v1jDr2KVmHNsKPr8kWJ2AzNbmG7+5oTpiNS4ChQQLXnpZmp247uMgdhkgF7j
-         sTiYx1qhM1i0oF+iACWgejdeo+m9jTFCBbHJW7d9GskHiO+FSB6ifNJtqGe+LAvdQmee
-         QduE5/sueOhd+UGJ3fvUeU0Vn/6NCo8HKGDW0xHkJwePV8ekg86GHjHMJwUOCfIg2sj3
-         r5f3Kvn+wRSr0OLqWV+9fYABU1lAs+0AiACi/p40RX394+nBYhZyXs76KaD9Xc9DRoAW
-         5mP6uxMIBBaKocpiRpEtTtKlsfY7ChJhpvvHm+3GXnUupqW5wO8caJebUymyiSMd8Fvs
-         T0LA==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=GbczPbvUXfWHUfZcmpjaihwul/Tm6Yh5kwknHuOMphw=;
+        b=m1see04peOPQDudLmCJ+TB6jckmiR3B7+PiX0wJWIi+rrrntKVO2orGfZhVyRRvOu/
+         uACZ3iK77YcBwcspe9Rhuc+SyO+gqMV+/VdiMiueJRQ4iQx40QWCE4on3wWFvMvv6FGc
+         ElOC4bYdRbv3exWA+Dpe4iS39AVkBz3jJYP+E6tMuKqUJIMBB9/sQP0ELzOoxdMP8vbl
+         6hBR3Au7ZHo9znu/7M1ljT9wmtDj4+mxR7ntc7YXCtKd/M7jO5HDTPCi+QLsm7NW+KzC
+         yXT2I9GUkuXc2k84pagv9oefT7johvFXs1Vfmwtakekk7Z6TovIcT6oM3xPqRltISW8n
+         iTJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=U4WJX9CwgR64onSn+0HZB322kfbdhpQsQJ9BT4ZF9VI=;
-        b=STIO+Bqjwi2Tr7xZkHNazqvIzJlVSwvP0i8MPaDBEiUECgg+p4kUPkHBCCuM96+UjX
-         BqDZ4Tur2CvPGPDWRw/4mj2emXiv/4lagWCHIEOtUCyFz2mGnfduJpTcWoLBkdheND8l
-         rzlNxcrm8++xlB2373rx5gt0AVoUp4BxhmcIEgdFapKm+qy25OF3Lu/wz1Uy1h3DnDbZ
-         SdHt44bP84qvXAw/Vp4Nxh7Fl9W7NbdJT4D7gTRlYdRUIZpWSrF64aZEgOGiT+B0LGgX
-         3TMvrR4acO47RkiJ5h/M5HCLDYVKEZv9n8w9PhL/YMixdCQ7BuLdO/FRUpBSNvlUtcTZ
-         culg==
-X-Gm-Message-State: AOAM5338xkd/pZSVQ4+7FwRV5uot7BMQ1hlCTWKI7UXwekF63G4Nr+eW
-        kQKjeHscpee7/e3fvcMHXUzMtMbu07BlPg7lCRlZLQ==
-X-Google-Smtp-Source: ABdhPJzKrk3FKaD5/heXPeLCVJRwUx7QhWJ1HLOzFQmBlQv27vcLfAMpAQtEm3tfmi5naDd8EJEHkNp4NpwpRBnD+rE=
-X-Received: by 2002:a05:620a:4251:: with SMTP id w17mr4949999qko.284.1644534508996;
- Thu, 10 Feb 2022 15:08:28 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=GbczPbvUXfWHUfZcmpjaihwul/Tm6Yh5kwknHuOMphw=;
+        b=YkNBcYV2ahKsne/HsSumEUXF0pLa/Y1U0AL1zc1EnXOdWsl+E0pgEe9KNbOjqSiPMp
+         ewXpoTLd/qBDUGYci+ydoO2VOw71VDeaRLuc/eZhiQ/lJ03nuYFgVrO4/SO4d0M3iGMr
+         x7+dr0U6OWGvOzvfrZDkML495RZDzQPgz5x6K5mQxrkffH3J8r7rxgmikTEnIdNFr2jH
+         BXkcl1nbBi9H/k/QDVhyjm7dOQ6qfvYttPF0/4LxNKrL22WlMFcqTyMtYXKqzd1MYtDN
+         yczV2nvOVeHr/ZT5O1BpL6q+pdEK7Vx38JE30Uskh4lAf64q2C4R3J5DTPPAc35/1YwI
+         OnyA==
+X-Gm-Message-State: AOAM531GGaFwIBO0Xz8x3o9P34NNg4Jb3KiG06nJ7AUhhNqQQguTi+UM
+        prXjKk6/OKYpR6pRHH4ghDPxbqJpnU3hmko9iD07fcmQcYw=
+X-Google-Smtp-Source: ABdhPJwl2zTSNn0IZtGdvtyqcIBKPyivesKnYJgvn7WKYykncyOcK6f4keYTtJrv7iqvL4ySaLg0VB+rkwodjqZsG+U=
+X-Received: by 2002:ac8:5c95:: with SMTP id r21mr7086879qta.27.1644554112493;
+ Thu, 10 Feb 2022 20:35:12 -0800 (PST)
 MIME-Version: 1.0
-References: <CGME20220208010644uscas1p132e264f9a90c2e515846440393203738@uscas1p1.samsung.com>
- <CADqNVTrbc+gtK1PuLLZqaGTTeppXckTP-TFPaRT__iF63+f3Kg@mail.gmail.com> <65c1d4d55d0a41c1934d46b2c09dd9a6@samsung.com>
-In-Reply-To: <65c1d4d55d0a41c1934d46b2c09dd9a6@samsung.com>
 From:   Nick Neumann <nick@pcpartpicker.com>
-Date:   Thu, 10 Feb 2022 17:08:15 -0600
-Message-ID: <CADqNVTo7oQKPQb=Thd326YwT+8sgfmXAG6MK6ooVkJgzkxxbuw@mail.gmail.com>
-Subject: Re: Odd (wrong?) behavior with :<nr> suffix on readwrite parameter
-To:     Vincent Fu <vincent.fu@samsung.com>
-Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+Date:   Thu, 10 Feb 2022 22:34:58 -0600
+Message-ID: <CADqNVTovL9-2wkZFhu8=FXU09aNZP4+4Vj1wEvpvyrr79KXrcw@mail.gmail.com>
+Subject: Two points of confusion on offloading and workqueue.c
+To:     fio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Thu, Feb 10, 2022 at 4:53 PM Vincent Fu <vincent.fu@samsung.com> wrote:
-> I tried running with randrepeat=0 and saw the same behavior you did. With the default randrepeat=1 fio will always use the same random number seed for IO offsets, but even with randrepeat=0, rw=randread:8 always started at offset 0.
->
-> I agree with your assessment that rw=randread:8 should start at a random offset.
->
-> Vincent
+I'm trying to fix a couple bugs I've talked about in a previous post
+related to offloading, and in diving into workload.c I've hit some
+things that have me confused. If someone understands the code well and
+can give some pointers I'd be very grateful.
 
-Thanks for the feedback on it. I'm slowly getting more comfortable
-with the fio source base; hoping to be familiar enough to find and
-quickly fix it soon.
+First, is the reading of sw->flags in __get_submit_worker
+intentionally not protected by the sw->lock? I'm guessing so, with the
+intention that the worst that happens is a submit worker is seen as
+busy when it is actually idle.
+
+But this approach confuses me for a couple reasons. First, the
+td->io_u_freelist seems to have the same sort of thread contention
+issues when doing offloading. The main td thread is removing things
+from the freelist while any worker thread can insert into the
+freelist, so they all coordinate with the td->io_u_lock. Why not just
+use the same approach for maintaining the list of free submit workers?
+
+My second bit of confusion is that the number of io_u's allocated is
+exactly iodepth. That's also the number of submit workers allocated by
+the workqueue when offloading. Unless I'm mistaken (that's totally
+possible), a free io_u will be obtained by get_io_u, will be handed
+off to a submit worker, and when done, will become free again and the
+submit worker will become idle. So aren't there enough submit workers
+that there should always be one idle for any io_u that needs one?
+
+Thanks in advance for your help.
+- Nick
