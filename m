@@ -2,83 +2,70 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A82D8C433EF
-	for <fio@archiver.kernel.org>; Tue, 15 Feb 2022 17:14:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42BC5C433EF
+	for <fio@archiver.kernel.org>; Tue, 15 Feb 2022 18:04:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231894AbiBOROy (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 15 Feb 2022 12:14:54 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:40480 "EHLO
+        id S235980AbiBOSFD (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 15 Feb 2022 13:05:03 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238064AbiBOROu (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 15 Feb 2022 12:14:50 -0500
-Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4CC11ACED
-        for <fio@vger.kernel.org>; Tue, 15 Feb 2022 09:14:40 -0800 (PST)
-Received: by mail-io1-xd33.google.com with SMTP id q8so1759260iod.2
-        for <fio@vger.kernel.org>; Tue, 15 Feb 2022 09:14:40 -0800 (PST)
+        with ESMTP id S232844AbiBOSFC (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 15 Feb 2022 13:05:02 -0500
+Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E3F7C1146
+        for <fio@vger.kernel.org>; Tue, 15 Feb 2022 10:04:51 -0800 (PST)
+Received: by mail-qk1-x72e.google.com with SMTP id c189so18023123qkg.11
+        for <fio@vger.kernel.org>; Tue, 15 Feb 2022 10:04:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=GtJMtHByjWOk/szJzQ+cecPSjqFTP7Ak4BtWB/vuSsg=;
-        b=bh73oHdBNM/dVP9rw+Z7Jcf9KnJQHbgrpCoCYtdVLkKIp4VSp0jT7ifARVx+cLSXf7
-         zKJoi3QmGPaYy7gxi6vlDIFg9KJPAa8IVwxZC248zPiFbPXkf+X2tDC0eCCgHh7Kq7Cx
-         UpWotzLOo9+E5x7yj7ayKTpC0N+5PS8Su9ieaHLBDpxKYX1hsGGiLHKRLl/oNB7wJCMf
-         I/Ls1GBcAY7kgSWvswXNVBvZj8QFlfpxhlKVaRDrauT/EXFE1uKMQVJu9R+pkJbO086s
-         THW4mE/hYQJbU/hYgayaX/SL9LLvit+mKTnttsesWp6BHA1ZwSxq7xE6ZTTpMVJ/f/Tv
-         eNDA==
+        d=pcpartpicker.com; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+N656Ko8ITmpNQrYgkSsBgKznfCtmsDAwoVfKrWBqYU=;
+        b=CzCCTWpssYbEwp5CO0IyqKQC44A8vq9WzhxpgO+sbfM5VMNqWczatJ3xrDgOp+q8Pk
+         BvzebwhflS/Lo++QSTv85+Kb7h1Dagcq4+7DNwFBGSBI26LdgvQeX7eqM5Kx77BhbWi/
+         4WD7V2tT7FJG98+U2UtopIKCr3v9WMtUUukS2O+pLgedVJvry441VuOA9jWcMDM1IVyN
+         zMlZEJY1tEJ9d4lFrqRNgXDBkiUiByo9wyRT9gWC1QDaa3qVJGX4CSOlt/Oboyf+9Xaz
+         yJPPOZ4GwgkQKfmUodQCLxNMAjMk9WfKpxG/lxhHllHhvaqaRaXNxe4ykVYENNtA0lZa
+         VPFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=GtJMtHByjWOk/szJzQ+cecPSjqFTP7Ak4BtWB/vuSsg=;
-        b=JbL5Zv7tdulM/r2ESu25RDAxoZ0+2JXzIvm9auRBgxYiHjMhbp1NTUCApaMNggjLA+
-         90JemVLvfQjvqv9NpcdZ5nYCit0/CGAtcaFhF8+HyumfUW+ZsZApDeAc0afHLiBCSo7F
-         am3qgH6FLd0RUIMcaNfqp2H8fK+aPavLp/+RouQZo/IPV7AduytxjljI7JHly3Jdjttb
-         XBjRZ6M5p9dWQspCJO5FjGkqAsZRilY6StKIoq24HqjNbqEnbJvslVHPURWuleEDtDuH
-         tUJpWo4Sci0VZB4etBhscJQO008yQb37LKaUoyqZooWU9JgQlMyIRbUmC/84FBO8Kshc
-         F7KQ==
-X-Gm-Message-State: AOAM532NADdsSBqbSTxC3CUq46YsK3n0PaJMPk/J9M0f/cmGEKI6tZhE
-        nbv6goFnq6OutczV6ZsPx6vGoN0I1uoiHQ==
-X-Google-Smtp-Source: ABdhPJyCaUryFn1wiRvylbsjtceGRI77nVvz4Tufp7bIPmpBuMD3JODWvZ8J4qHMlgjtuN/pTjLzkw==
-X-Received: by 2002:a05:6638:3806:: with SMTP id i6mr3258633jav.314.1644945279306;
-        Tue, 15 Feb 2022 09:14:39 -0800 (PST)
-Received: from x1.localdomain ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id y29sm3494846iox.46.2022.02.15.09.14.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Feb 2022 09:14:38 -0800 (PST)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     fio@vger.kernel.org, Vincent Fu <vincent.fu@samsung.com>
-Cc:     Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20220215133027.931-1-vincent.fu@samsung.com>
-References: <CGME20220215133048uscas1p1a894d691bd2ee6e391b2cc8e4f22d143@uscas1p1.samsung.com> <20220215133027.931-1-vincent.fu@samsung.com>
-Subject: Re: [PATCH] ci: detect Windows installer build failures
-Message-Id: <164494527860.136522.4533623618028319973.b4-ty@kernel.dk>
-Date:   Tue, 15 Feb 2022 10:14:38 -0700
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+N656Ko8ITmpNQrYgkSsBgKznfCtmsDAwoVfKrWBqYU=;
+        b=s277Ji8XlLcCS20CJUm0h4tCO2CYnJm9D/2kNfzIVrlcJBu8recu8i2wz9shknm2zP
+         ZSrhoeAiIkUzRmboaxzBpyFT4jE3qTX9iqVe9mtJeeVLduxnCnvF7G/KwgtkZz9zAdTt
+         lxPy2GzkTOrZcXLZ/aACAGVpybwaPHjdmJgpZ+07JBg71gWYZARsAwISrM+yb6kPj44S
+         2USPv4/51yZgdRjcjZFimzRLp5H+pK+CSgm48CbdzuoM6HEGgnSmQTMKHMTwh3Jdhj9c
+         O84oi5y7Un+gqCOd3ctLboRZOUCR7ZeWiKoCUHt+j+SDFMpOwYkLb20nUIZygqjB1PNJ
+         CJkw==
+X-Gm-Message-State: AOAM532EFvpWH1TdNHUKEm3Z6kyIENiVOq8vEH0Do9hntfpycWD3eiIZ
+        XJ3PZoEnp28nNLIC2eR/PBwv/A8kHA6Wu/pmJrcPbw==
+X-Google-Smtp-Source: ABdhPJzGKVx/UAxL8lWzfyR1TI3mhz6xWTUHmzllUXxJ8FCQjLubNbK3gEGD7esKUt/AWejRIryjN+K+n5AgzXnVrV8=
+X-Received: by 2002:a05:620a:4594:: with SMTP id bp20mr101790qkb.381.1644948290538;
+ Tue, 15 Feb 2022 10:04:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+References: <CGME20220208010644uscas1p132e264f9a90c2e515846440393203738@uscas1p1.samsung.com>
+ <CADqNVTrbc+gtK1PuLLZqaGTTeppXckTP-TFPaRT__iF63+f3Kg@mail.gmail.com>
+ <65c1d4d55d0a41c1934d46b2c09dd9a6@samsung.com> <CADqNVTo7oQKPQb=Thd326YwT+8sgfmXAG6MK6ooVkJgzkxxbuw@mail.gmail.com>
+In-Reply-To: <CADqNVTo7oQKPQb=Thd326YwT+8sgfmXAG6MK6ooVkJgzkxxbuw@mail.gmail.com>
+From:   Nick Neumann <nick@pcpartpicker.com>
+Date:   Tue, 15 Feb 2022 12:04:38 -0600
+Message-ID: <CADqNVTovHTKqr7+UcMUL+pDscQb9zZ07i5KUUL4heeNN-oLQWQ@mail.gmail.com>
+Subject: Re: Odd (wrong?) behavior with :<nr> suffix on readwrite parameter
+To:     Vincent Fu <vincent.fu@samsung.com>
+Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Tue, 15 Feb 2022 13:30:30 +0000, Vincent Fu wrote:
-> From: Vincent Fu <vincentfu@gmail.com>
-> 
-> When the Windows installer build fails, the build script actually
-> continues running and does not detect the failure. Use ls to determine
-> if the MSI file exists in order to detect whether or not the installer
-> build succeeded.
-> 
-> [...]
+On Thu, Feb 10, 2022 at 5:08 PM Nick Neumann <nick@pcpartpicker.com> wrote:
+> Thanks for the feedback on it. I'm slowly getting more comfortable
+> with the fio source base; hoping to be familiar enough to find and
+> quickly fix it soon.
 
-Applied, thanks!
+This one was actually a really easy fix. I've got a PR in to fix it now:
+https://github.com/axboe/fio/pull/1342
 
-[1/1] ci: detect Windows installer build failures
-      commit: 84b4423497a9953ea78be771ae004620610b8179
-
-Best regards,
--- 
-Jens Axboe
-
-
+Thanks,
+Nick
