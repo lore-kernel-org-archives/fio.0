@@ -2,132 +2,190 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B67EEC433EF
-	for <fio@archiver.kernel.org>; Tue, 15 Feb 2022 13:30:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B86FC433F5
+	for <fio@archiver.kernel.org>; Tue, 15 Feb 2022 16:37:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238298AbiBONbC (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 15 Feb 2022 08:31:02 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:57604 "EHLO
+        id S239737AbiBOQhS (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 15 Feb 2022 11:37:18 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:38890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236089AbiBONbC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 15 Feb 2022 08:31:02 -0500
-Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E00106B13
-        for <fio@vger.kernel.org>; Tue, 15 Feb 2022 05:30:51 -0800 (PST)
-Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220215133049usoutp01d8329e24e8d8f2acf9d636cbdc39eab4~T_M1BmU_11235512355usoutp01C;
-        Tue, 15 Feb 2022 13:30:49 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220215133049usoutp01d8329e24e8d8f2acf9d636cbdc39eab4~T_M1BmU_11235512355usoutp01C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1644931849;
-        bh=57C2tWpiUDJ462o9UvoBP2oufhYsYMP3XgsUP08u8wM=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=RR2l7P4JhsqTaiqwwXBMaBJMur0qsRChY1eS3vZua1cdUuINijEzDwUG4VjTPN/JI
-         sF2FAb3Mtv8dFtd8jjFQj9SR72kjM1tQQCIplIvV9vXdIQjDIi9XsuxNu14jbeJkwm
-         cJJGN4dR0WSAtFP/ql8m/Zqhro3K9vOxt3qXvKPo=
-Received: from ussmges1new.samsung.com (u109.gpu85.samsung.co.kr
-        [203.254.195.109]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220215133049uscas1p2973e522744eb1b1c4bbc87ad1d65cd29~T_M06zmGm2354923549uscas1p2_;
-        Tue, 15 Feb 2022 13:30:49 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges1new.samsung.com (USCPEMTA) with SMTP id FF.6A.09744.90BAB026; Tue,
-        15 Feb 2022 08:30:49 -0500 (EST)
-Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
-        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220215133048uscas1p1a894d691bd2ee6e391b2cc8e4f22d143~T_M0g6xap1242512425uscas1p1Y;
-        Tue, 15 Feb 2022 13:30:48 +0000 (GMT)
-X-AuditID: cbfec36d-879ff70000002610-7e-620bab099bdd
-Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.145]) by
-        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id AB.CA.09671.80BAB026; Tue,
-        15 Feb 2022 08:30:48 -0500 (EST)
-Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
-        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
-        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2242.4; Tue, 15 Feb 2022 05:30:30 -0800
-Received: from SSI-EX3.ssi.samsung.com ([fe80::8d80:5816:c578:8c36]) by
-        SSI-EX3.ssi.samsung.com ([fe80::8d80:5816:c578:8c36%3]) with mapi id
-        15.01.2242.008; Tue, 15 Feb 2022 05:30:30 -0800
-From:   Vincent Fu <vincent.fu@samsung.com>
-To:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-CC:     Vincent Fu <vincentfu@gmail.com>,
-        Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH] ci: detect Windows installer build failures
-Thread-Topic: [PATCH] ci: detect Windows installer build failures
-Thread-Index: AQHYInAzCb6zFTSRIUaSjn3YH9xCLw==
-Date:   Tue, 15 Feb 2022 13:30:30 +0000
-Message-ID: <20220215133027.931-1-vincent.fu@samsung.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [105.128.2.176]
-x-exchange-save: DSA
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgleLIzCtJLcpLzFFi42LZduzrOV3O1dxJBstbeS1W3+1ns/g46wWz
-        xYY2QQdmj52z7rJ7XD5b6vF5k1wAcxSXTUpqTmZZapG+XQJXxt6/69gKjrNV9E7OaWBczdrF
-        yMkhIWAisWPqH7YuRi4OIYGVjBL3rk1hgnBamSRubHzHAlP1tGcTO0RiLaPEzY5PUM5HRonN
-        3zug+g8wSizsvgLUz8HBJqAp8XZ/AUi3iECYxM9H28H2MQt4Sqz+vpgVpERYwEai8Y4ZRImj
-        xIS+ZewQtp7EpcOP2UBsFgFViebJ68FaeQUsJab2fAaLMwqISXw/tYYJYqS4xK0n85kgDhWU
-        WDR7DzOELSbxb9dDNghbUeL+95fsELaIxLrvb9kgevUkbkydAmVrSyxb+JoZYpegxMmZT6Ce
-        l5Q4uOIGC8iLEgKNHBIN7z8yQiRcJNb974UaKi1x9fpUZoiiyYwSX7fdZ4NwVjNKvFxwCarD
-        WmLhn/VQZ/NJ/P31iHECo/IsJF/MQnLVLCRXzUJy1QJGllWM4qXFxbnpqcWGeanlesWJucWl
-        eel6yfm5mxiBieT0v8O5Oxh33Pqod4iRiYPxEKMEB7OSCG/cWc4kId6UxMqq1KL8+KLSnNTi
-        Q4zSHCxK4rzLMjckCgmkJ5akZqemFqQWwWSZODilGpg0evZ0VO+YyvVa1ProufUqFx+3/Eu/
-        ppW7sjVKtMZ5r5b9pq7i9kMzZosf+HfRiz1lxz/m4PkXPD/KHFh1teFKTHmAaenjGdyC+vPW
-        fd9nYzzjb8Mnr113HYL3F6xqvmx30n9/zwWV9MCrnduKk180BzbXWco/aZzTGpBQfTlJdscq
-        48Wv04+YxE98zc83T9/6/r0j594xpfV/4hPekLVX41jXn+mVE9xaDV69bVoRPuNzc5H0e7GV
-        cdN4vl83tV7b1sVVvMb73HbeB9rmC7935PFwNyz5bHU8af1kqY329sI+9vkWVtOefjjWf4Q9
-        S+PB64Omk6d6t2sLetZ461foOfGvjDdvYlU0X9leaKTEUpyRaKjFXFScCAC3W6VzkwMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpikeLIzCtJLcpLzFFi42LJbGCaqMuxmjvJ4EOTtsXqu/1sFh9nvWC2
-        2NAm6MDssXPWXXaPy2dLPT5vkgtgjuKySUnNySxLLdK3S+DK2Pt3HVvBcbaK3sk5DYyrWbsY
-        OTkkBEwknvZsYu9i5OIQEljNKPHk/QlmkISQwEdGiW/zvCESBxglDq78DNTBwcEmoCnxdn8B
-        SI2IQJjEz0fbwQYxC3hKrP6+GKxEWMBGovGOGUSJo8SEvmXsELaexKXDj9lAbBYBVYnmyevB
-        WnkFLCWm9nwGizMKiEl8P7WGCWKkuMStJ/OZIO4UkFiy5zwzhC0q8fLxP6j7FSXuf3/JDmGL
-        SKz7/pYNoldP4sbUKVC2tsSyha+ZIXYJSpyc+YQFol5S4uCKGywTGMVmIVk3C0n7LCTts5C0
-        L2BkWcUoXlpcnJteUWyYl1quV5yYW1yal66XnJ+7iREYTaf/HY7cwXj01ke9Q4xMHIyHGCU4
-        mJVEeOPOciYJ8aYkVlalFuXHF5XmpBYfYpTmYFES5xVynRgvJJCeWJKanZpakFoEk2Xi4JRq
-        YOoTnJt3v91F/Ln+X6l5njcei685uvVpyuaQd+ovmtdpfJRt99l85Ubp5W8bOtY7rbp4MkGq
-        cWZngOG37etSbWtcursnT/1/dIOupMk9RuWsqvzwVV5JOzY+PJxf5nP4ZE/T61RtzkgVzvZ3
-        24qztY8U3Vn5++8Ww/oQyQfvFTflK7NHvok/+vz67uz8KYbtOrVapdeWsH9i84poqgr4t+3F
-        b2uX/7oPNzXoL5X7d4O33ZDTRe7v/iiJBqOl/vV5GYqFC3znpC68F3vETVD43F2V9x2bLNX/
-        WR0Sfhq3pqHDyNYytWjR26DWuPdbFYX3/Ov+/39PvjyPzs0zvz7M+De92eEon1ZM8xmztr+9
-        t5VYijMSDbWYi4oTAU/QZhEVAwAA
-X-CMS-MailID: 20220215133048uscas1p1a894d691bd2ee6e391b2cc8e4f22d143
-CMS-TYPE: 301P
-X-CMS-RootMailID: 20220215133048uscas1p1a894d691bd2ee6e391b2cc8e4f22d143
-References: <CGME20220215133048uscas1p1a894d691bd2ee6e391b2cc8e4f22d143@uscas1p1.samsung.com>
+        with ESMTP id S233621AbiBOQhR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 15 Feb 2022 11:37:17 -0500
+Received: from angmar.tmp.com.br (angmar.tmp.com.br [188.40.49.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4B2AA4181
+        for <fio@vger.kernel.org>; Tue, 15 Feb 2022 08:37:03 -0800 (PST)
+Received: from angmar.tmp.com.br (localhost.localdomain [127.0.0.1])
+        by angmar.tmp.com.br (8.13.1/8.13.1) with ESMTP id 21FGeQdX032345;
+        Tue, 15 Feb 2022 13:40:26 -0300
+Received: (from spamtrap@localhost)
+        by angmar.tmp.com.br (8.13.1/8.13.1/Submit) id 21FGeQmL032344;
+        Tue, 15 Feb 2022 13:40:26 -0300
+Date:   Tue, 15 Feb 2022 13:40:26 -0300
+From:   Durval Menezes <jmmml@durval.com>
+To:     fio <fio@vger.kernel.org>
+Cc:     Sitsofe Wheeler <sitsofe@gmail.com>
+Subject: Re: Samsung PM863 SSD: surprisingly high Write IOPS measured using `fio`, over 4.6 times more than spec!?
+Message-ID: <20220215164026.GK487@angmar.tmp.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-MailScanner-ID: 21FGeQdX032345
+X-TMP-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-TMP-MailScanner-SpamCheck: 
+X-TMP-MailScanner-From: spamtrap@angmar.tmp.com.br
+X-TMP-MailScanner-To: fio@vger.kernel.org, sitsofe@gmail.com
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Vincent Fu <vincentfu@gmail.com>
 
-When the Windows installer build fails, the build script actually
-continues running and does not detect the failure. Use ls to determine
-if the MSI file exists in order to detect whether or not the installer
-build succeeded.
+Hi Sitsofe,
 
-Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
----
- .appveyor.yml | 1 +
- 1 file changed, 1 insertion(+)
+First of all, thanks for your detailed, thoughtful response. More, below:
 
-diff --git a/.appveyor.yml b/.appveyor.yml
-index 42b79958..b94eefe3 100644
---- a/.appveyor.yml
-+++ b/.appveyor.yml
-@@ -44,6 +44,7 @@ after_build:
-   - file.exe fio.exe
-   - make.exe test
-   - 'cd os\windows && dobuild.cmd %ARCHITECTURE% && cd ..'
-+  - ls.exe ./os/windows/*.msi
-   - ps: Get-ChildItem .\os\windows\*.msi | % { Push-AppveyorArtifact $_.Fu=
-llName -FileName $_.Name -DeploymentName fio.msi }
-=20
- test_script:
---=20
-2.25.1
+On Mon, Feb 14, 2022 at 4:51 PM Sitsofe Wheeler <sitsofe@gmail.com> wrote:
+> On Mon, 14 Feb 2022 at 18:44, Durval Menezes <jmmml@durval.com> wrote:
+> >
+> > Hello everyone,
+> >
+> > I've arrived at a very surprising number measuring IOPS write performance
+> > on my SSDs' "bare metal" (ie, straight on the /dev/$DISK, no filesystem
+> > involved):
+> >
+> >         export COMMON_OPTIONS='--ioengine=libaio --direct=1
+> --runtime=120 --time_based --group_reporting'
+> >
+> >         ls -l /dev/disk/by-id | grep 'ata-.*sda'
+> >                 lrwxrwxrwx 1 root root  9 Feb 13 17:19
+> ata-SAMSUNG_MZ7LM1T9HCJM-00003_XXXXXXXXXXXXXX -> ../../sda
+> >
+> >
+>  TANGO=/dev/disk/by-id/ata-SAMSUNG_MZ7LM1T9HCJM-00003_XXXXXXXXXXXXXX
+> >         sudo fio --filename=${TANGO} --name=device_iops_write
+> --rw=randwrite --bs=4k  --iodepth=256 --numjobs=4 ${COMMON_OPTIONS}
+> >                 [...]
+> >                 write: *IOPS=83.1k*, BW=325MiB/s
+> (341MB/s)(38.1GiB/120007msec)
+> >                 [...]
+> >
+> > (please find the complete output at the end of this message, in case I
+> should
+> > have looked at some other lines and/or you are curious)
+> >
+> > As per the official manufacturer specs (both in this whitepaper at their
+> > website[1]), and also in this datasheet I found somewhere else[2]), it's
+> > supposed to be only *18K IOPS*.
+> >
+> > All the other base performance numbers I've measured (read IOPS, read and
+> > write MB/s, read and write latencies) are at or very near the
+> manufacturer
+> > specs.
+> >
+> > What's going on?
+> >
+> > At first I thought that, despite `--direct=1` being explicitly indicated,
+> > my machine's 64GB RAM (via the Linux buffer cache) could be caching the
+> > writes (even if the number, in that case, should have been much
+> higher)...
+> > so, I tested it again with `--runtime=120` to saturate the buffer cache
+> in
+> > case it was really the 'culprit'... lo and behold, the result was:
+> >
+> >         [...]
+> >         write: IOPS=83.1k, BW=325MiB/s (341MB/s)(190GiB/600019msec)
+> >         [...]
+> >
+> >
+> > So, the surprising over-4.6x-times-the-spec Write IOPS is mantained, even
+> > for 190GiB total data.
+> >
+> > And with 190GiB data written (about 10% the total device capacity), I do
+> > not believe it's any kind of cache (RAM, MLC or whatever) inside the SSD
+> > either.
+> >
+> You're running your workload for a comparatively short time
+
+OK, I was able to find in the whitepaper (see below) the manufacturer
+stating that the rand writes should be run for twice the capacity of the
+disk. That will also imply a much longer test time...
+
+> and additionally we don't know how "fresh" your SSD is.
+ 
+Good point; here's its "freshness"-relevant data straight from `smartctl -a`:
+	 
+	   9 Power_On_Hours          0x0032   091   091   000    Old_age   Always
+	     -       43694
+	 177 Wear_Leveling_Count     0x0013   094   094   005    Pre-fail  Always
+	     -       394
+	 241 Total_LBAs_Written      0x0032   099   099   000    Old_age   Always
+	     -       535797643689
+	 242 Total_LBAs_Read         0x0032   099   099   000    Old_age   Always
+	     -       1848967801660
+	 
+	 251 NAND_Writes             0x0032   100   100   000    Old_age   Always
+	     -       1642499721864
+
+So, I think it's a pretty 'mature' disk already (but hopefully with a lot
+of 'life' still in it).
+
+In other words, I don't think it's "fresh" enough to explain a 4x I/O increase.
+
+Perhaps "freshness" in this case refers to it being recently
+secure-erased (which I did prior to start testing)? 
+ 
+> The 18K IOPS value
+> might be when the drive has been fully written and there are no
+> pre-erased blocks available (via so-called preconditioning)... I'll
+> also note the whitepaper [1] mentions this:
+>
+> 	SSD Precondition: Sustained state (or steady state)
+> 	[...]
+> 	It's important to note that all performance items mentioned in this
+> 	white paper have been measured at the sustained state, except the
+> 	sequential read/write performance
+>
+
+Thanks for going through the whitepaper and picking this up. It passed
+right by me...
+
+I went through the whitepaper again, and found this:
+
+	The sustained state in this document refers to the status that a
+	128 KB sequential write has been completed equal to the drive capacity and
+	then 4 KB random write has completed twice as much as the drive capacity
+	
+OK, so at least there's a "recipe" for this preconditioning. I will try it
+and come back later to report.
+
+> I notice that your SSD appears to be SATA (sda) so I'd be surprised
+> that a total queue depth greater than 32 makes a difference (your
+> total queue depth is 1024). Do you get a similar result with just the
+> one job with an iodepth=32?
+
+I tested with iodepth=32 (instead of 256) and got the same result, so I
+guess you are not surprised ;-)
+
+Just did it again, this time with   `--numjobs=1` (instead of 4) and here's
+the result:
+
+        write: IOPS=83.0k, BW=324MiB/s (340MB/s)(38.0GiB/120001msec)
+
+So that's not it either.
+
+> It's unlikely but if the jobs were submitting I/O to the same areas as
+> other jobs at the same time then some of the I/O could be elided but
+> given what you've posted this should not be the case.
+
+Agreed.
+
+Cheers,
+-- 
+   Durval.
+
+> 
+> 
+> --
+> Sitsofe
+> >
+> >
