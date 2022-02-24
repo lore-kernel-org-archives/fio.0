@@ -2,105 +2,73 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5C4DC433F5
-	for <fio@archiver.kernel.org>; Thu, 24 Feb 2022 20:07:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14716C433F5
+	for <fio@archiver.kernel.org>; Thu, 24 Feb 2022 22:47:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233578AbiBXUII (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 24 Feb 2022 15:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
+        id S234938AbiBXWsZ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 24 Feb 2022 17:48:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232837AbiBXUIH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 24 Feb 2022 15:08:07 -0500
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB6B1405E1
-        for <fio@vger.kernel.org>; Thu, 24 Feb 2022 12:07:36 -0800 (PST)
-Received: by mail-qk1-x730.google.com with SMTP id c7so2783059qka.7
-        for <fio@vger.kernel.org>; Thu, 24 Feb 2022 12:07:36 -0800 (PST)
+        with ESMTP id S235074AbiBXWsY (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 24 Feb 2022 17:48:24 -0500
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AABEAC917
+        for <fio@vger.kernel.org>; Thu, 24 Feb 2022 14:47:53 -0800 (PST)
+Received: by mail-qt1-x82c.google.com with SMTP id s15so917092qtk.10
+        for <fio@vger.kernel.org>; Thu, 24 Feb 2022 14:47:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=pcpartpicker.com; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=qQyx8d3gqoNtmr5exMYx9NlRf7ctP2J7/0ZP2UMJkJ0=;
-        b=fstdZ82YlHwM3oBkwtwS1g2PJ4UYOQnoKVJoev5++Q5xIHTccWUQI2/jfwxBq572nZ
-         PDLAKboC0ErH9S+BjzOuuILM8Bmb7zYvMG/3FnI6zobXmpOQLIuGvWbiQQhFj1fLG11c
-         rYyvSDycIV8klHgVq82cu8y4SB/bRrOqBQZ3UE2csacpUMQ6IRfkKJ0Y3pHMmLhnHHOg
-         acQINup2mQaRrgS9pSdluiZvDjxMmbpboqvx5Pb3ewV4NjenZQkqbkEM0X+8RBbqdGdK
-         8xnTyKFUCuU8iCwJM7ao87SzapEXtVggNdixFk+LOWjxnHgWnQNgVjeZIJC8JLEuubvp
-         pm/w==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=lyXRnRYQGnjjINLLLOZznNoTjlJQfPjuETQznJjNhmk=;
+        b=Hi1cZOrqjThmimgygPE6Ck6S2YAcNyLH9qfA4bGIsfzYkygWIGvbzQAbOCaP5nTEvz
+         /aF4P7GG7oxZlSAZsEKxXdHFvR8XBiP65n+xaMPtnuIz0pirYu8K9vQlu9bPKgI5t57T
+         dAJ3wSwyGBAfw+Eacj3mdNp/jRqHOtWe4XI3V7cHs+e1alQS/pzCUUdOcxtUxw4F5F85
+         yvMLYMZArWqnFyxST5DIhqspKJtdKn5y4qTwpWPmOG6ivKDzgNPXn1aUzdZw3BOOydRQ
+         f44Ui0AIQ7YxRQdGp3XXI4A64zpNJ/gWjetiz16v1bUcsso2Lxv4L9zbnGCrU33r56MT
+         oNAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=qQyx8d3gqoNtmr5exMYx9NlRf7ctP2J7/0ZP2UMJkJ0=;
-        b=K9zVes3sxKuSdi2h8fNiQCaZPSEFwBdX/ivt8hTID4SC3HLBmI61Od/eXG4O6sZvYm
-         I2LUPEzK5ocwjDu/CzAbcLNTlYIbJ0HdgqIJ8JkbqeKqmzFC52wdJB2eXdqI8qWwoteP
-         aD03QhXhAfkKo5nuJ/lAXYwbofp7LWnmv61Jq7n4Yxb2lf8tiOYKEFAji5QC7F4JxSjc
-         e9GtghBxri5kcYR4ybDprwUr2nq666m9ROnbr+EJujpDk1IFFJWoPW91SImU6Gf77Gqh
-         NzIgKsgtOVIcCZnAKXRcIBVpIvOXLF4m157heLlGddVOq1rdsFAxGJAaaQSMsexp+rUs
-         KBdQ==
-X-Gm-Message-State: AOAM5305AmeIq/7jJIf696JRVTpTzkWTYMNYsA/s7/9KKaf0U0xbnwqZ
-        7MoU5v45A2GMYHgXKmza2Kuom6YmEZxSqrbcCwDxZ5DjGO9nOA==
-X-Google-Smtp-Source: ABdhPJydqLrdf4xiKjUUxFC4AobNZSocejBqSYqatt/OgoftaONrGgYW3ypHJFjqzLuFrKlN0OzbSUMdGW6d/7ue2/8=
-X-Received: by 2002:a05:620a:2546:b0:508:19df:5fd6 with SMTP id
- s6-20020a05620a254600b0050819df5fd6mr2704652qko.757.1645733254897; Thu, 24
- Feb 2022 12:07:34 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=lyXRnRYQGnjjINLLLOZznNoTjlJQfPjuETQznJjNhmk=;
+        b=X6jcj3YOqYJ75a0KhpciqbugvENrRFiWSEMEI12zrNEmHRKuIZoI6Vf8ITQ86n7ZiE
+         Ne/8kKxf/2zPaeuC+ija0M14xThLutDJssLSUOyb+qoKyD3mShxgmaM/6wHqugndchvU
+         8WS8Zd3D3doryj8WkS6K/DJkvumr9wn7c9xcA7AE3LurbiNF8AGTSIUE+7tKnpsy9gNx
+         Dy9aLTpw0ZbV27VDJAmDNLc5GrV2jOV3NuUJ3NNtHbqpayR18qG2lKvj7zgCRXuxaqaU
+         stytTQk7+9MGWsVaD45JsOdFz4v3Vb4Q2pULFQXQ2Qtm04M+vprqXFB7bpTbVUyHvpxZ
+         TJxQ==
+X-Gm-Message-State: AOAM530aE2lr06OaRu+N2mne/6XOPeJ2kY2UGswNc/+wDVIdqklmSuj4
+        hb/ceZgO6JzVoe7lzgFlrVfgmIZanPixU+lxlt7+hh0fcd37nA==
+X-Google-Smtp-Source: ABdhPJyKnUONoiCGHIUROvtrWLM/px/0fEqGqsR8U1ZjmVYkoL4jQIIk0ShCNT4WSm0RAtc4Xl9AS6qJKBMC3N8m9DE=
+X-Received: by 2002:a05:622a:5ce:b0:2de:adca:1ace with SMTP id
+ d14-20020a05622a05ce00b002deadca1acemr2737584qtb.491.1645742872372; Thu, 24
+ Feb 2022 14:47:52 -0800 (PST)
 MIME-Version: 1.0
 From:   Nick Neumann <nick@pcpartpicker.com>
-Date:   Thu, 24 Feb 2022 14:07:21 -0600
-Message-ID: <CADqNVTqmWV8MiFZ6x8N4u8Poefxb9jRbpLkH03w7VPoFzEixUQ@mail.gmail.com>
-Subject: Not logging zero entry intervals when using --log_avg_msec seems problematic
+Date:   Thu, 24 Feb 2022 16:47:38 -0600
+Message-ID: <CADqNVTr-gjXmWzy86T8NykZWxyScC5Mh4FBcgYDfyK0PO4JV5g@mail.gmail.com>
+Subject: Operations at "end" of job with log_avg_msec are missing from logs. Expected?
 To:     fio@vger.kernel.org
-Cc:     axboe@kernel.dk
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-I was digging into the bandwidth/iops logging code in stat.c after
-thinking about how to compute an average bandwidth/iops over a period
-of time given interval log entries.
+So if I run a job with log_avg_msec, I've noticed that operations can
+occur after the last entry in the logs. For example, this job:
 
-I noticed something concerning. When there is an interval where
-nothing happened (e.g. no read iops), nothing is logged but the time
-of last interval is advanced (there is only one such time for each
-log, shared by all directions).
+sudo ./fio --name=job --filename=/dev/nvme0n1 --rw=read --bs=4K
+--ioengine=sync --iodepth=1 --direct=1 --write_bw_log=foo.log
+--log_avg_msec=1100 --runtime=4 --time_based
 
-This makes sense for a case when you are only doing reads and don't
-want write entries in your log. But it means that looking at a log
-file can be pretty misleading. If you are logging with an interval of
-100ms but only one read is occurring per second, you get a log for
-iops like this:
+yields this log:
 
-149, 6, 0, 0, 0
-1056, 10, 0, 0, 0
-2064, 9, 0, 0, 0
-3072, 10, 0, 0, 0
-4081, 10, 0, 0, 0
+1100, 213694, 0, 0, 0
+2200, 265947, 0, 0, 0
+3300, 265465, 0, 0, 0
 
-If you turn the interval up to every 10 ms, you get this:
-149, 6, 0, 0, 0
-1011, 100, 0, 0, 0
-2011, 100, 0, 0, 0
-3011, 100, 0, 0, 0
-4011, 100, 0, 0, 0
-
-Those zero entries are actually really important in a case like this.
-Those logs do not look like logs for a job that did 1 read per second.
-This is an extreme example to show the problem, and of course we know
-what's going on here.
-
-But what if you're doing a practical test on storage with a fairly
-small log interval, and the storage hiccups and processes no
-operations in an interval? It can be impossible to know if an apparent
-"gap" in a log file is because there was a zero entry or a system
-hiccup caused the logging process to run a little late.
-
-Any thoughts? Just logging the zero entries would work, but at the
-expense of noise in logs.
-
-(One option I can think of is remembering, per direction, that the
-last interval was a zero-entry one, and then writing that if a
-non-zero interval is later encountered. Also the last entry per
-direction must always be written, if any non-zero interval for that
-direction was ever written.)
+Is this expected/desired? I was surprised there was no final entry in
+the log to account for the operations between the last periodic log
+entry and the end of the job.
 
 Thanks,
 Nick
