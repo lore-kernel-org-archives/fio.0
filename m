@@ -2,98 +2,98 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 650B0C433EF
-	for <fio@archiver.kernel.org>; Wed,  2 Mar 2022 18:50:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F8FFC433F5
+	for <fio@archiver.kernel.org>; Wed,  2 Mar 2022 19:42:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244750AbiCBSuq (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 2 Mar 2022 13:50:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39944 "EHLO
+        id S237330AbiCBTmq (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 2 Mar 2022 14:42:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232838AbiCBSup (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 2 Mar 2022 13:50:45 -0500
-Received: from mail-qk1-x72a.google.com (mail-qk1-x72a.google.com [IPv6:2607:f8b0:4864:20::72a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AB5AC5DA5
-        for <fio@vger.kernel.org>; Wed,  2 Mar 2022 10:50:01 -0800 (PST)
-Received: by mail-qk1-x72a.google.com with SMTP id b20so2049256qkn.9
-        for <fio@vger.kernel.org>; Wed, 02 Mar 2022 10:50:01 -0800 (PST)
+        with ESMTP id S234643AbiCBTmp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Mar 2022 14:42:45 -0500
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A431CC7D47
+        for <fio@vger.kernel.org>; Wed,  2 Mar 2022 11:41:59 -0800 (PST)
+Received: by mail-qt1-x82c.google.com with SMTP id w1so2656811qtj.2
+        for <fio@vger.kernel.org>; Wed, 02 Mar 2022 11:41:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=pcpartpicker.com; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2WXi8xomq8guExdW0mSKQYmjtr7/39eEADRvkRNIfu0=;
-        b=npURl+Zbwii+nWleIVYwdYK6xc7W8eyOXYSI8vCrwpJ6gme8Wt+jtw4cqRGGuuS7RN
-         FCVGTcCUfClIySHdTdP2LXseWmGNmvLhi69xP4Th6cQXrXkqlmVawAeD/cmMAPwthUXn
-         jHzUMwSTNJLJXSZ+4imv4OHeRFmmnhYULDOLTPDn+Fw++8pVjxS74Uh9CIrtTGsbgQW9
-         G96qeVrP22rPKfHhjcqTKkKx8Ht/oLF+s/60IH3IXGPbC9i8YDZB6Zfaftj0T5JgmzOk
-         XWYlzIH8Jj5dj3xCLeVjpEK8G5EBoMs9hvkbshk4yCItFKE9wkmLdj6uOvmyG0ST2hAo
-         Ea3Q==
+         :cc:content-transfer-encoding;
+        bh=ZBt+RR3icIY8VgnJ0gn5z0k5fA2ifDcbjGCDSs5i140=;
+        b=FPgTr2/efNkVOIK0EW3hM2/aorjPZlwkZw/gU+SoUhcURm40IVI1Civ2l9oTfRyRsI
+         XwEPvyItSIbhx23dwmw7uvN1eUZkc63+X6nzyFavIAzN/cq6+c6JLEkCSzAWKS/mZRTR
+         RI/vMv4+psm97SHcGO6acp+e/NNkRMIDiyQXtvvIcFyqEXM1qtpmLLSdUFNYscZZulXj
+         X/RRxMo67QrUoIhPfdr//tlxBw65lJYkA0yl3+yMvb4kiE2KyrOqporpF61qb/wwQn9S
+         V9S4w2WwQFpQzQjw+4nMwglJ0mwhDJQAxs4FMIt6BPSiKM0NztB0TM+XIhOaoDVw94rS
+         KNgw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2WXi8xomq8guExdW0mSKQYmjtr7/39eEADRvkRNIfu0=;
-        b=bcRHk70D3zDqcc5SMMpyppTO3syRcMVgmy0wPRbHW5VDzgxK4Zh44v6+FLea1W/Ltc
-         855b9XxGm8aBuPSc787h7CbRgZULL2oRwHiHC+o+bv5NCTSEcBFukheT4Sf9ocTJuamA
-         nzIpacK5SsKfPZXnp3gw0T9cL89duBlHrB5lUvBMU6ZnhKOF+Mu4ab+Bq64aFhvjM4Bi
-         bY0Mlb1m6RcbkTddGcRTEivkqpdhf4bugkVRZEr01zyIqohmFJcQXve++77HNEbOts6u
-         LdI7SsqhBGGdqST4AHMGoEldLojhsNbqf74/H/GnuAd3GTwCMyTwwmqv3D6Db5femH/s
-         Y7sQ==
-X-Gm-Message-State: AOAM5332oZToWjrlvG8NJROBwoAyGHVP/ZSQ6TyrZQOmLmjlHjqdP3EL
-        wQgGogWy+Wi17hg1bt32kCvq+V43p8M3BtQgORHyiQsg6+Q=
-X-Google-Smtp-Source: ABdhPJzSQJyD8BF1F++D/2yqwxNcQPRLVHKkRUJ+LnrloXBEZFK/7O42La5Zb69rG9aU5xEUAucpcixqBitSi6dk4KI=
-X-Received: by 2002:a37:4649:0:b0:47e:cf47:48af with SMTP id
- t70-20020a374649000000b0047ecf4748afmr17745817qka.605.1646247000569; Wed, 02
- Mar 2022 10:50:00 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ZBt+RR3icIY8VgnJ0gn5z0k5fA2ifDcbjGCDSs5i140=;
+        b=eKa6w+QazkVZmHiPLsSfVvCNSTaRvIKgCEkfu4IknaK9BQZzIRKYxqEkPeY+bTwdLT
+         l2N9ylA/Agj7/ERsuewL4JbHZabGqKYAadT+ahoLGkIIQaRYjKTDgTYIJ0Gtz5vm0+J2
+         3oXQMVbrIRLSjBsLFJ9H9m1HPOjYTsPRLgIgkSbPLUxrqQNuERDArqBCjor05NRooRDB
+         npAE+aO6exjK5+8kal0RDpB0Ng0O/HA3nKmMqQj723kD8K1EmT9mjagFU3KIeD3XVJDN
+         yT8xBiNH+FVQJtdfzoCjeqze14664wnq8YR2S/1xHfHoCSP6CqLnQtn+ujvrPSKdH0GC
+         WzkA==
+X-Gm-Message-State: AOAM530MVpXk709jTLhWncQSD7i71kKJYBVuBzOzP+AI1rCgnb9PT18l
+        2OhiUOf3bzEuSqsO6v5Gf+P7ItFoA7VQ/PW0dfnPzAZ9BLs=
+X-Google-Smtp-Source: ABdhPJy1rXt0mtu0rdeF8t9pAHhLxJlCfu8IRi9yrxQhVOnfkghrk9RRAMvoWuo9YB1WDAbSjoI8okJhUYZUN5Kb6es=
+X-Received: by 2002:a05:622a:4c7:b0:2dd:92df:ece0 with SMTP id
+ q7-20020a05622a04c700b002dd92dfece0mr25316755qtx.450.1646250118725; Wed, 02
+ Mar 2022 11:41:58 -0800 (PST)
 MIME-Version: 1.0
-References: <CGME20220302152806uscas1p15ec3066c15b2e0d2ce9974e37d80ee2a@uscas1p1.samsung.com>
- <20220302152122.64596-1-vincent.fu@samsung.com> <41bcb630c61d4ecd965654d328e95c96@samsung.com>
-In-Reply-To: <41bcb630c61d4ecd965654d328e95c96@samsung.com>
+References: <CGME20220224200742uscas1p144ff2f87331ec864d2aaac92459b0c44@uscas1p1.samsung.com>
+ <CADqNVTqmWV8MiFZ6x8N4u8Poefxb9jRbpLkH03w7VPoFzEixUQ@mail.gmail.com> <dd8cee13d295483e9be4e1a375823a3a@samsung.com>
+In-Reply-To: <dd8cee13d295483e9be4e1a375823a3a@samsung.com>
 From:   Nick Neumann <nick@pcpartpicker.com>
-Date:   Wed, 2 Mar 2022 12:49:49 -0600
-Message-ID: <CADqNVTpS73RtmkcbF=-w3WfKF3Z4QY6-Qvka7JV-DY-0EHOweQ@mail.gmail.com>
-Subject: Re: [PATCH] docs: generate manpage from README and HOWTO
+Date:   Wed, 2 Mar 2022 13:41:46 -0600
+Message-ID: <CADqNVTqz-458F0T8dpFq=0R1eGnaCmYWgyf+eURhYhX2pVz8sw@mail.gmail.com>
+Subject: Re: Not logging zero entry intervals when using --log_avg_msec seems problematic
 To:     Vincent Fu <vincent.fu@samsung.com>
-Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        "martin.steigerwald@proact.de" <martin.steigerwald@proact.de>,
-        "sandeen@redhat.com" <sandeen@redhat.com>
+Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Wed, Mar 2, 2022 at 9:28 AM Vincent Fu <vincent.fu@samsung.com> wrote:
->
-> > -----Original Message-----
-> > From: Vincent Fu
-> > Sent: Wednesday, March 2, 2022 10:22 AM
-> > To: fio@vger.kernel.org; axboe@kernel.dk; martin.steigerwald@proact.de;
-> > sandeen@redhat.com
-> > Cc: Vincent Fu <vincent.fu@samsung.com>
-> > Subject: [PATCH] docs: generate manpage from README and HOWTO
-> >
-> > We have a longstanding problem where fio documentation updates must be
-> > made to both the HOWTO and manpage.
-> >
-> > Here is a solution that generates a manpage from the README and HOWTO
-> > using Sphinx.
-> >
-> > The downside to being able to maintain only one version of the
-> > documentation is that this will cause a bit of trouble for those who package
-> > fio and users building fio without Sphinx support will no longer have a
-> > manpage.
-> >
-> > Does this seem like a reasonable tradeoff? If so, I will follow up with patches
-> > to remove the original manpage and update the Sphinx-generated manpage
-> > to have the standard NAME, SYNOPSIS, DESCRIPTION, etc layout.
-> >
->
-> Oops, this was intended to be a RFC.
+On Wed, Mar 2, 2022 at 12:20 PM Vincent Fu <vincent.fu@samsung.com> wrote:
+> stat.c:__add_samples() is where log entries are added. It contains a cont=
+inue statement which skips entries during log intervals with no IO. I would=
+ start poking around there if you want log entries for those intervals. Per=
+haps make the new behavior an option for those that depend on the current b=
+ehavior.
 
-I'm fairly green in linux so I'm not sure about the Sphinx
-implications, but single-sourcing the HOWTO/manpage would be really
-nice. Also, the documentation for command-line options is actually
-currently triple-sourced (HOWTO.rst, fio.1, and options.c). It would
-also be nice (not asking for now, just wishing for someday) if all of
-the options documentation could be single-sourced, likely from
-options.c.
+Thanks for the pointer. We could do an option, but honestly, not
+having those 0 entries can be really misleading. The end user of fio
+wanting to see how a disk performs over time is likely just specifying
+log_interval_ms and then graphing the results. As the example I
+provided shows, if zero entries are happening between non-zero entries
+but are omitted, graphs/conclusions made from those logs are likely
+wrong. (In my extreme example, the graphs made from those logs would
+be *extremely* wrong.)
+
+The bandwidth/iops log stuff has other quirks too, some of which I've
+posted about in other mailings to this list. The code for
+bandwidth/iops logging leverages the live statistics code, while the
+code for latency logging is distinct. As such, bw/iops logs have the
+following quirks, but latency logs do not:
+1) Data after the last full interval is omitted (e.g. if you use 300ms
+interval and your job takes 5 seconds, the last 200 ms is not in the
+logs). This really surprised me and I don't think an end-user would
+expect this. It never happens with latency logs.
+2) Log intervals are not consistently sized - the code aims to hit the
+specified log_interval_ms, but you often end up with intervals that
+are bigger/smaller. (This can happen with latency logs, but is much
+rarer - only when operations are not happening at a normal rate.)
+
+Further, the latency logs also do not have zero-entry intervals, but
+that is not really concerning - for latency, an interval is reporting
+average latency per operation, and if there are no operations in an
+interval, that is ill-defined.
+
+Thanks,
+Nick
