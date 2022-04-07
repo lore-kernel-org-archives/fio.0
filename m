@@ -2,77 +2,144 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33689C433F5
-	for <fio@archiver.kernel.org>; Thu,  7 Apr 2022 12:00:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0F88C43217
+	for <fio@archiver.kernel.org>; Thu,  7 Apr 2022 14:50:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234587AbiDGMCK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 7 Apr 2022 08:02:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45064 "EHLO
+        id S1344287AbiDGOwY (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 7 Apr 2022 10:52:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiDGMCJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 7 Apr 2022 08:02:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B881CAF33
-        for <fio@vger.kernel.org>; Thu,  7 Apr 2022 05:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=KNEYNg/aEG0Hd+Hsnfrgk5fV+ra2yJyDUNxY1/GvqFI=; b=gHvzTn8Z+uyAc8cN0oM5kiL7ZY
-        0mWkT1Z/EPvpOGBPpX3TAbaRSNR8NjZq3Caxqfp+hUED+HlQI5ixngB8ga1yNP7CpjnJh48mHr+CG
-        wB8bWGPe+0xwxRnqk9Wsj8vAElNC5hQ6KX4v4RkeIboaxXMrk2Qloa91tC1FbYSTqbAD2Vo914c96
-        aw3gJONl2yv6Pf7mT2UkkZSLNCkxJ8LOcF8iQts1g/tJjLUIVHRqy+NarBz9VU7qxUpHY91BciYCo
-        YhOpQdkH7crRDQXu/05DfKcTdIfMStbSUwXCG8tTm5iEihiIU6uBcVnOr8WL1fo8jf0bV/EYOSMFk
-        gBicXNqA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ncQo2-008na3-18
-        for fio@vger.kernel.org; Thu, 07 Apr 2022 12:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 489FE1BC0177; Thu,  7 Apr 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
+        with ESMTP id S241089AbiDGOwX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 7 Apr 2022 10:52:23 -0400
+Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE081C8AAC
+        for <fio@vger.kernel.org>; Thu,  7 Apr 2022 07:50:13 -0700 (PDT)
+Received: from pps.filterd (m0148461.ppops.net [127.0.0.1])
+        by mx0a-00082601.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 2370fi0r030650
+        for <fio@vger.kernel.org>; Thu, 7 Apr 2022 07:50:05 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=facebook;
+ bh=CLdUANlpiOdHtrZWuUWvfR+1Wq1bzvpEYw2dhc7/lqY=;
+ b=Mvj78DN5bHqEbsNDf9DheCdcoo7lBOxPDiLSZTwLdFTYjEVn0MOfU373O3sx3W6cah3W
+ UPY5XbLTN/temqRh6KR+ZE7Nt2g48PQF6Q4o88zMPmzdc9nTJIS4t+x4jCsoG+j0YQFX
+ qE/tER0f9911VNI0+FngUbiNmeHVDR69emY= 
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 3f9gmqxqnw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <fio@vger.kernel.org>; Thu, 07 Apr 2022 07:50:04 -0700
+Received: from twshared8508.05.ash9.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:83::5) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Thu, 7 Apr 2022 07:50:03 -0700
+Received: by devvm4279.ftw0.facebook.com (Postfix, from userid 199637)
+        id 2F39120E9FF82; Thu,  7 Apr 2022 07:50:02 -0700 (PDT)
+From:   Mohamad Gebai <mogeb@fb.com>
 To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220407120002.489FE1BC0177@kernel.dk>
-Date:   Thu,  7 Apr 2022 06:00:02 -0600 (MDT)
+CC:     Mohamad Gebai <mogeb@fb.com>
+Subject: [PATCH v2 3/3] iolog: update man page for version 3
+Date:   Thu, 7 Apr 2022 07:49:58 -0700
+Message-ID: <20220407144958.3975622-4-mogeb@fb.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220407144958.3975622-1-mogeb@fb.com>
+References: <20220407144958.3975622-1-mogeb@fb.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-ORIG-GUID: ASPzJ2JIbgqUy_G975i8uyhDl_Sy6KO7
+X-Proofpoint-GUID: ASPzJ2JIbgqUy_G975i8uyhDl_Sy6KO7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-07_03,2022-04-07_01,2022-02-23_01
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 06bbdc1cb857a11e6d1b7c089126397daca904fe:
+Add documentation for iolog version 3, mainly the differences between
+versions 2 and 3.
 
-  smalloc: fix ptr address in redzone error message (2022-04-05 11:47:35 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to a3e48f483db27d20e02cbd81e3a8f18c6c5c50f5:
-
-  Fio 3.30 (2022-04-06 17:10:00 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 3.30
-
- FIO-VERSION-GEN | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+Signed-off-by: Mohamad Gebai <mogeb@fb.com>
 ---
+ HOWTO.rst | 29 ++++++++++++++++++++++++++++-
+ 1 file changed, 28 insertions(+), 1 deletion(-)
 
-Diff of recent changes:
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 0978879c..24d4c7b0 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -4391,33 +4391,60 @@ The `filename` is given as an absolute path. The =
+`action` can be one of these:
+ The file I/O action format::
+=20
+     filename action offset length
+=20
+ The `filename` is given as an absolute path, and has to have been added =
+and
+ opened before it can be used with this format. The `offset` and `length`=
+ are
+ given in bytes. The `action` can be one of these:
+=20
+ **wait**
+ 	   Wait for `offset` microseconds. Everything below 100 is discarded.
+-	   The time is relative to the previous `wait` statement.
++	   The time is relative to the previous `wait` statement. Note that
++	   action `wait` is not allowed as of version 3, as the same behavior
++	   can be achieved using timestamps.
+ **read**
+ 	   Read `length` bytes beginning from `offset`.
+ **write**
+ 	   Write `length` bytes beginning from `offset`.
+ **sync**
+ 	   :manpage:`fsync(2)` the file.
+ **datasync**
+ 	   :manpage:`fdatasync(2)` the file.
+ **trim**
+ 	   Trim the given file from the given `offset` for `length` bytes.
+=20
+=20
++Trace file format v3
++~~~~~~~~~~~~~~~~~~~~
++
++The third version of the trace file format was added in fio version 3.30=
+.  It
++forces each action to have a timestamp associated with it.
++
++The first line of the trace file has to be::
++
++    fio version 3 iolog
++
++Following this can be lines in two different formats, which are describe=
+d below.
++
++The file management format::
++
++    timestamp filename action
++
++The file I/O action format::
++
++    timestamp filename action offset length
++
++The `timestamp` is relative to the beginning of the run (ie starts at 0)=
+. The
++`filename`, `action`, `offset` and `length`  are identical to version 2,=
+ except
++that version 3 does not allow the `wait` action.
++
++
+ I/O Replay - Merging Traces
+ ---------------------------
+=20
+ Colocation is a common practice used to get the most out of a machine.
+ Knowing which workloads play nicely with each other and which ones don't=
+ is
+ a much harder task. While fio can replay workloads concurrently via mult=
+iple
+ jobs, it leaves some variability up to the scheduler making results hard=
+er to
+ reproduce. Merging is a way to make the order of events consistent.
+=20
+ Merging is integrated into I/O replay and done when a
+--=20
+2.30.2
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 60f7bb21..fa64f50f 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.29
-+DEF_VER=fio-3.30
- 
- LF='
- '
