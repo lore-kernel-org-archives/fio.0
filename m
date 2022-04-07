@@ -2,190 +2,122 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD150C433FE
-	for <fio@archiver.kernel.org>; Thu,  7 Apr 2022 14:50:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6262C433EF
+	for <fio@archiver.kernel.org>; Thu,  7 Apr 2022 15:35:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237459AbiDGOwk (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 7 Apr 2022 10:52:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47402 "EHLO
+        id S244786AbiDGPhM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 7 Apr 2022 11:37:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344290AbiDGOw0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 7 Apr 2022 10:52:26 -0400
-Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4193E1C7C13
-        for <fio@vger.kernel.org>; Thu,  7 Apr 2022 07:50:13 -0700 (PDT)
-Received: from pps.filterd (m0089730.ppops.net [127.0.0.1])
-        by m0089730.ppops.net (8.16.1.2/8.16.1.2) with ESMTP id 237El7si009496
-        for <fio@vger.kernel.org>; Thu, 7 Apr 2022 07:50:05 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=facebook;
- bh=l38nfAmc5Ii8GUBCuiYDmlkftqxG8AA+boqZOLlgGEg=;
- b=ODvgH9Ngii4b6E18FYbI8NneQcCTT86MhblLn7E91EOLFekOA9TtL+PtOQpmqiXNl/AG
- Qgd1eOUfP7Yo6jq/urdp8pVngb4QD/hagniz2RcFodGL6z9RV0exTm9jfrM7P6jo3GxD
- Onh1nggxeLrSC3x0CIz+P9GmcBMRCXNpDno= 
-Received: from maileast.thefacebook.com ([163.114.130.16])
-        by m0089730.ppops.net (PPS) with ESMTPS id 3f9gc36uuj-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-        for <fio@vger.kernel.org>; Thu, 07 Apr 2022 07:50:05 -0700
-Received: from twshared13345.18.frc3.facebook.com (2620:10d:c0a8:1b::d) by
- mail.thefacebook.com (2620:10d:c0a8:83::6) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Thu, 7 Apr 2022 07:50:04 -0700
-Received: by devvm4279.ftw0.facebook.com (Postfix, from userid 199637)
-        id 3852E20E9FF7E; Thu,  7 Apr 2022 07:50:01 -0700 (PDT)
-From:   Mohamad Gebai <mogeb@fb.com>
-To:     <fio@vger.kernel.org>
-CC:     Mohamad Gebai <mogeb@fb.com>
-Subject: [PATCH v2 2/3] iolog: add iolog_write for version 3
-Date:   Thu, 7 Apr 2022 07:49:57 -0700
-Message-ID: <20220407144958.3975622-3-mogeb@fb.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220407144958.3975622-1-mogeb@fb.com>
-References: <20220407144958.3975622-1-mogeb@fb.com>
-MIME-Version: 1.0
+        with ESMTP id S240237AbiDGPhK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 7 Apr 2022 11:37:10 -0400
+Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB302E4C
+        for <fio@vger.kernel.org>; Thu,  7 Apr 2022 08:35:08 -0700 (PDT)
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220407153459usoutp01095d51fed5d19857351656c3fae64487~jpyy5qtg82311723117usoutp01a;
+        Thu,  7 Apr 2022 15:34:59 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220407153459usoutp01095d51fed5d19857351656c3fae64487~jpyy5qtg82311723117usoutp01a
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1649345699;
+        bh=EIPQ8I/YSYGahMi/eRoaVSGz3zwU2H/BFTEomnn1Aic=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=u6R+1JibYueL3WzV2OjiPC7LWMEjNXq436e5pvozBVnRM1s2p/1/TR5+DTzi8Ou3K
+         l6Fm5XTgu5pIrBStOR7tGi1lacQOgej0QyXjQFvDd7SLzqO9g+R+rBRXMRb64PtDuw
+         wi//QBq/ZezAA4oOD+/uSvabyK9pUDytyupfGKcA=
+Received: from ussmges1new.samsung.com (u109.gpu85.samsung.co.kr
+        [203.254.195.109]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220407153458uscas1p1ce8284eece565bbb8843ada786f55a3c~jpyyx-pCK2700327003uscas1p1C;
+        Thu,  7 Apr 2022 15:34:58 +0000 (GMT)
+Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
+        ussmges1new.samsung.com (USCPEMTA) with SMTP id A2.7A.09760.2A40F426; Thu, 
+        7 Apr 2022 11:34:58 -0400 (EDT)
+Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
+        [203.254.195.89]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220407153458uscas1p2c03bb0149e903026a00713c5649eb77e~jpyya7v7M2713127131uscas1p2X;
+        Thu,  7 Apr 2022 15:34:58 +0000 (GMT)
+X-AuditID: cbfec36d-503ff70000002620-5e-624f04a2732d
+Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.145]) by
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id FF.D3.09702.2A40F426; Thu, 
+        7 Apr 2022 11:34:58 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2242.4; Thu, 7 Apr 2022 08:34:57 -0700
+Received: from SSI-EX3.ssi.samsung.com ([fe80::8d80:5816:c578:8c36]) by
+        SSI-EX3.ssi.samsung.com ([fe80::4031:294d:7626:e900%4]) with mapi id
+        15.01.2242.008; Thu, 7 Apr 2022 08:34:57 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     Mohamad Gebai <mogeb@fb.com>,
+        "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: RE: [PATCH v2 3/3] iolog: update man page for version 3
+Thread-Topic: [PATCH v2 3/3] iolog: update man page for version 3
+Thread-Index: AQHYSo7ntUEkblSiYE6BIqrEuvp9kqzklM9Q
+Date:   Thu, 7 Apr 2022 15:34:57 +0000
+Message-ID: <494869666f17475da2e6a840d45abd5d@samsung.com>
+In-Reply-To: <20220407144958.3975622-4-mogeb@fb.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [105.128.2.176]
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-Proofpoint-GUID: nYMMwPsGYGTR2EzDijYvvUaYRGcbC4D7
-X-Proofpoint-ORIG-GUID: nYMMwPsGYGTR2EzDijYvvUaYRGcbC4D7
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.425,FMLib:17.11.64.514
- definitions=2022-04-07_03,2022-04-07_01,2022-02-23_01
+MIME-Version: 1.0
+X-CFilter-Loop: Reflected
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrOIsWRmVeSWpSXmKPExsWy7djXc7qLWPyTDO49N7b4OOsFs8XSFVMZ
+        HZg8Jja/Y/f4vEkugCmKyyYlNSezLLVI3y6BK+Pd3NmMBbNZKlp+6jQw7mDuYuTkkBAwkbi2
+        /gFjFyMXh5DASkaJv3fXQjmtTBLnTx1gg6na8+EpE0RiLaPEysfr2SCcD4wSDx5tYYVw9jNK
+        rPjyhb2LkYODTUBT4u3+ApBuEQF/iccrG1lAbGEBB4kLPe9YIeKOEmv2PmWBsI0krr1+BLaN
+        RUBFYtPEn4wgNq+AlcSv8+vA4pxAV7StuskEYjMKiEl8P7UGzGYWEJe49WQ+E8SlghKLZu+B
+        +k1M4t+uh1AfKErc//6SHaJeR2LB7k9sELa2xLKFr5khdglKnJz5hAWiXlLi4IobLCB/SQg0
+        ckgc2byJHSLhInFqJ0yRtMTV61OZIYraGSXmbvwClZjAKHH9iRSEbS3xr/Ma1GY+ib+/HjGC
+        AkhCgFeio01oAqPSLCQ/zEJy3ywk981Cct8CRpZVjOKlxcW56anFhnmp5XrFibnFpXnpesn5
+        uZsYgWnj9L/DuTsYd9z6qHeIkYmD8RCjBAezkghvVa5PkhBvSmJlVWpRfnxRaU5q8SFGaQ4W
+        JXHeZZkbEoUE0hNLUrNTUwtSi2CyTBycUg1M6068qtMotd/NfDR34ufUlPXTbpf8Sfq7fX44
+        L4fQ0r3ScbXlH5ItnjovLGl8l8a6IEDy/boZJa/Y9n4UfySWpmTIsC+3VHKp4B3xt6tbX4lw
+        8HzR0H499Y3JGhZ+v5UqJSt2HlLT4XFx+K4Qx7Bia+yKaSFmibtqNnN0ZAZ9Y2y93e/Aubrl
+        9HXGXRuPXEuZ9jTFbqXJ2oJYD477SvXT93mpy9g/igvwfd3LWqH3+4tH/Kr0vBmX4xs2JLBt
+        iLXaV3tS4+vl+R2OxcseMJ2ySXHOiUt1LZ1QY3DZU33zO+vC/VL5R1mP+RhE3ReYtrtgzRch
+        +fQ16e9XvtLfcY4pdE7SX+ZZM2OlSo5enbVciaU4I9FQi7moOBEABqfcHIoDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrDLMWRmVeSWpSXmKPExsWS2cA0UXcRi3+Swe1F0hYfZ71gtli6Yiqj
+        A5PHxOZ37B6fN8kFMEVx2aSk5mSWpRbp2yVwZbybO5uxYDZLRctPnQbGHcxdjJwcEgImEns+
+        PGXqYuTiEBJYzSix5sILFgjnA6PEhKlzoJz9jBK7d75g7WLk4GAT0JR4u78ApFtEwFfieNcx
+        dhBbWMBB4kLPO1aIuKPEmr1PWSBsI4lrrx+xgdgsAioSmyb+ZASxeQWsJH6dXwcWFxLYyCjx
+        9Tg3iM0JdFHbqptMIDajgJjE91NrwGxmAXGJW0/mM0FcLSCxZM95qA9EJV4+/scKYStK3P/+
+        kh2iXkdiwe5PbBC2tsSyha+ZIfYKSpyc+YQFol5S4uCKGywTGMVmIVkxC0n7LCTts5C0L2Bk
+        WcUoXlpcnJteUWyYl1quV5yYW1yal66XnJ+7iREYQaf/HY7cwXj01ke9Q4xMHIyHGCU4mJVE
+        eKtyfZKEeFMSK6tSi/Lji0pzUosPMUpzsCiJ8wq5TowXEkhPLEnNTk0tSC2CyTJxcEo1MHG/
+        kvB5oOugv1crynHjXvemSRNcW15K3rVh9LWO+6dk/1vz0TrGhvmbHH68V61Yc0zOZ2fq1dKr
+        E1pZ7/M3H3hZyV3+46xL94Lp8ZvM1u3+N+PVieo1veevrZgrumH5DLkFFqycm6cY7TQ+nS15
+        cELa/IN9NkX7eycwdt96cj899Xnm9mNBW19dy3Mx3Sp5ICb6ieGky8FGzDP03klwnMlyZmYx
+        NVz26kXGs+kMLCkJAps0lq2/fVykQSk1SqHy5eX0ewseq7mn6u9rUPO88CFn3oN6w21cpb+n
+        TXhZuZVTLKlKdU2jt8GeNzu9w7NYXs828E5qqb5y/Ivf6oiH7czH+yOfbH/0/e2Mz6UJXvOV
+        WIozEg21mIuKEwGlyo1mDwMAAA==
+X-CMS-MailID: 20220407153458uscas1p2c03bb0149e903026a00713c5649eb77e
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220407145101uscas1p290fea2d9e25b5fd3a167b88d973417dc
+References: <20220407144958.3975622-1-mogeb@fb.com>
+        <CGME20220407145101uscas1p290fea2d9e25b5fd3a167b88d973417dc@uscas1p2.samsung.com>
+        <20220407144958.3975622-4-mogeb@fb.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Add timestamps to all actions for iolog version 3. Fio now generates iolo=
-g
-files using version 3 by default, and only supports writing using that
-version. Reading iolog v2 still works as expected.
+> -----Original Message-----
+> From: Mohamad Gebai [mailto:mogeb@fb.com]
+> Sent: Thursday, April 7, 2022 10:50 AM
+> To: fio@vger.kernel.org
+> Cc: Mohamad Gebai <mogeb@fb.com>
+> Subject: [PATCH v2 3/3] iolog: update man page for version 3
+>=20
+> Add documentation for iolog version 3, mainly the differences between
+> versions 2 and 3.
+>=20
+> Signed-off-by: Mohamad Gebai <mogeb@fb.com>
+> ---
+>  HOWTO.rst | 29 ++++++++++++++++++++++++++++-
+>  1 file changed, 28 insertions(+), 1 deletion(-)
+>=20
 
-Signed-off-by: Mohamad Gebai <mogeb@fb.com>
----
- fio.h   |  1 +
- iolog.c | 15 ++++++++++++---
- 2 files changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/fio.h b/fio.h
-index 8830ff34..de7eca79 100644
---- a/fio.h
-+++ b/fio.h
-@@ -425,20 +425,21 @@ struct thread_data {
- 	unsigned long io_hist_len;
-=20
- 	/*
- 	 * For IO replaying
- 	 */
- 	struct flist_head io_log_list;
- 	FILE *io_log_rfile;
- 	unsigned int io_log_blktrace;
- 	unsigned int io_log_blktrace_swap;
- 	unsigned long long io_log_last_ttime;
-+	struct timespec io_log_start_time;
- 	unsigned int io_log_current;
- 	unsigned int io_log_checkmark;
- 	unsigned int io_log_highmark;
- 	unsigned int io_log_version;
- 	struct timespec io_log_highmark_time;
-=20
- 	/*
- 	 * For tracking/handling discards
- 	 */
- 	struct flist_head trim_list;
-diff --git a/iolog.c b/iolog.c
-index f6023ee2..51aecd43 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -34,46 +34,54 @@ static const char iolog_ver2[] =3D "fio version 2 iol=
-og";
- static const char iolog_ver3[] =3D "fio version 3 iolog";
-=20
- void queue_io_piece(struct thread_data *td, struct io_piece *ipo)
- {
- 	flist_add_tail(&ipo->list, &td->io_log_list);
- 	td->total_io_size +=3D ipo->len;
- }
-=20
- void log_io_u(const struct thread_data *td, const struct io_u *io_u)
- {
-+	struct timespec now;
-+
- 	if (!td->o.write_iolog_file)
- 		return;
-=20
--	fprintf(td->iolog_f, "%s %s %llu %llu\n", io_u->file->file_name,
-+	fio_gettime(&now, NULL);
-+	fprintf(td->iolog_f, "%lu %s %s %llu %llu\n", utime_since_now(&td->io_l=
-og_start_time),
-+						io_u->file->file_name,
- 						io_ddir_name(io_u->ddir),
- 						io_u->offset, io_u->buflen);
-+
- }
-=20
- void log_file(struct thread_data *td, struct fio_file *f,
- 	      enum file_log_act what)
- {
- 	const char *act[] =3D { "add", "open", "close" };
-+	struct timespec now;
-=20
- 	assert(what < 3);
-=20
- 	if (!td->o.write_iolog_file)
- 		return;
-=20
-=20
- 	/*
- 	 * this happens on the pre-open/close done before the job starts
- 	 */
- 	if (!td->iolog_f)
- 		return;
-=20
--	fprintf(td->iolog_f, "%s %s\n", f->file_name, act[what]);
-+	fio_gettime(&now, NULL);
-+	fprintf(td->iolog_f, "%lu %s %s\n", utime_since_now(&td->io_log_start_t=
-ime),
-+						f->file_name, act[what]);
- }
-=20
- static void iolog_delay(struct thread_data *td, unsigned long delay)
- {
- 	uint64_t usec =3D utime_since_now(&td->last_issue);
- 	unsigned long orig_delay =3D delay;
- 	uint64_t this_delay;
- 	struct timespec ts;
-=20
- 	if (delay < td->time_offset) {
-@@ -731,25 +739,26 @@ static bool init_iolog_write(struct thread_data *td=
-)
- 		perror("fopen write iolog");
- 		return false;
- 	}
-=20
- 	/*
- 	 * That's it for writing, setup a log buffer and we're done.
- 	  */
- 	td->iolog_f =3D f;
- 	td->iolog_buf =3D malloc(8192);
- 	setvbuf(f, td->iolog_buf, _IOFBF, 8192);
-+	fio_gettime(&td->io_log_start_time, NULL);
-=20
- 	/*
- 	 * write our version line
- 	 */
--	if (fprintf(f, "%s\n", iolog_ver2) < 0) {
-+	if (fprintf(f, "%s\n", iolog_ver3) < 0) {
- 		perror("iolog init\n");
- 		return false;
- 	}
-=20
- 	/*
- 	 * add all known files
- 	 */
- 	for_each_file(td, ff, i)
- 		log_file(td, ff, FIO_LOG_ADD_FILE);
-=20
---=20
-2.30.2
-
+Please also update fio.1
