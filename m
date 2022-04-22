@@ -2,208 +2,116 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61BD6C433F5
-	for <fio@archiver.kernel.org>; Mon, 18 Apr 2022 12:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEF34C4167B
+	for <fio@archiver.kernel.org>; Fri, 22 Apr 2022 22:25:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235387AbiDRMCs (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 18 Apr 2022 08:02:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32876 "EHLO
+        id S232964AbiDVW2p (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 22 Apr 2022 18:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233627AbiDRMCr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 18 Apr 2022 08:02:47 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A0F910FC8
-        for <fio@vger.kernel.org>; Mon, 18 Apr 2022 05:00:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=GQdWQPFV8XaCQBipw9p6mQFP+iQioFaVq3s4L8SZeIM=; b=efVNJ9gNGSUECJXlUEiPpv8K/8
-        QfxfHpsxsZo5/hjDMFB6SfE8MoSEcvfTjsKG8eB1OvA5KTZOWRAl1DIz0evaVFpsNbUTuR2CJpoNK
-        JNvw7XglvepCEOraXwCcDHiMdrE82qOKtDd3ro4YTM36h7gxu95oRFM49UrziSwBx15O2eKSRjMk9
-        GX+IXiqt0z09iHFJMcOqRQnHbgRXTLJnI6XjoNjcfi0kcH1O6yBAZTU/4rcF8kdOTwJBvvKeM9VuA
-        XWzUyKyvLW/16XuMWHSYcw/QQIlUf2elWbo1MQirkjpP8aMK9H+2tZxxVb/42jRxAkDnENEfwSi5W
-        1jY6X4hw==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ngQ33-006Uwr-7M
-        for fio@vger.kernel.org; Mon, 18 Apr 2022 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 664FA1BC0129; Mon, 18 Apr 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220418120002.664FA1BC0129@kernel.dk>
-Date:   Mon, 18 Apr 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S234204AbiDVW20 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 22 Apr 2022 18:28:26 -0400
+Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F39FE245E69
+        for <fio@vger.kernel.org>; Fri, 22 Apr 2022 14:57:13 -0700 (PDT)
+Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-e5c42b6e31so9975853fac.12
+        for <fio@vger.kernel.org>; Fri, 22 Apr 2022 14:57:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=netflix.com; s=google;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=AqEqdoyNkJLHnt2tgvo4gn3tQGkctZh7h91eSYcQFdM=;
+        b=DN6fJ5wITZ9zBbi4DqLq2Req8g9sV30qBG4X0W8aeBMippKJX2Wl5WAroRMKzZs7EZ
+         8KoXZWjyKPb9C8TChVcBg6QMerxywO6ed8vZ4olNt1882bt5WZyjtRWVE1a39MzuJ84o
+         rpbogXAQ+ISKtsP9JPTaJIWQddB2ziyN7LhEQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=AqEqdoyNkJLHnt2tgvo4gn3tQGkctZh7h91eSYcQFdM=;
+        b=3gjR0CU08r+DVnBFtcTzYW7iW6Do6gAZlpQM5OXS9PW3BLzvVk2zGOTbLJR4ANGEek
+         r7MbxgpmZNgAnx4wax0g6umUeMGFY16aNY1tOSKOoG9FbR/Q2KJFV+bbC9p/XOzxrbv5
+         1asYbHjGJTXJ9zacsQUBkE4bibVN0sx6n7hiEtCTU1Uw0TOVtwPX2FGEgLagUiMtXmyU
+         cjY3TqkmcDVWswf2jEbAIY4G5MPTSSGIyGng9bgdGE7xZhvbnY68keTDAvtYRrGWFrw9
+         vnXH3ZWBbVL7RtJDCrxpp/urXdfCJaNvB/H/BcKjrVWQ5MXliYom6w8NfH1capphfSDS
+         JiuA==
+X-Gm-Message-State: AOAM533THMIbrGNmjxD1vYcQ9psBxKuD71ru1/k4ro1EyF/fbgkCRifC
+        skpMxbDzr1YW6KgaCiezIxw3O6/VoDSU3y2H0GVLDYUKnzfN2Y3g
+X-Google-Smtp-Source: ABdhPJwotsxznvtMHWimBEW0ESi3FiAgpa+QeFHKV9W4f8N9pAirGQKGzqS20z1sX61u1AGHljEnTHcAMRfRe5tC7TU=
+X-Received: by 2002:a05:6870:d691:b0:de:e1b7:8eed with SMTP id
+ z17-20020a056870d69100b000dee1b78eedmr3004205oap.251.1650664633086; Fri, 22
+ Apr 2022 14:57:13 -0700 (PDT)
+MIME-Version: 1.0
+From:   Elliott Balsley <ebalsley@netflix.com>
+Date:   Fri, 22 Apr 2022 14:57:02 -0700
+Message-ID: <CALajkdhAFm1WSKQpjPj9QLwcoiqFopDoHimsicqtKCqLOYDrBA@mail.gmail.com>
+Subject: IO Depth lower than requested
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit d684bb2839d1fa010fba1e64f9b0c16240d8bdae:
+I'm testing some NVMe drives and I notice the IO Depth reported by fio
+output is lower than what I specify in the job.  Is the command-line
+output showing the attempted depth or the actual achieved depth?
+Here's an example output where I tried iodepth=3D32.  The first line (IO
+depths) shows a mix of 8 and 16.  The next 2 lines (submit and
+complete) show 4.  What's the difference between the first and second
+lines?  I was expecting "submit" to be 32 and "complete" to maybe be
+lower based on hardware and OS limitations.  Oddly enough, if I
+specify iodepth=3D4 then performance is actually a bit better (32K
+instead of 35K) even though the submit/complete depths shown remain
+the same.
+Also =E2=80=94 is there a way to find out what is limiting this?  The Micro=
+n
+9300 Pro should support QD=3D512 according to its spec sheet.
 
-  Merge branch 'fix/remove-sudo-in-test-script' of https://github.com/dpronin/fio (2022-04-10 15:18:42 -0600)
+% fio --randrepeat=3D1 --name=3Dtest --bs=3D4k --iodepth=3D32 --size=3D1G
+--readwrite=3Drandread --directory /Volumes/Micron9300/elliott
+--ioengine posixaio
+test: (g=3D0): rw=3Drandread, bs=3D(R) 4096B-4096B, (W) 4096B-4096B, (T)
+4096B-4096B, ioengine=3Dposixaio, iodepth=3D32
+fio-3.30
+Starting 1 process
+Jobs: 1 (f=3D1): [r(1)][100.0%][r=3D137MiB/s][r=3D35.1k IOPS][eta 00m:00s]
+test: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D6903: Fri Apr 22 12:25:34 20=
+22
+  read: IOPS=3D35.0k, BW=3D137MiB/s (143MB/s)(1024MiB/7498msec)
+    slat (nsec): min=3D0, max=3D46000, avg=3D823.84, stdev=3D784.94
+    clat (usec): min=3D179, max=3D874, avg=3D455.01, stdev=3D50.98
+     lat (usec): min=3D180, max=3D875, avg=3D455.84, stdev=3D50.88
+    clat percentiles (usec):
+     |  1.00th=3D[  318],  5.00th=3D[  367], 10.00th=3D[  392], 20.00th=3D[=
+  416],
+     | 30.00th=3D[  433], 40.00th=3D[  445], 50.00th=3D[  457], 60.00th=3D[=
+  469],
+     | 70.00th=3D[  482], 80.00th=3D[  494], 90.00th=3D[  515], 95.00th=3D[=
+  537],
+     | 99.00th=3D[  578], 99.50th=3D[  594], 99.90th=3D[  652], 99.95th=3D[=
+  668],
+     | 99.99th=3D[  717]
+   bw (  KiB/s): min=3D139419, max=3D140595, per=3D100.00%, avg=3D140110.71=
+,
+stdev=3D340.75, samples=3D14
+   iops        : min=3D34854, max=3D35148, avg=3D35027.43, stdev=3D85.14, s=
+amples=3D14
+  lat (usec)   : 250=3D0.06%, 500=3D82.67%, 750=3D17.27%, 1000=3D0.01%
+  cpu          : usr=3D19.97%, sys=3D13.74%, ctx=3D195959, majf=3D0, minf=
+=3D28
+  IO depths    : 1=3D0.1%, 2=3D0.1%, 4=3D0.1%, 8=3D43.4%, 16=3D56.6%, 32=3D=
+0.0%, >=3D64=3D0.0%
+     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
+=3D0.0%, >=3D64=3D0.0%
+     complete  : 0=3D0.0%, 4=3D99.1%, 8=3D0.9%, 16=3D0.1%, 32=3D0.0%, 64=3D=
+0.0%, >=3D64=3D0.0%
+     issued rwts: total=3D262144,0,0,0 short=3D0,0,0,0 dropped=3D0,0,0,0
+     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D32
 
-are available in the Git repository at:
+Run status group 0 (all jobs):
+   READ: bw=3D137MiB/s (143MB/s), 137MiB/s-137MiB/s (143MB/s-143MB/s),
+io=3D1024MiB (1074MB), run=3D7498-7498msec
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 5f2d43188c2d65674aaba6280e2a87107e5d7099:
-
-  Merge branch 'fix/json/strdup_memory_leak' of https://github.com/dpronin/fio (2022-04-17 16:47:22 -0600)
-
-----------------------------------------------------------------
-Denis Pronin (5):
-      fixed possible and actual memory leaks
-      fixed memory leak of not freed jobs_eta in several cases
-      use flist_first_entry instead of flist_entry applied to 'next' list item
-      fixed bunch of memory leaks in json constructor
-      updated logging of iops1, iops2, ratio in FioJobTest_iops_rate
-
-Jens Axboe (3):
-      Merge branch 'fix/memory-leak' of https://github.com/dpronin/fio
-      Merge branch 'fix/jobs_eta_memory_leak' of https://github.com/dpronin/fio
-      Merge branch 'fix/json/strdup_memory_leak' of https://github.com/dpronin/fio
-
- backend.c          | 3 +++
- eta.c              | 7 ++++---
- ioengines.c        | 2 ++
- json.h             | 7 ++++++-
- server.c           | 2 +-
- stat.c             | 2 ++
- t/run-fio-tests.py | 3 ++-
- 7 files changed, 20 insertions(+), 6 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index 001b2b96..317e4f6c 100644
---- a/backend.c
-+++ b/backend.c
-@@ -2433,8 +2433,10 @@ reap:
- 			} else {
- 				pid_t pid;
- 				struct fio_file **files;
-+				void *eo;
- 				dprint(FD_PROCESS, "will fork\n");
- 				files = td->files;
-+				eo = td->eo;
- 				read_barrier();
- 				pid = fork();
- 				if (!pid) {
-@@ -2447,6 +2449,7 @@ reap:
- 				// freeing previously allocated memory for files
- 				// this memory freed MUST NOT be shared between processes, only the pointer itself may be shared within TD
- 				free(files);
-+				free(eo);
- 				free(fd);
- 				fd = NULL;
- 			}
-diff --git a/eta.c b/eta.c
-index 17970c78..6017ca31 100644
---- a/eta.c
-+++ b/eta.c
-@@ -3,6 +3,7 @@
-  */
- #include <unistd.h>
- #include <string.h>
-+#include <stdlib.h>
- #ifdef CONFIG_VALGRIND_DEV
- #include <valgrind/drd.h>
- #else
-@@ -707,10 +708,10 @@ void print_thread_status(void)
- 	size_t size;
- 
- 	je = get_jobs_eta(false, &size);
--	if (je)
-+	if (je) {
- 		display_thread_status(je);
--
--	free(je);
-+		free(je);
-+	}
- }
- 
- void print_status_init(int thr_number)
-diff --git a/ioengines.c b/ioengines.c
-index d08a511a..68f307e5 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -223,6 +223,8 @@ struct ioengine_ops *load_ioengine(struct thread_data *td)
-  */
- void free_ioengine(struct thread_data *td)
- {
-+	assert(td != NULL && td->io_ops != NULL);
-+
- 	dprint(FD_IO, "free ioengine %s\n", td->io_ops->name);
- 
- 	if (td->eo && td->io_ops->options) {
-diff --git a/json.h b/json.h
-index d9824263..66bb06b1 100644
---- a/json.h
-+++ b/json.h
-@@ -81,8 +81,13 @@ static inline int json_object_add_value_string(struct json_object *obj,
- 	struct json_value arg = {
- 		.type = JSON_TYPE_STRING,
- 	};
-+	union {
-+		const char *a;
-+		char *b;
-+	} string;
- 
--	arg.string = strdup(val ? : "");
-+	string.a = val ? val : "";
-+	arg.string = string.b;
- 	return json_object_add_value_type(obj, name, &arg);
- }
- 
-diff --git a/server.c b/server.c
-index 914a8c74..4c71bd44 100644
---- a/server.c
-+++ b/server.c
-@@ -1323,7 +1323,7 @@ static int handle_xmits(struct sk_out *sk_out)
- 	sk_unlock(sk_out);
- 
- 	while (!flist_empty(&list)) {
--		entry = flist_entry(list.next, struct sk_entry, list);
-+		entry = flist_first_entry(&list, struct sk_entry, list);
- 		flist_del(&entry->list);
- 		ret += handle_sk_entry(sk_out, entry);
- 	}
-diff --git a/stat.c b/stat.c
-index 356083e2..949af5ed 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1,5 +1,6 @@
- #include <stdio.h>
- #include <string.h>
-+#include <stdlib.h>
- #include <sys/time.h>
- #include <sys/stat.h>
- #include <math.h>
-@@ -1698,6 +1699,7 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
- 	if (je) {
- 		json_object_add_value_int(root, "eta", je->eta_sec);
- 		json_object_add_value_int(root, "elapsed", je->elapsed_sec);
-+		free(je);
- 	}
- 
- 	if (opt_list)
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 612e50ca..ecceb67e 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -546,9 +546,10 @@ class FioJobTest_iops_rate(FioJobTest):
-             return
- 
-         iops1 = self.json_data['jobs'][0]['read']['iops']
-+        logging.debug("Test %d: iops1: %f", self.testnum, iops1)
-         iops2 = self.json_data['jobs'][1]['read']['iops']
-+        logging.debug("Test %d: iops2: %f", self.testnum, iops2)
-         ratio = iops2 / iops1
--        logging.debug("Test %d: iops1: %f", self.testnum, iops1)
-         logging.debug("Test %d: ratio: %f", self.testnum, ratio)
- 
-         if iops1 < 950 or iops1 > 1050:
+Thanks,
+Elliott
