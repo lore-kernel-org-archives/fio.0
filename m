@@ -2,96 +2,69 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4408C433EF
-	for <fio@archiver.kernel.org>; Tue, 26 Apr 2022 21:21:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F71FC433EF
+	for <fio@archiver.kernel.org>; Tue, 26 Apr 2022 21:24:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346507AbiDZVYl (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 26 Apr 2022 17:24:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33108 "EHLO
+        id S1355390AbiDZV2D (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 26 Apr 2022 17:28:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355397AbiDZVYh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 26 Apr 2022 17:24:37 -0400
+        with ESMTP id S229744AbiDZV2C (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 26 Apr 2022 17:28:02 -0400
 Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 774E4152493
-        for <fio@vger.kernel.org>; Tue, 26 Apr 2022 14:21:27 -0700 (PDT)
-Received: from integral2.. (unknown [180.246.147.8])
-        by gnuweeb.org (Postfix) with ESMTPSA id CAFC17E790;
-        Tue, 26 Apr 2022 21:21:25 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5863F17B3A3
+        for <fio@vger.kernel.org>; Tue, 26 Apr 2022 14:24:54 -0700 (PDT)
+Received: from [192.168.88.87] (unknown [180.246.147.8])
+        by gnuweeb.org (Postfix) with ESMTPSA id CFD8C7E787;
+        Tue, 26 Apr 2022 21:24:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1651008087;
-        bh=e/Fdmte9Mm/Pr8AHosjrUIo9lGkvhgiA/qizii2Tt18=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qa++ndkok2xp5Yd66pzSPzmkZD6TjagIsmmCCfWaR/JXil+em3psjb208wPitXfZh
-         /wgtMkPX8LOX5OpAbzBGr1sp53Rl8T7UCCDI9cLEZGAwLVDNCTw9fYOj0rJbjU5Fg3
-         erTeEhvDEHY5E6uXHP0oGOa1b0c5tJUtTKUFAXIvEXORKt0xISPoBlaflyO1R3Eh8L
-         8co+fWJ/Q3G9poe47+IrbQmsA5CvoN+xtp9+/yrHxAyHy7C0s4Hi4M4BY+UZt8978t
-         zljPoWGCq9x92ldN5P9iALoFIRSyWlwvCBdFaAV4JhN6OhPsXleclwQ3+9jmYSASD7
-         0QfshpX3mSDNA==
-From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
+        s=default; t=1651008294;
+        bh=MdNIKPfR4zKWtL86DFAR0CP47IGlur35JdxQ4ssDWjo=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=GurIlntysA5KodH8idSDBgIBMst5A+qTVGUOtQTLP+2svE2FkegYjljHLPbG/OzcJ
+         Y6dAyf4oCao+DwGbSIFHT5e26UZJFWKg+b8/Tq/ZvKo+3PAUkPR8XuPKidrEttfaMc
+         AayKVBASbKHjsSbRVZ00wkCVS7baXxWKDuwhupOlfPJWJeFq+pS2mrjKLvR78x1A4X
+         +/iMEgH82iOskaqTiLgCnhmUiLkeD95aHIUk5aYt/ospx+GhNfhwRn+24QCih8iGhe
+         MWCij1e2GWCXQKYWgmlv98GUrlyYB2ZQ9l7x359wco2q53uUSYGpiLiCYoOf49vymB
+         Om0KE+lMPYuRg==
+Message-ID: <b7d5d8df-73af-a895-790d-1678dc95d399@gnuweeb.org>
+Date:   Wed, 27 Apr 2022 04:24:44 +0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v1 3/6] stat: Handle `ENOMEM` case on `malloc()` call
+Content-Language: en-US
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     fio Mailing List <fio@vger.kernel.org>,
-        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>,
-        Ammar Faizi <ammarfaizi2@gnuweeb.org>
-Subject: [PATCH v1 6/6] Makefile: Suppress `-Wimplicit-fallthrough` when compiling `lex.yy`
-Date:   Wed, 27 Apr 2022 04:20:44 +0700
-Message-Id: <20220426212044.78898-7-ammarfaizi2@gnuweeb.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220426212044.78898-1-ammarfaizi2@gnuweeb.org>
+        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>
 References: <20220426212044.78898-1-ammarfaizi2@gnuweeb.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+ <20220426212044.78898-4-ammarfaizi2@gnuweeb.org>
+From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
+In-Reply-To: <20220426212044.78898-4-ammarfaizi2@gnuweeb.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
+On 4/27/22 4:20 AM, Ammar Faizi wrote:
+>   	threadstats = malloc(nr_ts * sizeof(struct thread_stat));
+> +	if (!threadstats) {
+> +		log_err("fio: failed to allocate threadstats\n");
+> +		return;
+> +	}
+> +
+>   	opt_lists = malloc(nr_ts * sizeof(struct flist_head *));
+> +	if (!opt_lists) {
+> +		log_err("fio: failed to allocate opt_lists\n");
 
-lex.yy.c is an auto generated C file. When compiling with clang-15, we
-got the following warning:
+I should free(threadstats) here, will send v2 soon.
 
-```
-      CC lex.yy.o
-  lex.yy.c:1444:5: warning: unannotated fall-through between switch labels [-Wimplicit-fallthrough]
-                                  case EOB_ACT_END_OF_FILE:
-                                  ^
-  lex.yy.c:1444:5: note: insert '__attribute__((fallthrough));' to silence this warning
-                                  case EOB_ACT_END_OF_FILE:
-                                  ^
-                                  __attribute__((fallthrough));
-  lex.yy.c:1444:5: note: insert 'break;' to avoid fall-through
-                                  case EOB_ACT_END_OF_FILE:
-                                  ^
-                                  break;
-  1 warning generated.
-```
+> +		return;
+> +	}
+>   
+>   	for (i = 0; i < nr_ts; i++) {
+>   		init_thread_stat(&threadstats[i]);
 
-There is nothing we can do to fix lex.yy.c since it's an auto generated
-file. Append `-Wno-implicit-fallthrough` when compiling this file if we
-have -Wimplicit-fallthrough enabled.
-
-Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
----
- Makefile | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/Makefile b/Makefile
-index e670c1f2..1e15a69e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -530,8 +530,12 @@ else
- 	$(QUIET_LEX)$(LEX) $<
- endif
- 
-+ifneq (,$(findstring -Wimplicit-fallthrough,$(CFLAGS)))
-+LEX_YY_CFLAGS := -Wno-implicit-fallthrough
-+endif
-+
- lex.yy.o: lex.yy.c y.tab.h
--	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
-+	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) $(LEX_YY_CFLAGS) -c $<
- 
- y.tab.o: y.tab.c y.tab.h
- 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
 -- 
 Ammar Faizi
-
