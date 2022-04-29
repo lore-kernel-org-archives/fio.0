@@ -2,174 +2,163 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA07C433EF
-	for <fio@archiver.kernel.org>; Fri, 29 Apr 2022 07:46:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 615EAC433EF
+	for <fio@archiver.kernel.org>; Fri, 29 Apr 2022 18:20:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245158AbiD2Ht4 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 29 Apr 2022 03:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
+        id S230109AbiD2SXa (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 29 Apr 2022 14:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355285AbiD2Htx (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 29 Apr 2022 03:49:53 -0400
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB0CB7175
-        for <fio@vger.kernel.org>; Fri, 29 Apr 2022 00:46:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1651218387; x=1682754387;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=YiwAdq8EuUoW1oBhnfTqpRbwl0zP1hMluyr+9v62iWY=;
-  b=FCqwW6X2Q4/d+BgAY1tSR2KD90j0opm7qxTnMMLublK1BNEBTeKVfedD
-   jQthrSHM/gepVTtliAK4J3DnzHXzonzU3xQL3y5Gvgykids58XUK7Qb8C
-   Dq+2MfdP/JBCjM9YgryUwY5L8CUG1iInFk6h7bsR6VsmBkDMnAgRvqyAH
-   LPlXJ05C18sfN1HmTGzv+8vKa9fpukptHBcj2CwI42lzFbtISShTaafN1
-   ROfK+ItRyGBukLawQGVB3RcHExux4ymUgzBwCqv24vDd+VsVEcti+PBqo
-   8cNx2kV93V7w45Ft1+Kka/1BJUVxqmBkwpV91BUi5NVpcZqTSuIv3Xnf8
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.91,297,1647273600"; 
-   d="scan'208";a="204013271"
-Received: from mail-mw2nam12lp2041.outbound.protection.outlook.com (HELO NAM12-MW2-obe.outbound.protection.outlook.com) ([104.47.66.41])
-  by ob1.hgst.iphmx.com with ESMTP; 29 Apr 2022 15:46:26 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kfL8YvLWccSP2VWjz6bGHzXxa6TLVdYqMUOOcc1sqYhI7vS+xS2n7UitoYkJKp3dbzOAymOqu0IIVINouShyIp+WCxBneZdzKavJtnqGn1w/fTWaWsY/+2D2CTdb03JFgdlbhLFtr6SbSkQbk26RImeYeyxjXrrEoTE75gE6A5OyyyWog0MsJ9lzIxmL56luwCYNlMC1Zo+6cKnCAc/mBU6pxAsElHrJA55EYavMp5HW7l/WSrM7V9L9UQUdmTaRE5ZlEml7xUpBniM3FgK4h+mQLv66MRkfe/yVKF5lPdIv4mB/EpZB27CYSCyQ+krioUnWWgO3EUmN5+fomIEMiw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=trAKHO3wCx1DGGVTsH2SGaHy0dkPf5e0b5LmsA11Gh4=;
- b=Hb8n8fByWiBb4yffM5VZKi0nlOQcmBXNQ/3uBsSw0Lx4wz8pVslPwgVSo4+AMFnLAyku7e6rLUe6j0DHJOg2YU/EAaev4elG1LxCeTu077iSwnEXVjgZ6U+EBoIup3T9p2l10L3U6s/jpVL4zks1B2yB7dF7BYUaBqLb3zrCIUcXlaIXviKXUqV8khsHaM5unxsFyL4Ivh8f2Hirsas9YT76PlINBPFQjsJJrTaFPgGSVppQpzOoPX9Z9YHtcimWUaGnAoTaSSRd0u5kiqZanF65KaUis+VN0QWRnAnpMKsQTOLOnucQPEZkH+ApliTSIFsXMGWn387YD/GMtJvrfg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=trAKHO3wCx1DGGVTsH2SGaHy0dkPf5e0b5LmsA11Gh4=;
- b=zWzir4wehszH4vlrdZpyJdoAN8qfHUlK1Bv1MVTNPHVZ8uqali3j++icFnBolTx/yk8qSN3SyEW3mtpqd0KP4NCTiN/Hwtwgg5tR/8Jtp6M8WpxRVPrMqENttXM5nSg+4VDJMX4mHYVoHSmlNx1M7Lnj98BZWuoh4LiAYfpBiU8=
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com (2603:10b6:510:8::18)
- by PH0PR04MB8388.namprd04.prod.outlook.com (2603:10b6:510:f3::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5186.20; Fri, 29 Apr
- 2022 07:46:25 +0000
-Received: from PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::3cff:7ee8:c1b5:b4e7]) by PH0PR04MB7158.namprd04.prod.outlook.com
- ([fe80::3cff:7ee8:c1b5:b4e7%5]) with mapi id 15.20.5206.013; Fri, 29 Apr 2022
- 07:46:24 +0000
-From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>
-CC:     Jens Axboe <axboe@kernel.dk>,
+        with ESMTP id S1379945AbiD2SX2 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 29 Apr 2022 14:23:28 -0400
+Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4166FD0A93
+        for <fio@vger.kernel.org>; Fri, 29 Apr 2022 11:20:06 -0700 (PDT)
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220429182005usoutp02da7545435c03606eb0f08c8ae3182f4b~qcPO7jdR_1658616586usoutp02s;
+        Fri, 29 Apr 2022 18:20:05 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220429182005usoutp02da7545435c03606eb0f08c8ae3182f4b~qcPO7jdR_1658616586usoutp02s
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1651256405;
+        bh=uXDT59feP9VMyzO2IaZorSTuqE2P/2NKO07zhVLHgOU=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=lTpgrPrPda/hL0dXjZQX0sCUZdCWI2sSoPTRCUh0iSulWyWcMX36/ohLMLPzX36JJ
+         Q59pD9ssHrIxuy1e4e50dLCknAat69Dr+cSAjaOq3T2D3134HKKAvH59HIMopXIP8S
+         hbpOXDkQUnNNuU1kqh93XyCT6Lw/1zz02n5DVKh4=
+Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
+        [203.254.195.112]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220429182005uscas1p2b207fb2397feb9660011e79caffe3a3e~qcPOvRpzR0834508345uscas1p2l;
+        Fri, 29 Apr 2022 18:20:05 +0000 (GMT)
+Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
+        ussmges3new.samsung.com (USCPEMTA) with SMTP id E5.35.09749.55C2C626; Fri,
+        29 Apr 2022 14:20:05 -0400 (EDT)
+Received: from ussmgxs2new.samsung.com (u91.gpu85.samsung.co.kr
+        [203.254.195.91]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220429182004uscas1p208700c8d1b934acd53921c0cf801b87a~qcPOXM5y63178231782uscas1p26;
+        Fri, 29 Apr 2022 18:20:04 +0000 (GMT)
+X-AuditID: cbfec370-a6bff70000002615-2c-626c2c553d3e
+Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.146]) by
+        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id 56.34.09672.45C2C626; Fri,
+        29 Apr 2022 14:20:04 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2375.7; Fri, 29 Apr 2022 11:20:04 -0700
+Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
+        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.007; Fri,
+        29 Apr 2022 11:20:04 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     Ammar Faizi <ammarfaizi2@gnuweeb.org>, Jens Axboe <axboe@kernel.dk>
+CC:     Alviro Iskandar Setiawan <alviro.iskandar@gnuweeb.org>,
+        Niklas Cassel <Niklas.Cassel@wdc.com>,
         fio Mailing List <fio@vger.kernel.org>,
-        GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>
-Subject: Re: [PATCH v3 0/3] Small fio cleanups and fixes
-Thread-Topic: [PATCH v3 0/3] Small fio cleanups and fixes
-Thread-Index: AQHYW0AqYngcUICLlk+0Edue9HIU0K0Gg/GA
-Date:   Fri, 29 Apr 2022 07:46:24 +0000
-Message-ID: <YmuXz3e8F1LMXKNt@x1-carbon>
-References: <20220428203954.222165-1-ammarfaizi2@gnuweeb.org>
-In-Reply-To: <20220428203954.222165-1-ammarfaizi2@gnuweeb.org>
+        "GNU/Weeb Mailing List" <gwml@vger.gnuweeb.org>
+Subject: RE: [PATCH v1 1/8] cgroup: Add ENOMEM handling on a `malloc()` call
+Thread-Topic: [PATCH v1 1/8] cgroup: Add ENOMEM handling on a `malloc()`
+        call
+Thread-Index: AQHYW2K7yRQ8Gy4g4EqOqM5pbsS0O60HJh5w
+Date:   Fri, 29 Apr 2022 18:20:03 +0000
+Message-ID: <23ffd48630dd404395218d4b3051d159@samsung.com>
+In-Reply-To: <20220429004705.260034-2-ammarfaizi2@gnuweeb.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 3cf7cad0-4b0d-4256-a43b-08da29b45c77
-x-ms-traffictypediagnostic: PH0PR04MB8388:EE_
-x-microsoft-antispam-prvs: <PH0PR04MB83882F3DF8E3F310BC4F1D61F2FC9@PH0PR04MB8388.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: dJhpK6JBVuz4jpIaBgVvktZBLV8ftm8d1bmXORItUXReK5ReA7O3UizX1+w1XibOh9gaBYBE5AwDSyQNdF5d0F7DdwdmESZKWttb2IgspfhSBbySwjl+EF3RbLRG14Th/6josEaNwuFEUe+L2ODeX4HloP8yuGCYlrmPgq3APY3CslTgISlY87LjCC7zhBwW6x1uEs70MUBB4zOEpyb3A6UY+psUPBHyS/6g7/OVbX3ud3cmg7lyxGA5Jry4jQv3/iwDF+EyUOab0ON6V9NoRAoMqutDnLmtcVbF0eHTH+DlVWDE18H6+UX6RZAwoNLn6sQLjQiSTufLN96UZpb68m3EkCcT8x/qNI+edfDtx/pXm5nOBG+LVQI2L/QD/fLVsESFwquEJXgbrRgCPA4sfXS55mKecaSLHIK18hOmTCOdLsIC4zp6SpGwwzb2ahHKctALjDDvyqrt/hVFtazBEf5U0MvWT54WjND+DF+4NwpYNVLCcwui6fu3o877X+6bCk4WrHWSIYmAYI/5knZjVY5keD6u11OsJ7aULigESPo9bvU0a09YC5y/nV2pRRpOWEE5VBG1NnoWNOZgYgq+osJOwSu7CBm0zVoD5xk5E1u3eTLVWeexrvMl03kg7rhek5xbtPC+IfAyP8F/ZfEoyWZvgUrQ0++lH9jCrKDQVEgqAt/i/+hgefbbHBwFEWoIibJiLABCj13y8RaZQG2X7Q==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR04MB7158.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(7916004)(366004)(66946007)(82960400001)(6506007)(76116006)(91956017)(66476007)(66556008)(38100700002)(66446008)(122000001)(8936002)(86362001)(316002)(64756008)(4326008)(5660300002)(8676002)(186003)(71200400001)(38070700005)(33716001)(6512007)(9686003)(83380400001)(26005)(508600001)(54906003)(2906002)(6916009)(6486002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?gMN9NC41gK2IyWeQYn76s7Z9yzzxw5UzIqqvh+UaRTbXfTgY7yEvy2CSZzkj?=
- =?us-ascii?Q?vP/he4Vs6JkhZ6l0OA8o55qpO+Tjt9rVVThk0ZbNgqELxayhhMU8uBditDgZ?=
- =?us-ascii?Q?7GkK51rTA/J0HJp7zkxfilKq1I6jZ5AHDxbYPRWyJODIubhvolVwhecAl3ox?=
- =?us-ascii?Q?VgZMDUTbQABDX4VUHG+W8bVDyfTR/Cp/ITvtQKHoXKYbxx8az6FIklc+Zicu?=
- =?us-ascii?Q?+gSYdwumYWkpzxOjtmGCNqGeDZRz7gzSJljwXG+ESxEqf8BvhEHFWuEcZLqd?=
- =?us-ascii?Q?zAnpT1epzkunDRLyeD2xLH88JiCI/Fd7Rz1RLFuia2N3luESEaPD4MyOz9W/?=
- =?us-ascii?Q?bLEyYM38UGMCsZaxgrE/jlandb2ucpDkLucHoq6KJnm+vx9OF/Rh2UDlSzi9?=
- =?us-ascii?Q?mY3DquO3KtvOPkYwV0n3IamrY94W6EErPd3cEeryd339+hXhQBOp/5mCaZrc?=
- =?us-ascii?Q?Lk/bEkuicKrgiryQJf4IRV4bL3/xynBKFdXQsHmDoZXZMEjlDCzWY/VxAHAu?=
- =?us-ascii?Q?DNTzd2asqrLeEUnV463RfRn06dz3+SEinU761JMctDD9ZGC1pmTsBXHBKqeQ?=
- =?us-ascii?Q?0LrMVF4kYGBau+UonnXQjJnd6LJ8F00wLFIshH5sss1bz0dYsqNRm2Km2uVN?=
- =?us-ascii?Q?DbDCthJ2EpBMrLo14xjqk8oC959sGnftmYuf41bM6XqbO5UuXUdVC9ouJfhN?=
- =?us-ascii?Q?YBL4Eh1yj3EOzs6cXj4F/yC5yccSCXDE1iR4Yf2nnvuycfF9Mzd1TZRxpa0+?=
- =?us-ascii?Q?34VvhyL53XRga22VkQed7D8ovJ0Xgtq1hZLn2ViyT+fFMaoEF9IsrjBlX/MS?=
- =?us-ascii?Q?iZwVWD8qbMjp09yxcJW79pEjzyEwNl25m0FgcBy14N4g5/XDwSXx5zCZ55w6?=
- =?us-ascii?Q?/dT8MZ+VnbeR4tWqQ6aAeRfl0GjE0eqOme6cKDdEKqyw2U0+wHAtB9nzgKSc?=
- =?us-ascii?Q?xBkH3TPApYn7Mnlqvo4BTaU0oHgAgO2RydjNWfsfyOclQzt8FA6NTiboPuOE?=
- =?us-ascii?Q?7CFe3W4Rn4uy8+2Xnzms/22nzHnnV8XeCYcl2V5UgjqQ49bdoboP8657TYsD?=
- =?us-ascii?Q?OnD/xg7G2bJe7Sv4YI6NHxh7c8fzb2SpQ76l+WMFpV782YK/VGLi+7kkugLu?=
- =?us-ascii?Q?zG6ko1ZPpfgZIEC0ak6IPvc99NH9bqxj3IBoisDND1J4t055oejBbYjDpjCO?=
- =?us-ascii?Q?E/efNnLLGRpJ1L5K3IYi6CTk5iHKNjEzTIwSW/jqkJY5svqZ+9YOShUExhHj?=
- =?us-ascii?Q?Es0aT633ac7Utq3z/CLz3GhZ1ohaRLllsGrG/0mwJvj8VtxK8ZUsDF9Gsye8?=
- =?us-ascii?Q?RRTxXQOc4byX2JaZLk6X3r+GcM4uN/44o6cXYq2LKtNCJTtO7iPfHreuXoGk?=
- =?us-ascii?Q?GcRfutqRZuR9OaMTKS/0S+1VyBjCwXPe/x0aDo2VuM+dq3EiDfa7eeAXjhft?=
- =?us-ascii?Q?ZgOxytCqVy4OvTpaVzBJ480mNL6VM/z4cFi/iADCv1PUKNY/YSCtWzT8IERB?=
- =?us-ascii?Q?TVyzXMoD0wrlZxikZtCkdQamhkN6CWd+JE2JvBKob9wBvOa38+ZJT3zLDqh/?=
- =?us-ascii?Q?6Hr+MdYzHE7UYHKy3qXWZN8Fl9efIz4crwMlkrwiUojoJ4rzzH/TeuJ6VjuW?=
- =?us-ascii?Q?TOnYPTtQm9tSn3EE9pvNyZEDk+UT7elEzsF/Z6swHVHR91ePvw5Hj0RcHbWw?=
- =?us-ascii?Q?WaMZgE6/2iZYZl7UWjiCq2/i9ruETj3pRmrhyWM9RIdFFM73bGfpOoFgake3?=
- =?us-ascii?Q?5cwqNgGVPCrPH+XSUm8ikX/WaGvWuZ8=3D?=
+x-originating-ip: [105.128.2.176]
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <5BAE07EF5A594E44BE113962819441F5@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR04MB7158.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3cf7cad0-4b0d-4256-a43b-08da29b45c77
-X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Apr 2022 07:46:24.8074
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: IQ9Iek6n8hSo8UzkYeJSTVIK/3/HiPOwG1FtoOZBR56jIyysHF7oLeRuvOgrmMgU8f2nIhUoGsNJ6s7LLAfu3Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR04MB8388
+X-CFilter-Loop: Reflected
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprBKsWRmVeSWpSXmKPExsWy7djX87qhOjlJBm83clnc+u1lceP3WiaL
+        1Xf72Sw+znrBbHHm7k4Wiwd/HrM7sHkcmLaD1ePy2VKP1kObmTw+b5LzaD/QzRTAGsVlk5Ka
+        k1mWWqRvl8CVMeWeecF37orfp26wNzCe5+xi5OSQEDCR2NH5lKWLkYtDSGAlo8TL7XuYQRJC
+        Aq1MEpdXs8MULfl1Cyq+llGiYwkrRMNHRokHR9ayQzjLGCX+Nv1m6mLk4GAT0JR4u78ApEFE
+        wF1i0qnXYA3MAvsYJVZs+84CkhAW8JFY2POBEaLIX6LxyQ4mCNtIYmfvKrBtLAKqEj/+zgWL
+        8wpYSVy78ocNxOYUsJNYufsmWC+jgJjE91NrwGqYBcQlbj2ZzwRxtaDEotkQ30gA1fzb9ZAN
+        wlaUuP/9JTtEvY7Egt2f2CBsbYllC18zQ+wSlDg58wkLRL2kxMEVN8BBJCFwhENi3b6rUINc
+        JD7t74SypSX+3l3GBFHUzigxd+MXqO4JjBLXn0hB2NYS/zqvQW3mk/j76xHjBEblWUgOn4Xk
+        qFlIjpqF5KgFjCyrGMVLi4tz01OLjfNSy/WKE3OLS/PS9ZLzczcxAhPP6X+HC3Yw3rr1Ue8Q
+        IxMH4yFGCQ5mJRHeL7szkoR4UxIrq1KL8uOLSnNSiw8xSnOwKInzLsvckCgkkJ5YkpqdmlqQ
+        WgSTZeLglGpgWuk8canHsVc1WzR+vb1bGVZ42OKHFmdgSobp1D5NlemuTtdXVfb/mNu9+s6t
+        Lr73DKecrSalym4T76z68XP28/76d65u925t2+C908772aKLjfW3mRvLq+Xf+OvM5Ghr0nja
+        F68o2nFE56PIJa8UrmW37jvPt57zYfOiTu1va7qUb23z+Sl2YJpI9+lzV/cl7ogRKlojuW9n
+        2KIJl5ffXqTsY3xNY5nQF2+lIO60ytkXr95teMLglPZaSdRsa+GE6N5PxTvvXHp3e+2BjWyn
+        b+umrv3TXbD9x/e9K6xmVX5+f3LRjSv8nDff1CTcq406fvyPtr37pMjdc25VeWvZ/pv7/+Rd
+        oRV1d3Mlc+x2rp6gxFKckWioxVxUnAgAuh9bVqsDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrFIsWRmVeSWpSXmKPExsWS2cA0STdEJyfJYMktA4tbv70sbvxey2Sx
+        +m4/m8XHWS+YLc7c3cli8eDPY3YHNo8D03awelw+W+rRemgzk8fnTXIe7Qe6mQJYo7hsUlJz
+        MstSi/TtErgyptwzL/jOXfH71A32BsbznF2MnBwSAiYSS37dYu5i5OIQEljNKHFm5Tco5yOj
+        xN+fW9lAqoQEljFKvD1R2sXIwcEmoCnxdn8BSFhEwF1i0qnXrCD1zAL7GCVWbPvOApIQFvCR
+        WNjzgRGiyFeid8VtZgjbSGJn7yowm0VAVeLH37lMIDavgJXEtSt/2CAWH2WUuPtjMViCU8BO
+        YuXum2CDGAXEJL6fWgMWZxYQl7j1ZD4TxAsCEkv2nGeGsEUlXj7+xwphK0rc//6SHaJeR2LB
+        7k9sELa2xLKFr5khFgtKnJz5hAWiXlLi4IobLBMYxWchWTELSfssJO2zkLQvYGRZxSheWlyc
+        m15RbJSXWq5XnJhbXJqXrpecn7uJERidp/8djt7BePvWR71DjEwcjIcYJTiYlUR4v+zOSBLi
+        TUmsrEotyo8vKs1JLT7EKM3BoiTO+zJqYryQQHpiSWp2ampBahFMlomDU6qBaar1hv4Qnqun
+        ePasun2Umauq/MHqn4mu2x0tmxZtYoyXWSnXlrVqScwRzu2TFl1h2bRVZ37fxzPXJ00/bMiu
+        asiyQ2FOWVLISVWuNZOE42cc+DFn1nqT1ZV7Hi772iX0mvGOZuFBWeMvkUeUt01OmDhn3/mE
+        5ivHSh/vex5xbd6Ees3elDbtG8nyr2rc/3D2yOnKJu2SihRfVX46I+G3ryCDz49utsNvf6wP
+        q9t9o/HL532KfUzemyXFI4Km5rRlGflYibyaXnjz7XemhsjZCV8XbHIsPSQ5P74tM+pox7SY
+        oxuP6f2Mn7LiSJk9o+JmC0dWGbb1zI23cq47y6fy/buaOouldXPJ9//pX3i2+CmxFGckGmox
+        FxUnAgA9Rvx5PQMAAA==
+X-CMS-MailID: 20220429182004uscas1p208700c8d1b934acd53921c0cf801b87a
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220429004739uscas1p2ac8b689eb5ab7b0e8da9f6bdfdcc3ce7
+References: <20220429004705.260034-1-ammarfaizi2@gnuweeb.org>
+        <CGME20220429004739uscas1p2ac8b689eb5ab7b0e8da9f6bdfdcc3ce7@uscas1p2.samsung.com>
+        <20220429004705.260034-2-ammarfaizi2@gnuweeb.org>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, Apr 29, 2022 at 03:39:51AM +0700, Ammar Faizi wrote:
+> -----Original Message-----
+> From: Ammar Faizi [mailto:ammarfaizi2@gnuweeb.org]
+> Sent: Thursday, April 28, 2022 8:47 PM
+> To: Jens Axboe <axboe@kernel.dk>
+> Cc: Ammar Faizi <ammarfaizi2@gnuweeb.org>; Alviro Iskandar Setiawan
+> <alviro.iskandar@gnuweeb.org>; Niklas Cassel
+> <Niklas.Cassel@wdc.com>; fio Mailing List <fio@vger.kernel.org>;
+> GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>
+> Subject: [PATCH v1 1/8] cgroup: Add ENOMEM handling on a `malloc()`
+> call
+>=20
 > From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 >=20
-> Hi Jens,
->=20
-> This is the v3 series of small fio cleanups and fixes. I dropped
-> the patches about ENOMEM handling this time. I will resend those
-> in a different series later because I think we have many places
-> to fix them, so I will dedicate more time to it.
->=20
-> There are 3 patches in this series:
->=20
-> 1. Trivial indentation fix.
-> 2. Small optimization for the JSON code.
-> 3. Fix `-Wimplicit-fallthrough` warning when compiling with clang-15.
->=20
-> Please review, thanks!
+> Avoid a NULL pointer dereference bug when `ENOMEM`.
 >=20
 > Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
-> ---
->=20
-> Ammar Faizi (3):
->   backend: Fix indentation
->   json: Change `if (!strlen(str))` to `if (!str[0])`
->   Makefile: Suppress `-Wimplicit-fallthrough` when compiling `lex.yy`
->=20
->  Makefile  | 6 +++++-
->  backend.c | 2 +-
->  json.c    | 2 +-
->  3 files changed, 7 insertions(+), 3 deletions(-)
->=20
->=20
-> base-commit: 5f2d43188c2d65674aaba6280e2a87107e5d7099
-> --=20
-> Ammar Faizi
->=20
 
-For the series:
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
+Looks good.
+
+Reviewed-by: Vincent Fu <vincent.fu@samsung.net>
+
+> ---
+>  cgroup.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>=20
+> diff --git a/cgroup.c b/cgroup.c
+> index 77e31a4d..b559b70f 100644
+> --- a/cgroup.c
+> +++ b/cgroup.c
+> @@ -114,6 +114,8 @@ void cgroup_kill(struct flist_head *clist)
+>  static char *get_cgroup_root(struct thread_data *td, struct cgroup_mnt
+> *mnt)
+>  {
+>  	char *str =3D malloc(64);
+> +	if (!str)
+> +		return NULL;
+>=20
+>  	if (td->o.cgroup)
+>  		sprintf(str, "%s/%s", mnt->path, td->o.cgroup);
+> @@ -178,6 +180,8 @@ int cgroup_setup(struct thread_data *td, struct
+> flist_head *clist, struct cgroup
+>  	 * Create container, if it doesn't exist
+>  	 */
+>  	root =3D get_cgroup_root(td, *mnt);
+> +	if (!root)
+> +		return 1;
+>  	if (mkdir(root, 0755) < 0) {
+>  		int __e =3D errno;
+>=20
+> --
+> Ammar Faizi
+
