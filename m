@@ -2,31 +2,31 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C26A3C433F5
-	for <fio@archiver.kernel.org>; Fri, 29 Apr 2022 00:47:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8D60C433EF
+	for <fio@archiver.kernel.org>; Fri, 29 Apr 2022 00:47:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233561AbiD2Aus (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 28 Apr 2022 20:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
+        id S1345895AbiD2Auu (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 28 Apr 2022 20:50:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345895AbiD2Aur (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 28 Apr 2022 20:50:47 -0400
+        with ESMTP id S1347622AbiD2Aut (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 28 Apr 2022 20:50:49 -0400
 Received: from gnuweeb.org (gnuweeb.org [51.81.211.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2C1BB91C
-        for <fio@vger.kernel.org>; Thu, 28 Apr 2022 17:47:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC2BE887B0
+        for <fio@vger.kernel.org>; Thu, 28 Apr 2022 17:47:32 -0700 (PDT)
 Received: from integral2.. (unknown [180.246.147.8])
-        by gnuweeb.org (Postfix) with ESMTPSA id 4207E7E778;
-        Fri, 29 Apr 2022 00:47:28 +0000 (UTC)
+        by gnuweeb.org (Postfix) with ESMTPSA id 8ABF07E7B1;
+        Fri, 29 Apr 2022 00:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnuweeb.org;
-        s=default; t=1651193250;
-        bh=3jPQSWSRrywjaNeIqf6loUidPvHnCh54K71hMTeUX/8=;
+        s=default; t=1651193252;
+        bh=xuv9UHQ3dl9uY5uZq5uiEmja/JYNAyIYhwmi9uPWUzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ST2FAkK8/4X25ARRc+W3nyFznYpBIzHyixO4o+QUBjeBCZ2Aff0YZ6R7DxM6dVw4Z
-         k3Gf1qK5MBxsrh3mMD1cjxLoeroBGkoEbBwOO//QT5zWdxiMorrWJv17y1cpyq21BL
-         UCkpHcZcY2lv6ztO9chjCalvvScNRRpmi2fZDuWmvvBfZGlk/SVOqcPy5FeQGClAql
-         7AEH8GFRxHJ3dpaHdx7duOddeyoVtZYSV0JBYw2O8rg7mUaWkWkY6sWGtEPXP93Vpv
-         uBDg46bl5V6DX+P4vwqBum+xKZxFmLUVAy0ivHHHOYr16u6LeLjXAu55AghrN+Um4+
-         vfk67ptqtRGKw==
+        b=ADYHTCUmPg8SxGVsCiEqGoPsRHCU4js+jKfGfma/oZfBnHv9o+RobJZGXFpp9MstB
+         dNzaSdN+CwFzpzAGFogbJIh1Gtawc+Nw4t7AXUyNAI8NzUSNIcDgBK7JVCcjZHqnbm
+         ZgVD74pHEUaVgd4SOzWxl5cOWYenwhG/c8Spk/fuztlSW7XGa/QaX5HPrDNkCWyqCI
+         xR09ox8Axx1LhvHRAO2HOGpbbRmPFqhG6epi2YDyI+8gP2pOEdUBAVBzAoCy0bPYHP
+         kAHxQfiwYRREPXjA93pVQowoc8yxofdpVDkTeTjRRcOkW+LhRalsX6S+uPInyWqK3e
+         e56DnaHiZUIbg==
 From:   Ammar Faizi <ammarfaizi2@gnuweeb.org>
 To:     Jens Axboe <axboe@kernel.dk>
 Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
@@ -34,9 +34,9 @@ Cc:     Ammar Faizi <ammarfaizi2@gnuweeb.org>,
         Niklas Cassel <Niklas.Cassel@wdc.com>,
         fio Mailing List <fio@vger.kernel.org>,
         GNU/Weeb Mailing List <gwml@vger.gnuweeb.org>
-Subject: [PATCH v1 4/8] blktrace: Fix broken error handling in `merge_blktrace_iologs()`
-Date:   Fri, 29 Apr 2022 07:47:01 +0700
-Message-Id: <20220429004705.260034-5-ammarfaizi2@gnuweeb.org>
+Subject: [PATCH v1 5/8] blktrace: Add ENOMEM handling when allocating @ipo
+Date:   Fri, 29 Apr 2022 07:47:02 +0700
+Message-Id: <20220429004705.260034-6-ammarfaizi2@gnuweeb.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220429004705.260034-1-ammarfaizi2@gnuweeb.org>
 References: <20220429004705.260034-1-ammarfaizi2@gnuweeb.org>
@@ -48,184 +48,65 @@ X-Mailing-List: fio@vger.kernel.org
 
 From: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 
-There are several problems in this functions:
-
-1) The error is handled inconsistently. (e.g. we have `ret = -errno`,
-   but we don't alter the `ret` when memory allocation fails).
-
-2) Missing ENOMEM handling when allocating @bcs.
-
-3) Wrong `fclose()` on cleanup. We have:
-
-     for (i = 0; i < nr_logs; i++)
-         fclose(bcs[i].f);
-
-   but at that point, the @nr_logs is already zero. Recall that
-   @nr_logs is zeroed inside the `while (nr_logs)` loop. The
-   merge_finish_file() decrements @nr_logs every loop cycle.
-
-Fix and refactor them all.
+We have many places that do `ipo = calloc(1, sizeof(*ipo))` but don't
+handle the ENOMEM case. Add it.
 
 Signed-off-by: Ammar Faizi <ammarfaizi2@gnuweeb.org>
 ---
- blktrace.c | 73 +++++++++++++++++++++++++++++++++---------------------
- 1 file changed, 45 insertions(+), 28 deletions(-)
+ blktrace.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/blktrace.c b/blktrace.c
-index 619121c7..776bd4ab 100644
+index 776bd4ab..95adf698 100644
 --- a/blktrace.c
 +++ b/blktrace.c
-@@ -700,21 +700,25 @@ static int write_trace(FILE *fp, struct blk_io_trace *t)
+@@ -80,11 +80,15 @@ bool is_blktrace(const char *filename, int *need_swap)
+ #define FMAJOR(dev)	((unsigned int) ((dev) >> FMINORBITS))
+ #define FMINOR(dev)	((unsigned int) ((dev) & FMINORMASK))
  
- int merge_blktrace_iologs(struct thread_data *td)
+-static void trace_add_open_close_event(struct thread_data *td, int fileno, enum file_log_act action)
++static void trace_add_open_close_event(struct thread_data *td, int fileno,
++				       enum file_log_act action)
  {
-+	int nr_logs_iter;
- 	int nr_logs = get_max_str_idx(td->o.read_iolog_file);
--	struct blktrace_cursor *bcs = malloc(sizeof(struct blktrace_cursor) *
--					     nr_logs);
-+	struct blktrace_cursor *bcs;
- 	struct blktrace_cursor *bc;
- 	FILE *merge_fp;
- 	char *str, *ptr, *name, *merge_buf;
- 	int i, ret;
+ 	struct io_piece *ipo;
  
-+	bcs = calloc(nr_logs, sizeof(struct blktrace_cursor));
-+	if (!bcs)
-+		return -ENOMEM;
+ 	ipo = calloc(1, sizeof(*ipo));
++	if (!ipo)
++		return;
 +
- 	ret = init_merge_param_list(td->o.merge_blktrace_scalars, bcs, nr_logs,
- 				    100, offsetof(struct blktrace_cursor,
- 						  scalar));
- 	if (ret) {
- 		log_err("fio: merge_blktrace_scalars(%d) != nr_logs(%d)\n",
- 			ret, nr_logs);
--		goto err_param;
-+		goto out_free_bcs;
- 	}
+ 	init_ipo(ipo);
  
- 	ret = init_merge_param_list(td->o.merge_blktrace_iters, bcs, nr_logs,
-@@ -723,83 +727,96 @@ int merge_blktrace_iologs(struct thread_data *td)
- 	if (ret) {
- 		log_err("fio: merge_blktrace_iters(%d) != nr_logs(%d)\n",
- 			ret, nr_logs);
--		goto err_param;
-+		goto out_free_bcs;
- 	}
+ 	ipo->ddir = DDIR_INVAL;
+@@ -158,6 +162,9 @@ static void store_ipo(struct thread_data *td, unsigned long long offset,
+ 	struct io_piece *ipo;
  
- 	/* setup output file */
- 	merge_fp = fopen(td->o.merge_blktrace_file, "w");
-+	if (!merge_fp) {
-+		ret = -errno;
-+		goto out_free_bcs;
-+	}
+ 	ipo = calloc(1, sizeof(*ipo));
++	if (!ipo)
++		return;
 +
- 	merge_buf = malloc(128 * 1024);
--	if (!merge_buf)
--		goto err_out_file;
-+	if (!merge_buf) {
-+		ret = -ENOMEM;
-+		goto out_close_merge_fp;
-+	}
+ 	init_ipo(ipo);
+ 
+ 	ipo->offset = offset * 512;
+@@ -211,6 +218,9 @@ static bool handle_trace_discard(struct thread_data *td,
+ 		return false;
+ 
+ 	ipo = calloc(1, sizeof(*ipo));
++	if (!ipo)
++		return false;
 +
- 	ret = setvbuf(merge_fp, merge_buf, _IOFBF, 128 * 1024);
--	if (ret)
--		goto err_merge_buf;
-+	if (ret) {
-+		ret = -errno;
-+		goto out_free_merge_buf;
-+	}
+ 	init_ipo(ipo);
+ 	fileno = trace_add_file(td, t->device, cache);
  
- 	/* setup input files */
- 	str = ptr = strdup(td->o.read_iolog_file);
-+	if (!str) {
-+		ret = -ENOMEM;
-+		goto out_free_merge_buf;
-+	}
+@@ -288,6 +298,9 @@ static bool handle_trace_flush(struct thread_data *td, struct blk_io_trace *t,
+ 		return false;
+ 
+ 	ipo = calloc(1, sizeof(*ipo));
++	if (!ipo)
++		return false;
 +
- 	nr_logs = 0;
- 	for (i = 0; (name = get_next_str(&ptr)) != NULL; i++) {
- 		bcs[i].f = fopen(name, "rb");
- 		if (!bcs[i].f) {
- 			log_err("fio: could not open file: %s\n", name);
- 			ret = -errno;
--			free(str);
--			goto err_file;
-+			goto out_close_bcs_files;
- 		}
- 		nr_logs++;
+ 	init_ipo(ipo);
+ 	fileno = trace_add_file(td, t->device, cache);
  
- 		if (!is_blktrace(name, &bcs[i].swap)) {
- 			log_err("fio: file is not a blktrace: %s\n", name);
--			free(str);
--			goto err_file;
-+			goto out_close_bcs_files;
- 		}
- 
- 		ret = read_trace(td, &bcs[i]);
- 		if (ret < 0) {
--			free(str);
--			goto err_file;
-+			goto out_close_bcs_files;
- 		} else if (!ret) {
- 			merge_finish_file(bcs, i, &nr_logs);
- 			i--;
- 		}
- 	}
--	free(str);
- 
- 	/* merge files */
--	while (nr_logs) {
--		i = find_earliest_io(bcs, nr_logs);
-+	nr_logs_iter = nr_logs;
-+	while (nr_logs_iter) {
-+		i = find_earliest_io(bcs, nr_logs_iter);
- 		bc = &bcs[i];
- 		/* skip over the pdu */
- 		ret = discard_pdu(bc->f, &bc->t);
- 		if (ret < 0) {
- 			td_verror(td, -ret, "blktrace lseek");
--			goto err_file;
-+			goto out_close_bcs_files;
- 		}
- 
- 		ret = write_trace(merge_fp, &bc->t);
- 		ret = read_trace(td, bc);
- 		if (ret < 0)
--			goto err_file;
-+			goto out_close_bcs_files;
- 		else if (!ret)
--			merge_finish_file(bcs, i, &nr_logs);
-+			merge_finish_file(bcs, i, &nr_logs_iter);
- 	}
- 
- 	/* set iolog file to read from the newly merged file */
- 	td->o.read_iolog_file = td->o.merge_blktrace_file;
- 	ret = 0;
- 
--err_file:
--	/* cleanup */
--	for (i = 0; i < nr_logs; i++) {
-+out_close_bcs_files:
-+	for (i = 0; i < nr_logs; i++)
- 		fclose(bcs[i].f);
--	}
--err_merge_buf:
-+	free(str);
-+
-+out_free_merge_buf:
- 	free(merge_buf);
--err_out_file:
-+
-+out_close_merge_fp:
- 	fflush(merge_fp);
- 	fclose(merge_fp);
--err_param:
--	free(bcs);
- 
-+out_free_bcs:
-+	free(bcs);
- 	return ret;
- }
 -- 
 Ammar Faizi
 
