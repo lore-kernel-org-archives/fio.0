@@ -2,80 +2,71 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4169FC433EF
-	for <fio@archiver.kernel.org>; Mon,  2 May 2022 12:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E80FC433EF
+	for <fio@archiver.kernel.org>; Mon,  2 May 2022 12:44:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351579AbiEBMDi (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 2 May 2022 08:03:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52334 "EHLO
+        id S237379AbiEBMsV (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 2 May 2022 08:48:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233285AbiEBMDi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 2 May 2022 08:03:38 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E848D1B796
-        for <fio@vger.kernel.org>; Mon,  2 May 2022 05:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=1enf5CpdOequEt5xjT0/MIAkeEJWoOj2XzoIG6FTSyo=; b=h4a6M0zfcMAtYUI5zeGrqH92ZN
-        WG1EJCYGeq/Ppy+L2BadxBNITzPLVHTdh5R/TYk3NllGnvlEsDur16e91kfdGuDWxj0RWWAJJvOB7
-        GhUE3mRU0OPxgQbiSx/ggmyEr04QiSfrOP4u1G9evcJVuK/vDBtDtMvgEOkKGL8ZrwZEUWARGr6lA
-        8Mj3066CN7ESLSfb9uyFNou3isuZCSsU/sASB9NhqJaE6SN1Nhw2nLwwF/QDCEVCh8NXbEtnReoeA
-        BVdt3VC0KIQsKb27JBcKoRDyZZNDLlFufu13uFopZB9b9DbC8ei90KhVvijCmV5TqXBIlkt0pEKI8
-        +Z8qa9Hw==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nlUik-00ARxP-Ff
-        for fio@vger.kernel.org; Mon, 02 May 2022 12:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 49F431BC0132; Mon,  2 May 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220502120002.49F431BC0132@kernel.dk>
-Date:   Mon,  2 May 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S1346302AbiEBMsU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 2 May 2022 08:48:20 -0400
+Received: from mail-vs1-xe30.google.com (mail-vs1-xe30.google.com [IPv6:2607:f8b0:4864:20::e30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B32C713E9E
+        for <fio@vger.kernel.org>; Mon,  2 May 2022 05:44:50 -0700 (PDT)
+Received: by mail-vs1-xe30.google.com with SMTP id e19so1750178vsu.12
+        for <fio@vger.kernel.org>; Mon, 02 May 2022 05:44:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=krGrL2B2K4KzskD5lUf+IZ+eyUmJlqC0g44d6U5hdok=;
+        b=SAhP1xPvNTuy2mOhDiwQqR+7uK+xIcgHsxDEAFHB+qz4EtPerR9jQJaYFdu4CvlpyY
+         EZJohJboPWCu0oQ+1NplAijQ/dRYM4TFtVBQ6KNKylyZheg4j8ZFtB50DKrEhnOHDugq
+         A/58yE9YXBpv8bTecumyOeQ0Om6ccOErA8UH6I5gZHw4/xlauVwvOS854xbQiJ0KjtLa
+         885Xy8AZ1S4pbqPfEww89ugzdJVGwNYnC1wLXlRk1g9PS6g2T9hTE9gTFeAA5u3EwrAu
+         kxHLzc+f+bkNqIdpxNuI6ZUkEgFg0j/z5C9tcEG7J9nALfgxVpmkb1p/1oGKj2owBxsh
+         HK5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=krGrL2B2K4KzskD5lUf+IZ+eyUmJlqC0g44d6U5hdok=;
+        b=zXo1dSS7kXq2zUw/eoz+XjEQpXxeGCymboU/AjS0uA8A3PE0dU/mQgRNYDBuz/ikOs
+         937YNiHVfR2g862OLkoVOQVRAGyeI9o/DpRYLVbwPj18rARexzq7CxSZVFhT9RiNeDUz
+         vFOt7UgeMIRUrdgtgarS5LS9QyfiMdCLKcRsWyxx5DJ8mgflG+FzRFB+CbZgJoWnHM8X
+         z5XHgYKoyjqTWkjOsrNhaZuLAcreC+t3PHQZePgCglwq+/EPysjzQt6y6FkgKuzF9Tkj
+         V9xZ64w9nB2QfMRN9dX9M78v7tGyeOOqB6E8Cu9ANO06Ylq/6xuQ7uhqW0ZTVCgM64CC
+         doZw==
+X-Gm-Message-State: AOAM532BNMHwG4iofqRKxrz+E9/caW+s1UCNXuiI8NNH809ZXHaoULCU
+        KDsYG5FppHDijOOnaL/2WocZPP032skEdbcM8BauJpgahJM=
+X-Google-Smtp-Source: ABdhPJzVPfmtTGHyf9NS/t6+PR9IfIeAJ3x0OUvw/w1GjaKm2eflOQ1mUIrlCKK0YNaXFDLIndcJ5rpI6eoCoFk9Ne8=
+X-Received: by 2002:a67:d61a:0:b0:32d:4c95:36d5 with SMTP id
+ n26-20020a67d61a000000b0032d4c9536d5mr218902vsj.36.1651495489341; Mon, 02 May
+ 2022 05:44:49 -0700 (PDT)
+MIME-Version: 1.0
+From:   Sagi <sagiahrak@gmail.com>
+Date:   Mon, 2 May 2022 15:44:38 +0300
+Message-ID: <CAH0a3kZD0L8otacwyOY=Ek0phxVfYcB+ZPEq0pfhVS5oaZ+Wgw@mail.gmail.com>
+Subject: http engine dependencies?
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 6e594a2fa8388892dffb2ffc9b865689e2d67833:
+Hey!
 
-  Merge branch 'global_dedup' of https://github.com/bardavid/fio (2022-04-29 16:30:50 -0600)
+My name is Sage and I=E2=80=99m trying to use fio with http IO engine (s3).
 
-are available in the Git repository at:
+ On fio configuration stage, the http-engine isn=E2=80=99t being installed.
 
-  git://git.kernel.dk/fio.git master
+I was looking in the configure code
+(https://github.com/axboe/fio/blob/1588c8f571f67a004571e51cdbb5de97c3e4f457=
+/configure#L1818-L1826),
+and tried =E2=80=9Capt-getting=E2=80=9D libcurl4 or similar packages I thou=
+ght would
+be relevant, but I couldn=E2=80=99t make the http-engine work.
 
-for you to fetch changes up to 12db6deb8b767ac89dd73e34dbc6f06905441e07:
-
-  Merge branch 'patch-1' of https://github.com/ferdnyc/fio (2022-05-01 07:29:05 -0600)
-
-----------------------------------------------------------------
-Frank Dana (1):
-      README: Update Fedora pkg URL
-
-Jens Axboe (1):
-      Merge branch 'patch-1' of https://github.com/ferdnyc/fio
-
- README.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/README.rst b/README.rst
-index d566fae3..527f33ab 100644
---- a/README.rst
-+++ b/README.rst
-@@ -107,7 +107,7 @@ Ubuntu:
- Red Hat, Fedora, CentOS & Co:
- 	Starting with Fedora 9/Extra Packages for Enterprise Linux 4, fio
- 	packages are part of the Fedora/EPEL repositories.
--	https://apps.fedoraproject.org/packages/fio .
-+	https://packages.fedoraproject.org/pkgs/fio/ .
- 
- Mandriva:
- 	Mandriva has integrated fio into their package repository, so installing
+I'm using Ubuntu OS, would appreciate any hint or help :)
