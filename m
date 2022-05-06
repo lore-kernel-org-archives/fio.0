@@ -2,288 +2,118 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 349B5C433EF
-	for <fio@archiver.kernel.org>; Thu,  5 May 2022 13:57:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC4B2C433EF
+	for <fio@archiver.kernel.org>; Fri,  6 May 2022 15:57:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240693AbiEEOBO (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 5 May 2022 10:01:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52348 "EHLO
+        id S242211AbiEFQBD (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 6 May 2022 12:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359536AbiEEOBM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 5 May 2022 10:01:12 -0400
-Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2211056C33
-        for <fio@vger.kernel.org>; Thu,  5 May 2022 06:57:32 -0700 (PDT)
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20220505135730epoutp03a00a1e3c17957ed6f53649daa81b1d86~sOhrQfyVy1330213302epoutp03L
-        for <fio@vger.kernel.org>; Thu,  5 May 2022 13:57:30 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20220505135730epoutp03a00a1e3c17957ed6f53649daa81b1d86~sOhrQfyVy1330213302epoutp03L
+        with ESMTP id S1443236AbiEFQBC (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 6 May 2022 12:01:02 -0400
+Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F12A6D1BE
+        for <fio@vger.kernel.org>; Fri,  6 May 2022 08:57:18 -0700 (PDT)
+Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220506155715usoutp02337240530345815558475a310d415175~sjzhLanCk3178531785usoutp02Z;
+        Fri,  6 May 2022 15:57:15 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220506155715usoutp02337240530345815558475a310d415175~sjzhLanCk3178531785usoutp02Z
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1651759050;
-        bh=OuWX4oDXY/YHPZgpQFVFVPjtjwlNA82gC8dBqC319Gg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azJlMcZrW37MNOgglkFE6tPYsPwAa/VDt4YDcTiRhJl3cseGhyx+Ey9F1RICWw18k
-         9m3TMDGeuMuLFVL8DmHFE96JzNDiqvf8YgillXMZCbi8ZV3FV72EwxACfiVwLgIB7f
-         OzG8lqcCvSM/CwauqOQIL+kN8zVDsTSTc8QU5FNc=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20220505135729epcas5p3b9a9dee4585eb0e49473bd88adfba539~sOhq4REpk1331313313epcas5p38;
-        Thu,  5 May 2022 13:57:29 +0000 (GMT)
-Received: from epsmges5p3new.samsung.com (unknown [182.195.38.176]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4KvFd33jB7z4x9Pq; Thu,  5 May
-        2022 13:57:27 +0000 (GMT)
-Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
-        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        5B.09.09762.7C7D3726; Thu,  5 May 2022 22:57:27 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-        20220505132546epcas5p331f666cadd5c7e788d27d09b144e0b8a~sOF_TUPRy1413414134epcas5p3l;
-        Thu,  5 May 2022 13:25:46 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220505132546epsmtrp11a7da2959191dbd2a285a120808691a6~sOF_Sngl_0694906949epsmtrp1Q;
-        Thu,  5 May 2022 13:25:46 +0000 (GMT)
-X-AuditID: b6c32a4b-213ff70000002622-20-6273d7c75263
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        FE.A3.08924.A50D3726; Thu,  5 May 2022 22:25:46 +0900 (KST)
-Received: from test-zns.sa.corp.samsungelectronics.net (unknown
-        [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20220505132545epsmtip29677b9e4738b1ce0387a892d3c944771~sOF9Xv08B0591605916epsmtip2J;
-        Thu,  5 May 2022 13:25:45 +0000 (GMT)
-From:   Ankit Kumar <ankit.kumar@samsung.com>
-To:     axboe@kernel.dk
-Cc:     fio@vger.kernel.org, krish.reddy@samsung.com,
-        simon.lund@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 3/3] examples: add example job file for xnvme engine usage
-Date:   Thu,  5 May 2022 18:49:35 +0530
-Message-Id: <20220505131935.32076-4-ankit.kumar@samsung.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220505131935.32076-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrJKsWRmVeSWpSXmKPExsWy7bCmuu7x68VJBqt62CzWXPnNbrH6bj+b
-        xcdZL5gtFm5cxmRxt3sGuwOrx+WzpR59W1YxenzeJBfAHJVtk5GamJJapJCal5yfkpmXbqvk
-        HRzvHG9qZmCoa2hpYa6kkJeYm2qr5OIToOuWmQO0UUmhLDGnFCgUkFhcrKRvZ1OUX1qSqpCR
-        X1xiq5RakJJTYFKgV5yYW1yal66Xl1piZWhgYGQKVJiQnTFx5hemgoVqFQ/bf7I1MM6X72Lk
-        4JAQMJG4tMe4i5GLQ0hgN6PEna3/2CGcT4wSv69fZ4NwPjNKvOucDOSwg3XcSYQI72KUmL/m
-        JiOE08oksX36KiCHk4NNQFvi1dsbzCC2iICwxP6OVhYQm1mgUGLrnX6wGmEBL4lnV56ygtgs
-        AqoSN9ecBbN5BWwkLsw7DFYvISAvsXrDAbA5nAK2Ek+OLWQBWSYhsIpd4vqpC0wQRS4SK58v
-        gWoQlnh1fAs7hC0l8bK/DcrOlmh89JcNwi6R2HlrOzOEbS9xcc9fJlBQMAtoSqzfpQ8RlpWY
-        emodE8TNfBK9v59AreKV2DEPxlaV+HvvNtRaaYmb765C2R4S288sZYEEygRGiT8zTjNNYJSb
-        hbBiASPjKkbJ1ILi3PTUYtMC47zUcnicJefnbmIEpykt7x2Mjx580DvEyMTBeIhRgoNZSYTX
-        eWlBkhBvSmJlVWpRfnxRaU5q8SFGU2AATmSWEk3OBybKvJJ4QxNLAxMzMzMTS2MzQyVx3lPp
-        GxKFBNITS1KzU1MLUotg+pg4OKUamKp0RByXftTorb0ZtKxbWHep1AW9XWccLS/84tl34s3E
-        X3K1fddfH/t8tqmrX1rf47X45GmOjobC/6virP6t88g+pnmeLc77BW9gtMXJZ101TtZF67Pc
-        J0y5PCHd5cRBg7LbdiLX1qp2zH5xPOKd8imDhMCijqgcVpHvi9T03Dau7vjb8nEX+6/E+s43
-        DEWnZGL+qUVm3bst8mrf7G17Q8QC9Cc67T2zX7xiV2HfsfYo2d1C924/VLl58LY64wb2WumD
-        TR7xj/Yfm/6mgCEv61295IoWbcWjXhdqpt1WjHlQcrLg7yXDpR/Eqp65TDg6LUvq0PXEqUb/
-        lyapxZWxR15gmVc4d3LcydxDKwqPlCuxFGckGmoxFxUnAgD2BdR83AMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrPJMWRmVeSWpSXmKPExsWy7bCSvG7UheIkg75pIhZrrvxmt1h9t5/N
-        4uOsF8wWCzcuY7K42z2D3YHV4/LZUo++LasYPT5vkgtgjuKySUnNySxLLdK3S+DKmDjzC1PB
-        QrWKh+0/2RoY58t3MbJzSAiYSNxJ7GLk4hAS2MEosWbPc9YuRg6gsLTEwvVAcU4gU1hi5b/n
-        7BA1zUwST5bfZAVJsAloS7x6e4MZxBYBKtrf0coCYjMLlEo0fVzFBmILC3hJPLvyFKyeRUBV
-        4uaas2A2r4CNxIV5h1kgFshLrN5wAGwOp4CtxJNjC8HiQkA1Z3tOME9g5FvAyLCKUTK1oDg3
-        PbfYsMAoL7Vcrzgxt7g0L10vOT93EyM4jLS0djDuWfVB7xAjEwfjIUYJDmYlEV7npQVJQrwp
-        iZVVqUX58UWlOanFhxilOViUxHkvdJ2MFxJITyxJzU5NLUgtgskycXBKNTCtKl1lHmXVUbOl
-        vcJzrjPLx0dn8nP9zLoesmjWBGvzrPE4fftv6P7ZjHsdJu1nC3a7qKvreNcx0fal4PvuZrvW
-        Z0dl0na86Pb5ujCB+aTlcleDhLff9d6cOFS596rcm8vXaxMEmKXuN01ZHbVQvFjut/ClqqOL
-        v/68nra4fLPzxWMt/3Ze1VXcfrDuqPSX6OBzOg3/o+ax/ZJk0Xl8OyTrobOO5E7vyd1LtFSD
-        BKZoFKgUX7eO4nU8bJhvLRH7Zu+5NR3n++t7kt/dTHwgJqRhscFLnZN1QnC/qEeWBKPKxhiP
-        QF2Hf4/ZZL78Mv0V/SnW4+8slls/T4W5zzhlHHQ9pW+SyE89kwSnhqU7JyqxFGckGmoxFxUn
-        AgBJLb6CkgIAAA==
-X-CMS-MailID: 20220505132546epcas5p331f666cadd5c7e788d27d09b144e0b8a
-X-Msg-Generator: CA
+        s=mail20170921; t=1651852635;
+        bh=G3LIxBj48P84pNDSkjas/RgfUKnhfxQRUFqdxfsBg5o=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=llzMZlKHd/dviprUsZJUuMHd4y+gXeSUDrHc2OsA7nW09m564ahd0/9cNUCJZUtNX
+         Q0Lm6mSui63b1DvCx9EFX9VSzUJ6WurnrwuIDiOZxQ9FpG3OpzzB9olaaB9Ms0SU1f
+         3l3IDB014nQETk6a3nQyeo5IyhB9FfGWgsAww3qo=
+Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
+        [203.254.195.111]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220506155715uscas1p1e0ed257259b7cfc33a36856f1520fa52~sjzhBZK7P2845428454uscas1p19;
+        Fri,  6 May 2022 15:57:15 +0000 (GMT)
+Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
+        ussmges2new.samsung.com (USCPEMTA) with SMTP id 3C.27.09642.A5545726; Fri, 
+        6 May 2022 11:57:15 -0400 (EDT)
+Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
+        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220506155714uscas1p1aad4344825d59a5ffe8c5be6bdaf16c7~sjzgw_8RZ2857928579uscas1p10;
+        Fri,  6 May 2022 15:57:14 +0000 (GMT)
+X-AuditID: cbfec36f-c15ff700000025aa-bd-6275455a4735
+Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.145]) by
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 9A.FC.52349.A5545726; Fri, 
+        6 May 2022 11:57:14 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2375.7; Fri, 6 May 2022 08:57:13 -0700
+Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
+        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.007; Fri,
+        6 May 2022 08:57:13 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     Ankit Kumar <ankit.kumar@samsung.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "krish.reddy@samsung.com" <krish.reddy@samsung.com>,
+        "simon.lund@samsung.com" <simon.lund@samsung.com>
+Subject: RE: [PATCH 2/3] docs: documentation for xnvme ioengine
+Thread-Topic: [PATCH 2/3] docs: documentation for xnvme ioengine
+Thread-Index: AQHYYIgSecidRwFXWUSBPMzUykqrla0SAmmA
+Date:   Fri, 6 May 2022 15:57:13 +0000
+Message-ID: <9a244e2c12e742618de59e408761f9c2@samsung.com>
+In-Reply-To: <20220505131935.32076-3-ankit.kumar@samsung.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [105.128.2.176]
 Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220505132546epcas5p331f666cadd5c7e788d27d09b144e0b8a
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGIsWRmVeSWpSXmKPExsWy7djXc7rRrqVJBocOMFmsvtvPZvFx1gtm
+        ByaPy2dLPT5vkgtgiuKySUnNySxLLdK3S+DK2NArUfCCteL97hvsDYxXWLsYOTkkBEwkZrzY
+        wtLFyMUhJLCSUeLJknWMEE4rk0TrvWlwVVdvXWeHSKxllGi//I4ZwvnAKDH3xhUmCGcpo8SU
+        k7eBhnFwsAloSrzdXwDSLSIQIPG4fQdYDbPATEaJC9fawMYKC9hL/NiwmBWiyEFi4YMeFgjb
+        SOL7yzmMIDaLgIpE3/c7YDW8AlYSe6/PYAKxOQVsJea3fGcGsRkFxCS+n1oDFmcWEJe49WQ+
+        E8TZghKLZu9hhrDFJP7tesgGYStK3P/+kh3kTmagO9fv0odoVZSY0v2QHWKVoMTJmU9YIMol
+        JQ6uuAEOIwmBXg6JL+1HoOa7SDTOnAcNImmJq9enMkMUtQNDZeMXqO4JjBLXn0hB2NYS/zqv
+        sUNs45P4++sR4wRG5VlI7p6FcNMsJDfNQnLTAkaWVYzipcXFuempxUZ5qeV6xYm5xaV56XrJ
+        +bmbGIFJ4/S/w/k7GK/f+qh3iJGJg/EQowQHs5IIr/CskiQh3pTEyqrUovz4otKc1OJDjNIc
+        LErivMsyNyQKCaQnlqRmp6YWpBbBZJk4OKUamMr2Cnwym81kf8X/R6eM4KRL/MobUtJOmqyf
+        8GrLqccX1u+7V5EfXWSvuP/ijou/fO7+/lDAH/qY65OlGYtx2lv1zl/Z7fvXSNux71F/tNy/
+        ZMbZtDP3V7lrXl6W8W6jqMUK9ROfNPhqJob5XG2p/Fm/+c7hXS3rWkUsj6i1BjqpTXbav7/3
+        wR7PydaL/8hlmzg8WvZV+sNZr6SH5hcX1tv0PNS7OKvijKZhuzX7wpsPjd1XLJhwYv7GkC0b
+        Oy1XGxQ9+32xmunBGd55l1f+yD7fvkvpos/R9ZxrpRY+fPtwpkWI+UYjr+6Q3m+H2552/zOq
+        sPu47LP8AyHhFxf5X8w9335g1cbJXUrV/UUT29JklFiKMxINtZiLihMBcqqCg4kDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCaqBvlWppk8OuStsXqu/1sFh9nvWB2
+        YPK4fLbU4/MmuQCmKC6blNSczLLUIn27BK6MDb0SBS9YK97vvsHewHiFtYuRk0NCwETi6q3r
+        7F2MXBxCAqsZJU7cvMsK4XxglPh79jGUs5RR4urVqYxdjBwcbAKaEm/3F4B0iwj4SZx/spUF
+        pIZZYCajxIVrbWBjhQXsJX5sWMwKUeQgsfBBDwuEbSTx/eUcRhCbRUBFou/7HbAaXgErib3X
+        ZzBBLDvMKHHq/Ts2kASngK3E/JbvzCA2o4CYxPdTa5hAbGYBcYlbT+YzQfwgILFkz3lmCFtU
+        4uXjf1C/KUrc//6SHeRoZqCj1+/Sh2hVlJjS/ZAdYq+gxMmZT1ggyiUlDq64wTKBUXwWkg2z
+        ELpnIemehaR7ASPLKkbx0uLi3PSKYsO81HK94sTc4tK8dL3k/NxNjMC4Ov3vcOQOxqO3Puod
+        YmTiYDzEKMHBrCTCKzyrJEmINyWxsiq1KD++qDQntfgQozQHi5I4r5DrxHghgfTEktTs1NSC
+        1CKYLBMHp1QDk6NnxJuvC8XuWzB0GhqtPx2r83G99ZnGpkah9woBGp9yJn3iOCPxftK8YqUi
+        VZ82gxgPy0aX/LWNL5yKckv4lU5Y839ilnzz843hMfbgm09Vdq49lXXUxMMn0JJj2pXFmh2s
+        Yu8LpatmXazcG9eWGrRz7aqD1qIzwzZM2aRp5ldaJ+ww53zv3VU889Sbz2g//tya7T3JrfpE
+        l+5FhnN2H25vlK5s/bOJIWIr867u6at33+S1ZXi9PtB2+8NWp6aPVeLtNqf2ZdgUORlueP7z
+        heukmU/2B1allu/gmi7ml28heijlz/lnZx3umtxawqxQmOXcKN70vyuicdYlzxCJAn+3c+es
+        hOrsfpjm13oqsRRnJBpqMRcVJwIAp6vLXxoDAAA=
+X-CMS-MailID: 20220506155714uscas1p1aad4344825d59a5ffe8c5be6bdaf16c7
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220505132543epcas5p21198504e47717ff87ec88a1771a6c63d
 References: <20220505131935.32076-1-ankit.kumar@samsung.com>
-        <CGME20220505132546epcas5p331f666cadd5c7e788d27d09b144e0b8a@epcas5p3.samsung.com>
+        <CGME20220505132543epcas5p21198504e47717ff87ec88a1771a6c63d@epcas5p2.samsung.com>
+        <20220505131935.32076-3-ankit.kumar@samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Co-Authored-By: Ankit Kumar <ankit.kumar@samsung.com>
-Co-Authored-By: Simon A. F. Lund <simon.lund@samsung.com>
----
- examples/xnvme-compare.fio | 72 +++++++++++++++++++++++++++++++
- examples/xnvme-zoned.fio   | 87 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 159 insertions(+)
- create mode 100644 examples/xnvme-compare.fio
- create mode 100644 examples/xnvme-zoned.fio
-
-diff --git a/examples/xnvme-compare.fio b/examples/xnvme-compare.fio
-new file mode 100644
-index 00000000..b89dfdf4
---- /dev/null
-+++ b/examples/xnvme-compare.fio
-@@ -0,0 +1,72 @@
-+; Compare fio IO engines with a random-read workload using BS=4k at QD=1
-+;
-+; README
-+;
-+; This job-file is intended to be used as:
-+;
-+; # Use the built-in io_uring engine to get baseline numbers
-+; fio examples/xnvme-compare.fio \
-+;   --section=default \
-+;   --ioengine=io_uring \
-+;   --sqthread_poll=1 \
-+;   --filename=/dev/nvme0n1
-+;
-+; # Use the xNVMe io-engine engine with Linux backend and io_uring async. impl.
-+; fio examples/xnvme-compare.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --sqthread_poll=1 \
-+;   --xnvme_async=io_uring \
-+;   --filename=/dev/nvme0n1
-+;
-+; # Use the xNVMe io-engine engine with Linux backend and libaio async. impl.
-+; fio examples/xnvme-compare.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --xnvme_async=libaio \
-+;   --filename=/dev/nvme0n1
-+;
-+; # Use the xNVMe io-engine engine with SPDK backend, note that you have to set the Namespace-id
-+; fio examples/xnvme-compare.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --xnvme_dev_nsid=1 \
-+;   --filename=0000\\:01\\:00.0
-+;
-+; NOTE: The URI encoded in the filename above, the ":" must be escaped.
-+;
-+; On the command-line using two "\\":
-+;
-+; --filename=0000\\:01\\:00.0
-+;
-+; Within a fio-script using a single "\":
-+;
-+; filename=0000\:01\:00.0
-+;
-+; NOTE: If you want to override the default bs, iodepth, and workload, then
-+; invoke it as:
-+;
-+; FIO_BS="512" FIO_RW="verify" FIO_IODEPTH=16 fio examples/xnvme-compare.fio \
-+;   --section=override
-+;
-+[global]
-+rw=randread
-+size=12G
-+iodepth=1
-+bs=4K
-+direct=1
-+thread=1
-+time_based=1
-+runtime=7
-+ramp_time=3
-+norandommap=1
-+
-+; Avoid accidentally creating device files; e.g. "/dev/nvme0n1", "/dev/nullb0"
-+allow_file_create=0
-+
-+[default]
-+
-+[override]
-+rw=${FIO_RW}
-+iodepth=${FIO_IODEPTH}
-+bs=${FIO_BS}
-diff --git a/examples/xnvme-zoned.fio b/examples/xnvme-zoned.fio
-new file mode 100644
-index 00000000..1344f9a1
---- /dev/null
-+++ b/examples/xnvme-zoned.fio
-@@ -0,0 +1,87 @@
-+; Running xNVMe/fio on a Zoned Device
-+;
-+; Writes 1GB at QD1 using 4K BS and verifies it.
-+;
-+; README
-+;
-+; This job-file is intended to be used as:
-+;
-+; # Use the built-in io_uring engine to get baseline numbers
-+; fio examples/xnvme-zoned.fio \
-+;   --section=default \
-+;   --ioengine=io_uring \
-+;   --sqthread_poll=1 \
-+;   --filename=/dev/nvme0n1
-+;
-+; # Use the xNVMe io-engine engine with Linux backend and io_uring async. impl.
-+; fio examples/xnvme-zoned.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --sqthread_poll=1 \
-+;   --xnvme_async=io_uring \
-+;   --filename=/dev/nvme0n1
-+;
-+; # Use the xNVMe io-engine engine with Linux backend and libaio async. impl.
-+; fio examples/xnvme-zoned.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --xnvme_async=libaio \
-+;   --filename=/dev/nvme0n1
-+;
-+; # Use the xNVMe io-engine engine with SPDK backend, note that you have to set the Namespace-id
-+; fio examples/xnvme-zoned.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --xnvme_dev_nsid=1 \
-+;   --filename=0000\\:01\\:00.0
-+;
-+; NOTE: The URI encoded in the filename above, the ":" must be escaped.
-+;
-+; On the command-line using two "\\":
-+;
-+; --filename=0000\\:01\\:00.0
-+;
-+; Within a fio-script using a single "\":
-+;
-+; filename=0000\:01\:00.0
-+;
-+; NOTE: If you want to override the default bs, iodepth, and workload, then
-+; invoke it as:
-+;
-+; FIO_BS="512" FIO_RW="verify" FIO_IODEPTH=16 fio examples/xnvme-zoned.fio \
-+;   --section=override
-+;
-+; To reset all zones on the device to EMPTY state aka. wipe the entire device.
-+;
-+; # zoned mgmt-reset /dev/nvme0n2 --slba 0x0 --all
-+;
-+[global]
-+zonemode=zbd
-+rw=write
-+size=1G
-+iodepth=1
-+bs=4K
-+direct=1
-+thread=1
-+ramp_time=1
-+norandommap=1
-+verify=crc32c
-+; Avoid accidentally creating device files; e.g. "/dev/nvme0n1", "/dev/nullb0"
-+allow_file_create=0
-+;
-+; NOTE: If fio complains about zone-size, then run:
-+;
-+; # zoned info /dev/nvme0n1
-+;
-+; The command will provide the values you need, then in the fio-script define:
-+;
-+; zonesize=nsect * nbytes
-+;
-+;zonesize=
-+
-+[default]
-+
-+[override]
-+rw=${FIO_RW}
-+iodepth=${FIO_IODEPTH}
-+bs=${FIO_BS}
--- 
-2.17.1
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbmtpdCBLdW1hciBbbWFpbHRv
+OmFua2l0Lmt1bWFyQHNhbXN1bmcuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgTWF5IDUsIDIwMjIg
+OToyMCBBTQ0KPiBUbzogYXhib2VAa2VybmVsLmRrDQo+IENjOiBmaW9Admdlci5rZXJuZWwub3Jn
+OyBrcmlzaC5yZWRkeUBzYW1zdW5nLmNvbTsNCj4gc2ltb24ubHVuZEBzYW1zdW5nLmNvbTsgQW5r
+aXQgS3VtYXIgPGFua2l0Lmt1bWFyQHNhbXN1bmcuY29tPg0KPiBTdWJqZWN0OiBbUEFUQ0ggMi8z
+XSBkb2NzOiBkb2N1bWVudGF0aW9uIGZvciB4bnZtZSBpb2VuZ2luZQ0KPiANCj4gU2lnbmVkLW9m
+Zi1ieTogQW5raXQgS3VtYXIgPGFua2l0Lmt1bWFyQHNhbXN1bmcuY29tPg0KPiAtLS0NCg0KSSBi
+dWlsdCB0aGUgaHRtbCBkb2N1bWVudGF0aW9uIGFuZCBsb29rIHRocm91Z2ggdGhlIHVwZGF0ZWQg
+bWFuIHBhZ2UuIEV2ZXJ5dGhpbmcgbG9va3MgZ29vZC4NCg0KUmV2aWV3ZWQtYnk6IFZpbmNlbnQg
+RnUgPHZpbmNlbnQuZnVAc2Ftc3VuZy5jb20+DQo=
