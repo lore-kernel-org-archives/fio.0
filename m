@@ -2,92 +2,87 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 521A0C433EF
-	for <fio@archiver.kernel.org>; Thu, 12 May 2022 12:26:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC257C433F5
+	for <fio@archiver.kernel.org>; Thu, 12 May 2022 12:28:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243107AbiELM0i (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 12 May 2022 08:26:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
+        id S242113AbiELM2Z (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 12 May 2022 08:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353944AbiELM0P (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 12 May 2022 08:26:15 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6A82BB38
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 05:26:03 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id m12so4717303plb.4
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 05:26:03 -0700 (PDT)
+        with ESMTP id S240502AbiELM2Y (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 12 May 2022 08:28:24 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBFAB248264
+        for <fio@vger.kernel.org>; Thu, 12 May 2022 05:28:23 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id fv2so5001294pjb.4
+        for <fio@vger.kernel.org>; Thu, 12 May 2022 05:28:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=2tyxlJPD6Kc/LaH6oJDeyfbWKPvRXucj2kVFNg2jPaU=;
-        b=jetX7b7DcX9rRF2flF1utQ+Lfdmfx2KaibCjMQbFqab3OKDHxLbx7Nl7uZ+Txr224J
-         8U+3vs1KTj16p0lBDfcZefcSr63K0xjF23IaCVVFTP2fq8gUArOPk3Kl7z48j+0UpVBw
-         EFhskuK0nQCj05Y4snKltwkJvOLruYUXN0MPQdj0/uFmaMcC/M4eS2ZgT0Y7BSWFZ7rX
-         MkGNqukShortMspV/LKapjZPqvi7aFexBh0EadtwcqYKSWGXRqPL8eyFlKksTPr7ymoB
-         Ee/aJDJlrce7U6JsrFNT30odMDC5bpoRNYKZZk7WYtzF+qyqlMx2mGZES4OWd4a/U8Aa
-         QqQg==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=fdu4OMyv3SSXMU11mXEyHUx3NRRW/Da+D+YsrYRNqpI=;
+        b=10ffwzzBzs8kT+l68AkvExHO09PyIxianxWRzuB89Ip7yRHgbApdPGWCGfoDuzyqKK
+         YGYEgiLKdNk9ZdDtNPguE7VSWQ44uYjA3Kmsm0wTtH7cBF7WpRvxQOv6walV9HORWMCV
+         jeU05JIWr1kFXOOF4Ct8AdetMN006JqCXYZfX4zk+Q0f7gEM8Ahwimqesaj3PSlhMSkS
+         aTgu3uZk7kO+xHC32VQ5xRVidNM6ezsJSLH/rmN/dYCIj8kvCXkQ7wmHVV5AeYD1xDt1
+         y8cf7GPoldmmm0WddoIdqQzK8JQFpnvT2kgFtRU41HL8shQudykTaN77fPS1I4yULV/w
+         82dg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=2tyxlJPD6Kc/LaH6oJDeyfbWKPvRXucj2kVFNg2jPaU=;
-        b=7hCfqRqeDNyWVCjW4k3eeu0PLS5epdoRBsOMcpwttJ4aAVADc83qJHiJQFdNkGak8b
-         Wz+ykxt11B5d1IX0CPiSPtVCusmgaZEfJhL03IwBDksDmOkUjmJbbBsDT6YEbLOyeYfH
-         znb1V9cgZHqWlchgsOnTvpYh+PqzStDBHwQJcV2LBBb50oNv44B+aORgJxbifp6eIqOd
-         SMdddGpglZ4dA9kb3CdbTVGP+FuPOctf7Gy9miDxEEMigilUMfm94iQBVG76xPWZcyIj
-         cGCDIxv6G29shcdZOgOyd6FwJqk8MisgMFWOp9OcAHbwWTKB5DgWggNFlncq0GVFNj3s
-         U2ow==
-X-Gm-Message-State: AOAM532EBjsyYbo4R95l626Yxnop2+CzcyA2dfvxurA+AUJrODGwqI9w
-        8etGfK+L9B5G//6g/XoHHjTIlQEXrPGKFA==
-X-Google-Smtp-Source: ABdhPJyT/0HX+wCxgvAn5ZU4IwYyytpWvZg6tdZnj4cUxPxFp9yLECwz/GqKZ/VzhW+QjTEnSAzuYg==
-X-Received: by 2002:a17:902:bb90:b0:158:a031:2ff2 with SMTP id m16-20020a170902bb9000b00158a0312ff2mr30199364pls.117.1652358363294;
-        Thu, 12 May 2022 05:26:03 -0700 (PDT)
-Received: from [127.0.1.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id t10-20020a17090b018a00b001cd4989fecbsm1712923pjs.23.2022.05.12.05.26.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 May 2022 05:26:02 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     ankit.kumar@samsung.com
-Cc:     krish.reddy@samsung.com, fio@vger.kernel.org,
-        simon.lund@samsung.com
-In-Reply-To: <20220511163019.5608-1-ankit.kumar@samsung.com>
-References: <CGME20220511163552epcas5p4c2e1b204a47a543c24f84da89ef0c89a@epcas5p4.samsung.com> <20220511163019.5608-1-ankit.kumar@samsung.com>
-Subject: Re: [PATCH v2 0/3] fio: add xnvme engine
-Message-Id: <165235836201.232800.17311871788672732995.b4-ty@kernel.dk>
-Date:   Thu, 12 May 2022 06:26:02 -0600
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=fdu4OMyv3SSXMU11mXEyHUx3NRRW/Da+D+YsrYRNqpI=;
+        b=Mp8TfegLtCloEJiK4qSlnVxp3Tldetbi/IO3LTZvgxCcPVXfesD0KQ8MS1yYi+OWgS
+         DZQ5nf+aVwDEOeDNON3nklJXKXUJdJTfNbj1BGbvLI7oi7A+1fnisyAMFkyJ4ghQayVi
+         +Q9JWNWOpNMAf0K1yiBnM97wRV0tUEpy1+Ge9vP2EiRbBXy54zkU3XnfCtlROEhifx2M
+         2Re0RoZuKKS/RVLrR2Go9gWxYOW2tXX3d5lefkJiBknUIlI/h+2Fmwhi/EDKmBDYvKIS
+         64d9OuB7pmX87tpaYaAQadQP6sidwCYXXjlDPtLeowx1CWp1aXu0CaKapTteOFR5BRf6
+         +ArA==
+X-Gm-Message-State: AOAM530o2JxpTauQ6ou2s2ipOSZ0S/iTKjAWQYd30JjWe9Y0JCHmHkWJ
+        TK1yP5htsNN4UJ3f0TAuR1Zjvg==
+X-Google-Smtp-Source: ABdhPJyRghLHLoC9LCRA/Q8goHqlBEhZcAqFAF7bkC5QgJXkWxWXAPOBRVdlEvhGDUoQYvaNkzyxgg==
+X-Received: by 2002:a17:90a:e7d2:b0:1dc:e6c6:604b with SMTP id kb18-20020a17090ae7d200b001dce6c6604bmr10667373pjb.183.1652358503238;
+        Thu, 12 May 2022 05:28:23 -0700 (PDT)
+Received: from [192.168.1.100] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id i21-20020a170902e49500b0015e8d4eb20dsm3718333ple.87.2022.05.12.05.28.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 12 May 2022 05:28:22 -0700 (PDT)
+Message-ID: <cf9dbc97-0847-6887-3d8f-320432bf5176@kernel.dk>
+Date:   Thu, 12 May 2022 06:28:21 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH v2 0/3] fio: add xnvme engine
+Content-Language: en-US
+To:     Ankit Kumar <ankit1455@gmail.com>
+Cc:     Ankit Kumar <ankit.kumar@samsung.com>, fio@vger.kernel.org,
+        krish.reddy@samsung.com, simon.lund@samsung.com,
+        joshiiitr@gmail.com, anuj1072538@gmail.com
+References: <CGME20220511163552epcas5p4c2e1b204a47a543c24f84da89ef0c89a@epcas5p4.samsung.com>
+ <20220511163019.5608-1-ankit.kumar@samsung.com>
+ <698673c0-0fc4-671c-15da-0fb7a053da41@kernel.dk>
+ <CAKi7+wew31=A5ZF+t2b479-zkrObRs+ze+-o0MVKX6kcfWP9UA@mail.gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CAKi7+wew31=A5ZF+t2b479-zkrObRs+ze+-o0MVKX6kcfWP9UA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Wed, 11 May 2022 22:00:16 +0530, Ankit Kumar wrote:
-> This patch introduces a new xnvme fio engine.
-> 
-> xNVMe provides an API for synchronous and asynchronous I/O.
-> A library backs the API, libxnvme, which provides implementations for API users to
-> run their I/O application on Linux, FreeBSD, macOS, and Windows without changing the application code.
-> 
-> Implementations of sync. interfaces include:
-> * psync (preadv/pwritev)
-> * Linux NVMe driver-ioctl
-> * FreeBSD NVMe driver-ioctl
-> 
-> [...]
+On 5/12/22 12:28 AM, Ankit Kumar wrote:
+> Yes we are using xnvme on various platforms, and it would be great if
+> it gets included as part of FIO.
+> For supporting io_uring engine with passthrough, yes we also have a
+> plan in place to clean up the code and send it for review.
 
-Applied, thanks!
+Sounds good. I've applied the xvnme engine, would appreciate if we can
+do the passthrough one shortly too. I'm wondering if that one is best
+done as a separate engine too - it could still be in engines/io_uring.c
+but have a separate ioengine_ops to keep the code nicely separated while
+still being able to use the same helpers in there.
 
-[1/3] engines/xnvme: add xnvme engine
-      commit: a3ff873ed4e7eed863927d749f39560068d40940
-[2/3] docs: documentation for xnvme ioengine
-      commit: 454154e66e93b3dc314955c197a21eeacbe69c78
-[3/3] examples: add example job file for xnvme engine usage
-      commit: d338e8760f3f442b3e4498598854130e55745eb9
-
-Best regards,
 -- 
 Jens Axboe
-
 
