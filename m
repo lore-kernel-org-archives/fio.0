@@ -2,122 +2,92 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5654EC433F5
-	for <fio@archiver.kernel.org>; Thu, 12 May 2022 07:25:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 521A0C433EF
+	for <fio@archiver.kernel.org>; Thu, 12 May 2022 12:26:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350946AbiELHZb (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 12 May 2022 03:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35228 "EHLO
+        id S243107AbiELM0i (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 12 May 2022 08:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343791AbiELHZb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 12 May 2022 03:25:31 -0400
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C2F31053CC
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 00:25:27 -0700 (PDT)
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20220512072521euoutp012cd07c3c4bce207ae283a71a6198ad54~uSsSyDQzP3151431514euoutp01f
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 07:25:21 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20220512072521euoutp012cd07c3c4bce207ae283a71a6198ad54~uSsSyDQzP3151431514euoutp01f
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1652340321;
-        bh=zLto/90YCnG00VVc5QVdhhRtmLJJT5hhLozoMIanXhA=;
-        h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-        b=a7YeKCqq4udqa7wJzJt27uUIq2ym5ywiNil9Ln7bSjapKOKl137hxvqlNsXqHgyPz
-         yis7HKMCIMe34JW1Sgd5F4Ke92yLWVdiolt7WHUfutkd5rVz8CG1nCheSXG76AkpmJ
-         fqmFPMYJFqAWmFDtFLoB0Gz1WT/W9KkkIjlTFDho=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220512072521eucas1p15359495b6e971cdcb973dfa98a6d9c97~uSsSnPcwg2897128971eucas1p1f
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 07:25:21 +0000 (GMT)
-Received: from eucas1p1.samsung.com ( [182.198.249.206]) by
-        eusmges3new.samsung.com (EUCPMTA) with SMTP id 91.5D.10260.166BC726; Thu, 12
-        May 2022 08:25:21 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20220512072521eucas1p14bd3fefcb3ed854bf24cde328bd65c9d~uSsSTt5tv0319003190eucas1p16
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 07:25:21 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220512072521eusmtrp171998c89af09a892102e8815177736ad~uSsSTGAQA0238502385eusmtrp1p
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 07:25:21 +0000 (GMT)
-X-AuditID: cbfec7f5-bddff70000002814-25-627cb661b1d0
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id F8.7A.09404.166BC726; Thu, 12
-        May 2022 08:25:21 +0100 (BST)
-Received: from CAMSVWEXC01.scsc.local (unknown [106.1.227.71]) by
-        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20220512072521eusmtip2bcf9491d7724a1e7abf7db0d68370850~uSsSNMROd2917429174eusmtip2F
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 07:25:21 +0000 (GMT)
-Received: from localhost (106.110.32.122) by CAMSVWEXC01.scsc.local
-        (2002:6a01:e347::6a01:e347) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-        Thu, 12 May 2022 08:25:20 +0100
-Date:   Thu, 12 May 2022 09:25:19 +0200
-From:   Javier =?utf-8?B?R29uesOhbGV6?= <javier.gonz@samsung.com>
-To:     Vincent Fu <vincent.fu@samsung.com>
-CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        "gost.dev@samsung.com" <gost.dev@samsung.com>
-Subject: Re: first fio blog post on testing fio
-Message-ID: <20220512072519.jyuyfqtf4k37il5v@ArmHalley.local>
+        with ESMTP id S1353944AbiELM0P (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 12 May 2022 08:26:15 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF6A82BB38
+        for <fio@vger.kernel.org>; Thu, 12 May 2022 05:26:03 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id m12so4717303plb.4
+        for <fio@vger.kernel.org>; Thu, 12 May 2022 05:26:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:in-reply-to:references:subject:message-id:date
+         :mime-version:content-transfer-encoding;
+        bh=2tyxlJPD6Kc/LaH6oJDeyfbWKPvRXucj2kVFNg2jPaU=;
+        b=jetX7b7DcX9rRF2flF1utQ+Lfdmfx2KaibCjMQbFqab3OKDHxLbx7Nl7uZ+Txr224J
+         8U+3vs1KTj16p0lBDfcZefcSr63K0xjF23IaCVVFTP2fq8gUArOPk3Kl7z48j+0UpVBw
+         EFhskuK0nQCj05Y4snKltwkJvOLruYUXN0MPQdj0/uFmaMcC/M4eS2ZgT0Y7BSWFZ7rX
+         MkGNqukShortMspV/LKapjZPqvi7aFexBh0EadtwcqYKSWGXRqPL8eyFlKksTPr7ymoB
+         Ee/aJDJlrce7U6JsrFNT30odMDC5bpoRNYKZZk7WYtzF+qyqlMx2mGZES4OWd4a/U8Aa
+         QqQg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=2tyxlJPD6Kc/LaH6oJDeyfbWKPvRXucj2kVFNg2jPaU=;
+        b=7hCfqRqeDNyWVCjW4k3eeu0PLS5epdoRBsOMcpwttJ4aAVADc83qJHiJQFdNkGak8b
+         Wz+ykxt11B5d1IX0CPiSPtVCusmgaZEfJhL03IwBDksDmOkUjmJbbBsDT6YEbLOyeYfH
+         znb1V9cgZHqWlchgsOnTvpYh+PqzStDBHwQJcV2LBBb50oNv44B+aORgJxbifp6eIqOd
+         SMdddGpglZ4dA9kb3CdbTVGP+FuPOctf7Gy9miDxEEMigilUMfm94iQBVG76xPWZcyIj
+         cGCDIxv6G29shcdZOgOyd6FwJqk8MisgMFWOp9OcAHbwWTKB5DgWggNFlncq0GVFNj3s
+         U2ow==
+X-Gm-Message-State: AOAM532EBjsyYbo4R95l626Yxnop2+CzcyA2dfvxurA+AUJrODGwqI9w
+        8etGfK+L9B5G//6g/XoHHjTIlQEXrPGKFA==
+X-Google-Smtp-Source: ABdhPJyT/0HX+wCxgvAn5ZU4IwYyytpWvZg6tdZnj4cUxPxFp9yLECwz/GqKZ/VzhW+QjTEnSAzuYg==
+X-Received: by 2002:a17:902:bb90:b0:158:a031:2ff2 with SMTP id m16-20020a170902bb9000b00158a0312ff2mr30199364pls.117.1652358363294;
+        Thu, 12 May 2022 05:26:03 -0700 (PDT)
+Received: from [127.0.1.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id t10-20020a17090b018a00b001cd4989fecbsm1712923pjs.23.2022.05.12.05.26.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 May 2022 05:26:02 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     ankit.kumar@samsung.com
+Cc:     krish.reddy@samsung.com, fio@vger.kernel.org,
+        simon.lund@samsung.com
+In-Reply-To: <20220511163019.5608-1-ankit.kumar@samsung.com>
+References: <CGME20220511163552epcas5p4c2e1b204a47a543c24f84da89ef0c89a@epcas5p4.samsung.com> <20220511163019.5608-1-ankit.kumar@samsung.com>
+Subject: Re: [PATCH v2 0/3] fio: add xnvme engine
+Message-Id: <165235836201.232800.17311871788672732995.b4-ty@kernel.dk>
+Date:   Thu, 12 May 2022 06:26:02 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Disposition: inline
-In-Reply-To: <b4ac7acab5cb43d79469ddee039a1609@samsung.com>
-X-Originating-IP: [106.110.32.122]
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-        CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrDIsWRmVeSWpSXmKPExsWy7djPc7qJ22qSDKb+07b4OOsFswOjx+dN
-        cgGMUVw2Kak5mWWpRfp2CVwZLXvusRRsZq64MHMDUwPjQ6YuRk4OCQETiQ9PXoPZQgIrGCX+
-        zk3uYuQCsvuYJA79fMoK4fQySbRsnMIK0/Hu6iomiMRyRomD/zaywFV9nfuVGWLWFkaJaVvl
-        QGwWAVWJtlMXWEBsNgF7iUvLboHViAioSxz63gc2lVkgQeL1kW52EFtYQF/i8rVNjCA2r4Ct
-        RPfDa8wQtqDEyZlPWCDqrSQ6PzQB9XIA2dISy/9xgIQ5Bawl/i78zAZxqJLE4xdvGSHsWom1
-        x86wg9wpITCVQ+LJlS1QCReJeSunQjUIS7w6voUdwpaROD25hwXCzpa4eKabGcIukVj8/hgz
-        yF4JoGV9Z3IgTEeJVcvYIEw+iRtvBSGO5JOYtG06VDGvREebEMQMNYkdTVsZJzAqz0Ly1iwk
-        b81CeGsBI/MqRvHU0uLc9NRi47zUcr3ixNzi0rx0veT83E2MwARw+t/xrzsYV7z6qHeIkYmD
-        8RCjBAezkghvTXNNkhBvSmJlVWpRfnxRaU5q8SFGaQ4WJXHe5MwNiUIC6YklqdmpqQWpRTBZ
-        Jg5OqQamLpmYPsdVarKbkkxCJt8x5gnh63n/keO+4A8ji24u7ebSd9MDaydxPTvFGHFeRu/y
-        JrUa5id2ajXXZwm2rL6//Eny/3KWbysT5qvfbK7wT/FXu/P3rOKuNI1XntydJ8JUDvyJe8W7
-        5VPO17eaBmpFrfk1Ukvniy+2LknYHcg5+xXnDjHDiCtPtT3svpz+b5I9x42zvWZRBM/1tcf3
-        5LBPM7k56Z/f97UT75e4GO4KCow4dKdk85MQn6IN4f7rbwkcrzCyWPBmoq1s6vG73yL6mU+G
-        TrPlmbilYfmO+tzLd8o+vE/7Xax64v6p0teN5WuOHuvQCsqTtr675K036w03w4auu0K7jL7+
-        5gmYufKKEktxRqKhFnNRcSIAbgq4/G8DAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrHLMWRmVeSWpSXmKPExsVy+t/xe7qJ22qSDLb8kLD4OOsFswOjx+dN
-        cgGMUXo2RfmlJakKGfnFJbZK0YYWRnqGlhZ6RiaWeobG5rFWRqZK+nY2Kak5mWWpRfp2CXoZ
-        LXvusRRsZq64MHMDUwPjQ6YuRk4OCQETiXdXVwHZXBxCAksZJQ5sP88MkZCR+HTlIzuELSzx
-        51oXG0RRN5NE7+M2qI4tjBKn5i5iBaliEVCVaDt1gQXEZhOwl7i07BbYJBEBdYlD3/vAapgF
-        EiReH+kGmyosoC9x+domRhCbV8BWovvhNWaIoX2MEq8XbGGGSAhKnJz5hAWi2UJi5vzzQA0c
-        QLa0xPJ/HCBhTgFrib8LP7NBXKok8fjFW0YIu1bi1f3djBMYhWchmTQLyaRZCJMWMDKvYhRJ
-        LS3OTc8tNtIrTswtLs1L10vOz93ECIyIbcd+btnBuPLVR71DjEwcjIcYJTiYlUR4a5prkoR4
-        UxIrq1KL8uOLSnNSiw8xmgKDYiKzlGhyPjAm80riDc0MTA1NzCwNTC3NjJXEeT0LOhKFBNIT
-        S1KzU1MLUotg+pg4OKUamKZkfnR0OXGmJqC8qL/RcHsmp8jd5qfuG/9qrPu/R1tk6uJ5zhJb
-        s7uPR6ZnSzmoXmWasi9tciLzz7ynMzVPu3Dpft3+4egP1psKxn/T7tj6z/DTbH5dqi6TrFeZ
-        YxGW8jZx25TwgG0W0/WizT+8bj7Eeyv5etWf39zRIeuKK3wszMU6m/okD2q9UQ+NDPXeVfjD
-        8jzzkThDh8/3rrttO7R/vkqZ3NL7U1juVvdNOnWjdsXO+iLH9fbyj7wKRVM4Zc2Zcj6zhEfL
-        ClT3qXz98yL5y5ejFnEXdikcXqSV8M3qtcuFSyK7wrxn5LLx6Pau8oso4J+cuLV84YVZX0Q5
-        ruR4+GxVM+f+9HRTq9lBJZbijERDLeai4kQAm1WudhEDAAA=
-X-CMS-MailID: 20220512072521eucas1p14bd3fefcb3ed854bf24cde328bd65c9d
-X-Msg-Generator: CA
-X-RootMTR: 20220510193316uscas1p1e579f3dec1001c89d7b42c312e95e745
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20220510193316uscas1p1e579f3dec1001c89d7b42c312e95e745
-References: <CGME20220510193316uscas1p1e579f3dec1001c89d7b42c312e95e745@uscas1p1.samsung.com>
-        <b4ac7acab5cb43d79469ddee039a1609@samsung.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Good stuff Vincent!! I am sure this will be useful for the community!
+On Wed, 11 May 2022 22:00:16 +0530, Ankit Kumar wrote:
+> This patch introduces a new xnvme fio engine.
+> 
+> xNVMe provides an API for synchronous and asynchronous I/O.
+> A library backs the API, libxnvme, which provides implementations for API users to
+> run their I/O application on Linux, FreeBSD, macOS, and Windows without changing the application code.
+> 
+> Implementations of sync. interfaces include:
+> * psync (preadv/pwritev)
+> * Linux NVMe driver-ioctl
+> * FreeBSD NVMe driver-ioctl
+> 
+> [...]
 
-Thanks,
-Javier
+Applied, thanks!
 
-On 10.05.2022 19:33, Vincent Fu wrote:
->I've started a blog to share information that might be useful to fio users and
->developers. The first post is a catalog of the infrastructure we have for
->testing the fio codebase. Here is the link:
->
->https://github.com/vincentkfu/fio-blog/wiki/fio-testing
->
->Feedback is welcome!
->
->Vincent
+[1/3] engines/xnvme: add xnvme engine
+      commit: a3ff873ed4e7eed863927d749f39560068d40940
+[2/3] docs: documentation for xnvme ioengine
+      commit: 454154e66e93b3dc314955c197a21eeacbe69c78
+[3/3] examples: add example job file for xnvme engine usage
+      commit: d338e8760f3f442b3e4498598854130e55745eb9
+
+Best regards,
+-- 
+Jens Axboe
+
+
