@@ -2,87 +2,84 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 431EAC433EF
-	for <fio@archiver.kernel.org>; Thu, 12 May 2022 17:03:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D75C3C433EF
+	for <fio@archiver.kernel.org>; Fri, 13 May 2022 11:06:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351775AbiELRDp (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 12 May 2022 13:03:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37142 "EHLO
+        id S1379784AbiEMLGf (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 13 May 2022 07:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354507AbiELRDo (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 12 May 2022 13:03:44 -0400
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDF76D4DA
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 10:03:42 -0700 (PDT)
-Received: by mail-io1-xd2c.google.com with SMTP id r27so6066335iot.1
-        for <fio@vger.kernel.org>; Thu, 12 May 2022 10:03:42 -0700 (PDT)
+        with ESMTP id S1379766AbiEMLGc (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 13 May 2022 07:06:32 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A391286FE
+        for <fio@vger.kernel.org>; Fri, 13 May 2022 04:06:27 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id j4so13869732lfh.8
+        for <fio@vger.kernel.org>; Fri, 13 May 2022 04:06:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:in-reply-to:references:subject:message-id:date
-         :mime-version:content-transfer-encoding;
-        bh=UnaD7eInXDyX1YwNbJvUe2HqLaBIGK094i2gWHuLUYw=;
-        b=YKaGCgZ2PFKy1gQKb6eSbSP4UXWaBP/SOGYn1YazENZgIfsc0whSiLR1EcRQkAmI7c
-         hC+0OQxvWZRthVSx+Q+8gwy8uHuq1XIsEXCkkM4iPP9nF92qD/xMGpALn4e0+2K8r5Q5
-         z9LpJHl9PNFYxkv7TVxik2z34gBL0Ui/ovqC0mh7gtEpbWwwgzO1Ot13XmfPNYhE03DV
-         38cptj/6VfMvgCLorXorjW+EzSbuhevyfiQL+V5E/hZuReYBmAM7WNQkk2AjSit5td/b
-         KNB7bndIVrnBKgW8EhXgo+7XEKeWb6y2+ToCgJ4XqX6i1diHNEvebwGL6IXfbpY+xWRr
-         j5Nw==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=dKv7DEduIOvuAX8F3WXYFlAOjQqWaFbPIfthQ52NzQ8=;
+        b=F+OmFI4FxCw952h1akEGm3tBZhetl2bdrQdGImQxdkvozWW9gB/qSdGyrKPdH4GNJR
+         EETxiR0QcogiYOwdxlp23Ul9uotgmLXpBzISaNVkLv/tcf/ZCf0qQx9BxsVGEC2UxMUw
+         6KcJy1HnRA1fRDstYijz8T4mKHL65MrnJDRf2kytdFHfJQscNbBH8mPKkujrV8gXeZNE
+         zQ68tJyHxr1HViZKMuSQPPfLtP4j30SppbdUYNvZYfNrFVhnmkZ5FZUR67w2qC1qbPwQ
+         uVWgDefhM12vxpSSW7XuFMWJHnPt+5t7JZDi3Pcd8ZMxUlJyV4sn5P1FLGIAiHxaP+jM
+         96OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject
-         :message-id:date:mime-version:content-transfer-encoding;
-        bh=UnaD7eInXDyX1YwNbJvUe2HqLaBIGK094i2gWHuLUYw=;
-        b=yTLpBd3PBodIpQdDl0yNFpKCTIQhVYLX54qMcWFVW/dXxw+z9WB4ftFwq7WNZMnSFG
-         Ii4a+1UvsYemv4F5K/zQJilGzsnSHaZNgZmUwBmWw54vxx9iKXTtmSYaKWxK8rCSrD3O
-         N+ptpZlc1Qd/ZwaGriTNv2Q3t3yoj1MOA+nF7VEGZwL175pGLG6Gj3Zn3CDBVUlc0A1T
-         cxKSTCBO1TDjTsRm2tKCx6aVJ22jFnM4SZjGhQn31V0xEina0iBiECjd71nTELxT2wbC
-         f0+XQ45go3jHmSaQl2/1XUAAHprD1JtLjPTxCM6cgpl2wY4QT5ioqblVSysKBIPx7/Hl
-         M/Rg==
-X-Gm-Message-State: AOAM530cKg+nR/6XR4Svxc4NMB/9PkN+R+fDvaCt+UtPyJ7qjww0ywfs
-        Grgx8scNpzwtvAiccIBAzSPgdugIO3lmzA==
-X-Google-Smtp-Source: ABdhPJylXnphNAu/2usVNYyjStjZZ70B8z+YcfUEinnDPWCgfp3V3K+V7/w30WKT1oo4dLWw442r5g==
-X-Received: by 2002:a05:6638:c3:b0:32a:f5d0:5d58 with SMTP id w3-20020a05663800c300b0032af5d05d58mr522811jao.40.1652375020378;
-        Thu, 12 May 2022 10:03:40 -0700 (PDT)
-Received: from [127.0.1.1] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id z25-20020a05663822b900b0032b3a78174esm21322jas.18.2022.05.12.10.03.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 May 2022 10:03:39 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     ammarfaizi2@gnuweeb.org
-Cc:     fio@vger.kernel.org, niklas.cassel@wdc.com, gwml@vger.gnuweeb.org
-In-Reply-To: <20220512164333.46516-1-ammarfaizi2@gnuweeb.org>
-References: <20220512164333.46516-1-ammarfaizi2@gnuweeb.org>
-Subject: Re: (subset) [PATCH v4 0/3] Cleanups and Fixes
-Message-Id: <165237501945.311600.4111255277695138551.b4-ty@kernel.dk>
-Date:   Thu, 12 May 2022 11:03:39 -0600
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=dKv7DEduIOvuAX8F3WXYFlAOjQqWaFbPIfthQ52NzQ8=;
+        b=oQtHNZFtj/o61PYem62vsRWFNlw4TskjTi+CCOE7fWHmxQKkTgrzulXVAgkUkYvf0J
+         w8HUeGa11X2WSk9Yp1LK5FVg3sWmbqLbNRl8xeOwoRs8BcXTmLp8iGd2IYrpKIRtPMCS
+         ExHjMSSxalrkTBhS5FuBL3q10Sfh4+UkQ/yRLS2sjX+5qcDUiZOV8aNg2U/MUzomqqzT
+         9v5lSPSq/81uhacHRok2MXRQMdPrdR+zCpVvLI8w+xW+pJkOR5zr+4CqTdkAqaLP2Cop
+         gM9cKvayRB4Wl8f6jqSgTUPx1MKrdCrKQvIcupyXIjuwpVfJBNOdhlWgBuqLnbXr7v36
+         2QoA==
+X-Gm-Message-State: AOAM532B6uM6IIaFr67ikTXB7VsstMwohcxc+Gcty3rmGU1IohmjfFh/
+        FOs1g9fWdPn4+Qqpi8BDOEmh2lGnf6Pym7i1M58=
+X-Google-Smtp-Source: ABdhPJyUhn0r9MfGhDpljdhLMesWPOsUBDp4H8U9gEUjvGcfCXKqlJvwlJEhaJ3QBiuzBObbBaVqGS6R5J6gQVduwlw=
+X-Received: by 2002:a05:6512:c22:b0:473:c64b:1cf5 with SMTP id
+ z34-20020a0565120c2200b00473c64b1cf5mr3077546lfu.427.1652439985668; Fri, 13
+ May 2022 04:06:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+References: <CGME20220511163552epcas5p4c2e1b204a47a543c24f84da89ef0c89a@epcas5p4.samsung.com>
+ <20220511163019.5608-1-ankit.kumar@samsung.com> <698673c0-0fc4-671c-15da-0fb7a053da41@kernel.dk>
+ <CAKi7+wew31=A5ZF+t2b479-zkrObRs+ze+-o0MVKX6kcfWP9UA@mail.gmail.com> <cf9dbc97-0847-6887-3d8f-320432bf5176@kernel.dk>
+In-Reply-To: <cf9dbc97-0847-6887-3d8f-320432bf5176@kernel.dk>
+From:   Ankit Kumar <ankit1455@gmail.com>
+Date:   Fri, 13 May 2022 16:36:16 +0530
+Message-ID: <CAKi7+weGb3AsfGKkHEiPNFDxQEKTDn68nb6cbfJNzM=+p+=3LA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] fio: add xnvme engine
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     Ankit Kumar <ankit.kumar@samsung.com>, fio@vger.kernel.org,
+        krish.reddy@samsung.com, simon.lund@samsung.com,
+        joshiiitr@gmail.com, anuj1072538@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Thu, 12 May 2022 23:43:30 +0700, Ammar Faizi wrote:
-> This is the v4 series of small fio cleanups and fixes. I dropped
-> the patches about ENOMEM handling this time. The most noticable
-> change is patch #3 (fix clang warning). The rest is just small
-> optimization and indentation clean up.
-> 
-> v4:
->   - Append Reviewed-by tags from Niklas Cassel.
->   - Rebase the series.
-> 
-> [...]
+Thanks a lot for applying the xnvme engine changes. Yes we are adding
+passthrough support in io_uring by having a separate ioengine_ops. The
+changes will be ready shortly.
 
-Applied, thanks!
-
-[1/3] backend: Fix indentation
-      commit: 74ee19043ebb12dd6b0aa243f8cdb7ccd63af857
-[3/3] Makefile: Suppress `-Wimplicit-fallthrough` when compiling `lex.yy`
-      commit: 6f1a24593c227a4f392f454698aca20e95f0006c
-
-Best regards,
--- 
-Jens Axboe
-
-
+On Thu, May 12, 2022 at 5:58 PM Jens Axboe <axboe@kernel.dk> wrote:
+>
+> On 5/12/22 12:28 AM, Ankit Kumar wrote:
+> > Yes we are using xnvme on various platforms, and it would be great if
+> > it gets included as part of FIO.
+> > For supporting io_uring engine with passthrough, yes we also have a
+> > plan in place to clean up the code and send it for review.
+>
+> Sounds good. I've applied the xvnme engine, would appreciate if we can
+> do the passthrough one shortly too. I'm wondering if that one is best
+> done as a separate engine too - it could still be in engines/io_uring.c
+> but have a separate ioengine_ops to keep the code nicely separated while
+> still being able to use the same helpers in there.
+>
+> --
+> Jens Axboe
+>
