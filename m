@@ -2,241 +2,239 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C586C433EF
-	for <fio@archiver.kernel.org>; Wed, 18 May 2022 19:54:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF3E6C433EF
+	for <fio@archiver.kernel.org>; Wed, 18 May 2022 22:41:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242086AbiERTyK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 18 May 2022 15:54:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44268 "EHLO
+        id S229912AbiERWla (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 18 May 2022 18:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231796AbiERTyJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 18 May 2022 15:54:09 -0400
-X-Greylist: delayed 567 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 18 May 2022 12:54:06 PDT
-Received: from submit-01.torproject.org (submit-01.torproject.org [116.202.120.174])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909F2227068
-        for <fio@vger.kernel.org>; Wed, 18 May 2022 12:54:06 -0700 (PDT)
-Received: from localhost (localhost [::1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: anarcat)
-        by submit-01.torproject.org (Postfix) with ESMTPSA id EF56180124
-        for <fio@vger.kernel.org>; Wed, 18 May 2022 19:44:34 +0000 (UTC)
-Received: by curie.anarc.at (Postfix, from userid 1000)
-        id 49A9312041C; Wed, 18 May 2022 15:44:33 -0400 (EDT)
-From:   =?utf-8?Q?Antoine_Beaupr=C3=A9?= <anarcat@torproject.org>
-To:     fio@vger.kernel.org
-Subject: running jobs serially
-Organization: Tor
-Date:   Wed, 18 May 2022 15:44:31 -0400
-Message-ID: <87pmkaeicg.fsf@curie.anarc.at>
+        with ESMTP id S230000AbiERWl3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 18 May 2022 18:41:29 -0400
+Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFA259BBA
+        for <fio@vger.kernel.org>; Wed, 18 May 2022 15:41:27 -0700 (PDT)
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220518224125usoutp01b4adfb018a4ae8b9a0fe350278d1dc5e~wVD1lsDJr1496114961usoutp01c;
+        Wed, 18 May 2022 22:41:25 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220518224125usoutp01b4adfb018a4ae8b9a0fe350278d1dc5e~wVD1lsDJr1496114961usoutp01c
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1652913685;
+        bh=+EQfEuajg3Ll4sp//IqDm/sTm/cFsUE+3Qet7o4oE5c=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=KFhQJTSCqwMKyjKXoVceLw43wXIi2/d7b08oeeYJpa71ikcZd+LtDJCKJ6cc0qvjr
+         taNU5xaG/pdcYhnnr9In9USreDhTv6TCBOH1V7yPAGJIOSp30rW5ktXJhBnXu0VJAt
+         WAyw1SjCLl4tP1xXFJOWENgVA7lzIED1WvWAj6GY=
+Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
+        [203.254.195.112]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220518224125uscas1p119dd6ddac0ab03e9cca6afd06692edc1~wVD1ZmJbM0529305293uscas1p1d;
+        Wed, 18 May 2022 22:41:25 +0000 (GMT)
+Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
+        ussmges3new.samsung.com (USCPEMTA) with SMTP id 7C.72.09749.51675826; Wed,
+        18 May 2022 18:41:25 -0400 (EDT)
+Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
+        [203.254.195.92]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220518224125uscas1p1e69e8a4c473a53a80b81564397ec85c0~wVD1NJ9gR1115411154uscas1p13;
+        Wed, 18 May 2022 22:41:25 +0000 (GMT)
+X-AuditID: cbfec370-a83ff70000002615-bf-628576157a0e
+Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.145]) by
+        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id D2.8C.52945.51675826; Wed,
+        18 May 2022 18:41:25 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2375.24; Wed, 18 May 2022 15:41:24 -0700
+Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
+        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Wed,
+        18 May 2022 15:41:24 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     =?utf-8?B?QW50b2luZSBCZWF1cHLDqQ==?= <anarcat@torproject.org>,
+        "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: RE: running jobs serially
+Thread-Topic: running jobs serially
+Thread-Index: AQHYavFE6X8uxry3QUucBYSLHsol8a0lOslw
+Date:   Wed, 18 May 2022 22:41:24 +0000
+Message-ID: <ab0612e1ab8a40aaa8d6eaed69c5985b@samsung.com>
+In-Reply-To: <87pmkaeicg.fsf@curie.anarc.at>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [105.128.2.176]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-        micalg=pgp-sha256; protocol="application/pgp-signature"
+X-CFilter-Loop: Reflected
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKIsWRmVeSWpSXmKPExsWy7djXc7qiZa1JBp/uqFvcfrqT1eLjrBfM
+        Dkwem9dfZvP4vEkugCmKyyYlNSezLLVI3y6BK2Nq50q2gl+BFc1PfzE2ML7x72Lk5JAQMJG4
+        dPMxexcjF4eQwEpGiVt9s9hBEkICrUwSK3+YwRTt/LOSCaJoLaPEm5U3mCGcT4wSe59/Z4Fw
+        ljFKzNqwi62LkYODTUBT4u3+ApBuEYECif+T57GC2MICShIzJ+5jgYgrSzw6v4gJwjaS+Plj
+        LiOIzSKgKtFxdjFYnFfASmLC74NgcU4BHYk/DSfA5jAKiEl8P7UGrIZZQFzi1pP5TBCXCkos
+        mr2HGcIWk/i36yEbhK0ocf/7S3aQ05iBTlu/Sx+iVVFiSvdDdohVghInZz5hgSiXlDi44gbY
+        WxICf9kljly+BjXHReLmlglQtrTE9DWXoYraGSXmbvwC1T2BUeL6EykI21riX+c1dohtfBJ/
+        fz1iBDlCQoBXoqNNaAKj0iwkL8xCOG8WkvNmITlvASPLKkbx0uLi3PTUYuO81HK94sTc4tK8
+        dL3k/NxNjMCUcfrf4YIdjLdufdQ7xMjEwXiIUYKDWUmElzG3JUmINyWxsiq1KD++qDQntfgQ
+        ozQHi5I477LMDYlCAumJJanZqakFqUUwWSYOTqkGJl+JyedU4uy4zS+ry2WLHpzrsb4oNX/y
+        8y8cDhdCSxIr5+3cFv3zq0CtTf4Rc+E9fB4R7Y+a+Ov3/p4hyZ4u/5/RyHkGR0MBd/qhCfzP
+        rE+fveo1939fy4x20xl+S5f5Z7/99KxC2uZOWEH4upSFhb812b/wrmJiiLz9RPajvctWITaG
+        f3lzSv63G3sq9WnG+jz57ub0pvSqXma2wpVZsw7vXq/DxzkxwLogSU7U03k9u9V+ubfLNgrY
+        yO9RtpbJ6l8vEx7QWsjzIfThQqutXksV7jP73O05lhy4ouB86Bvu+V9ajpezmGtURwu9+1x6
+        fOXMZa237x+Zd6FG3GiT/LeUau26c90u4gc/PHmqxFKckWioxVxUnAgAuxMU6YgDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrFLMWRmVeSWpSXmKPExsWS2cA0UVe0rDXJYO9dSYvbT3eyWnyc9YLZ
+        gclj8/rLbB6fN8kFMEVx2aSk5mSWpRbp2yVwZUztXMlW8CuwovnpL8YGxjf+XYycHBICJhI7
+        /6xk6mLk4hASWM0o0XfkCxuE84lR4sr8yywgVUICyxglGjdzdTFycLAJaEq83V8AEhYRKJD4
+        P3keK4gtLKAkMXPiPhaIuLLEo/OLmCBsI4mfP+YygtgsAqoSHWcXg8V5BawkJvw+yAgxvl7i
+        1Kk9YL2cAjoSfxpOgM1kFBCT+H5qDVg9s4C4xK0n85kgjhaQWLLnPDOELSrx8vE/VghbUeL+
+        95fsIGcyA525fpc+RKuixJTuh+wQawUlTs58wgJRLilxcMUNlgmMYrOQbJiF0D0LSfcsJN0L
+        GFlWMYqXFhfnplcUG+ellusVJ+YWl+al6yXn525iBEbP6X+HY3Yw3rv1Ue8QIxMH4yFGCQ5m
+        JRFextyWJCHelMTKqtSi/Pii0pzU4kOM0hwsSuK8HrET44UE0hNLUrNTUwtSi2CyTBycUg1M
+        lgfuvP48lUP9v8m/oJ6nrKxy/9cnL4yYWM6x3XJl5CGdlZ9K/RY9C+dtS9c+4MemsWv/ybw8
+        rlzVrIeuC1TyLYRuGC03ul9/ZGpG0R7ZGypCH8Xvbam8b3Rs1rl+1i6XDy9uG+Xs1Q7ffcSf
+        VfqX9UeOX45VCceMsySvCJqmum3T8Twmm7V1W7+DVV+0p3fts5/evWePil7KWvUqU63qUHZg
+        jU/sZOmi24/avivEbJWI//lRZepT7lkV/ZwT95ewHDzju1tIdeW0zbZbOXP0rPt5YsScvfms
+        8kz6kgJUHbXS9uU4R6630QmXb97Sffqci3yr3nYPBdnkDTGGEWxFeZN19OXkpl8Sb/j6QIml
+        OCPRUIu5qDgRAKMMFKoNAwAA
+X-CMS-MailID: 20220518224125uscas1p1e69e8a4c473a53a80b81564397ec85c0
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220518195544uscas1p2df5012297be87e1151c9b1f2ea33ff01
+References: <CGME20220518195544uscas1p2df5012297be87e1151c9b1f2ea33ff01@uscas1p2.samsung.com>
+        <87pmkaeicg.fsf@curie.anarc.at>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-Hi,
-
-One of the things I've been struggling for with fio for a while is how
-to run batches of jobs with it.
-
-I know I can call fio multiple times with different job files or
-parameters, that's easy. But what I'd like to do is have a *single* job
-file (or even multiple, actually) that would describe *multiple*
-workloads that would need to be tested.
-
-In particular, I'm looking for a way to reproduce the benchmarks
-suggested here:
-
-https://arstechnica.com/gadgets/2020/02/how-fast-are-your-disks-find-out-th=
-e-open-source-way-with-fio/
-
-... without having to write all the glue the author had to make here:
-
-https://github.com/jimsalterjrs/fio-test-scaffolding/
-
-... which is quite a bit of goo.
-
-I was hoping a simple thing like this would just do it:
-
-[global]
-# cargo-culting Salter
-fallocate=3Dnone
-ioengine=3Dposixaio
-runtime=3D60
-time_based=3D1
-end_fsync=3D1
-stonewall=3D1
-group_reporting=3D1
-
-# Single 4KiB random read/write process
-[randread-4k-4g-1x]
-stonewall=3D1
-rw=3Drandread
-bs=3D4k
-size=3D4g
-numjobs=3D1
-iodepth=3D1
-
-[randwrite-4k-4g-1x]
-stonewall=3D1
-rw=3Drandwrite
-bs=3D4k
-size=3D4g
-numjobs=3D1
-iodepth=3D1
-
-... but looking at the "normal" --output-format, it *looks* like the
-jobs are all started at the same time. The files certainly seem to be
-allocated all at once:
-
-root@curie:/home# fio ars.fio=20
-randread-4k-4g-1x: (g=3D0): rw=3Drandread, bs=3D(R) 4096B-4096B, (W) 4096B-=
-4096B, (T) 4096B-4096B, ioengine=3Dposixaio, iodepth=3D1
-randwrite-4k-4g-1x: (g=3D1): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 4096=
-B-4096B, (T) 4096B-4096B, ioengine=3Dposixaio, iodepth=3D1
-fio-3.25
-Starting 2 processes
-Jobs: 1 (f=3D1): [r(1),P(1)][0.0%][r=3D16.5MiB/s][r=3D4228 IOPS][eta 49710d=
-:06h:28m:14s]
-randread-4k-4g-1x: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D1033470: Wed Ma=
-y 18 15:41:04 2022
-  read: IOPS=3D4754, BW=3D18.6MiB/s (19.5MB/s)(18.6MiB/1001msec)
-    slat (nsec): min=3D1429, max=3D391678, avg=3D3239.76, stdev=3D6013.78
-    clat (usec): min=3D163, max=3D6917, avg=3D205.05, stdev=3D108.47
-     lat (usec): min=3D166, max=3D7308, avg=3D208.29, stdev=3D114.12
-    clat percentiles (usec):
-     |  1.00th=3D[  169],  5.00th=3D[  174], 10.00th=3D[  174], 20.00th=3D[=
-  178],
-     | 30.00th=3D[  182], 40.00th=3D[  184], 50.00th=3D[  196], 60.00th=3D[=
-  200],
-     | 70.00th=3D[  204], 80.00th=3D[  215], 90.00th=3D[  239], 95.00th=3D[=
-  269],
-     | 99.00th=3D[  412], 99.50th=3D[  478], 99.90th=3D[  635], 99.95th=3D[=
- 1045],
-     | 99.99th=3D[ 6915]
-   bw (  KiB/s): min=3D19248, max=3D19248, per=3D100.00%, avg=3D19248.00, s=
-tdev=3D 0.00, samples=3D1
-   iops        : min=3D 4812, max=3D 4812, avg=3D4812.00, stdev=3D 0.00, sa=
-mples=3D1
-  lat (usec)   : 250=3D92.79%, 500=3D6.81%, 750=3D0.34%
-  lat (msec)   : 2=3D0.04%, 10=3D0.02%
-  cpu          : usr=3D2.90%, sys=3D2.90%, ctx=3D4767, majf=3D0, minf=3D44
-  IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
-0.0%, >=3D64=3D0.0%
-     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     issued rwts: total=3D4759,0,0,0 short=3D0,0,0,0 dropped=3D0,0,0,0
-     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
-randwrite-4k-4g-1x: (groupid=3D1, jobs=3D1): err=3D 0: pid=3D1033477: Wed M=
-ay 18 15:41:04 2022
-  write: IOPS=3D32.3k, BW=3D126MiB/s (132MB/s)(174MiB/1378msec); 0 zone res=
-ets
-    slat (nsec): min=3D955, max=3D326042, avg=3D2726.11, stdev=3D2538.38
-    clat (nsec): min=3D343, max=3D6896.5k, avg=3D18139.12, stdev=3D69899.75
-     lat (usec): min=3D10, max=3D6899, avg=3D20.87, stdev=3D70.02
-    clat percentiles (usec):
-     |  1.00th=3D[   11],  5.00th=3D[   11], 10.00th=3D[   12], 20.00th=3D[=
-   12],
-     | 30.00th=3D[   13], 40.00th=3D[   13], 50.00th=3D[   14], 60.00th=3D[=
-   15],
-     | 70.00th=3D[   16], 80.00th=3D[   18], 90.00th=3D[   26], 95.00th=3D[=
-   34],
-     | 99.00th=3D[   62], 99.50th=3D[   91], 99.90th=3D[  231], 99.95th=3D[=
-  326],
-     | 99.99th=3D[ 4047]
-   bw (  KiB/s): min=3D196064, max=3D196064, per=3D100.00%, avg=3D196064.00=
-, stdev=3D 0.00, samples=3D1
-   iops        : min=3D49016, max=3D49016, avg=3D49016.00, stdev=3D 0.00, s=
-amples=3D1
-  lat (nsec)   : 500=3D0.01%, 750=3D0.01%
-  lat (usec)   : 2=3D0.01%, 4=3D0.01%, 10=3D0.21%, 20=3D83.60%, 50=3D14.51%
-  lat (usec)   : 100=3D1.22%, 250=3D0.37%, 500=3D0.03%, 1000=3D0.01%
-  lat (msec)   : 2=3D0.01%, 4=3D0.01%, 10=3D0.01%
-  cpu          : usr=3D11.84%, sys=3D18.01%, ctx=3D46292, majf=3D0, minf=3D=
-46
-  IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
-0.0%, >=3D64=3D0.0%
-     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     issued rwts: total=3D0,44457,0,0 short=3D0,0,0,0 dropped=3D0,0,0,0
-     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
-
-Run status group 0 (all jobs):
-   READ: bw=3D18.6MiB/s (19.5MB/s), 18.6MiB/s-18.6MiB/s (19.5MB/s-19.5MB/s)=
-, io=3D18.6MiB (19.5MB), run=3D1001-1001msec
-
-Run status group 1 (all jobs):
-  WRITE: bw=3D126MiB/s (132MB/s), 126MiB/s-126MiB/s (132MB/s-132MB/s), io=
-=3D174MiB (182MB), run=3D1378-1378msec
-
-Disk stats (read/write):
-    dm-2: ios=3D4759/43132, merge=3D0/0, ticks=3D864/7281132, in_queue=3D72=
-81996, util=3D67.32%, aggrios=3D4759/43181, aggrmerge=3D0/0, aggrticks=3D86=
-4/7378584, aggrin_queue=3D7379448, aggrutil=3D67.17%
-    dm-0: ios=3D4759/43181, merge=3D0/0, ticks=3D864/7378584, in_queue=3D73=
-79448, util=3D67.17%, aggrios=3D4759/43124, aggrmerge=3D0/57, aggrticks=3D7=
-78/8680, aggrin_queue=3D9487, aggrutil=3D67.02%
-  sda: ios=3D4759/43124, merge=3D0/57, ticks=3D778/8680, in_queue=3D9487, u=
-til=3D67.02%
-
-
-Those timestamps, specifically, should not be the same:
-
-randwrite-4k-4g-1x: (groupid=3D1, jobs=3D1): err=3D 0: pid=3D1033477: Wed M=
-ay 18 15:41:04 2022
-randread-4k-4g-1x: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D1033470: Wed Ma=
-y 18 15:41:04 2022
-
-Am I missing something? Or are job files just *not* designed to run
-things serially?
-
-I looked in the archives for this, and only found this (unfulfilled,
-AFAICT) request:
-
-https://lore.kernel.org/fio/CANvN+emA01TZfbBx4aU+gg5CKfy+AEX_gZW7Jz4HMHvwkd=
-BNoQ@mail.gmail.com/
-
-and:
-
-https://lore.kernel.org/fio/MWHPR04MB0320ED986E73B1E9994929B38F470@MWHPR04M=
-B0320.namprd04.prod.outlook.com/
-
-... but that talks about serialize_overlap which seems to be specific to
-handling requests sent in parallel, not serializing jobs themselves.
-
-For now, it feels like i need to revert to shell scripts and that's kind
-of a little annoying: it would be really nice to be able to carry a full
-workfload in a single job file.
-
-Thanks, and sorry if that's a dumb question. :)
-
-=2D-=20
-Antoine Beaupr=C3=A9
-torproject.org system administration
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEexZCBNCWcjsBljWrPqHd3bJh2XsFAmKFTKAACgkQPqHd3bJh
-2Xu/fgf+KY4NGLIC+fZQjuUgD8OPKFQ8uUmhWUv/6K7FasMpn6C7FXU+GPzr0JiW
-MGi7kBqGly9BZjnJ1L1l6QQgE9SG8IvgjB1ODebqRSL2EJgZpKHIb0Eqadf+ry/A
-UxTjQW4ah2GAcO+c4oqqSTDY/QE9KuMrw2rHnS71aIPAQid29u+FvkIUSLO0opPX
-wv+23wYnmxHAaR0kRRiZH1CZALwI3A/ulfTzEneqaScSX82oYOef6c2dxhGK6uS0
-L2SgFf81WzWyXW82hM2jGpiinQs3sJxeHJVgSRyPmwCZHXRkZrPO23svKXgnV2UA
-f8jKA+/lEYAfh/hVvJ/IxSv1JUndiQ==
-=yjX0
------END PGP SIGNATURE-----
---=-=-=--
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbnRvaW5lIEJlYXVwcsOpIFtt
+YWlsdG86YW5hcmNhdEB0b3Jwcm9qZWN0Lm9yZ10NCj4gU2VudDogV2VkbmVzZGF5LCBNYXkgMTgs
+IDIwMjIgMzo0NSBQTQ0KPiBUbzogZmlvQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBydW5u
+aW5nIGpvYnMgc2VyaWFsbHkNCj4gDQo+IEhpLA0KPiANCj4gT25lIG9mIHRoZSB0aGluZ3MgSSd2
+ZSBiZWVuIHN0cnVnZ2xpbmcgZm9yIHdpdGggZmlvIGZvciBhIHdoaWxlIGlzIGhvdw0KPiB0byBy
+dW4gYmF0Y2hlcyBvZiBqb2JzIHdpdGggaXQuDQo+IA0KPiBJIGtub3cgSSBjYW4gY2FsbCBmaW8g
+bXVsdGlwbGUgdGltZXMgd2l0aCBkaWZmZXJlbnQgam9iIGZpbGVzIG9yDQo+IHBhcmFtZXRlcnMs
+IHRoYXQncyBlYXN5LiBCdXQgd2hhdCBJJ2QgbGlrZSB0byBkbyBpcyBoYXZlIGEgKnNpbmdsZSog
+am9iDQo+IGZpbGUgKG9yIGV2ZW4gbXVsdGlwbGUsIGFjdHVhbGx5KSB0aGF0IHdvdWxkIGRlc2Ny
+aWJlICptdWx0aXBsZSoNCj4gd29ya2xvYWRzIHRoYXQgd291bGQgbmVlZCB0byBiZSB0ZXN0ZWQu
+DQo+IA0KPiBJbiBwYXJ0aWN1bGFyLCBJJ20gbG9va2luZyBmb3IgYSB3YXkgdG8gcmVwcm9kdWNl
+IHRoZSBiZW5jaG1hcmtzDQo+IHN1Z2dlc3RlZCBoZXJlOg0KPiANCj4gaHR0cHM6Ly9hcnN0ZWNo
+bmljYS5jb20vZ2FkZ2V0cy8yMDIwLzAyL2hvdy1mYXN0LWFyZS15b3VyLWRpc2tzLWZpbmQtDQo+
+IG91dC10aGUtb3Blbi1zb3VyY2Utd2F5LXdpdGgtZmlvLw0KPiANCj4gLi4uIHdpdGhvdXQgaGF2
+aW5nIHRvIHdyaXRlIGFsbCB0aGUgZ2x1ZSB0aGUgYXV0aG9yIGhhZCB0byBtYWtlIGhlcmU6DQo+
+IA0KPiBodHRwczovL3Byb3RlY3QyLmZpcmVleWUuY29tL3YxL3VybD9rPWEwNzQ0OGE1LWMxZmY1
+ZGUyLWEwNzVjM2VhLQ0KPiAwMDBiYWJmZjk5YWEtMGU5MmRlNWEwNmFmZWM3ZSZxPTEmZT03MmFk
+ZWI1ZC01NzA3LTRjNjQtYmZiZC0NCj4gZDY0MzNhOTU3MDU0JnU9aHR0cHMlM0ElMkYlMkZnaXRo
+dWIuY29tJTJGamltc2FsdGVyanJzJTJGZmlvLQ0KPiB0ZXN0LXNjYWZmb2xkaW5nJTJGDQo+IA0K
+PiAuLi4gd2hpY2ggaXMgcXVpdGUgYSBiaXQgb2YgZ29vLg0KPiANCj4gSSB3YXMgaG9waW5nIGEg
+c2ltcGxlIHRoaW5nIGxpa2UgdGhpcyB3b3VsZCBqdXN0IGRvIGl0Og0KPiANCj4gW2dsb2JhbF0N
+Cj4gIyBjYXJnby1jdWx0aW5nIFNhbHRlcg0KPiBmYWxsb2NhdGU9bm9uZQ0KPiBpb2VuZ2luZT1w
+b3NpeGFpbw0KPiBydW50aW1lPTYwDQo+IHRpbWVfYmFzZWQ9MQ0KPiBlbmRfZnN5bmM9MQ0KPiBz
+dG9uZXdhbGw9MQ0KPiBncm91cF9yZXBvcnRpbmc9MQ0KPiANCj4gIyBTaW5nbGUgNEtpQiByYW5k
+b20gcmVhZC93cml0ZSBwcm9jZXNzDQo+IFtyYW5kcmVhZC00ay00Zy0xeF0NCj4gc3RvbmV3YWxs
+PTENCj4gcnc9cmFuZHJlYWQNCj4gYnM9NGsNCj4gc2l6ZT00Zw0KPiBudW1qb2JzPTENCj4gaW9k
+ZXB0aD0xDQo+IA0KPiBbcmFuZHdyaXRlLTRrLTRnLTF4XQ0KPiBzdG9uZXdhbGw9MQ0KPiBydz1y
+YW5kd3JpdGUNCj4gYnM9NGsNCj4gc2l6ZT00Zw0KPiBudW1qb2JzPTENCj4gaW9kZXB0aD0xDQo+
+IA0KPiAuLi4gYnV0IGxvb2tpbmcgYXQgdGhlICJub3JtYWwiIC0tb3V0cHV0LWZvcm1hdCwgaXQg
+Kmxvb2tzKiBsaWtlIHRoZQ0KPiBqb2JzIGFyZSBhbGwgc3RhcnRlZCBhdCB0aGUgc2FtZSB0aW1l
+LiBUaGUgZmlsZXMgY2VydGFpbmx5IHNlZW0gdG8gYmUNCj4gYWxsb2NhdGVkIGFsbCBhdCBvbmNl
+Og0KPiANCj4gcm9vdEBjdXJpZTovaG9tZSMgZmlvIGFycy5maW8NCj4gcmFuZHJlYWQtNGstNGct
+MXg6IChnPTApOiBydz1yYW5kcmVhZCwgYnM9KFIpIDQwOTZCLTQwOTZCLCAoVykgNDA5NkItDQo+
+IDQwOTZCLCAoVCkgNDA5NkItNDA5NkIsIGlvZW5naW5lPXBvc2l4YWlvLCBpb2RlcHRoPTENCj4g
+cmFuZHdyaXRlLTRrLTRnLTF4OiAoZz0xKTogcnc9cmFuZHdyaXRlLCBicz0oUikgNDA5NkItNDA5
+NkIsIChXKQ0KPiA0MDk2Qi00MDk2QiwgKFQpIDQwOTZCLTQwOTZCLCBpb2VuZ2luZT1wb3NpeGFp
+bywgaW9kZXB0aD0xDQo+IGZpby0zLjI1DQo+IFN0YXJ0aW5nIDIgcHJvY2Vzc2VzDQo+IEpvYnM6
+IDEgKGY9MSk6IFtyKDEpLFAoMSldWzAuMCVdW3I9MTYuNU1pQi9zXVtyPTQyMjggSU9QU11bZXRh
+DQo+IDQ5NzEwZDowNmg6MjhtOjE0c10NCj4gcmFuZHJlYWQtNGstNGctMXg6IChncm91cGlkPTAs
+IGpvYnM9MSk6IGVycj0gMDogcGlkPTEwMzM0NzA6IFdlZCBNYXkNCj4gMTggMTU6NDE6MDQgMjAy
+Mg0KPiAgIHJlYWQ6IElPUFM9NDc1NCwgQlc9MTguNk1pQi9zICgxOS41TUIvcykoMTguNk1pQi8x
+MDAxbXNlYykNCj4gICAgIHNsYXQgKG5zZWMpOiBtaW49MTQyOSwgbWF4PTM5MTY3OCwgYXZnPTMy
+MzkuNzYsIHN0ZGV2PTYwMTMuNzgNCj4gICAgIGNsYXQgKHVzZWMpOiBtaW49MTYzLCBtYXg9Njkx
+NywgYXZnPTIwNS4wNSwgc3RkZXY9MTA4LjQ3DQo+ICAgICAgbGF0ICh1c2VjKTogbWluPTE2Niwg
+bWF4PTczMDgsIGF2Zz0yMDguMjksIHN0ZGV2PTExNC4xMg0KPiAgICAgY2xhdCBwZXJjZW50aWxl
+cyAodXNlYyk6DQo+ICAgICAgfCAgMS4wMHRoPVsgIDE2OV0sICA1LjAwdGg9WyAgMTc0XSwgMTAu
+MDB0aD1bICAxNzRdLCAyMC4wMHRoPVsgIDE3OF0sDQo+ICAgICAgfCAzMC4wMHRoPVsgIDE4Ml0s
+IDQwLjAwdGg9WyAgMTg0XSwgNTAuMDB0aD1bICAxOTZdLCA2MC4wMHRoPVsgIDIwMF0sDQo+ICAg
+ICAgfCA3MC4wMHRoPVsgIDIwNF0sIDgwLjAwdGg9WyAgMjE1XSwgOTAuMDB0aD1bICAyMzldLCA5
+NS4wMHRoPVsgIDI2OV0sDQo+ICAgICAgfCA5OS4wMHRoPVsgIDQxMl0sIDk5LjUwdGg9WyAgNDc4
+XSwgOTkuOTB0aD1bICA2MzVdLCA5OS45NXRoPVsgMTA0NV0sDQo+ICAgICAgfCA5OS45OXRoPVsg
+NjkxNV0NCj4gICAgYncgKCAgS2lCL3MpOiBtaW49MTkyNDgsIG1heD0xOTI0OCwgcGVyPTEwMC4w
+MCUsIGF2Zz0xOTI0OC4wMCwNCj4gc3RkZXY9IDAuMDAsIHNhbXBsZXM9MQ0KPiAgICBpb3BzICAg
+ICAgICA6IG1pbj0gNDgxMiwgbWF4PSA0ODEyLCBhdmc9NDgxMi4wMCwgc3RkZXY9IDAuMDAsIHNh
+bXBsZXM9MQ0KPiAgIGxhdCAodXNlYykgICA6IDI1MD05Mi43OSUsIDUwMD02LjgxJSwgNzUwPTAu
+MzQlDQo+ICAgbGF0IChtc2VjKSAgIDogMj0wLjA0JSwgMTA9MC4wMiUNCj4gICBjcHUgICAgICAg
+ICAgOiB1c3I9Mi45MCUsIHN5cz0yLjkwJSwgY3R4PTQ3NjcsIG1hamY9MCwgbWluZj00NA0KPiAg
+IElPIGRlcHRocyAgICA6IDE9MTAwLjAlLCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAl
+LCAzMj0wLjAlLA0KPiA+PTY0PTAuMCUNCj4gICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAw
+LjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsIDY0PTAuMCUsDQo+ID49NjQ9MC4wJQ0KPiAg
+ICAgIGNvbXBsZXRlICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4w
+JSwgNjQ9MC4wJSwNCj4gPj02ND0wLjAlDQo+ICAgICAgaXNzdWVkIHJ3dHM6IHRvdGFsPTQ3NTks
+MCwwLDAgc2hvcnQ9MCwwLDAsMCBkcm9wcGVkPTAsMCwwLDANCj4gICAgICBsYXRlbmN5ICAgOiB0
+YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KPiByYW5kd3Jp
+dGUtNGstNGctMXg6IChncm91cGlkPTEsIGpvYnM9MSk6IGVycj0gMDogcGlkPTEwMzM0Nzc6IFdl
+ZCBNYXkNCj4gMTggMTU6NDE6MDQgMjAyMg0KPiAgIHdyaXRlOiBJT1BTPTMyLjNrLCBCVz0xMjZN
+aUIvcyAoMTMyTUIvcykoMTc0TWlCLzEzNzhtc2VjKTsgMCB6b25lDQo+IHJlc2V0cw0KPiAgICAg
+c2xhdCAobnNlYyk6IG1pbj05NTUsIG1heD0zMjYwNDIsIGF2Zz0yNzI2LjExLCBzdGRldj0yNTM4
+LjM4DQo+ICAgICBjbGF0IChuc2VjKTogbWluPTM0MywgbWF4PTY4OTYuNWssIGF2Zz0xODEzOS4x
+Miwgc3RkZXY9Njk4OTkuNzUNCj4gICAgICBsYXQgKHVzZWMpOiBtaW49MTAsIG1heD02ODk5LCBh
+dmc9MjAuODcsIHN0ZGV2PTcwLjAyDQo+ICAgICBjbGF0IHBlcmNlbnRpbGVzICh1c2VjKToNCj4g
+ICAgICB8ICAxLjAwdGg9WyAgIDExXSwgIDUuMDB0aD1bICAgMTFdLCAxMC4wMHRoPVsgICAxMl0s
+IDIwLjAwdGg9WyAgIDEyXSwNCj4gICAgICB8IDMwLjAwdGg9WyAgIDEzXSwgNDAuMDB0aD1bICAg
+MTNdLCA1MC4wMHRoPVsgICAxNF0sIDYwLjAwdGg9WyAgIDE1XSwNCj4gICAgICB8IDcwLjAwdGg9
+WyAgIDE2XSwgODAuMDB0aD1bICAgMThdLCA5MC4wMHRoPVsgICAyNl0sIDk1LjAwdGg9WyAgIDM0
+XSwNCj4gICAgICB8IDk5LjAwdGg9WyAgIDYyXSwgOTkuNTB0aD1bICAgOTFdLCA5OS45MHRoPVsg
+IDIzMV0sIDk5Ljk1dGg9WyAgMzI2XSwNCj4gICAgICB8IDk5Ljk5dGg9WyA0MDQ3XQ0KPiAgICBi
+dyAoICBLaUIvcyk6IG1pbj0xOTYwNjQsIG1heD0xOTYwNjQsIHBlcj0xMDAuMDAlLCBhdmc9MTk2
+MDY0LjAwLA0KPiBzdGRldj0gMC4wMCwgc2FtcGxlcz0xDQo+ICAgIGlvcHMgICAgICAgIDogbWlu
+PTQ5MDE2LCBtYXg9NDkwMTYsIGF2Zz00OTAxNi4wMCwgc3RkZXY9IDAuMDAsIHNhbXBsZXM9MQ0K
+PiAgIGxhdCAobnNlYykgICA6IDUwMD0wLjAxJSwgNzUwPTAuMDElDQo+ICAgbGF0ICh1c2VjKSAg
+IDogMj0wLjAxJSwgND0wLjAxJSwgMTA9MC4yMSUsIDIwPTgzLjYwJSwgNTA9MTQuNTElDQo+ICAg
+bGF0ICh1c2VjKSAgIDogMTAwPTEuMjIlLCAyNTA9MC4zNyUsIDUwMD0wLjAzJSwgMTAwMD0wLjAx
+JQ0KPiAgIGxhdCAobXNlYykgICA6IDI9MC4wMSUsIDQ9MC4wMSUsIDEwPTAuMDElDQo+ICAgY3B1
+ICAgICAgICAgIDogdXNyPTExLjg0JSwgc3lzPTE4LjAxJSwgY3R4PTQ2MjkyLCBtYWpmPTAsIG1p
+bmY9NDYNCj4gICBJTyBkZXB0aHMgICAgOiAxPTEwMC4wJSwgMj0wLjAlLCA0PTAuMCUsIDg9MC4w
+JSwgMTY9MC4wJSwgMzI9MC4wJSwNCj4gPj02ND0wLjAlDQo+ICAgICAgc3VibWl0ICAgIDogMD0w
+LjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLA0KPiA+PTY0
+PTAuMCUNCj4gICAgICBjb21wbGV0ZSAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAu
+MCUsIDMyPTAuMCUsIDY0PTAuMCUsDQo+ID49NjQ9MC4wJQ0KPiAgICAgIGlzc3VlZCByd3RzOiB0
+b3RhbD0wLDQ0NDU3LDAsMCBzaG9ydD0wLDAsMCwwIGRyb3BwZWQ9MCwwLDAsMA0KPiAgICAgIGxh
+dGVuY3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVyY2VudGlsZT0xMDAuMDAlLCBkZXB0aD0x
+DQo+IA0KPiBSdW4gc3RhdHVzIGdyb3VwIDAgKGFsbCBqb2JzKToNCj4gICAgUkVBRDogYnc9MTgu
+Nk1pQi9zICgxOS41TUIvcyksIDE4LjZNaUIvcy0xOC42TWlCL3MgKDE5LjVNQi9zLQ0KPiAxOS41
+TUIvcyksIGlvPTE4LjZNaUIgKDE5LjVNQiksIHJ1bj0xMDAxLTEwMDFtc2VjDQo+IA0KPiBSdW4g
+c3RhdHVzIGdyb3VwIDEgKGFsbCBqb2JzKToNCj4gICBXUklURTogYnc9MTI2TWlCL3MgKDEzMk1C
+L3MpLCAxMjZNaUIvcy0xMjZNaUIvcyAoMTMyTUIvcy0NCj4gMTMyTUIvcyksIGlvPTE3NE1pQiAo
+MTgyTUIpLCBydW49MTM3OC0xMzc4bXNlYw0KPiANCj4gRGlzayBzdGF0cyAocmVhZC93cml0ZSk6
+DQo+ICAgICBkbS0yOiBpb3M9NDc1OS80MzEzMiwgbWVyZ2U9MC8wLCB0aWNrcz04NjQvNzI4MTEz
+MiwNCj4gaW5fcXVldWU9NzI4MTk5NiwgdXRpbD02Ny4zMiUsIGFnZ3Jpb3M9NDc1OS80MzE4MSwg
+YWdncm1lcmdlPTAvMCwNCj4gYWdncnRpY2tzPTg2NC83Mzc4NTg0LCBhZ2dyaW5fcXVldWU9NzM3
+OTQ0OCwgYWdncnV0aWw9NjcuMTclDQo+ICAgICBkbS0wOiBpb3M9NDc1OS80MzE4MSwgbWVyZ2U9
+MC8wLCB0aWNrcz04NjQvNzM3ODU4NCwNCj4gaW5fcXVldWU9NzM3OTQ0OCwgdXRpbD02Ny4xNyUs
+IGFnZ3Jpb3M9NDc1OS80MzEyNCwgYWdncm1lcmdlPTAvNTcsDQo+IGFnZ3J0aWNrcz03NzgvODY4
+MCwgYWdncmluX3F1ZXVlPTk0ODcsIGFnZ3J1dGlsPTY3LjAyJQ0KPiAgIHNkYTogaW9zPTQ3NTkv
+NDMxMjQsIG1lcmdlPTAvNTcsIHRpY2tzPTc3OC84NjgwLCBpbl9xdWV1ZT05NDg3LA0KPiB1dGls
+PTY3LjAyJQ0KPiANCj4gDQo+IFRob3NlIHRpbWVzdGFtcHMsIHNwZWNpZmljYWxseSwgc2hvdWxk
+IG5vdCBiZSB0aGUgc2FtZToNCj4gDQo+IHJhbmR3cml0ZS00ay00Zy0xeDogKGdyb3VwaWQ9MSwg
+am9icz0xKTogZXJyPSAwOiBwaWQ9MTAzMzQ3NzogV2VkIE1heQ0KPiAxOCAxNTo0MTowNCAyMDIy
+DQo+IHJhbmRyZWFkLTRrLTRnLTF4OiAoZ3JvdXBpZD0wLCBqb2JzPTEpOiBlcnI9IDA6IHBpZD0x
+MDMzNDcwOiBXZWQgTWF5DQo+IDE4IDE1OjQxOjA0IDIwMjINCj4gDQo+IEFtIEkgbWlzc2luZyBz
+b21ldGhpbmc/IE9yIGFyZSBqb2IgZmlsZXMganVzdCAqbm90KiBkZXNpZ25lZCB0byBydW4NCj4g
+dGhpbmdzIHNlcmlhbGx5Pw0KPiANCj4gSSBsb29rZWQgaW4gdGhlIGFyY2hpdmVzIGZvciB0aGlz
+LCBhbmQgb25seSBmb3VuZCB0aGlzICh1bmZ1bGZpbGxlZCwNCj4gQUZBSUNUKSByZXF1ZXN0Og0K
+PiANCj4gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvZmlvL0NBTnZOK2VtQTAxVFpmYkJ4NGFVK2dn
+NUNLZnkrQUVYX2daDQo+IFc3Sno0SE1IdndrZEJOb1FAbWFpbC5nbWFpbC5jb20vDQo+IA0KPiBh
+bmQ6DQo+IA0KPiBodHRwczovL2xvcmUua2VybmVsLm9yZy9maW8vTVdIUFIwNE1CMDMyMEVEOTg2
+RTczQjFFOTk5NDkyOUIzOEYNCj4gNDcwQE1XSFBSMDRNQjAzMjAubmFtcHJkMDQucHJvZC5vdXRs
+b29rLmNvbS8NCj4gDQo+IC4uLiBidXQgdGhhdCB0YWxrcyBhYm91dCBzZXJpYWxpemVfb3Zlcmxh
+cCB3aGljaCBzZWVtcyB0byBiZSBzcGVjaWZpYyB0bw0KPiBoYW5kbGluZyByZXF1ZXN0cyBzZW50
+IGluIHBhcmFsbGVsLCBub3Qgc2VyaWFsaXppbmcgam9icyB0aGVtc2VsdmVzLg0KPiANCj4gRm9y
+IG5vdywgaXQgZmVlbHMgbGlrZSBpIG5lZWQgdG8gcmV2ZXJ0IHRvIHNoZWxsIHNjcmlwdHMgYW5k
+IHRoYXQncyBraW5kDQo+IG9mIGEgbGl0dGxlIGFubm95aW5nOiBpdCB3b3VsZCBiZSByZWFsbHkg
+bmljZSB0byBiZSBhYmxlIHRvIGNhcnJ5IGEgZnVsbA0KPiB3b3JrZmxvYWQgaW4gYSBzaW5nbGUg
+am9iIGZpbGUuDQo+IA0KPiBUaGFua3MsIGFuZCBzb3JyeSBpZiB0aGF0J3MgYSBkdW1iIHF1ZXN0
+aW9uLiA6KQ0KPiANCj4gLS0NCj4gQW50b2luZSBCZWF1cHLDqQ0KPiB0b3Jwcm9qZWN0Lm9yZyBz
+eXN0ZW0gYWRtaW5pc3RyYXRpb24NCg0KVGhlIGpvYnMgeW91IGFyZSBydW5uaW5nIGhhdmUgdGhl
+ICpzdG9uZXdhbGwqIG9wdGlvbiB3aGljaCBzaG91bGQgbWFrZSB0aGVtIHJ1bg0Kc2VyaWFsbHkg
+dW5sZXNzIHNvbWV0aGluZyBpcyB2ZXJ5IGJyb2tlbi4gSGVyZSBpcyBkb2N1bWVudGF0aW9uIGZv
+ciB0aGUNCnN0b25ld2FsbCBvcHRpb246DQoNCmh0dHBzOi8vZmlvLnJlYWR0aGVkb2NzLmlvL2Vu
+L2xhdGVzdC9maW9fZG9jLmh0bWwjY21kb3B0aW9uLWFyZy1zdG9uZXdhbGwNCg0KWW91IGNvdWxk
+IGFkZCB0aGUgd3JpdGVfYndfbG9nPWZpbGVuYW1lIGFuZCBsb2dfdW5peF9lcG9jaD0xIG9wdGlv
+bnMgdG8NCmNvbmZpcm0uIFlvdSBzaG91bGQgc2VlIGEgdGltZXN0YW1wIGZvciBlYWNoIElPIGFu
+ZCBzaG91bGQgYmUgYWJsZSB0byBtYWtlDQpzdXJlIHRoYXQgYWxsIHRoZSB3cml0ZXMgYXJlIGhh
+cHBlbmluZyBhZnRlciB0aGUgcmVhZHMuDQo=
