@@ -2,60 +2,62 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01861C433F5
-	for <fio@archiver.kernel.org>; Mon, 23 May 2022 18:28:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BCBAC433EF
+	for <fio@archiver.kernel.org>; Mon, 23 May 2022 18:32:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239403AbiEWS2C (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 23 May 2022 14:28:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37916 "EHLO
+        id S231184AbiEWSct (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 23 May 2022 14:32:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343628AbiEWS13 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 May 2022 14:27:29 -0400
-Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E3A134E10
-        for <fio@vger.kernel.org>; Mon, 23 May 2022 11:03:06 -0700 (PDT)
+        with ESMTP id S240464AbiEWSce (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 May 2022 14:32:34 -0400
+Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F2F69491
+        for <fio@vger.kernel.org>; Mon, 23 May 2022 11:07:03 -0700 (PDT)
 Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
-        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220523175713usoutp02f738dfc84e43d07a4d87030c37fa253a~xzaHWWCGR2714427144usoutp02P;
-        Mon, 23 May 2022 17:57:13 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220523175713usoutp02f738dfc84e43d07a4d87030c37fa253a~xzaHWWCGR2714427144usoutp02P
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220523175714usoutp01a7adb59db8d5d770ff1ef7cec25710b0~xzaIOiVg11112211122usoutp01f;
+        Mon, 23 May 2022 17:57:14 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220523175714usoutp01a7adb59db8d5d770ff1ef7cec25710b0~xzaIOiVg11112211122usoutp01f
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653328633;
-        bh=zyq1/NIRXh0VLY7VqyzmIixktKtMtAz84mEG6+6wGZA=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=jue0S5A4cwDJ1+d+dLQ+f5abhoMIi80XW5qeR2OBne/mCYV1ilYn/JbcfLW4B3Cyc
-         /hro5Pgyz9h9IKgUDLfU+CcnhgwBve/QHofQSP1EJua1ZNNjz/sNIuWwnED+IblaTJ
-         Qk7MYYN8H2tyJZMwYzOZlswgF0MVtSOnJxgO4y+Q=
-Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
-        [203.254.195.111]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220523175713uscas1p2f114e04ad504cfa316684e8a851b2d05~xzaHMtfzn2431024310uscas1p2Q;
-        Mon, 23 May 2022 17:57:13 +0000 (GMT)
+        s=mail20170921; t=1653328634;
+        bh=c3USjcGzZ6kuYp3a8HoVtMA9rPqOsaFC0jP6dTrME9A=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=fEIXHMJ+hG/3SU+KbN6AZyKjj7qogQb0f3z+7jnJ4qFxoCzC/oGiuFWLpm6z+H23d
+         3C8A7l6EcjWSeamx2g2118ihEpQRTS13LWVGH7y2xCx6FMKEWrB/YrnHJ1pz8OW3hw
+         RM/vdEY/GEHIzFxqndoASCz2EA9rZR6PyFhpGo6k=
+Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
+        [203.254.195.112]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220523175714uscas1p178e3e369586d853fe7cb4c46c20feeb9~xzaIGn07E1006110061uscas1p1T;
+        Mon, 23 May 2022 17:57:14 +0000 (GMT)
 Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
-        ussmges2new.samsung.com (USCPEMTA) with SMTP id 12.1A.09642.8FACB826; Mon,
-        23 May 2022 13:57:12 -0400 (EDT)
-Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
-        [203.254.195.92]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220523175712uscas1p20c6cf25d74d7616e5f3406db923b22c4~xzaG4tAdI0405304053uscas1p2a;
-        Mon, 23 May 2022 17:57:12 +0000 (GMT)
-X-AuditID: cbfec36f-bfdff700000025aa-c6-628bcaf822e3
-Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id 8A.8C.52945.8FACB826; Mon,
-        23 May 2022 13:57:12 -0400 (EDT)
+        ussmges3new.samsung.com (USCPEMTA) with SMTP id 63.D1.09749.9FACB826; Mon,
+        23 May 2022 13:57:13 -0400 (EDT)
+Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
+        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220523175713uscas1p1e0e247cd89c13bf395863183f07cd1e1~xzaH0d6Hw2338823388uscas1p1G;
+        Mon, 23 May 2022 17:57:13 +0000 (GMT)
+X-AuditID: cbfec370-a83ff70000002615-b9-628bcaf943db
+Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.145]) by
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id BF.4C.52349.9FACB826; Mon,
+        23 May 2022 13:57:13 -0400 (EDT)
 Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
         SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2375.24; Mon, 23 May 2022 10:57:11 -0700
+        15.1.2375.24; Mon, 23 May 2022 10:57:12 -0700
 Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
         SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Mon,
-        23 May 2022 10:57:11 -0700
+        23 May 2022 10:57:12 -0700
 From:   Vincent Fu <vincent.fu@samsung.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 0/6] cleanups, parse /proc/meminfo for huge page size
-Thread-Topic: [PATCH 0/6] cleanups, parse /proc/meminfo for huge page size
-Thread-Index: AQHYbs6HwEaNK0FJw0qQEje/ay4SkQ==
-Date:   Mon, 23 May 2022 17:57:11 +0000
-Message-ID: <20220523175650.130895-1-vincent.fu@samsung.com>
+Subject: [PATCH 5/6] mem: try to parse /proc/meminfo to get huge page size
+Thread-Topic: [PATCH 5/6] mem: try to parse /proc/meminfo to get huge page
+        size
+Thread-Index: AQHYbs6Hmcsriz4iOkKkJvgIZCyMCw==
+Date:   Mon, 23 May 2022 17:57:12 +0000
+Message-ID: <20220523175650.130895-6-vincent.fu@samsung.com>
+In-Reply-To: <20220523175650.130895-1-vincent.fu@samsung.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -65,63 +67,136 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrOIsWRmVeSWpSXmKPExsWy7djX87o/TnUnGbydYmmx+m4/m8XHWS+Y
-        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoErY86Bn6wF+9kqHq+7zt7A+Juli5GTQ0LARGLL
-        00NMXYxcHEICKxklmu8egHJamSQW/ZvMDFM1acNcNojEWkaJX5dmsEI4nxglrv1rZoFwljFK
-        LHl+i72LkYODTUBT4u3+ApBuEYEwiZ+PtrOC2MwC6hLHNm5gA7GFBVwlti77wwpR4yWxrnEt
-        G4StJ/Fm+n0mEJtFQFXi7Y3bYHFeARuJU3P2gl3EKCAm8f3UGiaImeISt57MZ4K4VFBi0ew9
-        UFeLSfzb9ZANwlaUuP/9JTtEvZ7EjalT2CBsbYllC18zQ8wXlDg58wk0XCQlDq64AfaXhMBH
-        dokdE3dBDXWR2DyjlxXClpaYvuYyVFE7o8TcjV+guicwSlx/IgVhW0v867wGtZlP4u+vR4yg
-        AJIQ4JXoaBOawKg0C8kPs5DcNwvJfbOQ3LeAkWUVo3hpcXFuemqxUV5quV5xYm5xaV66XnJ+
-        7iZGYNo4/e9w/g7G67c+6h1iZOJgPMQowcGsJMK7PbEjSYg3JbGyKrUoP76oNCe1+BCjNAeL
-        kjjvsswNiUIC6YklqdmpqQWpRTBZJg5OqQam3csmxDuoRDD1sCz6qKhQmpL77LHEizv5V6/9
-        TzwRvtz+uva8V7svLJ3WPE3jxtQzyuw2sxmMot4d+PFv76YHJRf/xkrtKWkSnVnBONHT59+d
-        8z3z5ogKcz36kL/mYlEjH9fRi5sWBXyZc/rTKr+aTm9lqSKNtddLShQ2GN9cMy1T3VV4xh6Z
-        xyrrO+4yCpQ/3sqy0XNCyac03UPn9thMVfLS/nyWXzU+JmLS5ifv/fdPfXZm+27j++uMX6t0
-        zIgUYvmt8f39ialynb6PtNPq55/8pWM8X7fOk3fdHv7CLl9LpugZDY2iuuc+RaQ9sbxTN+XX
-        P7OoFrMJzctu/ZmqXtoZd1L51J5Lv0xO3tJzTFJiKc5INNRiLipOBABmC9ltigMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHLMWRmVeSWpSXmKPExsWS2cA0SffHqe4kgx2HlCxW3+1ns/g46wWz
-        A5PH5bOlHp83yQUwRXHZpKTmZJalFunbJXBlzDnwk7VgP1vF43XX2RsYf7N0MXJySAiYSEza
-        MJcNxBYSWM0oMesIexcjF5D9iVGiZ+4PJojEMkaJkyvLuxg5ONgENCXe7i8ACYsIhEn8fLSd
-        FcRmFlCXOLZxA9gcYQFXia3L/rBC1HhJrGtcywZh60m8mX4fbCSLgKrE2xu3weK8AjYSp+bs
-        ZQaxGQXEJL6fWsMEMVNc4taT+UwQdwpILNlznhnCFpV4+fgfK4StKHH/+0t2iHo9iRtTp7BB
-        2NoSyxa+ZoaYLyhxcuYTqH8lJQ6uuMEygVF0FpIVs5C0z0LSPgtJ+wJGllWM4qXFxbnpFcXG
-        eanlesWJucWleel6yfm5mxiBUXL63+GYHYz3bn3UO8TIxMF4iFGCg1lJhHd7YkeSEG9KYmVV
-        alF+fFFpTmrxIUZpDhYlcV6P2InxQgLpiSWp2ampBalFMFkmDk6pBqaYtzP+NFfPmM1sdLrK
-        f6k198EJF3eaTl954E7SnYuHd07SsLbp/+c2e0c7/x7rT0ZvO3mzDydI3m9l9XrI0vv+m+Uk
-        nppXSWc+N/ctnHB9ffuGZw5qhYyp1fz35U1MJkWsf97ZrajZtXjKtY9zeDz8rKfYVr9O+TjZ
-        ySvm7I19znXndjtZyejErxBt1rvc3r6DsWOX9Kvdfsw1GyfsilC68cmuo9vpd6mWkszUnxHd
-        S1+8qttlY5m1ROeaaUeIet29eo3SW8nKprVrd8cJL86byWoo9Plc4qLop3f9aspOFa/5e8j2
-        y/vjK5Lvxx76Me+rwpnnYn+y+JR9FG1mXa3hzps8sfuuopbFmrjaBXuVWIozEg21mIuKEwFT
-        KPOSAQMAAA==
-X-CMS-MailID: 20220523175712uscas1p20c6cf25d74d7616e5f3406db923b22c4
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKIsWRmVeSWpSXmKPExsWy7djX87o/T3UnGWzusrBYfbefzeLjrBfM
+        Dkwel8+WenzeJBfAFMVlk5Kak1mWWqRvl8CVcWiRXcFK4YplJ2ayNzDu4O9i5OSQEDCRuNL7
+        jLWLkYtDSGAlo8T5A3vYIZxWJon315exwVR9W3GOGcQWEljLKNHxXB2i6BOjxNMTTxghnGWM
+        Ej8vfwCq4uBgE9CUeLu/AKRBRCBM4uej7awgNrOAusSxjRvAhgoLeEnMv9jPAlIuIhAo8f02
+        M0S5nsSxzv0sIDaLgKrEon9XGUFsXgEbiSP7poPZnAK2EjsXfWYHsRkFxCS+n1rDBDFeXOLW
+        k/lMEDcLSiyavYcZwhaT+LfrIdQvihL3v79kh6jXk7gxdQobhK0tsWzha2aIXYISJ2c+YYGo
+        l5Q4uOIGC8iLEgK9HBJnFi+BWuAise3zdFYIW1ri6vWpzBBF7YwSczd+geqewChx/YkUhG0t
+        8a/zGtRmPom/vx4xTmBUnoXk8FlIjpqF5KhZSI5awMiyilG8tLg4Nz212DgvtVyvODG3uDQv
+        XS85P3cTIzBlnP53uGAH461bH/UOMTJxMB5ilOBgVhLh3Z7YkSTEm5JYWZValB9fVJqTWnyI
+        UZqDRUmcd1nmhkQhgfTEktTs1NSC1CKYLBMHp1QD02RtiRXfPe+ElCze/96tNEn6hutVp29a
+        Tqtc79rVRxd8t+foWbF9z/fT21Jf/zq01nfNtbCHf5dELVuZnjbxrNgW50fHFDylQjy+Bi+1
+        nWtgvWvat82B/fOWfcxiV7z88L/giRXneM92p9k89lQQ6v0oxZu/pFrdzv5MAof0XPu6JZGr
+        0qcWXpm9v1GFdyr/keRb+azr35nMX2XRbzJzuoPIibfsGiJd6Q+kb95Rdnxt/LD1tuy9uz1P
+        vi390Jzx5tP3yStW78+sC59RaSZaXLpkx/kJO+4LPOnLdwxT+bb7wAQFEdklF84+Y3KddarR
+        lcH/yio2k135xmK1k1988NR+MOnOJf/C6azdNrW1BY5KLMUZiYZazEXFiQCPqWLniAMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCaqPvzVHeSwc3PShar7/azWXyc9YLZ
+        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyDi2yK1gpXLHsxEz2BsYd/F2MnBwSAiYS31ac
+        Y+5i5OIQEljNKLHh03sWCOcTo8Tzj1vYIZxljBK/Lr9j6mLk4GAT0JR4u78ApFtEIEzi56Pt
+        rCA2s4C6xLGNG9hAbGEBL4n5F/tZIGoCJRa92MkMYetJHOvcDxZnEVCVWPTvKiOIzStgI3Fk
+        33QwWwjI/vqlA6yGU8BWYueiz+wgNqOAmMT3U2uYIHaJS9x6Mp8J4gMBiSV7zjND2KISLx//
+        Y4WwFSXuf3/JDlGvJ3Fj6hQ2CFtbYtnC18wQewUlTs58wgJRLylxcMUNlgmM4rOQrJiFpH0W
+        kvZZSNoXMLKsYhQvLS7OTa8oNsxLLdcrTswtLs1L10vOz93ECIyr0/8OR+5gPHrro94hRiYO
+        xkOMEhzMSiK82xM7koR4UxIrq1KL8uOLSnNSiw8xSnOwKInzCrlOjBcSSE8sSc1OTS1ILYLJ
+        MnFwSjUwnTHOnMu1+fYTvcKESV9XHjScc7zVXG7NyRuhJ9fYreO4drl0g6nKlvke98TvXwmK
+        7tawro+vZhT57dKYI7BpN+sla1mTuX1/hf9vfHiLjdur8Fsb32rGz2/8exp/Xdzw+dArtiJh
+        uSXTfkf8fNx3Rvx16+WKK7P19uy12Vvvcyo2y65l4aYZ/v9n9BiIbJOWfL9msekqRd4VZ487
+        CrcGltou1uaa/p07YerdlVMbcmauTTp3Y0nhn4y7c+Kn27xIV9oaFPfWSjvQKnfPLh7uo70t
+        b7PTTSIOLdddyJll+O3JJxebxw8/nHbksPslt+dNd8K8r1O5U01MFn5Vj+ZRmDN5oRmb1AK2
+        c2df/eI9d1GJpTgj0VCLuag4EQDB+Vt7GgMAAA==
+X-CMS-MailID: 20220523175713uscas1p1e0e247cd89c13bf395863183f07cd1e1
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20220523175712uscas1p20c6cf25d74d7616e5f3406db923b22c4
-References: <CGME20220523175712uscas1p20c6cf25d74d7616e5f3406db923b22c4@uscas1p2.samsung.com>
+X-CMS-RootMailID: 20220523175713uscas1p1e0e247cd89c13bf395863183f07cd1e1
+References: <20220523175650.130895-1-vincent.fu@samsung.com>
+        <CGME20220523175713uscas1p1e0e247cd89c13bf395863183f07cd1e1@uscas1p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Jens, here are four cleanup patches and a pair of patches for enabling
-fio to parse /proc/meminfo to obtain the system huge page size.
+Instead of relying on a platform-specific default huge page size, try to
+parse /proc/meminfo to get the huge page size when it is not explicitly
+specified as an option.
 
-Vincent
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+---
+ memory.c | 51 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 49 insertions(+), 2 deletions(-)
 
-Vincent Fu (6):
-  steadystate: delete incorrect comment
-  configure: refer to zlib1g-dev package for zlib support
-  HOWTO: add blank line for prettier formatting
-  t/run-fio-tests: improve json data decoding
-  mem: try to parse /proc/meminfo to get huge page size
-  docs: update for huge page size parsing
-
- HOWTO.rst          | 39 ++++++++++++++++++++---------------
- configure          |  2 +-
- fio.1              | 29 ++++++++++++++------------
- memory.c           | 51 ++++++++++++++++++++++++++++++++++++++++++++--
- steadystate.c      |  7 -------
- t/run-fio-tests.py | 20 +++++++-----------
- 6 files changed, 96 insertions(+), 52 deletions(-)
-
+diff --git a/memory.c b/memory.c
+index 6cf73333..3b58e0bc 100644
+--- a/memory.c
++++ b/memory.c
+@@ -2,6 +2,7 @@
+  * Memory helpers
+  */
+ #include <fcntl.h>
++#include <ctype.h>
+ #include <unistd.h>
+ #include <sys/mman.h>
+ #include <sys/stat.h>
+@@ -60,13 +61,59 @@ int fio_pin_memory(struct thread_data *td)
+ 	return 0;
+ }
+=20
++static unsigned int get_hugepage_size(struct thread_data *td)
++{
++	char buf[2048];
++	FILE *fptr;
++	size_t ret;
++	char *start;
++	unsigned int val;
++
++	if (fio_option_is_set(&td->o, hugepage_size))
++		return td->o.hugepage_size;
++
++	fptr =3D fopen("/proc/meminfo", "r");
++	if (!fptr)
++		return td->o.hugepage_size;
++
++	ret =3D fread(buf, 1, sizeof(buf)-1, fptr);
++	if (!ret)
++		goto out;
++	buf[ret] =3D 0;
++
++	start =3D strstr(buf, "Hugepagesize:");
++	if (!start)
++		goto out;
++	start +=3D strlen("Hugepagesize:");
++	val =3D strtoul(start, NULL, 10);
++	if (!val)
++		goto out;
++
++	/* skip all the spaces and digits */
++	while (*start =3D=3D ' ' || isdigit(*start))
++		start++;
++
++	/* make sure it ends with kB */
++	if (*start++ !=3D 'k')
++		goto out;
++	if (*start++ !=3D 'B')
++		goto out;
++
++	td->o.hugepage_size =3D val * 1024;
++	dprint(FD_MEM, "parsed hugepagesize from /proc/meminfo %u\n", td->o.hugep=
+age_size);
++
++out:
++	fclose(fptr);
++	return td->o.hugepage_size;
++}
++
+ static int alloc_mem_shm(struct thread_data *td, unsigned int total_mem)
+ {
+ #ifndef CONFIG_NO_SHM
+ 	int flags =3D IPC_CREAT | S_IRUSR | S_IWUSR;
+=20
+ 	if (td->o.mem_type =3D=3D MEM_SHMHUGE) {
+-		unsigned long mask =3D td->o.hugepage_size - 1;
++		unsigned long mask =3D get_hugepage_size(td) - 1;
+=20
+ 		flags |=3D SHM_HUGETLB;
+ 		total_mem =3D (total_mem + mask) & ~mask;
+@@ -128,7 +175,7 @@ static int alloc_mem_mmap(struct thread_data *td, size_=
+t total_mem)
+ 	td->mmapfd =3D -1;
+=20
+ 	if (td->o.mem_type =3D=3D MEM_MMAPHUGE) {
+-		unsigned long mask =3D td->o.hugepage_size - 1;
++		unsigned long mask =3D get_hugepage_size(td) - 1;
+=20
+ 		/* TODO: make sure the file is a real hugetlbfs file */
+ 		if (!td->o.mmapfile)
 --=20
 2.25.1
