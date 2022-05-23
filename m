@@ -2,315 +2,256 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 570BDC433EF
-	for <fio@archiver.kernel.org>; Mon, 23 May 2022 16:44:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A39C2C433F5
+	for <fio@archiver.kernel.org>; Mon, 23 May 2022 18:23:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238854AbiEWQoz (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 23 May 2022 12:44:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45390 "EHLO
+        id S241321AbiEWSXb (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 23 May 2022 14:23:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238862AbiEWQoz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 May 2022 12:44:55 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE7D69733
-        for <fio@vger.kernel.org>; Mon, 23 May 2022 09:44:53 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id n10so14560424pjh.5
-        for <fio@vger.kernel.org>; Mon, 23 May 2022 09:44:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=BLCwRKcbogo5ckQEc6KqHDFBgp1NhYLWHDNRxLOZsls=;
-        b=zpTFazIsZ1sP9ICck82/q9T18lVZYDh7e/PYIKWzv0YTS4W27nbg+PF+oOCmY4Kb/B
-         Kbxes/lrWa0xE+9EOwI3R8Lu5JGtHioXK0W7eNUZXKy154h7gRy4LpMiawrrkSfHeVpU
-         4vZv5os8a/NxU7eKdjZoMwucm2nZEc4IPYyiHYcnAmOyIjUSXJVW5NE3aoZAFcABSWgY
-         rUCz7IAFuIMRl9ZM/eW7Ulg4VV+sLOEf0PIxiNIBK1i5hoR0mX4M7ojXuaU5cpv/zM1o
-         /EQQZRofFKnDAgWAZPkstI+wXBZ2oURB8W9/SdwKT7ATMUKBYirIjoGSpqts3gQVgkdL
-         AnXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=BLCwRKcbogo5ckQEc6KqHDFBgp1NhYLWHDNRxLOZsls=;
-        b=SxIzAjjl170xayazq6T4GIUkPlkbGIHZc6ZCQK2YqxWNUpUcQIhf11Uk2LrvW95/a/
-         gg5Qkl+9/5eN6ErUu9JaH3jnZ7CUlHTWvdPNm41mqW+TNmD7gValdtnG9TufN7Zp40lc
-         sKtGGVA/2/hpokh35RWTHtsCn0JO8ckIBKXHxd0up6knR8zSOm6fdM83FHCJyseamUIX
-         +YM7Gh5E4Y8gim6knAGBkiUm7vbblBo8lKpwQYLdk8jK3laRfYquAC8TE60Ue74FXdTO
-         jxqfypAaGqY3CzFfsU9TWfi1tNhxAAdiWxM7AEbjstl6NHKly6T4Dmosj3n2vmzXPo9L
-         /q9A==
-X-Gm-Message-State: AOAM533sr74csqu9e2rUXu3PKVLERvrm8UbzLnUhzBO3m+l1IciuNhfX
-        p5Odt52Vu+tHKbKYUeOTgZR2WQ==
-X-Google-Smtp-Source: ABdhPJygnPGKMejWW2Yh13a6QcvtnHYJSUfxCIgbkmtV2V25JHqCeIiHZAobxvL3YSVGIzPgrW5jUw==
-X-Received: by 2002:a17:902:edd1:b0:158:8318:b51e with SMTP id q17-20020a170902edd100b001588318b51emr23956065plk.89.1653324292742;
-        Mon, 23 May 2022 09:44:52 -0700 (PDT)
-Received: from [192.168.1.100] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id c13-20020a170903234d00b0015f0dcd1579sm3810785plh.9.2022.05.23.09.44.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 May 2022 09:44:52 -0700 (PDT)
-Message-ID: <be576bfa-49e8-aa05-5163-6133e9137695@kernel.dk>
-Date:   Mon, 23 May 2022 10:44:50 -0600
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH 3/7] engines/io_uring: add new I/O engine for uring
- passthrough support
+        with ESMTP id S244569AbiEWSVr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 May 2022 14:21:47 -0400
+Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE5BDFF77
+        for <fio@vger.kernel.org>; Mon, 23 May 2022 10:57:46 -0700 (PDT)
+Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220523175714usoutp02b0f39b5752cf2ddb3296c0eebbc9577c~xzaIXSsGu2714627146usoutp02J;
+        Mon, 23 May 2022 17:57:14 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220523175714usoutp02b0f39b5752cf2ddb3296c0eebbc9577c~xzaIXSsGu2714627146usoutp02J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1653328634;
+        bh=SB/hJtAYPqWCWNptnKAqHmHlq54WwCgIVno7VfEC5V0=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=hDYkqsu2616MhCu5uePRi6nQbFVQStAXlEK9/MdvrU4y9uAwmA8xJWGyhV0yGQl/d
+         zljQvwNLRWKJ3ITId0E5ZVflk9ylwYZSYeSNAySS6B6pSEyLDL4QUOlWQ1w56Hizn9
+         vKlHCxaGAqH61bUrLSEK4dneMe7ytJUfbziAn4Ps=
+Received: from ussmges1new.samsung.com (u109.gpu85.samsung.co.kr
+        [203.254.195.109]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220523175714uscas1p22cdc11aed91867478204c86ef99b4256~xzaIPe25P2490624906uscas1p2L;
+        Mon, 23 May 2022 17:57:14 +0000 (GMT)
+Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
+        ussmges1new.samsung.com (USCPEMTA) with SMTP id 40.A4.09760.AFACB826; Mon,
+        23 May 2022 13:57:14 -0400 (EDT)
+Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
+        [203.254.195.92]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220523175713uscas1p26b156f466662f82746e78f1673e4461a~xzaIATAfO0404904049uscas1p26;
+        Mon, 23 May 2022 17:57:13 +0000 (GMT)
+X-AuditID: cbfec36d-503ff70000002620-23-628bcafafe5d
+Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.146]) by
+        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id EA.8C.52945.9FACB826; Mon,
+        23 May 2022 13:57:13 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2375.24; Mon, 23 May 2022 10:57:13 -0700
+Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
+        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Mon,
+        23 May 2022 10:57:13 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     "axboe@kernel.dk" <axboe@kernel.dk>,
+        "fio@vger.kernel.org" <fio@vger.kernel.org>
+CC:     Vincent Fu <vincent.fu@samsung.com>
+Subject: [PATCH 6/6] docs: update for huge page size parsing
+Thread-Topic: [PATCH 6/6] docs: update for huge page size parsing
+Thread-Index: AQHYbs6Hei9slfmHO0WfcyJcH7AtaA==
+Date:   Mon, 23 May 2022 17:57:12 +0000
+Message-ID: <20220523175650.130895-7-vincent.fu@samsung.com>
+In-Reply-To: <20220523175650.130895-1-vincent.fu@samsung.com>
+Accept-Language: en-US
 Content-Language: en-US
-To:     Ankit Kumar <ankit.kumar@samsung.com>
-Cc:     fio@vger.kernel.org, krish.reddy@samsung.com, joshi.k@samsung.com,
-        anuj20.g@samsung.com
-References: <20220523131039.17697-1-ankit.kumar@samsung.com>
- <CGME20220523131619epcas5p47af80b04e8015a949e157875f0cb0f07@epcas5p4.samsung.com>
- <20220523131039.17697-4-ankit.kumar@samsung.com>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20220523131039.17697-4-ankit.kumar@samsung.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [105.128.2.176]
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-CFilter-Loop: Reflected
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKIsWRmVeSWpSXmKPExsWy7djXc7q/TnUnGbxby2qx+m4/m8XHWS+Y
+        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoErY+PbyILlJhXr/jSyNDBO0exi5OSQEDCRaDh3
+        hg3EFhJYySixY7NwFyMXkN3KJNF1rpUJpujbrH9QRWsZJSavVoco+sQoceDLTSYIZxmjxOr/
+        z4EcDg42AU2Jt/sLQBpEBMIkfj7azgpiMwuoSxzbuAFskLCAjcS06VeZIWocJdbtPMYCYetJ
+        XL78DyzOIqAqsejfVUYQmxeofsqEo2BzOAVsJXYu+swOYjMKiEl8P7WGCWK+uMStJ/OhjhaU
+        WDR7DzOELSbxb9dDNghbUeL+95fsEPV6EjemTmGDsLUlli18zQyxS1Di5MwnLBD1khIHV9xg
+        AflRQqCTQ+LepCtQQ10k9kzrYISwpSWmr7kMVdTOKDF34xeo7gmMEtefSEHY1hL/Oq9BbeaT
+        +PvrEeMERuVZSA6fheSoWUiOmoXkqAWMLKsYxUuLi3PTU4sN81LL9YoTc4tL89L1kvNzNzEC
+        U8bpf4dzdzDuuPVR7xAjEwfjIUYJDmYlEd7tiR1JQrwpiZVVqUX58UWlOanFhxilOViUxHmX
+        ZW5IFBJITyxJzU5NLUgtgskycXBKNTB18xT0fkq9oChjy2NQs/1X/3wVTe8HS7OebbNTC/X6
+        98N5mui98KksrgdPGTM/PSP2hy3gz5yQ5S9U1sxqPVLS8nNCf0lfjKDTFrHzF3abbtwqPevU
+        EnHj7dp3874948yqMFrP6PVy96wr67k7lV2tDn9Q2hT2w9c4r+YQD/OOG9Z1KU/O7XrSI9mq
+        0uS+WGFOX3nQ1bwTYVOMGQ/ECpv0F/90PG7YpCxU/KXDklUif8U1x6sue69PbJpQ6MORnl/9
+        SNLJLWUOd2PjsxdX1nQn7Nf/fiEp6CdLBYN8RUGCtFTEsszSJxMmWD429Q+/v2nHjO23a3b6
+        dhyttUiRfHM/JPbk3Ib3Kz5oH7Z98luJpTgj0VCLuag4EQD8927CiAMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCapPvzVHeSwbdluhar7/azWXyc9YLZ
+        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyNr6NLFhuUrHuTyNLA+MUzS5GTg4JAROJb7P+
+        sXUxcnEICaxmlGiYs4EFwvnEKLFl10tWCGcZo8TFY2uYuxg5ONgENCXe7i8A6RYRCJP4+Wg7
+        K4jNLKAucWzjBjYQW1jARmLa9KvMEDWOEut2HmOBsPUkLl/+BxZnEVCVWPTvKiOIzQtUP2XC
+        UbA5QkD21y8dYPWcArYSOxd9ZgexGQXEJL6fWsMEsUtc4taT+UwQHwhILNlznhnCFpV4+fgf
+        K4StKHH/+0t2iHo9iRtTp7BB2NoSyxa+ZobYKyhxcuYTFoh6SYmDK26wTGAUn4VkxSwk7bOQ
+        tM9C0r6AkWUVo3hpcXFuekWxcV5quV5xYm5xaV66XnJ+7iZGYFyd/nc4ZgfjvVsf9Q4xMnEw
+        HmKU4GBWEuHdntiRJMSbklhZlVqUH19UmpNafIhRmoNFSZzXI3ZivJBAemJJanZqakFqEUyW
+        iYNTqoEpMe3Ln8v7Q1SOKYbUzN161lvldlP7NMarskqWyokv8q4Evzn2Tyn2njOPsni/b0Tp
+        y1478ZBtTyZvOmbv5ZEwf+2+7SvlWl6qhD9Qc7AVW8G/3SX0rs1vlaMbZrmFXztVnZh+KkRT
+        zWuiw35/iSCtBbPC/hSLGHnKz3tVEjBz26pTurOid+97+m2Z6u2A5Ubh/9wvacQ79M8+n3+0
+        iWfX0kS2DAYxLtkP+86cjDy3fLn6xEqlN8ECco73th5+oZGQaiTLybv07pRLtRYTOJXm72pN
+        uGbfxJnz0PTY3ElRvNkmjZ7Wi0xSX38ok33tUBV+Xry60rn429SeWw6+z1c/uFXbwpb+JaPr
+        6pd9NXuVWIozEg21mIuKEwF7w/mSGgMAAA==
+X-CMS-MailID: 20220523175713uscas1p26b156f466662f82746e78f1673e4461a
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220523175713uscas1p26b156f466662f82746e78f1673e4461a
+References: <20220523175650.130895-1-vincent.fu@samsung.com>
+        <CGME20220523175713uscas1p26b156f466662f82746e78f1673e4461a@uscas1p2.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 5/23/22 7:10 AM, Ankit Kumar wrote:
-> From: Anuj Gupta <anuj20.g@samsung.com>
-> 
-> Add a new I/O engine (io_uring_cmd) for sending uring passthrough
-> commands. The new I/O engine will be built only if its support is
-> present in the kernel. It will also use most of the existing
-> helpers from the I/O engine io_uring. The I/O preparation,
-> completion, file open, file close and post init paths are going to
-> differ and hence io_uring_cmd will have its own helper for them.
-> 
-> Add a new io_uring_cmd engine specific flag to support nvme
-> passthrough commands. Filename name for this specific option
-> must specify nvme-ns generic character device (dev/ngXnY).
-> This provides io_uring_cmd I/O engine a bandwidth to support
-> various passthrough commands in future.
-> 
-> The engine_pos and engine_data fields in struct fio_file are
-> separated now. This will help I/O engine io_uring_cmd to store
-> specific data as well as keep track of register files.
-> 
-> The supported io_uring_cmd options are:
->  * registerfiles
->  * sqthread_poll
->  * sqthread_poll_cpu
->  * cmd_type
+Update the discussion of huge pages to note that fio will try to parse
+/proc/meminfo for the hugepage size if it is not specified. Also note
+that the default value used when parsing fails is platform specific.
 
-This looks way better than the earlier versions.
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+---
+ HOWTO.rst | 38 ++++++++++++++++++++++----------------
+ fio.1     | 29 ++++++++++++++++-------------
+ 2 files changed, 38 insertions(+), 29 deletions(-)
 
-> co-authored-By: Anuj Gupta <anuj20.g@samsung.com>
-> co-authored-By: Ankit Kumar <ankit.kumar@samsung.com>
-
-Since the patch is attributed to Anuj as the author, that co-authored-by
-should be a Signed-off-by from Anuf.
-
-> diff --git a/engines/io_uring.c b/engines/io_uring.c
-> index 1e15647e..75248624 100644
-> --- a/engines/io_uring.c
-> +++ b/engines/io_uring.c
-> @@ -25,6 +25,17 @@
->  #include "../os/linux/io_uring.h"
->  #include "cmdprio.h"
->  
-> +#ifdef CONFIG_LIBNVME
-> +#include <sys/stat.h>
-> +#include <nvme/ioctl.h>
-> +#endif
-> +
-> +#ifdef CONFIG_URING_CMD
-> +enum uring_cmd_type {
-> +	FIO_URING_CMD_NVME = 1,
-> +};
-> +#endif
-
-Can you briefly describe why we need the libnvme dependency? What does
-libnvme get us here? Would it be too cumbersome to do it without
-libnvme?
-
-In general, fio tries to not rely on external libraries unless there's a
-strong reason to do so.
-
-> @@ -270,6 +289,23 @@ static struct fio_option options[] = {
->  		.category = FIO_OPT_C_ENGINE,
->  		.group	= FIO_OPT_G_IOURING,
->  	},
-> +#ifdef CONFIG_URING_CMD
-> +	{
-> +		.name	= "cmd_type",
-> +		.lname	= "Uring cmd type",
-> +		.type	= FIO_OPT_STR,
-> +		.off1	= offsetof(struct ioring_options, cmd_type),
-> +		.help	= "Specify uring-cmd type",
-> +		.posval = {
-> +			  { .ival = "nvme",
-> +			    .oval = FIO_URING_CMD_NVME,
-> +			    .help = "Issue nvme-uring-cmd",
-> +			  },
-> +		},
-> +		.category = FIO_OPT_C_ENGINE,
-> +		.group	= FIO_OPT_G_IOURING,
-> +	},
-> +#endif
->  	{
->  		.name	= NULL,
->  	},
-
-Options should always be visible regardless of availability, they should
-just error if not available at runtime.
-
-> @@ -373,6 +409,61 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
->  	return 0;
->  }
->  
-> +#ifdef CONFIG_URING_CMD
-> +static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
-> +{
-> +	struct ioring_data *ld = td->io_ops_data;
-> +	struct ioring_options *o = td->eo;
-> +	struct fio_file *f = io_u->file;
-> +	struct io_uring_sqe *sqe;
-> +
-> +	/* nvme_uring_cmd case */
-> +	if (o->cmd_type == FIO_URING_CMD_NVME) {
-> +#ifdef CONFIG_LIBNVME
-> +		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
-> +		struct nvme_uring_cmd *cmd;
-> +		unsigned long long slba;
-> +		unsigned long long nlb;
-> +
-> +		sqe = &ld->sqes[(io_u->index) << 1];
-> +
-> +		if (o->registerfiles) {
-> +			sqe->fd = f->engine_pos;
-> +			sqe->flags = IOSQE_FIXED_FILE;
-> +		} else {
-> +			sqe->fd = f->fd;
-> +		}
-> +		sqe->opcode = IORING_OP_URING_CMD;
-> +		sqe->user_data = (unsigned long) io_u;
-> +		sqe->cmd_op = NVME_URING_CMD_IO;
-> +
-> +		slba = io_u->offset / data->lba_size;
-> +		nlb = (io_u->xfer_buflen / data->lba_size) - 1;
-> +
-> +		cmd = (struct nvme_uring_cmd *)sqe->cmd;
-> +		memset(cmd, 0, sizeof(struct nvme_uring_cmd));
-> +
-> +		/* cdw10 and cdw11 represent starting lba */
-> +		cmd->cdw10 = slba & 0xffffffff;
-> +		cmd->cdw11 = slba >> 32;
-> +		/* cdw12 represent number of lba's for read/write */
-> +		cmd->cdw12 = nlb;
-> +		cmd->addr = (__u64)io_u->xfer_buf;
-> +		cmd->data_len = io_u->xfer_buflen;
-> +		cmd->nsid = data->nsid;
-> +
-> +		if (io_u->ddir == DDIR_READ)
-> +			cmd->opcode = nvme_cmd_read;
-> +		if (io_u->ddir == DDIR_WRITE)
-> +			cmd->opcode = nvme_cmd_write;
-> +
-> +		return 0;
-> +#endif
-> +	}
-> +	return -EINVAL;
-> +}
-> +#endif
-
-The nested ifdefs don't do much here for readability. Would be cleaner
-as:
-
-#ifdef CONFIG_URING_CMD
-static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
-{
-#ifndef CONFIG_LIBNVME
-	return -EINVAL;
-#else
-	struct ioring_data *ld = td->io_ops_data;
-	struct ioring_options *o = td->eo;
-	struct fio_file *f = io_u->file;
-	struct io_uring_sqe *sqe;
-
-	/* nvme_uring_cmd case */
-	if (o->cmd_type != FIO_URING_CMD_NVME)
-		return -EINVAL;
-
-	...
-#endif /* CONFIG_LIBNVME */
-}
-#endif /* CONFIG_URING_CMD */
-
-> +#ifdef CONFIG_URING_CMD
-> +static int fio_ioring_cmd_queue_init(struct thread_data *td)
-> +{
-> +	struct ioring_data *ld = td->io_ops_data;
-> +	struct ioring_options *o = td->eo;
-> +	int depth = td->o.iodepth;
-> +	struct io_uring_params p;
-> +	int ret;
-> +
-> +	memset(&p, 0, sizeof(p));
-> +
-> +	if (o->hipri && o->cmd_type == FIO_URING_CMD_NVME) {
-> +		log_err("fio: nvme_uring_cmd doesn't support hipri\n");
-> +		return ENOTSUP;
-> +	}
-> +	if (o->hipri)
-> +		p.flags |= IORING_SETUP_IOPOLL;
-> +	if (o->sqpoll_thread) {
-> +		p.flags |= IORING_SETUP_SQPOLL;
-> +		if (o->sqpoll_set) {
-> +			p.flags |= IORING_SETUP_SQ_AFF;
-> +			p.sq_thread_cpu = o->sqpoll_cpu;
-> +		}
-> +	}
-> +	if (o->cmd_type == FIO_URING_CMD_NVME) {
-> +		p.flags |= IORING_SETUP_SQE128;
-> +		p.flags |= IORING_SETUP_CQE32;
-> +	}
-> +
-> +	/*
-> +	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
-> +	 * than that.
-> +	 */
-> +	p.flags |= IORING_SETUP_CQSIZE;
-> +	p.cq_entries = depth;
-> +
-> +retry:
-> +	ret = syscall(__NR_io_uring_setup, depth, &p);
-> +	if (ret < 0) {
-> +		if (errno == EINVAL && p.flags & IORING_SETUP_CQSIZE) {
-> +			p.flags &= ~IORING_SETUP_CQSIZE;
-> +			goto retry;
-> +		}
-> +		return ret;
-> +	}
-> +
-> +	ld->ring_fd = ret;
-> +
-> +	fio_ioring_probe(td);
-> +
-> +	if (o->fixedbufs) {
-> +		log_err("fio: io_uring_cmd doesn't support fixedbufs\n");
-> +		return ENOTSUP;
-> +	}
-> +	return fio_ioring_mmap(ld, &p);
-
-This is a limitation of the current implementation, which means that
-once the kernel does support that, your fio still won't work until you
-update it.
-
-In other words, this should just fail at runtime if someone attempts to
-use it.
-
-In general, cleanup all the ifdef mess, it's all over the place. It
-makes it really hard to maintain, way too easy to make a change that
-works on your setup and breaks if you don't have eg libnvme. Rather than
-do it in the middle of functions, have stubs that just return an error
-if the right options aren't available. That makes the actual functional
-functions easier to read too, rather than having ifdefs sprinkled
-everywhere.
-
--- 
-Jens Axboe
-
+diff --git a/HOWTO.rst b/HOWTO.rst
+index eee386c1..1e9fa353 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -1818,19 +1818,20 @@ Buffers and memory
+ 			Use GPU memory as the buffers for GPUDirect RDMA benchmark.
+ 			The :option:`ioengine` must be `rdma`.
+=20
+-	The area allocated is a function of the maximum allowed bs size for the j=
+ob,
+-	multiplied by the I/O depth given. Note that for **shmhuge** and
+-	**mmaphuge** to work, the system must have free huge pages allocated. Thi=
+s
+-	can normally be checked and set by reading/writing
+-	:file:`/proc/sys/vm/nr_hugepages` on a Linux system. Fio assumes a huge p=
+age
+-	is 4MiB in size. So to calculate the number of huge pages you need for a
+-	given job file, add up the I/O depth of all jobs (normally one unless
+-	:option:`iodepth` is used) and multiply by the maximum bs set. Then divid=
+e
+-	that number by the huge page size. You can see the size of the huge pages=
+ in
+-	:file:`/proc/meminfo`. If no huge pages are allocated by having a non-zer=
+o
+-	number in `nr_hugepages`, using **mmaphuge** or **shmhuge** will fail. Al=
+so
+-	see :option:`hugepage-size`.
+-
++        The area allocated is a function of the maximum allowed bs size fo=
+r the job,
++        multiplied by the I/O depth given. Note that for **shmhuge** and
++        **mmaphuge** to work, the system must have free huge pages allocat=
+ed. This
++        can normally be checked and set by reading/writing
++        :file:`/proc/sys/vm/nr_hugepages` on a Linux system. To calculate =
+the
++        number of huge pages you need for a given job file, add up the I/O
++        depth of all jobs (normally one unless :option:`iodepth` is used) =
+and
++        multiply by the maximum bs set. Then divide that number by the hug=
+e
++        page size. You can see the size of huge pages in
++        :file:`/proc/meminfo`. If no huge pages are allocated by having a
++        non-zero number in `nr_hugepages`, using **mmaphuge** or **shmhuge=
+**
++        will fail. See the option :option:`hugepage-size` below to set the
++        hugepage size for fio to use.=20
++       =20
+ 	**mmaphuge** also needs to have hugetlbfs mounted and the file location
+ 	should point there. So if it's mounted in :file:`/huge`, you would use
+ 	`mem=3Dmmaphuge:/huge/somefile`.
+@@ -1849,9 +1850,14 @@ Buffers and memory
+ .. option:: hugepage-size=3Dint
+=20
+ 	Defines the size of a huge page. Must at least be equal to the system
+-	setting, see :file:`/proc/meminfo`. Defaults to 4MiB.  Should probably
+-	always be a multiple of megabytes, so using ``hugepage-size=3DXm`` is the
+-	preferred way to set this to avoid setting a non-pow-2 bad value.
++        setting, see :file:`/proc/meminfo`. Should probably always be a
++        multiple of megabytes, so using ``hugepage-size=3DXm`` is the pref=
+erred
++        way to set this to avoid setting a non-pow-2 bad value. If this op=
+tion
++        is not specified fio will attempt to parse :file:`/proc/meminfo` t=
+o
++        obtain the system huge page size. If this fails fio will use a pla=
+tform
++        specific default of 2-4MiB. This value is used by fio to ensure th=
+at
++        the amount of memory requested for I/O buffers will be a multiple =
+of
++        the huge page size.
+=20
+ .. option:: lockmem=3Dint
+=20
+diff --git a/fio.1 b/fio.1
+index ded7bbfc..a7b647bf 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1629,15 +1629,14 @@ The \fBioengine\fR must be \fBrdma\fR.
+ The area allocated is a function of the maximum allowed bs size for the jo=
+b,
+ multiplied by the I/O depth given. Note that for \fBshmhuge\fR and
+ \fBmmaphuge\fR to work, the system must have free huge pages allocated. Th=
+is
+-can normally be checked and set by reading/writing
+-`/proc/sys/vm/nr_hugepages' on a Linux system. Fio assumes a huge page
+-is 4MiB in size. So to calculate the number of huge pages you need for a
+-given job file, add up the I/O depth of all jobs (normally one unless
+-\fBiodepth\fR is used) and multiply by the maximum bs set. Then divide
+-that number by the huge page size. You can see the size of the huge pages =
+in
+-`/proc/meminfo'. If no huge pages are allocated by having a non-zero
+-number in `nr_hugepages', using \fBmmaphuge\fR or \fBshmhuge\fR will fail.=
+ Also
+-see \fBhugepage\-size\fR.
++can normally be checked and set by reading/writing `/proc/sys/vm/nr_hugepa=
+ges'
++on a Linux system.  To calculate the number of huge pages you need for a g=
+iven
++job file, add up the I/O depth of all jobs (normally one unless \fBiodepth=
+\fR
++is used) and multiply by the maximum bs set. Then divide that number by th=
+e
++huge page size. You can see the size of the huge pages in `/proc/meminfo'.=
+ If
++no huge pages are allocated by having a non-zero number in `nr_hugepages',
++using \fBmmaphuge\fR or \fBshmhuge\fR will fail. See the \fBhugepage\-size=
+\fR
++option below to set the huge page size for fio to use.
+ .P
+ \fBmmaphuge\fR also needs to have hugetlbfs mounted and the file location
+ should point there. So if it's mounted in `/huge', you would use
+@@ -1655,10 +1654,14 @@ of subsequent I/O memory buffers is the sum of the =
+\fBiomem_align\fR and
+ \fBbs\fR used.
+ .TP
+ .BI hugepage\-size \fR=3D\fPint
+-Defines the size of a huge page. Must at least be equal to the system
+-setting, see `/proc/meminfo'. Defaults to 4MiB. Should probably
+-always be a multiple of megabytes, so using `hugepage\-size=3DXm' is the
+-preferred way to set this to avoid setting a non-pow-2 bad value.
++Defines the size of a huge page. Must at least be equal to the system sett=
+ing,
++see `/proc/meminfo'. Should probably always be a multiple of megabytes, so
++using `hugepage\-size=3DXm' is the preferred way to set this to avoid sett=
+ing a
++non-pow-2 bad value. If this option is not specified fio will attempt to p=
+arse
++`/proc/meminfo' to obtain the system huge page size. If this fails, fio wi=
+ll
++use a platform-specific default of 2-4MiB. This value is used by fio to en=
+sure
++that the amount of memory requested for I/O buffers will be a multiple of =
+the
++huge page size.
+ .TP
+ .BI lockmem \fR=3D\fPint
+ Pin the specified amount of memory with \fBmlock\fR\|(2). Can be used to
+--=20
+2.25.1
