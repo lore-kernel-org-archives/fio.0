@@ -2,210 +2,315 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F155C433F5
-	for <fio@archiver.kernel.org>; Mon, 23 May 2022 16:29:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 570BDC433EF
+	for <fio@archiver.kernel.org>; Mon, 23 May 2022 16:44:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238791AbiEWQ3g (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 23 May 2022 12:29:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38952 "EHLO
+        id S238854AbiEWQoz (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 23 May 2022 12:44:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238809AbiEWQ3f (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 23 May 2022 12:29:35 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06592689B6
-        for <fio@vger.kernel.org>; Mon, 23 May 2022 09:29:30 -0700 (PDT)
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20220523162927epoutp01445565490a1c48ab305c41f70302ff93~xyNfU_Yoa0946809468epoutp01k
-        for <fio@vger.kernel.org>; Mon, 23 May 2022 16:29:27 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20220523162927epoutp01445565490a1c48ab305c41f70302ff93~xyNfU_Yoa0946809468epoutp01k
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653323367;
-        bh=Ws79hfofKdzrLuhNSOqXyB19rBDD4PkPMZB7VgTbWTU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayhJG/c+BlanYbE+e/hx583ikIcgo72+8Amg0+AIPiBpyzmXfmi8UCp84XBZsidh9
-         qpjj9gsbuuG6BksMgWu7ENVIjguySSzuYKfwJzjSHBtY+hdCB7OxYtoqCjhkJi0AJD
-         Obc7ATjFiqMq5NnnZ9ycMky1ClReHOpyRs153hTk=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
-        20220523162926epcas5p16d5d53d4ed221c21081eb006e664edcf~xyNet7FA41532115321epcas5p1k;
-        Mon, 23 May 2022 16:29:26 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.177]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4L6N84009Yz4x9Pq; Mon, 23 May
-        2022 16:29:23 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        60.DF.09827.366BB826; Tue, 24 May 2022 01:29:23 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-        20220523131629epcas5p4ab9e6158624a4c6a055bb0e410f46079~xvlAMI-lh1988519885epcas5p4X;
-        Mon, 23 May 2022 13:16:29 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220523131629epsmtrp125ae42104e68dc9154d628fbd0520636~xvlALf7oY2128021280epsmtrp1-;
-        Mon, 23 May 2022 13:16:29 +0000 (GMT)
-X-AuditID: b6c32a4a-b51ff70000002663-cb-628bb6634589
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        84.E2.11276.D298B826; Mon, 23 May 2022 22:16:29 +0900 (KST)
-Received: from test-zns.sa.corp.samsungelectronics.net (unknown
-        [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20220523131628epsmtip2c9acdd18fc15631879996027966313f3~xvk-NU-Je1953719537epsmtip25;
-        Mon, 23 May 2022 13:16:28 +0000 (GMT)
-From:   Ankit Kumar <ankit.kumar@samsung.com>
-To:     axboe@kernel.dk
+        with ESMTP id S238862AbiEWQoz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 23 May 2022 12:44:55 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE7D69733
+        for <fio@vger.kernel.org>; Mon, 23 May 2022 09:44:53 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id n10so14560424pjh.5
+        for <fio@vger.kernel.org>; Mon, 23 May 2022 09:44:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=BLCwRKcbogo5ckQEc6KqHDFBgp1NhYLWHDNRxLOZsls=;
+        b=zpTFazIsZ1sP9ICck82/q9T18lVZYDh7e/PYIKWzv0YTS4W27nbg+PF+oOCmY4Kb/B
+         Kbxes/lrWa0xE+9EOwI3R8Lu5JGtHioXK0W7eNUZXKy154h7gRy4LpMiawrrkSfHeVpU
+         4vZv5os8a/NxU7eKdjZoMwucm2nZEc4IPYyiHYcnAmOyIjUSXJVW5NE3aoZAFcABSWgY
+         rUCz7IAFuIMRl9ZM/eW7Ulg4VV+sLOEf0PIxiNIBK1i5hoR0mX4M7ojXuaU5cpv/zM1o
+         /EQQZRofFKnDAgWAZPkstI+wXBZ2oURB8W9/SdwKT7ATMUKBYirIjoGSpqts3gQVgkdL
+         AnXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=BLCwRKcbogo5ckQEc6KqHDFBgp1NhYLWHDNRxLOZsls=;
+        b=SxIzAjjl170xayazq6T4GIUkPlkbGIHZc6ZCQK2YqxWNUpUcQIhf11Uk2LrvW95/a/
+         gg5Qkl+9/5eN6ErUu9JaH3jnZ7CUlHTWvdPNm41mqW+TNmD7gValdtnG9TufN7Zp40lc
+         sKtGGVA/2/hpokh35RWTHtsCn0JO8ckIBKXHxd0up6knR8zSOm6fdM83FHCJyseamUIX
+         +YM7Gh5E4Y8gim6knAGBkiUm7vbblBo8lKpwQYLdk8jK3laRfYquAC8TE60Ue74FXdTO
+         jxqfypAaGqY3CzFfsU9TWfi1tNhxAAdiWxM7AEbjstl6NHKly6T4Dmosj3n2vmzXPo9L
+         /q9A==
+X-Gm-Message-State: AOAM533sr74csqu9e2rUXu3PKVLERvrm8UbzLnUhzBO3m+l1IciuNhfX
+        p5Odt52Vu+tHKbKYUeOTgZR2WQ==
+X-Google-Smtp-Source: ABdhPJygnPGKMejWW2Yh13a6QcvtnHYJSUfxCIgbkmtV2V25JHqCeIiHZAobxvL3YSVGIzPgrW5jUw==
+X-Received: by 2002:a17:902:edd1:b0:158:8318:b51e with SMTP id q17-20020a170902edd100b001588318b51emr23956065plk.89.1653324292742;
+        Mon, 23 May 2022 09:44:52 -0700 (PDT)
+Received: from [192.168.1.100] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id c13-20020a170903234d00b0015f0dcd1579sm3810785plh.9.2022.05.23.09.44.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 May 2022 09:44:52 -0700 (PDT)
+Message-ID: <be576bfa-49e8-aa05-5163-6133e9137695@kernel.dk>
+Date:   Mon, 23 May 2022 10:44:50 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 3/7] engines/io_uring: add new I/O engine for uring
+ passthrough support
+Content-Language: en-US
+To:     Ankit Kumar <ankit.kumar@samsung.com>
 Cc:     fio@vger.kernel.org, krish.reddy@samsung.com, joshi.k@samsung.com,
-        anuj20.g@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 7/7] examples: add 2 example job file for io_uring_cmd
- engine
-Date:   Mon, 23 May 2022 18:40:39 +0530
-Message-Id: <20220523131039.17697-8-ankit.kumar@samsung.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220523131039.17697-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrEKsWRmVeSWpSXmKPExsWy7bCmhm7ytu4kg1+LLCzWXPnNbtE04S+z
-        xeq7/WwWH2e9YLY4+v8tm8XCjcuYHNg8Lp8t9ejbsorR4/MmuQDmqGybjNTElNQihdS85PyU
-        zLx0WyXv4HjneFMzA0NdQ0sLcyWFvMTcVFslF58AXbfMHKC1SgpliTmlQKGAxOJiJX07m6L8
-        0pJUhYz84hJbpdSClJwCkwK94sTc4tK8dL281BIrQwMDI1OgwoTsjIPNG1kL2kQrnr64wNLA
-        eEKwi5GTQ0LARGLtmpOMXYxcHEICuxkltnzbwgzhfGKUOPHuDSuE841R4uqdg+wwLSv/dzJB
-        JPYySkxZvBKqpZVJYsvyHhaQKjYBbYlXb28wg9giAsIS+ztaWUCKmAVaGCUaV68FKxIW8Jfo
-        uHYfrIhFQFViVe8nJhCbV8BGYvLan2wQ6+QlVm84AFbDKWArcefDP7BtEgLb2CUOv2xmhihy
-        kfjaswOqQVji1fEtULdKSbzsb4OysyUaH/2FqimR2HlrO1SvvcTFPX+BFnMAXacpsX6XPkRY
-        VmLqqXVg9zAL8En0/n7CBBHnldgxD8ZWlfh77zYLhC0tcfPdVSjbQ2L5/V3skFCZwCgx7+gc
-        lgmMcrMQVixgZFzFKJlaUJybnlpsWmCUl1oOj7fk/NxNjODEpeW1g/Hhgw96hxiZOBgPMUpw
-        MCuJ8G5P7EgS4k1JrKxKLcqPLyrNSS0+xGgKDMCJzFKiyfnA1JlXEm9oYmlgYmZmZmJpbGao
-        JM4r8L8xSUggPbEkNTs1tSC1CKaPiYNTqoGpuvqwn1rYr+uvn80Ok8k6du1HVMiUebaMOazP
-        hBcVp77P7HpXETHHSVp7yk/+rX5uvyXY+ab6cN1Yw6L2KcbO9lTW5BnC7omnpijtWhF2U9m3
-        01PbcUmjnNisCdmbw/kyvxx6tWqSidjW/L//bN2Wfy56cWX+jotX2izW9X5hbNtSVagbP+9c
-        qHPbLNF5z5jP7D3zP6/JR+Rfm4vZq+VfJHbETNlu2dA6U1d2itUc93sp9jfX6rOenLi62qSy
-        rnnB9L+Lnb/FOE+0ef6G9+Mt288XVOxnJfNvf7cx6tL1pF/Hq3svBj11eh9acjtVd25clwGr
-        5VXeJ6uOMTxelrnY2CI/uoy9SVXfuHlP1e8HSizFGYmGWsxFxYkAP1n8EeUDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpjluLIzCtJLcpLzFFi42LZdlhJXle3szvJYGoTp8WaK7/ZLZom/GW2
-        WH23n83i46wXzBZH/79ls1i4cRmTA5vH5bOlHn1bVjF6fN4kF8AcxWWTkpqTWZZapG+XwJVx
-        sHkja0GbaMXTFxdYGhhPCHYxcnJICJhIrPzfydTFyMUhJLCbUWLanbmsXYwcQAlpiYXrEyFq
-        hCVW/nvODlHTzCTx+eBLFpAEm4C2xKu3N5hBbBGgov0drSwgRcwCXYwSPZ2nmEASwgK+Em0H
-        1zOC2CwCqhKrej+BxXkFbCQmr/3JBrFBXmL1hgNggzgFbCXufPjHDHKEEFDNjh8hExj5FjAy
-        rGKUTC0ozk3PLTYsMMxLLdcrTswtLs1L10vOz93ECA4qLc0djNtXfdA7xMjEwXiIUYKDWUmE
-        d3tiR5IQb0piZVVqUX58UWlOavEhRmkOFiVx3gtdJ+OFBNITS1KzU1MLUotgskwcnFINTBdW
-        bo1VadD+9vi1za68Bd8XiL13P/Vwwv/PLHrcDDtlxTbxLNfNDbe6m3v29fJOPQ92E43NDxsq
-        WKRc6vOiMmbcYNesSWbQmVFf7nxiL38R+5vLHO96z9zraE9+9/fwm8VTZ+4Rymth/+1e86Ws
-        X4Lxc+GDNdV/171sbF19Wpl/07njrk0TtrB9qLhvuiAz897qX0XHDRaq31dPevJFj+N5gfXV
-        es35/Etu6YcmLn/a65zaw/pXPfLWSk3XgG3b9x5asUJbu3bKVt6bSVdebf62OaYg8OLUDXkG
-        R3U3slUxt1adNC+fa5jzqGP/iVMbprHbnQxq1lhvZnzgvXr/hecqYpKT1rS2qM17fPX0uzQl
-        luKMREMt5qLiRADAqq9SmQIAAA==
-X-CMS-MailID: 20220523131629epcas5p4ab9e6158624a4c6a055bb0e410f46079
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220523131629epcas5p4ab9e6158624a4c6a055bb0e410f46079
+        anuj20.g@samsung.com
 References: <20220523131039.17697-1-ankit.kumar@samsung.com>
-        <CGME20220523131629epcas5p4ab9e6158624a4c6a055bb0e410f46079@epcas5p4.samsung.com>
+ <CGME20220523131619epcas5p47af80b04e8015a949e157875f0cb0f07@epcas5p4.samsung.com>
+ <20220523131039.17697-4-ankit.kumar@samsung.com>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20220523131039.17697-4-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Anuj Gupta <anuj20.g@samsung.com>
+On 5/23/22 7:10 AM, Ankit Kumar wrote:
+> From: Anuj Gupta <anuj20.g@samsung.com>
+> 
+> Add a new I/O engine (io_uring_cmd) for sending uring passthrough
+> commands. The new I/O engine will be built only if its support is
+> present in the kernel. It will also use most of the existing
+> helpers from the I/O engine io_uring. The I/O preparation,
+> completion, file open, file close and post init paths are going to
+> differ and hence io_uring_cmd will have its own helper for them.
+> 
+> Add a new io_uring_cmd engine specific flag to support nvme
+> passthrough commands. Filename name for this specific option
+> must specify nvme-ns generic character device (dev/ngXnY).
+> This provides io_uring_cmd I/O engine a bandwidth to support
+> various passthrough commands in future.
+> 
+> The engine_pos and engine_data fields in struct fio_file are
+> separated now. This will help I/O engine io_uring_cmd to store
+> specific data as well as keep track of register files.
+> 
+> The supported io_uring_cmd options are:
+>  * registerfiles
+>  * sqthread_poll
+>  * sqthread_poll_cpu
+>  * cmd_type
 
-examples/uring-cmd-ng.fio has usage for conventional nvme-ns char device
-examples/uring-cmd-zoned.fio has usage for ZNS nvme-ns char device
+This looks way better than the earlier versions.
 
-Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
----
- examples/uring-cmd-ng.fio    | 35 +++++++++++++++++++++++++++++++
- examples/uring-cmd-zoned.fio | 40 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 75 insertions(+)
- create mode 100644 examples/uring-cmd-ng.fio
- create mode 100644 examples/uring-cmd-zoned.fio
+> co-authored-By: Anuj Gupta <anuj20.g@samsung.com>
+> co-authored-By: Ankit Kumar <ankit.kumar@samsung.com>
 
-diff --git a/examples/uring-cmd-ng.fio b/examples/uring-cmd-ng.fio
-new file mode 100644
-index 00000000..db4292d3
---- /dev/null
-+++ b/examples/uring-cmd-ng.fio
-@@ -0,0 +1,35 @@
-+; io_uring_cmd I/O engine for nvme-ns generic character device
-+;
-+; This job-file is intended to be used as:
-+;
-+; fio examples/uring-cmd-ng.fio \
-+;   --section=default \
-+;   --ioengine=io_uring_cmd \
-+;   --sqthread_poll=1 \
-+;   --cmd_type=nvme \
-+;   --filename=/dev/ng0n1
-+;
-+; NOTE: If you want to override the default bs, iodepth, and workload, then
-+; invoke it as:
-+;
-+; FIO_BS="512" FIO_RW="write" FIO_IODEPTH=16 fio examples/uring-cmd-ng.fio \
-+;   --section=override --ioengine=io_uring_cmd --cmd_type=nvme \
-+;   --filename=/dev/ng0n1
-+;
-+[global]
-+rw=randread
-+size=12G
-+iodepth=1
-+bs=4K
-+thread=1
-+time_based=1
-+runtime=7
-+ramp_time=3
-+norandommap=1
-+
-+[default]
-+
-+[override]
-+rw=${FIO_RW}
-+iodepth=${FIO_IODEPTH}
-+bs=${FIO_BS}
-diff --git a/examples/uring-cmd-zoned.fio b/examples/uring-cmd-zoned.fio
-new file mode 100644
-index 00000000..2649d2fe
---- /dev/null
-+++ b/examples/uring-cmd-zoned.fio
-@@ -0,0 +1,40 @@
-+; io_uring_cmd I/O engine for nvme-ns generic zoned character device
-+;
-+; NOTE: with write workload iodepth must be set to 1 as there is no IO
-+; scheduler.
-+;
-+; Writes 1GB at QD1 using 4K BS and verifies it.
-+;
-+; This job-file is intended to be used as:
-+;
-+; fio examples/uring-cmd-zoned.fio \
-+;   --section=default \
-+;   --ioengine=io_uring_cmd \
-+;   --sqthread_poll=1 \
-+;   --cmd_type=nvme \
-+;   --filename=/dev/ng0n1
-+;
-+; NOTE: If you want to override the default bs, size and workload, then
-+; invoke it as:
-+;
-+; FIO_BS="32k" FIO_RW="randwrite" FIO_SIZE="2G" fio \
-+;   examples/uring-cmd-zoned.fio --section=override --ioengine=io_uring_cmd \
-+;   --sqthread_poll=1 --cmd_type=nvme --filename=/dev/ng0n1
-+;
-+[global]
-+zonemode=zbd
-+rw=write
-+size=1G
-+iodepth=1
-+bs=4K
-+thread=1
-+ramp_time=1
-+norandommap=1
-+verify=crc32c
-+
-+[default]
-+
-+[override]
-+rw=${FIO_RW}
-+size=${FIO_SIZE}
-+bs=${FIO_BS}
+Since the patch is attributed to Anuj as the author, that co-authored-by
+should be a Signed-off-by from Anuf.
+
+> diff --git a/engines/io_uring.c b/engines/io_uring.c
+> index 1e15647e..75248624 100644
+> --- a/engines/io_uring.c
+> +++ b/engines/io_uring.c
+> @@ -25,6 +25,17 @@
+>  #include "../os/linux/io_uring.h"
+>  #include "cmdprio.h"
+>  
+> +#ifdef CONFIG_LIBNVME
+> +#include <sys/stat.h>
+> +#include <nvme/ioctl.h>
+> +#endif
+> +
+> +#ifdef CONFIG_URING_CMD
+> +enum uring_cmd_type {
+> +	FIO_URING_CMD_NVME = 1,
+> +};
+> +#endif
+
+Can you briefly describe why we need the libnvme dependency? What does
+libnvme get us here? Would it be too cumbersome to do it without
+libnvme?
+
+In general, fio tries to not rely on external libraries unless there's a
+strong reason to do so.
+
+> @@ -270,6 +289,23 @@ static struct fio_option options[] = {
+>  		.category = FIO_OPT_C_ENGINE,
+>  		.group	= FIO_OPT_G_IOURING,
+>  	},
+> +#ifdef CONFIG_URING_CMD
+> +	{
+> +		.name	= "cmd_type",
+> +		.lname	= "Uring cmd type",
+> +		.type	= FIO_OPT_STR,
+> +		.off1	= offsetof(struct ioring_options, cmd_type),
+> +		.help	= "Specify uring-cmd type",
+> +		.posval = {
+> +			  { .ival = "nvme",
+> +			    .oval = FIO_URING_CMD_NVME,
+> +			    .help = "Issue nvme-uring-cmd",
+> +			  },
+> +		},
+> +		.category = FIO_OPT_C_ENGINE,
+> +		.group	= FIO_OPT_G_IOURING,
+> +	},
+> +#endif
+>  	{
+>  		.name	= NULL,
+>  	},
+
+Options should always be visible regardless of availability, they should
+just error if not available at runtime.
+
+> @@ -373,6 +409,61 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_URING_CMD
+> +static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
+> +{
+> +	struct ioring_data *ld = td->io_ops_data;
+> +	struct ioring_options *o = td->eo;
+> +	struct fio_file *f = io_u->file;
+> +	struct io_uring_sqe *sqe;
+> +
+> +	/* nvme_uring_cmd case */
+> +	if (o->cmd_type == FIO_URING_CMD_NVME) {
+> +#ifdef CONFIG_LIBNVME
+> +		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
+> +		struct nvme_uring_cmd *cmd;
+> +		unsigned long long slba;
+> +		unsigned long long nlb;
+> +
+> +		sqe = &ld->sqes[(io_u->index) << 1];
+> +
+> +		if (o->registerfiles) {
+> +			sqe->fd = f->engine_pos;
+> +			sqe->flags = IOSQE_FIXED_FILE;
+> +		} else {
+> +			sqe->fd = f->fd;
+> +		}
+> +		sqe->opcode = IORING_OP_URING_CMD;
+> +		sqe->user_data = (unsigned long) io_u;
+> +		sqe->cmd_op = NVME_URING_CMD_IO;
+> +
+> +		slba = io_u->offset / data->lba_size;
+> +		nlb = (io_u->xfer_buflen / data->lba_size) - 1;
+> +
+> +		cmd = (struct nvme_uring_cmd *)sqe->cmd;
+> +		memset(cmd, 0, sizeof(struct nvme_uring_cmd));
+> +
+> +		/* cdw10 and cdw11 represent starting lba */
+> +		cmd->cdw10 = slba & 0xffffffff;
+> +		cmd->cdw11 = slba >> 32;
+> +		/* cdw12 represent number of lba's for read/write */
+> +		cmd->cdw12 = nlb;
+> +		cmd->addr = (__u64)io_u->xfer_buf;
+> +		cmd->data_len = io_u->xfer_buflen;
+> +		cmd->nsid = data->nsid;
+> +
+> +		if (io_u->ddir == DDIR_READ)
+> +			cmd->opcode = nvme_cmd_read;
+> +		if (io_u->ddir == DDIR_WRITE)
+> +			cmd->opcode = nvme_cmd_write;
+> +
+> +		return 0;
+> +#endif
+> +	}
+> +	return -EINVAL;
+> +}
+> +#endif
+
+The nested ifdefs don't do much here for readability. Would be cleaner
+as:
+
+#ifdef CONFIG_URING_CMD
+static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
+{
+#ifndef CONFIG_LIBNVME
+	return -EINVAL;
+#else
+	struct ioring_data *ld = td->io_ops_data;
+	struct ioring_options *o = td->eo;
+	struct fio_file *f = io_u->file;
+	struct io_uring_sqe *sqe;
+
+	/* nvme_uring_cmd case */
+	if (o->cmd_type != FIO_URING_CMD_NVME)
+		return -EINVAL;
+
+	...
+#endif /* CONFIG_LIBNVME */
+}
+#endif /* CONFIG_URING_CMD */
+
+> +#ifdef CONFIG_URING_CMD
+> +static int fio_ioring_cmd_queue_init(struct thread_data *td)
+> +{
+> +	struct ioring_data *ld = td->io_ops_data;
+> +	struct ioring_options *o = td->eo;
+> +	int depth = td->o.iodepth;
+> +	struct io_uring_params p;
+> +	int ret;
+> +
+> +	memset(&p, 0, sizeof(p));
+> +
+> +	if (o->hipri && o->cmd_type == FIO_URING_CMD_NVME) {
+> +		log_err("fio: nvme_uring_cmd doesn't support hipri\n");
+> +		return ENOTSUP;
+> +	}
+> +	if (o->hipri)
+> +		p.flags |= IORING_SETUP_IOPOLL;
+> +	if (o->sqpoll_thread) {
+> +		p.flags |= IORING_SETUP_SQPOLL;
+> +		if (o->sqpoll_set) {
+> +			p.flags |= IORING_SETUP_SQ_AFF;
+> +			p.sq_thread_cpu = o->sqpoll_cpu;
+> +		}
+> +	}
+> +	if (o->cmd_type == FIO_URING_CMD_NVME) {
+> +		p.flags |= IORING_SETUP_SQE128;
+> +		p.flags |= IORING_SETUP_CQE32;
+> +	}
+> +
+> +	/*
+> +	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
+> +	 * than that.
+> +	 */
+> +	p.flags |= IORING_SETUP_CQSIZE;
+> +	p.cq_entries = depth;
+> +
+> +retry:
+> +	ret = syscall(__NR_io_uring_setup, depth, &p);
+> +	if (ret < 0) {
+> +		if (errno == EINVAL && p.flags & IORING_SETUP_CQSIZE) {
+> +			p.flags &= ~IORING_SETUP_CQSIZE;
+> +			goto retry;
+> +		}
+> +		return ret;
+> +	}
+> +
+> +	ld->ring_fd = ret;
+> +
+> +	fio_ioring_probe(td);
+> +
+> +	if (o->fixedbufs) {
+> +		log_err("fio: io_uring_cmd doesn't support fixedbufs\n");
+> +		return ENOTSUP;
+> +	}
+> +	return fio_ioring_mmap(ld, &p);
+
+This is a limitation of the current implementation, which means that
+once the kernel does support that, your fio still won't work until you
+update it.
+
+In other words, this should just fail at runtime if someone attempts to
+use it.
+
+In general, cleanup all the ifdef mess, it's all over the place. It
+makes it really hard to maintain, way too easy to make a change that
+works on your setup and breaks if you don't have eg libnvme. Rather than
+do it in the middle of functions, have stubs that just return an error
+if the right options aren't available. That makes the actual functional
+functions easier to read too, rather than having ifdefs sprinkled
+everywhere.
+
 -- 
-2.17.1
+Jens Axboe
 
