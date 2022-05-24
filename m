@@ -2,60 +2,60 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22722C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC905C4332F
 	for <fio@archiver.kernel.org>; Tue, 24 May 2022 14:23:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237015AbiEXOXh (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 24 May 2022 10:23:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44722 "EHLO
+        id S236237AbiEXOXi (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 24 May 2022 10:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236237AbiEXOXd (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S238157AbiEXOXd (ORCPT <rfc822;fio@vger.kernel.org>);
         Tue, 24 May 2022 10:23:33 -0400
 Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63887606CF
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6379C5FF36
         for <fio@vger.kernel.org>; Tue, 24 May 2022 07:23:31 -0700 (PDT)
-Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220524142327usoutp026b9b6e9d9ff4d542296ce0ccc9b73d85~yEIwlvYZc2888728887usoutp020;
-        Tue, 24 May 2022 14:23:27 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220524142327usoutp026b9b6e9d9ff4d542296ce0ccc9b73d85~yEIwlvYZc2888728887usoutp020
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653402207;
-        bh=nIqvQiL6D7471V0XYuoIuXab2ubUvzeTv6Mcsu0sU7o=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=jlLWaokQ4St/QLqx1nbKGAyFXZ+d/6JJuWlDPfgz7ZctaSSAEUIC6T5NJBbEUu0t2
-         bLsC0DswfMImDFqLJMAMpnI0sZP756n+Gr+Yo/gq3e/fV1aZ+PGsCofPslW/xhmJzE
-         bQAesXzMJbSD+4FPEEN60gAg1NNivavntuI/nYuY=
-Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
-        [203.254.195.112]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220524142326uscas1p17a2bc5729cfdb4caca7a25f3d0526e17~yEIwFgKjq2168621686uscas1p1T;
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220524142326usoutp0240a427d9a7387f07bb137b5c0172ac88~yEIvxP_Si2811228112usoutp02F;
         Tue, 24 May 2022 14:23:26 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges3new.samsung.com (USCPEMTA) with SMTP id 0E.C3.09749.E5AEC826; Tue,
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220524142326usoutp0240a427d9a7387f07bb137b5c0172ac88~yEIvxP_Si2811228112usoutp02F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1653402206;
+        bh=izL47GJbq9R79VVqB1qGhtRqoK/EDmUxEgcLfPKxwhA=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=KASX17YyMBag50sZl2CYKtpxIZ3RXfKuhUjGTEk3n4AbYrslaqY52zgvhtZBC/0dS
+         48VBIRvzd3mBxXmKguTMiI4SFUMYzJ1mfN8fxd1NozV9QMM+y+idoFwktmhUDvTe4h
+         N/nJ5xOuGJdf8ta9ALq4XOpE+eCIlesvWXyQY2ro=
+Received: from ussmges1new.samsung.com (u109.gpu85.samsung.co.kr
+        [203.254.195.109]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220524142326uscas1p1cee919946a3ed8177b814c7b9c8fc1c7~yEIvl1x4-1921619216uscas1p1c;
+        Tue, 24 May 2022 14:23:26 +0000 (GMT)
+Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
+        ussmges1new.samsung.com (USCPEMTA) with SMTP id 91.D5.09760.E5AEC826; Tue,
         24 May 2022 10:23:26 -0400 (EDT)
 Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
         [203.254.195.92]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220524142326uscas1p27c8cd9fd4f344840227201790f922bb5~yEIvyPoW12647626476uscas1p2q;
-        Tue, 24 May 2022 14:23:26 +0000 (GMT)
-X-AuditID: cbfec370-a6bff70000002615-4f-628cea5ed714
+        20220524142325uscas1p269230921c0498a1c6205a132440d2f30~yEIvIcBqx0353603536uscas1p2B;
+        Tue, 24 May 2022 14:23:25 +0000 (GMT)
+X-AuditID: cbfec36d-503ff70000002620-d5-628cea5ed57a
 Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.145]) by
-        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id 27.77.52945.E5AEC826; Tue,
-        24 May 2022 10:23:26 -0400 (EDT)
+        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id C6.77.52945.D5AEC826; Tue,
+        24 May 2022 10:23:25 -0400 (EDT)
 Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
         SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2375.24; Tue, 24 May 2022 07:23:25 -0700
+        15.1.2375.24; Tue, 24 May 2022 07:23:24 -0700
 Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
         SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Tue,
-        24 May 2022 07:23:25 -0700
+        24 May 2022 07:23:24 -0700
 From:   Vincent Fu <vincent.fu@samsung.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH v2 5/5] docs: update discussion of huge page sizes
-Thread-Topic: [PATCH v2 5/5] docs: update discussion of huge page sizes
-Thread-Index: AQHYb3nUOny+39wFuky5AohFolyfqA==
+Subject: [PATCH v2 3/5] HOWTO: add blank line for prettier formatting
+Thread-Topic: [PATCH v2 3/5] HOWTO: add blank line for prettier formatting
+Thread-Index: AQHYb3nUIyBSlFWcB06Pne3zouW/wg==
 Date:   Tue, 24 May 2022 14:23:24 +0000
-Message-ID: <20220524142229.135808-6-vincent.fu@samsung.com>
+Message-ID: <20220524142229.135808-4-vincent.fu@samsung.com>
 In-Reply-To: <20220524142229.135808-1-vincent.fu@samsung.com>
 Accept-Language: en-US
 Content-Language: en-US
@@ -66,159 +66,65 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGIsWRmVeSWpSXmKPExsWy7djXc7pxr3qSDNZe0bJYfbefzeLjrBfM
-        Dkwel8+WenzeJBfAFMVlk5Kak1mWWqRvl8CVsWVKccE+9YpdjS9ZGhinyHcxcnJICJhI7O5Z
-        ytbFyMUhJLCSUWJ663cmCKeVSaJ56nZWmKq2N+eZIRJrGSWOPP0CVfWJUeLl7u1Q/csYJZ70
-        tgO1cHCwCWhKvN1fANItIhAm8fMRxCRmAXWJYxs3sIHYwgJOEjPXn2KFqHGX+HVhEyOErScx
-        99IfZhCbRUBVYsfbTUwgNq+AjcSRc+1MIOM5BWwlFv6QBQkzCohJfD+1hglivLjErSfzmSCO
-        FpRYNHsPM4QtJvFv10M2CFtR4v73l+wQ9XoSN6ZOYYOwtSWWLXzNDLFKUOLkzCcsEPWSEgdX
-        3GABeVFCoJND4t2lRmiouEic/XEcqkhaYvqay1BF7YwSczd+gUpMYJS4/kQKwraW+Nd5DWoz
-        n8TfX48YJzAqz0Jy+CwkR81CctQsJEctYGRZxSheWlycm55abJyXWq5XnJhbXJqXrpecn7uJ
-        EZg0Tv87XLCD8datj3qHGJk4GA8xSnAwK4nwpoT1JAnxpiRWVqUW5ccXleakFh9ilOZgURLn
-        XZa5IVFIID2xJDU7NbUgtQgmy8TBKdXAFPu/PnGa14bZlyyOijw+y1/JzlS9SiUuoWWCCN9T
-        2YMf5jU9/XQ1ZkeSesNs45sO5V8+3Z2yLjC740zP3yUuuV7Xfss3C71lcOvJ3PH4NNOp7G+J
-        H5in+y/9kPJ3xv2zfXybpzSFT50X8OqVsc3sHO20ieuFeoK5jXN1vCYob3q+PTYlVEK3cnI4
-        b07RdKGci5lmP+zmTHPZptnIw7r56JnEhPeFjE76Xmwbtl5pu8s43fPXl21zP+z9w3569vpV
-        vYqrPzyYeZ6tSOdu1o4ueXkj8VrrzfYbQi5OcmVM6bpUrZjjuO1A47ekP02H/jN6LwrZIfom
-        dv5Mrh9OL9vaIjL830yLX+7JfWERk4zdLiWW4oxEQy3mouJEAEy+Z/+JAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpjkeLIzCtJLcpLzFFi42LJbGCaqBv3qifJYF2viMXqu/1sFh9nvWB2
-        YPK4fLbU4/MmuQCmKC6blNSczLLUIn27BK6MLVOKC/apV+xqfMnSwDhFvouRk0NCwESi7c15
-        5i5GLg4hgdWMEl1LvzBBOJ8YJS5uOQrlLGOUePjhJVsXIwcHm4CmxNv9BSDdIgJhEj8fbWcF
-        sZkF1CWObdzABmILCzhJzFx/ihWixl3i14VNjBC2nsTcS3+YQWwWAVWJHW83MYHYvAI2EkfO
-        tYPZQkD20Rt7wFZxCthKLPwhCxJmFBCT+H5qDRPEKnGJW0/mM0E8ICCxZM95ZghbVOLl43+s
-        ELaixP3vL9kh6vUkbkydwgZha0ssW/iaGWKtoMTJmU9YIOolJQ6uuMEygVF8FpIVs5C0z0LS
-        PgtJ+wJGllWM4qXFxbnpFcXGeanlesWJucWleel6yfm5mxiBUXX63+GYHYz3bn3UO8TIxMF4
-        iFGCg1lJhDclrCdJiDclsbIqtSg/vqg0J7X4EKM0B4uSOK9H7MR4IYH0xJLU7NTUgtQimCwT
-        B6dUA1Og/LtJYtFtKw8dUzz6Wv2U7YzbIopsW73FWBZVneS+/nNRnHt91dZNzh6sP1/pu3ux
-        7i/q81ypVD33yJ7ry9zmbT6k96qm50ox48X1Ln27zpnmzv6TP3vP25+2b/u23MgUsvc6/EnV
-        v3g1dxDjx/cnRWfM1hYLWPr0oFn7s+v7Vz2wycyRq3+tc/zf4ie2W35/DFV5qXX1f9Ksx2s8
-        Ms/PryyraHZPe/ym+OHv+F/fn0hHbz9vJVmxRqr0UVmlSnc270+umKuRf1mjuE4wdPu1nXjC
-        svZwfKqClPTLW1m75U680Y87NKtXIuB7R4fKtElMOmG7ny7pfiLsdkxdje33j0MlQs5/p8X9
-        nHj4xrSnSizFGYmGWsxFxYkAc6xZ1hkDAAA=
-X-CMS-MailID: 20220524142326uscas1p27c8cd9fd4f344840227201790f922bb5
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGIsWRmVeSWpSXmKPExsWy7djX87pxr3qSDD4s5rFYfbefzeLjrBfM
+        Dkwel8+WenzeJBfAFMVlk5Kak1mWWqRvl8CVcfzSEbaCn6wVcy//Z2pg/MDSxcjBISFgIrH0
+        W0QXIxeHkMBKRonnh38xQTitTBLT/xxk7GLkBCt6vrObHSKxllHi2ecNzBDOJ0aJPc0/GSGc
+        ZYwSN75DzGUT0JR4u78ApFtEIEzi56PtrCA2s4C6xLGNG9hAbGEBV4mWm0/ZIWq8JD7tWcgE
+        YetJ7P14kwXEZhFQldjxdhNYnFfARmJR/y9GkPGcArYSC3/IgoQZBcQkvp9awwQxXlzi1pP5
+        TBBHC0osmr2HGcIWk/i36yEbhK0ocf/7S3aIej2JG1OnsEHY2hLLFr5mhlglKHFy5hMWiHpJ
+        iYMrbrCAvCgh0MohsXXxOXaIhIvE7mWvWCFsaYnpay5DFbUzSszd+AWqewKjxPUnUhC2tcS/
+        zmtQm/kk/v56xDiBUXkWksNnITlqFpKjZiE5agEjyypG8dLi4tz01GLDvNRyveLE3OLSvHS9
+        5PzcTYzApHH63+HcHYw7bn3UO8TIxMF4iFGCg1lJhDclrCdJiDclsbIqtSg/vqg0J7X4EKM0
+        B4uSOO+yzA2JQgLpiSWp2ampBalFMFkmDk6pBqbitDVs+3b6cR3cpKSvudhz/f+rfyQEljNe
+        f3XyJuc07gczVl17eyX70Vfnzs3PpojbCAesSfy2eNpFVz3Tvr3MPBlvo2X5pA2mqKhHFrMc
+        78/5ddfhtrDgb0/WRZ9iih7NcGfYHFzYsvGG0xuLbVmysoUJU53rPHJDTUTVOV8fbpPbkLvg
+        4kMnF+nd1pJLWvf+fC0jsn0tw8YKk9073t6qZc/8E6X0u2J17e1TpvcnLjWculu6RZL3HbOR
+        Zc/r1L+rbzTN+bDxjqfZr3OzlVPPvbM/aRDO9tjhQtbhvxvm3pzW3nrzrd4SsW3W98+9aDwo
+        p2Gh/lwhVGaTQUhoX29vq2zbu4QVe59/2Pf8opqkEktxRqKhFnNRcSIApef4hYkDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCaqBv7qifJYMIrNYvVd/vZLD7OesHs
+        wORx+Wypx+dNcgFMUVw2Kak5mWWpRfp2CVwZxy8dYSv4yVox9/J/pgbGDyxdjJwcEgImEs93
+        drN3MXJxCAmsZpSY9+UxG4TziVHizaPHUJlljBJLHi4CauHgYBPQlHi7vwCkW0QgTOLno+2s
+        IDazgLrEsY0b2EBsYQFXiZabT9kharwkPu1ZyARh60ns/XgTbDOLgKrEjrebwOK8AjYSi/p/
+        MYLYQkD20Rt72EBWcQrYSiz8IQsSZhQQk/h+ag0TxCpxiVtP5jNBPCAgsWTPeWYIW1Ti5eN/
+        rBC2osT97y/ZIer1JG5MncIGYWtLLFv4mhliraDEyZlPoAEhKXFwxQ2WCYzis5CsmIWkfRaS
+        9llI2hcwsqxiFC8tLs5Nryg2zkst1ytOzC0uzUvXS87P3cQIjKvT/w7H7GC8d+uj3iFGJg7G
+        Q4wSHMxKIrwpYT1JQrwpiZVVqUX58UWlOanFhxilOViUxHk9YifGCwmkJ5akZqemFqQWwWSZ
+        ODilGpis0upb1kqWFl6qe7pwV3lq87f18WURZ72O7Pq1c+a+DmeRZ47V9zpzHSPs9n3d6G4q
+        oeJ8jf90Fhdbj7CAbGh83+GcSXVHC/PmOCUweuWc4xPhvvVEZy5XwzNVtmK5LGFRLrOptVe3
+        tW3OCXzxL+V+cNzV0jM5Dy7nuJQJyfP++yAqfOJOM8PXyz3O4csvzebhVn699MWTJYubsoz2
+        ZR0TFPr/oCekYs+V1QodL3b22eTl1AtN4dhZJNHh6XQgsOexIlPmv13ScU9Ud61UEoq7Vuj8
+        4fLV91G+/88u9TdZGFQdnKR5u1z42zKeFV96D6mzX3zxwfVL/KPcsCKN/L0xa5+lyJWyr7e4
+        xdm9UomlOCPRUIu5qDgRACMHwaQaAwAA
+X-CMS-MailID: 20220524142325uscas1p269230921c0498a1c6205a132440d2f30
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20220524142326uscas1p27c8cd9fd4f344840227201790f922bb5
+X-CMS-RootMailID: 20220524142325uscas1p269230921c0498a1c6205a132440d2f30
 References: <20220524142229.135808-1-vincent.fu@samsung.com>
-        <CGME20220524142326uscas1p27c8cd9fd4f344840227201790f922bb5@uscas1p2.samsung.com>
+        <CGME20220524142325uscas1p269230921c0498a1c6205a132440d2f30@uscas1p2.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Note that the default huge page size is either 2 or 4 MiB, depending on
-the platform. Also mention /sys/kernel/mm/hugepages/ as another place to
-see the supported huge page sizes.
+There needs to be a blank line between the name of an option and its
+description in order for the formatting to look nice at
+https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-ignore-zone=
+-limits,
 
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- HOWTO.rst | 25 ++++++++++++++-----------
- fio.1     | 19 ++++++++++---------
- 2 files changed, 24 insertions(+), 20 deletions(-)
+ HOWTO.rst | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/HOWTO.rst b/HOWTO.rst
-index eee386c1..58d02fa2 100644
+index 84bea5c5..eee386c1 100644
 --- a/HOWTO.rst
 +++ b/HOWTO.rst
-@@ -1823,13 +1823,14 @@ Buffers and memory
- 	**mmaphuge** to work, the system must have free huge pages allocated. Thi=
-s
- 	can normally be checked and set by reading/writing
- 	:file:`/proc/sys/vm/nr_hugepages` on a Linux system. Fio assumes a huge p=
-age
--	is 4MiB in size. So to calculate the number of huge pages you need for a
--	given job file, add up the I/O depth of all jobs (normally one unless
--	:option:`iodepth` is used) and multiply by the maximum bs set. Then divid=
-e
--	that number by the huge page size. You can see the size of the huge pages=
- in
--	:file:`/proc/meminfo`. If no huge pages are allocated by having a non-zer=
-o
--	number in `nr_hugepages`, using **mmaphuge** or **shmhuge** will fail. Al=
-so
--	see :option:`hugepage-size`.
-+        is 2 or 4MiB in size depending on the platform. So to calculate th=
-e
-+        number of huge pages you need for a given job file, add up the I/O
-+        depth of all jobs (normally one unless :option:`iodepth` is used) =
-and
-+        multiply by the maximum bs set. Then divide that number by the hug=
-e
-+        page size. You can see the size of the huge pages in
-+        :file:`/proc/meminfo`. If no huge pages are allocated by having a
-+        non-zero number in `nr_hugepages`, using **mmaphuge** or **shmhuge=
-**
-+        will fail. Also see :option:`hugepage-size`.
+@@ -1064,6 +1064,7 @@ Target file/device
+ 	thread/process.
 =20
- 	**mmaphuge** also needs to have hugetlbfs mounted and the file location
- 	should point there. So if it's mounted in :file:`/huge`, you would use
-@@ -1848,10 +1849,12 @@ Buffers and memory
-=20
- .. option:: hugepage-size=3Dint
-=20
--	Defines the size of a huge page. Must at least be equal to the system
--	setting, see :file:`/proc/meminfo`. Defaults to 4MiB.  Should probably
--	always be a multiple of megabytes, so using ``hugepage-size=3DXm`` is the
--	preferred way to set this to avoid setting a non-pow-2 bad value.
-+        Defines the size of a huge page. Must at least be equal to the sys=
-tem
-+        setting, see :file:`/proc/meminfo` and
-+        :file:`/sys/kernel/mm/hugepages/`. Defaults to 2 or 4MiB depending=
- on
-+        the platform.  Should probably always be a multiple of megabytes, =
-so
-+        using ``hugepage-size=3DXm`` is the preferred way to set this to a=
-void
-+        setting a non-pow-2 bad value.
-=20
- .. option:: lockmem=3Dint
-=20
-diff --git a/fio.1 b/fio.1
-index ded7bbfc..5f057574 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1631,11 +1631,11 @@ multiplied by the I/O depth given. Note that for \f=
-Bshmhuge\fR and
- \fBmmaphuge\fR to work, the system must have free huge pages allocated. Th=
-is
- can normally be checked and set by reading/writing
- `/proc/sys/vm/nr_hugepages' on a Linux system. Fio assumes a huge page
--is 4MiB in size. So to calculate the number of huge pages you need for a
--given job file, add up the I/O depth of all jobs (normally one unless
--\fBiodepth\fR is used) and multiply by the maximum bs set. Then divide
--that number by the huge page size. You can see the size of the huge pages =
-in
--`/proc/meminfo'. If no huge pages are allocated by having a non-zero
-+is 2 or 4MiB in size depending on the platform. So to calculate the number=
- of
-+huge pages you need for a given job file, add up the I/O depth of all jobs
-+(normally one unless \fBiodepth\fR is used) and multiply by the maximum bs=
- set.
-+Then divide that number by the huge page size. You can see the size of the=
- huge
-+pages in `/proc/meminfo'. If no huge pages are allocated by having a non-z=
-ero
- number in `nr_hugepages', using \fBmmaphuge\fR or \fBshmhuge\fR will fail.=
- Also
- see \fBhugepage\-size\fR.
- .P
-@@ -1655,10 +1655,11 @@ of subsequent I/O memory buffers is the sum of the =
-\fBiomem_align\fR and
- \fBbs\fR used.
- .TP
- .BI hugepage\-size \fR=3D\fPint
--Defines the size of a huge page. Must at least be equal to the system
--setting, see `/proc/meminfo'. Defaults to 4MiB. Should probably
--always be a multiple of megabytes, so using `hugepage\-size=3DXm' is the
--preferred way to set this to avoid setting a non-pow-2 bad value.
-+Defines the size of a huge page. Must at least be equal to the system sett=
-ing,
-+see `/proc/meminfo' and `/sys/kernel/mm/hugepages/'. Defaults to 2 or 4MiB
-+depending on the platform. Should probably always be a multiple of megabyt=
-es,
-+so using `hugepage\-size=3DXm' is the preferred way to set this to avoid s=
-etting
-+a non-pow-2 bad value.
- .TP
- .BI lockmem \fR=3D\fPint
- Pin the specified amount of memory with \fBmlock\fR\|(2). Can be used to
+ .. option:: ignore_zone_limits=3Dbool
++
+ 	If this option is used, fio will ignore the maximum number of open
+ 	zones limit of the zoned block device in use, thus allowing the
+ 	option :option:`max_open_zones` value to be larger than the device
 --=20
 2.25.1
