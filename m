@@ -2,70 +2,87 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD5EC433F5
-	for <fio@archiver.kernel.org>; Wed, 25 May 2022 15:23:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0804C433EF
+	for <fio@archiver.kernel.org>; Thu, 26 May 2022 12:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233552AbiEYPX1 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 25 May 2022 11:23:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58936 "EHLO
+        id S233239AbiEZMAJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 26 May 2022 08:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233487AbiEYPX1 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 25 May 2022 11:23:27 -0400
-Received: from mail-qv1-xf31.google.com (mail-qv1-xf31.google.com [IPv6:2607:f8b0:4864:20::f31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2127CAFB12
-        for <fio@vger.kernel.org>; Wed, 25 May 2022 08:23:26 -0700 (PDT)
-Received: by mail-qv1-xf31.google.com with SMTP id y20so16612526qvx.3
-        for <fio@vger.kernel.org>; Wed, 25 May 2022 08:23:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:content-language:to:from
-         :subject:content-transfer-encoding;
-        bh=IaVGGSYmYSo2jU1ajGr0A/okIB2Fu0ji5m9/P5XMZcE=;
-        b=AdPOslsujgY8UgNmzvuJUnTteVfBm4qOtPrWkkojO1fGWAdxjUXDtCW2MaPVOfffI0
-         fZkVqIQUYQ6OMjLOwRijboK/pTL4gexew70xHMd1kb/hYoU3/GtgbKVt/a5Drt/we1kB
-         LpHnqep1WvZ/hTtybHhcs2M8L6O0GSh4zGRPu8tmEWmCK/L1y/1ZcxJFgWx5bHsMLZ29
-         KDcWOjlaHuHsB8tpbBynB8mXe543n2gYfE9+/ZmXCMlM6SGUQoqM/yDm5iE+d/NeFKOK
-         jDY0T6FCc63NkQoXyJz235sbcMQmfoRhHm/mm6R8zcG7Oy+xPJFNEzGWvinjZkj+NpF2
-         3qQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:from:subject:content-transfer-encoding;
-        bh=IaVGGSYmYSo2jU1ajGr0A/okIB2Fu0ji5m9/P5XMZcE=;
-        b=okwSalqpB/tF3uT+keQ7VT8g42zkWXFE7cgALuXlXFy0xcdkg2vVgyIukBGuV9TGKG
-         kvMVYmOOHPsc2NyZQWiS7JchpxqBjp5HOK4XCC4kwNprSYEYdExMm0UFZBkkUPHKY2iI
-         hqw0LzpVYcjP6u71mi68Si5ShGJEtE9oPLB9TR3o9djEacWfWvdohEtLJC6Zyk4kItfn
-         xcVwEKdbpokxqyn+u+MOoPlrsGjO/4LaP5rve9NBg0GqYP8yvFr/2gT7KXGAC2JAvJcS
-         hMjUHuKewVwVNZ9Zg00vTU3vUBHcF9tUB0eHps88xxGlJ91+QD8vD9I/7fYcGspeKSPJ
-         sPZw==
-X-Gm-Message-State: AOAM533zsC/hfKHTt7h79e6ww3a/+KwZChEqT1RxXHd0Iz16QQ3TL7IB
-        7g2jMELagR0xBGjkscstfEDVOztKNGgTIQ==
-X-Google-Smtp-Source: ABdhPJy32OHXTwwec6VUfdbStYIP9Bk85HV6BEFf/9L5JaHJzXwYnJOsypL75QXXrjtbMp8xFvb+hQ==
-X-Received: by 2002:ad4:576d:0:b0:45a:f221:6ba7 with SMTP id r13-20020ad4576d000000b0045af2216ba7mr26880080qvx.14.1653492204765;
-        Wed, 25 May 2022 08:23:24 -0700 (PDT)
-Received: from [192.168.1.218] (pool-173-79-46-23.washdc.fios.verizon.net. [173.79.46.23])
-        by smtp.gmail.com with ESMTPSA id g85-20020a379d58000000b006a0ffae114fsm1372829qke.120.2022.05.25.08.23.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 May 2022 08:23:24 -0700 (PDT)
-Message-ID: <74508867-2a7e-e541-94e1-4678d2fd42a8@gmail.com>
-Date:   Wed, 25 May 2022 11:23:24 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Content-Language: en-US
-To:     "fio@vger.kernel.org" <fio@vger.kernel.org>, gost.dev@samsung.com
-From:   Vincent Fu <vincentfu@gmail.com>
-Subject: Blog post on detecting steady state with fio
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S242491AbiEZMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 26 May 2022 08:00:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E701C8BEA
+        for <fio@vger.kernel.org>; Thu, 26 May 2022 05:00:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=AZNJge3ed3r/y3nQzj4t6XODC+MHa5A3hVbEQPHGi2g=; b=u0E7K1rge0tUaKNixLjG20+Gvu
+        USfuM9UAvuPayADoreEt+jIcWM9NPczjLbTFZDXagqsvqHd7gf9K2VaAK/Z19FNW5xiQzuWW1tMIB
+        3CdDWlZ/RTnN0iMrFEzQK3M9SnF3FrGWlohoAT+rrv9T2NrhBKCB1qLfdz1XF36Z84rd6yxveNx5I
+        hAN80EFGjOjlMVphI1HyIwHAv+eRLqI3tbXopHaAuMI/u8Ke+TbIGJiIA7v2H/MX/V7CMXoXbrSbS
+        nbhhHS4zAaSp1yPNf75td/eLUzs3ZZTDxGOpEgVNOpIaJA6n2fsJFKFJCHPvcNnihMlArFL06gbsf
+        bJ3VPxYw==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nuC9s-001Dnu-OB
+        for fio@vger.kernel.org; Thu, 26 May 2022 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 43D391BC017B; Thu, 26 May 2022 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220526120002.43D391BC017B@kernel.dk>
+Date:   Thu, 26 May 2022 06:00:02 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-I have a new blog post describing fio's steady state detection feature.
+The following changes since commit 6f1a24593c227a4f392f454698aca20e95f0006c:
 
-https://github.com/vincentkfu/fio-blog/wiki/Detecting-steady-state-with-fio
+  Makefile: Suppress `-Wimplicit-fallthrough` when compiling `lex.yy` (2022-05-12 11:02:55 -0600)
 
-Feedback is welcome!
+are available in the Git repository at:
 
-Vincent
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to a2840331c3cae5b2b0a13f99e58ae18375e2e40d:
+
+  Merge branch 'master' of https://github.com/guoanwu/fio (2022-05-25 06:30:06 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'master' of https://github.com/guoanwu/fio
+
+dennis.wu (1):
+      pmemblk.c: fix one logic bug - read always with write
+
+ engines/pmemblk.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/pmemblk.c b/engines/pmemblk.c
+index fc6358e8..849d8a15 100644
+--- a/engines/pmemblk.c
++++ b/engines/pmemblk.c
+@@ -375,10 +375,11 @@ static enum fio_q_status fio_pmemblk_queue(struct thread_data *td,
+ 		off /= pmb->pmb_bsize;
+ 		len /= pmb->pmb_bsize;
+ 		while (0 < len) {
+-			if (io_u->ddir == DDIR_READ &&
+-			   0 != pmemblk_read(pmb->pmb_pool, buf, off)) {
+-				io_u->error = errno;
+-				break;
++			if (io_u->ddir == DDIR_READ) {
++				if (0 != pmemblk_read(pmb->pmb_pool, buf, off)) {
++					io_u->error = errno;
++					break;
++				}
+ 			} else if (0 != pmemblk_write(pmb->pmb_pool, buf, off)) {
+ 				io_u->error = errno;
+ 				break;
