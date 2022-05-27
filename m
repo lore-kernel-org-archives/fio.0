@@ -2,126 +2,138 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AE9FC433EF
-	for <fio@archiver.kernel.org>; Fri, 27 May 2022 17:31:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11737C433EF
+	for <fio@archiver.kernel.org>; Fri, 27 May 2022 18:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354316AbiE0RbD (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 27 May 2022 13:31:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35332 "EHLO
+        id S1352837AbiE0SAL (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 27 May 2022 14:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343620AbiE0RbC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 27 May 2022 13:31:02 -0400
+        with ESMTP id S236195AbiE0SAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 27 May 2022 14:00:11 -0400
 Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9375C362
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 10:31:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 413685044C
+        for <fio@vger.kernel.org>; Fri, 27 May 2022 11:00:09 -0700 (PDT)
 Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220527173059usoutp02b330dadb2c7cd1b13ae757dfd7f8b045~zBoXAcf9n1063910639usoutp02W;
-        Fri, 27 May 2022 17:30:59 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220527173059usoutp02b330dadb2c7cd1b13ae757dfd7f8b045~zBoXAcf9n1063910639usoutp02W
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220527180007usoutp02c331c0c10cd858f27fa9da6c042b4793~zCBygKPfO0503305033usoutp02O;
+        Fri, 27 May 2022 18:00:07 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220527180007usoutp02c331c0c10cd858f27fa9da6c042b4793~zCBygKPfO0503305033usoutp02O
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653672659;
-        bh=b8TgvQgd3PPw4QnbLNesJQy/e3I5sYq8/0c00UEblyo=;
-        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
-        b=g4C57fl61jrbPl4GdjYa2/jGr/2Qdj3rXXaO6Kar7rCiF/pr2goF3viGu/H8d8Cum
-         ICW+dhtrP5s0kAQgqdCefCIfv5binM3HVlWDNxriw1+4PbRt3P6QiJw8q7/W0Xr+OO
-         a3l4FF6jx9mGY6XGJLBZ+Ie/24d3YnDb/5oOcBRE=
-Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
-        [203.254.195.111]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220527173059uscas1p203fe28105d281a7953144f8f6448cac0~zBoWtbtGs3205732057uscas1p2H;
-        Fri, 27 May 2022 17:30:59 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges2new.samsung.com (USCPEMTA) with SMTP id 95.60.09642.3DA01926; Fri,
-        27 May 2022 13:30:59 -0400 (EDT)
+        s=mail20170921; t=1653674407;
+        bh=GZhV0OWBoYXNiRxfMgeZmFuxRiGljnJqaciON/nc+5U=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=btkLQ8Uk1kywDKSrK0aLg/3qCNUwwJvwTSW1ZvdyTSGnwg04uu0hWCZiEvS55l7zj
+         Bos8KBr+ASLLhpTJG0R5JqgMxf19I0rVevvOYYQ+YrnZHPfPPgZuoo4SdnOHMKbHYF
+         YJlfUoCq2374Ah0QTHHpJ/axrFqiYkaW+Gg9ZzP4=
+Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
+        [203.254.195.112]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220527180006uscas1p2daa6aeee692d71cf44471e0d7ba5ca01~zCByHUJkt1586515865uscas1p2a;
+        Fri, 27 May 2022 18:00:06 +0000 (GMT)
+Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
+        ussmges3new.samsung.com (USCPEMTA) with SMTP id D2.5B.09749.6A111926; Fri,
+        27 May 2022 14:00:06 -0400 (EDT)
 Received: from ussmgxs2new.samsung.com (u91.gpu85.samsung.co.kr
-        [203.254.195.91]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220527173059uscas1p20e9182ab39dd219fe0f07a9ffe81b5de~zBoWbA9In2886928869uscas1p2Z;
-        Fri, 27 May 2022 17:30:59 +0000 (GMT)
-X-AuditID: cbfec36f-c15ff700000025aa-42-62910ad3030d
+        [203.254.195.91]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220527180006uscas1p156bdeb0ee1e8bdd23cf421e6ad143d47~zCBxiRm4f1608616086uscas1p1Q;
+        Fri, 27 May 2022 18:00:06 +0000 (GMT)
+X-AuditID: cbfec370-a6bff70000002615-b6-629111a6f10b
 Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.145]) by
-        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id 5D.A5.57470.2DA01926; Fri,
-        27 May 2022 13:30:58 -0400 (EDT)
+        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id 4F.06.57470.5A111926; Fri,
+        27 May 2022 14:00:06 -0400 (EDT)
 Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
         SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2375.24; Fri, 27 May 2022 10:30:58 -0700
+        15.1.2375.24; Fri, 27 May 2022 11:00:05 -0700
 Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
         SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Fri,
-        27 May 2022 10:30:57 -0700
+        27 May 2022 11:00:05 -0700
 From:   Vincent Fu <vincent.fu@samsung.com>
-To:     Ankit Kumar <ankit.kumar@samsung.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>
-CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        "krish.reddy@samsung.com" <krish.reddy@samsung.com>,
-        "joshi.k@samsung.com" <joshi.k@samsung.com>,
-        "anuj20.g@samsung.com" <anuj20.g@samsung.com>
-Subject: RE: [PATCH v2 8/8] examples: add 2 example job file for
- io_uring_cmd engine
-Thread-Topic: [PATCH v2 8/8] examples: add 2 example job file for
-        io_uring_cmd engine
-Thread-Index: AQHYcSB8WMNBHPMJ2Ei4Ph8pYpC2Iq0y/L8Q
-Date:   Fri, 27 May 2022 17:30:57 +0000
-Message-ID: <3f857eda853f4c4187482a6695e6a025@samsung.com>
-In-Reply-To: <20220526144809.14877-9-ankit.kumar@samsung.com>
+To:     Phillip Chen <phillip.a.chen@seagate.com>,
+        "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: RE: Global filename/job filename interaction
+Thread-Topic: Global filename/job filename interaction
+Thread-Index: AQHYcUGUCjTKnR8QjU+fYvsO4iFEEa0y/0mg
+Date:   Fri, 27 May 2022 18:00:05 +0000
+Message-ID: <d9bc84ae5147489c952a602abd6e5ed5@samsung.com>
+In-Reply-To: <SN1PR20MB2144FB2532E1C53EB311F737DCD99@SN1PR20MB2144.namprd20.prod.outlook.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 x-originating-ip: [105.128.2.176]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrCIsWRmVeSWpSXmKPExsWy7djXc7qXuSYmGTxZLmqx+m4/m8XHWS+Y
-        HZg8Lp8t9fi8SS6AKYrLJiU1J7MstUjfLoEr4++uaYwF5zgqprd+Z25g3MDRxcjJISFgIjFt
-        51fmLkYuDiGBlYwSF67cYINwWpkkPj+fyAxT1TvnKStEYi2jxKrtV6GqPjFK7N71GSqzjFGi
-        cUYvkMPBwSagKfF2fwFIt4hAgMTj9h1MIDXMAkcYJT613WUDSQgLhEk0939jhCgKl1h4cCYr
-        hG0kceLnThaQOSwCqhInv1mCmLwCVhINL/RAKjgFbCWePFgO1skoICbx/dQaJhCbWUBc4taT
-        +UwQRwtKLJq9B+oBMYl/ux6yQdiKEve/v2QHGckMdOX6XfoQrYoSU7ofsoPYvECtJ2c+YYEo
-        l5Q4uOIGlD2RQ6L7aymE7SLx9dBeVghbWuLv3WVgH0oItDNKzN34BaphAqPE9SdSELa1xL/O
-        a+wQy/gk/v56xDiBUXkWkrNnIZw0C8lJs5CctICRZRWjeGlxcW56arFRXmq5XnFibnFpXrpe
-        cn7uJkZgwjj973D+Dsbrtz7qHWJk4mA8xCjBwawkwnvhaW+SEG9KYmVValF+fFFpTmrxIUZp
-        DhYlcd5lmRsShQTSE0tSs1NTC1KLYLJMHJxSDUxO2QpVn1h83sg+0JIu7Fl67v3D664FL456
-        MtRvl5t4O3CZWWsIU8RicUtXJreT930tN/nb3qg+VbfrKtNUv+ecMskCiVklW02e/5i+r3Hq
-        CYYjq089/rnJfrrjZOk3FaVXbx2omHv4/vTt3cJTVXit/gU8NC2IcLlyeLqGW9O5bo/19wR+
-        MRvqLZq66zHftOmbpyit4ogJ2iex5u/itukS5W9uPjXpbrba9qM9Y+Iq88uff2j2WZ172M+W
-        Ij0jI8doZcf73dFXDh9m4Pt9LH+LjY1JTL1lwZWSSQqshlsvLutPnvDqcvvap+VvGmy/SUls
-        UXcLiT+zj/X0BB2r5Fmy89/wX1jD9T3kRqpY+9XLSizFGYmGWsxFxYkApvNHqocDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmplkeLIzCtJLcpLzFFi42LJbGCaqHuJa2KSwdleK4vVd/vZLD7OesHs
-        wORx+Wypx+dNcgFMUVw2Kak5mWWpRfp2CVwZf3dNYyw4x1ExvfU7cwPjBo4uRk4OCQETid45
-        T1m7GLk4hARWM0psO/+JCcL5xChx+utHNghnGaPEr01/2LsYOTjYBDQl3u4vAOkWEfCTOP9k
-        KwtIDbPAEUaJT2132UBqhAXCJH7+D4GoCZf4de0WM4RtJHHi504WkBIWAVWJk98sQUxeASuJ
-        hhd6EJsOM0r8O93CBlLOKWAr8eTBckYQm1FATOL7qTVMIDazgLjErSfzmSAeEJBYsuc8M4Qt
-        KvHy8T9WCFtR4v73l2AXMwNdvH6XPkSrosSU7ofsIDavgKDEyZlPWCDKJSUOrrjBMoFRfBaS
-        DbMQumch6Z6FpHsBI8sqRvHS4uLc9Ipio7zUcr3ixNzi0rx0veT83E2MwJg6/e9w9A7G27c+
-        6h1iZOJgPMQowcGsJMJ74WlvkhBvSmJlVWpRfnxRaU5q8SFGaQ4WJXHel1ET44UE0hNLUrNT
-        UwtSi2CyTBycUg1M61+9m215PqNtfrGecbhadcvuW1OVDcOl959Ucjx9ZttiPjuftYYHlmfW
-        1GwrYd0SFW6in3zgkkRH9kQ+g423qsM+St3+wVjoHnLrwJSIoqyF++YusrOdx5L03CU2JZE7
-        /63jLZuM2ArZ4sMHjOKCiq6YuWRvc7djmXP///o7MnUluxYfM2R2+BOnd/QVw6Ztj96mCWvK
-        XYr3zTgrtTiipZdLSf96+u7I1b9ubei9wnhsrbVd9HyRi30npu+Nnte/b9KNUKHjP+NK1k8R
-        FS2wOLZymcubCru+p912HTeLE95tefV56ZZfrlwbRFhmuVpF7D4tUi67bFZdc0Q6l5dO+9+Y
-        qJBKE2Z7u6MdP58psRRnJBpqMRcVJwIAoX0djxgDAAA=
-X-CMS-MailID: 20220527173059uscas1p20e9182ab39dd219fe0f07a9ffe81b5de
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBIsWRmVeSWpSXmKPExsWy7djX87rLBCcmGXy7r2HxcdYLZosfq3cz
+        OTB5tB/+xuLxeZNcAFMUl01Kak5mWWqRvl0CV8b208vZCvp4KrqeTmVpYPzP2cXIySEhYCKx
+        7W4vcxcjF4eQwEpGifsrHrNBOK1MEqtOPGGHqfo7cxkjRGIto8TxhhOsEM4nRomtK/dAtSxj
+        lNhzei5LFyMHB5uApsTb/QUg3SICMRKfZl1hA7GFBUwlvj45zQoRN5OYdaCdEcI2kjh+azHY
+        NhYBVYnPT7aCxXkFrCRerG8BszkFYiX+/rnIDGIzCohJfD+1hgnEZhYQl7j1ZD4TxKWCEotm
+        72GGsMUk/u16yAZhK0rc//6SHaJeR2LB7k9sELa2xLKFr5khdglKnJz5hAWiXlLi4IobLCB/
+        SQg0ckgs2/kaaqiLxIMvMAukJf7eXcYEUdTOKDF34xeo7gmMEtefSEHY1hL/Oq9BbeaT+Pvr
+        ESMogCQEeCU62oQmMCrNQvLDLCT3zUJy3ywk9y1gZFnFKF5aXJybnlpsnJdarlecmFtcmpeu
+        l5yfu4kRmDhO/ztcsIPx1q2PeocYmTgYDzFKcDArifBeeNqbJMSbklhZlVqUH19UmpNafIhR
+        moNFSZx3WeaGRCGB9MSS1OzU1ILUIpgsEwenVANT93JeQ4nwXYobSv955mf6ls/d03Snea94
+        yotzP9N+XFG7cfS1xCvPijmLL7e/uicgbJ23kj3xzfbVJb9aOtjXSgf0T6hR6a/xnm2ydS/r
+        90/zH/KXTHTWEXlXvSto3zTLFzU7j/aWrAwRaXw0j3X7Qk2/FZEOOUaFu42S/KbIhP7bE3pp
+        UrI8e1fiPutFAS8/vehLaXxeHFUuoB720WTp3jcFR9pinizw8IuPilvpulJmzcWPJ86YhNTv
+        WbwsiKXJnHOC6eTIHae2NFSmz8kRL93+drrDlMKDnidu5KmwTz0+X+yv5xeflwa6Of+Tlu1t
+        v1oQdUkigG2b8enC1s4tpWpHo7x9H2pyRIVf2HxKiaU4I9FQi7moOBEAx1z5GYsDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrNLMWRmVeSWpSXmKPExsWS2cA0UXeZ4MQkgwc3WS0+znrBbPFj9W4m
+        ByaP9sPfWDw+b5ILYIrisklJzcksSy3St0vgyth+ejlbQR9PRdfTqSwNjP85uxg5OSQETCT+
+        zlzGCGILCaxmlPi3ybWLkQvI/sQosfLFFWaIxDJGibOrjLsYOTjYBDQl3u4vAAmLCMRIfJp1
+        hQ3EFhYwlfj65DQrRNxMYtaBdkYI20ji+K3F7CA2i4CqxOcnW8HivAJWEi/Wt0Dt3cAosfF2
+        NYjNKRAr8ffPRbC1jAJiEt9PrWECsZkFxCVuPZnPBHGzgMSSPeeZIWxRiZeP/7FC2IoS97+/
+        ZIeo15FYsPsTG4StLbFs4WtmiL2CEidnPmGBqJeUOLjiBssERrFZSFbMQtI+C0n7LCTtCxhZ
+        VjGKlxYX56ZXFBvlpZbrFSfmFpfmpesl5+duYgTGz+l/h6N3MN6+9VHvECMTB+MhRgkOZiUR
+        3gtPe5OEeFMSK6tSi/Lji0pzUosPMUpzsCiJ876MmhgvJJCeWJKanZpakFoEk2Xi4JRqYHI0
+        M97yiXNVkFa5fu32qzIcnZK1jMk76r/q5Ud83xKxULtNf4VUoy7/xYozi7yZFXTP++cf/18R
+        2Gw72efutEnHdnqpa+vp5GjuFeFy+6R5dke0zfZ5rIuDvvxITvcqy8llPfrGSYDn0Jr+kAsR
+        zxnVJy1/7p602lzi4LE6cZkF8nICB0Uv7xbYPe/jWlvP8CKOI6k2B/ZNVptblOP+YCfH6Sgt
+        b5bCBxt0N62uZ5ynv9jm6OMz2vEhu2JTft3YuMAxe/pRAcVApyf3f9XcToj8ffrit7OnJyxP
+        muq2hV//V8HkDeI3TmuvelnyXVI5qyZAyyzl4sy5TSuXODeLdHZp/1V7fiUhk/HWz90zZyux
+        FGckGmoxFxUnAgCML/CFDgMAAA==
+X-CMS-MailID: 20220527180006uscas1p156bdeb0ee1e8bdd23cf421e6ad143d47
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20220526145406epcas5p255f21b413d5dd504ff415bb38577200b
-References: <20220526144809.14877-1-ankit.kumar@samsung.com>
-        <CGME20220526145406epcas5p255f21b413d5dd504ff415bb38577200b@epcas5p2.samsung.com>
-        <20220526144809.14877-9-ankit.kumar@samsung.com>
+X-CMS-RootMailID: 20220526205022uscas1p2e26aefb34e7daa30817eeb6d85a6c8cd
+References: <CGME20220526205022uscas1p2e26aefb34e7daa30817eeb6d85a6c8cd@uscas1p2.samsung.com>
+        <SN1PR20MB2144FB2532E1C53EB311F737DCD99@SN1PR20MB2144.namprd20.prod.outlook.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbmtpdCBLdW1hciBbbWFpbHRv
-OmFua2l0Lmt1bWFyQHNhbXN1bmcuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgTWF5IDI2LCAyMDIy
-IDEwOjQ4IEFNDQo+IFRvOiBheGJvZUBrZXJuZWwuZGsNCj4gQ2M6IGZpb0B2Z2VyLmtlcm5lbC5v
-cmc7IGtyaXNoLnJlZGR5QHNhbXN1bmcuY29tOw0KPiBqb3NoaS5rQHNhbXN1bmcuY29tOyBhbnVq
-MjAuZ0BzYW1zdW5nLmNvbQ0KPiBTdWJqZWN0OiBbUEFUQ0ggdjIgOC84XSBleGFtcGxlczogYWRk
-IDIgZXhhbXBsZSBqb2IgZmlsZSBmb3INCj4gaW9fdXJpbmdfY21kIGVuZ2luZQ0KPiANCj4gRnJv
-bTogQW51aiBHdXB0YSA8YW51ajIwLmdAc2Ftc3VuZy5jb20+DQo+IA0KPiBleGFtcGxlcy91cmlu
-Zy1jbWQtbmcuZmlvIGhhcyB1c2FnZSBmb3IgY29udmVudGlvbmFsIG52bWUtbnMgY2hhcg0KPiBk
-ZXZpY2UNCj4gZXhhbXBsZXMvdXJpbmctY21kLXpvbmVkLmZpbyBoYXMgdXNhZ2UgZm9yIFpOUyBu
-dm1lLW5zIGNoYXIgZGV2aWNlDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBBbnVqIEd1cHRhIDxhbnVq
-MjAuZ0BzYW1zdW5nLmNvbT4NCj4gQ28tYXV0aG9yZWQtYnk6IEFua2l0IEt1bWFyIDxhbmtpdC5r
-dW1hckBzYW1zdW5nLmNvbT4NCj4gLS0tDQoNCkEgbWlub3Igbml0OiBjb25zaWRlciBwdXR0aW5n
-IGlvZW5naW5lPWlvX3VyaW5nX2NtZCBhbmQgY21kX3R5cGU9bnZtZSBkaXJlY3RseSBpbiB0aGUg
-am9iIGZpbGUuDQoNClRlc3RlZC1ieTogVmluY2VudCBGdSA8dmluY2VudC5mdUBzYW1zdW5nLmNv
-bT4NCg0K
+> -----Original Message-----
+> From: Phillip Chen [mailto:phillip.a.chen@seagate.com]
+> Sent: Thursday, May 26, 2022 4:50 PM
+> To: fio@vger.kernel.org
+> Subject: Global filename/job filename interaction
+>=20
+> Hello,
+> I was surprised to find that global filenames are added to job filenames
+> rather than being replaced by job filenames. For instance, running
+> fio --ioengine=3Dlibaio --io_size=3D40k --readwrite=3Drandread --
+> filename=3D/dev/sdd --direct=3D1 --exitall --debug=3Dio --
+> name=3Dsdb_randread_1_4k --filename=3D/dev/sdb
+> with fio-3.30 will show reads to both /dev/sdb and /dev/sdd. Is this
+> expected behaviour? And are there other parameters that work in this
+> way? I couldn't find anything in the job file parameters documentation
+> mentioning this behaviour, but perhaps I was looking in the wrong place
+> or missed it.
+> Thank you for your attention,
+> Phillip Chen
+>=20
+> Seagate Internal
+
+options.c:str_filename_cb parses the filename option. Since fio allows
+users to specify multiple files by separating names with a colon, for
+each filename specified the function calls add_file() to add the new
+file to the job's file array.
+
+I believe what is happening is that sdd was added to the job's file
+array when the [global] section was parsed and then sdb was added to the
+file array when the [sdb_randread_1_4k] section was parsed. So the job
+ran as if you had specified filename=3D/dev/sdd:/dev/sdb.
+
+Unless someone wants to change this behavior perhaps the thing to do is
+to document it.
