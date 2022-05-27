@@ -2,177 +2,120 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B610C4332F
-	for <fio@archiver.kernel.org>; Fri, 27 May 2022 13:48:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E441C433FE
+	for <fio@archiver.kernel.org>; Fri, 27 May 2022 14:46:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240623AbiE0NsX (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 27 May 2022 09:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60434 "EHLO
+        id S1347731AbiE0OqF (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 27 May 2022 10:46:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352731AbiE0NsW (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 27 May 2022 09:48:22 -0400
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0E80369F9
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 06:48:20 -0700 (PDT)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220527134818epoutp029e9bdecbd8ba3c7efd2a619702f505d6~y_l74MwUs0462304623epoutp02T
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 13:48:18 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220527134818epoutp029e9bdecbd8ba3c7efd2a619702f505d6~y_l74MwUs0462304623epoutp02T
+        with ESMTP id S233342AbiE0OqE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 27 May 2022 10:46:04 -0400
+Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2047B13FD4B
+        for <fio@vger.kernel.org>; Fri, 27 May 2022 07:46:03 -0700 (PDT)
+Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220527144601usoutp0114c72ef3efd9f8cd33d7a24b29dca973~y-YUMZ5dZ2859928599usoutp01y;
+        Fri, 27 May 2022 14:46:01 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220527144601usoutp0114c72ef3efd9f8cd33d7a24b29dca973~y-YUMZ5dZ2859928599usoutp01y
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653659299;
-        bh=b0LPmzwqmiaxvwyyyuo2xNDoRVWASVas5OkJ89XOzx0=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=j82h0uGeVNggdKu7mO6l+Nd7NQKsYHwJTKpIRSlZiw7xGqvVxBFNr3KGQyMP7fOd2
-         ZIOBk6oChjqqBZHqv8FfKLAYihi+wn9sQzWWpSeWwHFcDP2C/GUwMqbTBaQSI2kNdX
-         k+pSAdQmMT3Wt6dRs0vUEVuiNjG2QYdnwsWVwWKM=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20220527134818epcas5p4c5331bcc01606e0359f20d74f863b22d~y_l7cQhQ03043630436epcas5p4_;
-        Fri, 27 May 2022 13:48:18 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.177]) by
-        epsnrtp2.localdomain (Postfix) with ESMTP id 4L8mNG3XFSz4x9Pv; Fri, 27 May
-        2022 13:48:14 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        6D.92.10063.E96D0926; Fri, 27 May 2022 22:48:14 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20220527133212epcas5p2ee918aaa701d8fd47bc18a268ce48953~y_X3f7vPJ2662326623epcas5p2D;
-        Fri, 27 May 2022 13:32:12 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220527133212epsmtrp10e6463184cfaaa9b5f267ed3ca74c101~y_X3fO1mx2927029270epsmtrp1-;
-        Fri, 27 May 2022 13:32:12 +0000 (GMT)
-X-AuditID: b6c32a49-4b5ff7000000274f-26-6290d69e208b
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        BB.B5.08924.CD2D0926; Fri, 27 May 2022 22:32:12 +0900 (KST)
-Received: from test-zns (unknown [107.110.206.5]) by epsmtip1.samsung.com
-        (KnoxPortal) with ESMTPA id
-        20220527133211epsmtip13960f1d3c7888091eef7edeecb5b6109~y_X2hopPb0187101871epsmtip1J;
-        Fri, 27 May 2022 13:32:10 +0000 (GMT)
-Date:   Fri, 27 May 2022 18:56:57 +0530
-From:   Ankit Kumar <ankit.kumar@samsung.com>
-To:     Kanchan Joshi <joshi.k@samsung.com>
-Cc:     anuj20.g@samsung.com, krish.reddy@samsung.com, fio@vger.kernel.org,
-        axboe@kernel.dk
-Subject: Re: [PATCH v2 5/8] docs: document options for io_uring_cmd I/O
- engine
-Message-ID: <20220527132657.GC28035@test-zns>
+        s=mail20170921; t=1653662761;
+        bh=sRmTIiHZB96CviJfT18RLoZXE/KCZjCZtdHWIvsC+wk=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=mQ0zhYEUUyHBD/e0sngMGRf2YlPgoffiVzfKBKk12f4cd1muL2Tk8gp4kdDBUO10f
+         039UwX/de/hmj3WHZHEdWF4+9Dv2466v9GZkFHaxNgviaevgROcZoUy9jGhS1Pcn7g
+         05Sn2TwJIbEfp/3ThMEyx/y+87dyOF/c3DQTKDe4=
+Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
+        [203.254.195.112]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220527144600uscas1p276892cd8480a816753f50f6c33468080~y-YTo-OwJ1794017940uscas1p2y;
+        Fri, 27 May 2022 14:46:00 +0000 (GMT)
+Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
+        ussmges3new.samsung.com (USCPEMTA) with SMTP id 56.71.09749.824E0926; Fri,
+        27 May 2022 10:46:00 -0400 (EDT)
+Received: from ussmgxs2new.samsung.com (u91.gpu85.samsung.co.kr
+        [203.254.195.91]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220527144600uscas1p186b4d096dfe33b6eaf326c406e5a29b7~y-YTPan-u1446214462uscas1p1q;
+        Fri, 27 May 2022 14:46:00 +0000 (GMT)
+X-AuditID: cbfec370-a6bff70000002615-4b-6290e4288cf1
+Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.146]) by
+        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id FC.13.57470.724E0926; Fri,
+        27 May 2022 10:45:59 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2375.24; Fri, 27 May 2022 07:45:59 -0700
+Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
+        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Fri,
+        27 May 2022 07:45:58 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     Ankit Kumar <ankit.kumar@samsung.com>,
+        "axboe@kernel.dk" <axboe@kernel.dk>
+CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "krish.reddy@samsung.com" <krish.reddy@samsung.com>,
+        "joshi.k@samsung.com" <joshi.k@samsung.com>,
+        "anuj20.g@samsung.com" <anuj20.g@samsung.com>
+Subject: RE: [PATCH v2 3/8] nvme: add nvme opcodes, structures and helper
+ functions
+Thread-Topic: [PATCH v2 3/8] nvme: add nvme opcodes, structures and helper
+        functions
+Thread-Index: AQHYcSBrMr2Im5piY0WW8UedfBpca60yzLqg
+Date:   Fri, 27 May 2022 14:45:58 +0000
+Message-ID: <9e2905ec01eb4350b1896491fc29dc8b@samsung.com>
+In-Reply-To: <20220526144809.14877-4-ankit.kumar@samsung.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [105.128.2.176]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <20220527065403.GB23680@test-zns>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgk+LIzCtJLcpLzFFi42LZdlhTU3fetQlJBjc2Slo0TfjLbLH6bj+b
-        xcdZL5gtjv5/y2axcOMyJgdWj8tnSz36tqxi9Pi8SS6AOSrbJiM1MSW1SCE1Lzk/JTMv3VbJ
-        OzjeOd7UzMBQ19DSwlxJIS8xN9VWycUnQNctMwdoo5JCWWJOKVAoILG4WEnfzqYov7QkVSEj
-        v7jEVim1ICWnwKRArzgxt7g0L10vL7XEytDAwMgUqDAhO+Pvng/MBdMlKva2TmZsYLwo3MXI
-        ySEhYCJx5MU/9i5GLg4hgd2MEk8ubYByPjFKnGi6wwjhfGaUONbSwALTcmV3CxNEYhejxIwn
-        k9kgnGeMEksX3mcFqWIRUJV4OesMmM0moC3x6u0NZhBbREBdomP6OSYQm1kgUqJz3j82EFtY
-        IEDi1702sHpeAV2JE1OWsEHYghInZz4B28wpoCcxq2E1WK+ogLLEgW3Hwa6QEHjELnH7WBMT
-        xHkuEo2XF0OdKizx6vgWdghbSuJlfxuUnS3R+OgvG4RdIrHz1nZmCNte4uKev1DHZUh8PfAL
-        Ki4rMfXUOqg4n0Tv7ydQu3gldsyDsVUl/t67DbVXWuLmu6tQtofE5+0NrJAQes4oceNTG9sE
-        RvlZSJ6bhWQfhK0jsWD3J7ZZjBxAtrTE8n8cEKamxPpd+gsYWVcxSqYWFOempxabFhjmpZbD
-        ozw5P3cTIzhJannuYLz74IPeIUYmDsZDjBIczEoivBee9iYJ8aYkVlalFuXHF5XmpBYfYjQF
-        RtZEZinR5Hxgms4riTc0sTQwMTMzM7E0NjNUEucV+N+YJCSQnliSmp2aWpBaBNPHxMEp1cDE
-        erck4oPJAi1xe499S7d71Kin5Uc/nXHIsFzKmjlOz9DT9vZKq90LRZsrRHR0Jk56XBiR2Sv/
-        nWmyO5OY3Z6/vN6l93ZP9l76cJ7Y3syKoorqxabnwgMZ51+q63Gdyph2fVdLZq+m4eXgqKzF
-        B9qinJr2tiWu15XL6TnoeW1/V/aHt1t3vtTQsC8TWPbMV+DGwrTT8l26FTUfUmL+uT+Yt0Sd
-        qeKbR8Vq96c+vQ237PuXdqkeLFsWtjZljsN8kUzmFOavh5Z4+Vb/tdrZ/Hrvsp4lE2erNqh8
-        d7ZsC2x5LrNJv277g8x/m3NEz7O7evks1nLq7z94ooc/OFvqs1nKlnspOavPL9d/bpAVosRS
-        nJFoqMVcVJwIAKRy0UUbBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrBLMWRmVeSWpSXmKPExsWy7bCSnO6dSxOSDLavZrFomvCX2WL13X42
-        i4+zXjBbHP3/ls1i4cZlTA6sHpfPlnr0bVnF6PF5k1wAcxSXTUpqTmZZapG+XQJXxsu5K1kK
-        rotWfDk5kbmBcZVgFyMnh4SAicSV3S1MXYxcHEICOxgl5m/9wtjFyAGUkJZYuD4RokZYYuW/
-        5+wQNU8YJQ5/7mYDSbAIqEq8nHWGFcRmE9CWePX2BjOILSKgLtEx/RwTiM0sECnROe8fWL2w
-        gJ/EiUMNLCA2r4CuxIkpS9gghj5nlHi07REzREJQ4uTMJywQzVoSN/69ZAI5iBnooOX/OEDC
-        nAJ6ErMaVoPNFxVQljiw7TjTBEbBWUi6ZyHpnoXQvYCReRWjZGpBcW56brFhgVFearlecWJu
-        cWleul5yfu4mRnBga2ntYNyz6oPeIUYmDsZDjBIczEoivBee9iYJ8aYkVlalFuXHF5XmpBYf
-        YpTmYFES573QdTJeSCA9sSQ1OzW1ILUIJsvEwSnVwKQRqaF1IGJxcYer2ZGmVXJ39++1jvMr
-        ezqD9yTvrLms16abqK16xib832nLP4H2zKtxOrKnqzsyrmmeUPyybUbK3wlnfh/aFBX60fta
-        KmenUv+CxynLlacrs1934/UNN+7N26Fc/2tK+O7M4+9OfHry9u3T7TGnWg4uLO1iqzxbpWxT
-        Pyvy71LeZbtOXFWZvOh5XNO36ln3pCVn8d+wzyiX/+uzZtU9pnjRu6yfvM1sFNJflX0R1HYL
-        sPqhlNrb7G5xcT+D78JSxbaD7Jdbf2mtPxrOcvR3n9jxYvdJKxzrnaPrNh+e0vleKqxU+anX
-        jEmH7uVZxr+/XLD7yb4ZSVc+J7y33TXboNfqu8qkJ3FKLMUZiYZazEXFiQD4fc0k2wIAAA==
-X-CMS-MailID: 20220527133212epcas5p2ee918aaa701d8fd47bc18a268ce48953
-X-Msg-Generator: CA
-Content-Type: multipart/mixed;
-        boundary="----jllqsR28.5W1KdEnZlWKzx60EIuo6gwqBUS1IW9J_3KKio4g=_2e9b4_"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220526145403epcas5p4add1a5a36f1ce8c5472c3d31f1c785b0
+X-Brightmail-Tracker: H4sIAAAAAAAAA02SbUhTYRTHe+69bteVcZ2Vxw0Xrhdb4ZYvgWRJkYTQF6UsqMi2eTPxbe26
+        VavIim04MQcF0iKVErdssrIStTDcUjBfKiq1xQhzWollVpalzpxXyW8/zvmf5/w4PCTO/0EI
+        yKy8AlqdJ88Rc3hEfdv486gNXrNi84xZEH/HU8qJH7N8wndgya+6NMk/6kQp2EHetgw6J0tL
+        q2WJR3nHe7vXqgwBp4yTdQGF6CdhQoEkUHEwbu4KMCEeyaduI7jVU8HxN/iUHgN9FSyEJpyN
+        iA3VImgrakds6DuCqV+nWK5G0FMUbkIkyaEk8OWJyl9eQaXAgLEB88/i1FME3w2euQUhVBr8
+        aR8k2NB+MI0+QyzHQNtAFdfPBLUOJvttmJ+DqK3Q4xuZ40BqO7hqOufyiFoFv5/Z5+o4FQpu
+        bwXGSgfDzeuPcZZXga+pn8NyBLz//Znr98RnPR1NMnY0Aq4W93PZVcHQfs07f6AwaLH1EX5/
+        oEpImBqvmX8zCTpfPpgPCWHaU42xISOCG/cWzmtG0OsVsJwAvqIeLrttOUz//YDMaI1lkbfl
+        v5NlkZNlkVMlImpQqIZhcjNpJjaPPill5LmMJi9TqszPrUOz/6LD51I1ILd7TOpEGImcCEhc
+        vCLoxWCJgh+UIT+to9X56WpNDs04kZAkxKFB1Vl35XwqU15AZ9O0ilYvdDEyUFCIHYqoVSZf
+        nqhsDZcof9mPDX7rTi6DMxf04Y1pB5om3I8ciaKwSH2tsC/fOqM4+FHMP7M5Ctfoy8qToi+m
+        xDyU7Nxide00DHWFPzBdAdNFyYFebgFaWaIdqaOaY6X1XDN/SDkVkJporK8fOC8L6XUII5dc
+        Uuz7XCFyDT0ZtpUXx2hbCg83tCRYM8pdYXep+z8563flmzjaUd3WDarmhntOnbM1Mnbk3YnU
+        mdUSu0eYZI22Cd9+nd5m3mNOT+FadwdXpNnPvfYakvSHiGH1+RvOpY/Vw/JH+rNxstI29xFH
+        8yatTlKy92xwaHZ338YOwbLiLM+ldyKv5I0NMYligjkuj96Iqxn5Pyo4pnuGAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCapKv+ZEKSwcN+S4vVd/vZLD7OesHs
+        wORx+Wypx+dNcgFMUVw2Kak5mWWpRfp2CVwZ18+pFLSxVrT/3sTawPiFpYuRk0NCwETix6Gd
+        jF2MXBxCAqsZJRq+LGKHcD4xSjQ1nWKCcJYxSqybfpe1i5GDg01AU+Lt/gKQbhEBP4nzT7ay
+        gNQwCxxhlPjUdpcNJCEsECrx8+RTFoiiMInfLctZIWwjiWOPl7CD2CwCqhK/H65gArF5Bawk
+        rv17A7XsMKPEkpXrwIo4BWwlDq86wwhiMwqISXw/tQasgVlAXOLWk/lMED8ISCzZc54ZwhaV
+        ePn4HyuErShx//tLdpCjmYGOXr9LH6JVUWJK90N2iL2CEidnPoEGhaTEwRU3WCYwis9CsmEW
+        QvcsJN2zkHQvYGRZxSheWlycm15RbJSXWq5XnJhbXJqXrpecn7uJERhXp/8djt7BePvWR71D
+        jEwcjIcYJTiYlUR4LzztTRLiTUmsrEotyo8vKs1JLT7EKM3BoiTO+zJqYryQQHpiSWp2ampB
+        ahFMlomDU6qBaVF79uXYWxJpHK6vHX3XJs08fere3X3FXkffFC//J+V38RXrKpFz0227RM3f
+        yIcxJQUpCDZetjD4HNLhkOR4es3bl99vNba5aN991mt+Nlyz28vCwbLBTqXwTJ2elv1Jratr
+        1rKxRqxkSTWJN/30m738+5N9N7n6O/ivHbcREj+9NXxayk3pkyau4pektTZv3r1N97NK8JV0
+        b91t3NG3dJ2nXX1iukBoAk+NoksRz0OL3viCrPKnCj0qRYpusxfJ3sxmOPynVvtI5dcHh91i
+        9CRFHRVvbMj8o+FjumbHn71Oy4U3W3z6F+/Bfu5IiuPJI11eLz0PM/PkHVn/b/a93Z/W7VvE
+        xJn581nuwYczlViKMxINtZiLihMBhTIoKxoDAAA=
+X-CMS-MailID: 20220527144600uscas1p186b4d096dfe33b6eaf326c406e5a29b7
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220526145400epcas5p348be0238746b1cc70fae627a63a43eba
 References: <20220526144809.14877-1-ankit.kumar@samsung.com>
-        <CGME20220526145403epcas5p4add1a5a36f1ce8c5472c3d31f1c785b0@epcas5p4.samsung.com>
-        <20220526144809.14877-6-ankit.kumar@samsung.com>
-        <20220527065403.GB23680@test-zns>
+        <CGME20220526145400epcas5p348be0238746b1cc70fae627a63a43eba@epcas5p3.samsung.com>
+        <20220526144809.14877-4-ankit.kumar@samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-------jllqsR28.5W1KdEnZlWKzx60EIuo6gwqBUS1IW9J_3KKio4g=_2e9b4_
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-
-On Fri, May 27, 2022 at 12:24:03PM +0530, Kanchan Joshi wrote:
-> On Thu, May 26, 2022 at 08:18:06PM +0530, Ankit Kumar wrote:
-> > .B libaio
-> > Linux native asynchronous I/O. Note that Linux may only support
-> > queued behavior with non-buffered I/O (set `direct=1' or
-> > @@ -2045,6 +2054,15 @@ release them when IO is done. If this option is set, the pages are pre-mapped
-> > before IO is started. This eliminates the need to map and release for each IO.
-> > This is more efficient, and reduces the IO latency as well.
-> > .TP
-> > +.BI (io_uring,io_uring_cmd)nonvectored
-> > +With this option, fio will use non-vectored read/write commands, where address
-> > +must contain the address directly.
-> > +.TP
-> > +.BI (io_uring,io_uring_cmd)force_async
-> > +Normal operation for io_uring is to try and issue an sqe as non-blocking first,
-> > +and if that fails, execute it in an async manner. With this option set to N,
-> > +then every N request fio will ask sqe to be issued in an async manner.
-> > +.TP
-> > .BI (io_uring,xnvme)hipri
-> 
-> io_uring_cmd should be added here? And same for fixedbufs too.
->
-Agreed, will be done in v3
-> > If this option is set, fio will attempt to use polled IO completions. Normal IO
-> > completions generate interrupts to signal the completion of IO, polled
-> > @@ -2052,22 +2070,26 @@ completions do not. Hence they are require active reaping by the application.
-> > The benefits are more efficient IO for high IOPS scenarios, and lower latencies
-> > for low queue depth IO.
-> > .TP
-> > -.BI (io_uring)registerfiles
-> > +.BI (io_uring,io_uring_cmd)registerfiles
-> > With this option, fio registers the set of files being used with the kernel.
-> > This avoids the overhead of managing file counts in the kernel, making the
-> > submission and completion part more lightweight. Required for the below
-> > sqthread_poll option.
-> > .TP
-> > -.BI (io_uring,xnvme)sqthread_poll
-> > +.BI (io_uring,io_uring_cmd,xnvme)sqthread_poll
-> > Normally fio will submit IO by issuing a system call to notify the kernel of
-> > available items in the SQ ring. If this option is set, the act of submitting IO
-> > will be done by a polling thread in the kernel. This frees up cycles for fio, at
-> > the cost of using more CPU in the system.
-> > .TP
-> > -.BI (io_uring)sqthread_poll_cpu
-> > +.BI (io_uring,io_uring_cmd)sqthread_poll_cpu
-> > When `sqthread_poll` is set, this option provides a way to define which CPU
-> > should be used for the polling thread.
-> > .TP
-> > +.BI (io_uring_cmd)cmd_type \fR=\fPstr
-> > +Specifies the type of uring passthrough command to be used. Supported
-> > +value is nvme.
-> 
-> Seems that is default value too. So that part needs to be mentioned
-> here.
-Yes, will add it in v3
-
-
-------jllqsR28.5W1KdEnZlWKzx60EIuo6gwqBUS1IW9J_3KKio4g=_2e9b4_
-Content-Type: text/plain; charset="utf-8"
-
-
-------jllqsR28.5W1KdEnZlWKzx60EIuo6gwqBUS1IW9J_3KKio4g=_2e9b4_--
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbmtpdCBLdW1hciBbbWFpbHRv
+OmFua2l0Lmt1bWFyQHNhbXN1bmcuY29tXQ0KDQo+ICsNCj4gKwlpZiAoaW9fdS0+ZGRpciA9PSBE
+RElSX1JFQUQpDQo+ICsJCWNtZC0+b3Bjb2RlID0gbnZtZV9jbWRfcmVhZDsNCj4gKwlpZiAoaW9f
+dS0+ZGRpciA9PSBERElSX1dSSVRFKQ0KPiArCQljbWQtPm9wY29kZSA9IG52bWVfY21kX3dyaXRl
+Ow0KDQpDb25zaWRlciBjaGFuZ2luZyB0aGlzIHRvIGEgc3dpdGNoIHN0YXRlbWVudCBhbmQgYWRk
+aW5nIGEgZGVmYXVsdDogY2FzZQ0KaW4gY2FzZSBzb21lb25lIHRyaWVzIHRvIHNlbmQgYW4gdW5z
+dXBwb3J0ZWQgY29tbWFuZC4NCg0KU2luY2UgdGhpcyBpcyBpbiB0aGUgIGZhc3QgcGF0aCBhIHN3
+aXRjaCBzdGF0ZW1lbnQgd291bGQgYWxzbyByZWR1Y2UgdGhlIG51bWJlcg0Kb2YgdGltZXMgZGRp
+ciBpcyBjaGVja2VkLg0K
