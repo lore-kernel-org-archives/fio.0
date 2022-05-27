@@ -2,154 +2,120 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A3D5C433F5
-	for <fio@archiver.kernel.org>; Fri, 27 May 2022 10:10:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94C47C433EF
+	for <fio@archiver.kernel.org>; Fri, 27 May 2022 12:40:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240588AbiE0KKN (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 27 May 2022 06:10:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
+        id S236831AbiE0Mkm (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 27 May 2022 08:40:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231592AbiE0KKL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 27 May 2022 06:10:11 -0400
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4080D1271B5
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 03:10:10 -0700 (PDT)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220527101008epoutp02776356350886e274d19371b0cfbe5929~y7nb_5Xhn3092830928epoutp02S
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 10:10:08 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220527101008epoutp02776356350886e274d19371b0cfbe5929~y7nb_5Xhn3092830928epoutp02S
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653646208;
-        bh=Rm2sHkbFxy7SDIE6vQhDGjtZ7iFVLeKU7z8gtSCLKss=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=FQtElG6Wl535zdP2aFWbY3k5OgefD2MM2Mx/N/t1cQ8VXoRknguVJwNV4b39egATd
-         SfJRsoYws9oyAE21BWv1vDhY60UL27Dz/GCTTI5q1EIdrAGb3ZdotSNL++ad3NtkTH
-         eyi3/g7o4mYG+yOYUjYwkUIPwG5nf3uyRRBjvgDM=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
-        20220527101007epcas5p2ffa1b012c2181a6bdea471b565878677~y7nbdfnJz1987819878epcas5p2t;
-        Fri, 27 May 2022 10:10:07 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.176]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 4L8gXQ4dG5z4x9Q2; Fri, 27 May
-        2022 10:09:58 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        28.95.09827.373A0926; Fri, 27 May 2022 19:09:55 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20220527064258epcas5p22c2535ac2a12e0b5cb15febd797409ec~y4ykbqX6F1542315423epcas5p2j;
-        Fri, 27 May 2022 06:42:58 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220527064258epsmtrp129a56ed9fe7ff795d884a245280556f6~y4yka4DGd1674916749epsmtrp1X;
-        Fri, 27 May 2022 06:42:58 +0000 (GMT)
-X-AuditID: b6c32a4a-b3bff70000002663-52-6290a37367ae
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        9B.FE.11276.2F270926; Fri, 27 May 2022 15:42:58 +0900 (KST)
-Received: from test-zns (unknown [107.110.206.5]) by epsmtip2.samsung.com
-        (KnoxPortal) with ESMTPA id
-        20220527064257epsmtip2a3de1173709d4982e8249c7567090208~y4yjeOLZA0442604426epsmtip2e;
-        Fri, 27 May 2022 06:42:57 +0000 (GMT)
-Date:   Fri, 27 May 2022 12:07:44 +0530
-From:   Kanchan Joshi <joshi.k@samsung.com>
-To:     Ankit Kumar <ankit.kumar@samsung.com>
-Cc:     axboe@kernel.dk, fio@vger.kernel.org, krish.reddy@samsung.com,
-        anuj20.g@samsung.com
-Subject: Re: [PATCH v2 4/8] engines/io_uring: add new I/O engine for uring
- passthrough support
-Message-ID: <20220527063744.GA23680@test-zns>
+        with ESMTP id S1352342AbiE0Mjv (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 27 May 2022 08:39:51 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B43F4A3DF
+        for <fio@vger.kernel.org>; Fri, 27 May 2022 05:24:43 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id 202so4248112pfu.0
+        for <fio@vger.kernel.org>; Fri, 27 May 2022 05:24:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=5J/WJdTxN8YdazQiFT+uyF4YaOfETSV56YcJ5/JwyXQ=;
+        b=Uw+S+pfSSR4TJO1nl6IH2rMcFbpC0H85T9i+KfQHsd5liL0RzNBCzk/b2KC06bLAdG
+         VAKamGsdsSlKS9KHgAUxjOjgvQcBIvNa6YNSGHFluaVczHblnt9J90nb9BbKpV9njJmq
+         ci1hR5KG4XxccYDQEzL3npMHLPF1W09ZSgRfxfXGfkWGRCd4qUWteb85vWPtkFs7DcGz
+         xKgWKhIJ0hyzHA8K8H3LfI4t6GuNZMoCw/mOSlo/V02huTI7R/IRFmc6FesJnOAI1PPB
+         Q5kO71wL6K7BmDT3GIVBomu+AFeePPbBy4zXYLekyYpB5hmAhJilBgC/mOmp51z/AN9A
+         1N/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=5J/WJdTxN8YdazQiFT+uyF4YaOfETSV56YcJ5/JwyXQ=;
+        b=FFpr0PCdK/PN74slbx1t0E0uhcO7xSJqNaQy5RS6SGuc/GTJ25KD4ibiIkeOHZPq62
+         oVts/ZndOlYhyJm+LUx7h4P7OZs0mt16IDS2z4FDvbONdcBA8Hm08XLLwD0NvDT5jghk
+         pF/tcNibJLG5ccc4tdVp8J2wpm5VlZ3BTj6EETD3dkH1ifiH4vaOknTK6ybejDNnTOwN
+         m28DrRsMAiafMDdRX/eXfRYPoVWO1XxxtUzHwcLv4BFgCVA4EE+h7dVHizunU93dToTr
+         cSWtygV4A0ime0PhUbv6DoEOzOkq8t9UgXRmKQYC0c6RVtiE8+bhzU/nW6bZILWe7VAT
+         JVmA==
+X-Gm-Message-State: AOAM531KV1WGb50RwRnnDhudV+h56/qB+mElc3Usja7Lt5hFVn4mRcnu
+        RYqR2Jdit2/DRybhLAzJiP7MNQ==
+X-Google-Smtp-Source: ABdhPJy2nt9BVXelUu8026wD5/wZaYKT/mK4heg3iAkqhpPxofrqOdkO2a4VqVqjxv95cpayDL9ubA==
+X-Received: by 2002:a63:2026:0:b0:3fa:cefb:e408 with SMTP id g38-20020a632026000000b003facefbe408mr12659555pgg.57.1653654283067;
+        Fri, 27 May 2022 05:24:43 -0700 (PDT)
+Received: from [192.168.1.100] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id v21-20020a170902e8d500b00163506d51e7sm3518554plg.125.2022.05.27.05.24.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 27 May 2022 05:24:42 -0700 (PDT)
+Message-ID: <2ac8deb0-6de9-7f85-9b90-cfb53dac8561@kernel.dk>
+Date:   Fri, 27 May 2022 06:24:41 -0600
 MIME-Version: 1.0
-In-Reply-To: <20220526144809.14877-5-ankit.kumar@samsung.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpik+LIzCtJLcpLzFFi42LZdlhTQ7d48YQkg1NTjS3WXPnNbtE04S+z
-        xeq7/WwWH2e9YLZYuHEZkwOrx+WzpR59W1YxenzeJBfAHJVtk5GamJJapJCal5yfkpmXbqvk
-        HRzvHG9qZmCoa2hpYa6kkJeYm2qr5OIToOuWmQO0UUmhLDGnFCgUkFhcrKRvZ1OUX1qSqpCR
-        X1xiq5RakJJTYFKgV5yYW1yal66Xl1piZWhgYGQKVJiQnbH/WwN7wVreivMPHjA3MM7h7mLk
-        5JAQMJG4vXsvSxcjF4eQwG5GiY03L0I5nxglvkyfwAThfGOU2Nn9hRGm5fnmCWwQib2MEke3
-        LWOHcJ4xSlxd8pkdpIpFQFXiycbjrF2MHBxsApoSFyaXgpgiQOa8DywgFcwCkRLtE3+AzRQW
-        SJB4+e8gM4jNK6ArsbPtBhuELShxcuYTsHpOAVuJzqaJYLaogLLEgW3HmSDuucUuse9tPYTt
-        IvHt3j6ouLDEq+Nb2CFsKYmX/W1QdrJE6/bL7CDnSAiUSCxZoA4Rtpe4uOcvE0iYWSBD4kaL
-        EERYVmLqqXVMEBfzSfT+fgI1nVdixzwYW1Hi3qSnrBC2uMTDGUugbA+J21OuQgPnMKPE0ytd
-        LBMY5Wch+WwWwrpZYCusJDo/NLFChKUllv/jgDA1Jdbv0l/AyLqKUTK1oDg3PbXYtMAoL7Uc
-        HtnJ+bmbGMGJUctrB+PDBx/0DjEycTAeYpTgYFYS4b3wtDdJiDclsbIqtSg/vqg0J7X4EKMp
-        MJomMkuJJucDU3NeSbyhiaWBiZmZmYmlsZmhkjivwP/GJCGB9MSS1OzU1ILUIpg+Jg5OqQam
-        julr3x6U+HQ+2Pn9ev+kp4EbfCOjbyRKReWtalbTu/o0IE/UYYH3Dd8HrNe5pU6wSK9dLBl8
-        5Nsz66nHQj4/E1rpznnEXMa9LMdY/0XToSur/D7t6nG8l1pawjLz6GnV5s4Knl2cUm53WGef
-        O5D5IdDN385EN2DS1D3Hynf2xzKFnnZQjnYXObsk/aBm8/NK5UD/5tYgDqt/p950C3959vir
-        XmaCi+Im6X6bG2phP2d6yXqd+vB3YeK2AO6N+i6Xp3TO84qKSC1eJWR9vH3qz8NWDZ32C9+7
-        sp6+7RglFD8z8UPqw7VLVF4x3+bJLdI2iPnqezV49bbbCSkrr/eZd67dcW/nuQknvn7b3VCr
-        xFKckWioxVxUnAgAgFZZDBUEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrGLMWRmVeSWpSXmKPExsWy7bCSvO6noglJBvfvG1msufKb3aJpwl9m
-        i9V3+9ksPs56wWyxcOMyJgdWj8tnSz36tqxi9Pi8SS6AOYrLJiU1J7MstUjfLoEro3vBTaaC
-        +1wVfxbcYW1gfMHRxcjJISFgIvF88wS2LkYuDiGB3YwSj67fY4FIiEs0X/vBDmELS6z895wd
-        ougJo8StZ7fZQBIsAqoSTzYeZ+1i5OBgE9CUuDC5FMQUATLnfQAbwywQKdE+8QcjiC0skCDx
-        8t9BZhCbV0BXYmfbDbApQgKHGSX+7NSFiAtKnJz5BKrXTGLe5ofMICOZBaQllv8DO5lTwFai
-        s2kiWImogLLEgW3HmSYwCs5C0j0LSfcshO4FjMyrGCVTC4pz03OLDQsM81LL9YoTc4tL89L1
-        kvNzNzGCg1pLcwfj9lUf9A4xMnEwHmKU4GBWEuG98LQ3SYg3JbGyKrUoP76oNCe1+BCjNAeL
-        kjjvha6T8UIC6YklqdmpqQWpRTBZJg5OqQYm2XVGBpFlMpXrLv33T63o9bg6N/C1t65lzM/i
-        pYtynJ7J8TwQa9IVVpmT8Pn/+zCthz43GrZdEag/fdpp57q0iQ5rCtffcbmeqjLxWM56Ddu5
-        E6e+rOLZPW+VTcFaM4O+/Tvn8Ht8tnCQlwvQd7mx7vtGq65QLnfJtvLzcicn3nwjGRK44QpH
-        /4odhybayJw2Uc51OCR3U8ZPuqvxoCpfQZhY5uXclRKTJU62fuXcIjvhRMIpm+erQ3eKuqW7
-        LtFgStI9Oi0i4ueaXIPdsav0Jko6f7z4/sIe+cfVie4z3t/8MPEVxw2vab1ssscf78rIXnOG
-        64B31PpzN5KY2gUFP7c1pZ6K3c4oVt26LUhKiaU4I9FQi7moOBEAa7gUZ9kCAAA=
-X-CMS-MailID: 20220527064258epcas5p22c2535ac2a12e0b5cb15febd797409ec
-X-Msg-Generator: CA
-Content-Type: multipart/mixed;
-        boundary="----HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220526145402epcas5p4a73b9f0a092deb61f4182b170093a103
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v2 3/8] nvme: add nvme opcodes, structures and helper
+ functions
+Content-Language: en-US
+To:     Kanchan Joshi <joshi.k@samsung.com>,
+        Ankit Kumar <ankit.kumar@samsung.com>
+Cc:     fio@vger.kernel.org, krish.reddy@samsung.com, anuj20.g@samsung.com
 References: <20220526144809.14877-1-ankit.kumar@samsung.com>
-        <CGME20220526145402epcas5p4a73b9f0a092deb61f4182b170093a103@epcas5p4.samsung.com>
-        <20220526144809.14877-5-ankit.kumar@samsung.com>
+ <CGME20220526145400epcas5p348be0238746b1cc70fae627a63a43eba@epcas5p3.samsung.com>
+ <20220526144809.14877-4-ankit.kumar@samsung.com>
+ <20220527072947.GA16232@test-zns>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20220527072947.GA16232@test-zns>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-------HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Disposition: inline
+On 5/27/22 1:29 AM, Kanchan Joshi wrote:
+> On Thu, May 26, 2022 at 08:18:04PM +0530, Ankit Kumar wrote:
+> 
+>> +void fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+>> +                 struct iovec *iov)
+>> +{
+>> +    struct nvme_data *data = FILE_ENG_DATA(io_u->file);
+>> +    __u64 slba;
+>> +    __u32 nlb;
+>> +
+>> +    slba = io_u->offset / data->lba_size;
+>> +    nlb = (io_u->xfer_buflen / data->lba_size) - 1;
+>> +
+>> +    memset(cmd, 0, sizeof(struct nvme_uring_cmd));
+> 
+> Is this better or setting remaining fields (which are not populated
+> down) to zero.
 
-On Thu, May 26, 2022 at 08:18:05PM +0530, Ankit Kumar wrote:
->From: Anuj Gupta <anuj20.g@samsung.com>
->
->Add a new I/O engine (io_uring_cmd) for sending uring passthrough
->commands. It will also use most of the existing helpers from the
->I/O engine io_uring. The I/O preparation, completion, file open,
->file close and post init paths are going to differ and hence
->io_uring_cmd will have its own helper for them.
->
->Add a new io_uring_cmd engine specific option to support nvme
-Is "-cmd_type=nvme" the specific option? Putting it here in the
-message should help.
->passthrough commands. Filename name for this specific option
->must specify nvme-ns generic character device (dev/ngXnY).
->This provides io_uring_cmd I/O engine a bandwidth to support
->various passthrough commands in future.
->
->The engine_pos and engine_data fields in struct fio_file are
->separated now. This will help I/O engine io_uring_cmd to store
->specific data as well as keep track of register files.
->
->The supported options for io_uring_cmd I/O engine are:
-> * registerfiles
-> * sqthread_poll
-> * sqthread_poll_cpu
-> * cmd_type
-> * nonvectored
-> * force_async
+Since lba_size is a power of 2, it would be a lot more efficient to take
+this division by non-constant out of the fast path and init a shift
+value:
 
-Since this code seems to support passing other options (e.g. fixedbufs,
-hipri etc.) too, above comment is bit confusing. If it is about listing
-what kernel supports at the moment, this seems misplaced.
->
->
+data->lba_shift = log2(data->lba_size);
 
-------HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_
-Content-Type: text/plain; charset="utf-8"
+and change these to:
 
+slba = io_u->offset >> data->lba_shift;
 
-------HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_--
+and ditto for nlb.
+
+>> +    /* cdw10 and cdw11 represent starting lba */
+>> +    cmd->cdw10 = slba & 0xffffffff;
+>> +    cmd->cdw11 = slba >> 32;
+>> +    /* cdw12 represent number of lba's for read/write */
+>> +    cmd->cdw12 = nlb;
+>> +    if (iov) {
+>> +        iov->iov_base = io_u->xfer_buf;
+>> +        iov->iov_len = io_u->xfer_buflen;
+>> +        cmd->addr = (__u64)(uintptr_t)iov;
+>> +        cmd->data_len = 1;
+> 
+> Is this correct? Do we always get 1 vector to deal with.
+
+Yes
+
+-- 
+Jens Axboe
+
