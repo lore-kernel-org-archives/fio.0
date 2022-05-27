@@ -2,151 +2,154 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3758BC433F5
-	for <fio@archiver.kernel.org>; Fri, 27 May 2022 07:49:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A3D5C433F5
+	for <fio@archiver.kernel.org>; Fri, 27 May 2022 10:10:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232194AbiE0HtO (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 27 May 2022 03:49:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39600 "EHLO
+        id S240588AbiE0KKN (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 27 May 2022 06:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229510AbiE0HtK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 27 May 2022 03:49:10 -0400
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BF75FC4C9
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 00:49:09 -0700 (PDT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20220527074907epoutp046c70c1e5dc816fa5f9fb39f43314dc4a~y5sUyfsE50629606296epoutp04Q
-        for <fio@vger.kernel.org>; Fri, 27 May 2022 07:49:07 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20220527074907epoutp046c70c1e5dc816fa5f9fb39f43314dc4a~y5sUyfsE50629606296epoutp04Q
+        with ESMTP id S231592AbiE0KKL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 27 May 2022 06:10:11 -0400
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4080D1271B5
+        for <fio@vger.kernel.org>; Fri, 27 May 2022 03:10:10 -0700 (PDT)
+Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220527101008epoutp02776356350886e274d19371b0cfbe5929~y7nb_5Xhn3092830928epoutp02S
+        for <fio@vger.kernel.org>; Fri, 27 May 2022 10:10:08 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220527101008epoutp02776356350886e274d19371b0cfbe5929~y7nb_5Xhn3092830928epoutp02S
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1653637747;
-        bh=mwrXtu85iI4hzZF4bFJMS00GgwAtxF8ohfdaJVCw9o0=;
+        s=mail20170921; t=1653646208;
+        bh=Rm2sHkbFxy7SDIE6vQhDGjtZ7iFVLeKU7z8gtSCLKss=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=l7ZHhPcomjlSJoFU6jYefIa9el8krkUmwtWdN0xF/LUeMKNPjol8t6MG1eC0EcreY
-         D/P/wFTQmfym7C89nq75tyN3gOkCbhwu3/wnU4EKeTPAknVeF/Z7/gd/EnSKidi0WT
-         d4obcSO0kzAN/jRnis8+wVjQ1qXr8tnyL0FtKwaQ=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20220527074907epcas5p32dd642e88fa713fae38c46e948b3e7f0~y5sUaD3Gw1370513705epcas5p32;
-        Fri, 27 May 2022 07:49:07 +0000 (GMT)
-Received: from epsmges5p3new.samsung.com (unknown [182.195.38.175]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 4L8cPr3kzkz4x9QT; Fri, 27 May
-        2022 07:49:04 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
-        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        5C.7E.09762.A6280926; Fri, 27 May 2022 16:48:58 +0900 (KST)
+        b=FQtElG6Wl535zdP2aFWbY3k5OgefD2MM2Mx/N/t1cQ8VXoRknguVJwNV4b39egATd
+         SfJRsoYws9oyAE21BWv1vDhY60UL27Dz/GCTTI5q1EIdrAGb3ZdotSNL++ad3NtkTH
+         eyi3/g7o4mYG+yOYUjYwkUIPwG5nf3uyRRBjvgDM=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20220527101007epcas5p2ffa1b012c2181a6bdea471b565878677~y7nbdfnJz1987819878epcas5p2t;
+        Fri, 27 May 2022 10:10:07 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.176]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4L8gXQ4dG5z4x9Q2; Fri, 27 May
+        2022 10:09:58 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        28.95.09827.373A0926; Fri, 27 May 2022 19:09:55 +0900 (KST)
 Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-        20220527073502epcas5p4abc4b5446cf18fb256e3488391ceacc6~y5gBHg8nt0245702457epcas5p4L;
-        Fri, 27 May 2022 07:35:02 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+        20220527064258epcas5p22c2535ac2a12e0b5cb15febd797409ec~y4ykbqX6F1542315423epcas5p2j;
+        Fri, 27 May 2022 06:42:58 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
         epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220527073502epsmtrp141a8c8018ceaf20da7af192d775b75d5~y5gBGwxmz1558615586epsmtrp1M;
-        Fri, 27 May 2022 07:35:02 +0000 (GMT)
-X-AuditID: b6c32a4b-1fdff70000002622-f5-6290826a7c7a
+        20220527064258epsmtrp129a56ed9fe7ff795d884a245280556f6~y4yka4DGd1674916749epsmtrp1X;
+        Fri, 27 May 2022 06:42:58 +0000 (GMT)
+X-AuditID: b6c32a4a-b3bff70000002663-52-6290a37367ae
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        4E.0E.08924.52F70926; Fri, 27 May 2022 16:35:01 +0900 (KST)
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        9B.FE.11276.2F270926; Fri, 27 May 2022 15:42:58 +0900 (KST)
 Received: from test-zns (unknown [107.110.206.5]) by epsmtip2.samsung.com
         (KnoxPortal) with ESMTPA id
-        20220527073501epsmtip2260b92c309c6e1a2f007ecff011816cf~y5gAJkZII0343003430epsmtip2X;
-        Fri, 27 May 2022 07:35:00 +0000 (GMT)
-Date:   Fri, 27 May 2022 12:59:47 +0530
+        20220527064257epsmtip2a3de1173709d4982e8249c7567090208~y4yjeOLZA0442604426epsmtip2e;
+        Fri, 27 May 2022 06:42:57 +0000 (GMT)
+Date:   Fri, 27 May 2022 12:07:44 +0530
 From:   Kanchan Joshi <joshi.k@samsung.com>
 To:     Ankit Kumar <ankit.kumar@samsung.com>
 Cc:     axboe@kernel.dk, fio@vger.kernel.org, krish.reddy@samsung.com,
         anuj20.g@samsung.com
-Subject: Re: [PATCH v2 3/8] nvme: add nvme opcodes, structures and helper
- functions
-Message-ID: <20220527072947.GA16232@test-zns>
+Subject: Re: [PATCH v2 4/8] engines/io_uring: add new I/O engine for uring
+ passthrough support
+Message-ID: <20220527063744.GA23680@test-zns>
 MIME-Version: 1.0
-In-Reply-To: <20220526144809.14877-4-ankit.kumar@samsung.com>
+In-Reply-To: <20220526144809.14877-5-ankit.kumar@samsung.com>
 User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpmk+LIzCtJLcpLzFFi42LZdlhTSzeraUKSwffNMhZrrvxmt2ia8JfZ
-        YvXdfjaLj7NeMFss3LiMyYHV4/LZUo++LasYPT5vkgtgjsq2yUhNTEktUkjNS85PycxLt1Xy
-        Do53jjc1MzDUNbS0MFdSyEvMTbVVcvEJ0HXLzAHaqKRQlphTChQKSCwuVtK3synKLy1JVcjI
-        Ly6xVUotSMkpMCnQK07MLS7NS9fLSy2xMjQwMDIFKkzIznj89RprwVPOimVXNjA1ME7i6GLk
-        5JAQMJFoW9TH1sXIxSEksJtRYt7jh8wQzidGiYnTJjGBVAkJfGaUWN5eDtPxruE7C0TRLkaJ
-        pSsfQTnPGCWe/zvJCFLFIqAq0fdrDmsXIwcHm4CmxIXJpSCmCJA57wMLSAWzQKRE+8QfYNXC
-        AqESM1vms4OU8AroSrx+JgAS5hUQlDg58wlYOaeArcThVWfAykUFlCUObDvOBLJVQuAWu8Si
-        W2+ZIG5zkVi/GaJIQkBY4tXxLewQtpTEy/42KDtZonX7ZbBdEgIlEksWqEOE7SUu7vnLBHFa
-        hsTt97vZIOKyElNPrYOK80n0/n4CtYpXYsc8GFtR4t6kp6wQtrjEwxlLoGwPift/JkPD8zAw
-        qD7cYp/AKD8LyW+zkOyDsK0kOj80sc4COo9ZQFpi+T8OCFNTYv0u/QWMrKsYJVMLinPTU4tN
-        C4zzUsvhsZ2cn7uJEZwatbx3MD568EHvECMTB+MhRgkOZiUR3gtPe5OEeFMSK6tSi/Lji0pz
-        UosPMZoCI2ois5Rocj4wOeeVxBuaWBqYmJmZmVgamxkqifMK/G9MEhJITyxJzU5NLUgtgulj
-        4uCUamBqi+niXFx+9YTgHcPpC9TD3y3ZXn8lgzHrhLbVukC+WzPzWH7Y6LJoce+YxBLt9z5n
-        X5WW51nVaXUVM6bcb/9j/f/XZu+a2XsNdR+rlosLdxdqPOZZdbTy2Du7t1eO1IRvnL38qiqP
-        QnL7rit6Snc/NhsvsF25kJGp7+vDjAvrTLiC1Fq7Vsi0vXmoL/dCV8v67beLjwVlD+48H3PU
-        O2jlHOE9P1Q9Ln07cuT/8uz1Jvcv7jdsW34ncWd+7IxT0n33K7YFnU3m28biZbqmxiriNt/J
-        qasufpmV9ltJOlVXeQUbA5/W+aqlPBMtS0Sm313Lxblyi+mRB83Tee7VmK/c11au9l7iUcpR
-        t4bw9LbTSizFGYmGWsxFxYkA051RtBYEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrMLMWRmVeSWpSXmKPExsWy7bCSvK5q/YQkg7VsFmuu/Ga3aJrwl9li
-        9d1+NouPs14wWyzcuIzJgdXj8tlSj74tqxg9Pm+SC2CO4rJJSc3JLEst0rdL4Mp4dvkAa8F0
-        9oo3ryobGO+xdjFyckgImEi8a/jO0sXIxSEksINRouHFQWaIhLhE87Uf7BC2sMTKf8/BbCGB
-        J4wSbxqjQGwWAVWJvl9zgAZxcLAJaEpcmFwKYooAmfM+sIBUMAtESrRP/MEIYgsLhErMbJnP
-        DlLCK6Ar8fqZAMTWw4wSLx4cADuHV0BQ4uTMJ1C9ZhLzNj9kBqlnFpCWWP6PAyTMKWArcXjV
-        GbCRogLKEge2HWeawCg4C0n3LCTdsxC6FzAyr2KUTC0ozk3PLTYsMMpLLdcrTswtLs1L10vO
-        z93ECA5nLa0djHtWfdA7xMjEwXiIUYKDWUmE98LT3iQh3pTEyqrUovz4otKc1OJDjNIcLEri
-        vBe6TsYLCaQnlqRmp6YWpBbBZJk4OKUamA6nzVrYIGSovCtH8WzuzgWfn/hwPZr/vUB36lFe
-        a3/PwmnaL5Lcg0Rilktcubt+1f+t6zgm8OWF3EtJ/OG47eLjNUWVGYG35rUueu31b+HTjTvv
-        sx4QP762IDbCTFL0Nts2QaXvr7fydglNNj7VPP3nq/iAkgOLVqx+0qvJey//1Qb90/wv+//J
-        3rpsHunVeqW44+r0GY/0fQ4zTdvZE/bT8M2rpfNnNtdtZt/4d+aR5T+55umYxdQbZAcp3DA7
-        7VPHuHrD37pPKi3nHpe/Wc6xQMihLvPvXoe3Oh1Rb186L/Mz/zi/5Pqp5YnaXw403t70kFdV
-        vTfIuf0P0w6uncWq/t9KuLc9VhVbtP/eLIurSizFGYmGWsxFxYkApLZwPNYCAAA=
-X-CMS-MailID: 20220527073502epcas5p4abc4b5446cf18fb256e3488391ceacc6
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpik+LIzCtJLcpLzFFi42LZdlhTQ7d48YQkg1NTjS3WXPnNbtE04S+z
+        xeq7/WwWH2e9YLZYuHEZkwOrx+WzpR59W1YxenzeJBfAHJVtk5GamJJapJCal5yfkpmXbqvk
+        HRzvHG9qZmCoa2hpYa6kkJeYm2qr5OIToOuWmQO0UUmhLDGnFCgUkFhcrKRvZ1OUX1qSqpCR
+        X1xiq5RakJJTYFKgV5yYW1yal66Xl1piZWhgYGQKVJiQnbH/WwN7wVreivMPHjA3MM7h7mLk
+        5JAQMJG4vXsvSxcjF4eQwG5GiY03L0I5nxglvkyfwAThfGOU2Nn9hRGm5fnmCWwQib2MEke3
+        LWOHcJ4xSlxd8pkdpIpFQFXiycbjrF2MHBxsApoSFyaXgpgiQOa8DywgFcwCkRLtE3+AzRQW
+        SJB4+e8gM4jNK6ArsbPtBhuELShxcuYTsHpOAVuJzqaJYLaogLLEgW3HmSDuucUuse9tPYTt
+        IvHt3j6ouLDEq+Nb2CFsKYmX/W1QdrJE6/bL7CDnSAiUSCxZoA4Rtpe4uOcvE0iYWSBD4kaL
+        EERYVmLqqXVMEBfzSfT+fgI1nVdixzwYW1Hi3qSnrBC2uMTDGUugbA+J21OuQgPnMKPE0ytd
+        LBMY5Wch+WwWwrpZYCusJDo/NLFChKUllv/jgDA1Jdbv0l/AyLqKUTK1oDg3PbXYtMAoL7Uc
+        HtnJ+bmbGMGJUctrB+PDBx/0DjEycTAeYpTgYFYS4b3wtDdJiDclsbIqtSg/vqg0J7X4EKMp
+        MJomMkuJJucDU3NeSbyhiaWBiZmZmYmlsZmhkjivwP/GJCGB9MSS1OzU1ILUIpg+Jg5OqQam
+        julr3x6U+HQ+2Pn9ev+kp4EbfCOjbyRKReWtalbTu/o0IE/UYYH3Dd8HrNe5pU6wSK9dLBl8
+        5Nsz66nHQj4/E1rpznnEXMa9LMdY/0XToSur/D7t6nG8l1pawjLz6GnV5s4Knl2cUm53WGef
+        O5D5IdDN385EN2DS1D3Hynf2xzKFnnZQjnYXObsk/aBm8/NK5UD/5tYgDqt/p950C3959vir
+        XmaCi+Im6X6bG2phP2d6yXqd+vB3YeK2AO6N+i6Xp3TO84qKSC1eJWR9vH3qz8NWDZ32C9+7
+        sp6+7RglFD8z8UPqw7VLVF4x3+bJLdI2iPnqezV49bbbCSkrr/eZd67dcW/nuQknvn7b3VCr
+        xFKckWioxVxUnAgAgFZZDBUEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrGLMWRmVeSWpSXmKPExsWy7bCSvO6noglJBvfvG1msufKb3aJpwl9m
+        i9V3+9ksPs56wWyxcOMyJgdWj8tnSz36tqxi9Pi8SS6AOYrLJiU1J7MstUjfLoEro3vBTaaC
+        +1wVfxbcYW1gfMHRxcjJISFgIvF88wS2LkYuDiGB3YwSj67fY4FIiEs0X/vBDmELS6z895wd
+        ougJo8StZ7fZQBIsAqoSTzYeZ+1i5OBgE9CUuDC5FMQUATLnfQAbwywQKdE+8QcjiC0skCDx
+        8t9BZhCbV0BXYmfbDbApQgKHGSX+7NSFiAtKnJz5BKrXTGLe5ofMICOZBaQllv8DO5lTwFai
+        s2kiWImogLLEgW3HmSYwCs5C0j0LSfcshO4FjMyrGCVTC4pz03OLDQsM81LL9YoTc4tL89L1
+        kvNzNzGCg1pLcwfj9lUf9A4xMnEwHmKU4GBWEuG98LQ3SYg3JbGyKrUoP76oNCe1+BCjNAeL
+        kjjvha6T8UIC6YklqdmpqQWpRTBZJg5OqQYm2XVGBpFlMpXrLv33T63o9bg6N/C1t65lzM/i
+        pYtynJ7J8TwQa9IVVpmT8Pn/+zCthz43GrZdEag/fdpp57q0iQ5rCtffcbmeqjLxWM56Ddu5
+        E6e+rOLZPW+VTcFaM4O+/Tvn8Ht8tnCQlwvQd7mx7vtGq65QLnfJtvLzcicn3nwjGRK44QpH
+        /4odhybayJw2Uc51OCR3U8ZPuqvxoCpfQZhY5uXclRKTJU62fuXcIjvhRMIpm+erQ3eKuqW7
+        LtFgStI9Oi0i4ueaXIPdsav0Jko6f7z4/sIe+cfVie4z3t/8MPEVxw2vab1ssscf78rIXnOG
+        64B31PpzN5KY2gUFP7c1pZ6K3c4oVt26LUhKiaU4I9FQi7moOBEAa7gUZ9kCAAA=
+X-CMS-MailID: 20220527064258epcas5p22c2535ac2a12e0b5cb15febd797409ec
 X-Msg-Generator: CA
 Content-Type: multipart/mixed;
-        boundary="----gI3CjneswbLFDBMWjC7-zxaVNh_2D3qTNvt6SJynUi.wTNsa=_2cf04_"
+        boundary="----HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220526145400epcas5p348be0238746b1cc70fae627a63a43eba
+X-CMS-RootMailID: 20220526145402epcas5p4a73b9f0a092deb61f4182b170093a103
 References: <20220526144809.14877-1-ankit.kumar@samsung.com>
-        <CGME20220526145400epcas5p348be0238746b1cc70fae627a63a43eba@epcas5p3.samsung.com>
-        <20220526144809.14877-4-ankit.kumar@samsung.com>
+        <CGME20220526145402epcas5p4a73b9f0a092deb61f4182b170093a103@epcas5p4.samsung.com>
+        <20220526144809.14877-5-ankit.kumar@samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-------gI3CjneswbLFDBMWjC7-zxaVNh_2D3qTNvt6SJynUi.wTNsa=_2cf04_
+------HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Disposition: inline
 
-On Thu, May 26, 2022 at 08:18:04PM +0530, Ankit Kumar wrote:
+On Thu, May 26, 2022 at 08:18:05PM +0530, Ankit Kumar wrote:
+>From: Anuj Gupta <anuj20.g@samsung.com>
+>
+>Add a new I/O engine (io_uring_cmd) for sending uring passthrough
+>commands. It will also use most of the existing helpers from the
+>I/O engine io_uring. The I/O preparation, completion, file open,
+>file close and post init paths are going to differ and hence
+>io_uring_cmd will have its own helper for them.
+>
+>Add a new io_uring_cmd engine specific option to support nvme
+Is "-cmd_type=nvme" the specific option? Putting it here in the
+message should help.
+>passthrough commands. Filename name for this specific option
+>must specify nvme-ns generic character device (dev/ngXnY).
+>This provides io_uring_cmd I/O engine a bandwidth to support
+>various passthrough commands in future.
+>
+>The engine_pos and engine_data fields in struct fio_file are
+>separated now. This will help I/O engine io_uring_cmd to store
+>specific data as well as keep track of register files.
+>
+>The supported options for io_uring_cmd I/O engine are:
+> * registerfiles
+> * sqthread_poll
+> * sqthread_poll_cpu
+> * cmd_type
+> * nonvectored
+> * force_async
 
->+void fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
->+			     struct iovec *iov)
->+{
->+	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
->+	__u64 slba;
->+	__u32 nlb;
->+
->+	slba = io_u->offset / data->lba_size;
->+	nlb = (io_u->xfer_buflen / data->lba_size) - 1;
->+
->+	memset(cmd, 0, sizeof(struct nvme_uring_cmd));
+Since this code seems to support passing other options (e.g. fixedbufs,
+hipri etc.) too, above comment is bit confusing. If it is about listing
+what kernel supports at the moment, this seems misplaced.
+>
+>
 
-Is this better or setting remaining fields (which are not populated
-down) to zero.
-
->+	/* cdw10 and cdw11 represent starting lba */
->+	cmd->cdw10 = slba & 0xffffffff;
->+	cmd->cdw11 = slba >> 32;
->+	/* cdw12 represent number of lba's for read/write */
->+	cmd->cdw12 = nlb;
->+	if (iov) {
->+		iov->iov_base = io_u->xfer_buf;
->+		iov->iov_len = io_u->xfer_buflen;
->+		cmd->addr = (__u64)(uintptr_t)iov;
->+		cmd->data_len = 1;
-
-Is this correct? Do we always get 1 vector to deal with.
-
-
-
-------gI3CjneswbLFDBMWjC7-zxaVNh_2D3qTNvt6SJynUi.wTNsa=_2cf04_
+------HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_
 Content-Type: text/plain; charset="utf-8"
 
 
-------gI3CjneswbLFDBMWjC7-zxaVNh_2D3qTNvt6SJynUi.wTNsa=_2cf04_--
+------HMHzcl7Kov5y0bbYah5tgDYyhjafTXQAGx6UUfEgMJOMVZI4=_2cad4_--
