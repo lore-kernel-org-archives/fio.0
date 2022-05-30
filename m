@@ -2,214 +2,305 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AAF8C433EF
-	for <fio@archiver.kernel.org>; Mon, 30 May 2022 10:14:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98D25C433EF
+	for <fio@archiver.kernel.org>; Mon, 30 May 2022 12:00:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235132AbiE3KOH (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 30 May 2022 06:14:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45880 "EHLO
+        id S235805AbiE3MAL (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 30 May 2022 08:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231240AbiE3KOG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 30 May 2022 06:14:06 -0400
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DC14505E
-        for <fio@vger.kernel.org>; Mon, 30 May 2022 03:14:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1653905644; x=1685441644;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=RtgQF0FrHbN41GuH/LtqJgj+jv3Ix3dRtkM293vglII=;
-  b=oLld9MeqYJLvNpcu0DwkASVZy3WzCjXxZsB9UgEUJUSy/Uyr2vwJdTvD
-   qU7PhgFN9/4BkdPjVxEZI3QP9iGLNAgG+qN+YCZS3/uMiBjCsmJVL2ga7
-   PkOAEYRGGbheQCm3wN6E+Xd65LwJiAQ4DsIybrRvpd5m4VELS+VDjvyfb
-   1nyOtJAjDkHwZ/tIZ3F8xBo2G1wmBf/xyrk5FU7EXryxX18/wZFLSb0Mm
-   CW+UV3vu39FAKzv+K9YrQ22sdJW+s+88eO5EG15kW/bIS+wplZ7WH64xM
-   tlGc1+0XGMSdfTjeXcmMwqL5rkGFyXPwVxjYfnP1fhphmrA2qlo5dfxGR
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.91,262,1647273600"; 
-   d="scan'208";a="313810723"
-Received: from mail-mw2nam12lp2046.outbound.protection.outlook.com (HELO NAM12-MW2-obe.outbound.protection.outlook.com) ([104.47.66.46])
-  by ob1.hgst.iphmx.com with ESMTP; 30 May 2022 18:14:03 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=E2LATTIDbzveNa5utKttOEY+UXROPSPAVbMY21VxZnIHtbLmoFqtD8zU/7pLKvV7Ln+9RsLtEqA4a9ezDlORmJhHRIBe7oow344Oo+dghYWRh4NnG2UESj/FdaqOKRnQf8F/l5opZDGBsyGVHd+dPuc2nLI6NSp2n6fZoscrHMbf+gg8vvfQt7WMmLIpdOggHHZ2xqyGxzi1D5bzPx9Kh/NQacHi80fjq68ahENfo1v+cQaaP72QKGvctgodpZZN/K3SFG2FwyebOeQYK2ay1OanMTtyvtMcqjMQOj+sRS9+ullk7K3j+l5uUxKmeHj7yfZRWhW6LAB7RCG8WLZ/yQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fqzrh6YFyCIKleVki/eAqCZuqWU9MXJz7B+dIbxSQls=;
- b=JMeaB8qV8MZYbO5k/Av/3ufcIArt6UO9bXgL1U75vmbPRdt7EfEvznDZCF2G1wN6f0sdF7qJ73OWDGeB+I94q9W1PKbhDOPb6o33E+T62TEHBw6U3BW4kFIjkGxgs3xjBlmhuz4CEMHUcsyJ7YrmjPNAZC//sPjLtdOiYuKZtxZ19NFqJ/kcZ16DxpFZ9Dwjzj4Zi9rjbQiA/jtPw9GFnWGck6iglR94lVvTA8G1sGIiBGgO4QS/sDRqTCc7YwD1M1b4Ee+XyArLtwfY8uAfEs7X/Xg1/id27CylNVI85WWNN96WOxqm42XnV8+7/pi98QglI81IGB6j7knRsQQ1uQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fqzrh6YFyCIKleVki/eAqCZuqWU9MXJz7B+dIbxSQls=;
- b=gYSYbY7906+BZ+AnEpynRr2R/ppuNo3dy4Hfm3Yto7D80eQYecPqPQu04lWGiWUvockXzSjgs1eG+4xOhOHExnnyO+h8wrV2d/Cqo1zqJEuyCpiVXLoCZOlNRgMP4spY/nY78KITaqWQLL3aCPVSXwje8Izkb6f/lrK0dvYzQRg=
-Received: from DM8PR04MB8037.namprd04.prod.outlook.com (2603:10b6:8:f::6) by
- SJ0PR04MB8306.namprd04.prod.outlook.com (2603:10b6:a03:3f2::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5293.13; Mon, 30 May
- 2022 10:14:01 +0000
-Received: from DM8PR04MB8037.namprd04.prod.outlook.com
- ([fe80::39dc:d3d:686a:9e7]) by DM8PR04MB8037.namprd04.prod.outlook.com
- ([fe80::39dc:d3d:686a:9e7%3]) with mapi id 15.20.5293.019; Mon, 30 May 2022
- 10:14:01 +0000
-From:   Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     Ankit Kumar <ankit.kumar@samsung.com>
-CC:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        "krish.reddy@samsung.com" <krish.reddy@samsung.com>,
-        "joshi.k@samsung.com" <joshi.k@samsung.com>,
-        "anuj20.g@samsung.com" <anuj20.g@samsung.com>
-Subject: Re: [PATCH v2 6/8] zbd: Check for direct flag only if its block
- device
-Thread-Topic: [PATCH v2 6/8] zbd: Check for direct flag only if its block
- device
-Thread-Index: AQHYcSB3o4Tp4NvyKUWY+Z4mroeD9a03ObQA
-Date:   Mon, 30 May 2022 10:14:01 +0000
-Message-ID: <20220530101400.ft63dkg5y3dhjjj6@shindev>
-References: <20220526144809.14877-1-ankit.kumar@samsung.com>
- <CGME20220526145404epcas5p264b0af9a5ab117cc8276710c9b648f38@epcas5p2.samsung.com>
- <20220526144809.14877-7-ankit.kumar@samsung.com>
-In-Reply-To: <20220526144809.14877-7-ankit.kumar@samsung.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 862c9bef-645a-49f2-4594-08da42251e30
-x-ms-traffictypediagnostic: SJ0PR04MB8306:EE_
-x-microsoft-antispam-prvs: <SJ0PR04MB830637658D2C115F2D1E643BEDDD9@SJ0PR04MB8306.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: wnpn8HstJysx/661KeTHcvfQksPcWOi09L8KI+0+lK2XVYjigITfA12v0QWKV2v8RXDv0jW3O3406zyVM6E7uVsREZ5kixWr8GgkLtP/Ug/Bqxlgzr8m9/nZxrvEpqIAqs+vzfLkrtboZ700nv0IUkR6MKsWSR4/OMDfIKtUWzhmnLboWpoxeI8Lf16AOTfAHiApxwi5zPYHPGuENl3jvLdJu56HqAODuUeB7+bIPI8r/7/dupyVISa4aEJB7hrcinEsPwccHxb3fKcV2kUjkm4J6SPos8wESENWurc+bq2Alo/eDAcEr/tgugowAcmaf7xfdVoTgWlxBTbTZSR/BK3uc458naA5N3bn6+OozPImptoJuKddsBfrLcvtwQfcKziSRoCKhG9RGQqTyHdDBeRU91aYv0rP1XT6YjXmnTgCBe9m2CBM/v/8cLZ7tleUPrObTISELMrtaFv1H2XLfzfPM3lcurI6mSzdQ/1XddwtAxyRWBDu8g+HD03WL+1Afp1FIn3034CgK9hpQl0zJgAmWMwQ+xbS8COj5N1wEULnjpfBCgcyFd05GQED54tv+utrWfv8GnXfRJrq7mFbiPBO4CkWDMQA7iDmrBMbldqLYDTsx3/8JaNnqEPKj6fQ9PJJjC6ocL2A71iLCMZQ1zKcyUO2eV4NgsNRhTCZ4GaWAv0QJ0/duQayYTbC3PfDl1LLeyr+J3PXGfrbDQFFDA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM8PR04MB8037.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(7916004)(4636009)(366004)(6512007)(6506007)(9686003)(316002)(2906002)(33716001)(54906003)(26005)(6916009)(122000001)(38070700005)(83380400001)(82960400001)(38100700002)(5660300002)(86362001)(4326008)(66946007)(76116006)(8676002)(91956017)(66446008)(66476007)(64756008)(66556008)(44832011)(508600001)(6486002)(71200400001)(1076003)(186003)(8936002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?W7sWYNnBaok9FzfZe/2yxb1MIxgNCj5wzp0ozY6BaQDGNGjhoKuXaR20jiQS?=
- =?us-ascii?Q?ZEvXPUwL3RCXnpD/7CceN4AEs7Q5MKfZZrCaVkrtDFnUv/OZu1bPCZ0zXkpS?=
- =?us-ascii?Q?c5XR14w8gw55c6d8T/JH6/o5KdbkRWCFgLW/MhuL7nmfCsHRGCZRQQlKV+YX?=
- =?us-ascii?Q?vYXUNgCR/ViPfSWMWX2goKRBadtijTlAL/yZETLUw5MyslC03kVZd3k0pFpb?=
- =?us-ascii?Q?XJ85PtnDLQ0hJvm5fhdOamQ0ZgkVe/h7rvvUbmEt2EK0qStK41tDjPZ5Hint?=
- =?us-ascii?Q?zELJGNLow74Dh8KXKUH4cdFRm2gQ62wxbIffMR8LTw12SBQ9llgoj3FkrVaQ?=
- =?us-ascii?Q?U5i5wkIzDbe2bw3XH/Wq0BvCAFKyKOlYckE2kxlpm2tgGVKmrNHEpzK9ya/v?=
- =?us-ascii?Q?uRd0ovb6CsDx5RNHAcCnvZrpblwUVfJUd5AXf8nrPWfxk/fEt81CvtXhvt1x?=
- =?us-ascii?Q?gbDqhS0xXeN7IT37acENzQmo8WtD04BDjRlxsnq/nVzuhEg/yJ5cqx7DvGlA?=
- =?us-ascii?Q?x58fIhLMUngd6KsTUMbCRELCfurlS5wFELAYjRPB4jnMfY3mSJabZrdOCdv9?=
- =?us-ascii?Q?X5HFz0zDqmrofQXwYI3nOYR9Jh02RBGeahaFcOdvHLmlcaKj4T3OlI6b3oR2?=
- =?us-ascii?Q?oCfz8VfOdmr4vwjW0xVyr++TPB3/SWUookD9mO75BWZQxiBjpSsmb5oN5LUG?=
- =?us-ascii?Q?6sTAdLw5tJgqu42f0YjH0NfSz7K5pGWMq2VBltWxSzvatKUbrjocNSqXUAp5?=
- =?us-ascii?Q?TFLX3IbCCT/cj8MUhMMY+ASdQTJmMn1v21PQiGJLoKcggS/ivb6A+iS/G7mM?=
- =?us-ascii?Q?KUeenRJQXfAkuGReEU2M9dfvUnW4u56rYF3+08p7f8Sj+5ZQ1E+ugjlujIYk?=
- =?us-ascii?Q?BlICWPpS9k5OXHliizmDJ5B18ah5/hbyWHJNvPTuEjrwZBWxSWL9oeq0dtM4?=
- =?us-ascii?Q?v1e3gkUUm0+JQyykhCGwqWRZ8UrmQsmtohd2ZyH/LmuhwJDx9Bm6R4LpzR+E?=
- =?us-ascii?Q?faI57G7Tap4TEXt1/OIzghI8J/9mou5EeBXh0KEvDr6x3ahxiFCN45CqYOKQ?=
- =?us-ascii?Q?z8y+N6OSMmR710V4pKGdJhRoEvuJfC3cui2SmPvH8PDFTY+G7Y8BNfeVotOh?=
- =?us-ascii?Q?Cc0aVedYDCuhhTKnSZEjqVh2oqBgjH4blfO7pmJnrLiYhp9h5cZApMz0x1Kg?=
- =?us-ascii?Q?rL/uIT4ysd5DP/qVfjVkMAgJGhTEKM7IMS4Y+jsoAyqD8EzLIyHmQaYp+EdJ?=
- =?us-ascii?Q?7Qa/ritFjTaTTpBLgN8Z3N2m6e2f0VoZI7PIystzBiGpPZoaat8C420lX41b?=
- =?us-ascii?Q?ew7I1fyN+MPh+1tmcPPSyL75u2bFQM9ZTXFd+hYqsq+uP1ohdU9/zkojHKMc?=
- =?us-ascii?Q?nJo4aujw1Lo4+6ia+Yeh7UZZnr9KpWFRwKr91to6SAgMrcSYKVNWUSNf+ut4?=
- =?us-ascii?Q?AHK3DAGvYe1s3QtP89yjefFMWu7QHfpgnl/6VvCBKZd8z3C27+HJLpXG4cW7?=
- =?us-ascii?Q?sIjqv7aD/5MVUMu0xK0/rS09QgwUs9/dGG+0IazuYtYX7mGJibpzQ3KtfA9U?=
- =?us-ascii?Q?pSFVHK/43olv3WOOksejpmBgyFXBhgnAtlpZWCJDkAgjlT8Tf/P1YJf7JkjE?=
- =?us-ascii?Q?mccOsDJCDqSqGaObVVIboJ7f8hgTwr61oQrV4ojbtKIogbKHqCANolaHt8bF?=
- =?us-ascii?Q?FQR5GMc86nEQwdkhgXRiGJdhLrJfeMgSOBNyoQTjBdsxIdPe9gvVumoAymv9?=
- =?us-ascii?Q?Hd3YbFNGkqZ7GMcw/R49qfm8vPAOCsmjkz2sIPnEvp2quKsX22BQ?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <4B8BB3DABDCF2E458CF268405D2F3085@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM8PR04MB8037.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 862c9bef-645a-49f2-4594-08da42251e30
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 May 2022 10:14:01.3424
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 1+L8lcG7SUNM9totZXTf/fEev7f7PUAlYYVSuMXrdaiBKfQaF5D2NgVuyOaTD1GhazHfOziuhgsbsvX8bt5GFihP/utsCjoAaE1ofjw5UL0=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR04MB8306
+        with ESMTP id S234316AbiE3MAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 30 May 2022 08:00:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8448E7CB1F
+        for <fio@vger.kernel.org>; Mon, 30 May 2022 05:00:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=3Pvo0fe7VOuzZaSB64CXts1MFV5KExDy58dkGA+aTs4=; b=j5jMVjWwwU5NKTrB8KBb8BjHTR
+        G5eHqXg8vzyiXqPjCwCWd+4rBfRKlNufjhj27b/netidLe9y2WqdoLTspAdSYiBK8UNkkuHFgHrKi
+        q+iowWHVpIZzse9QKOusWebOTDL6mYUDYe2UFH3S2hMBXJL2PJVtcVovBt894EsZAqPGq/IOBEQjt
+        /MKGa/aA/gHtKN2FSq8hIwtzVLljiTpUxbF43HDfC7NFPaORki8CdfciP1VJKu4/T4IW2RnA7EXxd
+        P6V9PIE+0b79eCi/HnbFKcsJ1ip7LlBKIoVc2XxRjmUVJlFFgv0n4mLVh5kRWvgNAaN0MJzst7jaO
+        szROnaSg==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nve44-004S4o-Gn
+        for fio@vger.kernel.org; Mon, 30 May 2022 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id B00091BC0129; Mon, 30 May 2022 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220530120001.B00091BC0129@kernel.dk>
+Date:   Mon, 30 May 2022 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On May 26, 2022 / 20:18, Ankit Kumar wrote:
-> nvme-ns generic character devices currently do not support O_DIRECT flag.
-> Check for fio option for direct flag only if filetype is a block device.
->=20
-> t/zbd skip test case #1 for character devices as don't require
-> direct I/O.
->=20
-> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
-> ---
->  t/zbd/test-zbd-support | 3 ++-
->  zbd.c                  | 4 ++--
->  2 files changed, 4 insertions(+), 3 deletions(-)
->=20
-> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-> index 7e2fff00..a1ec5684 100755
-> --- a/t/zbd/test-zbd-support
-> +++ b/t/zbd/test-zbd-support
-> @@ -251,8 +251,9 @@ require_conv_zones() {
->  	return 0
->  }
-> =20
-> -# Check whether buffered writes are refused.
-> +# Check whether buffered writes are refused for regular block devices.
->  test1() {
-> +    require_regular_block_dev || return $SKIP_TESTCASE
+The following changes since commit a2840331c3cae5b2b0a13f99e58ae18375e2e40d:
 
-Hmm, this change skips this test case for character devices, but it also sk=
-ips
-for zoned block devices. Not good. This test case should not be skipped for
-block devices for both zoned and non-zoned. The word "regular" in the the h=
-elper
-function require_regular_block_dev() means "non-zoned". So it ensures that =
-the
-test target device is a *non-zoned* block device.
+  Merge branch 'master' of https://github.com/guoanwu/fio (2022-05-25 06:30:06 -0600)
 
-To skip this test case for character devices and run for block devices, a n=
-ew
-helper function require_block_dev() will be needed.
+are available in the Git repository at:
 
->      run_fio --name=3Djob1 --filename=3D"$dev" --rw=3Dwrite --direct=3D0 =
---bs=3D4K	\
->  	    "$(ioengine "psync")" --size=3D"${zone_size}" --thread=3D1	\
->  	    --zonemode=3Dzbd --zonesize=3D"${zone_size}" 2>&1 |
-> diff --git a/zbd.c b/zbd.c
-> index b1fd6b4b..627fb968 100644
-> --- a/zbd.c
-> +++ b/zbd.c
-> @@ -466,7 +466,7 @@ out:
->  	return res;
->  }
-> =20
-> -/* Verify whether direct I/O is used for all host-managed zoned drives. =
-*/
-> +/* Verify whether direct I/O is used for all host-managed zoned block dr=
-ives. */
->  static bool zbd_using_direct_io(void)
->  {
->  	struct thread_data *td;
-> @@ -477,7 +477,7 @@ static bool zbd_using_direct_io(void)
->  		if (td->o.odirect || !(td->o.td_ddir & TD_DDIR_WRITE))
->  			continue;
->  		for_each_file(td, f, j) {
-> -			if (f->zbd_info &&
-> +			if (f->zbd_info && f->filetype =3D=3D FIO_TYPE_BLOCK &&
->  			    f->zbd_info->model =3D=3D ZBD_HOST_MANAGED)
->  				return false;
->  		}
-> --=20
-> 2.17.1
->=20
+  git://git.kernel.dk/fio.git master
 
---=20
-Shin'ichiro Kawasaki=
+for you to fetch changes up to e1aeff3ac96a51128b0493377f405e38bdc83500:
+
+  Merge branch 'wip-lmy-rados' of https://github.com/liangmingyuanneo/fio (2022-05-29 09:32:18 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'wip-lmy-rados' of https://github.com/liangmingyuanneo/fio
+
+Vincent Fu (5):
+      steadystate: delete incorrect comment
+      configure: refer to zlib1g-dev package for zlib support
+      HOWTO: add blank line for prettier formatting
+      t/run-fio-tests: improve json data decoding
+      docs: update discussion of huge page sizes
+
+liangmingyuan (1):
+      engines/ceph: add option for setting config file path
+
+ HOWTO.rst          | 31 ++++++++++++++++++++-----------
+ configure          |  2 +-
+ engines/rados.c    | 13 ++++++++++++-
+ examples/rados.fio |  1 +
+ fio.1              | 23 ++++++++++++++---------
+ steadystate.c      |  7 -------
+ t/run-fio-tests.py | 20 +++++++-------------
+ 7 files changed, 55 insertions(+), 42 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 84bea5c5..8ab3ac4b 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -1064,6 +1064,7 @@ Target file/device
+ 	thread/process.
+ 
+ .. option:: ignore_zone_limits=bool
++
+ 	If this option is used, fio will ignore the maximum number of open
+ 	zones limit of the zoned block device in use, thus allowing the
+ 	option :option:`max_open_zones` value to be larger than the device
+@@ -1822,13 +1823,14 @@ Buffers and memory
+ 	**mmaphuge** to work, the system must have free huge pages allocated. This
+ 	can normally be checked and set by reading/writing
+ 	:file:`/proc/sys/vm/nr_hugepages` on a Linux system. Fio assumes a huge page
+-	is 4MiB in size. So to calculate the number of huge pages you need for a
+-	given job file, add up the I/O depth of all jobs (normally one unless
+-	:option:`iodepth` is used) and multiply by the maximum bs set. Then divide
+-	that number by the huge page size. You can see the size of the huge pages in
+-	:file:`/proc/meminfo`. If no huge pages are allocated by having a non-zero
+-	number in `nr_hugepages`, using **mmaphuge** or **shmhuge** will fail. Also
+-	see :option:`hugepage-size`.
++        is 2 or 4MiB in size depending on the platform. So to calculate the
++        number of huge pages you need for a given job file, add up the I/O
++        depth of all jobs (normally one unless :option:`iodepth` is used) and
++        multiply by the maximum bs set. Then divide that number by the huge
++        page size. You can see the size of the huge pages in
++        :file:`/proc/meminfo`. If no huge pages are allocated by having a
++        non-zero number in `nr_hugepages`, using **mmaphuge** or **shmhuge**
++        will fail. Also see :option:`hugepage-size`.
+ 
+ 	**mmaphuge** also needs to have hugetlbfs mounted and the file location
+ 	should point there. So if it's mounted in :file:`/huge`, you would use
+@@ -1847,10 +1849,12 @@ Buffers and memory
+ 
+ .. option:: hugepage-size=int
+ 
+-	Defines the size of a huge page. Must at least be equal to the system
+-	setting, see :file:`/proc/meminfo`. Defaults to 4MiB.  Should probably
+-	always be a multiple of megabytes, so using ``hugepage-size=Xm`` is the
+-	preferred way to set this to avoid setting a non-pow-2 bad value.
++        Defines the size of a huge page. Must at least be equal to the system
++        setting, see :file:`/proc/meminfo` and
++        :file:`/sys/kernel/mm/hugepages/`. Defaults to 2 or 4MiB depending on
++        the platform.  Should probably always be a multiple of megabytes, so
++        using ``hugepage-size=Xm`` is the preferred way to set this to avoid
++        setting a non-pow-2 bad value.
+ 
+ .. option:: lockmem=int
+ 
+@@ -2491,6 +2495,11 @@ with the caveat that when used on the command line, they must come after the
+ 	the full *type.id* string. If no type. prefix is given, fio will add
+ 	'client.' by default.
+ 
++.. option:: conf=str : [rados]
++
++    Specifies the configuration path of ceph cluster, so conf file does not
++    have to be /etc/ceph/ceph.conf.
++
+ .. option:: busy_poll=bool : [rbd,rados]
+ 
+         Poll store instead of waiting for completion. Usually this provides better
+diff --git a/configure b/configure
+index 95b60bb7..4ee536a0 100755
+--- a/configure
++++ b/configure
+@@ -3142,7 +3142,7 @@ if test "$libzbc" = "yes" ; then
+   output_sym "CONFIG_LIBZBC"
+ fi
+ if test "$zlib" = "no" ; then
+-  echo "Consider installing zlib-dev (zlib-devel, some fio features depend on it."
++  echo "Consider installing zlib1g-dev (zlib-devel) as some fio features depend on it."
+   if test "$build_static" = "yes"; then
+     echo "Note that some distros have separate packages for static libraries."
+   fi
+diff --git a/engines/rados.c b/engines/rados.c
+index 976f9229..d0d15c5b 100644
+--- a/engines/rados.c
++++ b/engines/rados.c
+@@ -37,6 +37,7 @@ struct rados_options {
+ 	char *cluster_name;
+ 	char *pool_name;
+ 	char *client_name;
++	char *conf;
+ 	int busy_poll;
+ 	int touch_objects;
+ };
+@@ -69,6 +70,16 @@ static struct fio_option options[] = {
+ 		.category = FIO_OPT_C_ENGINE,
+ 		.group    = FIO_OPT_G_RBD,
+ 	},
++	{
++		.name     = "conf",
++		.lname    = "ceph configuration file path",
++		.type     = FIO_OPT_STR_STORE,
++		.help     = "Path of the ceph configuration file",
++		.off1     = offsetof(struct rados_options, conf),
++		.def      = "/etc/ceph/ceph.conf",
++		.category = FIO_OPT_C_ENGINE,
++		.group    = FIO_OPT_G_RBD,
++	},
+ 	{
+ 		.name     = "busy_poll",
+ 		.lname    = "busy poll mode",
+@@ -184,7 +195,7 @@ static int _fio_rados_connect(struct thread_data *td)
+ 		goto failed_early;
+ 	}
+ 
+-	r = rados_conf_read_file(rados->cluster, NULL);
++	r = rados_conf_read_file(rados->cluster, o->conf);
+ 	if (r < 0) {
+ 		log_err("rados_conf_read_file failed.\n");
+ 		goto failed_early;
+diff --git a/examples/rados.fio b/examples/rados.fio
+index 035cbff4..dd86f354 100644
+--- a/examples/rados.fio
++++ b/examples/rados.fio
+@@ -14,6 +14,7 @@
+ ioengine=rados
+ clientname=admin
+ pool=rados
++conf=/etc/ceph/ceph.conf
+ busy_poll=0
+ rw=randwrite
+ bs=4k
+diff --git a/fio.1 b/fio.1
+index ded7bbfc..bdba3142 100644
+--- a/fio.1
++++ b/fio.1
+@@ -1631,11 +1631,11 @@ multiplied by the I/O depth given. Note that for \fBshmhuge\fR and
+ \fBmmaphuge\fR to work, the system must have free huge pages allocated. This
+ can normally be checked and set by reading/writing
+ `/proc/sys/vm/nr_hugepages' on a Linux system. Fio assumes a huge page
+-is 4MiB in size. So to calculate the number of huge pages you need for a
+-given job file, add up the I/O depth of all jobs (normally one unless
+-\fBiodepth\fR is used) and multiply by the maximum bs set. Then divide
+-that number by the huge page size. You can see the size of the huge pages in
+-`/proc/meminfo'. If no huge pages are allocated by having a non-zero
++is 2 or 4MiB in size depending on the platform. So to calculate the number of
++huge pages you need for a given job file, add up the I/O depth of all jobs
++(normally one unless \fBiodepth\fR is used) and multiply by the maximum bs set.
++Then divide that number by the huge page size. You can see the size of the huge
++pages in `/proc/meminfo'. If no huge pages are allocated by having a non-zero
+ number in `nr_hugepages', using \fBmmaphuge\fR or \fBshmhuge\fR will fail. Also
+ see \fBhugepage\-size\fR.
+ .P
+@@ -1655,10 +1655,11 @@ of subsequent I/O memory buffers is the sum of the \fBiomem_align\fR and
+ \fBbs\fR used.
+ .TP
+ .BI hugepage\-size \fR=\fPint
+-Defines the size of a huge page. Must at least be equal to the system
+-setting, see `/proc/meminfo'. Defaults to 4MiB. Should probably
+-always be a multiple of megabytes, so using `hugepage\-size=Xm' is the
+-preferred way to set this to avoid setting a non-pow-2 bad value.
++Defines the size of a huge page. Must at least be equal to the system setting,
++see `/proc/meminfo' and `/sys/kernel/mm/hugepages/'. Defaults to 2 or 4MiB
++depending on the platform. Should probably always be a multiple of megabytes,
++so using `hugepage\-size=Xm' is the preferred way to set this to avoid setting
++a non-pow-2 bad value.
+ .TP
+ .BI lockmem \fR=\fPint
+ Pin the specified amount of memory with \fBmlock\fR\|(2). Can be used to
+@@ -2243,6 +2244,10 @@ Ceph cluster. If the \fBclustername\fR is specified, the \fBclientname\fR shall
+ the full *type.id* string. If no type. prefix is given, fio will add 'client.'
+ by default.
+ .TP
++.BI (rados)conf \fR=\fPstr
++Specifies the configuration path of ceph cluster, so conf file does not
++have to be /etc/ceph/ceph.conf.
++.TP
+ .BI (rbd,rados)busy_poll \fR=\fPbool
+ Poll store instead of waiting for completion. Usually this provides better
+ throughput at cost of higher(up to 100%) CPU utilization.
+diff --git a/steadystate.c b/steadystate.c
+index 2e3da1db..ad19318c 100644
+--- a/steadystate.c
++++ b/steadystate.c
+@@ -250,13 +250,6 @@ int steadystate_check(void)
+ 		rate_time = mtime_since(&ss->prev_time, &now);
+ 		memcpy(&ss->prev_time, &now, sizeof(now));
+ 
+-		/*
+-		 * Begin monitoring when job starts but don't actually use
+-		 * data in checking stopping criterion until ss->ramp_time is
+-		 * over. This ensures that we will have a sane value in
+-		 * prev_iops/bw the first time through after ss->ramp_time
+-		 * is done.
+-		 */
+ 		if (ss->state & FIO_SS_RAMP_OVER) {
+ 			group_bw += 1000 * (td_bytes - ss->prev_bytes) / rate_time;
+ 			group_iops += 1000 * (td_iops - ss->prev_iops) / rate_time;
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index ecceb67e..32cdbc19 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -311,21 +311,15 @@ class FioJobTest(FioExeTest):
+         #
+         # Sometimes fio informational messages are included at the top of the
+         # JSON output, especially under Windows. Try to decode output as JSON
+-        # data, lopping off up to the first four lines
++        # data, skipping everything until the first {
+         #
+         lines = file_data.splitlines()
+-        for i in range(5):
+-            file_data = '\n'.join(lines[i:])
+-            try:
+-                self.json_data = json.loads(file_data)
+-            except json.JSONDecodeError:
+-                continue
+-            else:
+-                logging.debug("Test %d: skipped %d lines decoding JSON data", self.testnum, i)
+-                return
+-
+-        self.failure_reason = "{0} unable to decode JSON data,".format(self.failure_reason)
+-        self.passed = False
++        file_data = '\n'.join(lines[lines.index("{"):])
++        try:
++            self.json_data = json.loads(file_data)
++        except json.JSONDecodeError:
++            self.failure_reason = "{0} unable to decode JSON data,".format(self.failure_reason)
++            self.passed = False
+ 
+ 
+ class FioJobTest_t0005(FioJobTest):
