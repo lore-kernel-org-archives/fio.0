@@ -2,140 +2,398 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C45FBC433FE
-	for <fio@archiver.kernel.org>; Wed,  1 Jun 2022 09:40:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E498C4332F
+	for <fio@archiver.kernel.org>; Wed,  1 Jun 2022 09:40:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345160AbiFAJkN (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 1 Jun 2022 05:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33344 "EHLO
+        id S1350252AbiFAJkW (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 1 Jun 2022 05:40:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344258AbiFAJkM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Jun 2022 05:40:12 -0400
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 562E24924A
-        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 02:40:11 -0700 (PDT)
+        with ESMTP id S1350017AbiFAJkQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 1 Jun 2022 05:40:16 -0400
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48AB94924A
+        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 02:40:15 -0700 (PDT)
 Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220601094009epoutp02446e89f0ea860e42b593d432fb71b2b6~0dbsZwZkJ2836128361epoutp025
-        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 09:40:09 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220601094009epoutp02446e89f0ea860e42b593d432fb71b2b6~0dbsZwZkJ2836128361epoutp025
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20220601094011epoutp044b453fca556ecfd61679f03be35b98ee~0dbuGTBXp0647906479epoutp04D
+        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 09:40:11 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20220601094011epoutp044b453fca556ecfd61679f03be35b98ee~0dbuGTBXp0647906479epoutp04D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1654076409;
-        bh=fBOyPamGXff/wKq7HnksghCp6pXR0bFx/TPodgXMNpM=;
+        s=mail20170921; t=1654076411;
+        bh=j0TSCeufAiWHzUT12udzooUNe/7wrhBxvlcPLNv303A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PXN/dZ98U21Um/naWJKCOsghQz4cwgaSAoZtFKNntvTwXxa2g6JuBEtPA9ZhKXA0r
-         9jcD/rlr/JAtcnQDXl1ccQGi9hz03VMIb7FdpdBfqEf02uZwHlUF18Yyv5kBue1rDs
-         RmIVPm0tTzXKz7dY0DQwHfUS+3Ohkx1yJg/RYlU4=
+        b=sBQgiiJ5vy+23hoFqgm+o4JvMw5T/ADXquL52n/lMV9JgODqSt/bTgZOCDhNH1WYr
+         xnfoe8yfzoMdy4VlV25PqkTVwdrRylc3M4Rct6tIi4J+UPMK99ju0QlnJQlU4045kv
+         whIAPTMcnrr+mlZV+ipH2xmnofkwBSaLaYLviKss=
 Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
         epcas5p2.samsung.com (KnoxPortal) with ESMTP id
-        20220601094009epcas5p235c68a716560c4134e70da79f0580a24~0dbsFkl2P0365803658epcas5p2n;
-        Wed,  1 Jun 2022 09:40:09 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.182]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4LCkdc0BL9z4x9Pv; Wed,  1 Jun
-        2022 09:40:04 +0000 (GMT)
+        20220601094010epcas5p2a57268a0c9c3bddb4d40eeb8a44107b6~0dbts3tbM0343703437epcas5p2s;
+        Wed,  1 Jun 2022 09:40:10 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.182]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4LCkdf5nwlz4x9Pw; Wed,  1 Jun
+        2022 09:40:06 +0000 (GMT)
 Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        62.E4.10063.2F337926; Wed,  1 Jun 2022 18:40:02 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-        20220531133743epcas5p4d400c341f29489c51e3ee5590415420c~0NB01DiTp1877418774epcas5p4b;
-        Tue, 31 May 2022 13:37:43 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220531133743epsmtrp17c4ca35a21ff4b089876aca1a46a394e~0NB00cGod2715827158epsmtrp1e;
-        Tue, 31 May 2022 13:37:43 +0000 (GMT)
-X-AuditID: b6c32a49-4b5ff7000000274f-f8-629733f25950
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        30.77.09827.6F337926; Wed,  1 Jun 2022 18:40:06 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+        20220531133745epcas5p3546b36e799931251c4020e4fe13fa14d~0NB22rCcp2562925629epcas5p3Q;
+        Tue, 31 May 2022 13:37:45 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20220531133745epsmtrp27b2e7296a65975cd664d00b77b41a0b2~0NB216tBM0338303383epsmtrp2E;
+        Tue, 31 May 2022 13:37:45 +0000 (GMT)
+X-AuditID: b6c32a4a-b3bff70000002663-5f-629733f67592
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        C7.F4.11276.72A16926; Tue, 31 May 2022 22:37:43 +0900 (KST)
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        63.4E.08924.92A16926; Tue, 31 May 2022 22:37:45 +0900 (KST)
 Received: from test-zns.sa.corp.samsungelectronics.net (unknown
         [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20220531133741epsmtip2beb30a33f98d527bbf0ffedef1714ac8~0NBzjzBBZ2551725517epsmtip25;
-        Tue, 31 May 2022 13:37:41 +0000 (GMT)
+        20220531133743epsmtip2a889346c98b359efbbcf56072748d040~0NB1FeRG82729427294epsmtip2q;
+        Tue, 31 May 2022 13:37:43 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, krish.reddy@samsung.com, joshi.k@samsung.com,
-        anuj20.g@samsung.com
-Subject: [PATCH v3 3/9] init: return error incase an invalid value is passed
- as option
-Date:   Tue, 31 May 2022 19:01:49 +0530
-Message-Id: <20220531133155.17493-4-ankit.kumar@samsung.com>
+        anuj20.g@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
+Subject: [PATCH v3 4/9] nvme: add nvme opcodes, structures and helper
+ functions
+Date:   Tue, 31 May 2022 19:01:50 +0530
+Message-Id: <20220531133155.17493-5-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20220531133155.17493-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrFKsWRmVeSWpSXmKPExsWy7bCmuu4n4+lJBk8apC2aJvxltlh9t5/N
-        4uOsF8wWR/+/ZbNYuHEZkwOrx+WzpR59W1YxenzeJBfAHJVtk5GamJJapJCal5yfkpmXbqvk
-        HRzvHG9qZmCoa2hpYa6kkJeYm2qr5OIToOuWmQO0UUmhLDGnFCgUkFhcrKRvZ1OUX1qSqpCR
-        X1xiq5RakJJTYFKgV5yYW1yal66Xl1piZWhgYGQKVJiQnXF+1la2gi+sFUsnfWNuYNzM0sXI
-        wSEhYCKx6Ux9FyMXh5DAbkaJT4c3skE4nxglui59ZIRwvjFKLLx9FaiDE6zj4dq5zBCJvYwS
-        Z5ZsYYVwWpkkpv+YyQpSxSagLfHq7Q1mEFtEQFhif0crWDezQKzE820NTCC7hQUiJHYdtAAJ
-        swioStw4No0RxOYVsJH4OW8N1DJ5idUbDoCN4RSwlZg3dT3YLgmBVewSS640MUIUuUjMmXKA
-        FcIWlnh1fAs7hC0l8bK/DcrOlmh89JcNwi6R2HlrOzOEbS9xcc9fsHuYBTQl1u/ShwjLSkw9
-        tY4J4mQ+id7fT5gg4rwSO+bB2KoSf+/dhrpTWuLmO1gAeUi8bdvBAgmTCYwS+17eZZzAKDcL
-        YcUCRsZVjJKpBcW56anFpgWGeanl8EhLzs/dxAhOVFqeOxjvPvigd4iRiYPxEKMEB7OSCG/J
-        rqlJQrwpiZVVqUX58UWlOanFhxhNgQE4kVlKNDkfmCrzSuINTSwNTMzMzEwsjc0MlcR5Bf43
-        JgkJpCeWpGanphakFsH0MXFwSjUwBX8/ELiL5aGiaUKikeKHdz88t8+qjkp52XYuN+Gp3o+7
-        hoLMAYLuj2y/7nObEROww+jBXJWEvvDtlVf+m8xV78l8NLezjvlKz8M/qXvNXzcJPp7bOWGm
-        ET/3qXu/vk6LsLrdKX0v9cjW16evvI0oOdh3d9sTxZ89+YVv50U90NsWPim1PpJtzd6DDt0J
-        xc6nnwcsmXNy5Yb+qUld70PDVXh+MSTm7H/+mpfnt4665tcpp7gfzP2WrjBTOUvj1tzLq0yU
-        +eQ6m8wvzj+nfrfgZcS82FcbF6aYR7k/8sr+k//ttNvhTSff9imdjrr/7UNf0EWBKVV+t+f1
-        zapwMVy2tsIxeWPJNlnBCu0DbG4tb5VYijMSDbWYi4oTAQVyDZPdAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrPJMWRmVeSWpSXmKPExsWy7bCSvK661LQkg/cdHBZNE/4yW6y+289m
-        8XHWC2aLo//fslks3LiMyYHV4/LZUo++LasYPT5vkgtgjuKySUnNySxLLdK3S+DKOD9rK1vB
-        F9aKpZO+MTcwbmbpYuTkkBAwkXi4di5zFyMXh5DAbkaJCVtvMHYxcgAlpCUWrk+EqBGWWPnv
-        OTuILSTQzCQx5xk3iM0moC3x6u0NZhBbBKhmf0cr2ExmgUSJHZN2gY0RFgiTOLbUESTMIqAq
-        cePYNEYQm1fARuLnvDVQJ8hLrN5wAGwMp4CtxLyp61khVtlITH2xgHECI98CRoZVjJKpBcW5
-        6bnFhgWGeanlesWJucWleel6yfm5mxjBYaSluYNx+6oPeocYmTgYDzFKcDArifCW7JqaJMSb
-        klhZlVqUH19UmpNafIhRmoNFSZz3QtfJeCGB9MSS1OzU1ILUIpgsEwenVAMTm8uXoylrTWL+
-        f52erfZcPejnQaHT0sfm/j/9sOLP9SsTV9sWbuTMuMU3nW+LfjpjWeKS5zcX1kof/OLveqn7
-        xtZbP2tKBX/LcLOLLxEJKI14ueqJyD1jaRWZ2i42cYc7e/eFTZjypHzvcaX7f2u+7d/Vumv1
-        jJ2/QkKZWr8tjswya5t1LeinTOhixhqDeEnxfL/UVzknEwxPS5yTTJyuV9rLyxPL/+kXy/UT
-        /Zk7zR4oWtdU7ipV/1f2/d26FXc2Zh3XLU+rjX1pHO5c43laJcuHRfz8l4tBG222Hdhset9m
-        TY/ZBIk33iF357CtFek53Sd075fR1r/LfOadPtywMEe3Z1fd2Q/fEpXVv6+frMRSnJFoqMVc
-        VJwIAHVV8BWSAgAA
-X-CMS-MailID: 20220531133743epcas5p4d400c341f29489c51e3ee5590415420c
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrLKsWRmVeSWpSXmKPExsWy7bCmuu434+lJBtteC1qsufKb3aJpwl9m
+        i9V3+9ksPs56wWxx9P9bNouFG5cxObB5XD5b6tG3ZRWjx+dNcgHMUdk2GamJKalFCql5yfkp
+        mXnptkrewfHO8aZmBoa6hpYW5koKeYm5qbZKLj4Bum6ZOUBrlRTKEnNKgUIBicXFSvp2NkX5
+        pSWpChn5xSW2SqkFKTkFJgV6xYm5xaV56Xp5qSVWhgYGRqZAhQnZGfdnnWAp+G5WcWByfAPj
+        H60uRk4OCQETiZZHvSxdjFwcQgK7GSWOfbvOCuF8YpR49ukQM4TzmVHi/ZUTLDAtjzsms4PY
+        QgK7GCXaLydA2K1MEhPfFYPYbALaEq/e3mAGsUUEhCX2d7SCrWAWaGGUaFy9FmyQsECgxIrl
+        U8FsFgFViaendgOt5uDgFbCR2HouFGKXvMTqDQfA5nAK2ErMm7oe7DoJgU3sEuuf3WeFKHKR
+        mLl+IzOELSzx6vgWdghbSuLzu71sEHa2ROOjv1B2icTOW9uh6u0lLu75ywSyl1lAU2L9Ln2I
+        sKzE1FPrmEBsZgE+id7fT5gg4rwSO+bB2KoSf+/dhoaJtMTNd1dZQMZICHhIdL7khYTbBEaJ
+        fRufME5glJuFsGEBI+MqRsnUguLc9NRi0wKjvNRyeJQl5+duYgSnKy2vHYwPH3zQO8TIxMF4
+        iFGCg1lJhLdk19QkId6UxMqq1KL8+KLSnNTiQ4ymwOCbyCwlmpwPTJh5JfGGJpYGJmZmZiaW
+        xmaGSuK8Av8bk4QE0hNLUrNTUwtSi2D6mDg4pRqY1FJVRe8fXJ/pKKL4/xZTATPPlSWnbuve
+        ynn3zqG9q+Te9dzsEJP7pUdD/nTM0F16NLC7VuO6/n5P36iIo3/+rPNf8M9r6lcGG5fL7m9+
+        9G7/+b2C/9i8J39evA5ObbrfwHTtsN3B/FPfTAsus5gwBbfwPD75fePWVU8TxJuvL1jExTL/
+        ufs5wUfTQp5HrTpfeumhmlTegrSYYA327r+qJZFX5OXeKK0+tzL/oVbi7RNr2Q9vCa95sEf6
+        36/Z9/s6mitC81e1+MxvdjiXVd+qse77iyY925+Rthm+fvJGCSyPps54yMt3KuZ7Y6iYK3uu
+        /7qq97kzpxfp8tRG+aYuODWdPeftf4cClnSR2pwUJZbijERDLeai4kQAJUZOseADAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmplluLIzCtJLcpLzFFi42LZdlhJXldTalqSwf0tAhZrrvxmt2ia8JfZ
+        YvXdfjaLj7NeMFsc/f+WzWLhxmVMDmwel8+WevRtWcXo8XmTXABzFJdNSmpOZllqkb5dAlfG
+        /VknWAq+m1UcmBzfwPhHq4uRk0NCwETiccdk9i5GLg4hgR2MEl++/wZyOIAS0hIL1ydC1AhL
+        rPz3HKqmmUli/YvjrCAJNgFtiVdvbzCD2CJARfs7WllAipgFuhglejpPMYEkhAX8JTYe2sMC
+        YrMIqEo8PbWbFWQBr4CNxNZzoRAL5CVWbzgANodTwFZi3tT1YPOFgEqmvljAOIGRbwEjwypG
+        ydSC4tz03GLDAqO81HK94sTc4tK8dL3k/NxNjOCQ0tLawbhn1Qe9Q4xMHIyHGCU4mJVEeEt2
+        TU0S4k1JrKxKLcqPLyrNSS0+xCjNwaIkznuh62S8kEB6YklqdmpqQWoRTJaJg1OqgSlIk+vP
+        tfs5986usj29Q4Sp+4jnZn2vcomriW926l9duOi3tb9Y0Evxpn/h9WG7WO+YXev9f3aDlJSB
+        59a/Fxv3HVC9dnVNqG5+coDNrkfzYtTuBKnt1jV0SL8U0DP/wXmm6SYpWx0Kv/EdZnZcnnth
+        jfDM8gNmrnpN91Rt5ZeeTI2flL72wtfe33c4snQfXRNlPd+sGuBuXainxDVJyPa/0v8lb+f9
+        qxfXaJtVYqy/bunsf9b1+e8j9kxc+H7ala3v648FtGw6Nqck0vjpFtkn7Y8VTs3YJLd5T9lr
+        9siF2ZffLwr+tzo+eJHEuh//mW4yTTi6Zn2Tn6JT2rb1PLYPzIsWzrFcOmXBrA3rzq+uUmIp
+        zkg01GIuKk4EABoRl8+YAgAA
+X-CMS-MailID: 20220531133745epcas5p3546b36e799931251c4020e4fe13fa14d
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220531133743epcas5p4d400c341f29489c51e3ee5590415420c
+X-CMS-RootMailID: 20220531133745epcas5p3546b36e799931251c4020e4fe13fa14d
 References: <20220531133155.17493-1-ankit.kumar@samsung.com>
-        <CGME20220531133743epcas5p4d400c341f29489c51e3ee5590415420c@epcas5p4.samsung.com>
+        <CGME20220531133745epcas5p3546b36e799931251c4020e4fe13fa14d@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Anuj Gupta <anuj20.g@samsung.com>
+Add NVMe specification opcodes, data structures and helper
+functions to get identify namespace and form nvme uring command.
 
-Currently, fio exits incase an invalid value is passed as fio
-option, but continues even if an invalid value is passed for
-I/O engine specific options. Exit in that scenario.
+This will help the follow up patches to get nvme-ns generic
+character device size, lba size.
 
-Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
+Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+Co-authored-by: Anuj Gupta <anuj20.g@samsung.com>
 ---
- init.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ Makefile       |   4 +-
+ engines/nvme.c | 103 +++++++++++++++++++++++++++++++++++++
+ engines/nvme.h | 136 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 241 insertions(+), 2 deletions(-)
+ create mode 100644 engines/nvme.c
+ create mode 100644 engines/nvme.h
 
-diff --git a/init.c b/init.c
-index f7d702f8..da800776 100644
---- a/init.c
-+++ b/init.c
-@@ -2810,6 +2810,15 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
- 				break;
- 
- 			ret = fio_cmd_ioengine_option_parse(td, opt, val);
+diff --git a/Makefile b/Makefile
+index ed66305a..188a74d7 100644
+--- a/Makefile
++++ b/Makefile
+@@ -231,7 +231,7 @@ ifdef CONFIG_LIBXNVME
+ endif
+ ifeq ($(CONFIG_TARGET_OS), Linux)
+   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c engines/sg.c \
+-		oslib/linux-dev-lookup.c engines/io_uring.c
++		oslib/linux-dev-lookup.c engines/io_uring.c engines/nvme.c
+   cmdprio_SRCS = engines/cmdprio.c
+ ifdef CONFIG_HAS_BLKZONED
+   SOURCE += oslib/linux-blkzoned.c
+@@ -241,7 +241,7 @@ endif
+ endif
+ ifeq ($(CONFIG_TARGET_OS), Android)
+   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c profiles/tiobench.c \
+-		oslib/linux-dev-lookup.c engines/io_uring.c
++		oslib/linux-dev-lookup.c engines/io_uring.c engines/nvme.c
+   cmdprio_SRCS = engines/cmdprio.c
+ ifdef CONFIG_HAS_BLKZONED
+   SOURCE += oslib/linux-blkzoned.c
+diff --git a/engines/nvme.c b/engines/nvme.c
+new file mode 100644
+index 00000000..6fecf0ba
+--- /dev/null
++++ b/engines/nvme.c
+@@ -0,0 +1,103 @@
++/*
++ * nvme structure declarations and helper functions for the
++ * io_uring_cmd engine.
++ */
 +
-+			if (ret) {
-+				if (td) {
-+					put_job(td);
-+					td = NULL;
-+				}
-+				do_exit++;
-+				exit_val = 1;
-+			}
- 			break;
- 		}
- 		case 'w':
++#include "nvme.h"
++
++int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
++			    struct iovec *iov)
++{
++	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
++	__u64 slba;
++	__u32 nlb;
++
++	memset(cmd, 0, sizeof(struct nvme_uring_cmd));
++
++	if (io_u->ddir == DDIR_READ)
++		cmd->opcode = nvme_cmd_read;
++	else if (io_u->ddir == DDIR_WRITE)
++		cmd->opcode = nvme_cmd_write;
++	else
++		return -ENOTSUP;
++
++	slba = io_u->offset >> data->lba_shift;
++	nlb = (io_u->xfer_buflen >> data->lba_shift) - 1;
++
++	/* cdw10 and cdw11 represent starting lba */
++	cmd->cdw10 = slba & 0xffffffff;
++	cmd->cdw11 = slba >> 32;
++	/* cdw12 represent number of lba's for read/write */
++	cmd->cdw12 = nlb;
++	if (iov) {
++		iov->iov_base = io_u->xfer_buf;
++		iov->iov_len = io_u->xfer_buflen;
++		cmd->addr = (__u64)(uintptr_t)iov;
++		cmd->data_len = 1;
++	} else {
++		cmd->addr = (__u64)(uintptr_t)io_u->xfer_buf;
++		cmd->data_len = io_u->xfer_buflen;
++	}
++	cmd->nsid = data->nsid;
++	return 0;
++}
++
++static int nvme_identify(int fd, __u32 nsid, enum nvme_identify_cns cns,
++			 enum nvme_csi csi, void *data)
++{
++	struct nvme_passthru_cmd cmd = {
++		.opcode         = nvme_admin_identify,
++		.nsid           = nsid,
++		.addr           = (__u64)(uintptr_t)data,
++		.data_len       = NVME_IDENTIFY_DATA_SIZE,
++		.cdw10          = cns,
++		.cdw11          = csi << NVME_IDENTIFY_CSI_SHIFT,
++		.timeout_ms     = NVME_DEFAULT_IOCTL_TIMEOUT,
++	};
++
++	return ioctl(fd, NVME_IOCTL_ADMIN_CMD, &cmd);
++}
++
++int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
++		      __u64 *nlba)
++{
++	struct nvme_id_ns ns;
++	unsigned int namespace_id;
++	int fd, err;
++
++	if (f->filetype != FIO_TYPE_CHAR) {
++		log_err("ioengine io_uring_cmd only works with nvme ns "
++			"generic char devices (/dev/ngXnY)\n");
++		return 1;
++	}
++
++	fd = open(f->file_name, O_RDONLY);
++	if (fd < 0)
++		return -errno;
++
++	namespace_id = ioctl(fd, NVME_IOCTL_ID);
++	if (namespace_id < 0) {
++		log_err("failed to fetch namespace-id");
++		close(fd);
++		return -errno;
++	}
++
++	/*
++	 * Identify namespace to get namespace-id, namespace size in LBA's
++	 * and LBA data size.
++	 */
++	err = nvme_identify(fd, namespace_id, NVME_IDENTIFY_CNS_NS,
++				NVME_CSI_NVM, &ns);
++	if (err) {
++		log_err("failed to fetch identify namespace\n");
++		close(fd);
++		return err;
++	}
++
++	*nsid = namespace_id;
++	*lba_sz = 1 << ns.lbaf[(ns.flbas & 0x0f)].ds;
++	*nlba = ns.nsze;
++
++	close(fd);
++	return 0;
++}
+diff --git a/engines/nvme.h b/engines/nvme.h
+new file mode 100644
+index 00000000..8e626bb2
+--- /dev/null
++++ b/engines/nvme.h
+@@ -0,0 +1,136 @@
++/*
++ * nvme structure declarations and helper functions for the
++ * io_uring_cmd engine.
++ */
++
++#ifndef FIO_NVME_H
++#define FIO_NVME_H
++
++#include <linux/nvme_ioctl.h>
++#include "../fio.h"
++
++/*
++ * If the uapi headers installed on the system lacks nvme uring command
++ * support, use the local version to prevent compilation issues.
++ */
++#ifndef CONFIG_NVME_URING_CMD
++struct nvme_uring_cmd {
++	__u8	opcode;
++	__u8	flags;
++	__u16	rsvd1;
++	__u32	nsid;
++	__u32	cdw2;
++	__u32	cdw3;
++	__u64	metadata;
++	__u64	addr;
++	__u32	metadata_len;
++	__u32	data_len;
++	__u32	cdw10;
++	__u32	cdw11;
++	__u32	cdw12;
++	__u32	cdw13;
++	__u32	cdw14;
++	__u32	cdw15;
++	__u32	timeout_ms;
++	__u32   rsvd2;
++};
++
++#define NVME_URING_CMD_IO	_IOWR('N', 0x80, struct nvme_uring_cmd)
++#define NVME_URING_CMD_IO_VEC	_IOWR('N', 0x81, struct nvme_uring_cmd)
++#endif /* CONFIG_NVME_URING_CMD */
++
++#define NVME_DEFAULT_IOCTL_TIMEOUT 0
++#define NVME_IDENTIFY_DATA_SIZE 4096
++#define NVME_IDENTIFY_CSI_SHIFT 24
++
++enum nvme_identify_cns {
++	NVME_IDENTIFY_CNS_NS = 0x00,
++};
++
++enum nvme_csi {
++	NVME_CSI_NVM			= 0,
++	NVME_CSI_KV			= 1,
++	NVME_CSI_ZNS			= 2,
++};
++
++enum nvme_admin_opcode {
++	nvme_admin_identify		= 0x06,
++};
++
++enum nvme_io_opcode {
++	nvme_cmd_write			= 0x01,
++	nvme_cmd_read			= 0x02,
++};
++
++struct nvme_data {
++	__u32 nsid;
++	__u32 lba_shift;
++};
++
++struct nvme_lbaf {
++	__le16			ms;
++	__u8			ds;
++	__u8			rp;
++};
++
++struct nvme_id_ns {
++	__le64			nsze;
++	__le64			ncap;
++	__le64			nuse;
++	__u8			nsfeat;
++	__u8			nlbaf;
++	__u8			flbas;
++	__u8			mc;
++	__u8			dpc;
++	__u8			dps;
++	__u8			nmic;
++	__u8			rescap;
++	__u8			fpi;
++	__u8			dlfeat;
++	__le16			nawun;
++	__le16			nawupf;
++	__le16			nacwu;
++	__le16			nabsn;
++	__le16			nabo;
++	__le16			nabspf;
++	__le16			noiob;
++	__u8			nvmcap[16];
++	__le16			npwg;
++	__le16			npwa;
++	__le16			npdg;
++	__le16			npda;
++	__le16			nows;
++	__le16			mssrl;
++	__le32			mcl;
++	__u8			msrc;
++	__u8			rsvd81[11];
++	__le32			anagrpid;
++	__u8			rsvd96[3];
++	__u8			nsattr;
++	__le16			nvmsetid;
++	__le16			endgid;
++	__u8			nguid[16];
++	__u8			eui64[8];
++	struct nvme_lbaf	lbaf[16];
++	__u8			rsvd192[192];
++	__u8			vs[3712];
++};
++
++static inline int ilog2(uint32_t i)
++{
++	int log = -1;
++
++	while (i) {
++		i >>= 1;
++		log++;
++	}
++	return log;
++}
++
++int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
++		      __u64 *nlba);
++
++int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
++			    struct iovec *iov);
++
++#endif
 -- 
 2.17.1
 
