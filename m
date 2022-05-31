@@ -2,173 +2,183 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C61A4C433F5
-	for <fio@archiver.kernel.org>; Wed,  1 Jun 2022 09:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 813A0C433EF
+	for <fio@archiver.kernel.org>; Wed,  1 Jun 2022 09:40:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242745AbiFAJkE (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 1 Jun 2022 05:40:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33216 "EHLO
+        id S236901AbiFAJkF (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 1 Jun 2022 05:40:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351174AbiFAJkD (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S1351175AbiFAJkD (ORCPT <rfc822;fio@vger.kernel.org>);
         Wed, 1 Jun 2022 05:40:03 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E83B434B4
-        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 02:40:00 -0700 (PDT)
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20220601093954epoutp01cf1dd9fae2db7d5a891ad9e97187bfa7~0dbeMXQw61167311673epoutp01U
-        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 09:39:54 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20220601093954epoutp01cf1dd9fae2db7d5a891ad9e97187bfa7~0dbeMXQw61167311673epoutp01U
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602D843EF0
+        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 02:40:01 -0700 (PDT)
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220601093957epoutp02eb772c40a22df04537eb0fd73fb28a98~0dbhSQvY-2839228392epoutp020
+        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 09:39:57 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220601093957epoutp02eb772c40a22df04537eb0fd73fb28a98~0dbhSQvY-2839228392epoutp020
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1654076394;
-        bh=+7SCfJ8G75tcOmjkNQRDNTueTx8Rzdvc0TYrm3+lsxY=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=ZLLQcXrtertnf81NeJFzsidPUFfN0ifzb4Hbo62D0j8dXz75dEkOoySnOUQoQMDhb
-         m9DMw/DSOP6uLQkxSM6BNh8JZDEIurUkX+BYFZzdzDdEGuSV9uQSpwIzU5DB+03T5C
-         mdKycwEWWKSde8uuy7IpA3lCWXalQDpEG135In48=
+        s=mail20170921; t=1654076397;
+        bh=1cfQnN87dhNTBBaO4S7MyFD0zkF4e9nDnwpFIdNaFgA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HhN/QkfezYylCXRgCuSDsNJjWwZ1Pw8wBw9k7IqUXPEihN0weLqVQJgOIZvHYI7Y2
+         WhJRC59j1wDjgW7S79PZ/Dc3BFZqbnG86Sa0W4ePIK4jsIHTz+JkPwSQzgZTegFX/a
+         C1SnUyICq9+qL6aNOYqu3hDYNqswMgBWYUuf3XDA=
 Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
         epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20220601093953epcas5p4db0595772358d2292985bdba56757e24~0dbd2IN603151731517epcas5p4n;
-        Wed,  1 Jun 2022 09:39:53 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.174]) by
-        epsnrtp2.localdomain (Postfix) with ESMTP id 4LCkdL6CXNz4x9Px; Wed,  1 Jun
-        2022 09:39:50 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        9B.47.09827.4E337926; Wed,  1 Jun 2022 18:39:48 +0900 (KST)
+        20220601093956epcas5p4ba1cd76a10a6f069d35bcd17cd28876b~0dbggbb181720217202epcas5p4G;
+        Wed,  1 Jun 2022 09:39:56 +0000 (GMT)
+Received: from epsmges5p1new.samsung.com (unknown [182.195.38.176]) by
+        epsnrtp2.localdomain (Postfix) with ESMTP id 4LCkdP4mBHz4x9Q4; Wed,  1 Jun
+        2022 09:39:53 +0000 (GMT)
+Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        FA.D4.10063.8E337926; Wed,  1 Jun 2022 18:39:52 +0900 (KST)
 Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-        20220531133739epcas5p31aa9479d49d5ae82a85b493bd0bb4e47~0NBxYZJ6v0535905359epcas5p3r;
-        Tue, 31 May 2022 13:37:39 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20220531133740epcas5p1e7c1049ef44fc7d25b78f239f035a29d~0NByawOk11281012810epcas5p1z;
+        Tue, 31 May 2022 13:37:40 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
         epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20220531133739epsmtrp2042aee7ec19d335e2ceb6b888caa015f~0NBxXpJTw0338303383epsmtrp2B;
-        Tue, 31 May 2022 13:37:39 +0000 (GMT)
-X-AuditID: b6c32a4a-b3bff70000002663-2d-629733e4b61a
+        20220531133740epsmtrp256b628409a547830965ee1a1039312c7~0NByZ9RsF0382803828epsmtrp2V;
+        Tue, 31 May 2022 13:37:40 +0000 (GMT)
+X-AuditID: b6c32a49-4cbff7000000274f-dd-629733e810ec
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        75.F4.11276.32A16926; Tue, 31 May 2022 22:37:39 +0900 (KST)
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        32.4E.08924.42A16926; Tue, 31 May 2022 22:37:40 +0900 (KST)
 Received: from test-zns.sa.corp.samsungelectronics.net (unknown
         [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20220531133738epsmtip261ccacca549e7218c4b1fc3cfd425a55~0NBwZkJ0h2552425524epsmtip2A;
-        Tue, 31 May 2022 13:37:38 +0000 (GMT)
+        20220531133739epsmtip2b21134bed20379c462c6763f036e9886~0NBxfqTkU2552725527epsmtip2-;
+        Tue, 31 May 2022 13:37:39 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, krish.reddy@samsung.com, joshi.k@samsung.com,
-        anuj20.g@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH v3 0/9] Add support for uring passthrough commands
-Date:   Tue, 31 May 2022 19:01:46 +0530
-Message-Id: <20220531133155.17493-1-ankit.kumar@samsung.com>
+        anuj20.g@samsung.com
+Subject: [PATCH v3 1/9] io_uring.h: add IORING_SETUP_SQE128 and
+ IORING_SETUP_CQE32
+Date:   Tue, 31 May 2022 19:01:47 +0530
+Message-Id: <20220531133155.17493-2-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.17.1
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrEKsWRmVeSWpSXmKPExsWy7bCmhu4T4+lJBttO8lisufKb3aJpwl9m
-        i9V3+9ksPs56wWxx9P9bNouFG5cxObB5XD5b6tG3ZRWjx+dNcgHMUdk2GamJKalFCql5yfkp
-        mXnptkrewfHO8aZmBoa6hpYW5koKeYm5qbZKLj4Bum6ZOUBrlRTKEnNKgUIBicXFSvp2NkX5
-        pSWpChn5xSW2SqkFKTkFJgV6xYm5xaV56Xp5qSVWhgYGRqZAhQnZGc9mL2Yv6JSoWDu3rIFx
-        lVAXIweHhICJxK9rVV2MXBxCArsZJR62nmDsYuQEcj4xStx+FQiR+MYo0brrK1gCpGH7lLWM
-        EIm9jBJzWvrZIZxWJonpU0+CVbEJaEu8enuDGcQWERCW2N/RygJSxCzQwijRuHotC0hCWMBJ
-        YtrFs2ANLAKqEnfO94LZvAI2Eu/3bIFaJy+xesMBZpBmCYHJ7BLv57WzQiRcJFb8ngtVJCzx
-        6vgWdghbSuLzu71sEHa2ROOjv1B2icTOW9uZIWx7iYt7/jKBAoBZQFNi/S59iLCsxNRT65hA
-        bGYBPone30+YIOK8EjvmwdiqEn/v3WaBsKUlbr67CmV7SLy58YsVEnaxEr9/vWabwCg7C2HD
-        AkbGVYySqQXFuempxaYFRnmp5fB4Ss7P3cQITkxaXjsYHz74oHeIkYmD8RCjBAezkghvya6p
-        SUK8KYmVValF+fFFpTmpxYcYTYFhNpFZSjQ5H5ga80riDU0sDUzMzMxMLI3NDJXEeQX+NyYJ
-        CaQnlqRmp6YWpBbB9DFxcEo1MNVVp8UXfzqvEvjtuFthX1zJvIN3mi9udfj4NLBbWcaucdZ+
-        i2rej8ffazNzpFRtTT/iu3b3OaXMLycFXJfFXOm9aON+RV34h+PTqyKbxKW9OHUuHTHR+r2p
-        pPhe+e5rk28EfeSdULYs/Ee5BtfuxpRPupIvddNXP0m61tl43dfljs0/xhM/tVZm/gnamuO9
-        0nT389XXpz4vC931sPPljnkL01OkGXifrZiQH5zyqXv7xNYQloT4Sf75cUxH9NKbjm0JS1/7
-        8Fma9gf5D3POnHiQYvOmybywyMx655LlZfUmG0W6DE5O0+A9XjL9zJ2w/8fD47RcM/v7D3RM
-        7s0Re8OYenTXcgn3vcmnDEs3HVNiKc5INNRiLipOBACOYO//1QMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrDJMWRmVeSWpSXmKPExsWy7bCSvK6y1LQkg0dHJS3WXPnNbtE04S+z
-        xeq7/WwWH2e9YLY4+v8tm8XCjcuYHNg8Lp8t9ejbsorR4/MmuQDmKC6blNSczLLUIn27BK6M
-        Z7MXsxd0SlSsnVvWwLhKqIuRk0NCwERi+5S1jCC2kMBuRokDe527GDmA4tISC9cnQpQIS6z8
-        95wdoqSZSeLzamsQm01AW+LV2xvMILYIUM3+jlaWLkYuDmaBLkaJns5TTCAJYQEniWkXz4LN
-        ZxFQlbhzvhfM5hWwkXi/ZwsjxAJ5idUbDjBPYORZwMiwilEytaA4Nz232LDAMC+1XK84Mbe4
-        NC9dLzk/dxMjOEC0NHcwbl/1Qe8QIxMH4yFGCQ5mJRHekl1Tk4R4UxIrq1KL8uOLSnNSiw8x
-        SnOwKInzXug6GS8kkJ5YkpqdmlqQWgSTZeLglGpgurTnYqmz+9JilvCYcOPlbL9S5Xq+Bpgw
-        X78QaJpxQWJD5/Vf8mU7lavYbWKj6o7WrKqoLyiysHw+l+X+dNVz0zu/G3qFHGmS91vxLZXT
-        5a6/kPY0U7nJ9183yyy/ITdl47M5NsIbUhyFXLoKQhYU+ZSbTH6q9dox9Zu4wIMzdq9/Zv7N
-        7JRZ7mRlaPjocHzmygcdk3/Nk/jDHPmHNdry8OH/xWsd9ukduark8Lpe20f0X89Zy4nXGy+2
-        fJBc0T3RZo9aYdB2u09ZL9vWF+ZOm/Sjs0L82nXJspNWHPflfwVtSTDbcOF8/1Of2xknfpsf
-        FdDUPLWDLUD5/MbIZJHle/oeLe7NuxoU/cu/VdBQiaU4I9FQi7moOBEAh3gqNn8CAAA=
-X-CMS-MailID: 20220531133739epcas5p31aa9479d49d5ae82a85b493bd0bb4e47
+In-Reply-To: <20220531133155.17493-1-ankit.kumar@samsung.com>
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrBKsWRmVeSWpSXmKPExsWy7bCmlu4L4+lJBucPGFo0TfjLbLH6bj+b
+        xcdZL5gtjv5/y2axcOMyJgdWj8tnSz36tqxi9Pi8SS6AOSrbJiM1MSW1SCE1Lzk/JTMv3VbJ
+        OzjeOd7UzMBQ19DSwlxJIS8xN9VWycUnQNctMwdoo5JCWWJOKVAoILG4WEnfzqYov7QkVSEj
+        v7jEVim1ICWnwKRArzgxt7g0L10vL7XEytDAwMgUqDAhO2NF322mgt/CFbvPnGNsYHzO38XI
+        wSEhYCIx7VxVFyMXh5DAbkaJOT9+sEM4nxgl1v1cwArhfGaUWDhxBXMXIydYx4lzz5khErsY
+        JT5eWwDltDJJLLn0nxWkik1AW+LV2xtgHSICwhL7O1pZQGxmgViJ59samEB2CwuESKw5wwYS
+        ZhFQlWi4dwQszCtgI3HssDjELnmJ1RsOgE3hFLCVmDd1PStEfBW7xPT+WgjbReLZ4ecsELaw
+        xKvjW9ghbCmJz+/2skHY2RKNj/5C2SUSO29th/rFXuLinr9ga5kFNCXW79KHCMtKTD21jgni
+        YD6J3t9PmCDivBI75sHYqhJ/792GWistcfPdVSjbQ+LZqXXQEJnAKHHj3m72CYxysxBWLGBk
+        XMUomVpQnJueWmxaYJiXWg6PsuT83E2M4CSl5bmD8e6DD3qHGJk4GA8xSnAwK4nwluyamiTE
+        m5JYWZValB9fVJqTWnyI0RQYfBOZpUST84FpMq8k3tDE0sDEzMzMxNLYzFBJnFfgf2OSkEB6
+        YklqdmpqQWoRTB8TB6dUA9Pq0H/lwnE5ar6p0+b2dm37njjD1qDP6fHMY4mWB47oaH6UuRQl
+        9dVr3YKMBWtjN/l1f//D96rkXrnGvqRbdf45ad4Pu2Lnv4o6ONt354nyRUaMrrwsD86nPz9S
+        ZCD/eYtAcsJhGaYC1oDW39sn79msns3Wtdf0/5crZy9t/Dd54UrxuR+qjoou6Be4vONcoGpe
+        fU/Xuw0FJe8Vr23Q1rRKcqmqvsMTetnt2mWpg3t/ccpfs1tcKnqBTWNxgdVyy/PFy75xdRz1
+        urBm5Re/dNWLux9dFP9VuO1ccVriBlHG4JMBbMW3+TgKKnZb/WgJCV8TJ6NSN6G8VEr7ymG5
+        2JbH0cfvpU7XOm6/QE7s1nMlluKMREMt5qLiRAB3CaN32wMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpgluLIzCtJLcpLzFFi42LZdlhJXldFalqSwbeNMhZNE/4yW6y+289m
+        8XHWC2aLo//fslks3LiMyYHV4/LZUo++LasYPT5vkgtgjuKySUnNySxLLdK3S+DKWNF3m6ng
+        t3DF7jPnGBsYn/N3MXJySAiYSJw495y5i5GLQ0hgB6PEs9MH2boYOYAS0hIL1ydC1AhLrPz3
+        nB2ipplJ4vfli6wgCTYBbYlXb28wg9giQEX7O1pZQGxmgUSJHZN2MYLYwgJBEs17H4PFWQRU
+        JRruHWECmc8rYCNx7LA4xHx5idUbDoCN4RSwlZg3dT3YeCGgkqkvFjBOYORbwMiwilEytaA4
+        Nz232LDAKC+1XK84Mbe4NC9dLzk/dxMjOJC0tHYw7ln1Qe8QIxMH4yFGCQ5mJRHekl1Tk4R4
+        UxIrq1KL8uOLSnNSiw8xSnOwKInzXug6GS8kkJ5YkpqdmlqQWgSTZeLglGpg0ju8adWsl7M/
+        7Gnf9ZV3c9xtw7KErkfZi57eDztXUSj71nHj73f1qd/nTff6JSXe2nnhNnOa+LqWWcJHLbO/
+        BnrWr9lXr9i1sSXJa0l6UqqixF+tia7Sh2fEqyz/4yQ4Q9uRVWDTul235C+uyX65WP1rwubg
+        A+vOsnFlCGzY1s52Jlb/iNjC61FZ54wmTrGaU5KzxPPJtgUSV7f3X/n2yKdcjYc5ZEfS/Rcl
+        gr5qF79MsZ1hbDiBa4u9k+40p/uxwj9N6+VW3dm/TYDXLUGqdepRM4u+155va5f8/PTQ+pFJ
+        iKHV2d0VjWIPDebEGTgJrCvuLUvTv113jWX5nWrT9WfDa6VM772xUe8PKPlwW4mlOCPRUIu5
+        qDgRAHFtQHWTAgAA
+X-CMS-MailID: 20220531133740epcas5p1e7c1049ef44fc7d25b78f239f035a29d
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220531133739epcas5p31aa9479d49d5ae82a85b493bd0bb4e47
-References: <CGME20220531133739epcas5p31aa9479d49d5ae82a85b493bd0bb4e47@epcas5p3.samsung.com>
+X-CMS-RootMailID: 20220531133740epcas5p1e7c1049ef44fc7d25b78f239f035a29d
+References: <20220531133155.17493-1-ankit.kumar@samsung.com>
+        <CGME20220531133740epcas5p1e7c1049ef44fc7d25b78f239f035a29d@epcas5p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-This patchset adds a new I/O engine (io_uring_cmd), which enables support for
-io_uring passthrough commands. This work is based on upcoming 5.19 kernel.
-https://github.com/torvalds/linux/commits/master
+From: Anuj Gupta <anuj20.g@samsung.com>
 
-This engine will use most of the existing helpers from io_uring. The I/O
-preparation, completion, file open, file close and post init paths are going to
-differ and hence io_uring_cmd will have its own helpers for them.
+This asks the kernel to setup a ring with 128-byte SQE and
+32-byte CQE entries. It may fail with -EINVAL if the kernel
+doesn't support this feature. If the kernel does support this
+feature, then the ring will support big-sqe/big-cqe entries
+which some commands may require.
 
-The current uring passthrough support is present only with nvme-ns character
-device (/dev/ngXnY). This includes both conventional as well as ZNS devices.
-Add a new io_uring_cmd engine specific option:
-* cmd_type
+Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
+---
+ os/linux/io_uring.h | 36 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 35 insertions(+), 1 deletion(-)
 
-cmd_type provides the flexibility to support different types of passthrough
-commands in future.
-
-To enable support for nvme passthrough commands, we are adding nvme.c and
-nvme.h files. These will have the necessary NVMe specification data
-structures, opcodes and helper functions for sending admin and I/O passthrough
-commands.
-
-O_DIRECT flag support is not present with nvme-ns charatcer devices, hence
-zbd will check for them only if fio filetype is a block device. The
-t/zbd/test-zbd-support test case #1 is now appropriately updated to run only
-for block device.
-
-Changes from v2 to v3:
-- I/O command formation cleanup and example config file changes as per the
-  review comments from Vincent and Jens.
-- Addressed review comments from Kanchan with regards to io_uring_cmd options.
-- test case 1 skip only for character device fixed, as reported by Shin'ichiro.
-
-Ankit Kumar (5):
-  configure: check nvme uring command support
-  nvme: add nvme opcodes, structures and helper functions
-  docs: document options for io_uring_cmd I/O engine
-  zbd: Check for direct flag only if its block device
-  engines/io_uring: Enable zone device support for io_uring_cmd I/O
-    engine
-
-Anuj Gupta (4):
-  io_uring.h: add IORING_SETUP_SQE128 and IORING_SETUP_CQE32
-  init: return error incase an invalid value is passed as option
-  engines/io_uring: add new I/O engine for uring passthrough support
-  examples: add 2 example job file for io_uring_cmd engine
-
- HOWTO.rst                    |  41 +++-
- Makefile                     |   4 +-
- configure                    |  21 +++
- engines/io_uring.c           | 350 ++++++++++++++++++++++++++++++++++-
- engines/nvme.c               | 345 ++++++++++++++++++++++++++++++++++
- engines/nvme.h               | 214 +++++++++++++++++++++
- examples/uring-cmd-ng.fio    |  25 +++
- examples/uring-cmd-zoned.fio |  31 ++++
- file.h                       |  12 +-
- fio.1                        |  33 +++-
- init.c                       |   9 +
- os/linux/io_uring.h          |  45 ++++-
- t/zbd/test-zbd-support       |  11 +-
- zbd.c                        |   4 +-
- 14 files changed, 1113 insertions(+), 32 deletions(-)
- create mode 100644 engines/nvme.c
- create mode 100644 engines/nvme.h
- create mode 100644 examples/uring-cmd-ng.fio
- create mode 100644 examples/uring-cmd-zoned.fio
-
-
-base-commit: e1aeff3ac96a51128b0493377f405e38bdc83500
+diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
+index 42b2fe84..2fa66135 100644
+--- a/os/linux/io_uring.h
++++ b/os/linux/io_uring.h
+@@ -60,7 +60,17 @@ struct io_uring_sqe {
+ 		__s32	splice_fd_in;
+ 		__u32	file_index;
+ 	};
+-	__u64	__pad2[2];
++	union {
++		struct {
++			__u64	addr3;
++			__u64	__pad2[1];
++		};
++		/*
++		 * If the ring is initialized with IORING_SETUP_SQE128, then
++		 * this field is used for 80 bytes of arbitrary command data
++		 */
++		__u8	cmd[0];
++	};
+ };
+ 
+ enum {
+@@ -101,6 +111,24 @@ enum {
+ #define IORING_SETUP_CLAMP	(1U << 4)	/* clamp SQ/CQ ring sizes */
+ #define IORING_SETUP_ATTACH_WQ	(1U << 5)	/* attach to existing wq */
+ #define IORING_SETUP_R_DISABLED	(1U << 6)	/* start with ring disabled */
++#define IORING_SETUP_SUBMIT_ALL	(1U << 7)	/* continue submit on error */
++/*
++ * Cooperative task running. When requests complete, they often require
++ * forcing the submitter to transition to the kernel to complete. If this
++ * flag is set, work will be done when the task transitions anyway, rather
++ * than force an inter-processor interrupt reschedule. This avoids interrupting
++ * a task running in userspace, and saves an IPI.
++ */
++#define IORING_SETUP_COOP_TASKRUN	(1U << 8)
++/*
++ * If COOP_TASKRUN is set, get notified if task work is available for
++ * running and a kernel transition would be needed to run it. This sets
++ * IORING_SQ_TASKRUN in the sq ring flags. Not valid with COOP_TASKRUN.
++ */
++#define IORING_SETUP_TASKRUN_FLAG	(1U << 9)
++
++#define IORING_SETUP_SQE128		(1U << 10) /* SQEs are 128 byte */
++#define IORING_SETUP_CQE32		(1U << 11) /* CQEs are 32 byte */
+ 
+ enum {
+ 	IORING_OP_NOP,
+@@ -192,6 +220,12 @@ struct io_uring_cqe {
+ 	__u64	user_data;	/* sqe->data submission passed back */
+ 	__s32	res;		/* result code for this event */
+ 	__u32	flags;
++
++	/*
++	 * If the ring is initialized with IORING_SETUP_CQE32, then this field
++	 * contains 16-bytes of padding, doubling the size of the CQE.
++	 */
++	__u64 big_cqe[];
+ };
+ 
+ /*
 -- 
 2.17.1
 
