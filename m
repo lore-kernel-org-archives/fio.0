@@ -2,186 +2,179 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9886BC433EF
-	for <fio@archiver.kernel.org>; Thu,  2 Jun 2022 01:53:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1772C433EF
+	for <fio@archiver.kernel.org>; Thu,  2 Jun 2022 04:20:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232905AbiFBBxV (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 1 Jun 2022 21:53:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40638 "EHLO
+        id S229821AbiFBEUN (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 2 Jun 2022 00:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232904AbiFBBxU (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Jun 2022 21:53:20 -0400
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F19A1258DE5
-        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 18:53:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1654134798; x=1685670798;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=95CCYxsEe2KcP/ZyusqRxJ7gZmZb1YCZT8AIqM+flpQ=;
-  b=BuhbJpvkigQ8t6wqy6pN5LwPn3ErmPlffNbHAmqceulSfInJs4vAvZuS
-   uaFb0SXiWAGlT+uisOQNl6jtDeUWIY858dE5KJJY0gyXRIxN1y77PCNYG
-   14u9mg2y32FR93DuEtINpL/ty+8u1aduAPx+bjcJcDNbGXk1b559i9jvb
-   JbSORSY5ij8Oi+/TGmQETYNBV0zFz98I6KmbiRq8UlrJamUbMFi8b+d2r
-   JyeBsPaEij8VStrQz4srUCO3UoxXaYzLhfrIMu22tQ0qu45uP8BH7IA3h
-   MCxabwa4va9DFn4nUkRc2R3Ram4uewEr7y/mGChgHaJ6ZWdEkeKHq35Ll
-   A==;
-X-IronPort-AV: E=Sophos;i="5.91,270,1647273600"; 
-   d="scan'208";a="206911412"
-Received: from mail-bn7nam10lp2107.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.107])
-  by ob1.hgst.iphmx.com with ESMTP; 02 Jun 2022 09:53:17 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=L2nOsqkbokHjBfEwdweHC9689Hfg+pr4iBSl4fRFf521H+cm6BzlPbSgllK60z6voF8Mp9AqIOGNfAZY8H9C5ArW1WpCCmSXKDhQ9nqi99qBfQaz9vZYVJ9y6vOyhjNenqC+Z9FPrekSuR/URg9p1gGYFX/FyVoAKIpjqcbn1DXQbgLQL8/on0Zn53PeQwuxtbqv3dMleW4RaRZrveOn1mGVMwN3OSY3ry7DnvUNDFeUzHFFhI78c0PZOc2jOEX9qQlW6FTe1u9wEaZezK6TMRWUy8Li3P3S4NYMPGtvKGNmjTaSh1D2c8cBh893Jhe+VTYS44UBgZlk/pUXgXLYjQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=95CCYxsEe2KcP/ZyusqRxJ7gZmZb1YCZT8AIqM+flpQ=;
- b=ObPuFUSBaoOw6ZGVKD0NXyurpCCGJEZA79FIMIsa3DMULSgdQQ+zjRL3xHEA9xzPMzF4YgAwCzEckUfYhUMQU46V6tJiLEDRSZy1GufTZFArWH8qq87ZFUAn6Z8Fyn+oYmWYehOdabv4yH3skHoicIbXh4ao4EvotgyMS6x8DTB9riT2Nnb1B3OACP20XnqoR765oXxs/p05LAvoQ2bahXj0EVxwEfZzrIHNIDGAf7FRrtwpADDAo8K7S3qD5UxT7+eAWd++sqv9lVf5YMQEPsazwSHI53qnAZqAz/JyhqLNBF5JzM2juvCK53pmXFeihMlTFkOWt/LHARjTIselTQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
+        with ESMTP id S229772AbiFBEUA (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 2 Jun 2022 00:20:00 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6561E00E
+        for <fio@vger.kernel.org>; Wed,  1 Jun 2022 21:19:58 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id s24so4789147wrb.10
+        for <fio@vger.kernel.org>; Wed, 01 Jun 2022 21:19:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=95CCYxsEe2KcP/ZyusqRxJ7gZmZb1YCZT8AIqM+flpQ=;
- b=Xsa4D9QkUipoEpa4VJJB44fTfME58/GbT1Pen8cWR+bPpnY1dpWuYcusY/lCq4Xu1wOYBsNi5ILnN+EyZsnQqw0fL6lqn36clX3377ukrDyKJ3SmKydBE1PoNfxfF0LPQvGcjkwEomMcxqwX/lr+pR/vS9JTXaavd5FsBaeeF5Y=
-Received: from DM8PR04MB8037.namprd04.prod.outlook.com (2603:10b6:8:f::6) by
- BN6PR04MB0339.namprd04.prod.outlook.com (2603:10b6:404:17::20) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5293.16; Thu, 2 Jun 2022 01:53:17 +0000
-Received: from DM8PR04MB8037.namprd04.prod.outlook.com
- ([fe80::39dc:d3d:686a:9e7]) by DM8PR04MB8037.namprd04.prod.outlook.com
- ([fe80::39dc:d3d:686a:9e7%3]) with mapi id 15.20.5314.013; Thu, 2 Jun 2022
- 01:53:17 +0000
-From:   Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     Vincent Fu <vincent.fu@samsung.com>
-CC:     Ankit Kumar <ankit.kumar@samsung.com>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        "krish.reddy@samsung.com" <krish.reddy@samsung.com>,
-        "joshi.k@samsung.com" <joshi.k@samsung.com>,
-        "anuj20.g@samsung.com" <anuj20.g@samsung.com>
-Subject: Re: [PATCH v3 7/9] zbd: Check for direct flag only if its block
- device
-Thread-Topic: [PATCH v3 7/9] zbd: Check for direct flag only if its block
- device
-Thread-Index: AQHYdZu1+yDl6fdLbEqY06BAXhRfF607AlUAgABZgAA=
-Date:   Thu, 2 Jun 2022 01:53:17 +0000
-Message-ID: <20220602015316.6ismlexb22fwd5ko@shindev>
-References: <20220531133155.17493-1-ankit.kumar@samsung.com>
- <CGME20220531133748epcas5p1e2d8f913398d3ea8c165e1044e6914d8@epcas5p1.samsung.com>
- <20220531133155.17493-8-ankit.kumar@samsung.com>
- <547f643d9ae54ee5a5f173115808b6da@samsung.com>
-In-Reply-To: <547f643d9ae54ee5a5f173115808b6da@samsung.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 6cbb7de0-94ec-4dc9-62b0-08da443aa9b2
-x-ms-traffictypediagnostic: BN6PR04MB0339:EE_
-x-microsoft-antispam-prvs: <BN6PR04MB03398D78C7D646B3B88C0B7AEDDE9@BN6PR04MB0339.namprd04.prod.outlook.com>
-wdcipoutbound: EOP-TRUE
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: USzTERnFcITWQBIVp987d7OgNgVg7UA3F8APYE2BgEnXUbx4vcZK/Ypaq6BaqKWalvaZRAwna3sCNRCDv9Etps4Jbddaj9JSab6vJDq8cUZUsUr2Xkp0pAaBfTVZdc+dON/Jms2TWPUSGjuDjAlYCd/dZeKtdpNdsQMcMQwv1626D545caf5z5kL8Kwn7V66M69RD79IL6ItheFSRPtw3fA0wyWOrRfnbEwDcW0vyin/bZj239EZ0YPYLkLFd+09DNmUmOSPx5LqHqrHnIBOZJCZ211rs4SamIj9uSsxMpnOI0UOErHojslJvoailek9IjUQTEOsXE2hH59kT7nYRLgkx0O85Wj7gXOdxuIHnsfakCGCeey722RgZiL7at0hCgDjlErE6eNxj4Md4fStt6c4vI3SnFwyEV9EMdKvX0+ErQ/PO3xs6Hgl9/J+tiOP5hfqDpqlqZh0A6gGimcK/QZSQG7d7WvXJies+v/i72I1rYubPjFF/0hFIYeOh6Fi11qHCPXI69BKOeDuxPsguzMvuTUCo6pv+yJBD5OS6qprM8wz2iHBOvIhbZyU3P7H5RJzaHjCIrixBJSOITPL4ICck/SaGffGZiOIa0UKTbhBQWZKFcxn+u43YyPo/5qidjoko16hPNQ5n+U/2vTSEVPW7p2h7Zts/c9R2K0Yffdxn1D1gtQ1y4l+SrzhafGShQCGYHEXx1kWOxDo2dzSAw==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM8PR04MB8037.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(7916004)(4636009)(366004)(26005)(44832011)(86362001)(38070700005)(316002)(6916009)(5660300002)(2906002)(83380400001)(66946007)(508600001)(1076003)(66556008)(66476007)(66446008)(64756008)(33716001)(76116006)(38100700002)(4326008)(91956017)(186003)(54906003)(8936002)(82960400001)(71200400001)(122000001)(6486002)(6506007)(9686003)(6512007)(8676002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?hdkAYZH9rdAUGmJFucDPwCbd6bD5Y5xTj7veczpuCcDOyN7w635SuixZV6lj?=
- =?us-ascii?Q?aGZvZn+ys+pt4p96ddDNxYYg+RN4q0p/8t4ohF4v81/Cj/DTS5YD8mHsh7qU?=
- =?us-ascii?Q?xTOjYYA2ak51P1Z5GgM5FvCWZH+st1t2aJ7mabqqGeCM/PI7X3IYegXzBPMT?=
- =?us-ascii?Q?b0uNZKXgTeXWE6fvqtsbz60h8Xtnfse+dEsxeGKRlLkNALxGMBjlInYeby16?=
- =?us-ascii?Q?/665YjWXyXNufCE9w4EvjNDbB3PuDCbtIwr9vJUk6lDwDr+Pf87KNleZ6YMJ?=
- =?us-ascii?Q?B8fDh4f3tEtaDyXY7/MhKmEdfnZXVbfOJL5T8sElt6ylUhBfceLoBVx7lb3k?=
- =?us-ascii?Q?iomIvOlrKLUr0UH6vzILPm+tlOjYyy+rj9WVq0JkuyjhY5aqT4H0uqRu5tEo?=
- =?us-ascii?Q?mupiigZCuZfXslkCb/4alZB3VPjA8I2RfHvB9POxyh8aXD3HVzgInzzxNWru?=
- =?us-ascii?Q?9FTzRxZN1TrTfsmxkCoFmfAX0VBTzxFGFUoVn10Ix7g3LIjRA42JnYTLFrMl?=
- =?us-ascii?Q?efUpBUkfCZhJwjfGae+jO5NKkRO77UUR3Xhbz5pV2HRCat0zOl4Bv/LIhI85?=
- =?us-ascii?Q?2cN+gJcshFA1DjqqD1g71y3HZwvYkb+mG3oGawr1lNEkVfBbR+P1Wk/lzgWJ?=
- =?us-ascii?Q?6kyZ3nPHaR8RAxx1SLKsSE2kOPHCp4a6tpbTPjIF/y38srY6yk+BtHaAcTZt?=
- =?us-ascii?Q?Q6WPksFEW6HXNI8IadL3suJEqasz6XBjmRc8HrX4KnNLYb47uKJMSecwOase?=
- =?us-ascii?Q?mMmuSb37/TpmY58SJTIv9G7NqzDQOZ+SUOatpQQC5XTD/qUtjklrj4kRagEV?=
- =?us-ascii?Q?47vY9NN2Lvi/OqUmhYFg50116/eIADJ0qJgTGN90Px4W9Xa5m1+3NpL0dykw?=
- =?us-ascii?Q?J2oJFYr0K1J3DT+DrPL6IHsDc/3NBgBb00uxtE8tUGJwJEKGNkhID/xSDFP9?=
- =?us-ascii?Q?uR+lU8nxs0ropFntZ+4iVJs06WmYXDz+/zocAR9kl2TiyNqiMyMmA3k6nxv2?=
- =?us-ascii?Q?jNGFM5Ma0BvpaYFeNyYSX4gJe1eT+54sx0rUYWJHPqQkSfFaLN8OxHuAB/iV?=
- =?us-ascii?Q?wBx6WrnOKg1qrBjwnAciDEiIbO5QxiGzyYgyGUtFXMpihj98E38CKfw9Gmg9?=
- =?us-ascii?Q?sfZPGZmSpJdNnbWrFQFAFd3RgiNovWwy0CcfuzF4oZ8J/dvonDjd0t5Jp69J?=
- =?us-ascii?Q?uJNgp18lmtnw+zXiIhggcdx8JE9qn4Di4hUvLIeiQcP5olmIgKlS87p4IX3A?=
- =?us-ascii?Q?3FLeRR32JgwY5OgeYR4R54bKyLNtAMpbSPs/nuM9+xVI6H9tHrAS9xfT9DFq?=
- =?us-ascii?Q?AA/wo1VgRIRgVMZyAzOoiMr92ZWnX+C3NT+55FLTsJuB8/+73RIoWDm540ju?=
- =?us-ascii?Q?whCoaZwYzswgQgIzr8EDeOhAdDvX4u9/xtn6SqBF9ye+knoimy6CLMgCulEJ?=
- =?us-ascii?Q?12fWEgOJ3gI9gPzGC9j0Zu015wCgTNTOxU7pZx4OggW9fmpt7BooJW5SnFMX?=
- =?us-ascii?Q?8n388goEc/hXxGys2TrU1FKUQ4svLaCKX86kIou7A+uKQEAe31pmdh+jhsJt?=
- =?us-ascii?Q?TT54M1MzePQk52yYEJdc7SWod+xVelnPSv9vxkj+/KYzFf5O2dxAHb6zyHiP?=
- =?us-ascii?Q?Si7Cq0F+xRzgghfPJvRChjLvcZvKLXS3FXMNEhSW/UcFBRxk1nX1fnbhyC/a?=
- =?us-ascii?Q?UFVv1BrkPnEmHF8cmZgDcMoXaEdplUieT7l+36sivT3Fl5EM+RTVf6z6avtO?=
- =?us-ascii?Q?Cs4Z0+dnP8iSu3LsUn88IOqYiIQhQl+ZzmZpKPuA1jD3kMFnisi4?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <8B42C70AAEF6924598C346CC5C32ED0F@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=zEccmrue/DbEmKgMrNdtXkRvChZ5TOlTl6MxsEfB998=;
+        b=vLcxULozsQzr84Y1nh08GLYOa3pu951lR7IG9MDtedAINgy2/LLlyJ+RcSJBx1oiHZ
+         aHS1fcvUVybdXUF6IbXNwCwL7CXKunT6CrHo/4SNMavL+fDXIybDhT8Wnckp+js1PVfI
+         578XzBKE3ATJIGRthXuPtNttZHpiozv1B4ZYObKSrjiVWcn3/2Yd2bAOq/Lq5w9d6Gty
+         Yu/ridyd/ZDcT6mxRKgNWoLG7JUdUGVtOsZxHbvewbN52yrx2FkBetJJ8zGtsqYSKCdh
+         aRpOPjWCxhexbuyPjL/UrCuEYhUIOdYLPjolgtRU6F7hsGH2dDp/kJ/kbVMs9znoWB7s
+         wHww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=zEccmrue/DbEmKgMrNdtXkRvChZ5TOlTl6MxsEfB998=;
+        b=3yXJ+u2A0bv3qOGjD52ObafBFozXfSkR5uXDyTTBoBfOKbq7stICvL/3/N7KFTsDE3
+         Fq8ZsTYiSKAxkMOTJ4mM12+39j16r3DDvQvtO3bQdgjhAZ3kBXhGT7mjXh8T4o6fdNui
+         C+ORS9CzkafZTgfjwpFQtfVOBXKah+KSOLTg5ERNZI5zO3kGOGBLWh3M7p7ccMGAi0Yg
+         Vr27ojgh+CDS6SqxKBYexxq2WCcN4N5+qB8bRot3h7q1e+nDC/1bg1Xerd7yKJXnY14m
+         gH3o0r/RajizMPZ3nFqC9LFBXk/djEFgi6EC9vV3NwiOpeClPvLhqKqbAoLb95yfnz1M
+         6kFA==
+X-Gm-Message-State: AOAM532j/gQkBvPe8ffxQXpShSgioyvMszZPrxyPFSpwP0Yqr5DL+f5H
+        1ZtGCcVLd8K3mLo+pvPW+djUXRY7o8jopi3Z
+X-Google-Smtp-Source: ABdhPJziau+v6KxcNZELGHRPvs5S68oESXSVDSGTRC+0+g0YsCKYak1X9qDlXyAzFBTcd0HQZZH0cA==
+X-Received: by 2002:a05:6000:1606:b0:210:2b15:66fa with SMTP id u6-20020a056000160600b002102b1566famr1889007wrb.568.1654143597049;
+        Wed, 01 Jun 2022 21:19:57 -0700 (PDT)
+Received: from [10.188.163.71] (cust-east-parth2-46-193-73-98.wb.wifirst.net. [46.193.73.98])
+        by smtp.gmail.com with ESMTPSA id t12-20020a5d49cc000000b00210352bf36fsm2925982wrs.33.2022.06.01.21.19.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Jun 2022 21:19:56 -0700 (PDT)
+Message-ID: <e5abe6c3-ae66-dae2-8039-b7ec6bb9f054@kernel.dk>
+Date:   Wed, 1 Jun 2022 22:19:55 -0600
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM8PR04MB8037.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6cbb7de0-94ec-4dc9-62b0-08da443aa9b2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Jun 2022 01:53:17.1709
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: i2Eau7qZNhsFzfZyq18mZHqIXB8x/MuXA+pmRwo6py1/SlFgc4RBU7l02Q6rjeniJpUq+mJCfRlCaf7XWN/TG8OL9w+ujFDRG9FhCwfn5oY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR04MB0339
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v3 5/9] engines/io_uring: add new I/O engine for uring
+ passthrough support
+Content-Language: en-US
+To:     Ankit Kumar <ankit.kumar@samsung.com>
+Cc:     fio@vger.kernel.org, krish.reddy@samsung.com, joshi.k@samsung.com,
+        anuj20.g@samsung.com
+References: <20220531133155.17493-1-ankit.kumar@samsung.com>
+ <CGME20220531133746epcas5p36ec535b219f3e2008b14d2adc59e30f2@epcas5p3.samsung.com>
+ <20220531133155.17493-6-ankit.kumar@samsung.com>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20220531133155.17493-6-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Jun 01, 2022 / 20:32, Vincent Fu wrote:
+On 5/31/22 7:31 AM, Ankit Kumar wrote:
+> From: Anuj Gupta <anuj20.g@samsung.com>
+> 
+> Add a new I/O engine (io_uring_cmd) for sending uring passthrough
+> commands. It will also use most of the existing helpers from the
+> I/O engine io_uring. The I/O preparation, completion, file open,
+> file close and post init paths are going to differ and hence
+> io_uring_cmd will have its own helper for them.
+> 
+> Add a new io_uring_cmd engine specific option to support nvme
+> passthrough commands. Filename name for this specific option
+> must specify nvme-ns generic character device (dev/ngXnY).
+> This provides io_uring_cmd I/O engine a bandwidth to support
+> various passthrough commands in future.
+> 
+> The engine_pos and engine_data fields in struct fio_file are
+> separated now. This will help I/O engine io_uring_cmd to store
+> specific data as well as keep track of register files.
+> 
+> Added a new option cmd_type. This specifies the type of uring
+> command to submit. Currently it only supports nvme uring command
 
-[...]
+A few minor nits which we don't need to respin this for, unless other
+changes end up being required. In general this to me looks like it's
+ready to go, people please holler if they agree / disagree so we can get
+this finished up.
 
-> I ran
->=20
-> t/zbd/run-tests-against-nullb
->=20
-> and Test 1 ran for all sections. There were no test failures.
->=20
-> I also created a zoned device with:
->=20
-> modprobe scsi_debug zbc=3D2 zone_nr_conv=3D0
->=20
-> and then ran:
->=20
-> t/zbd/test-zbd-support -l /dev/sg2
->=20
-> and all tests except Test 13 passed. The failure seems unrelated to this =
-patch. The failure appears to be related to libzbc reporting max open zones=
- incorrectly.
+> +static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
+> +{
+> +	struct ioring_data *ld = td->io_ops_data;
+> +	struct ioring_options *o = td->eo;
+> +	struct fio_file *f = io_u->file;
+> +	struct io_uring_sqe *sqe;
+> +	int ret;
+> +
+> +	/* nvme_uring_cmd case */
+> +	if (o->cmd_type == FIO_URING_CMD_NVME) {
+> +		struct nvme_uring_cmd *cmd;
 
-I agree this test #13 failure has nothing to do with this change.
+This should just be:
 
-I was able to recreate the test #13 failure in my test system. As far as I =
-see,
-it is not related to libzbc, since it can be recreated with block device fi=
-le
-without libzbc I/O engine.
+	if (o->cmd_type != FIO_URING_CMD_NVME)
+		return -EINVAL;
 
-I found that the scsi_debug device created with the modprobe command above =
-has
-very small max_open_zones attribute value '1'. The test case requires
-max_open_zones=3D4 or larger, then failed. By creating scsi_debug device wi=
-th
-larger device size and larger number of zones, I observed the device has la=
-rger
-max_open_zones and the test case passes.
+	... other case ...
 
-Later on, I will post a patch to skip the test case for devices with
-max_open_zones smaller than 4.
+to prevent unnecessary nesting.
 
---=20
-Shin'ichiro Kawasaki=
+
+> @@ -728,6 +829,61 @@ retry:
+>  	return fio_ioring_mmap(ld, &p);
+>  }
+>  
+> +static int fio_ioring_cmd_queue_init(struct thread_data *td)
+> +{
+> +	struct ioring_data *ld = td->io_ops_data;
+> +	struct ioring_options *o = td->eo;
+> +	int depth = td->o.iodepth;
+> +	struct io_uring_params p;
+> +	int ret;
+> +
+> +	memset(&p, 0, sizeof(p));
+> +
+> +	if (o->hipri)
+> +		p.flags |= IORING_SETUP_IOPOLL;
+> +	if (o->sqpoll_thread) {
+> +		p.flags |= IORING_SETUP_SQPOLL;
+> +		if (o->sqpoll_set) {
+> +			p.flags |= IORING_SETUP_SQ_AFF;
+> +			p.sq_thread_cpu = o->sqpoll_cpu;
+> +		}
+> +	}
+> +	if (o->cmd_type == FIO_URING_CMD_NVME) {
+> +		p.flags |= IORING_SETUP_SQE128;
+> +		p.flags |= IORING_SETUP_CQE32;
+> +	}
+> +
+> +	/*
+> +	 * Clamp CQ ring size at our SQ ring size, we don't need more entries
+> +	 * than that.
+> +	 */
+> +	p.flags |= IORING_SETUP_CQSIZE;
+> +	p.cq_entries = depth;
+> +
+> +retry:
+> +	ret = syscall(__NR_io_uring_setup, depth, &p);
+> +	if (ret < 0) {
+> +		if (errno == EINVAL && p.flags & IORING_SETUP_CQSIZE) {
+> +			p.flags &= ~IORING_SETUP_CQSIZE;
+> +			goto retry;
+> +		}
+> +		return ret;
+> +	}
+
+This retry doesn't really have any reason for existing anymore, as we
+know we have SETUP_CQSIZE if we have SQE128/CQE32. Hence I think it
+should just go away, and we should probably have a nice warning print of
+some sort if we get EINVAL as it means the kernel is too old to support
+SQE128/CQE32 and hence passthrough in general.
+
+That prevents people from emailing me that it doesn't work just because
+their kernel is too old.
+
+Apart from that, this looks good to me.
+
+-- 
+Jens Axboe
+
