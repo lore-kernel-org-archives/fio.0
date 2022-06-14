@@ -2,43 +2,43 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAC35CCA47E
-	for <fio@archiver.kernel.org>; Tue, 14 Jun 2022 15:59:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F431C433EF
+	for <fio@archiver.kernel.org>; Tue, 14 Jun 2022 15:59:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236158AbiFNP7F (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 14 Jun 2022 11:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39874 "EHLO
+        id S243579AbiFNP7G (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 14 Jun 2022 11:59:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344657AbiFNP6i (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 14 Jun 2022 11:58:38 -0400
-Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94C511CFE2
-        for <fio@vger.kernel.org>; Tue, 14 Jun 2022 08:58:34 -0700 (PDT)
-Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220614155830usoutp0159c95590c1cc6430b74767c060962092~4h_wK4n392378523785usoutp019;
+        with ESMTP id S1354232AbiFNP6j (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 14 Jun 2022 11:58:39 -0400
+Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9112B2611C
+        for <fio@vger.kernel.org>; Tue, 14 Jun 2022 08:58:35 -0700 (PDT)
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20220614155830usoutp02fb3cfca36f1da5bb1b5e1176403b14d1~4h_wO8FuK1404714047usoutp02e;
         Tue, 14 Jun 2022 15:58:30 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220614155830usoutp0159c95590c1cc6430b74767c060962092~4h_wK4n392378523785usoutp019
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20220614155830usoutp02fb3cfca36f1da5bb1b5e1176403b14d1~4h_wO8FuK1404714047usoutp02e
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1655222310;
-        bh=f0N1sVHMEUme99aW03tS/PfToYW9ddUWLVXC/NjY3T4=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=u9keaJh1CMU48unXbE9zQowsv9vrqa825waqpquQ84izGHvx/Gg+u8xTRNiyn/o+p
-         Dp5284npcMd3XBK3SKr3lbWJ4ulEPTgmxH/Sp/EiU1gPBSB0Pv/8Wc7dYHl1k9Kzlz
-         uTV4/22fh9/iB5y2kp34wJkklGyPcpx2etU8kPfU=
-Received: from ussmges1new.samsung.com (u109.gpu85.samsung.co.kr
-        [203.254.195.109]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20220614155830uscas1p2bd22ec6815a1e498ebc34311267931f8~4h_wD32Jy1169811698uscas1p2z;
+        s=mail20170921; t=1655222311;
+        bh=pfl8QCUSyn6Yrwupi40BA/wqv/VVSij/iqogtZnzKyk=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=KJeoAuwjg5xnuDF92dLpslVw0esnG3t409lEBHHWskeia7WtXM3OA8UZ/nlwklEik
+         JM3YvjiOpZNjCBfkqRg58IpR9wanfWDiv9hg83HrM026nU+KPlvYLBGmZMDRonXObQ
+         BXaKN97y8J53/qmv6gmv78qI5YT0qsjM5jodQclU=
+Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
+        [203.254.195.111]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220614155830uscas1p1914640ba084ed70bfbafb05a854b5dc4~4h_wIVPMX0463404634uscas1p1C;
         Tue, 14 Jun 2022 15:58:30 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges1new.samsung.com (USCPEMTA) with SMTP id 3B.4F.09760.620B8A26; Tue,
+Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
+        ussmges2new.samsung.com (USCPEMTA) with SMTP id 81.54.09642.620B8A26; Tue,
         14 Jun 2022 11:58:30 -0400 (EDT)
 Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
-        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220614155830uscas1p1e1d6595b29fb6960b405d5b295a32ffc~4h_vr1-D91832518325uscas1p1B;
+        [203.254.195.89]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20220614155830uscas1p2586c5e612430bdd2ce455a1081ce08e4~4h_v6Ei7Y1401314013uscas1p2i;
         Tue, 14 Jun 2022 15:58:30 +0000 (GMT)
-X-AuditID: cbfec36d-503ff70000002620-90-62a8b0261173
+X-AuditID: cbfec36f-bfdff700000025aa-c4-62a8b0261594
 Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 36.FB.52349.620B8A26; Tue,
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 66.FB.52349.620B8A26; Tue,
         14 Jun 2022 11:58:30 -0400 (EDT)
 Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
         SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
@@ -51,11 +51,13 @@ From:   Vincent Fu <vincent.fu@samsung.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 0/5] Latency cleanups
-Thread-Topic: [PATCH 0/5] Latency cleanups
-Thread-Index: AQHYgAeXsrbkA/36EUK9It1kXtpt+w==
+Subject: [PATCH 1/5] ioengines: add helper for trims with async ioengines
+Thread-Topic: [PATCH 1/5] ioengines: add helper for trims with async
+        ioengines
+Thread-Index: AQHYgAeXkqt5AZPvGkWaf6TIN7WBpw==
 Date:   Tue, 14 Jun 2022 15:58:29 +0000
-Message-ID: <20220614155822.307771-1-vincent.fu@samsung.com>
+Message-ID: <20220614155822.307771-2-vincent.fu@samsung.com>
+In-Reply-To: <20220614155822.307771-1-vincent.fu@samsung.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -65,70 +67,95 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrCIsWRmVeSWpSXmKPExsWy7djXc7pqG1YkGXT/07VYfbefzeLjrBfM
-        Dkwel8+WenzeJBfAFMVlk5Kak1mWWqRvl8CVcf2NdMFzzoqje2QbGE+xdzFyckgImEi8uHsR
-        yObiEBJYyShx/scFZginlUliwbUONpiqziOL2SASaxkl1u/eywThfGKUmNGyBMpZxijRt2oL
-        axcjBwebgKbE2/0FIN0iAmESPx9tZwWxmQXUJY5t3AA2VVhAVeJ+41RmiBotidcbzjFC2HoS
-        W5+1s4CMYQGq2dNpCRLmFbCR+HLwOlgro4CYxPdTa5ggRopL3HoynwniUEGJRbP3MEPYYhL/
-        dj2EekBR4v73l+wQ9XoSN6ZOYYOwtSWWLXzNDDFfUOLkzCcsEPWSEgdX3GABeUtC4C27xPnd
-        vVAJF4kzhx5CLZOWuHp9KjNEUTujxNyNX6CKJjBKXH8iBWFbS/zrvAa1mU/i769HjCCPSQjw
-        SnS0CU1gVJqF5IdZSO6bheS+WUjuW8DIsopRvLS4ODc9tdgwL7Vcrzgxt7g0L10vOT93EyMw
-        YZz+dzh3B+OOWx/1DjEycTAeYpTgYFYS4Z18cVmSEG9KYmVValF+fFFpTmrxIUZpDhYlcd5l
-        mRsShQTSE0tSs1NTC1KLYLJMHJxSDUwL+Ocperc/Ce5a+8mw3bb2+J9weyvprRX6klzs9lGJ
-        l/geeOse0avZE/dH9UfR/oDvZyUv98a0XTh5JNO4XlWgj8dz/d7d4r3aaWz+Lw6x+tj805n3
-        8eG5HQ2rqqbd/N3nbndzj17W9e22Ty7vktGqWOe4pbHdZNu777eOFnxZvVVN/OqRBebHinfo
-        f9w3wyb/woOnl1MzTaSTHdeV1faddw9zu8hS+D20auu/aY//1jItCIhTe22rUfDRaF7E+ks/
-        XtucaQrZvuaUz6Mjyc5BT+53B5QmqP8QLjnXdZ5j5/8TWvVnWi886+Wffj+hIdWMK2tKL0ev
-        +lmL1+b5TL/Nr61YqBH01OD1xOe2/rOVWIozEg21mIuKEwHDwv+thwMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrLLMWRmVeSWpSXmKPExsWS2cA0SVdtw4okg6avAhar7/azWXyc9YLZ
-        gcnj8tlSj8+b5AKYorhsUlJzMstSi/TtErgyrr+RLnjOWXF0j2wD4yn2LkZODgkBE4nOI4vZ
-        uhi5OIQEVjNKvFzfzAjhfGKUuH9yAxOEs4xR4sbTqyxdjBwcbAKaEm/3F4B0iwiESfx8tJ0V
-        xGYWUJc4tnEDG4gtLKAqcb9xKjNEjZbE6w3nGCFsPYmtz9rBxrAA1ezptAQJ8wrYSHw5eB2s
-        lVFATOL7qTVMECPFJW49mc8EcaiAxJI955khbFGJl4//sULYihL3v79kh6jXk7gxdQobhK0t
-        sWzha2aI+YISJ2c+YYGol5Q4uOIGywRG0VlIVsxC0j4LSfssJO0LGFlWMYqXFhfnplcUG+al
-        lusVJ+YWl+al6yXn525iBMbI6X+HI3cwHr31Ue8QIxMH4yFGCQ5mJRHeyReXJQnxpiRWVqUW
-        5ccXleakFh9ilOZgURLnFXKdGC8kkJ5YkpqdmlqQWgSTZeLglGpg8jn6qtbL8NTtGmVjjWre
-        Hp0G/xAHB4u/y+cHmHhIG4b9dVj9JlrJ6kueUM/dD9OcEx5kOGdWHXwpKesnHLn4p9C/I+YB
-        TKtmnRO8wHhczzrxvN0azpTpGy9XBUVNOd3Ypi65qzOB204wg/1t2SYP90szThm/nXt54VTj
-        mduMC3/8n5e5yibwdMBU1dvCptEaZ9eu0PuxKblDR4PttZNSvX6VccjG5avONF5+Xnj3V92u
-        zES5ihPmR6SSr5yTnXB8wqLDPuI/mLJevGzJVnyn1cK67Kq7t56zxp3JE/fKT/XRO9p3c94O
-        Q0O1Z7J/f7wLT9rx+sXE+2s0bF+68buxdDsJHcj//Hi9+46JLH//KbEUZyQaajEXFScCAEnS
-        SDwAAwAA
-X-CMS-MailID: 20220614155830uscas1p1e1d6595b29fb6960b405d5b295a32ffc
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGIsWRmVeSWpSXmKPExsWy7djX87pqG1YkGTTfM7BYfbefzeLjrBfM
+        Dkwel8+WenzeJBfAFMVlk5Kak1mWWqRvl8CVsevoJcaC3bwVZ5ddZmlgnMTdxcjJISFgInFl
+        zlumLkYuDiGBlYwSf7/1sIEkhARamSR6TybBFD3tbGCGKFrLKPFn5WJWCOcTo8SMliVQ7csY
+        JfpWbQHKcHCwCWhKvN1fANItIhAm8fPRdlYQm1lAXeLYxg1gG4QFPCUW9a1mh6gJkLg+qQnK
+        1pN4vWEtE8gYFgFViT2dliBhXgEbiVfXt4GVcArYSszZOo8JxGYUEJP4fmoNE8R4cYlbT+Yz
+        QRwtKLFo9h5mCFtM4t+uh2wQtqLE/e8v2SHq9SRuTJ3CBmFrSyxb+JoZYpegxMmZT1gg6iUl
+        Dq64wQLyooRAL4fErY0/oIa6SPxa0A41VFri6vWpzBBF7YwSczd+geqewChx/YkUhG0t8a/z
+        GtRmPom/vx4xTmBUnoXk8FlIjpqF5KhZSI5awMiyilG8tLg4Nz212CgvtVyvODG3uDQvXS85
+        P3cTIzBpnP53OH8H4/VbH/UOMTJxMB5ilOBgVhLhnXxxWZIQb0piZVVqUX58UWlOavEhRmkO
+        FiVx3mWZGxKFBNITS1KzU1MLUotgskwcnFINTHpMf2fe0mmYlCSovG1O232pu0qqJYv2VAUl
+        nniv/OhU4aalS/dqN61q7Zx+5+qnWwdmntz2UyD/hdEslo1ifdzKJ24djXsd0b77nZHwqnPL
+        Tkev1ta7IPCjNJz1i8/eGXdSfx/bf7Sg3CksvOqej9r1ha1WPZxek41tvjxzvRXNy3hXeYth
+        T+aZUPHPaadyDh273eii/0Jude+W4O9d0a0smpnXLZ+c3L+56bXoGp7U05bP9h2eIfgndVLb
+        F/XPK+bFHn9VFrCfu07F4F650qJUbafdv83PXM3n0+SY9p7JrXdey/+cY8sm6dsw7/XvEJp4
+        lXub1ce9WyWrbnv2nGJScGx+wdsXsCNTavmBvxlKLMUZiYZazEXFiQA5JTgViQMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpnkeLIzCtJLcpLzFFi42LJbGCapKu2YUWSwa5+RYvVd/vZLD7OesHs
+        wORx+Wypx+dNcgFMUVw2Kak5mWWpRfp2CVwZu45eYizYzVtxdtlllgbGSdxdjJwcEgImEk87
+        G5i7GLk4hARWM0q8ezGHDcL5xChx/+QGJghnGaPEjadXWboYOTjYBDQl3u4vAOkWEQiT+Plo
+        OyuIzSygLnFs4wY2EFtYwFNiUd9qdogaP4mvc25D2XoSrzesZQIZwyKgKrGn0xIkzCtgI/Hq
+        +jawEiEge9eWI8wgNqeArcScrfOYQGxGATGJ76fWMEGsEpe49WQ+E8QDAhJL9pxnhrBFJV4+
+        /scKYStK3P/+kh2iXk/ixtQpbBC2tsSyha+ZIfYKSpyc+YQFol5S4uCKGywTGMVnIVkxC0n7
+        LCTts5C0L2BkWcUoXlpcnJteUWyYl1quV5yYW1yal66XnJ+7iREYV6f/HY7cwXj01ke9Q4xM
+        HIyHGCU4mJVEeCdfXJYkxJuSWFmVWpQfX1Sak1p8iFGag0VJnFfIdWK8kEB6YklqdmpqQWoR
+        TJaJg1OqgUl/ZmPmQ/nVS87F5pZfTs4791m8Rv/wvjvsD5qKP06YKfLMZ+uflc6O57ZWZke9
+        /2qqoaD77X9GA0OhH+eMzpg+t6QvH6Yah5VysO5ZfdLReZ574YMDNo2LTz1hu/Xn49vQXzsM
+        he4ypn+es23iVvcN6ntKeW8dPdptHbFhwq3zfm9iw1Ji+sxmvHj0yi/64+TufwvrXrx7Nu9e
+        tehPvxnLFfnfJm69+SrjWME806jLP+PezQp8INZ3q4EzbLrrXW0Fp9bP8iz60ecrNNWz857o
+        xhulO27IMw/1uP7xmbnN/bdTWQzemXbW+rRwiF36Wn5g0Seb/b1u/86lyQYryq9NEXv1nOPe
+        7s7/xwuYMm8rsRRnJBpqMRcVJwIAJ5vfLxoDAAA=
+X-CMS-MailID: 20220614155830uscas1p2586c5e612430bdd2ce455a1081ce08e4
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20220614155830uscas1p1e1d6595b29fb6960b405d5b295a32ffc
-References: <CGME20220614155830uscas1p1e1d6595b29fb6960b405d5b295a32ffc@uscas1p1.samsung.com>
+X-CMS-RootMailID: 20220614155830uscas1p2586c5e612430bdd2ce455a1081ce08e4
+References: <20220614155822.307771-1-vincent.fu@samsung.com>
+        <CGME20220614155830uscas1p2586c5e612430bdd2ce455a1081ce08e4@uscas1p2.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Jens, here are a few latency cleanup patches. The main improvement is to
-avoid recording issue_time twice for the ioengines that record
-issue_time themselves when their commit hook is called. Recording
-issue_time twice underestimates clat since the first issue_time value is
-used for slat and then the later second issue_time is used when
-calculating clat.
+Async ioengines support trim commands but trims are synchronous
+operations. We need to provide special handling when measuring latency
+for these commands. Create a helper function to help us identify when an
+async ioengine is issuing a sync trim command. This makes the code more
+readable.
 
-I'm not able to test the rdma and librpma ioengines but the fix for
-libaio and io_uring appears to work properly.
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+---
+ ioengines.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-Vincent Fu (5):
-  ioengines: add helper for trims with async ioengines
-  ioengines: don't record issue_time if ioengines already do it
-  HOWTO: improve description of latency measures
-  ioengines: update last_issue if we set issue_time
-  ioengines: clean up latency accounting for 3 ioengines
-
- HOWTO.rst               | 29 ++++++++++++++++-----------
- engines/io_uring.c      | 13 ++++++++++--
- engines/libaio.c        |  9 ++++++++-
- engines/librpma_apm.c   |  2 +-
- engines/librpma_fio.c   |  9 ++++++++-
- engines/librpma_gpspm.c |  2 +-
- engines/rdma.c          |  9 ++++++++-
- ioengines.c             | 44 ++++++++++++++++++++++++-----------------
- ioengines.h             |  2 ++
- 9 files changed, 83 insertions(+), 36 deletions(-)
-
+diff --git a/ioengines.c b/ioengines.c
+index 68f307e5..280da3c8 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -24,6 +24,13 @@
+=20
+ static FLIST_HEAD(engine_list);
+=20
++static inline bool async_ioengine_sync_trim(struct thread_data *td,
++					    struct io_u	*io_u)
++{
++	return td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) &&
++		io_u->ddir =3D=3D DDIR_TRIM;
++}
++
+ static bool check_engine_ops(struct thread_data *td, struct ioengine_ops *=
+ops)
+ {
+ 	if (ops->version !=3D FIO_IOOPS_VERSION) {
+@@ -350,8 +357,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, s=
+truct io_u *io_u)
+ 	io_u->resid =3D 0;
+=20
+ 	if (td_ioengine_flagged(td, FIO_SYNCIO) ||
+-		(td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) &&=20
+-		io_u->ddir =3D=3D DDIR_TRIM)) {
++		async_ioengine_sync_trim(td, io_u)) {
+ 		if (fio_fill_issue_time(td))
+ 			fio_gettime(&io_u->issue_time, NULL);
+=20
+@@ -435,8 +441,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, s=
+truct io_u *io_u)
+ 	}
+=20
+ 	if (!td_ioengine_flagged(td, FIO_SYNCIO) &&
+-		(!td_ioengine_flagged(td, FIO_ASYNCIO_SYNC_TRIM) ||
+-		 io_u->ddir !=3D DDIR_TRIM)) {
++		!async_ioengine_sync_trim(td, io_u)) {
+ 		if (fio_fill_issue_time(td))
+ 			fio_gettime(&io_u->issue_time, NULL);
+=20
 --=20
 2.25.1
