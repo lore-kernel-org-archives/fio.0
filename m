@@ -2,144 +2,90 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87760C433EF
-	for <fio@archiver.kernel.org>; Wed, 15 Jun 2022 17:51:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB1C7C43334
+	for <fio@archiver.kernel.org>; Wed, 15 Jun 2022 21:30:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353642AbiFORvq (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 15 Jun 2022 13:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35806 "EHLO
+        id S1348255AbiFOVak (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 15 Jun 2022 17:30:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358093AbiFORvo (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 15 Jun 2022 13:51:44 -0400
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4FAE541BE
-        for <fio@vger.kernel.org>; Wed, 15 Jun 2022 10:51:40 -0700 (PDT)
-Received: by mail-qk1-x730.google.com with SMTP id c144so9278233qkg.11
-        for <fio@vger.kernel.org>; Wed, 15 Jun 2022 10:51:40 -0700 (PDT)
+        with ESMTP id S1347062AbiFOVaj (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 15 Jun 2022 17:30:39 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56A66562CD
+        for <fio@vger.kernel.org>; Wed, 15 Jun 2022 14:30:38 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id k7so2115036plg.7
+        for <fio@vger.kernel.org>; Wed, 15 Jun 2022 14:30:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pcpartpicker.com; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AJyaVAIF09cB3konq1S5Za8RVq5QpuSl4nAlA8AAJYU=;
-        b=Sy2++42OVMyL5aidIG4Lxau9IhVVzZl1qgF3aBp9i9IaztEmAxxSdTXMgMXEyO1Xwh
-         hzToSKGt5elHnoUbhd7U81YcnoNjqhpCXsTIQ91mh/hOdj2CyVFdR34K6ezKc/762z+A
-         RoWNc8/mj7Yzo8NJv7N4jBpsHDxtAG8sdU3QFXNFAsKEOIFvXMJnDHYbU4LWcLrxCitL
-         s1oBLfUCso26Lmkz4dLQC+IJRDmJMB9yerHkbhwG8I1/XM//jxU+wGPbgcBOP7lXVaab
-         cUKsW9RVBBFPymSkJ0BAa3VrhO2ERcQyzHv49bwVYXWftNRQ5r09ennOv65T6YaCf/yp
-         iWMQ==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=from:to:in-reply-to:references:subject:message-id:date:mime-version
+         :content-transfer-encoding;
+        bh=pQrNddHkgdXL9fxABT13U6j61qI38f7J/YdsjmJXHTc=;
+        b=P1s6VbZxASLTT9UJUYecj3XJ/XtzZhRsWdedoP2SV2o7ozEklkM3mENq/zIlC39hHr
+         bt0YI3Mrh084eVwMPo0FYCELhNNsyaPPwo211JNF8BlG4tw8JNYa31P2L8Hqj7Ekiwdw
+         i0fjw6xq/mq1jD1fnRmgYx/yB0WJb+MiE/tVktQGwj6SbBHG3K6v07wBt1K5niqsPY4Y
+         xjWDyItvHUQ6yvdnv50nj8tQqeVJ/oruBy41uB8nQEzxJ2CbUg5J0qaUXOiyYyRmekEl
+         uQ/gsIKaCEDaXicuaX1uqz4k94+UGQpgfdGfKxjnUB7900WO4e4X+CMM662gPBbWnFFw
+         12yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AJyaVAIF09cB3konq1S5Za8RVq5QpuSl4nAlA8AAJYU=;
-        b=w6Nl6R81WEZswjC/LvCvVY1WZuHjhb/O/sQDEnEy7z3SZRPxCq6zZFo23IKYibZOe/
-         L3kti2YXWtNOAUyAfy2UyDlcJ1z4aAvkpG7bBT++M+hbRJPzl3vXJ6uxQmMfaMlTfD8I
-         ldKNbkWG5LdcpR2ovK1tGzrXBzBaddDdE/76Nun/NhOcAa9I53NF0nzt0DKPfzqzRmwL
-         m9gdf1NAuSdf1IZtu/oSTSWqox62628VX51i4Cr9eQjZCkk5nYNvKHMLo91If4pCYebw
-         2WCauQ93rMhxWwc9FKG5ntjGWzifZM1mUN2OmMP+EDo1csA4+jTrenOuG2T2D5GvpV5M
-         GxMg==
-X-Gm-Message-State: AJIora/3OqqB1PdhSKWzC2HiNBESVDgq7iMi5uXDgsSn4g+f2QbXS/t2
-        V+brsJzJsexqmPzf4/Tgl14zB3UqQXumBzECGuyJhx7iw3w=
-X-Google-Smtp-Source: AGRyM1stQw66xirEbWrpB/9HnL6ujR4ahZDvhyWTVzJTdtCAygmISogNFXO9U0/QfoGXRPxJR7Yqo1b6mF1yfcPoJrg=
-X-Received: by 2002:a37:e202:0:b0:6a6:ab87:113d with SMTP id
- g2-20020a37e202000000b006a6ab87113dmr679334qki.605.1655315499974; Wed, 15 Jun
- 2022 10:51:39 -0700 (PDT)
+        h=x-gm-message-state:from:to:in-reply-to:references:subject
+         :message-id:date:mime-version:content-transfer-encoding;
+        bh=pQrNddHkgdXL9fxABT13U6j61qI38f7J/YdsjmJXHTc=;
+        b=LklO+CiLFNVkh7YucnHxlXzMGRiE4DC0nT1hy6dHVDa8TPei3PLCWU24DA6jg3IA/D
+         T/ZEDZsB/EOWAjXXOhZnd+zD0bsiQvhys1BvsBEFbunzpVPfiVlZ0dxsdmWdkE0CwbIC
+         VVUiA1eyYtUpJc8LjkL/hIPk6BiUhjECE4aeRnzFklPahMNbDuhUcLIZEMr27Iq/QKNb
+         E8MSNti93PGQmBGr8xTkt+2jwnFx+r+nqs/Z/OqWlYhzf0750UYTz7efnXzcx7voS/sC
+         BUtsbn+s3pZzN/THXP8kdbAeoJlsX1E6LqfYhNdhDfm3Wm87+eOOEDSRUTWB+dPcllTT
+         6UAw==
+X-Gm-Message-State: AJIora+olYSWr1cbIJG/ebkoehNKH8ryJA5KDDIfu00G4DfLRQeLEOOC
+        lqMjfz2YZTdJKdqNbHphRCjujRsoPm5Zwg==
+X-Google-Smtp-Source: AGRyM1vzfp+ToNqdMPAs8Rfb747NIqMnIlVYTjjO7714ikBKWgG4bnBHp3Lmr3EfJhL7FuArmfChOQ==
+X-Received: by 2002:a17:902:c411:b0:165:11ed:9287 with SMTP id k17-20020a170902c41100b0016511ed9287mr1498079plk.110.1655328637754;
+        Wed, 15 Jun 2022 14:30:37 -0700 (PDT)
+Received: from [127.0.1.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id jj21-20020a170903049500b001616e19537esm76775plb.213.2022.06.15.14.30.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Jun 2022 14:30:37 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     vincent.fu@samsung.com, fio@vger.kernel.org
+In-Reply-To: <20220614155822.307771-1-vincent.fu@samsung.com>
+References: <CGME20220614155830uscas1p1e1d6595b29fb6960b405d5b295a32ffc@uscas1p1.samsung.com> <20220614155822.307771-1-vincent.fu@samsung.com>
+Subject: Re: [PATCH 0/5] Latency cleanups
+Message-Id: <165532863709.858685.15018475756909381631.b4-ty@kernel.dk>
+Date:   Wed, 15 Jun 2022 15:30:37 -0600
 MIME-Version: 1.0
-References: <CGME20220614155830uscas1p15aaa5d3bc8eec3da42c78a48520c6dd9@uscas1p1.samsung.com>
- <20220614155822.307771-1-vincent.fu@samsung.com> <20220614155822.307771-3-vincent.fu@samsung.com>
- <CADqNVTpODU3u5siLtvDT8jCBGUZtprMSVi2eqaM9VRbWJ_DuCw@mail.gmail.com> <fbe6eea8b6134e92b52a78af25a1fc94@samsung.com>
-In-Reply-To: <fbe6eea8b6134e92b52a78af25a1fc94@samsung.com>
-From:   Nick Neumann <nick@pcpartpicker.com>
-Date:   Wed, 15 Jun 2022 12:51:28 -0500
-Message-ID: <CADqNVTpZ03kdKj5ZOpgzkvOk2sfjHbcBTXJap3apKGii31Xgew@mail.gmail.com>
-Subject: Re: [PATCH 2/5] ioengines: don't record issue_time if ioengines
- already do it
-To:     Vincent Fu <vincent.fu@samsung.com>
-Cc:     "axboe@kernel.dk" <axboe@kernel.dk>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Wed, Jun 15, 2022 at 12:06 PM Vincent Fu <vincent.fu@samsung.com> wrote:
->
-> > -----Original Message-----
-> > From: Nick Neumann [mailto:nick@pcpartpicker.com]
-> > Sent: Wednesday, June 15, 2022 11:27 AM
-> > To: Vincent Fu <vincent.fu@samsung.com>
-> > Cc: axboe@kernel.dk; fio@vger.kernel.org
-> > Subject: Re: [PATCH 2/5] ioengines: don't record issue_time if ioengines
-> > already do it
-> >
-> > On Tue, Jun 14, 2022 at 10:59 AM Vincent Fu <vincent.fu@samsung.com>
-> > wrote:
-> > >
-> > > io_uring, io_uring_cmd, and libaio record issue_time inside the
-> > ioengine
-> > > code when their commit functions are called. So we don't need to
-> > record
-> > > issue_time again for these ioengines in td_io_queue.
-> > >
-> > > If we do fill issue_time twice, then mean(slat) + mean(clat) !=
-> > > mean(lat):
-> >
-> > I'm a little bit confused though why not recording issue_time again in
-> > td_io_queue is considered the right fix. By having some ioengines that
-> > record issue_time in their commit functions, and others that do not
-> > (and thus have it recorded in td_io_queue), comparing clat between two
-> > different engines isn't an apples-to-apples comparison. An ioengine
-> > that does not record issue_time in its commit gets a "discount" of
-> > sorts in its measured clat, since its issue_time is not recorded until
-> > later. Does that make sense, or am I missing something? (Has been a
-> > few months since I've been in the code in detail, so that's possible.)
->
-> You make a good point and I'm glad you brought this up for discussion.
->
-> We currently have three latency pathways for async ioengines:
->
-> (1) async w/o commit: record issue_time in td_io_queue after queue
-> (2) async w/commit that *does not* record issue_time: records issue_time in
-> td_io_queue after queue (slat not reported)
-> (3) async w/commit that *does* record issue_time: issue_time recorded in
-> both td_io_queue and commit
->
-> I think the right long-term solution is to make the ioengines in (2) conform to
-> (1) or (3). Then we can have fair comparisons. But what 'queue' and 'commit'
-> mean for them doesn't completely match what the two mean for libaio and
-> io_uring.
->
-> For libaio and io_uring 'queue' prepares an IO and 'commit' actually sends it
-> to the OS. So it's appropriate to record issue_time after commit. But, for
-> example, take a look at the nfs ioengine's commit:
->
-> https://github.com/axboe/fio/blob/master/engines/nfs.c#L285
->
-> nfs isn't doing what libaio and io_uring are doing with commit.
->
-> There are four ioengines that fall into category (2): ime_aio, nfs, null, and
-> cpp_null. It would take some time to test the changes but probably it would be
-> straightforward to make nfs conform to (1) and {null, cpp_null} conform to (3)
-> but I have no idea about ime_aio.
->
-> I think the current patch is an improvement over what we currently have.  Plus
-> it really bothers me that mean(slat) + mean(clat) != mean(lat) and this
-> resolves that issue.  If someone comes along to fix everything up then we can
-> get rid of FIO_ASYNCIO_SETS_ISSUE_TIME and instead of td_io_queue checking for
-> that flag before setting issue_time it can instead check for the presence of a
-> commit hook.
+On Tue, 14 Jun 2022 15:58:29 +0000, Vincent Fu wrote:
+> Jens, here are a few latency cleanup patches. The main improvement is to
+> avoid recording issue_time twice for the ioengines that record
+> issue_time themselves when their commit hook is called. Recording
+> issue_time twice underestimates clat since the first issue_time value is
+> used for slat and then the later second issue_time is used when
+> calculating clat.
+> 
+> [...]
 
-Thanks for the detailed explanation. I actually read your blog post
-about how fio measures latency too, and that was quite helpful as
-well.
+Applied, thanks!
 
-You've definitely convinced me that your change is an improvement, and
-that there isn't necessarily a one-size-fits-all solution because the
-different engines do different kinds of things in commit.
+[1/5] ioengines: add helper for trims with async ioengines
+      commit: d46b4565dfdaddbfdd91976a57b2564aa7a52f62
+[2/5] ioengines: don't record issue_time if ioengines already do it
+      commit: 4e7e78980ff32627e12b48d72496b701dd200a42
+[3/5] HOWTO: improve description of latency measures
+      commit: 13ddd98b2a70c55657f952096785ccc64479f0eb
+[4/5] ioengines: update last_issue if we set issue_time
+      commit: 39f56400f63e43fbe33e391d52f24eb6c79d0098
+[5/5] ioengines: clean up latency accounting for 3 ioengines
+      commit: 2b82135e42fc5872338ee16e16d317b16abfe308
 
-The fact that, before your change, mean(slat)+mean(clat) != mean(lat)
-is very surprising. I (and I imagine many others) just assumed it was,
-and it definitely should be, especially with libaio and io_uring,
-which I imagine are the main async engines used to test raw ssd
-performance. I'm glad you caught that the sum was not equal to the
-total, and grateful you figured out why and fixed it. Thanks again.
+Best regards,
+-- 
+Jens Axboe
+
+
