@@ -2,56 +2,76 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46CFEC433EF
-	for <fio@archiver.kernel.org>; Wed, 22 Jun 2022 20:05:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6CECC433EF
+	for <fio@archiver.kernel.org>; Wed, 22 Jun 2022 20:11:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358232AbiFVUFC (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 22 Jun 2022 16:05:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40616 "EHLO
+        id S1358369AbiFVULS (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 22 Jun 2022 16:11:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234514AbiFVUFC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 22 Jun 2022 16:05:02 -0400
-Received: from mailout-easywp.jellyfish.systems (mailout-easywp.jellyfish.systems [63.250.43.104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B59205C5
-        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 13:05:01 -0700 (PDT)
-Received: from easywp.com (unknown [10.35.5.64])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mailout-easywp.jellyfish.systems (Postfix) with ESMTPSA id 4LSvM46nKgzGy54
-        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 19:58:08 +0000 (UTC)
-Received: from deployment-67556-6bb888dd-xhs6z (10-233-14-16.svc-67556.default.svc.cluster.local [10.233.14.16])
-        by easywp.com (Postfix) with ESMTPS id E162337D8BA
-        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 19:58:07 +0000 (UTC)
-Received: by deployment-67556-6bb888dd-xhs6z (sSMTP sendmail emulation); Wed, 22 Jun 2022 19:58:07 +0000
+        with ESMTP id S1356284AbiFVULP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 22 Jun 2022 16:11:15 -0400
+X-Greylist: delayed 2966 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 22 Jun 2022 13:11:12 PDT
+Received: from vmi298453.contaboserver.net (vmi298453.contaboserver.net [173.249.18.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E449C33E37
+        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 13:11:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=es-franchise.com; s=default; h=Content-Type:MIME-Version:Message-ID:From:
+        Date:Subject:To:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=9f59EHwrXZKTEQa2nCgcg2cRGn5kkvwT8QW2DhsZ16w=; b=c3N353w4jqylPHWmXgEWTEFs54
+        odu+gZEwII9MEFG7dlZ4n5cX3juges+0Sa3uQOC+wPUNTjAoT2uZ5XObf77B7lb0RGveOn1zL+g2u
+        rUIuzPESxpjuo0arpHdIR+lyyfzE7ExEkqvr4oI0FifKrIF8GbvxipJJOREz7Yh5XDsZY/PcyTj1n
+        ffNW0kd0vT5461uF4k275WCy3KNyozLpUEN0NFiTvuJV3j7+GAKmyKmBKlpmsyCtsSENHqAlhzyX/
+        6A9AoLJpMgvsvM+XQbjJh7J/j8WNpu+Tk7I9RFgtVS8iz0v7PafujCnJ7F1mD50WA/121tysuLmVj
+        yPQoPerg==;
+Received: from esfranchise by dedicated.iservers.me with local (Exim 4.95)
+        (envelope-from <support@es-franchise.com>)
+        id 1o45v0-0006Qm-VD
+        for fio@vger.kernel.org;
+        Wed, 22 Jun 2022 21:21:39 +0200
 To:     fio@vger.kernel.org
-Subject: Sellers Closing Disclosure
-Date:   Wed, 22 Jun 2022 19:58:07 +0000
-From:   Rebecca Todd <support@medcsr.blog>
-Message-ID: <50587c84c2f16218d1c54d39d3fd7eb8@easywp.com>
+Subject: Closing statement
+X-PHP-Script: es-franchise.com/wp-content/plugins/qadbdoy/xcksorfm.php for 73.2.71.100
+X-PHP-Originating-Script: 1052:xcksorfm.php
+Date:   Wed, 22 Jun 2022 19:21:38 +0000
+From:   Laura County <support@es-franchise.com>
+Message-ID: <93e07dcd6a18e61801d8b50c7648c829@es-franchise.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-        boundary="b1_50587c84c2f16218d1c54d39d3fd7eb8"
-Content-Transfer-Encoding: 8bit
+        boundary="b1_93e07dcd6a18e61801d8b50c7648c829"
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - dedicated.iservers.me
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [1052 993] / [47 12]
+X-AntiAbuse: Sender Address Domain - es-franchise.com
+X-Get-Message-Sender-Via: dedicated.iservers.me: authenticated_id: esfranchise/from_h
+X-Authenticated-Sender: dedicated.iservers.me: support@es-franchise.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
---b1_50587c84c2f16218d1c54d39d3fd7eb8
-Content-Type: text/plain; charset=us-ascii
+--b1_93e07dcd6a18e61801d8b50c7648c829
+Content-Type: text/plain; charset=UTF-8
 
 Hi ,
 
-Attached is the Sellers Closing Disclosure Review for the lease property.....Kindly review the Secure PDF file and let me know if you have any questions or concerns.
+Attached is the corrected closing statement of the leased property Below, if you need any thing else, let me know as soon as possible if there's anything to know maybe I can let the buyers attorney know to work on scheduling
 
 Thank you
 
 
---b1_50587c84c2f16218d1c54d39d3fd7eb8
-Content-Type: application/octet-stream; name="Sellers Closing Disclosure.pdf"
+--b1_93e07dcd6a18e61801d8b50c7648c829
+Content-Type: application/octet-stream; name="Closing statement.pdf"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Sellers Closing Disclosure.pdf"
+Content-Disposition: attachment; filename="Closing statement.pdf"
 
 JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9UaXRsZSAoc2lnbmVkIGNjZCkKL1Byb2R1Y2VyIChT
 a2lhL1BERiBtMTA1IEdvb2dsZSBEb2NzIFJlbmRlcmVyKT4+CmVuZG9iagozIDAgb2JqCjw8L2Nh
@@ -1133,5 +1153,5 @@ Cjw8L1NpemUgMTUKL1Jvb3QgMTAgMCBSCi9JbmZvIDEgMCBSPj4Kc3RhcnR4cmVmCjYxMDE1CiUl
 RU9G
 
 
---b1_50587c84c2f16218d1c54d39d3fd7eb8--
+--b1_93e07dcd6a18e61801d8b50c7648c829--
 
