@@ -2,91 +2,77 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CA25C433EF
-	for <fio@archiver.kernel.org>; Wed, 22 Jun 2022 20:12:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E8BAC433EF
+	for <fio@archiver.kernel.org>; Wed, 22 Jun 2022 21:09:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358456AbiFVUMc (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 22 Jun 2022 16:12:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
+        id S1354061AbiFVVJ2 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 22 Jun 2022 17:09:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356284AbiFVUMa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 22 Jun 2022 16:12:30 -0400
-X-Greylist: delayed 1304 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 22 Jun 2022 13:12:29 PDT
-Received: from gateway20.websitewelcome.com (gateway20.websitewelcome.com [192.185.67.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 503EA33E39
-        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 13:12:29 -0700 (PDT)
-Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
-        by gateway20.websitewelcome.com (Postfix) with ESMTP id 01990400D2CFA
-        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 14:50:45 -0500 (CDT)
-Received: from gator4238.hostgator.com ([108.167.189.64])
-        by cmsmtp with SMTP
-        id 46LEofcJQ7B0O46LEo9Tb8; Wed, 22 Jun 2022 14:48:44 -0500
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=ciserve.com
-        ; s=default; h=Content-Type:MIME-Version:Message-ID:From:Date:Subject:To:
-        Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:Content-Description:
-        Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-        In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=kf5crfR3NgKIiIcQTLPv5a7dLTG7g8VARd1W+CKirvo=; b=JrwIasZ+UzUK9kldRk/WBBMaEJ
-        eR9lAILr4VZ25FrDFkwXIo/TBSP/XDVwpQC3DuJlw51Zxq/NNys9YQC2Y4fAY+QpQYHzthrfuuHNb
-        iuxJt30ntre01+Omipbe4VHOUwUMf5xk7Szu7ZJuDob8uLy31c5qt1i4rWjChJY71Kdw+ZKhOrM+9
-        FGd4hOyuZXyZHH9U+hxG0s4g07rWOiU4Bzbhcuksho8DGSfOBMI7aZjOFJwp8wMIV8LXr0I52U6us
-        e6MpEhIT1MqopfqhfEYNn5eK3W8met1vU9XijRl4Eyh61/QGd4wBBlwIcHSDTCzpfq7ccwUr2+Dcf
-        uOfXTNbw==;
-Received: from artvill by gator4238.hostgator.com with local (Exim 4.95)
-        (envelope-from <Proudyyrkirises9782msmntyfessq66vxq5bbsfFriendzyypestysps867@ciserve.com>)
-        id 1o46LD-003v99-T6
+        with ESMTP id S1356156AbiFVVJ1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 22 Jun 2022 17:09:27 -0400
+X-Greylist: delayed 6183 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 22 Jun 2022 14:09:26 PDT
+Received: from vmi298453.contaboserver.net (vmi298453.contaboserver.net [173.249.18.97])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCC92F3A0
+        for <fio@vger.kernel.org>; Wed, 22 Jun 2022 14:09:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=es-franchise.com; s=default; h=Content-Type:MIME-Version:Message-ID:From:
+        Date:Subject:To:Sender:Reply-To:Cc:Content-Transfer-Encoding:Content-ID:
+        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+        :Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=LRsWVjNz8aa8KREcAFlGJ+mdfnJb7R3ORT/bTsv3Vgc=; b=eVuuS227hVfgXgET3GH6IwvYZV
+        98fsFSKX6C9gt4t2wiIgiJLSSCjUnCZLPNIlxEqNkznCMCllaz0ad/sN8o5+s8tipql4VH7ZYgoY9
+        n97nf3s7K6OrMV4fU9u5ndW6BQCt7l1iekc+9mAQHwpSkAqs9ihcy/OHSIpg95fbCFhSNTMI9cbM3
+        DyW4C/aKsqYEoxxE3ZfDVLryGKMhU2xtaYnBBGMogtGmJfOEaQSWlRYBej2jWk1qZn4hh3JwLBCfn
+        puQ4NaX+w8TjIxoJPs0Bt/ZOPnModGijEXn0XMpjBsRadbPzHQ3IJZsii6EHhISAKKeo1klSmNHxf
+        WED5g9iw==;
+Received: from esfranchise by dedicated.iservers.me with local (Exim 4.95)
+        (envelope-from <Freddyrkirises9782yza2h52c8wh96jyiut6i1Heistypestysps867@es-franchise.com>)
+        id 1o45zU-0006wi-IZ
         for fio@vger.kernel.org;
-        Wed, 22 Jun 2022 14:48:44 -0500
+        Wed, 22 Jun 2022 21:26:17 +0200
 To:     fio@vger.kernel.org
-Subject: Closing statement
-X-PHP-Script: ciserve.com/wp-admin/tfakfyfx.php for 74.50.58.26, 74.50.58.26
-X-PHP-Originating-Script: 1252:tfakfyfx.php(3) : eval()'d code(1) : eval()'d code(16) : eval()'d code
-Date:   Wed, 22 Jun 2022 14:48:43 -0500
-From:   Susan Dennin 
-        <Proudyyrkirises9782msmntyfessq66vxq5bbsfFriendzyypestysps867@ciserve.com>
-Message-ID: <eb15b23ef605e0ec307ac03fd908a4e9@ciserve.com>
+Subject: Sellers Closing Disclosure
+X-PHP-Script: es-franchise.com/wp-content/plugins/qadbdoy/xcksorfm.php for 73.2.71.100
+X-PHP-Originating-Script: 1052:xcksorfm.php
+Date:   Wed, 22 Jun 2022 19:26:16 +0000
+From:   Rebecca Todd 
+        <Freddyrkirises9782yza2h52c8wh96jyiut6i1Heistypestysps867@es-franchise.com>
+Message-ID: <da270fde645cddec4b51e11abdef75d8@es-franchise.com>
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-        boundary="b1_eb15b23ef605e0ec307ac03fd908a4e9"
+        boundary="b1_da270fde645cddec4b51e11abdef75d8"
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4238.hostgator.com
+X-AntiAbuse: Primary Hostname - dedicated.iservers.me
 X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [1252 498] / [47 12]
-X-AntiAbuse: Sender Address Domain - ciserve.com
-X-BWhitelist: no
-X-Source-IP: 
-X-Source-L: No
-X-Exim-ID: 1o46LD-003v99-T6
+X-AntiAbuse: Originator/Caller UID/GID - [1052 993] / [47 12]
+X-AntiAbuse: Sender Address Domain - es-franchise.com
+X-Get-Message-Sender-Via: dedicated.iservers.me: authenticated_id: esfranchise/from_h
+X-Authenticated-Sender: dedicated.iservers.me: Freddyrkirises9782yza2h52c8wh96jyiut6i1Heistypestysps867@es-franchise.com
 X-Source: 
 X-Source-Args: 
-X-Source-Dir: preserveyourhistory.com:/ciserve.com/wp-admin
-X-Source-Sender: 
-X-Source-Auth: artvill
-X-Email-Count: 250
-X-Source-Cap: YXJ0dmlsbDthcnR2aWxsO2dhdG9yNDIzOC5ob3N0Z2F0b3IuY29t
-X-Local-Domain: yes
+X-Source-Dir: 
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
---b1_eb15b23ef605e0ec307ac03fd908a4e9
+--b1_da270fde645cddec4b51e11abdef75d8
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: binary
 
 Hi ,
 
-Attached is the corrected closing statement of the leased property Below, if you need any thing else, let me know as soon as possible if there's anything to know maybe I can let the buyers attorney know to work on scheduling
+Attached is the Sellers Closing Disclosure Review for the lease property.....Kindly review the Secure PDF file and let me know if you have any questions or concerns.
 
 Thank you
 
-
---b1_eb15b23ef605e0ec307ac03fd908a4e9
-Content-Type: application/octet-stream; name="Closing statement.pdf"
+--b1_da270fde645cddec4b51e11abdef75d8
+Content-Type: application/octet-stream; name="Sellers Closing Disclosure.pdf"
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="Closing statement.pdf"
+Content-Disposition: attachment; filename="Sellers Closing Disclosure.pdf"
 
 JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9UaXRsZSAoc2lnbmVkIGNjZCkKL1Byb2R1Y2VyIChT
 a2lhL1BERiBtMTA1IEdvb2dsZSBEb2NzIFJlbmRlcmVyKT4+CmVuZG9iagozIDAgb2JqCjw8L2Nh
@@ -1168,5 +1154,5 @@ Cjw8L1NpemUgMTUKL1Jvb3QgMTAgMCBSCi9JbmZvIDEgMCBSPj4Kc3RhcnR4cmVmCjYxMDE1CiUl
 RU9G
 
 
---b1_eb15b23ef605e0ec307ac03fd908a4e9--
+--b1_da270fde645cddec4b51e11abdef75d8--
 
