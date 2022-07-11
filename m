@@ -2,71 +2,176 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB3C9C43334
-	for <fio@archiver.kernel.org>; Fri,  8 Jul 2022 18:46:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 045DFC43334
+	for <fio@archiver.kernel.org>; Mon, 11 Jul 2022 02:56:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239676AbiGHSqz (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 8 Jul 2022 14:46:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
+        id S229552AbiGKC4C (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 10 Jul 2022 22:56:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239682AbiGHSqv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 8 Jul 2022 14:46:51 -0400
-Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B5BE83F25
-        for <fio@vger.kernel.org>; Fri,  8 Jul 2022 11:46:51 -0700 (PDT)
-Received: by mail-qt1-x82c.google.com with SMTP id k14so28640541qtm.3
-        for <fio@vger.kernel.org>; Fri, 08 Jul 2022 11:46:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:content-language:to:from
-         :subject:content-transfer-encoding;
-        bh=mve3A+1l+8rJEfat0m2NQPdVNkolBh4ZsIFQsLeV0eU=;
-        b=cLPhH/GBVyYBJ8qr0SinbXmATBnFT9W6q1s6KQXE+KhYPIxVo7hJ0ofXFr+Z3i7XjA
-         Mp8AhJPuDz/A/Pha0ZT4kjEntO9iojE+zIcmdhj5JRcnKO+WjZsq5/4f1YNiEkmNmIUA
-         YSjNu9vZ44e+vQOWc6tgMUOqtU5o5lNXl0NuTRUV6ht4AAUJAUUqx4o1U7Prd1x+NllI
-         7vOpowrC1eIv0xzP0QoMLSZZ1j+O05RqAjgmvpFvBhlBnaTwKCJw/jRuVBYPQzDqi9dH
-         yvSsJVvhMABM01ivB54Ktd/DUzIATQ/qXW+wC1UFJ+FK8wFbYYLa3l7GS/qSD815Noq7
-         0JgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:from:subject:content-transfer-encoding;
-        bh=mve3A+1l+8rJEfat0m2NQPdVNkolBh4ZsIFQsLeV0eU=;
-        b=ONV1lmOCcCl/ugDU3c0dg8AaYoTP28huZZ1kKNFLSeOnkNplofeDVRSKNMlNqItlBG
-         0jvA08RAxfECVuusyzP29o/7LNFOZmPk6unpdLEv3VaqUrgeGGWRQHKLY+bMYtuCC2vD
-         LnNLCe/wLtfolRM5x5jg30aicsywx7SK2ppJhaZt1h9PgFzCpUfyJou7IVT/k1JvLwsO
-         LcOgxriWMswmggY4JRvXpLik+Q030ne1Oqlq0ywh8XFE4evzELHXQOTnN7w8WKsO/n6F
-         QVB1xMURZ34afh/i81eG6sFMLc912+/iMqF9S2lO9HTTnY3kIHQhWgstv6FL60OFN/10
-         47YQ==
-X-Gm-Message-State: AJIora/RI5Kuvq6O9wdQYn+wChvoryt8pmHjoOWVwe5wIJIhVaSMYt1t
-        ST4t08i1fwA0qMtS7uPIkPWjfgu4N64=
-X-Google-Smtp-Source: AGRyM1vyG09z0eKmebIDBU5R2iTvCort+0WxAVkE/7lKdxHPHbiZicLjAq6XtkphF0aht7CCEWJUQw==
-X-Received: by 2002:ac8:5e48:0:b0:31d:3055:b480 with SMTP id i8-20020ac85e48000000b0031d3055b480mr4447481qtx.10.1657306008775;
-        Fri, 08 Jul 2022 11:46:48 -0700 (PDT)
-Received: from [192.168.1.218] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id c19-20020a05622a059300b00304edcfa109sm31388220qtb.33.2022.07.08.11.46.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 Jul 2022 11:46:48 -0700 (PDT)
-Message-ID: <4c538332-c855-dbfe-ae47-ecedeff954bd@gmail.com>
-Date:   Fri, 8 Jul 2022 14:46:47 -0400
+        with ESMTP id S229463AbiGKC4B (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 10 Jul 2022 22:56:01 -0400
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7857183B2
+        for <fio@vger.kernel.org>; Sun, 10 Jul 2022 19:55:59 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 037DA3200312;
+        Sun, 10 Jul 2022 22:55:58 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 10 Jul 2022 22:55:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bsdio.com; h=cc
+        :cc:content-transfer-encoding:date:date:from:from:in-reply-to
+        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
+         s=fm1; t=1657508158; x=1657594558; bh=C2nOwk0lxqX19qYb50Mo1rqeQ
+        0mHo8dVbutEV+UiGQI=; b=Zt2tk2vZWHpe/Tf3s/uTFnBmOh2DqttnJX+efLmkO
+        EEQ2POb1dTqBGZCgydaGel89RRZkwMKmjChHrN55YHhA9WS6jUAX5ym7cFm6qQsP
+        8dhtxJa+2FRFHUkluo+hDGT8k4SOjom/H/N9WAfPi1R1GCey8s+0NDd0ayhr+9Cd
+        WKB+c9lWgnlY1X/ktrl1MTzyg9rMc6aV3vahw7sgV4SARp7riDD7plJMvYaGFFaN
+        T4EBGVwOqSmzmeQshzJmwytWiY+wm4GmVHpZ/AvtkEr+iMdyYUWKRgEy48py6xeb
+        Lt/s6PLY3eTjyoi6Ve0GLpfU8FAa3vXsh1secp06D9SzQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:message-id
+        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+        1657508158; x=1657594558; bh=C2nOwk0lxqX19qYb50Mo1rqeQ0mHo8dVbut
+        EV+UiGQI=; b=c05734SYSwNr13WbXbIDGs9WsilCh3/6PvuxmUwJD/e8/b6/UIf
+        GW3FBSMAPY/Vbc/1t8C1eppKRYxfLmqQVsF69ceaKNuUaibE45QenwUYHgLWMTLa
+        q1ZyNelZsKL0okembE+4go6vRfSt+AtE9iiwNnXAiG1/hR3fYgd9lksJpVNIBeXA
+        hJrnfGIpNqNw7zKys7P7C/TvW/J645taCFXLj+oxWS1vPNl9VW3lcYPRzDPQgEHX
+        IoX3Rt3x7Pj7M1s5gTb1zg7Gx0VPMOHZPbB1FiSOsGEu3b72Ib6/wdNXxv5kmn6k
+        OxDyWIJ14PjKPScKLI8YyLVbKomv36l8pbQ==
+X-ME-Sender: <xms:PpHLYo_AjDRvt0PR90OPrZXgqgV1lFlFRihpRRx5O_2lhOCq9uuDyw>
+    <xme:PpHLYguTuKKh6mXDPBA1ueKTZI2bQEJdPhUQahYFKi8XZua5tvOWX-DK9viRE8G2T
+    3uCK-LQ8Zmt8jf2s9Y>
+X-ME-Received: <xmr:PpHLYuDVNixS3Vr8Y9olq6rXbfJxi6JiwQYDIBksy-OxSnBvHrK3sLF4iLJt9WK144OHGOlW5-ja7_67xElSQEaVGrvZ7sxFvo2QdC7wFjfZK94>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrudejvddgieeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptfgvsggvtggt
+    rgcuvehrrghnuceorhgvsggvtggtrgessghsughiohdrtghomheqnecuggftrfgrthhtvg
+    hrnhepkeegfeffteffgefgffetvdfhgedvjeefgeehgffhfeefteduuefffeetveehtedv
+    necuffhomhgrihhnpehgihhthhhusgdrsghlohhgpdgsshguihhordgtohhmpdhkvghrnh
+    gvlhdrughkpdhkvghrnhgvlhdrohhrghdpghhithhhuhgsrdgtohhmpdhsphhinhhitghs
+    rdhnvghtpdguvggsihgrnhdrohhrghdpuhgsuhhnthhurdgtohhmpdgthihgfihinhdrtg
+    homhdphhhtmhhlrdhtohdpshhphhhinhigqdguohgtrdhorhhgnecuvehluhhsthgvrhfu
+    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprhgvsggvtggtrgessghsughioh
+    drtghomh
+X-ME-Proxy: <xmx:PpHLYoe848ZU5TPuu6zgewIVUhqb-sMlwqDkeFK4T3A3GYDut1UZEQ>
+    <xmx:PpHLYtNTEGX7YGqrleVxNO9NZ37URvXdd4cAPR0yhSZFZzIm0XEmAw>
+    <xmx:PpHLYinfrXRu4oJ2k06VaCzihTqbJ-UOPGvrpsps2HYQ6q-8ge4O1Q>
+    <xmx:PpHLYr0xTUmR_fsMQg46Q_h6XvuREm8gcxnUUT2d1sk0_f_7AqlgvA>
+Feedback-ID: i5b994698:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 10 Jul 2022 22:55:57 -0400 (EDT)
+From:   Rebecca Cran <rebecca@bsdio.com>
+To:     Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Cc:     Rebecca Cran <rebecca@bsdio.com>
+Subject: [PATCH] Update README.rst to specify secure protocols where possible
+Date:   Sun, 10 Jul 2022 20:55:47 -0600
+Message-Id: <20220711025547.11917-1-rebecca@bsdio.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Content-Language: en-US
-To:     "fio@vger.kernel.org" <fio@vger.kernel.org>, gost.dev@samsung.com
-From:   Vincent Fu <vincentfu@gmail.com>
-Subject: xNVMe ioengine blog post
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Ankit Kumar (ankit1455@gmail.com) and I collaborated on a blog post 
-detailing fio's xNVMe ioengine that was recently merged:
+Change git clone commands to specify https instead of git or http.
+GitHub has removed support for the git protocol
+(https://github.blog/changelog/2022-03-15-removed-unencrypted-git-protocol-and-certain-ssh-keys/)
+and http accesses will normally redirect to https.
 
-https://github.com/vincentkfu/fio-blog/wiki/xNVMe-ioengine-Part-1
+Update links to use https where possible: all the sites with updated links
+automatically redirect http accesses to https.
 
-Feedback is welcome!
+Signed-off-by: Rebecca Cran <rebecca@bsdio.com>
+---
+ README.rst | 27 ++++++--------------
+ 1 file changed, 8 insertions(+), 19 deletions(-)
 
-Vincent
+diff --git a/README.rst b/README.rst
+index 527f33ab..ce5c0707 100644
+--- a/README.rst
++++ b/README.rst
+@@ -27,31 +27,20 @@ Source
+ 
+ Fio resides in a git repo, the canonical place is:
+ 
+-	git://git.kernel.dk/fio.git
+-
+-When inside a corporate firewall, git:// URL sometimes does not work.
+-If git:// does not work, use the http protocol instead:
+-
+-	http://git.kernel.dk/fio.git
++	https://git.kernel.dk/fio.git
+ 
+ Snapshots are frequently generated and :file:`fio-git-*.tar.gz` include the git
+ meta data as well. Other tarballs are archives of official fio releases.
+ Snapshots can download from:
+ 
+-	http://brick.kernel.dk/snaps/
++	https://brick.kernel.dk/snaps/
+ 
+ There are also two official mirrors. Both of these are automatically synced with
+ the main repository, when changes are pushed. If the main repo is down for some
+ reason, either one of these is safe to use as a backup:
+ 
+-	git://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
+-
+ 	https://git.kernel.org/pub/scm/linux/kernel/git/axboe/fio.git
+ 
+-or
+-
+-	git://github.com/axboe/fio.git
+-
+ 	https://github.com/axboe/fio.git
+ 
+ 
+@@ -70,7 +59,7 @@ email to majordomo@vger.kernel.org with
+ 
+ in the body of the email. Archives can be found here:
+ 
+-	http://www.spinics.net/lists/fio/
++	https://www.spinics.net/lists/fio/
+ 
+ or here:
+ 
+@@ -97,12 +86,12 @@ Binary packages
+ 
+ Debian:
+ 	Starting with Debian "Squeeze", fio packages are part of the official
+-	Debian repository. http://packages.debian.org/search?keywords=fio .
++	Debian repository. https://packages.debian.org/search?keywords=fio .
+ 
+ Ubuntu:
+ 	Starting with Ubuntu 10.04 LTS (aka "Lucid Lynx"), fio packages are part
+ 	of the Ubuntu "universe" repository.
+-	http://packages.ubuntu.com/search?keywords=fio .
++	https://packages.ubuntu.com/search?keywords=fio .
+ 
+ Red Hat, Fedora, CentOS & Co:
+ 	Starting with Fedora 9/Extra Packages for Enterprise Linux 4, fio
+@@ -176,7 +165,7 @@ directory.
+ 
+ How to compile fio on 64-bit Windows:
+ 
+- 1. Install Cygwin (http://www.cygwin.com/). Install **make** and all
++ 1. Install Cygwin (https://www.cygwin.com/). Install **make** and all
+     packages starting with **mingw64-x86_64**. Ensure
+     **mingw64-x86_64-zlib** are installed if you wish
+     to enable fio's log compression functionality.
+@@ -205,8 +194,8 @@ browser to :file:`./doc/output/html/index.html`.  To build manual page run
+ ``make -C doc man`` and then ``man doc/output/man/fio.1``.  To see what other
+ output formats are supported run ``make -C doc help``.
+ 
+-.. _reStructuredText: http://www.sphinx-doc.org/rest.html
+-.. _Sphinx: http://www.sphinx-doc.org
++.. _reStructuredText: https://www.sphinx-doc.org/rest.html
++.. _Sphinx: https://www.sphinx-doc.org
+ 
+ 
+ Platforms
+-- 
+2.25.1
+
