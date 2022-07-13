@@ -2,176 +2,214 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1234BC43334
-	for <fio@archiver.kernel.org>; Tue, 12 Jul 2022 19:24:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC15C43334
+	for <fio@archiver.kernel.org>; Wed, 13 Jul 2022 19:26:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233574AbiGLTYY (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 12 Jul 2022 15:24:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35258 "EHLO
+        id S236729AbiGMT0u (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 13 Jul 2022 15:26:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235910AbiGLTXv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 12 Jul 2022 15:23:51 -0400
-Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82526F32F0
-        for <fio@vger.kernel.org>; Tue, 12 Jul 2022 12:01:02 -0700 (PDT)
-Date:   Tue, 12 Jul 2022 18:58:59 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.ch;
-        s=protonmail3; t=1657652458; x=1657911658;
-        bh=M/w9vemtpwoXyl4GTqSq+1oNa67S1WrlLrXojqSfLHs=;
-        h=Date:To:From:Reply-To:Subject:Message-ID:Feedback-ID:From:To:Cc:
-         Date:Subject:Reply-To:Feedback-ID:Message-ID;
-        b=eqHOlIznny/w7ZVshTSRFKQ4EzmvPHYq06b4MC/4YJHpV/9O6prSNSRTh9koA/VE9
-         d8cbTX7wwbqrpxloOET4LpJEePzAx7c1jR5gZYpsFAWJEfy5bAv3UHAzkQvLqmDhyB
-         B9HRah9fcE1rvMWXpkBdW8kgA3zjbOG2/l7xXwXqKdofYHEzSUx13icb62Oz3kz1ij
-         FE6/a8vhNwA6DYzx0h6MeriZgpV+JhlyiGYtBMWhcKW9nVBVma99qi+jH/yoczgAn+
-         NP2EChMcdvQVLz0I5hITtR85ebecLwoxnKfkAhMPrP4E8F5PFVWlxNQHtjtCbg/alP
-         M0qaRAkjJZ5Xw==
-To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-From:   Alex Matyushin <airgunster@protonmail.ch>
-Reply-To: Alex Matyushin <airgunster@protonmail.ch>
-Subject: fdatasync latency percentiles
-Message-ID: <GPtNqTLWCihrYY29Il_OLQ7-mXfGc9dx3moSMPF_HD4u2_UeMKE8gUmOZsQ9rWQINRf2AGAWtAo5cHjyn4x_lSDhyXdwOeYsyTum5J09Gco=@protonmail.ch>
-Feedback-ID: 123709:user:proton
+        with ESMTP id S229959AbiGMT0t (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 13 Jul 2022 15:26:49 -0400
+Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679472CC9C
+        for <fio@vger.kernel.org>; Wed, 13 Jul 2022 12:26:48 -0700 (PDT)
+Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
+        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220713192646usoutp019d82d6296948c41454cccab1821484f5~Beh2--oPb0689306893usoutp012;
+        Wed, 13 Jul 2022 19:26:46 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220713192646usoutp019d82d6296948c41454cccab1821484f5~Beh2--oPb0689306893usoutp012
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1657740406;
+        bh=5zk565bFz9zWUBbCSJFEp5vkXMMj001HOOyNA21ZmAU=;
+        h=From:To:Subject:Date:In-Reply-To:References:From;
+        b=WXW3f71ee70RQz+SEdVoxOfJR7cFJV6i+D+qvBaxUvOkhev81vdx/U+TxzlOF31rW
+         pUsEy26DbkbDCgeWjkWGGepa8zu8zFpZO3DiamMjTVF6SINSBgFbHMfAqk2ZxhRprZ
+         kImTHUq1jCKSq3k05hjj/rJD2AHY0I3baolkOMSg=
+Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
+        [203.254.195.111]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220713192645uscas1p1d4d6d87f88f7c9176837cce993725c52~Beh24jYd73275132751uscas1p14;
+        Wed, 13 Jul 2022 19:26:45 +0000 (GMT)
+Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
+        ussmges2new.samsung.com (USCPEMTA) with SMTP id BB.44.09642.57C1FC26; Wed,
+        13 Jul 2022 15:26:45 -0400 (EDT)
+Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
+        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20220713192645uscas1p180298a5ff9ae1ed081db0a31f06e4100~Beh2nGN7y1319413194uscas1p1B;
+        Wed, 13 Jul 2022 19:26:45 +0000 (GMT)
+X-AuditID: cbfec36f-bfdff700000025aa-24-62cf1c75feb8
+Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.146]) by
+        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 45.08.52349.57C1FC26; Wed,
+        13 Jul 2022 15:26:45 -0400 (EDT)
+Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
+        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
+        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+        15.1.2375.24; Wed, 13 Jul 2022 12:26:44 -0700
+Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
+        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Wed,
+        13 Jul 2022 12:26:44 -0700
+From:   Vincent Fu <vincent.fu@samsung.com>
+To:     Alex Matyushin <airgunster@protonmail.ch>,
+        "fio@vger.kernel.org" <fio@vger.kernel.org>
+Subject: RE: fdatasync latency percentiles
+Thread-Topic: fdatasync latency percentiles
+Thread-Index: AQHYliUCzK98M74z6EexLRFZf5hLPq18sJKg
+Date:   Wed, 13 Jul 2022 19:26:44 +0000
+Message-ID: <d8f42e6eaa7e4d98b44d7201bff17b24@samsung.com>
+In-Reply-To: <GPtNqTLWCihrYY29Il_OLQ7-mXfGc9dx3moSMPF_HD4u2_UeMKE8gUmOZsQ9rWQINRf2AGAWtAo5cHjyn4x_lSDhyXdwOeYsyTum5J09Gco=@protonmail.ch>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [105.128.2.176]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+X-CFilter-Loop: Reflected
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrMIsWRmVeSWpSXmKPExsWy7djXc7qlMueTDK4cMLI4dmkli8XHWS+Y
+        HZg8uhYsY/X4vEkugCmKyyYlNSezLLVI3y6BK2Nz0x+mgitOFRO78xoYfzh0MXJySAiYSKy9
+        voy1i5GLQ0hgJaPE+VPtUE4rk8SeDzvZYap+btjEBJFYyyhxYfY5FgjnE6PEop6pLCBVQgLL
+        GCUe/JTpYuTgYBPQlHi7vwAkLCIQI3F00UZWEFtYQEvi9+UrzBBxbYlvKxexQNhGEv9nHGcH
+        aWURUJXo7tMCCfMKWEkcaTzECGJzCnQySnx5WQViMwqISXw/tYYJxGYWEJe49WQ+E8SdghKL
+        Zu9hhrDFJP7tesgGYStK3P/+Emw8M9Bl63fpQ7QqSkzpfsgOsUpQ4uTMJywQ5ZISB1fcAPtQ
+        QqCRQ+LkrKVQCReJ/U9fQO2Slrh6fSozRFE7o8TcjV+giiYwSlx/IgVhW0v867zGDrGNT+Lv
+        r0eMIEdICPBKdLQJTWBUmoXkhVkI581Cct4sJOctYGRZxSheWlycm55abJSXWq5XnJhbXJqX
+        rpecn7uJEZguTv87nL+D8fqtj3qHGJk4GA8xSnAwK4nwdh86lyTEm5JYWZValB9fVJqTWnyI
+        UZqDRUmcd1nmhkQhgfTEktTs1NSC1CKYLBMHp1QDEzfvFaeENn1L08CdieYxqUxLT8492/LU
+        PHyX926xo408syPbF01Mv6Hw4/C6FcsZSu/lt1T+tuVfcytmBpNDwrpAEYFna/Iuyp2QecFZ
+        +lB+qV5jlGDvbr3rzxomeukphOeFrtPmvm70i/G5RJvfEZ/cFeGXvJf2H5p6/2xL95bpyyft
+        8TGoULs/O2nmNOOrMX8cj8a8WP8oLfSfb7zJti3X3/oLWD4qPVsZ3nmE8abNvhixwJaw452n
+        /OMfp9+qzpzRqsdwjKmdaWtD6uR/s3v2H7A6vn+qNC8f4/vkiICNM/d4RXKtO74yir/hKEPE
+        4pTKnQHSJ3in/l7j8N3vzZs1N3VEO0QPOe7RNv0vq8RSnJFoqMVcVJwIACRxrauGAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrFLMWRmVeSWpSXmKPExsWS2cA0SbdU5nySQfdOOYtjl1ayWHyc9YLZ
+        gcmja8EyVo/Pm+QCmKK4bFJSczLLUov07RK4MjY3/WEquOJUMbE7r4Hxh0MXIyeHhICJxM8N
+        m5i6GLk4hARWM0psXXKZDcL5xCjRduo9C4SzjFGi8+ZHxi5GDg42AU2Jt/sLQLpFBGIkji7a
+        yApiCwtoSfy+fIUZIq4t8W3lIhYI20ji/4zj7CCtLAKqEt19WiBhXgEriSONhxghxt9hlHjy
+        dBpYPadAJ6PEl5dVIDajgJjE91NrmEBsZgFxiVtP5jNBXC0gsWTPeWYIW1Ti5eN/rBC2osT9
+        7y/BdjEDnbl+lz5Eq6LElO6H7BB7BSVOznzCAlEuKXFwxQ2WCYxis5BsmIXQPQtJ9ywk3QsY
+        WVYxipcWF+emVxQb5qWW6xUn5haX5qXrJefnbmIERs/pf4cjdzAevfVR7xAjEwfjIUYJDmYl
+        Ed7uQ+eShHhTEiurUovy44tKc1KLDzFKc7AoifMKuU6MFxJITyxJzU5NLUgtgskycXBKNTA5
+        RbPY/L2jHjfRco/rU53b++vlVO5Zuc1yVZraO+2+4BXxoJBV+4TbJy2e9//u9Vd3VomdFwm+
+        +Pj0gf/rhR4UeDGbr3CfvPl7ipqT7NxXH8w4TyQEpl5wOemt+E9Bq2iekbLCluxakbUfXv3m
+        umg1W/Bje352fbnfqRy3kxnJzg+PViis+VJ+/d/F/6+YhFWfHJgeOS2RL7/9VMzVw/XrtZrr
+        vpZcrrUw5NghdWvOpSgF76jWKMe9i1M07B8FXni+9YGqyqenn+0/Wxd9jNDYcmixnZlvwj0Z
+        9/7fD936BAzy3vTxVKWoCn0xjvo9+1va3ycedue+8X5xi9gRWprtEWc1K6J8otfROXNMjfmU
+        WIozEg21mIuKEwFen8GXDQMAAA==
+X-CMS-MailID: 20220713192645uscas1p180298a5ff9ae1ed081db0a31f06e4100
+CMS-TYPE: 301P
+X-CMS-RootMailID: 20220712192427uscas1p284585e2c084aa30fff22dbbe14e544d8
+References: <CGME20220712192427uscas1p284585e2c084aa30fff22dbbe14e544d8@uscas1p2.samsung.com>
+        <GPtNqTLWCihrYY29Il_OLQ7-mXfGc9dx3moSMPF_HD4u2_UeMKE8gUmOZsQ9rWQINRf2AGAWtAo5cHjyn4x_lSDhyXdwOeYsyTum5J09Gco=@protonmail.ch>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hi there,
-
-I'm trying to understand difference in latency reported by fdatasync latenc=
-y percentiles (_sync percentiles_) on `--ioengine=3Dpsync --fdatasync=3D1` =
-vs. _clat percentiles_ on `--ioengine=3Dlibaio --direct=3D1` and I'd really=
- appreciate your help.
-
-I thought that they should should not have such a big difference between ea=
-ch other. I've assumed (am I wrong here?) that fdatasync latency percentile=
-s (_sync percentiles_) will report on I/O completion for `fdatasync()` sysc=
-all, so that I could compare it with _clat percentiles_ on `--ioengine=3Dli=
-baio --direct=3D1`.
-
-Can someone please help to explain how fdatasync latency percentiles (_sync=
- percentiles_) on `--ioengine=3Dpsync --fdatasync=3D1` are calculated exact=
-ly?
-
-My goal is to reproduce application pattern where for each of its `pwrite64=
-()` calls it executes `fdatasync()` + I want to measure `fdatasync()` compl=
-etion latency.
-
-Test A:
-$ sudo fio --rw=3Dwrite --ioengine=3Dpsync --fdatasync=3D1 --iodepth=3D1 --=
-bs=3D512 --numjobs=3D1 --rate_iops=3D1 --directory=3Dtest-data --size=3D100=
-mb --runtime=3D1m --name=3Dazure-westeurope-disk-test
-azure-westeurope-disk-test: (g=3D0): rw=3Dwrite, bs=3D(R) 512B-512B, (W) 51=
-2B-512B, (T) 512B-512B, ioengine=3Dpsync, iodepth=3D1
-fio-3.7
-Starting 1 process
-azure-westeurope-disk-test: Laying out IO file (1 file / 100MiB)
-Jobs: 1 (f=3D1), 0-1 IOPS: [W(1)][100.0%][r=3D0KiB/s,w=3D0KiB/s][r=3D0,w=3D=
-1 IOPS][eta 00m:00s]
-azure-westeurope-disk-test: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D12184:=
- Tue Jul 12 18:35:15 2022
-  write: IOPS=3D1, BW=3D520B/s (520B/s)(30.5KiB/60001msec)
-    clat (nsec): min=3D9400, max=3D44200, avg=3D29336.07, stdev=3D6777.19
-     lat (nsec): min=3D10300, max=3D48300, avg=3D31836.07, stdev=3D7118.83
-    clat percentiles (nsec):
-     |  1.00th=3D[ 9408],  5.00th=3D[15808], 10.00th=3D[25728], 20.00th=3D[=
-26496],
-     | 30.00th=3D[27008], 40.00th=3D[27776], 50.00th=3D[28288], 60.00th=3D[=
-29312],
-     | 70.00th=3D[32640], 80.00th=3D[33536], 90.00th=3D[35584], 95.00th=3D[=
-42240],
-     | 99.00th=3D[44288], 99.50th=3D[44288], 99.90th=3D[44288], 99.95th=3D[=
-44288],
-     | 99.99th=3D[44288]
-   bw (  KiB/s): min=3D    0, max=3D    2, per=3D100.00%, avg=3D 1.00, stde=
-v=3D 0.19, samples=3D59
-   iops        : min=3D    1, max=3D    4, avg=3D 2.02, stdev=3D 0.29, samp=
-les=3D59
-  lat (usec)   : 10=3D1.64%, 20=3D6.56%, 50=3D91.80%
-  fsync/fdatasync/sync_file_range:
-    sync (usec): min=3D1112, max=3D8494, avg=3D1999.62, stdev=3D1242.89
-    sync percentiles (usec):
-     |  1.00th=3D[ 1106],  5.00th=3D[ 1172], 10.00th=3D[ 1205], 20.00th=3D[=
- 1287],
-     | 30.00th=3D[ 1369], 40.00th=3D[ 1434], 50.00th=3D[ 1516], 60.00th=3D[=
- 1631],
-     | 70.00th=3D[ 1860], 80.00th=3D[ 2507], 90.00th=3D[ 3326], 95.00th=3D[=
- 4293],
-     | 99.00th=3D[ 8455], 99.50th=3D[ 8455], 99.90th=3D[ 8455], 99.95th=3D[=
- 8455],
-     | 99.99th=3D[ 8455]
-  cpu          : usr=3D0.01%, sys=3D0.01%, ctx=3D136, majf=3D0, minf=3D34
-  IO depths    : 1=3D198.4%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
-0.0%, >=3D64=3D0.0%
-     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     issued rwts: total=3D0,61,0,0 short=3D60,0,0,0 dropped=3D0,0,0,0
-     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
-
-Run status group 0 (all jobs):
-  WRITE: bw=3D520B/s (520B/s), 520B/s-520B/s (520B/s-520B/s), io=3D30.5KiB =
-(31.2kB), run=3D60001-60001msec
-
-Disk stats (read/write):
-  sdb: ios=3D0/282, merge=3D0/22, ticks=3D0/482, in_queue=3D482, util=3D0.5=
-6%
-
-
-
-Test B:
-$ sudo fio --rw=3Dwrite --ioengine=3Dlibaio --direct=3D1 --iodepth=3D1 --bs=
-=3D512 --numjobs=3D1 --rate_iops=3D1 --directory=3Dtest-data --size=3D100mb=
- --runtime=3D1m --name=3Dazure-westeurope-disk-test
-azure-westeurope-disk-test: (g=3D0): rw=3Dwrite, bs=3D(R) 512B-512B, (W) 51=
-2B-512B, (T) 512B-512B, ioengine=3Dlibaio, iodepth=3D1
-fio-3.7
-Starting 1 process
-Jobs: 1 (f=3D1), 0-1 IOPS: [W(1)][100.0%][r=3D0KiB/s,w=3D0KiB/s][r=3D0,w=3D=
-1 IOPS][eta 00m:00s]
-azure-westeurope-disk-test: (groupid=3D0, jobs=3D1): err=3D 0: pid=3D12291:=
- Tue Jul 12 18:36:35 2022
-  write: IOPS=3D1, BW=3D520B/s (520B/s)(30.5KiB/60002msec)
-    slat (usec): min=3D1140, max=3D4786, avg=3D1654.72, stdev=3D693.43
-    clat (nsec): min=3D3300, max=3D12200, avg=3D5070.49, stdev=3D1429.96
-     lat (usec): min=3D1148, max=3D4794, avg=3D1662.44, stdev=3D693.39
-    clat percentiles (nsec):
-     |  1.00th=3D[ 3312],  5.00th=3D[ 4320], 10.00th=3D[ 4320], 20.00th=3D[=
- 4384],
-     | 30.00th=3D[ 4576], 40.00th=3D[ 4704], 50.00th=3D[ 4704], 60.00th=3D[=
- 4832],
-     | 70.00th=3D[ 4832], 80.00th=3D[ 5088], 90.00th=3D[ 5472], 95.00th=3D[=
- 9152],
-     | 99.00th=3D[12224], 99.50th=3D[12224], 99.90th=3D[12224], 99.95th=3D[=
-12224],
-     | 99.99th=3D[12224]
-   bw (  KiB/s): min=3D    0, max=3D    2, per=3D100.00%, avg=3D 1.00, stde=
-v=3D 0.19, samples=3D59
-   iops        : min=3D    1, max=3D    4, avg=3D 2.02, stdev=3D 0.29, samp=
-les=3D59
-  lat (usec)   : 4=3D1.64%, 10=3D96.72%, 20=3D1.64%
-  cpu          : usr=3D0.00%, sys=3D0.01%, ctx=3D122, majf=3D0, minf=3D32
-  IO depths    : 1=3D100.0%, 2=3D0.0%, 4=3D0.0%, 8=3D0.0%, 16=3D0.0%, 32=3D=
-0.0%, >=3D64=3D0.0%
-     submit    : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     complete  : 0=3D0.0%, 4=3D100.0%, 8=3D0.0%, 16=3D0.0%, 32=3D0.0%, 64=
-=3D0.0%, >=3D64=3D0.0%
-     issued rwts: total=3D0,61,0,0 short=3D0,0,0,0 dropped=3D0,0,0,0
-     latency   : target=3D0, window=3D0, percentile=3D100.00%, depth=3D1
-
-Run status group 0 (all jobs):
-  WRITE: bw=3D520B/s (520B/s), 520B/s-520B/s (520B/s-520B/s), io=3D30.5KiB =
-(31.2kB), run=3D60002-60002msec
-
-Disk stats (read/write):
-  sdb: ios=3D0/301, merge=3D0/18, ticks=3D0/432, in_queue=3D432, util=3D0.6=
-2%
-
-
-Thanks a lot in advance!
-Alex
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGV4IE1hdHl1c2hpbiBbbWFp
+bHRvOmFpcmd1bnN0ZXJAcHJvdG9ubWFpbC5jaF0NCj4gU2VudDogVHVlc2RheSwgSnVseSAxMiwg
+MjAyMiAyOjU5IFBNDQo+IFRvOiBmaW9Admdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IGZkYXRh
+c3luYyBsYXRlbmN5IHBlcmNlbnRpbGVzDQo+IA0KPiBIaSB0aGVyZSwNCj4gDQo+IEknbSB0cnlp
+bmcgdG8gdW5kZXJzdGFuZCBkaWZmZXJlbmNlIGluIGxhdGVuY3kgcmVwb3J0ZWQgYnkgZmRhdGFz
+eW5jDQo+IGxhdGVuY3kgcGVyY2VudGlsZXMgKF9zeW5jIHBlcmNlbnRpbGVzXykgb24gYC0taW9l
+bmdpbmU9cHN5bmMgLS0NCj4gZmRhdGFzeW5jPTFgIHZzLiBfY2xhdCBwZXJjZW50aWxlc18gb24g
+YC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTFgIGFuZA0KPiBJJ2QgcmVhbGx5IGFwcHJlY2lh
+dGUgeW91ciBoZWxwLg0KPiANCj4gSSB0aG91Z2h0IHRoYXQgdGhleSBzaG91bGQgc2hvdWxkIG5v
+dCBoYXZlIHN1Y2ggYSBiaWcgZGlmZmVyZW5jZQ0KPiBiZXR3ZWVuIGVhY2ggb3RoZXIuIEkndmUg
+YXNzdW1lZCAoYW0gSSB3cm9uZyBoZXJlPykgdGhhdCBmZGF0YXN5bmMNCj4gbGF0ZW5jeSBwZXJj
+ZW50aWxlcyAoX3N5bmMgcGVyY2VudGlsZXNfKSB3aWxsIHJlcG9ydCBvbiBJL08gY29tcGxldGlv
+biBmb3INCj4gYGZkYXRhc3luYygpYCBzeXNjYWxsLCBzbyB0aGF0IEkgY291bGQgY29tcGFyZSBp
+dCB3aXRoIF9jbGF0IHBlcmNlbnRpbGVzXyBvbg0KPiBgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJl
+Y3Q9MWAuDQo+IA0KPiBDYW4gc29tZW9uZSBwbGVhc2UgaGVscCB0byBleHBsYWluIGhvdyBmZGF0
+YXN5bmMgbGF0ZW5jeSBwZXJjZW50aWxlcw0KPiAoX3N5bmMgcGVyY2VudGlsZXNfKSBvbiBgLS1p
+b2VuZ2luZT1wc3luYyAtLWZkYXRhc3luYz0xYCBhcmUgY2FsY3VsYXRlZA0KPiBleGFjdGx5Pw0K
+PiANCj4gTXkgZ29hbCBpcyB0byByZXByb2R1Y2UgYXBwbGljYXRpb24gcGF0dGVybiB3aGVyZSBm
+b3IgZWFjaCBvZiBpdHMNCj4gYHB3cml0ZTY0KClgIGNhbGxzIGl0IGV4ZWN1dGVzIGBmZGF0YXN5
+bmMoKWAgKyBJIHdhbnQgdG8gbWVhc3VyZQ0KPiBgZmRhdGFzeW5jKClgIGNvbXBsZXRpb24gbGF0
+ZW5jeS4NCj4gDQo+IFRlc3QgQToNCj4gJCBzdWRvIGZpbyAtLXJ3PXdyaXRlIC0taW9lbmdpbmU9
+cHN5bmMgLS1mZGF0YXN5bmM9MSAtLWlvZGVwdGg9MSAtLQ0KPiBicz01MTIgLS1udW1qb2JzPTEg
+LS1yYXRlX2lvcHM9MSAtLWRpcmVjdG9yeT10ZXN0LWRhdGEgLS1zaXplPTEwMG1iIC0tDQo+IHJ1
+bnRpbWU9MW0gLS1uYW1lPWF6dXJlLXdlc3RldXJvcGUtZGlzay10ZXN0DQo+IGF6dXJlLXdlc3Rl
+dXJvcGUtZGlzay10ZXN0OiAoZz0wKTogcnc9d3JpdGUsIGJzPShSKSA1MTJCLTUxMkIsIChXKQ0K
+PiA1MTJCLTUxMkIsIChUKSA1MTJCLTUxMkIsIGlvZW5naW5lPXBzeW5jLCBpb2RlcHRoPTENCj4g
+ZmlvLTMuNw0KPiBTdGFydGluZyAxIHByb2Nlc3MNCj4gYXp1cmUtd2VzdGV1cm9wZS1kaXNrLXRl
+c3Q6IExheWluZyBvdXQgSU8gZmlsZSAoMSBmaWxlIC8gMTAwTWlCKQ0KPiBKb2JzOiAxIChmPTEp
+LCAwLTEgSU9QUzogW1coMSldWzEwMC4wJV1bcj0wS2lCL3Msdz0wS2lCL3NdW3I9MCx3PTENCj4g
+SU9QU11bZXRhIDAwbTowMHNdDQo+IGF6dXJlLXdlc3RldXJvcGUtZGlzay10ZXN0OiAoZ3JvdXBp
+ZD0wLCBqb2JzPTEpOiBlcnI9IDA6IHBpZD0xMjE4NDogVHVlDQo+IEp1bCAxMiAxODozNToxNSAy
+MDIyDQo+ICAgd3JpdGU6IElPUFM9MSwgQlc9NTIwQi9zICg1MjBCL3MpKDMwLjVLaUIvNjAwMDFt
+c2VjKQ0KPiAgICAgY2xhdCAobnNlYyk6IG1pbj05NDAwLCBtYXg9NDQyMDAsIGF2Zz0yOTMzNi4w
+Nywgc3RkZXY9Njc3Ny4xOQ0KPiAgICAgIGxhdCAobnNlYyk6IG1pbj0xMDMwMCwgbWF4PTQ4MzAw
+LCBhdmc9MzE4MzYuMDcsIHN0ZGV2PTcxMTguODMNCj4gICAgIGNsYXQgcGVyY2VudGlsZXMgKG5z
+ZWMpOg0KPiAgICAgIHwgIDEuMDB0aD1bIDk0MDhdLCAgNS4wMHRoPVsxNTgwOF0sIDEwLjAwdGg9
+WzI1NzI4XSwgMjAuMDB0aD1bMjY0OTZdLA0KPiAgICAgIHwgMzAuMDB0aD1bMjcwMDhdLCA0MC4w
+MHRoPVsyNzc3Nl0sIDUwLjAwdGg9WzI4Mjg4XSwgNjAuMDB0aD1bMjkzMTJdLA0KPiAgICAgIHwg
+NzAuMDB0aD1bMzI2NDBdLCA4MC4wMHRoPVszMzUzNl0sIDkwLjAwdGg9WzM1NTg0XSwgOTUuMDB0
+aD1bNDIyNDBdLA0KPiAgICAgIHwgOTkuMDB0aD1bNDQyODhdLCA5OS41MHRoPVs0NDI4OF0sIDk5
+LjkwdGg9WzQ0Mjg4XSwgOTkuOTV0aD1bNDQyODhdLA0KPiAgICAgIHwgOTkuOTl0aD1bNDQyODhd
+DQo+ICAgIGJ3ICggIEtpQi9zKTogbWluPSAgICAwLCBtYXg9ICAgIDIsIHBlcj0xMDAuMDAlLCBh
+dmc9IDEuMDAsIHN0ZGV2PSAwLjE5LA0KPiBzYW1wbGVzPTU5DQo+ICAgIGlvcHMgICAgICAgIDog
+bWluPSAgICAxLCBtYXg9ICAgIDQsIGF2Zz0gMi4wMiwgc3RkZXY9IDAuMjksIHNhbXBsZXM9NTkN
+Cj4gICBsYXQgKHVzZWMpICAgOiAxMD0xLjY0JSwgMjA9Ni41NiUsIDUwPTkxLjgwJQ0KPiAgIGZz
+eW5jL2ZkYXRhc3luYy9zeW5jX2ZpbGVfcmFuZ2U6DQo+ICAgICBzeW5jICh1c2VjKTogbWluPTEx
+MTIsIG1heD04NDk0LCBhdmc9MTk5OS42Miwgc3RkZXY9MTI0Mi44OQ0KPiAgICAgc3luYyBwZXJj
+ZW50aWxlcyAodXNlYyk6DQo+ICAgICAgfCAgMS4wMHRoPVsgMTEwNl0sICA1LjAwdGg9WyAxMTcy
+XSwgMTAuMDB0aD1bIDEyMDVdLCAyMC4wMHRoPVsgMTI4N10sDQo+ICAgICAgfCAzMC4wMHRoPVsg
+MTM2OV0sIDQwLjAwdGg9WyAxNDM0XSwgNTAuMDB0aD1bIDE1MTZdLCA2MC4wMHRoPVsgMTYzMV0s
+DQo+ICAgICAgfCA3MC4wMHRoPVsgMTg2MF0sIDgwLjAwdGg9WyAyNTA3XSwgOTAuMDB0aD1bIDMz
+MjZdLCA5NS4wMHRoPVsgNDI5M10sDQo+ICAgICAgfCA5OS4wMHRoPVsgODQ1NV0sIDk5LjUwdGg9
+WyA4NDU1XSwgOTkuOTB0aD1bIDg0NTVdLCA5OS45NXRoPVsgODQ1NV0sDQo+ICAgICAgfCA5OS45
+OXRoPVsgODQ1NV0NCj4gICBjcHUgICAgICAgICAgOiB1c3I9MC4wMSUsIHN5cz0wLjAxJSwgY3R4
+PTEzNiwgbWFqZj0wLCBtaW5mPTM0DQo+ICAgSU8gZGVwdGhzICAgIDogMT0xOTguNCUsIDI9MC4w
+JSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsDQo+ID49NjQ9MC4wJQ0KPiAgICAg
+IHN1Ym1pdCAgICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwg
+NjQ9MC4wJSwNCj4gPj02ND0wLjAlDQo+ICAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0PTEwMC4w
+JSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLA0KPiA+PTY0PTAuMCUNCj4gICAg
+ICBpc3N1ZWQgcnd0czogdG90YWw9MCw2MSwwLDAgc2hvcnQ9NjAsMCwwLDAgZHJvcHBlZD0wLDAs
+MCwwDQo+ICAgICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJjZW50aWxlPTEw
+MC4wMCUsIGRlcHRoPTENCj4gDQo+IFJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KPiAg
+IFdSSVRFOiBidz01MjBCL3MgKDUyMEIvcyksIDUyMEIvcy01MjBCL3MgKDUyMEIvcy01MjBCL3Mp
+LCBpbz0zMC41S2lCDQo+ICgzMS4ya0IpLCBydW49NjAwMDEtNjAwMDFtc2VjDQo+IA0KPiBEaXNr
+IHN0YXRzIChyZWFkL3dyaXRlKToNCj4gICBzZGI6IGlvcz0wLzI4MiwgbWVyZ2U9MC8yMiwgdGlj
+a3M9MC80ODIsIGluX3F1ZXVlPTQ4MiwgdXRpbD0wLjU2JQ0KPiANCj4gDQo+IA0KPiBUZXN0IEI6
+DQo+ICQgc3VkbyBmaW8gLS1ydz13cml0ZSAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0t
+aW9kZXB0aD0xIC0tYnM9NTEyIC0tDQo+IG51bWpvYnM9MSAtLXJhdGVfaW9wcz0xIC0tZGlyZWN0
+b3J5PXRlc3QtZGF0YSAtLXNpemU9MTAwbWIgLS0NCj4gcnVudGltZT0xbSAtLW5hbWU9YXp1cmUt
+d2VzdGV1cm9wZS1kaXNrLXRlc3QNCj4gYXp1cmUtd2VzdGV1cm9wZS1kaXNrLXRlc3Q6IChnPTAp
+OiBydz13cml0ZSwgYnM9KFIpIDUxMkItNTEyQiwgKFcpDQo+IDUxMkItNTEyQiwgKFQpIDUxMkIt
+NTEyQiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTENCj4gZmlvLTMuNw0KPiBTdGFydGluZyAx
+IHByb2Nlc3MNCj4gSm9iczogMSAoZj0xKSwgMC0xIElPUFM6IFtXKDEpXVsxMDAuMCVdW3I9MEtp
+Qi9zLHc9MEtpQi9zXVtyPTAsdz0xDQo+IElPUFNdW2V0YSAwMG06MDBzXQ0KPiBhenVyZS13ZXN0
+ZXVyb3BlLWRpc2stdGVzdDogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9MTIyOTE6
+IFR1ZQ0KPiBKdWwgMTIgMTg6MzY6MzUgMjAyMg0KPiAgIHdyaXRlOiBJT1BTPTEsIEJXPTUyMEIv
+cyAoNTIwQi9zKSgzMC41S2lCLzYwMDAybXNlYykNCj4gICAgIHNsYXQgKHVzZWMpOiBtaW49MTE0
+MCwgbWF4PTQ3ODYsIGF2Zz0xNjU0LjcyLCBzdGRldj02OTMuNDMNCj4gICAgIGNsYXQgKG5zZWMp
+OiBtaW49MzMwMCwgbWF4PTEyMjAwLCBhdmc9NTA3MC40OSwgc3RkZXY9MTQyOS45Ng0KPiAgICAg
+IGxhdCAodXNlYyk6IG1pbj0xMTQ4LCBtYXg9NDc5NCwgYXZnPTE2NjIuNDQsIHN0ZGV2PTY5My4z
+OQ0KPiAgICAgY2xhdCBwZXJjZW50aWxlcyAobnNlYyk6DQo+ICAgICAgfCAgMS4wMHRoPVsgMzMx
+Ml0sICA1LjAwdGg9WyA0MzIwXSwgMTAuMDB0aD1bIDQzMjBdLCAyMC4wMHRoPVsgNDM4NF0sDQo+
+ICAgICAgfCAzMC4wMHRoPVsgNDU3Nl0sIDQwLjAwdGg9WyA0NzA0XSwgNTAuMDB0aD1bIDQ3MDRd
+LCA2MC4wMHRoPVsgNDgzMl0sDQo+ICAgICAgfCA3MC4wMHRoPVsgNDgzMl0sIDgwLjAwdGg9WyA1
+MDg4XSwgOTAuMDB0aD1bIDU0NzJdLCA5NS4wMHRoPVsgOTE1Ml0sDQo+ICAgICAgfCA5OS4wMHRo
+PVsxMjIyNF0sIDk5LjUwdGg9WzEyMjI0XSwgOTkuOTB0aD1bMTIyMjRdLCA5OS45NXRoPVsxMjIy
+NF0sDQo+ICAgICAgfCA5OS45OXRoPVsxMjIyNF0NCj4gICAgYncgKCAgS2lCL3MpOiBtaW49ICAg
+IDAsIG1heD0gICAgMiwgcGVyPTEwMC4wMCUsIGF2Zz0gMS4wMCwgc3RkZXY9IDAuMTksDQo+IHNh
+bXBsZXM9NTkNCj4gICAgaW9wcyAgICAgICAgOiBtaW49ICAgIDEsIG1heD0gICAgNCwgYXZnPSAy
+LjAyLCBzdGRldj0gMC4yOSwgc2FtcGxlcz01OQ0KPiAgIGxhdCAodXNlYykgICA6IDQ9MS42NCUs
+IDEwPTk2LjcyJSwgMjA9MS42NCUNCj4gICBjcHUgICAgICAgICAgOiB1c3I9MC4wMCUsIHN5cz0w
+LjAxJSwgY3R4PTEyMiwgbWFqZj0wLCBtaW5mPTMyDQo+ICAgSU8gZGVwdGhzICAgIDogMT0xMDAu
+MCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsDQo+ID49NjQ9MC4w
+JQ0KPiAgICAgIHN1Ym1pdCAgICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwg
+MzI9MC4wJSwgNjQ9MC4wJSwNCj4gPj02ND0wLjAlDQo+ICAgICAgY29tcGxldGUgIDogMD0wLjAl
+LCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLA0KPiA+PTY0PTAu
+MCUNCj4gICAgICBpc3N1ZWQgcnd0czogdG90YWw9MCw2MSwwLDAgc2hvcnQ9MCwwLDAsMCBkcm9w
+cGVkPTAsMCwwLDANCj4gICAgICBsYXRlbmN5ICAgOiB0YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNl
+bnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KPiANCj4gUnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9i
+cyk6DQo+ICAgV1JJVEU6IGJ3PTUyMEIvcyAoNTIwQi9zKSwgNTIwQi9zLTUyMEIvcyAoNTIwQi9z
+LTUyMEIvcyksIGlvPTMwLjVLaUINCj4gKDMxLjJrQiksIHJ1bj02MDAwMi02MDAwMm1zZWMNCj4g
+DQo+IERpc2sgc3RhdHMgKHJlYWQvd3JpdGUpOg0KPiAgIHNkYjogaW9zPTAvMzAxLCBtZXJnZT0w
+LzE4LCB0aWNrcz0wLzQzMiwgaW5fcXVldWU9NDMyLCB1dGlsPTAuNjIlDQo+IA0KPiANCj4gVGhh
+bmtzIGEgbG90IGluIGFkdmFuY2UhDQo+IEFsZXgNCg0KRmlvIGhhcyBhbiBpc3N1ZSB3aGVyZSBz
+dHJhbmdlIGxhdGVuY3kgdmFsdWVzIGFyZSByZXBvcnRlZCB3aGVuIHRoZSByYXRlX2lvcHMgb3B0
+aW9uIGlzIGluIHVzZToNCg0KaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9pc3N1ZXMvMTM5
+NA0KDQpVbnRpbCB0aGF0IGlzIHJlc29sdmVkIGl0IGlzIHVubGlrZWx5IHRoYXQgZXhwZXJpbWVu
+dHMgbGlrZSB0aGUgb25lcyBhYm92ZSB0aGF0IHVzZSByYXRlX2lvcHMgd2lsbCBsZWFkIHRvIG1l
+YW5pbmdmdWwgcmVzdWx0cy4gVHJ5IHJ1bm5pbmcgeW91ciBleHBlcmltZW50cyB3aXRob3V0IHRo
+ZSByYXRlX2lvcHMgb3B0aW9uLg0K
