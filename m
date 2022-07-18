@@ -2,214 +2,81 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC15C43334
-	for <fio@archiver.kernel.org>; Wed, 13 Jul 2022 19:26:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC4A2C433EF
+	for <fio@archiver.kernel.org>; Mon, 18 Jul 2022 11:24:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236729AbiGMT0u (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 13 Jul 2022 15:26:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44970 "EHLO
+        id S233809AbiGRLY0 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 18 Jul 2022 07:24:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229959AbiGMT0t (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 13 Jul 2022 15:26:49 -0400
-Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 679472CC9C
-        for <fio@vger.kernel.org>; Wed, 13 Jul 2022 12:26:48 -0700 (PDT)
-Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220713192646usoutp019d82d6296948c41454cccab1821484f5~Beh2--oPb0689306893usoutp012;
-        Wed, 13 Jul 2022 19:26:46 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220713192646usoutp019d82d6296948c41454cccab1821484f5~Beh2--oPb0689306893usoutp012
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1657740406;
-        bh=5zk565bFz9zWUBbCSJFEp5vkXMMj001HOOyNA21ZmAU=;
-        h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=WXW3f71ee70RQz+SEdVoxOfJR7cFJV6i+D+qvBaxUvOkhev81vdx/U+TxzlOF31rW
-         pUsEy26DbkbDCgeWjkWGGepa8zu8zFpZO3DiamMjTVF6SINSBgFbHMfAqk2ZxhRprZ
-         kImTHUq1jCKSq3k05hjj/rJD2AHY0I3baolkOMSg=
-Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
-        [203.254.195.111]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220713192645uscas1p1d4d6d87f88f7c9176837cce993725c52~Beh24jYd73275132751uscas1p14;
-        Wed, 13 Jul 2022 19:26:45 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges2new.samsung.com (USCPEMTA) with SMTP id BB.44.09642.57C1FC26; Wed,
-        13 Jul 2022 15:26:45 -0400 (EDT)
-Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
-        [203.254.195.89]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220713192645uscas1p180298a5ff9ae1ed081db0a31f06e4100~Beh2nGN7y1319413194uscas1p1B;
-        Wed, 13 Jul 2022 19:26:45 +0000 (GMT)
-X-AuditID: cbfec36f-bfdff700000025aa-24-62cf1c75feb8
-Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 45.08.52349.57C1FC26; Wed,
-        13 Jul 2022 15:26:45 -0400 (EDT)
-Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
-        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
-        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2375.24; Wed, 13 Jul 2022 12:26:44 -0700
-Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
-        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Wed,
-        13 Jul 2022 12:26:44 -0700
-From:   Vincent Fu <vincent.fu@samsung.com>
-To:     Alex Matyushin <airgunster@protonmail.ch>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-Subject: RE: fdatasync latency percentiles
-Thread-Topic: fdatasync latency percentiles
-Thread-Index: AQHYliUCzK98M74z6EexLRFZf5hLPq18sJKg
-Date:   Wed, 13 Jul 2022 19:26:44 +0000
-Message-ID: <d8f42e6eaa7e4d98b44d7201bff17b24@samsung.com>
-In-Reply-To: <GPtNqTLWCihrYY29Il_OLQ7-mXfGc9dx3moSMPF_HD4u2_UeMKE8gUmOZsQ9rWQINRf2AGAWtAo5cHjyn4x_lSDhyXdwOeYsyTum5J09Gco=@protonmail.ch>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [105.128.2.176]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S233294AbiGRLY0 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 18 Jul 2022 07:24:26 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E00219B
+        for <fio@vger.kernel.org>; Mon, 18 Jul 2022 04:24:25 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id m10so4565864qvu.4
+        for <fio@vger.kernel.org>; Mon, 18 Jul 2022 04:24:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=7TLeL5qBZHuZuthsBmcY8zZI424cwNYtEnX/XN6MNpo=;
+        b=bpJ0AbwQnWF8UnYh89scQWyGuxugOjTpJSxQadg8rONj7L9icllHd947+RqIpCUk31
+         1jYHrd1ER7HKFJRl4K2l9XsgqtpGxP08M1Sxv5yGLUmeX2dDketLjsK46xkN16QCr3cp
+         3XJZiNZRTtHOnfzMHNIZVY5oZ+/5LqVwJbpe0LTvSPOEO7d1gGwTe816vMSbQ1MCZqhP
+         dMaQ5yM/zh11jwp+hxI/fTlRbU2GNXqpzSwTIdNPuM18hoSsZ8qXJHHebghREmXzIVZz
+         GAecqae5GBl3xhXdY2TxKc/p4sXPoGFZ7bsaItJCj6RRmYc5b7GNXB3JHSR5rqvArogI
+         /BEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=7TLeL5qBZHuZuthsBmcY8zZI424cwNYtEnX/XN6MNpo=;
+        b=eAx/q/kdjZJn+tUDzLy1YTs3hI1hkQW1D4Zk0HnBWAN4wJRQajSXrki0OOvPDIPYVk
+         KkrlWl7n7l52tIUf2DwCwkleUL/wcFjZeVY/8hry7Um4IV/Y8jw2+H01HqlLN710lVcd
+         4Guv8j97pBKcwWiwAt9qa+8rjGsxGHxiLPx4jCkCew1b14ZvGf+0ggNxFZ0O67cY4T0J
+         HNWmUv43ve+RUhY7gPIdNZatEzwvGwiC8KzOFLdLYzp8QlQWTyZCJDn19AbhnZjz3lpQ
+         Libfn3GYP8ysNufJWfu3NLVfFXCtViUrOCynz68sTixQHXzjMPb9efBeKhfphtRypQMt
+         d9Pg==
+X-Gm-Message-State: AJIora8JOoOs4cBFhSQM2z/7QS8RoNCa0IwWIR7+MPxBx6k063PaO7P0
+        yspVM8pTBJqLCBmXyxzPUwv2JVgnDIE=
+X-Google-Smtp-Source: AGRyM1t+gA6C82II4Qxq3Opl01WBj/JbZUaYUcAm7U7e5QfC5azJnADfaFiywgtyDXhuQ+RVWDvyRQ==
+X-Received: by 2002:a05:6214:2409:b0:432:bf34:362f with SMTP id fv9-20020a056214240900b00432bf34362fmr20586736qvb.66.1658143464816;
+        Mon, 18 Jul 2022 04:24:24 -0700 (PDT)
+Received: from [192.168.1.218] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id bn29-20020a05620a2add00b006b5ef0aff29sm1816236qkb.87.2022.07.18.04.24.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Jul 2022 04:24:24 -0700 (PDT)
+Message-ID: <79535fa5-66c4-d7df-73f8-a128e9b4150b@gmail.com>
+Date:   Mon, 18 Jul 2022 07:24:23 -0400
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrMIsWRmVeSWpSXmKPExsWy7djXc7qlMueTDK4cMLI4dmkli8XHWS+Y
-        HZg8uhYsY/X4vEkugCmKyyYlNSezLLVI3y6BK2Nz0x+mgitOFRO78xoYfzh0MXJySAiYSKy9
-        voy1i5GLQ0hgJaPE+VPtUE4rk8SeDzvZYap+btjEBJFYyyhxYfY5FgjnE6PEop6pLCBVQgLL
-        GCUe/JTpYuTgYBPQlHi7vwAkLCIQI3F00UZWEFtYQEvi9+UrzBBxbYlvKxexQNhGEv9nHGcH
-        aWURUJXo7tMCCfMKWEkcaTzECGJzCnQySnx5WQViMwqISXw/tYYJxGYWEJe49WQ+E8SdghKL
-        Zu9hhrDFJP7tesgGYStK3P/+Emw8M9Bl63fpQ7QqSkzpfsgOsUpQ4uTMJywQ5ZISB1fcAPtQ
-        QqCRQ+LkrKVQCReJ/U9fQO2Slrh6fSozRFE7o8TcjV+giiYwSlx/IgVhW0v867zGDrGNT+Lv
-        r0eMIEdICPBKdLQJTWBUmoXkhVkI581Cct4sJOctYGRZxSheWlycm55abJSXWq5XnJhbXJqX
-        rpecn7uJEZguTv87nL+D8fqtj3qHGJk4GA8xSnAwK4nwdh86lyTEm5JYWZValB9fVJqTWnyI
-        UZqDRUmcd1nmhkQhgfTEktTs1NSC1CKYLBMHp1QDEzfvFaeENn1L08CdieYxqUxLT8492/LU
-        PHyX926xo408syPbF01Mv6Hw4/C6FcsZSu/lt1T+tuVfcytmBpNDwrpAEYFna/Iuyp2QecFZ
-        +lB+qV5jlGDvbr3rzxomeukphOeFrtPmvm70i/G5RJvfEZ/cFeGXvJf2H5p6/2xL95bpyyft
-        8TGoULs/O2nmNOOrMX8cj8a8WP8oLfSfb7zJti3X3/oLWD4qPVsZ3nmE8abNvhixwJaw452n
-        /OMfp9+qzpzRqsdwjKmdaWtD6uR/s3v2H7A6vn+qNC8f4/vkiICNM/d4RXKtO74yir/hKEPE
-        4pTKnQHSJ3in/l7j8N3vzZs1N3VEO0QPOe7RNv0vq8RSnJFoqMVcVJwIACRxrauGAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrFLMWRmVeSWpSXmKPExsWS2cA0SbdU5nySQfdOOYtjl1ayWHyc9YLZ
-        gcmja8EyVo/Pm+QCmKK4bFJSczLLUov07RK4MjY3/WEquOJUMbE7r4Hxh0MXIyeHhICJxM8N
-        m5i6GLk4hARWM0psXXKZDcL5xCjRduo9C4SzjFGi8+ZHxi5GDg42AU2Jt/sLQLpFBGIkji7a
-        yApiCwtoSfy+fIUZIq4t8W3lIhYI20ji/4zj7CCtLAKqEt19WiBhXgEriSONhxghxt9hlHjy
-        dBpYPadAJ6PEl5dVIDajgJjE91NrmEBsZgFxiVtP5jNBXC0gsWTPeWYIW1Ti5eN/rBC2osT9
-        7y/BdjEDnbl+lz5Eq6LElO6H7BB7BSVOznzCAlEuKXFwxQ2WCYxis5BsmIXQPQtJ9ywk3QsY
-        WVYxipcWF+emVxQb5qWW6xUn5haX5qXrJefnbmIERs/pf4cjdzAevfVR7xAjEwfjIUYJDmYl
-        Ed7uQ+eShHhTEiurUovy44tKc1KLDzFKc7AoifMKuU6MFxJITyxJzU5NLUgtgskycXBKNTA5
-        RbPY/L2jHjfRco/rU53b++vlVO5Zuc1yVZraO+2+4BXxoJBV+4TbJy2e9//u9Vd3VomdFwm+
-        +Pj0gf/rhR4UeDGbr3CfvPl7ipqT7NxXH8w4TyQEpl5wOemt+E9Bq2iekbLCluxakbUfXv3m
-        umg1W/Bje352fbnfqRy3kxnJzg+PViis+VJ+/d/F/6+YhFWfHJgeOS2RL7/9VMzVw/XrtZrr
-        vpZcrrUw5NghdWvOpSgF76jWKMe9i1M07B8FXni+9YGqyqenn+0/Wxd9jNDYcmixnZlvwj0Z
-        9/7fD936BAzy3vTxVKWoCn0xjvo9+1va3ycedue+8X5xi9gRWprtEWc1K6J8otfROXNMjfmU
-        WIozEg21mIuKEwFen8GXDQMAAA==
-X-CMS-MailID: 20220713192645uscas1p180298a5ff9ae1ed081db0a31f06e4100
-CMS-TYPE: 301P
-X-CMS-RootMailID: 20220712192427uscas1p284585e2c084aa30fff22dbbe14e544d8
-References: <CGME20220712192427uscas1p284585e2c084aa30fff22dbbe14e544d8@uscas1p2.samsung.com>
-        <GPtNqTLWCihrYY29Il_OLQ7-mXfGc9dx3moSMPF_HD4u2_UeMKE8gUmOZsQ9rWQINRf2AGAWtAo5cHjyn4x_lSDhyXdwOeYsyTum5J09Gco=@protonmail.ch>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH] engines: add engine for directory create
+Content-Language: en-US
+To:     "Friendy.Su@sony.com" <Friendy.Su@sony.com>,
+        fio <fio@vger.kernel.org>
+Cc:     "Wataru.Aoyama@sony.com" <Wataru.Aoyama@sony.com>
+References: <HK0PR04MB23884338D98BC24EB547AB9BFDA99@HK0PR04MB2388.apcprd04.prod.outlook.com>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <HK0PR04MB23884338D98BC24EB547AB9BFDA99@HK0PR04MB2388.apcprd04.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBBbGV4IE1hdHl1c2hpbiBbbWFp
-bHRvOmFpcmd1bnN0ZXJAcHJvdG9ubWFpbC5jaF0NCj4gU2VudDogVHVlc2RheSwgSnVseSAxMiwg
-MjAyMiAyOjU5IFBNDQo+IFRvOiBmaW9Admdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IGZkYXRh
-c3luYyBsYXRlbmN5IHBlcmNlbnRpbGVzDQo+IA0KPiBIaSB0aGVyZSwNCj4gDQo+IEknbSB0cnlp
-bmcgdG8gdW5kZXJzdGFuZCBkaWZmZXJlbmNlIGluIGxhdGVuY3kgcmVwb3J0ZWQgYnkgZmRhdGFz
-eW5jDQo+IGxhdGVuY3kgcGVyY2VudGlsZXMgKF9zeW5jIHBlcmNlbnRpbGVzXykgb24gYC0taW9l
-bmdpbmU9cHN5bmMgLS0NCj4gZmRhdGFzeW5jPTFgIHZzLiBfY2xhdCBwZXJjZW50aWxlc18gb24g
-YC0taW9lbmdpbmU9bGliYWlvIC0tZGlyZWN0PTFgIGFuZA0KPiBJJ2QgcmVhbGx5IGFwcHJlY2lh
-dGUgeW91ciBoZWxwLg0KPiANCj4gSSB0aG91Z2h0IHRoYXQgdGhleSBzaG91bGQgc2hvdWxkIG5v
-dCBoYXZlIHN1Y2ggYSBiaWcgZGlmZmVyZW5jZQ0KPiBiZXR3ZWVuIGVhY2ggb3RoZXIuIEkndmUg
-YXNzdW1lZCAoYW0gSSB3cm9uZyBoZXJlPykgdGhhdCBmZGF0YXN5bmMNCj4gbGF0ZW5jeSBwZXJj
-ZW50aWxlcyAoX3N5bmMgcGVyY2VudGlsZXNfKSB3aWxsIHJlcG9ydCBvbiBJL08gY29tcGxldGlv
-biBmb3INCj4gYGZkYXRhc3luYygpYCBzeXNjYWxsLCBzbyB0aGF0IEkgY291bGQgY29tcGFyZSBp
-dCB3aXRoIF9jbGF0IHBlcmNlbnRpbGVzXyBvbg0KPiBgLS1pb2VuZ2luZT1saWJhaW8gLS1kaXJl
-Y3Q9MWAuDQo+IA0KPiBDYW4gc29tZW9uZSBwbGVhc2UgaGVscCB0byBleHBsYWluIGhvdyBmZGF0
-YXN5bmMgbGF0ZW5jeSBwZXJjZW50aWxlcw0KPiAoX3N5bmMgcGVyY2VudGlsZXNfKSBvbiBgLS1p
-b2VuZ2luZT1wc3luYyAtLWZkYXRhc3luYz0xYCBhcmUgY2FsY3VsYXRlZA0KPiBleGFjdGx5Pw0K
-PiANCj4gTXkgZ29hbCBpcyB0byByZXByb2R1Y2UgYXBwbGljYXRpb24gcGF0dGVybiB3aGVyZSBm
-b3IgZWFjaCBvZiBpdHMNCj4gYHB3cml0ZTY0KClgIGNhbGxzIGl0IGV4ZWN1dGVzIGBmZGF0YXN5
-bmMoKWAgKyBJIHdhbnQgdG8gbWVhc3VyZQ0KPiBgZmRhdGFzeW5jKClgIGNvbXBsZXRpb24gbGF0
-ZW5jeS4NCj4gDQo+IFRlc3QgQToNCj4gJCBzdWRvIGZpbyAtLXJ3PXdyaXRlIC0taW9lbmdpbmU9
-cHN5bmMgLS1mZGF0YXN5bmM9MSAtLWlvZGVwdGg9MSAtLQ0KPiBicz01MTIgLS1udW1qb2JzPTEg
-LS1yYXRlX2lvcHM9MSAtLWRpcmVjdG9yeT10ZXN0LWRhdGEgLS1zaXplPTEwMG1iIC0tDQo+IHJ1
-bnRpbWU9MW0gLS1uYW1lPWF6dXJlLXdlc3RldXJvcGUtZGlzay10ZXN0DQo+IGF6dXJlLXdlc3Rl
-dXJvcGUtZGlzay10ZXN0OiAoZz0wKTogcnc9d3JpdGUsIGJzPShSKSA1MTJCLTUxMkIsIChXKQ0K
-PiA1MTJCLTUxMkIsIChUKSA1MTJCLTUxMkIsIGlvZW5naW5lPXBzeW5jLCBpb2RlcHRoPTENCj4g
-ZmlvLTMuNw0KPiBTdGFydGluZyAxIHByb2Nlc3MNCj4gYXp1cmUtd2VzdGV1cm9wZS1kaXNrLXRl
-c3Q6IExheWluZyBvdXQgSU8gZmlsZSAoMSBmaWxlIC8gMTAwTWlCKQ0KPiBKb2JzOiAxIChmPTEp
-LCAwLTEgSU9QUzogW1coMSldWzEwMC4wJV1bcj0wS2lCL3Msdz0wS2lCL3NdW3I9MCx3PTENCj4g
-SU9QU11bZXRhIDAwbTowMHNdDQo+IGF6dXJlLXdlc3RldXJvcGUtZGlzay10ZXN0OiAoZ3JvdXBp
-ZD0wLCBqb2JzPTEpOiBlcnI9IDA6IHBpZD0xMjE4NDogVHVlDQo+IEp1bCAxMiAxODozNToxNSAy
-MDIyDQo+ICAgd3JpdGU6IElPUFM9MSwgQlc9NTIwQi9zICg1MjBCL3MpKDMwLjVLaUIvNjAwMDFt
-c2VjKQ0KPiAgICAgY2xhdCAobnNlYyk6IG1pbj05NDAwLCBtYXg9NDQyMDAsIGF2Zz0yOTMzNi4w
-Nywgc3RkZXY9Njc3Ny4xOQ0KPiAgICAgIGxhdCAobnNlYyk6IG1pbj0xMDMwMCwgbWF4PTQ4MzAw
-LCBhdmc9MzE4MzYuMDcsIHN0ZGV2PTcxMTguODMNCj4gICAgIGNsYXQgcGVyY2VudGlsZXMgKG5z
-ZWMpOg0KPiAgICAgIHwgIDEuMDB0aD1bIDk0MDhdLCAgNS4wMHRoPVsxNTgwOF0sIDEwLjAwdGg9
-WzI1NzI4XSwgMjAuMDB0aD1bMjY0OTZdLA0KPiAgICAgIHwgMzAuMDB0aD1bMjcwMDhdLCA0MC4w
-MHRoPVsyNzc3Nl0sIDUwLjAwdGg9WzI4Mjg4XSwgNjAuMDB0aD1bMjkzMTJdLA0KPiAgICAgIHwg
-NzAuMDB0aD1bMzI2NDBdLCA4MC4wMHRoPVszMzUzNl0sIDkwLjAwdGg9WzM1NTg0XSwgOTUuMDB0
-aD1bNDIyNDBdLA0KPiAgICAgIHwgOTkuMDB0aD1bNDQyODhdLCA5OS41MHRoPVs0NDI4OF0sIDk5
-LjkwdGg9WzQ0Mjg4XSwgOTkuOTV0aD1bNDQyODhdLA0KPiAgICAgIHwgOTkuOTl0aD1bNDQyODhd
-DQo+ICAgIGJ3ICggIEtpQi9zKTogbWluPSAgICAwLCBtYXg9ICAgIDIsIHBlcj0xMDAuMDAlLCBh
-dmc9IDEuMDAsIHN0ZGV2PSAwLjE5LA0KPiBzYW1wbGVzPTU5DQo+ICAgIGlvcHMgICAgICAgIDog
-bWluPSAgICAxLCBtYXg9ICAgIDQsIGF2Zz0gMi4wMiwgc3RkZXY9IDAuMjksIHNhbXBsZXM9NTkN
-Cj4gICBsYXQgKHVzZWMpICAgOiAxMD0xLjY0JSwgMjA9Ni41NiUsIDUwPTkxLjgwJQ0KPiAgIGZz
-eW5jL2ZkYXRhc3luYy9zeW5jX2ZpbGVfcmFuZ2U6DQo+ICAgICBzeW5jICh1c2VjKTogbWluPTEx
-MTIsIG1heD04NDk0LCBhdmc9MTk5OS42Miwgc3RkZXY9MTI0Mi44OQ0KPiAgICAgc3luYyBwZXJj
-ZW50aWxlcyAodXNlYyk6DQo+ICAgICAgfCAgMS4wMHRoPVsgMTEwNl0sICA1LjAwdGg9WyAxMTcy
-XSwgMTAuMDB0aD1bIDEyMDVdLCAyMC4wMHRoPVsgMTI4N10sDQo+ICAgICAgfCAzMC4wMHRoPVsg
-MTM2OV0sIDQwLjAwdGg9WyAxNDM0XSwgNTAuMDB0aD1bIDE1MTZdLCA2MC4wMHRoPVsgMTYzMV0s
-DQo+ICAgICAgfCA3MC4wMHRoPVsgMTg2MF0sIDgwLjAwdGg9WyAyNTA3XSwgOTAuMDB0aD1bIDMz
-MjZdLCA5NS4wMHRoPVsgNDI5M10sDQo+ICAgICAgfCA5OS4wMHRoPVsgODQ1NV0sIDk5LjUwdGg9
-WyA4NDU1XSwgOTkuOTB0aD1bIDg0NTVdLCA5OS45NXRoPVsgODQ1NV0sDQo+ICAgICAgfCA5OS45
-OXRoPVsgODQ1NV0NCj4gICBjcHUgICAgICAgICAgOiB1c3I9MC4wMSUsIHN5cz0wLjAxJSwgY3R4
-PTEzNiwgbWFqZj0wLCBtaW5mPTM0DQo+ICAgSU8gZGVwdGhzICAgIDogMT0xOTguNCUsIDI9MC4w
-JSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsDQo+ID49NjQ9MC4wJQ0KPiAgICAg
-IHN1Ym1pdCAgICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwg
-NjQ9MC4wJSwNCj4gPj02ND0wLjAlDQo+ICAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0PTEwMC4w
-JSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLA0KPiA+PTY0PTAuMCUNCj4gICAg
-ICBpc3N1ZWQgcnd0czogdG90YWw9MCw2MSwwLDAgc2hvcnQ9NjAsMCwwLDAgZHJvcHBlZD0wLDAs
-MCwwDQo+ICAgICAgbGF0ZW5jeSAgIDogdGFyZ2V0PTAsIHdpbmRvdz0wLCBwZXJjZW50aWxlPTEw
-MC4wMCUsIGRlcHRoPTENCj4gDQo+IFJ1biBzdGF0dXMgZ3JvdXAgMCAoYWxsIGpvYnMpOg0KPiAg
-IFdSSVRFOiBidz01MjBCL3MgKDUyMEIvcyksIDUyMEIvcy01MjBCL3MgKDUyMEIvcy01MjBCL3Mp
-LCBpbz0zMC41S2lCDQo+ICgzMS4ya0IpLCBydW49NjAwMDEtNjAwMDFtc2VjDQo+IA0KPiBEaXNr
-IHN0YXRzIChyZWFkL3dyaXRlKToNCj4gICBzZGI6IGlvcz0wLzI4MiwgbWVyZ2U9MC8yMiwgdGlj
-a3M9MC80ODIsIGluX3F1ZXVlPTQ4MiwgdXRpbD0wLjU2JQ0KPiANCj4gDQo+IA0KPiBUZXN0IEI6
-DQo+ICQgc3VkbyBmaW8gLS1ydz13cml0ZSAtLWlvZW5naW5lPWxpYmFpbyAtLWRpcmVjdD0xIC0t
-aW9kZXB0aD0xIC0tYnM9NTEyIC0tDQo+IG51bWpvYnM9MSAtLXJhdGVfaW9wcz0xIC0tZGlyZWN0
-b3J5PXRlc3QtZGF0YSAtLXNpemU9MTAwbWIgLS0NCj4gcnVudGltZT0xbSAtLW5hbWU9YXp1cmUt
-d2VzdGV1cm9wZS1kaXNrLXRlc3QNCj4gYXp1cmUtd2VzdGV1cm9wZS1kaXNrLXRlc3Q6IChnPTAp
-OiBydz13cml0ZSwgYnM9KFIpIDUxMkItNTEyQiwgKFcpDQo+IDUxMkItNTEyQiwgKFQpIDUxMkIt
-NTEyQiwgaW9lbmdpbmU9bGliYWlvLCBpb2RlcHRoPTENCj4gZmlvLTMuNw0KPiBTdGFydGluZyAx
-IHByb2Nlc3MNCj4gSm9iczogMSAoZj0xKSwgMC0xIElPUFM6IFtXKDEpXVsxMDAuMCVdW3I9MEtp
-Qi9zLHc9MEtpQi9zXVtyPTAsdz0xDQo+IElPUFNdW2V0YSAwMG06MDBzXQ0KPiBhenVyZS13ZXN0
-ZXVyb3BlLWRpc2stdGVzdDogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9MTIyOTE6
-IFR1ZQ0KPiBKdWwgMTIgMTg6MzY6MzUgMjAyMg0KPiAgIHdyaXRlOiBJT1BTPTEsIEJXPTUyMEIv
-cyAoNTIwQi9zKSgzMC41S2lCLzYwMDAybXNlYykNCj4gICAgIHNsYXQgKHVzZWMpOiBtaW49MTE0
-MCwgbWF4PTQ3ODYsIGF2Zz0xNjU0LjcyLCBzdGRldj02OTMuNDMNCj4gICAgIGNsYXQgKG5zZWMp
-OiBtaW49MzMwMCwgbWF4PTEyMjAwLCBhdmc9NTA3MC40OSwgc3RkZXY9MTQyOS45Ng0KPiAgICAg
-IGxhdCAodXNlYyk6IG1pbj0xMTQ4LCBtYXg9NDc5NCwgYXZnPTE2NjIuNDQsIHN0ZGV2PTY5My4z
-OQ0KPiAgICAgY2xhdCBwZXJjZW50aWxlcyAobnNlYyk6DQo+ICAgICAgfCAgMS4wMHRoPVsgMzMx
-Ml0sICA1LjAwdGg9WyA0MzIwXSwgMTAuMDB0aD1bIDQzMjBdLCAyMC4wMHRoPVsgNDM4NF0sDQo+
-ICAgICAgfCAzMC4wMHRoPVsgNDU3Nl0sIDQwLjAwdGg9WyA0NzA0XSwgNTAuMDB0aD1bIDQ3MDRd
-LCA2MC4wMHRoPVsgNDgzMl0sDQo+ICAgICAgfCA3MC4wMHRoPVsgNDgzMl0sIDgwLjAwdGg9WyA1
-MDg4XSwgOTAuMDB0aD1bIDU0NzJdLCA5NS4wMHRoPVsgOTE1Ml0sDQo+ICAgICAgfCA5OS4wMHRo
-PVsxMjIyNF0sIDk5LjUwdGg9WzEyMjI0XSwgOTkuOTB0aD1bMTIyMjRdLCA5OS45NXRoPVsxMjIy
-NF0sDQo+ICAgICAgfCA5OS45OXRoPVsxMjIyNF0NCj4gICAgYncgKCAgS2lCL3MpOiBtaW49ICAg
-IDAsIG1heD0gICAgMiwgcGVyPTEwMC4wMCUsIGF2Zz0gMS4wMCwgc3RkZXY9IDAuMTksDQo+IHNh
-bXBsZXM9NTkNCj4gICAgaW9wcyAgICAgICAgOiBtaW49ICAgIDEsIG1heD0gICAgNCwgYXZnPSAy
-LjAyLCBzdGRldj0gMC4yOSwgc2FtcGxlcz01OQ0KPiAgIGxhdCAodXNlYykgICA6IDQ9MS42NCUs
-IDEwPTk2LjcyJSwgMjA9MS42NCUNCj4gICBjcHUgICAgICAgICAgOiB1c3I9MC4wMCUsIHN5cz0w
-LjAxJSwgY3R4PTEyMiwgbWFqZj0wLCBtaW5mPTMyDQo+ICAgSU8gZGVwdGhzICAgIDogMT0xMDAu
-MCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMyPTAuMCUsDQo+ID49NjQ9MC4w
-JQ0KPiAgICAgIHN1Ym1pdCAgICA6IDA9MC4wJSwgND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwg
-MzI9MC4wJSwgNjQ9MC4wJSwNCj4gPj02ND0wLjAlDQo+ICAgICAgY29tcGxldGUgIDogMD0wLjAl
-LCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA2ND0wLjAlLA0KPiA+PTY0PTAu
-MCUNCj4gICAgICBpc3N1ZWQgcnd0czogdG90YWw9MCw2MSwwLDAgc2hvcnQ9MCwwLDAsMCBkcm9w
-cGVkPTAsMCwwLDANCj4gICAgICBsYXRlbmN5ICAgOiB0YXJnZXQ9MCwgd2luZG93PTAsIHBlcmNl
-bnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KPiANCj4gUnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9i
-cyk6DQo+ICAgV1JJVEU6IGJ3PTUyMEIvcyAoNTIwQi9zKSwgNTIwQi9zLTUyMEIvcyAoNTIwQi9z
-LTUyMEIvcyksIGlvPTMwLjVLaUINCj4gKDMxLjJrQiksIHJ1bj02MDAwMi02MDAwMm1zZWMNCj4g
-DQo+IERpc2sgc3RhdHMgKHJlYWQvd3JpdGUpOg0KPiAgIHNkYjogaW9zPTAvMzAxLCBtZXJnZT0w
-LzE4LCB0aWNrcz0wLzQzMiwgaW5fcXVldWU9NDMyLCB1dGlsPTAuNjIlDQo+IA0KPiANCj4gVGhh
-bmtzIGEgbG90IGluIGFkdmFuY2UhDQo+IEFsZXgNCg0KRmlvIGhhcyBhbiBpc3N1ZSB3aGVyZSBz
-dHJhbmdlIGxhdGVuY3kgdmFsdWVzIGFyZSByZXBvcnRlZCB3aGVuIHRoZSByYXRlX2lvcHMgb3B0
-aW9uIGlzIGluIHVzZToNCg0KaHR0cHM6Ly9naXRodWIuY29tL2F4Ym9lL2Zpby9pc3N1ZXMvMTM5
-NA0KDQpVbnRpbCB0aGF0IGlzIHJlc29sdmVkIGl0IGlzIHVubGlrZWx5IHRoYXQgZXhwZXJpbWVu
-dHMgbGlrZSB0aGUgb25lcyBhYm92ZSB0aGF0IHVzZSByYXRlX2lvcHMgd2lsbCBsZWFkIHRvIG1l
-YW5pbmdmdWwgcmVzdWx0cy4gVHJ5IHJ1bm5pbmcgeW91ciBleHBlcmltZW50cyB3aXRob3V0IHRo
-ZSByYXRlX2lvcHMgb3B0aW9uLg0K
+On 6/11/22 03:34, Friendy.Su@sony.com wrote:
+> 
+> This engine is to measure performance of creating directories.
+> 
+> Signed-off-by: friendy-su <friendy.su@sony.com>
+
+This all seems fine. My main suggestion is that there seem to be several 
+of these file operation ioengines. It seems like we could eliminate 
+duplicated code and make the codebase easier to maintain by 
+consolidating the ioengines (filedelete, filestat, etc) that follow this 
+similar structure.
+
+sync.c is an example that implements several ioengines.
