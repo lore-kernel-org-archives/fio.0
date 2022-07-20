@@ -2,98 +2,95 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D880CCCA486
-	for <fio@archiver.kernel.org>; Wed, 20 Jul 2022 09:31:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 401D8C43334
+	for <fio@archiver.kernel.org>; Wed, 20 Jul 2022 12:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232463AbiGTJbe (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 20 Jul 2022 05:31:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32900 "EHLO
+        id S231922AbiGTMAJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 20 Jul 2022 08:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233255AbiGTJb1 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 20 Jul 2022 05:31:27 -0400
-Received: from smtpbgsg1.qq.com (smtpbgsg1.qq.com [54.254.200.92])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EB958848
-        for <fio@vger.kernel.org>; Wed, 20 Jul 2022 02:31:25 -0700 (PDT)
-X-QQ-mid: bizesmtp65t1658309464t5kcqyci
-Received: from eureka.localdomain ( [123.124.208.226])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Wed, 20 Jul 2022 17:30:51 +0800 (CST)
-X-QQ-SSF: 01400000002000B0D000000A0000020
-X-QQ-FEAT: hoArX50alxG/Em5tr+cjD56eDWqOPkiKaRqdDQ9vGGbrlnaAHGGwmB+D0Nsox
-        OI9UqoySXCx41SDJA5Ofz1EJIBoDdK4d9gmoSc4YUoQeQG2/xjIr04w+qutBGoM92YUDf3y
-        1+3pN3kuapLW2zbJs/aAkxNnelPShvLMVAhbcmX19iHrrJ5Zy9giqyCWt8bMYjP7hv2wjaC
-        y1ACKxCStoTnT5iObt5JMD9LeUqtSV8LUJpmVBDI1529XhbwpXVXSLOQ9i3xL13KXuEdFN4
-        TeT/QrKz8Ka6awfkWTB1d0yzJdE7y0f1R2+S/yuiBeOkXQdeatuLCZawllNd+TNDr269SjE
-        FIP3ms0L+W2e4EH+/t77SpAeaS7uj63EZ5d1hLGHBSrnEWLXcdhM+yIkWkEU7sNahAkS2/u
-        RWXZ5L+pVv4=
-X-QQ-GoodBg: 1
-From:   Wang You <wangyoua@uniontech.com>
-To:     axboe@kernel.dk
-Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        hch@lst.de, jaegeuk@kernel.org, fio@vger.kernel.org,
-        ming.lei@redhat.com, wangyoua@uniontech.com,
-        wangxiaohua@uniontech.com
-Subject: [PATCH 0/2] Improve mq-deadline performance in HDD
-Date:   Wed, 20 Jul 2022 17:30:46 +0800
-Message-Id: <20220720093048.225944-1-wangyoua@uniontech.com>
-X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybgforeign:qybgforeign4
-X-QQ-Bgrelay: 1
+        with ESMTP id S231872AbiGTMAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 20 Jul 2022 08:00:08 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E28B55
+        for <fio@vger.kernel.org>; Wed, 20 Jul 2022 05:00:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=x9SML4b2GVOxB0ia77EjG/itfzDR4Cdd+vNIkmRem9A=; b=gg3eAaUhDxS3B8Z7+2yUn8bZWW
+        Ap6Fkr9u+F+br+MkIvwWZz0yOViQAEuCZUQ0kF7OoH+FOU8nQ6G8IcakcwPhFsxUjoMjWUBWqv0JC
+        2znbiaTsLkhMOn3hZpW5kEI4dwsb4f4LxOoXo+yuJ+EzFYk4PY5e8P9d73ILKr2Dbr29+qdTl0/T9
+        r7m8u7ZUnOUbZU7cpgbrR76ajqNGubuDRqZ7oro0xNznrIzwfPDu7IsWAiRYoafBSkDKEYM07tr0p
+        sNcbrVVH/RR+7Biv9xU6RyV/YJZnaBWhM4M9AG1PLfOjrOpFLUZzld5jRvfCKTdFovNLVfMvK3Tfc
+        eB+5FWDw==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oE8N2-005JlQ-DD
+        for fio@vger.kernel.org; Wed, 20 Jul 2022 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 4A0B11BC017F; Wed, 20 Jul 2022 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220720120002.4A0B11BC017F@kernel.dk>
+Date:   Wed, 20 Jul 2022 06:00:02 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hi jens,
+The following changes since commit d6225c1550827077c0c0f9e1b8816b4f35cd5304:
 
-We already know that batching requests can increase the storage
-performance of some devices, but after testing, I found that it
-will reduce the performance of some low and medium speed devices
-when using the scheduler (especially mq-deadline), such as
-rotational disks connected to a raid.
+  Update README.rst to specify secure protocols where possible (2022-07-11 07:53:29 -0600)
 
-In order to balance the performance difference between different
-devices, a more sophisticated mechanism may be needed to control
-the number of batching (such as sometimes 1 is better),
-but obviously this is not easy.
+are available in the Git repository at:
 
-At the same time I noticed that when the mq-deadline scheduler select
-a request for a higher sector outside the batch, deadline_fifo_request
-is used to select the request within the fifo and restart the batch.
-Selecting a request from a fifo tends to satisfy the request's timeline,
-but it is not always very urgent.
+  git://git.kernel.dk/fio.git master
 
-So in the case of no expire, can the selection strategy of the first
-request in the batch be changed? Because in devices with rotation
-characteristics, proper sector access order is beneficial to performance.
+for you to fetch changes up to 9c1c1a8d6a4f30eba9595da951d18db1685c03d8:
 
-This patch series includes the following two parts:
+  engines/http: silence openssl 3.0 deprecation warnings (2022-07-19 13:21:19 -0600)
 
-- Added a temporary sys interface nr_sched_batch to control the number
-  of batching requests.
+----------------------------------------------------------------
+Giuseppe Baccini (1):
+      Fixed misplaced goto in http.c
 
-- Added a deadline_head_request function to select the request from the
-  first of the red-black tree instead of the fifo when appropriate.
+Jens Axboe (1):
+      engines/http: silence openssl 3.0 deprecation warnings
 
-Thanks,
+Vincent Fu (1):
+      Merge branch 'giubacc-misplaced-goto'
 
-Wang.
+ engines/http.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Wang You (2):
-  block: Introduce nr_sched_batch sys interface
-  block/mq-deadline: Prioritize first request
+---
 
- block/blk-mq-sched.c   |  4 +++-
- block/blk-sysfs.c      | 34 ++++++++++++++++++++++++++++++++++
- block/mq-deadline.c    | 42 +++++++++++++++++++++++++++++++++++++++---
- include/linux/blkdev.h |  1 +
- 4 files changed, 77 insertions(+), 4 deletions(-)
+Diff of recent changes:
 
--- 
-2.27.0
-
-
-
-
+diff --git a/engines/http.c b/engines/http.c
+index 696febe1..1de9e66c 100644
+--- a/engines/http.c
++++ b/engines/http.c
+@@ -29,6 +29,10 @@
+ #include "fio.h"
+ #include "../optgroup.h"
+ 
++/*
++ * Silence OpenSSL 3.0 deprecated function warnings
++ */
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+ 
+ enum {
+ 	FIO_HTTP_WEBDAV	    = 0,
+@@ -526,8 +530,8 @@ static enum fio_q_status fio_http_queue(struct thread_data *td,
+ 			if (status == 100 || (status >= 200 && status <= 204))
+ 				goto out;
+ 			log_err("DDIR_WRITE failed with HTTP status code %ld\n", status);
+-			goto err;
+ 		}
++		goto err;
+ 	} else if (io_u->ddir == DDIR_READ) {
+ 		curl_easy_setopt(http->curl, CURLOPT_READDATA, NULL);
+ 		curl_easy_setopt(http->curl, CURLOPT_WRITEDATA, &_curl_stream);
