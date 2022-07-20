@@ -2,81 +2,173 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC4A2C433EF
-	for <fio@archiver.kernel.org>; Mon, 18 Jul 2022 11:24:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E2D6C433EF
+	for <fio@archiver.kernel.org>; Wed, 20 Jul 2022 09:31:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233809AbiGRLY0 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 18 Jul 2022 07:24:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
+        id S233995AbiGTJba (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 20 Jul 2022 05:31:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233294AbiGRLY0 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 18 Jul 2022 07:24:26 -0400
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E00219B
-        for <fio@vger.kernel.org>; Mon, 18 Jul 2022 04:24:25 -0700 (PDT)
-Received: by mail-qv1-xf2d.google.com with SMTP id m10so4565864qvu.4
-        for <fio@vger.kernel.org>; Mon, 18 Jul 2022 04:24:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=7TLeL5qBZHuZuthsBmcY8zZI424cwNYtEnX/XN6MNpo=;
-        b=bpJ0AbwQnWF8UnYh89scQWyGuxugOjTpJSxQadg8rONj7L9icllHd947+RqIpCUk31
-         1jYHrd1ER7HKFJRl4K2l9XsgqtpGxP08M1Sxv5yGLUmeX2dDketLjsK46xkN16QCr3cp
-         3XJZiNZRTtHOnfzMHNIZVY5oZ+/5LqVwJbpe0LTvSPOEO7d1gGwTe816vMSbQ1MCZqhP
-         dMaQ5yM/zh11jwp+hxI/fTlRbU2GNXqpzSwTIdNPuM18hoSsZ8qXJHHebghREmXzIVZz
-         GAecqae5GBl3xhXdY2TxKc/p4sXPoGFZ7bsaItJCj6RRmYc5b7GNXB3JHSR5rqvArogI
-         /BEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=7TLeL5qBZHuZuthsBmcY8zZI424cwNYtEnX/XN6MNpo=;
-        b=eAx/q/kdjZJn+tUDzLy1YTs3hI1hkQW1D4Zk0HnBWAN4wJRQajSXrki0OOvPDIPYVk
-         KkrlWl7n7l52tIUf2DwCwkleUL/wcFjZeVY/8hry7Um4IV/Y8jw2+H01HqlLN710lVcd
-         4Guv8j97pBKcwWiwAt9qa+8rjGsxGHxiLPx4jCkCew1b14ZvGf+0ggNxFZ0O67cY4T0J
-         HNWmUv43ve+RUhY7gPIdNZatEzwvGwiC8KzOFLdLYzp8QlQWTyZCJDn19AbhnZjz3lpQ
-         Libfn3GYP8ysNufJWfu3NLVfFXCtViUrOCynz68sTixQHXzjMPb9efBeKhfphtRypQMt
-         d9Pg==
-X-Gm-Message-State: AJIora8JOoOs4cBFhSQM2z/7QS8RoNCa0IwWIR7+MPxBx6k063PaO7P0
-        yspVM8pTBJqLCBmXyxzPUwv2JVgnDIE=
-X-Google-Smtp-Source: AGRyM1t+gA6C82II4Qxq3Opl01WBj/JbZUaYUcAm7U7e5QfC5azJnADfaFiywgtyDXhuQ+RVWDvyRQ==
-X-Received: by 2002:a05:6214:2409:b0:432:bf34:362f with SMTP id fv9-20020a056214240900b00432bf34362fmr20586736qvb.66.1658143464816;
-        Mon, 18 Jul 2022 04:24:24 -0700 (PDT)
-Received: from [192.168.1.218] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id bn29-20020a05620a2add00b006b5ef0aff29sm1816236qkb.87.2022.07.18.04.24.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 Jul 2022 04:24:24 -0700 (PDT)
-Message-ID: <79535fa5-66c4-d7df-73f8-a128e9b4150b@gmail.com>
-Date:   Mon, 18 Jul 2022 07:24:23 -0400
+        with ESMTP id S231739AbiGTJbZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 20 Jul 2022 05:31:25 -0400
+Received: from smtpproxy21.qq.com (smtpbg701.qq.com [203.205.195.86])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60965A2C1
+        for <fio@vger.kernel.org>; Wed, 20 Jul 2022 02:31:23 -0700 (PDT)
+X-QQ-mid: bizesmtp65t1658309467tf1e345v
+Received: from eureka.localdomain ( [123.124.208.226])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Wed, 20 Jul 2022 17:31:06 +0800 (CST)
+X-QQ-SSF: 01400000002000B0D000000A0000020
+X-QQ-FEAT: 27H4dUct9tghbnHYDZeKVKd0xx9j0n8612/DIAsUpecCQTLoJQmMsosEIRaAn
+        4jKRH2a/Sl1qRoB9/PVzCjGCTQ+WB6Cnexbjt4m+sXRJfSuuZ/SdaducgdyDH+huFApW074
+        eMtz9iQuYc1YxcNJKQ4suanjHRm8M4LCEA5Nt3weu1UiOOYI2TD8NoQJGQhS1cqTZw1pKWt
+        wyxvdDOREAS4Pa1efErxq2+9JdFrqGZwjlInn578PXJ68m4YkouOaF/n30M7GkJWC3myoYo
+        ZWbaBjTgIomaV5i7GX/jitjghLW5jZe1Y68olgx9BHoj3ib7D4vqfICv3v+8VEtIDqdusR6
+        uDXZVS3iRxtJB9wWBCcP3wqceV0fZjZHtUof/bXy/hGeNxBUB6kMr6NybQRof8scORm8b8/
+        R0mVGEBK3qz9TnxhOBCC1A==
+X-QQ-GoodBg: 1
+From:   Wang You <wangyoua@uniontech.com>
+To:     axboe@kernel.dk
+Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        hch@lst.de, jaegeuk@kernel.org, fio@vger.kernel.org,
+        ming.lei@redhat.com, wangyoua@uniontech.com,
+        wangxiaohua@uniontech.com
+Subject: [PATCH 1/2] block: Introduce nr_sched_batch sys interface
+Date:   Wed, 20 Jul 2022 17:30:47 +0800
+Message-Id: <20220720093048.225944-2-wangyoua@uniontech.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20220720093048.225944-1-wangyoua@uniontech.com>
+References: <20220720093048.225944-1-wangyoua@uniontech.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH] engines: add engine for directory create
-Content-Language: en-US
-To:     "Friendy.Su@sony.com" <Friendy.Su@sony.com>,
-        fio <fio@vger.kernel.org>
-Cc:     "Wataru.Aoyama@sony.com" <Wataru.Aoyama@sony.com>
-References: <HK0PR04MB23884338D98BC24EB547AB9BFDA99@HK0PR04MB2388.apcprd04.prod.outlook.com>
-From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <HK0PR04MB23884338D98BC24EB547AB9BFDA99@HK0PR04MB2388.apcprd04.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:uniontech.com:qybgforeign:qybgforeign3
+X-QQ-Bgrelay: 1
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 6/11/22 03:34, Friendy.Su@sony.com wrote:
-> 
-> This engine is to measure performance of creating directories.
-> 
-> Signed-off-by: friendy-su <friendy.su@sony.com>
+The function of this patch is to add an nr_sched_batch interface under
+/sys/block/sdx/queue/, which can be used to set the number of batching
+requests. Of course, the default value is nr_requests and will follow
+nr_request when it has not been changed.
 
-This all seems fine. My main suggestion is that there seem to be several 
-of these file operation ioengines. It seems like we could eliminate 
-duplicated code and make the codebase easier to maintain by 
-consolidating the ioengines (filedelete, filestat, etc) that follow this 
-similar structure.
+Signed-off-by: Wang You <wangyoua@uniontech.com>
+---
+ block/blk-mq-sched.c   |  4 +++-
+ block/blk-sysfs.c      | 34 ++++++++++++++++++++++++++++++++++
+ include/linux/blkdev.h |  1 +
+ 3 files changed, 38 insertions(+), 1 deletion(-)
 
-sync.c is an example that implements several ioengines.
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index a4f7c101b53b..92798a0c03bd 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -100,7 +100,7 @@ static int __blk_mq_do_dispatch_sched(struct blk_mq_hw_ctx *hctx)
+ 	if (hctx->dispatch_busy)
+ 		max_dispatch = 1;
+ 	else
+-		max_dispatch = hctx->queue->nr_requests;
++		max_dispatch = q->nr_sched_batch;
+ 
+ 	do {
+ 		struct request *rq;
+@@ -567,6 +567,7 @@ int blk_mq_init_sched(struct request_queue *q, struct elevator_type *e)
+ 		blk_queue_flag_clear(QUEUE_FLAG_SQ_SCHED, q);
+ 		q->elevator = NULL;
+ 		q->nr_requests = q->tag_set->queue_depth;
++		q->nr_sched_batch = q->nr_requests;
+ 		return 0;
+ 	}
+ 
+@@ -577,6 +578,7 @@ int blk_mq_init_sched(struct request_queue *q, struct elevator_type *e)
+ 	 */
+ 	q->nr_requests = 2 * min_t(unsigned int, q->tag_set->queue_depth,
+ 				   BLKDEV_DEFAULT_RQ);
++	q->nr_sched_batch = q->nr_requests;
+ 
+ 	if (blk_mq_is_shared_tags(flags)) {
+ 		ret = blk_mq_init_sched_shared_tags(q);
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index 9b905e9443e4..8f299a3cf66c 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -70,6 +70,7 @@ queue_requests_store(struct request_queue *q, const char *page, size_t count)
+ {
+ 	unsigned long nr;
+ 	int ret, err;
++	unsigned long prev_nr_request = q->nr_requests;
+ 
+ 	if (!queue_is_mq(q))
+ 		return -EINVAL;
+@@ -85,6 +86,37 @@ queue_requests_store(struct request_queue *q, const char *page, size_t count)
+ 	if (err)
+ 		return err;
+ 
++	if (q->nr_sched_batch == prev_nr_request ||
++		q->nr_sched_batch > nr)
++		q->nr_sched_batch = nr;
++
++	return ret;
++}
++
++static ssize_t
++elv_nr_batch_show(struct request_queue *q, char *page)
++{
++	return queue_var_show(q->nr_sched_batch, page);
++}
++
++static ssize_t
++elv_nr_batch_store(struct request_queue *q, const char *page, size_t count)
++{
++	unsigned long nr;
++	int ret;
++
++	if (!queue_is_mq(q))
++		return -EINVAL;
++
++	ret = queue_var_store(&nr, page, count);
++	if (ret < 0)
++		return ret;
++
++	if (nr > q->nr_requests || nr < 1)
++		return -EINVAL;
++
++	q->nr_sched_batch = nr;
++
+ 	return ret;
+ }
+ 
+@@ -573,6 +605,7 @@ QUEUE_RO_ENTRY(queue_max_segments, "max_segments");
+ QUEUE_RO_ENTRY(queue_max_integrity_segments, "max_integrity_segments");
+ QUEUE_RO_ENTRY(queue_max_segment_size, "max_segment_size");
+ QUEUE_RW_ENTRY(elv_iosched, "scheduler");
++QUEUE_RW_ENTRY(elv_nr_batch, "nr_sched_batch");
+ 
+ QUEUE_RO_ENTRY(queue_logical_block_size, "logical_block_size");
+ QUEUE_RO_ENTRY(queue_physical_block_size, "physical_block_size");
+@@ -632,6 +665,7 @@ static struct attribute *queue_attrs[] = {
+ 	&queue_max_integrity_segments_entry.attr,
+ 	&queue_max_segment_size_entry.attr,
+ 	&elv_iosched_entry.attr,
++	&elv_nr_batch_entry.attr,
+ 	&queue_hw_sector_size_entry.attr,
+ 	&queue_logical_block_size_entry.attr,
+ 	&queue_physical_block_size_entry.attr,
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 2f7b43444c5f..13b050c0756b 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -422,6 +422,7 @@ struct request_queue {
+ 	 * queue settings
+ 	 */
+ 	unsigned long		nr_requests;	/* Max # of requests */
++	unsigned long           nr_sched_batch;
+ 
+ 	unsigned int		dma_pad_mask;
+ 	unsigned int		dma_alignment;
+-- 
+2.27.0
+
+
+
