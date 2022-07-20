@@ -2,56 +2,56 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46E88C433EF
-	for <fio@archiver.kernel.org>; Wed, 20 Jul 2022 16:21:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACA3C433EF
+	for <fio@archiver.kernel.org>; Wed, 20 Jul 2022 16:23:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239565AbiGTQU6 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 20 Jul 2022 12:20:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51320 "EHLO
+        id S229480AbiGTQXX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 20 Jul 2022 12:23:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235366AbiGTQUr (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 20 Jul 2022 12:20:47 -0400
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3031845050;
-        Wed, 20 Jul 2022 09:20:46 -0700 (PDT)
-Received: by mail-pj1-f47.google.com with SMTP id s18-20020a17090aa11200b001f1e9e2438cso2561314pjp.2;
-        Wed, 20 Jul 2022 09:20:46 -0700 (PDT)
+        with ESMTP id S230451AbiGTQXE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 20 Jul 2022 12:23:04 -0400
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17E82558F1;
+        Wed, 20 Jul 2022 09:23:03 -0700 (PDT)
+Received: by mail-pj1-f53.google.com with SMTP id q43-20020a17090a17ae00b001f1f67e053cso2737349pja.4;
+        Wed, 20 Jul 2022 09:23:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=EtY/SeORzLrSCr1jdA4Qjx8UUc6ri7seQlaa4SBenzg=;
-        b=SJ9ADJYohcx8f3T1z2IBbwrkkE3K5hXg6tsSiA+RweNl7q3wA67GwE4/0pqbCxT1O0
-         sSUlA3SAzH8MpU5F+v7xGQrAhx1svURrx1phy9vG9DyhQVHiSbvxxkBARIZCu5iAL/T8
-         idLeFk2FgXKOpuW8oySrA4nq7jfmCRaxcsTv+ir3ntV4sOZ0lEqwDRYgIQzgCHd185FR
-         lz9Kj3dODd5NHuy86cDN2WDjgs/w73S+CsQarugd4C8cjFYSOLBBRFyB6xsE912ZNdMN
-         7k3DRYQkL9XG+6fgqbKuuQjRHPRUWH0TpLPSuqQC248cO2szAlKb8AYNwjwEWyaHp6Xx
-         31Sg==
-X-Gm-Message-State: AJIora/ZdWKaUaFtYZSZlYXYoZXeZbwLN9TN5C95YFwOB/cSNZM0dZN1
-        22X8q05+FiaoMcJeEyGbuEw=
-X-Google-Smtp-Source: AGRyM1tO6LqwlGx+Ff4fF8RhH1idbq59pDQaFMUGQaaFg4pls5nHFvUtysp2E3y/dodMidWO7zTV+Q==
-X-Received: by 2002:a17:903:244d:b0:16c:52f1:d12 with SMTP id l13-20020a170903244d00b0016c52f10d12mr40268309pls.44.1658334045300;
-        Wed, 20 Jul 2022 09:20:45 -0700 (PDT)
+        bh=j/7Nq86xQuLWi18Sbz5otnLeWqHxkZyGTPSeuAnlhKs=;
+        b=tHGTDDtwPk4MKkQXQKOeE7YnQNmvp1lzmsR73XIs0SPh/+eBY+eGa09w7rZWYzmbT0
+         mXTWOz1XUpTSISBnhFPtbr+I2BvL9gcBJCH+zrjiSbC0XhcAPYTVzHJQicNp3JgRrdEv
+         Ycn/h1a2Ty0XC0783XrX696KscNIuWHH9V5mif0ugr5Xp4L32YCQatJYAa7dongNm71T
+         6srgHkVnbyOkQwqlclWQLMrp1mcUggvW/AG2WLbJ9nZTW8Ll0OHMgG2QLn6pD4Su9uRq
+         HxitYUd16Lj5hEozwxWej9h6qfrPEiztMYqFjS9e/0xJugrDXLgVCobogC1V7cJ1r2mb
+         J6bg==
+X-Gm-Message-State: AJIora+v5S58jDPWFQpoSFba6oqlQSjoEoDFyzeqS4HXOJyVGgsT2WPJ
+        v8Xj/IJO/ukJYn33wRRfNf4=
+X-Google-Smtp-Source: AGRyM1tqGfJtimyYcs1bWLVlLQ6mD2g4Qr/uCJsVxrhEue2fwXlDDOikx06kNgQUciR02J9JPzCa9Q==
+X-Received: by 2002:a17:90b:164d:b0:1f0:31c1:9e88 with SMTP id il13-20020a17090b164d00b001f031c19e88mr6513725pjb.206.1658334182537;
+        Wed, 20 Jul 2022 09:23:02 -0700 (PDT)
 Received: from ?IPV6:2620:15c:211:201:a7e0:78fc:9269:215b? ([2620:15c:211:201:a7e0:78fc:9269:215b])
-        by smtp.gmail.com with ESMTPSA id u16-20020a170903125000b001690d398401sm14465600plh.88.2022.07.20.09.20.43
+        by smtp.gmail.com with ESMTPSA id f5-20020a170902ab8500b0016bfcf8a463sm14058884plr.289.2022.07.20.09.23.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Jul 2022 09:20:44 -0700 (PDT)
-Message-ID: <21e7c959-6365-8029-d26d-985ff888333e@acm.org>
-Date:   Wed, 20 Jul 2022 09:20:42 -0700
+        Wed, 20 Jul 2022 09:23:01 -0700 (PDT)
+Message-ID: <c4da04a9-3f3d-3e22-a59a-1ab2867a5649@acm.org>
+Date:   Wed, 20 Jul 2022 09:22:59 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
-Subject: Re: [PATCH 1/2] block: Introduce nr_sched_batch sys interface
+Subject: Re: [PATCH 2/2] block/mq-deadline: Prioritize first request
 Content-Language: en-US
 To:     Wang You <wangyoua@uniontech.com>, axboe@kernel.dk
 Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
         hch@lst.de, jaegeuk@kernel.org, fio@vger.kernel.org,
         ming.lei@redhat.com, wangxiaohua@uniontech.com
 References: <20220720093048.225944-1-wangyoua@uniontech.com>
- <20220720093048.225944-2-wangyoua@uniontech.com>
+ <20220720093048.225944-3-wangyoua@uniontech.com>
 From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20220720093048.225944-2-wangyoua@uniontech.com>
+In-Reply-To: <20220720093048.225944-3-wangyoua@uniontech.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -59,14 +59,10 @@ List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 On 7/20/22 02:30, Wang You wrote:
-> The function of this patch is to add an nr_sched_batch interface under
-> /sys/block/sdx/queue/, which can be used to set the number of batching
-> requests. Of course, the default value is nr_requests and will follow
-> nr_request when it has not been changed.
-
-How can reducing the number of batched requests increase performance?
-
-Please provide performance numbers.
+> The test hardware is:
+> Kunpeng-920, HW-SAS3508+(MG04ACA400N * 2), RAID0.
+Please also provide performance numbers for a single hard disk and with 
+no RAID controller between the host and the hard disk.
 
 Thanks,
 
