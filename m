@@ -2,98 +2,93 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05055CCA48A
-	for <fio@archiver.kernel.org>; Fri, 22 Jul 2022 09:52:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EEAEC43334
+	for <fio@archiver.kernel.org>; Fri, 22 Jul 2022 12:00:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233544AbiGVJwC (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 22 Jul 2022 05:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
+        id S230327AbiGVMAM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 22 Jul 2022 08:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231913AbiGVJvs (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 22 Jul 2022 05:51:48 -0400
-Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295E313EB4
-        for <fio@vger.kernel.org>; Fri, 22 Jul 2022 02:51:45 -0700 (PDT)
-X-QQ-mid: bizesmtp68t1658483488tiq7mmxl
-Received: from eureka.localdomain ( [123.124.208.226])
-        by bizesmtp.qq.com (ESMTP) with 
-        id ; Fri, 22 Jul 2022 17:51:21 +0800 (CST)
-X-QQ-SSF: 01400000002000B0D000000A0000020
-X-QQ-FEAT: u333Yk6K//cJf6U3Gg35wNrITo20vet63t8xhIw9HlBoV0teoSgOYTlAyOa/V
-        qkJYzrZKYsHDG0fLMX9OAHn4pTepV4VwPQOlO01nTdipDxzGs7BKJPPdqGKgmfg/5gYNvRQ
-        zAwwPdQ3CsGH2IsdvQlqe0iP04U2qsCqtmQESwk2umYpdstqIPs2S1F90uWWm9wNKRlodmR
-        /2nHcGBmezFWe6nNDMgWMSEnkpn5AU15KhhL0vejZ680TPMgkBdQmm6o56P+Py5gvOsfmxF
-        sODPTnDYNyO7OOd0rfhhrbfzt0FF0HxWOUh2WHsdiNYVw38lDknKptMgg0vxS6bdPnOxCvn
-        acqHFT6t+TyeBGkpOx9hSC7xZADuujfwswzWCDoez3AhvaKf4dSQ7FgZ8Y2UgqEHVgr7tCy
-        pBRvDhZXSnCrtLLIEVrBLQ==
-X-QQ-GoodBg: 1
-From:   Wang You <wangyoua@uniontech.com>
-To:     axboe@kernel.dk, bvanassche@acm.org
-Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        hch@lst.de, jaegeuk@kernel.org, fio@vger.kernel.org,
-        ming.lei@redhat.com, wangyoua@uniontech.com,
-        wangxiaohua@uniontech.com
-Subject: [PATCH v2 0/2] Improve mq-deadline performance in HDD
-Date:   Fri, 22 Jul 2022 17:51:18 +0800
-Message-Id: <20220722095120.371212-1-wangyoua@uniontech.com>
-X-Mailer: git-send-email 2.27.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:uniontech.com:qybgforeign:qybgforeign9
-X-QQ-Bgrelay: 1
+        with ESMTP id S229992AbiGVMAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 22 Jul 2022 08:00:11 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9178DB62
+        for <fio@vger.kernel.org>; Fri, 22 Jul 2022 05:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=PzNj/GRsjVUBaOZNbuL96UdpTh4bjKlwlcw7BFlC430=; b=OTY+dQZALLjNEp6dM7eVEMmUwg
+        97rwTpN9kfwdbAjEWzYh82boweskBI9K3TywDcfRsToNn1HxEBa+/c0Pjytxvz9sZ58OtTpvpSzXk
+        E7ACKdm+IZf7nFzbYYQZIFK3CQ332BdWyrpEbr9kSWEQ/1WrqMfAF3KiOulrxihFxseW6h3526wVV
+        /BufuMLTDCwAhYZQi5Lus+goyndStJTLLsMCiGdCjRos9uthivq0HF7SChMlT628BrPPhuYzxcnLv
+        6qGXfTPg7ZuR+F8FbHzKZiGDl3Jm4Sn060FnoKlWYxnuDY/8KAC3AJX81fmVp9+Xz+FuQ8Ck7hwrg
+        dIUXYbTg==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1oErK9-005qnb-9Z
+        for fio@vger.kernel.org; Fri, 22 Jul 2022 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 433B31BC00FB; Fri, 22 Jul 2022 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220722120002.433B31BC00FB@kernel.dk>
+Date:   Fri, 22 Jul 2022 06:00:02 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hi jens,
+The following changes since commit 9c1c1a8d6a4f30eba9595da951d18db1685c03d8:
 
-We already know that batching requests can increase the storage
-performance of some devices, but after testing, I found that it
-will reduce the performance of some low and medium speed devices
-when using the scheduler (especially mq-deadline), such as
-rotational disks connected to a raid.
+  engines/http: silence openssl 3.0 deprecation warnings (2022-07-19 13:21:19 -0600)
 
-In order to balance the performance difference between different
-devices, a more sophisticated mechanism may be needed to control
-the number of batching (such as sometimes 1 is better),
-but obviously this is not easy.
+are available in the Git repository at:
 
-At the same time I noticed that when the mq-deadline scheduler select
-a request for a higher sector outside the batch, deadline_fifo_request
-is used to select the request within the fifo and restart the batch.
-Selecting a request from a fifo tends to satisfy the request's timeline,
-but it is not always very urgent.
+  git://git.kernel.dk/fio.git master
 
-So in the case of no expire, can the selection strategy of the first
-request in the batch be changed? Because in devices with rotation
-characteristics, proper sector access order is beneficial to performance.
+for you to fetch changes up to 02a36caa69f5675f7144fbeddb7a32e1d35ce0c7:
 
-This patch series includes the following two parts:
+  docs: clarify write_iolog description (2022-07-21 15:18:18 -0400)
 
-- Added a temporary sys interface nr_sched_batch to control the number
-  of batching requests.
+----------------------------------------------------------------
+Vincent Fu (1):
+      docs: clarify write_iolog description
 
-- Added a deadline_head_request function to select the request from the
-  first of the red-black tree instead of the fifo when appropriate.
+ HOWTO.rst | 3 ++-
+ fio.1     | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-Thanks,
+---
 
-Wang.
+Diff of recent changes:
 
-Wang You (2):
-  block: Introduce nr_sched_batch sys interface
-  block/mq-deadline: Prioritize first request
-
- block/blk-mq-sched.c   |  4 +++-
- block/blk-sysfs.c      | 32 +++++++++++++++++++++++++++++++
- block/mq-deadline.c    | 43 +++++++++++++++++++++++++++++++++++++++---
- include/linux/blkdev.h |  1 +
- 4 files changed, 76 insertions(+), 4 deletions(-)
-
--- 
-2.27.0
-
-
-
-
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 470777e2..104cce2d 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -3049,7 +3049,8 @@ I/O replay
+ 
+ 	Write the issued I/O patterns to the specified file. See
+ 	:option:`read_iolog`.  Specify a separate file for each job, otherwise the
+-	iologs will be interspersed and the file may be corrupt.
++        iologs will be interspersed and the file may be corrupt. This file will
++        be opened in append mode.
+ 
+ .. option:: read_iolog=str
+ 
+diff --git a/fio.1 b/fio.1
+index 948c01f9..ce9bf3ef 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2793,7 +2793,8 @@ of milliseconds. Defaults to 1000.
+ .BI write_iolog \fR=\fPstr
+ Write the issued I/O patterns to the specified file. See
+ \fBread_iolog\fR. Specify a separate file for each job, otherwise the
+-iologs will be interspersed and the file may be corrupt.
++iologs will be interspersed and the file may be corrupt. This file will be
++opened in append mode.
+ .TP
+ .BI read_iolog \fR=\fPstr
+ Open an iolog with the specified filename and replay the I/O patterns it
