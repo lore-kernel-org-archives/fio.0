@@ -2,93 +2,71 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EEAEC43334
-	for <fio@archiver.kernel.org>; Fri, 22 Jul 2022 12:00:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40B00C43334
+	for <fio@archiver.kernel.org>; Fri, 22 Jul 2022 17:35:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbiGVMAM (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 22 Jul 2022 08:00:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56942 "EHLO
+        id S229593AbiGVRfm (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 22 Jul 2022 13:35:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229992AbiGVMAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 22 Jul 2022 08:00:11 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9178DB62
-        for <fio@vger.kernel.org>; Fri, 22 Jul 2022 05:00:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=PzNj/GRsjVUBaOZNbuL96UdpTh4bjKlwlcw7BFlC430=; b=OTY+dQZALLjNEp6dM7eVEMmUwg
-        97rwTpN9kfwdbAjEWzYh82boweskBI9K3TywDcfRsToNn1HxEBa+/c0Pjytxvz9sZ58OtTpvpSzXk
-        E7ACKdm+IZf7nFzbYYQZIFK3CQ332BdWyrpEbr9kSWEQ/1WrqMfAF3KiOulrxihFxseW6h3526wVV
-        /BufuMLTDCwAhYZQi5Lus+goyndStJTLLsMCiGdCjRos9uthivq0HF7SChMlT628BrPPhuYzxcnLv
-        6qGXfTPg7ZuR+F8FbHzKZiGDl3Jm4Sn060FnoKlWYxnuDY/8KAC3AJX81fmVp9+Xz+FuQ8Ck7hwrg
-        dIUXYbTg==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oErK9-005qnb-9Z
-        for fio@vger.kernel.org; Fri, 22 Jul 2022 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 433B31BC00FB; Fri, 22 Jul 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220722120002.433B31BC00FB@kernel.dk>
-Date:   Fri, 22 Jul 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S236065AbiGVRfl (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 22 Jul 2022 13:35:41 -0400
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780D5140DB;
+        Fri, 22 Jul 2022 10:35:40 -0700 (PDT)
+Received: by mail-pj1-f50.google.com with SMTP id x24-20020a17090ab01800b001f21556cf48so8748208pjq.4;
+        Fri, 22 Jul 2022 10:35:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=UoXi1nudRHl+6dVP3UV/0Pn5DwnhU1+hJ70HZ4cZSbk=;
+        b=NOol5CJcU5mgDelr7GNlH2f9fa5lLJLKzbnGhfPFiWBxYlgq78HQTVpK4Gmqxgaglf
+         +fAI+oSlQ2hOVSkHFPPYUMwZutVLAxKLuQ6/dAUuPUdImoe5QsIno8I3wkwc4k/MoWx+
+         tHLeKBVmt1M/ayRmJb1jm137JidjSNxqaW+tkM4pSmiOi46mUCKvxqA/zV7vJ14Dh4Hp
+         KgfkPa5XpCc/E2UILZ53X5x4vGq7liVpTrtI+vNZK7DlPWKWoi2V6ejfL0zmmbqJFuOC
+         OKn5gZm7nMZ0/K6J60ZiPRTz9w7narR8Rz+ycdJ430nFEYKjYI+JKym3Whh5Dcu/ai8j
+         l9JQ==
+X-Gm-Message-State: AJIora+5h/FUKH/KIrARbchSms8tVrxUMKGHp9jU9r59ESJ9JMbnn5uj
+        LbMZKqxEcOplsGwH8cRA0xU=
+X-Google-Smtp-Source: AGRyM1ug8+OjA7LmfwWCaRJ98IxRXR0KGkO8l6q+/OcfxHEcFV54X9sIv5D8dzSBKHPI2xw6FHUnMw==
+X-Received: by 2002:a17:903:1207:b0:16a:7e87:dad3 with SMTP id l7-20020a170903120700b0016a7e87dad3mr902343plh.99.1658511339806;
+        Fri, 22 Jul 2022 10:35:39 -0700 (PDT)
+Received: from ?IPV6:2620:15c:211:201:9cf6:7e29:d977:6fc7? ([2620:15c:211:201:9cf6:7e29:d977:6fc7])
+        by smtp.gmail.com with ESMTPSA id c4-20020a170903234400b0016bea26bb2asm2195573plh.245.2022.07.22.10.35.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 22 Jul 2022 10:35:39 -0700 (PDT)
+Message-ID: <da0fe451-c036-cd18-7eb2-55c51c104ab5@acm.org>
+Date:   Fri, 22 Jul 2022 10:35:37 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH v2 1/2] block: Introduce nr_sched_batch sys interface
+Content-Language: en-US
+To:     Wang You <wangyoua@uniontech.com>, axboe@kernel.dk
+Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        hch@lst.de, jaegeuk@kernel.org, fio@vger.kernel.org,
+        ming.lei@redhat.com, wangxiaohua@uniontech.com
+References: <20220722095120.371212-1-wangyoua@uniontech.com>
+ <20220722095120.371212-2-wangyoua@uniontech.com>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20220722095120.371212-2-wangyoua@uniontech.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 9c1c1a8d6a4f30eba9595da951d18db1685c03d8:
+On 7/22/22 02:51, Wang You wrote:
+> The function of this patch is to add an nr_sched_batch interface under
+> /sys/block/sdx/queue/, which can be used to set the number of batching
+> requests. Of course, the default value is nr_requests and will follow
+> nr_request when it has not been changed.
 
-  engines/http: silence openssl 3.0 deprecation warnings (2022-07-19 13:21:19 -0600)
+Do we need this new parameter? How does the performance of reducing 
+nr_requests compare to configuring nr_sched_batch?
 
-are available in the Git repository at:
+Thanks,
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 02a36caa69f5675f7144fbeddb7a32e1d35ce0c7:
-
-  docs: clarify write_iolog description (2022-07-21 15:18:18 -0400)
-
-----------------------------------------------------------------
-Vincent Fu (1):
-      docs: clarify write_iolog description
-
- HOWTO.rst | 3 ++-
- fio.1     | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 470777e2..104cce2d 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -3049,7 +3049,8 @@ I/O replay
- 
- 	Write the issued I/O patterns to the specified file. See
- 	:option:`read_iolog`.  Specify a separate file for each job, otherwise the
--	iologs will be interspersed and the file may be corrupt.
-+        iologs will be interspersed and the file may be corrupt. This file will
-+        be opened in append mode.
- 
- .. option:: read_iolog=str
- 
-diff --git a/fio.1 b/fio.1
-index 948c01f9..ce9bf3ef 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2793,7 +2793,8 @@ of milliseconds. Defaults to 1000.
- .BI write_iolog \fR=\fPstr
- Write the issued I/O patterns to the specified file. See
- \fBread_iolog\fR. Specify a separate file for each job, otherwise the
--iologs will be interspersed and the file may be corrupt.
-+iologs will be interspersed and the file may be corrupt. This file will be
-+opened in append mode.
- .TP
- .BI read_iolog \fR=\fPstr
- Open an iolog with the specified filename and replay the I/O patterns it
+Bart.
