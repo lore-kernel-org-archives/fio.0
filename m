@@ -2,100 +2,63 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04A4EC433EF
-	for <fio@archiver.kernel.org>; Fri, 22 Jul 2022 17:47:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 452F7C43334
+	for <fio@archiver.kernel.org>; Sat, 23 Jul 2022 10:20:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235652AbiGVRrR (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 22 Jul 2022 13:47:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37998 "EHLO
+        id S239172AbiGWKT7 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sat, 23 Jul 2022 06:19:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235855AbiGVRrQ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 22 Jul 2022 13:47:16 -0400
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246CC951CB;
-        Fri, 22 Jul 2022 10:47:16 -0700 (PDT)
-Received: by mail-pl1-f176.google.com with SMTP id x1so3388226plb.3;
-        Fri, 22 Jul 2022 10:47:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=iGdkXOH2H16F8Hpn2Tgy5CKP/LKypAMrDZQSY+JK7dU=;
-        b=FADGIx/0gSkWSbFMchH2y99NWZJ9RLXrd8kuW+mL4qcrvK6U2oQe5/liUSYQ9JKW1I
-         f+Qlq3GvnH168uOegqmqQ17p0nMn9DTqI7RYyJjmZ0TdSqQv3li6fGALFWOGRKUwBFz3
-         R1gyaaZsn1/lI1KaQgu47m62zN2yu9O0h7KgrqXATKCuEysyHFviYGdpRtqMgELQ91Nx
-         iJ5ONf/nmv2FjSTJCeBZ+QUwDjfw+hSAVBJCD792oJH7BeKSKCRagmDV5VVUdTAeTlwp
-         PXdM8Q1uuJ+GAehishKjaxzmNfCNUF8W/PcyRh+T1A9rUA75I4Cm5JlljcmvGrP4qGWT
-         WQ0A==
-X-Gm-Message-State: AJIora8cv8w00zuHYEvg4A0W5xayHNzR5+1fIbM5Pe3rvlmYhlPeqNT2
-        y1inEdT6U5q3fYo06mLN69hqdIlKEac=
-X-Google-Smtp-Source: AGRyM1vBu7of+c3BIe4do/ZrLP7ttCauBZUaY+0hH7OjkwPbfvjhKrUFzo0woNgcxnLKLfR5odb3dQ==
-X-Received: by 2002:a17:90b:38c1:b0:1f1:f1c1:469c with SMTP id nn1-20020a17090b38c100b001f1f1c1469cmr18589427pjb.106.1658512035356;
-        Fri, 22 Jul 2022 10:47:15 -0700 (PDT)
-Received: from ?IPV6:2620:15c:211:201:9cf6:7e29:d977:6fc7? ([2620:15c:211:201:9cf6:7e29:d977:6fc7])
-        by smtp.gmail.com with ESMTPSA id u8-20020a1709026e0800b001640aad2f71sm4013163plk.180.2022.07.22.10.47.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Jul 2022 10:47:14 -0700 (PDT)
-Message-ID: <f798c875-0bb9-add7-d7a3-4ac2a76e85d9@acm.org>
-Date:   Fri, 22 Jul 2022 10:47:12 -0700
+        with ESMTP id S239073AbiGWKTE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 23 Jul 2022 06:19:04 -0400
+Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCEB7E39A5
+        for <fio@vger.kernel.org>; Sat, 23 Jul 2022 03:08:49 -0700 (PDT)
+X-QQ-mid: bizesmtp85t1658570658th2mgs73
+Received: from eureka.localdomain ( [123.124.208.226])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Sat, 23 Jul 2022 18:04:07 +0800 (CST)
+X-QQ-SSF: 01400000002000B0D000B00A0000020
+X-QQ-FEAT: ILHsT53NKPj0HRDuEtI5CbFD7rnuEHAyGC+20aqF8DJXqYDMQ5BN+2SdvaKK5
+        zCGT1gSzYgjkwhGLcKrh3muLGgmAKIE0BdZ8BLlySm7EAJ4bnrGbaZHVQoHMHLSzcANBti3
+        +B7UiNHj+XVbpxfxe9rm7UvYiMgBdpEdvIk8E0TH/ZIWFH/0qd4O+HNmV1hBLREisoz5Gl+
+        nT38oQvOWPKfZe/DcCrHNfSNcCHRirRTd+7YOf75SsT0vc1nQ/vXLS1JAsPvr04dNLEp51p
+        4h9+uDR0AAaT1DLeNOcOzMty/hsgfyQ4eXiep6N8UQPnwexDrXHN5gUzCjFBdHIB/um3Cyw
+        hC39LlHsUDwA/t4P5GI44+8yyAzAyCThZOA3t8SbsMwyGDWZ5NLpDyodWBK0A==
+X-QQ-GoodBg: 2
+From:   Wang You <wangyoua@uniontech.com>
+To:     bvanassche@acm.org
+Cc:     axboe@kernel.dk, fio@vger.kernel.org, hch@lst.de,
+        jaegeuk@kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org, ming.lei@redhat.com,
+        wangxiaohua@uniontech.com, wangyoua@uniontech.com
+Subject: Re: [PATCH v2 1/2] block: Introduce nr_sched_batch sys interface
+Date:   Sat, 23 Jul 2022 18:04:06 +0800
+Message-Id: <20220723100406.437387-1-wangyoua@uniontech.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <da0fe451-c036-cd18-7eb2-55c51c104ab5@acm.org>
+References: <da0fe451-c036-cd18-7eb2-55c51c104ab5@acm.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v2 2/2] block/mq-deadline: Prioritize first request
-Content-Language: en-US
-To:     Wang You <wangyoua@uniontech.com>, axboe@kernel.dk
-Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        hch@lst.de, jaegeuk@kernel.org, fio@vger.kernel.org,
-        ming.lei@redhat.com, wangxiaohua@uniontech.com
-References: <20220722095120.371212-1-wangyoua@uniontech.com>
- <20220722095120.371212-3-wangyoua@uniontech.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20220722095120.371212-3-wangyoua@uniontech.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:uniontech.com:qybgforeign:qybgforeign3
+X-QQ-Bgrelay: 1
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 7/22/22 02:51, Wang You wrote:
-> The test hardware is:
-> Kunpeng-920, HW-SAS3508+(MG04ACA400N * 2), RAID0.
+> Do we need this new parameter? How does the performance of reducing 
+> nr_requests compare to configuring nr_sched_batch?
 
-What is MG04ACA400N? The test results suggest that it is an SSD but this 
-is something that should be mentioned explicitly.
+It seems I can't get convincing data in the current test conditions, sorry, 
+please ignore it unless I can produce valid evidence.
 
-> - The test hardware is:
-> Hygon C86, MG04ACA400N
-
-What is MG04ACA400N?
-
-> The test command is:
-> fio -ioengine=psync -lockmem=1G -buffered=0 -time_based=1 -direct=1 -iodepth=1
-> -thread -bs=512B -size=110g -numjobs=32 -runtime=300 -group_reporting
-> -name=read -filename=/dev/sdc -ioscheduler=mq-deadline -rw=read[,write,rw]
-> 
-> The following is the test data:
-> origin/master:
-> read iops: 15463	write iops: 5949	rw iops: 574,576
-> 
-> nr_sched_batch = 1:
-> read iops: 15082	write iops: 6283	rw iops: 783,786
-> 
-> nr_sched_batch = 1, use deadline_head_request:
-> read iops: 15368	write iops: 6575	rw iops: 907,906
-
-The above results are low enough such that these could come from a hard 
-disk. However, the test results are hard to interpret since the I/O 
-pattern is neither perfectly sequential nor perfectly random (32 
-sequential jobs). Please provide separate measurements for sequential 
-and random I/O.
-
-The above results show that this patch makes reading from a hard disk 
-slower. Isn't the primary use case of mq-deadline to make reading from 
-hard disks faster? So why should these two patches be applied if these 
-slow down reading from a hard disk?
+I will reconsider the effect of this modification on a single disk, 
+from recent testing it seems that the link to the raid controller has 
+a lot of impact.
 
 Thanks,
 
-Bart.
+Wang.
+
+
