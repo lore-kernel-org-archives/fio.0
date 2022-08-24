@@ -2,412 +2,150 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3120DC25B08
-	for <fio@archiver.kernel.org>; Wed, 17 Aug 2022 12:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41325C00140
+	for <fio@archiver.kernel.org>; Wed, 24 Aug 2022 10:16:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231184AbiHQMAJ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 17 Aug 2022 08:00:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59064 "EHLO
+        id S236307AbiHXKQz (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 24 Aug 2022 06:16:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234451AbiHQMAI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 17 Aug 2022 08:00:08 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD83683BFE
-        for <fio@vger.kernel.org>; Wed, 17 Aug 2022 05:00:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=pZel6Ec1mfE+0+D3NFbe1kXU2ewGpCjXMSlqb6I7IYM=; b=N/vv87NcKTDdprTmXk4130iwvK
-        74f90w8j5gh6/+iQGPcprWsl9DChkZJIFmWx5imM8Hsut+7msPt7faiCxYCmME9I3J6oR7bW0gHrn
-        Ahs08B4PnvmzeknEyM+RRl8EE2/5ZC2gWoVUgDTpqfcGZf7smXoVY97wTsI/jJCMMCFKYJao4ekaU
-        7Sx7xx248uDkE0knoBycc7ojbifWar5SAPt6qZljCqpzQlq6ueLZ2/93WBkmjEqLmmS0VkG5QM1ZN
-        SdmxVTEzn04bokyZB3MnOkeyBUONoyTN/vTeXGp+45aRTNnZ9wf77ojsNnvP+3Mxiz4LL8k4iMjQV
-        ZHcb+2lA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oOHiP-0088fm-3M
-        for fio@vger.kernel.org; Wed, 17 Aug 2022 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 260CA1BC011A; Wed, 17 Aug 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220817120002.260CA1BC011A@kernel.dk>
-Date:   Wed, 17 Aug 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S231846AbiHXKQx (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 24 Aug 2022 06:16:53 -0400
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1505272B5B
+        for <fio@vger.kernel.org>; Wed, 24 Aug 2022 03:16:52 -0700 (PDT)
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20220824101647epoutp0293abbf52c77042f05b470c1a3851f9a1~OQHqhnxj11086010860epoutp02q
+        for <fio@vger.kernel.org>; Wed, 24 Aug 2022 10:16:47 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20220824101647epoutp0293abbf52c77042f05b470c1a3851f9a1~OQHqhnxj11086010860epoutp02q
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1661336208;
+        bh=pWOjHabs7XgxKMa5qGob2GXPWXIZBjmMi+LGnlsYZT4=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=NG2QfnhCo7V+0ujRdugpyL9+nXlYdt6aGaq9cc+XLtA49F6bhhmRGUdq+Ghj5kr/3
+         8hSG9VtOpwt6uZktqCEkyCA8CaUKlkk6veZPBtkB/wcMn0Vxy6dddmqUqNRDEOG1ql
+         mGLTgPU1HDUmbo40HiVahaQuRXXUcW5jwYByzhCA=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20220824101647epcas5p1820b32b31210d610745dd6894c31dc61~OQHqQmB8Z1784217842epcas5p1b;
+        Wed, 24 Aug 2022 10:16:47 +0000 (GMT)
+Received: from epsmges5p1new.samsung.com (unknown [182.195.38.175]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4MCMT96x0gz4x9Py; Wed, 24 Aug
+        2022 10:16:45 +0000 (GMT)
+Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        31.35.25709.B8AF5036; Wed, 24 Aug 2022 19:16:43 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+        20220824094118epcas5p461b651ef5c3b1b04fc731275cf2fe0c2~OPorA0SGc2762727627epcas5p4b;
+        Wed, 24 Aug 2022 09:41:18 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20220824094118epsmtrp2902bdaf5682085ec0d5f733fe8464cf5~OPorAH5Mp0183401834epsmtrp2v;
+        Wed, 24 Aug 2022 09:41:18 +0000 (GMT)
+X-AuditID: b6c32a49-a87ff7000000646d-1f-6305fa8b8302
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        8C.C8.18644.E32F5036; Wed, 24 Aug 2022 18:41:18 +0900 (KST)
+Received: from localhost.localdomain (unknown [107.110.206.5]) by
+        epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+        20220824094117epsmtip13510299e0c810e60a4dbe3d390052a46~OPop8jQJf1807618076epsmtip1G;
+        Wed, 24 Aug 2022 09:41:16 +0000 (GMT)
+From:   Anuj Gupta <anuj20.g@samsung.com>
+To:     axboe@kernel.dk, vincentfu@gmail.com
+Cc:     joshi.k@samsung.com, ankit.kumar@samsung.com, fio@vger.kernel.org,
+        Anuj Gupta <anuj20.g@samsung.com>
+Subject: [PATCH 0/2] Add support for uring-passthrough in t/io_uring
+Date:   Wed, 24 Aug 2022 15:01:07 +0530
+Message-Id: <20220824093109.308791-1-anuj20.g@samsung.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGKsWRmVeSWpSXmKPExsWy7bCmpm73L9Zkg/XTNC3WXPnNbtE04S+z
+        xeq7/WwWH2e9YLY4+v8tm8WGNkEHNo+ds+6ye1w+W+rRt2UVo8fnTXIBLFHZNhmpiSmpRQqp
+        ecn5KZl56bZK3sHxzvGmZgaGuoaWFuZKCnmJuam2Si4+AbpumTlAq5UUyhJzSoFCAYnFxUr6
+        djZF+aUlqQoZ+cUltkqpBSk5BSYFesWJucWleel6eaklVoYGBkamQIUJ2RnHGh6yF5znqTgx
+        4zFjA+Nnri5GTg4JAROJz1t6mbsYuTiEBHYzSlz9+IcFwvnEKNF+fyqU85lRou/wBCaYlrVN
+        bUwQiV2MEtOvNjDDVbWe38QOUsUmoC5x5HkrYxcjB4eIgIbEmrupIGFmgSyJlz8usILYwgIu
+        EsffzgOzWQRUJb5fe8AIYvMKWEns2X0dapm8xMxL39kh4oISJ2c+YYGYIy/RvHU22F4JgV3s
+        EjtvXWCHaHCRmDBvKguELSzx6vgWqLiUxOd3e9kg7HSJH5efQi0okGg+to8RwraXaD3Vzwxy
+        M7OApsT6XfoQYVmJqafWMUHs5ZPo/f0EqpVXYsc8GFtJon3lHChbQmLvuQYmkDESAh4SVx8X
+        g4SFBGIlXv2exjiBUX4Wkm9mIflmFsLiBYzMqxglUwuKc9NTi00LDPNSy+Hxmpyfu4kRnAC1
+        PHcw3n3wQe8QIxMH4yFGCQ5mJRFeq2MsyUK8KYmVValF+fFFpTmpxYcYTYFBPJFZSjQ5H5iC
+        80riDU0sDUzMzMxMLI3NDJXEeadoMyYLCaQnlqRmp6YWpBbB9DFxcEo1MLnEmEZUnTSVVv90
+        WelEZJyzxZcHq9hX7txg+qRCq6U7866w093e6luMnVfFJ68SPfbU95ZpeYam0Y9Vnv3SWQfW
+        +v3bF11ftrn5o7frt6gSpgyd80sZFldLS0geCHxceOt395aHq7m0Lz58ubizjrc2e/fBnnCJ
+        sMMnsu6rxVdFPI+63lOQurbm9oo3R9rsHyXMXWw0bx1HXcPkhSmHqp+vnum2nXFZzs6axcvl
+        7/nLTHjTdOvzAstflwTUD/bP2jvjVLZv65f4XLdPTX+fJnkZX1jSpV5+526z1tHk3ycsg9uL
+        XBVC+g86ybFvu+Bw4UlW7fn+GRJfgjWWtUjuenPvZMKuatfIE2FmnmF+XUosxRmJhlrMRcWJ
+        ABD+jXIJBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrMLMWRmVeSWpSXmKPExsWy7bCSnK7dJ9ZkgysTWCzWXPnNbtE04S+z
+        xeq7/WwWH2e9YLY4+v8tm8WGNkEHNo+ds+6ye1w+W+rRt2UVo8fnTXIBLFFcNimpOZllqUX6
+        dglcGccaHrIXnOepODHjMWMD42euLkZODgkBE4m1TW1MXYxcHEICOxglvq3czgKRkJA49XIZ
+        I4QtLLHy33N2iKKPjBIPJ05hB0mwCahLHHneClYkIqAlcWxdExuIzSyQJ9F19xzYIGEBF4nj
+        b+exgtgsAqoS3689AKvnFbCS2LP7OhPEAnmJmZe+s0PEBSVOznzCAjFHXqJ562zmCYx8s5Ck
+        ZiFJLWBkWsUomVpQnJueW2xYYJSXWq5XnJhbXJqXrpecn7uJERyOWlo7GPes+qB3iJGJg/EQ
+        owQHs5IIr9UxlmQh3pTEyqrUovz4otKc1OJDjNIcLErivBe6TsYLCaQnlqRmp6YWpBbBZJk4
+        OKUamJZ/K10h+PdWr8c7EcbIRqWDsT3nfm5KsuIVE89vuPdGI/XIrGsLrdji90tO5S5Z4a7G
+        5boizfNv0XLxJ2uOP19ydoJZHOPDlQ/YDGJ5mh8ZpMdvL3nIPS22p/ScwlyfL5vtX4lOficV
+        73q72K9ZUcHw+lGv1zdn1nslbd8hf+Pb35Co6fOjExbFPS9fzylyfJeE7jIOB4Wnn3nPvt+e
+        Et11S+RjWEvsA8kC66s2fy0MPM3Y8pa8bk2aW/d9y0vWZRdCGPflK8au7DohcoFfM9aZ+2jK
+        qnsSWRnTvv7m3S5x/iuL5c/ppnxF5lLsWwyOFc4/x3R67lNbK5cjZzaE7JyWbpaSs6FMUWlB
+        ftPEYCWW4oxEQy3mouJEAAD2SZy2AgAA
+X-CMS-MailID: 20220824094118epcas5p461b651ef5c3b1b04fc731275cf2fe0c2
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20220824094118epcas5p461b651ef5c3b1b04fc731275cf2fe0c2
+References: <CGME20220824094118epcas5p461b651ef5c3b1b04fc731275cf2fe0c2@epcas5p4.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit eeb302f9bfa4bbe121cae2a12a679c888164fc93:
+This series adds support for measuring peak performance of uring-passthrough path
+using t/io_uring utility. Added new -u1 option, that makes t/io_uring to do io using
+nvme passthrough commands.
 
-  README: link to GitHub releases for Windows (2022-08-15 10:37:57 -0400)
+Uring-passthrough on nvme-generic device:
 
-are available in the Git repository at:
+root@test:/home/test/gost/anuj/github/fio# taskset -c 0 t/io_uring -b512 -d128 -c32 -s32 -p0 -F1 -B0 -O0 -n1 -u1 /dev/ng0n1
+submitter=0, tid=11289, file=/dev/ng0n1, node=-1
+polled=0, fixedbufs=0/0, register_files=1, buffered=1, QD=128
+Engine=io_uring, sq_ring=128, cq_ring=128
+IOPS=1.88M, BW=917MiB/s, IOS/call=32/31
+IOPS=1.88M, BW=916MiB/s, IOS/call=32/32
+IOPS=1.88M, BW=915MiB/s, IOS/call=32/32
+IOPS=1.88M, BW=915MiB/s, IOS/call=32/32
+IOPS=1.87M, BW=914MiB/s, IOS/call=32/32
+IOPS=1.87M, BW=913MiB/s, IOS/call=32/32
+^CExiting on signal
+Maximum IOPS=1.88M
 
-  git://git.kernel.dk/fio.git master
+Regular io_uring on nvme-block device:
 
-for you to fetch changes up to d33c7846cc5f175177e194a5489282780e2a04c4:
+root@test:/home/test/gost/anuj/github/fio# taskset -c 0 t/io_uring -b512 -d128 -c32 -s32 -p0 -F1 -B0 -n1 /dev/nvme0n1
+submitter=0, tid=11292, file=/dev/nvme0n1, node=-1
+polled=0, fixedbufs=0/0, register_files=1, buffered=0, QD=128
+Engine=io_uring, sq_ring=128, cq_ring=128
+IOPS=1.48M, BW=724MiB/s, IOS/call=32/31
+IOPS=1.48M, BW=722MiB/s, IOS/call=32/32
+IOPS=1.48M, BW=721MiB/s, IOS/call=32/32
+IOPS=1.48M, BW=721MiB/s, IOS/call=32/32
+^CExiting on signal
+Maximum IOPS=1.48M
 
-  Merge branch 'clarify-io-errors' of https://github.com/Hi-Angel/fio (2022-08-16 19:54:17 -0600)
 
-----------------------------------------------------------------
-Ankit Kumar (2):
-      engines/xnvme: fix segfault issue with xnvme ioengine
-      doc: update fio doc for xnvme engine
 
-Jens Axboe (1):
-      Merge branch 'clarify-io-errors' of https://github.com/Hi-Angel/fio
+Anuj Gupta (2):
+  t/io_uring: prep for including engines/nvme.h in t/io_uring
+  t/io_uring: add support for async-passthru
 
-Konstantin Kharlamov (2):
-      doc: get rid of trailing whitespace
-      doc: clarify that I/O errors may go unnoticed without direct=1
+ t/io_uring.c | 164 +++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 147 insertions(+), 17 deletions(-)
 
-Vincent Fu (2):
-      test: add latency test using posixaio ioengine
-      test: fix hash for t0016
+-- 
+2.25.1
 
- HOWTO.rst                                        | 48 +++++++++++++++------
- engines/xnvme.c                                  | 17 ++++++--
- fio.1                                            | 54 ++++++++++++++++--------
- t/jobs/{t0016-259ebc00.fio => t0016-d54ae22.fio} |  0
- t/jobs/t0017.fio                                 |  9 ++++
- t/run-fio-tests.py                               | 12 +++++-
- 6 files changed, 105 insertions(+), 35 deletions(-)
- rename t/jobs/{t0016-259ebc00.fio => t0016-d54ae22.fio} (100%)
- create mode 100644 t/jobs/t0017.fio
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 05fc117f..08be687c 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -1301,7 +1301,7 @@ I/O type
- 	effectively caps the file size at `real_size - offset`. Can be combined with
- 	:option:`size` to constrain the start and end range of the I/O workload.
- 	A percentage can be specified by a number between 1 and 100 followed by '%',
--	for example, ``offset=20%`` to specify 20%. In ZBD mode, value can be set as 
-+	for example, ``offset=20%`` to specify 20%. In ZBD mode, value can be set as
-         number of zones using 'z'.
- 
- .. option:: offset_align=int
-@@ -1877,7 +1877,7 @@ I/O size
- 	If this option is not specified, fio will use the full size of the given
- 	files or devices.  If the files do not exist, size must be given. It is also
- 	possible to give size as a percentage between 1 and 100. If ``size=20%`` is
--	given, fio will use 20% of the full size of the given files or devices. 
-+	given, fio will use 20% of the full size of the given files or devices.
- 	In ZBD mode, value can also be set as number of zones using 'z'.
- 	Can be combined with :option:`offset` to constrain the start and end range
- 	that I/O will be done within.
-@@ -2780,41 +2780,56 @@ with the caveat that when used on the command line, they must come after the
- 	Select the xnvme async command interface. This can take these values.
- 
- 	**emu**
--		This is default and used to emulate asynchronous I/O.
-+		This is default and use to emulate asynchronous I/O by using a
-+		single thread to create a queue pair on top of a synchronous
-+		I/O interface using the NVMe driver IOCTL.
- 	**thrpool**
--		Use thread pool for Asynchronous I/O.
-+		Emulate an asynchronous I/O interface with a pool of userspace
-+		threads on top of a synchronous I/O interface using the NVMe
-+		driver IOCTL. By default four threads are used.
- 	**io_uring**
--		Use Linux io_uring/liburing for Asynchronous I/O.
-+		Linux native asynchronous I/O interface which supports both
-+		direct and buffered I/O.
-+	**io_uring_cmd**
-+		Fast Linux native asynchronous I/O interface for NVMe pass
-+		through commands. This only works with NVMe character device
-+		(/dev/ngXnY).
- 	**libaio**
- 		Use Linux aio for Asynchronous I/O.
- 	**posix**
--		Use POSIX aio for Asynchronous I/O.
-+		Use the posix asynchronous I/O interface to perform one or
-+		more I/O operations asynchronously.
- 	**nil**
--		Use nil-io; For introspective perf. evaluation
-+		Do not transfer any data; just pretend to. This is mainly used
-+		for introspective performance evaluation.
- 
- .. option:: xnvme_sync=str : [xnvme]
- 
- 	Select the xnvme synchronous command interface. This can take these values.
- 
- 	**nvme**
--		This is default and uses Linux NVMe Driver ioctl() for synchronous I/O.
-+		This is default and uses Linux NVMe Driver ioctl() for
-+		synchronous I/O.
- 	**psync**
--		Use pread()/write() for synchronous I/O.
-+		This supports regular as well as vectored pread() and pwrite()
-+		commands.
-+	**block**
-+		This is the same as psync except that it also supports zone
-+		management commands using Linux block layer IOCTLs.
- 
- .. option:: xnvme_admin=str : [xnvme]
- 
- 	Select the xnvme admin command interface. This can take these values.
- 
- 	**nvme**
--		This is default and uses linux NVMe Driver ioctl() for admin commands.
-+		This is default and uses linux NVMe Driver ioctl() for admin
-+		commands.
- 	**block**
- 		Use Linux Block Layer ioctl() and sysfs for admin commands.
--	**file_as_ns**
--		Use file-stat to construct NVMe idfy responses.
- 
- .. option:: xnvme_dev_nsid=int : [xnvme]
- 
--	xnvme namespace identifier, for userspace NVMe driver.
-+	xnvme namespace identifier for userspace NVMe driver, such as SPDK.
- 
- .. option:: xnvme_iovec=int : [xnvme]
- 
-@@ -3912,6 +3927,13 @@ Error handling
- 	appended, the total error count and the first error. The error field given
- 	in the stats is the first error that was hit during the run.
- 
-+	Note: a write error from the device may go unnoticed by fio when using
-+	buffered IO, as the write() (or similar) system call merely dirties the
-+	kernel pages, unless :option:`sync` or :option:`direct` is used. Device IO
-+	errors occur when the dirty data is actually written out to disk. If fully
-+	sync writes aren't desirable, :option:`fsync` or :option:`fdatasync` can be
-+	used as well. This is specific to writes, as reads are always synchronous.
-+
- 	The allowed values are:
- 
- 		**none**
-diff --git a/engines/xnvme.c b/engines/xnvme.c
-index c11b33a8..d8647481 100644
---- a/engines/xnvme.c
-+++ b/engines/xnvme.c
-@@ -205,9 +205,14 @@ static void _dev_close(struct thread_data *td, struct xnvme_fioe_fwrap *fwrap)
- 
- static void xnvme_fioe_cleanup(struct thread_data *td)
- {
--	struct xnvme_fioe_data *xd = td->io_ops_data;
-+	struct xnvme_fioe_data *xd = NULL;
- 	int err;
- 
-+	if (!td->io_ops_data)
-+		return;
-+
-+	xd = td->io_ops_data;
-+
- 	err = pthread_mutex_lock(&g_serialize);
- 	if (err)
- 		log_err("ioeng->cleanup(): pthread_mutex_lock(), err(%d)\n", err);
-@@ -367,8 +372,14 @@ static int xnvme_fioe_iomem_alloc(struct thread_data *td, size_t total_mem)
- /* NOTE: using the first device for buffer-allocators) */
- static void xnvme_fioe_iomem_free(struct thread_data *td)
- {
--	struct xnvme_fioe_data *xd = td->io_ops_data;
--	struct xnvme_fioe_fwrap *fwrap = &xd->files[0];
-+	struct xnvme_fioe_data *xd = NULL;
-+	struct xnvme_fioe_fwrap *fwrap = NULL;
-+
-+	if (!td->io_ops_data)
-+		return;
-+
-+	xd = td->io_ops_data;
-+	fwrap = &xd->files[0];
- 
- 	if (!fwrap->dev) {
- 		log_err("ioeng->iomem_free(): failed no dev-handle\n");
-diff --git a/fio.1 b/fio.1
-index 6630525f..27454b0b 100644
---- a/fio.1
-+++ b/fio.1
-@@ -292,7 +292,7 @@ For Zone Block Device Mode:
- .RS
- .P
- .PD 0
--z means Zone 
-+z means Zone
- .P
- .PD
- .RE
-@@ -1083,7 +1083,7 @@ provided. Data before the given offset will not be touched. This
- effectively caps the file size at `real_size \- offset'. Can be combined with
- \fBsize\fR to constrain the start and end range of the I/O workload.
- A percentage can be specified by a number between 1 and 100 followed by '%',
--for example, `offset=20%' to specify 20%. In ZBD mode, value can be set as 
-+for example, `offset=20%' to specify 20%. In ZBD mode, value can be set as
- number of zones using 'z'.
- .TP
- .BI offset_align \fR=\fPint
-@@ -1099,7 +1099,7 @@ specified). This option is useful if there are several jobs which are
- intended to operate on a file in parallel disjoint segments, with even
- spacing between the starting points. Percentages can be used for this option.
- If a percentage is given, the generated offset will be aligned to the minimum
--\fBblocksize\fR or to the value of \fBoffset_align\fR if provided.In ZBD mode, value 
-+\fBblocksize\fR or to the value of \fBoffset_align\fR if provided.In ZBD mode, value
- can be set as number of zones using 'z'.
- .TP
- .BI number_ios \fR=\fPint
-@@ -1678,7 +1678,7 @@ If this option is not specified, fio will use the full size of the given
- files or devices. If the files do not exist, size must be given. It is also
- possible to give size as a percentage between 1 and 100. If `size=20%' is
- given, fio will use 20% of the full size of the given files or devices. In ZBD mode,
--size can be given in units of number of zones using 'z'. Can be combined with \fBoffset\fR to 
-+size can be given in units of number of zones using 'z'. Can be combined with \fBoffset\fR to
- constrain the start and end range that I/O will be done within.
- .TP
- .BI io_size \fR=\fPint[%|z] "\fR,\fB io_limit" \fR=\fPint[%|z]
-@@ -1697,7 +1697,7 @@ also be set as number of zones using 'z'.
- .BI filesize \fR=\fPirange(int)
- Individual file sizes. May be a range, in which case fio will select sizes
- for files at random within the given range. If not given, each created file
--is the same size. This option overrides \fBsize\fR in terms of file size, 
-+is the same size. This option overrides \fBsize\fR in terms of file size,
- i.e. \fBsize\fR becomes merely the default for \fBio_size\fR (and
- has no effect it all if \fBio_size\fR is set explicitly).
- .TP
-@@ -2530,22 +2530,29 @@ Select the xnvme async command interface. This can take these values.
- .RS
- .TP
- .B emu
--This is default and used to emulate asynchronous I/O
-+This is default and use to emulate asynchronous I/O by using a single thread to
-+create a queue pair on top of a synchronous I/O interface using the NVMe driver
-+IOCTL.
- .TP
- .BI thrpool
--Use thread pool for Asynchronous I/O
-+Emulate an asynchronous I/O interface with a pool of userspace threads on top
-+of a synchronous I/O interface using the NVMe driver IOCTL. By default four
-+threads are used.
- .TP
- .BI io_uring
--Use Linux io_uring/liburing for Asynchronous I/O
-+Linux native asynchronous I/O interface which supports both direct and buffered
-+I/O.
- .TP
- .BI libaio
- Use Linux aio for Asynchronous I/O
- .TP
- .BI posix
--Use POSIX aio for Asynchronous I/O
-+Use the posix asynchronous I/O interface to perform one or more I/O operations
-+asynchronously.
- .TP
- .BI nil
--Use nil-io; For introspective perf. evaluation
-+Do not transfer any data; just pretend to. This is mainly used for
-+introspective performance evaluation.
- .RE
- .RE
- .TP
-@@ -2555,10 +2562,14 @@ Select the xnvme synchronous command interface. This can take these values.
- .RS
- .TP
- .B nvme
--This is default and uses Linux NVMe Driver ioctl() for synchronous I/O
-+This is default and uses Linux NVMe Driver ioctl() for synchronous I/O.
- .TP
- .BI psync
--Use pread()/write() for synchronous I/O
-+This supports regular as well as vectored pread() and pwrite() commands.
-+.TP
-+.BI block
-+This is the same as psync except that it also supports zone management
-+commands using Linux block layer IOCTLs.
- .RE
- .RE
- .TP
-@@ -2568,18 +2579,15 @@ Select the xnvme admin command interface. This can take these values.
- .RS
- .TP
- .B nvme
--This is default and uses Linux NVMe Driver ioctl() for admin commands
-+This is default and uses Linux NVMe Driver ioctl() for admin commands.
- .TP
- .BI block
--Use Linux Block Layer ioctl() and sysfs for admin commands
--.TP
--.BI file_as_ns
--Use file-stat as to construct NVMe idfy responses
-+Use Linux Block Layer ioctl() and sysfs for admin commands.
- .RE
- .RE
- .TP
- .BI (xnvme)xnvme_dev_nsid\fR=\fPint
--xnvme namespace identifier, for userspace NVMe driver.
-+xnvme namespace identifier for userspace NVMe driver such as SPDK.
- .TP
- .BI (xnvme)xnvme_iovec
- If this option is set, xnvme will use vectored read/write commands.
-@@ -3598,6 +3606,16 @@ EILSEQ) until the runtime is exceeded or the I/O size specified is
- completed. If this option is used, there are two more stats that are
- appended, the total error count and the first error. The error field given
- in the stats is the first error that was hit during the run.
-+.RS
-+.P
-+Note: a write error from the device may go unnoticed by fio when using buffered
-+IO, as the write() (or similar) system call merely dirties the kernel pages,
-+unless `sync' or `direct' is used. Device IO errors occur when the dirty data is
-+actually written out to disk. If fully sync writes aren't desirable, `fsync' or
-+`fdatasync' can be used as well. This is specific to writes, as reads are always
-+synchronous.
-+.RS
-+.P
- The allowed values are:
- .RS
- .RS
-diff --git a/t/jobs/t0016-259ebc00.fio b/t/jobs/t0016-d54ae22.fio
-similarity index 100%
-rename from t/jobs/t0016-259ebc00.fio
-rename to t/jobs/t0016-d54ae22.fio
-diff --git a/t/jobs/t0017.fio b/t/jobs/t0017.fio
-new file mode 100644
-index 00000000..14486d98
---- /dev/null
-+++ b/t/jobs/t0017.fio
-@@ -0,0 +1,9 @@
-+# Expected result: mean(slat) + mean(clat) = mean(lat)
-+# Buggy result: equality does not hold
-+# This is similar to t0015 and t0016 except that is uses posixaio which is
-+# available on more platforms and does not have a commit hook
-+
-+[test]
-+ioengine=posixaio
-+size=1M
-+iodepth=16
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index d77f20e0..504b7cdb 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -850,13 +850,23 @@ TEST_LIST = [
-     {
-         'test_id':          16,
-         'test_class':       FioJobTest_t0015,
--        'job':              't0016-259ebc00.fio',
-+        'job':              't0016-d54ae22.fio',
-         'success':          SUCCESS_DEFAULT,
-         'pre_job':          None,
-         'pre_success':      None,
-         'output_format':    'json',
-         'requirements':     [],
-     },
-+    {
-+        'test_id':          17,
-+        'test_class':       FioJobTest_t0015,
-+        'job':              't0017.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'output_format':    'json',
-+        'requirements':     [Requirements.not_windows],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
