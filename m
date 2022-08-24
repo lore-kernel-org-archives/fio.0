@@ -2,226 +2,167 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00308C00140
-	for <fio@archiver.kernel.org>; Wed, 24 Aug 2022 12:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C632DC3F6B0
+	for <fio@archiver.kernel.org>; Wed, 24 Aug 2022 20:10:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236377AbiHXMAO (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 24 Aug 2022 08:00:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46452 "EHLO
+        id S238348AbiHXUKA (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 24 Aug 2022 16:10:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236579AbiHXMAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 24 Aug 2022 08:00:11 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77B03615B
-        for <fio@vger.kernel.org>; Wed, 24 Aug 2022 05:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=B3/sGEzNJZcesqe7LYtXPbT6vIRvmIeDBLScUlh2hEg=; b=e05yteZAYEnCE97iZjSti4F8Rm
-        fTzPu3SvC8KOueeVwlzl8nJXBwrsje/JAaHeQZXa+XzUiDjUaaDeS3Y1Bm4EotM8Aui0Z1PJSIpKe
-        xkHycJj97e83r/8SE1houNMhKXgjNAIoGqnvO90ElNDvmACMhbXZhwSAKBjxHnDuB2w38ZeZxM1Z2
-        B3D61hyrsHF/fLZKjbEni9riSDDb32/qJ29/00XqUzM6Tlc08teLkI82JNufvw3nS3rKuV6lg6z3L
-        z5RSQh4Nmb5KODje+AzFXRdOaPkFAgBkzgAljyS2ty1WtvU/YifgZzxdeqMm9r0HIrKt1PI/YjqxP
-        oi0yVBkg==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oQp3H-00GIVo-1S
-        for fio@vger.kernel.org; Wed, 24 Aug 2022 12:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 3CE231BC00FD; Wed, 24 Aug 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
+        with ESMTP id S240147AbiHXUJ6 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 24 Aug 2022 16:09:58 -0400
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E25BC1
+        for <fio@vger.kernel.org>; Wed, 24 Aug 2022 13:09:56 -0700 (PDT)
+Received: by mail-io1-xd2e.google.com with SMTP id y187so14325150iof.0
+        for <fio@vger.kernel.org>; Wed, 24 Aug 2022 13:09:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc;
+        bh=zuF8B5LNmWJ0kepn31GAY7f93MfYDbsNITjkjNaAh+w=;
+        b=XAfloGx0F4dcjPtWmyKv42PUTmoOAvjRrNY6dHmYhTgGZU98tbjB/H5Urqzcro4zOP
+         BEXIHwCy7RYquEXg/b6LZ7q+Q40xoCwHxVcZRY2unq+Yha/Zo+1K1TIDDF0qG92PYgHC
+         Z7Q64opQxZiEKu4vWcnynvb8hSZ4Vj8WYr70nfz2neOOwOAZBI7b6rW9Ec13FiSmoZxy
+         +xQEmR3IHix5RQ4jXKY+L0PQhtBEXNp/Q91MukzEeuJifAB97/ID2vgiI9AKFRpayDLu
+         oSKTJDozVrO7XdKqn+A9P6EFrzGmcpDMSpJ0qU7/9B50+7156lDxjzoezBY+QsdZhHUh
+         h6ow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=zuF8B5LNmWJ0kepn31GAY7f93MfYDbsNITjkjNaAh+w=;
+        b=UwILqyo6cKM4xC2ryFy+zRsPx4HV1hfcRmp90DqDAYEVWqiDfP3Fou/QEj5DtjR+KY
+         WqQZIpAp10ArrjmfJD3fwzrXqYD7K7gMJE6S4uWZp9anQKepEBcrrG6Bwv/3dCB0yuT0
+         UNFH4hxfXkp8nNEuOTRuxvQliyOKufZBhBOpCUP4rhfxrQVZKU6OvEXQwcHS0jqaA3PC
+         dFlPnNF6P12vIWuzKH0h05mWGj+3kQkajXgrJdBoVUOsruKz5g1o/GypPvaodRBOuJMP
+         Kgd2hmJxWcRzDjqh8ckiwc5a6AlCpXZO72BGgA2Nq1BZoY3gvDmiVmw2IqsUfprf38Bw
+         q5ng==
+X-Gm-Message-State: ACgBeo1Ig2EPq4ldEw/JA3CzAv6QH4hEpbTZ9gbVXw+8Zw+wAAGgzCL5
+        OTe1ZYrP2zHCaMgurFYGJTTWRA==
+X-Google-Smtp-Source: AA6agR6F1Pn03mvTtVe92YHoZXcKFNMLxoToY82VSZSqFLZSpyT+ZJoAVrPPNeFGH0VPkn0gXXiTMw==
+X-Received: by 2002:a05:6638:35a8:b0:34a:456:e416 with SMTP id v40-20020a05663835a800b0034a0456e416mr267386jal.229.1661371795799;
+        Wed, 24 Aug 2022 13:09:55 -0700 (PDT)
+Received: from [192.168.1.94] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id i3-20020a023b43000000b003434c28f7adsm191810jaf.15.2022.08.24.13.09.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 24 Aug 2022 13:09:54 -0700 (PDT)
+Message-ID: <b6ddee98-1bc0-4a5c-7446-3b0a0857a2a3@kernel.dk>
+Date:   Wed, 24 Aug 2022 14:09:53 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
+ Thunderbird/102.1.2
+Subject: Re: [PATCH 2/2] t/io_uring: add support for async-passthru
+Content-Language: en-US
+To:     Anuj Gupta <anuj20.g@samsung.com>, vincentfu@gmail.com
+Cc:     joshi.k@samsung.com, ankit.kumar@samsung.com, fio@vger.kernel.org
+References: <20220824093109.308791-1-anuj20.g@samsung.com>
+ <CGME20220824094134epcas5p4b7cacb00484146b5d510ded15a80c712@epcas5p4.samsung.com>
+ <20220824093109.308791-3-anuj20.g@samsung.com>
 From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220824120002.3CE231BC00FD@kernel.dk>
-Date:   Wed, 24 Aug 2022 06:00:02 -0600 (MDT)
+In-Reply-To: <20220824093109.308791-3-anuj20.g@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit d33c7846cc5f175177e194a5489282780e2a04c4:
+On 8/24/22 3:31 AM, Anuj Gupta wrote:
+> @@ -457,12 +509,13 @@ static unsigned file_depth(struct submitter *s)
+>  
+>  static void init_io(struct submitter *s, unsigned index)
+>  {
+> -	struct io_uring_sqe *sqe = &s->sqes[index];
+> +	struct io_uring_sqe *sqe = NULL;
+>  	unsigned long offset;
+>  	struct file *f;
+>  	long r;
+>  
+>  	if (do_nop) {
+> +		sqe = &s->sqes[index];
+>  		sqe->opcode = IORING_OP_NOP;
+>  		return;
 
-  Merge branch 'clarify-io-errors' of https://github.com/Hi-Angel/fio (2022-08-16 19:54:17 -0600)
+I'd just leave the initial assignment rather than have two manual ones
+for the same thing, and then just have the 'pt' path override it.
 
-are available in the Git repository at:
+> @@ -490,6 +543,41 @@ static void init_io(struct submitter *s, unsigned index)
+>  			f->cur_off = 0;
+>  	}
+>  
+> +	if (pt) {
+> +		struct nvme_uring_cmd *cmd;
+> +		unsigned long long slba;
+> +		unsigned long long nlb;
+> +
+> +		sqe = &s->sqes[index<<1];
 
-  git://git.kernel.dk/fio.git master
+		sqe = &s->sqes[index << 1];
 
-for you to fetch changes up to 995c45c08c7a362ae0fb2e54e2de27b555a757ab:
+please.
 
-  Merge branch 'sigbreak-wait' of github.com:bjpaupor/fio (2022-08-23 17:09:25 -0400)
+> +		if (register_files) {
+> +			sqe->fd = f->fixed_fd;
+> +			sqe->flags = IOSQE_FIXED_FILE;
+> +		} else {
+> +			sqe->fd = f->real_fd;
+> +			sqe->flags = 0;
+> +		}
+> +		sqe->opcode = IORING_OP_URING_CMD;
+> +		sqe->user_data = (unsigned long) f->fileno;
+> +		if (stats)
+> +			sqe->user_data |= ((unsigned long)s->clock_index << 32);
+> +		sqe->cmd_op = NVME_URING_CMD_IO;
+> +		slba = offset / lbs;
+> +		nlb = bs/lbs - 1;
 
-----------------------------------------------------------------
-Brandon Paupore (1):
-      Add wait for handling SIGBREAK
+You have two expensive integer divisions here. Would make sense to turn
+lbs into a shift instead, those are a lot cheaper to do. And then you
+can put the expensive part in the setup part rather than have it in the
+fast path.
 
-Vincent Fu (3):
-      Revert "Minor style fixups"
-      Revert "Fix multithread issues when operating on a single shared file"
-      Merge branch 'sigbreak-wait' of github.com:bjpaupor/fio
+Another thing to consider is to make the pt path separate rather than
+need a bunch of 'if (pt) ... else ...' in here?
 
- backend.c   | 40 +++++++++++++++++++++-------------------
- file.h      |  1 -
- filesetup.c | 45 ++-------------------------------------------
- 3 files changed, 23 insertions(+), 63 deletions(-)
+> @@ -587,11 +690,14 @@ static int reap_events_uring(struct submitter *s)
+>  
+>  			f = &s->files[fileno];
+>  			f->pending_ios--;
+> -			if (cqe->res != bs) {
+> +			if (!pt && cqe->res != bs) {
+>  				printf("io: unexpected ret=%d\n", cqe->res);
+>  				if (polled && cqe->res == -EOPNOTSUPP)
+>  					printf("Your filesystem/driver/kernel doesn't support polled IO\n");
+>  				return -1;
+> +			} else if (pt && cqe->res != 0) {
+> +				printf("io: unexpected ret=%d\n", cqe->res);
+> +				return -1;
+>  			}
+>  		}
+>  		if (stats) {
 
----
+These two would be examples of things that would be cleaner with a
+separate path too.
 
-Diff of recent changes:
+> @@ -1306,11 +1428,12 @@ static void usage(char *argv, int status)
+>  		" -a <bool> : Use legacy aio, default %d\n"
+>  		" -S <bool> : Use sync IO (preadv2), default %d\n"
+>  		" -X <bool> : Use registered ring %d\n"
+> -		" -P <bool> : Automatically place on device home node %d\n",
+> +		" -P <bool> : Automatically place on device home node %d\n"
+> +		" -u <bool> : Use nvme-passthrough I/O, default %d\n",
+>  		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
+>  		fixedbufs, dma_map, register_files, nthreads, !buffered, do_nop,
+>  		stats, runtime == 0 ? "unlimited" : runtime_str, random_io, aio,
+> -		use_sync, register_ring, numa_placement);
+> +		use_sync, register_ring, numa_placement, pt);
+>  	exit(status);
 
-diff --git a/backend.c b/backend.c
-index 5159b60d..375a23e4 100644
---- a/backend.c
-+++ b/backend.c
-@@ -90,6 +90,25 @@ static void sig_int(int sig)
- 	}
- }
- 
-+#ifdef WIN32
-+static void sig_break(int sig)
-+{
-+	struct thread_data *td;
-+	int i;
-+
-+	sig_int(sig);
-+
-+	/**
-+	 * Windows terminates all job processes on SIGBREAK after the handler
-+	 * returns, so give them time to wrap-up and give stats
-+	 */
-+	for_each_td(td, i) {
-+		while (td->runstate < TD_EXITED)
-+			sleep(1);
-+	}
-+}
-+#endif
-+
- void sig_show_status(int sig)
- {
- 	show_running_run_stats();
-@@ -112,7 +131,7 @@ static void set_sig_handlers(void)
- /* Windows uses SIGBREAK as a quit signal from other applications */
- #ifdef WIN32
- 	memset(&act, 0, sizeof(act));
--	act.sa_handler = sig_int;
-+	act.sa_handler = sig_break;
- 	act.sa_flags = SA_RESTART;
- 	sigaction(SIGBREAK, &act, NULL);
- #endif
-@@ -2314,25 +2333,8 @@ static void run_threads(struct sk_out *sk_out)
- 	for_each_td(td, i) {
- 		print_status_init(td->thread_number - 1);
- 
--		if (!td->o.create_serialize) {
--			/*
--			 *  When operating on a single rile in parallel,
--			 *  perform single-threaded early setup so that
--			 *  when setup_files() does not run into issues
--			 *  later.
--			*/
--			if (!i && td->o.nr_files == 1) {
--				if (setup_shared_file(td)) {
--					exit_value++;
--					if (td->error)
--						log_err("fio: pid=%d, err=%d/%s\n",
--							(int) td->pid, td->error, td->verror);
--					td_set_runstate(td, TD_REAPED);
--					todo--;
--				}
--			}
-+		if (!td->o.create_serialize)
- 			continue;
--		}
- 
- 		if (fio_verify_load_state(td))
- 			goto reap;
-diff --git a/file.h b/file.h
-index e646cf22..da1b8947 100644
---- a/file.h
-+++ b/file.h
-@@ -201,7 +201,6 @@ struct thread_data;
- extern void close_files(struct thread_data *);
- extern void close_and_free_files(struct thread_data *);
- extern uint64_t get_start_offset(struct thread_data *, struct fio_file *);
--extern int __must_check setup_shared_file(struct thread_data *);
- extern int __must_check setup_files(struct thread_data *);
- extern int __must_check file_invalidate_cache(struct thread_data *, struct fio_file *);
- #ifdef __cplusplus
-diff --git a/filesetup.c b/filesetup.c
-index 3e2ccf9b..1d3cc5ad 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -143,7 +143,7 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 	if (unlink_file || new_layout) {
- 		int ret;
- 
--		dprint(FD_FILE, "layout %d unlink %d %s\n", new_layout, unlink_file, f->file_name);
-+		dprint(FD_FILE, "layout unlink %s\n", f->file_name);
- 
- 		ret = td_io_unlink_file(td, f);
- 		if (ret != 0 && ret != ENOENT) {
-@@ -198,9 +198,6 @@ static int extend_file(struct thread_data *td, struct fio_file *f)
- 		}
- 	}
- 
--
--	dprint(FD_FILE, "fill file %s, size %llu\n", f->file_name, (unsigned long long) f->real_file_size);
--
- 	left = f->real_file_size;
- 	bs = td->o.max_bs[DDIR_WRITE];
- 	if (bs > left)
-@@ -1081,44 +1078,6 @@ static bool create_work_dirs(struct thread_data *td, const char *fname)
- 	return true;
- }
- 
--int setup_shared_file(struct thread_data *td)
--{
--	struct fio_file *f;
--	uint64_t file_size;
--	int err = 0;
--
--	if (td->o.nr_files > 1) {
--		log_err("fio: shared file setup called for multiple files\n");
--		return -1;
--	}
--
--	get_file_sizes(td);
--
--	f = td->files[0];
--
--	if (f == NULL) {
--		log_err("fio: NULL shared file\n");
--		return -1;
--	}
--
--	file_size = thread_number * td->o.size;
--	dprint(FD_FILE, "shared setup %s real_file_size=%llu, desired=%llu\n", 
--			f->file_name, (unsigned long long)f->real_file_size, (unsigned long long)file_size);
--
--	if (f->real_file_size < file_size) {
--		dprint(FD_FILE, "fio: extending shared file\n");
--		f->real_file_size = file_size;
--		err = extend_file(td, f);
--		if (!err)
--			err = __file_invalidate_cache(td, f, 0, f->real_file_size);
--		get_file_sizes(td);
--		dprint(FD_FILE, "shared setup new real_file_size=%llu\n", 
--				(unsigned long long)f->real_file_size);
--	}
--
--	return err;
--}
--
- /*
-  * Open the files and setup files sizes, creating files if necessary.
-  */
-@@ -1133,7 +1092,7 @@ int setup_files(struct thread_data *td)
- 	const unsigned long long bs = td_min_bs(td);
- 	uint64_t fs = 0;
- 
--	dprint(FD_FILE, "setup files (thread_number=%d, subjob_number=%d)\n", td->thread_number, td->subjob_number);
-+	dprint(FD_FILE, "setup files\n");
- 
- 	old_state = td_bump_runstate(td, TD_SETTING_UP);
- 
+Reminds me, should the nsid and lbs be in the submitter struct?
+
+Thanks for doing this work!!
+
+-- 
+Jens Axboe
