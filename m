@@ -2,177 +2,483 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6650ECAAD5
-	for <fio@archiver.kernel.org>; Fri, 26 Aug 2022 11:44:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9409ECAAD4
+	for <fio@archiver.kernel.org>; Fri, 26 Aug 2022 11:45:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245597AbiHZLo4 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 26 Aug 2022 07:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50878 "EHLO
+        id S245632AbiHZLpC (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 26 Aug 2022 07:45:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243750AbiHZLoz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 26 Aug 2022 07:44:55 -0400
+        with ESMTP id S243750AbiHZLpB (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 26 Aug 2022 07:45:01 -0400
 Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FCE63ED54
-        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 04:44:54 -0700 (PDT)
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20220826114449epoutp01800f59a8d7ff288409cfc29048e5092f~O4nFvA1bt0150801508epoutp01b
-        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 11:44:49 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20220826114449epoutp01800f59a8d7ff288409cfc29048e5092f~O4nFvA1bt0150801508epoutp01b
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3710F67C8E
+        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 04:44:58 -0700 (PDT)
+Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20220826114456epoutp01214174a430f041125ad7006d95da7e11~O4nMat-Wd0152101521epoutp01b
+        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 11:44:56 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20220826114456epoutp01214174a430f041125ad7006d95da7e11~O4nMat-Wd0152101521epoutp01b
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1661514289;
-        bh=D9yKSXazjITEAodswW5RPLuiKgzHrXeRBuUClU50QGQ=;
+        s=mail20170921; t=1661514296;
+        bh=8UYrAaqBE9EpSVMM8/V96f02+D8DR/n4DfQcb/W4Jnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyMaWyaoUcQffPIfJAZd5vptmI9iyaSi6YoDlpQAVLFsQ8ZpMFWj/BOmUk8zTIEk1
-         a1cSzSHSKsyaDgSbJQaSMcb3iDc4nc+9ZdY/Jf58WpfLqAiVqML3qoDX0HBIpuaqhU
-         98R03wH6PqN5W3YpCdfgwHQZ8ezLzvWo43Gy/6Mc=
+        b=R4IY6LMY5O1BL0i1vofIdxLSKvlVjg/Luq4iPeueF/rtZkDzUt9anLxxBJs+K4VPY
+         56/mtlfaLNFN6YpqhfbG/K7yIyXk2FiFwqbrKEe3MiMYOyok+ECuPLJ46w8jXcp6iK
+         nruU86m2ZoAL8rWEAUigfJgAoJyp9P5j4vbTOV8s=
 Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20220826114449epcas5p37cd4673d9e02c530b7945972e29a662d~O4nFenapr1119811198epcas5p3X;
-        Fri, 26 Aug 2022 11:44:49 +0000 (GMT)
-Received: from epsmges5p3new.samsung.com (unknown [182.195.38.175]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4MDdKp5S0Yz4x9Q1; Fri, 26 Aug
-        2022 11:44:46 +0000 (GMT)
-Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20220826114455epcas5p153be9655eaa2a19e81c83a5fd5d65d0b~O4nLwcK-A2886828868epcas5p1H;
+        Fri, 26 Aug 2022 11:44:55 +0000 (GMT)
+Received: from epsmges5p3new.samsung.com (unknown [182.195.38.179]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4MDdKx1R2qz4x9Pv; Fri, 26 Aug
+        2022 11:44:53 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
         epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        6F.D8.54060.622B8036; Fri, 26 Aug 2022 20:44:39 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        5D.E8.54060.532B8036; Fri, 26 Aug 2022 20:44:53 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
         epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-        20220826114309epcas5p36e313a77d0dc872fc15319b203e05d56~O4lo6NniA2547825478epcas5p3W;
-        Fri, 26 Aug 2022 11:43:09 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20220826114309epsmtrp1b6876e51d8907bd1904504629c9ad221~O4lo5bZ4N2758727587epsmtrp1N;
-        Fri, 26 Aug 2022 11:43:09 +0000 (GMT)
-X-AuditID: b6c32a4b-be1ff7000000d32c-45-6308b226be18
+        20220826114312epcas5p3adb78ca25ec4dae7655940e96f5cdd85~O4lrgx_Vc2547825478epcas5p3f;
+        Fri, 26 Aug 2022 11:43:12 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20220826114312epsmtrp291218f70ea7d244d0f547fa58a6b8ddf~O4lrf9QXD2360523605epsmtrp2b;
+        Fri, 26 Aug 2022 11:43:12 +0000 (GMT)
+X-AuditID: b6c32a4b-be1ff7000000d32c-76-6308b2356645
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        2E.88.18644.DC1B8036; Fri, 26 Aug 2022 20:43:09 +0900 (KST)
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        D8.F7.14392.0D1B8036; Fri, 26 Aug 2022 20:43:12 +0900 (KST)
 Received: from localhost.localdomain (unknown [107.110.206.5]) by
         epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20220826114308epsmtip2d8920da1b0d19e3b73bf644c48b3f71b~O4ln4p0VF0128201282epsmtip2l;
-        Fri, 26 Aug 2022 11:43:08 +0000 (GMT)
+        20220826114311epsmtip250cb0c06f4d2702b081eb0954fecca9f~O4lqV1G2I2750827508epsmtip2V;
+        Fri, 26 Aug 2022 11:43:11 +0000 (GMT)
 From:   Anuj Gupta <anuj20.g@samsung.com>
 To:     axboe@kernel.dk, vincentfu@gmail.com
 Cc:     joshi.k@samsung.com, ankit.kumar@samsung.com, fio@vger.kernel.org,
         Anuj Gupta <anuj20.g@samsung.com>
-Subject: [PATCH v2 1/2] t/io_uring: prep for including engines/nvme.h in
- t/io_uring
-Date:   Fri, 26 Aug 2022 17:03:05 +0530
-Message-Id: <20220826113306.4139-2-anuj20.g@samsung.com>
+Subject: [PATCH v2 2/2] t/io_uring: add support for async-passthru
+Date:   Fri, 26 Aug 2022 17:03:06 +0530
+Message-Id: <20220826113306.4139-3-anuj20.g@samsung.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220826113306.4139-1-anuj20.g@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpik+LIzCtJLcpLzFFi42LZdlhTXVd9E0eyQfd3Ros1V36zWzRN+Mts
-        sfpuP5vFx1kvmC2O/n/LZrGhTdCBzWPnrLvsHpfPlnr0bVnF6PF5k1wAS1S2TUZqYkpqkUJq
-        XnJ+SmZeuq2Sd3C8c7ypmYGhrqGlhbmSQl5ibqqtkotPgK5bZg7QaiWFssScUqBQQGJxsZK+
-        nU1RfmlJqkJGfnGJrVJqQUpOgUmBXnFibnFpXrpeXmqJlaGBgZEpUGFCdsbihz+ZC+YKVhzd
-        cZqpgfEHbxcjJ4eEgInExJ0bWbsYuTiEBHYzStx/2M8C4XxilPj3eQsThPOZUWLbk2YWmJYZ
-        H99AVe1ilHh2eD0bXNWjdwuZQKrYBNQljjxvZexi5OAQEdCQWHM3FSTMLJAl8fLHBVYQW1gg
-        VGL3yh4WkBIWAVWJl7MtQMK8AhYSs+Y9YYLYJS8x89J3dhCbU8BS4srxLywQNYISJ2c+YYEY
-        KS/RvHU2M8gJEgLX2CU+nTnNCtHsIrHl8j12CFtY4tXxLVC2lMTL/jYoO13ix+WnUMsKJJqP
-        7WOEsO0lWk/1M4PcxiygKbF+lz5EWFZi6ql1TBB7+SR6f8PcySuxA+5mJYn2lXOgbAmJveca
-        oGwPiVt3ToOtFRLoYZT4+F9qAqPCLCTvzELyziyEzQsYmVcxSqYWFOempxabFhjnpZbD4zg5
-        P3cTIzgxannvYHz04IPeIUYmDsZDjBIczEoivFbHWJKFeFMSK6tSi/Lji0pzUosPMZoCg3si
-        s5Rocj4wNeeVxBuaWBqYmJmZmVgamxkqifNO0WZMFhJITyxJzU5NLUgtgulj4uCUamCazsda
-        I7Pp4Qpv6ev+X/z/zHrydqag/C7W2rXuOrt+hXP3sWrLX9uwTW7xOiXPs3Pfpnc9XtH2Imlt
-        9bT/vi9awzXn76ldkZxkKLfuuMASjvp7XzVvb/9neWOp/3GbZME3R6QEnv6/tPdaxnEl7Skn
-        G9I+2zz1sDi3zSj69nIDnXebJp69n/BK/3S20y0mG4FXSR8iOHUdXj8zDXbiO8vmKuB3ICrw
-        pLpU1SSL2NPbUrVuXMtfOquK30ap94dqBd8NrRt5elveVfXISq0utdGT9Ck5eNFOpP/qoyfq
-        k4vEAozib8Rurt+lafDc+rV7e9OHn0kLJfYd5xN9p/J735n3l4+EGa6IvnCu4N23toniSizF
-        GYmGWsxFxYkAlw+kGRUEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrJLMWRmVeSWpSXmKPExsWy7bCSvO7ZjRzJBtN+KlmsufKb3aJpwl9m
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpik+LIzCtJLcpLzFFi42LZdlhTQ9d0E0eywf8j7BZrrvxmt2ia8JfZ
+        YvXdfjaLj7NeMFsc/f+WzWJDm6ADm8fOWXfZPS6fLfXo27KK0ePzJrkAlqhsm4zUxJTUIoXU
+        vOT8lMy8dFsl7+B453hTMwNDXUNLC3MlhbzE3FRbJRefAF23zByg1UoKZYk5pUChgMTiYiV9
+        O5ui/NKSVIWM/OISW6XUgpScApMCveLE3OLSvHS9vNQSK0MDAyNToMKE7IxzTz8yFlwJqLj1
+        fiVLA+Msuy5GTg4JAROJrc9PsHQxcnEICexmlOiesoAJwvnEKHFsfSMbhPONUaLpXjsrTMvy
+        mfegWvYySpzf+x4sISTwmVHi0uwiEJtNQF3iyPNWxi5GDg4RAQ2JNXdTQcLMAlkSL39cACsX
+        FnCSeDb9DBuIzSKgKvGzYQE7iM0rYCFx7HMD1C55iZmXvoPFOQUsJa4c/8ICUSMocXLmExaI
+        mfISzVtnM4PcIyFwiV3iyM4PzCB7JQRcJObs0YSYIyzx6vgWdghbSuLzu71sEHa6xI/LT5kg
+        7AKJ5mP7GCFse4nWU/1gY5gFNCXW79KHCMtKTD21jgliLZ9E7+8nUK28EjvmwdhKEu0r50DZ
+        EhJ7zzVA2R4Sn28cZYQEWw+jxK4/69kmMCrMQvLOLCTvzEJYvYCReRWjZGpBcW56arFpgXFe
+        ajk8jpPzczcxghOjlvcOxkcPPugdYmTiYDzEKMHBrCTCa3WMJVmINyWxsiq1KD++qDQntfgQ
+        oykwvCcyS4km5wNTc15JvKGJpYGJmZmZiaWxmaGSOO8UbcZkIYH0xJLU7NTUgtQimD4mDk6p
+        BqYYl5S1RqkfPeWCq5hV+0VzS56F3fu79eeN1CMZqz7v7xc4YNzb0zTt4UuLFdo8wbdlXtra
+        CJsuFJ4c82D9GaX4/qcnD7805kmctGcdp+ja5tyetbbL7Za4cb3l8xaVmfsxoOLC+6MmtdNj
+        F4RceLV+4nsBnbUmH9/Ym57VTn64JOaH7OtgI33/Gn774sNs0tMsFNOuczIu26yvdGJX7osc
+        tWzX13dsub893zD/Z9Rbgwjpp0tC5FZuitaLbL/ybcH3F6YRzW1Mwpvbtpwpv9N5yL9B+7JD
+        0KuzNiXCd70+vt5wr7DU7o/rUouXf25XM8451pHM/OtbUEL0wjq//TcOzAxJbVLaP4t1247p
+        +d1KLMUZiYZazEXFiQAwLlD7FQQAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrNLMWRmVeSWpSXmKPExsWy7bCSvO6FjRzJBitnC1usufKb3aJpwl9m
         i9V3+9ksPs56wWxx9P9bNosNbYIObB47Z91l97h8ttSjb8sqRo/Pm+QCWKK4bFJSczLLUov0
-        7RK4MhY//MlcMFew4uiO00wNjD94uxg5OSQETCRmfHzD0sXIxSEksINRovfLbXaIhITEqZfL
-        GCFsYYmV/56DxYUEPjJKXDzHBWKzCahLHHneClYjIqAlcWxdExuIzSyQJ9F19xwLiC0sECyx
-        4MQTIJuDg0VAVeLlbAuQMK+AhcSseU+YIMbLS8y89B1sPKeApcSV419YIFZZSJxc/YkJol5Q
-        4uTMJywQ4+UlmrfOZp7AKDALSWoWktQCRqZVjJKpBcW56bnFhgVGeanlesWJucWleel6yfm5
-        mxjBoaultYNxz6oPeocYmTgYDzFKcDArifBaHWNJFuJNSaysSi3Kjy8qzUktPsQozcGiJM57
-        oetkvJBAemJJanZqakFqEUyWiYNTqoFpm6lGaszj15V/7pzXfKuhYuWq6Cyjy7hpxf7H4VfX
-        7623Zjv1eLJNGLNAhfnDiexf45fyPQ9Ks2aJbbmo2OrZav6X8XHAfWfrR38je88vC55iezDn
-        yN22kFTNRrYtbzWOz2592rJqvYegeLSNpczusKBbX2QybYQqj60tvZF04WLipf4LYQ5TinwD
-        rvWdS/KPemS8+8ENFu4crhUbO7y7uv85zv73gGHW2yT17J1T+Nm47p9acSHj9MVEdXcT5vDo
-        eYF6Mgxd7zsTZjqL/mX6w2XKo/qwlk9tQV5Sn5qZ4QXBvTPdD61Zlz8rsqHv/aa3Ea/1P8Yv
-        vVCy6cw638+vVok8NplusjCe4//8+QFKLMUZiYZazEXFiQDI2I0azAIAAA==
-X-CMS-MailID: 20220826114309epcas5p36e313a77d0dc872fc15319b203e05d56
+        7RK4Ms49/chYcCWg4tb7lSwNjLPsuhg5OSQETCSWz7zH0sXIxSEksJtR4tL686wQCQmJUy+X
+        MULYwhIr/z1nhyj6yCjR9PozG0iCTUBd4sjzVrAiEQEtiWPrmsDizAJ5El13z7GA2MICThLP
+        pp8Bi7MIqEr8bFjADmLzClhIHPvcALVMXmLmpe9gcU4BS4krx7+A9QoB1Zxc/YkJol5Q4uTM
+        JywQ8+UlmrfOZp7AKDALSWoWktQCRqZVjJKpBcW56bnFhgWGeanlesWJucWleel6yfm5mxjB
+        4auluYNx+6oPeocYmTgYDzFKcDArifBaHWNJFuJNSaysSi3Kjy8qzUktPsQozcGiJM57oetk
+        vJBAemJJanZqakFqEUyWiYNTqoEpv52p1fbSzYqaiUa1Ucc6llS5ZF03OrJByevaLy6zeXY8
+        5zZF2GXv3HZWkmkl6+bbpXJztZw1thp335034TH7SvXmguMHNHMnxz3/cr9z2gs71uhb/za+
+        udYZlD/7Qv3y3zsPbJd8ZvStyV5tz+2bxzc5CO9MzZY5zc1xrnpG4E22ZFYPwdRrr/tNTJct
+        uax66aX0ORa7wA9JotLCkzdeTPC81/VLZl2FisuhNUV8okkdG4w6V2dN3urYFu767kxZNc+5
+        G9/djt1Sff5702Eu8arZtTu9p+XVlTU9fveva52CuOydSROfZm7cZ63lUn9cWWXVz4wIvsVT
+        dYOnMXrdFHzNvPmZmvHRgiv9ru+ElViKMxINtZiLihMBSAftMM4CAAA=
+X-CMS-MailID: 20220826114312epcas5p3adb78ca25ec4dae7655940e96f5cdd85
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20220826114309epcas5p36e313a77d0dc872fc15319b203e05d56
+X-CMS-RootMailID: 20220826114312epcas5p3adb78ca25ec4dae7655940e96f5cdd85
 References: <20220826113306.4139-1-anuj20.g@samsung.com>
-        <CGME20220826114309epcas5p36e313a77d0dc872fc15319b203e05d56@epcas5p3.samsung.com>
+        <CGME20220826114312epcas5p3adb78ca25ec4dae7655940e96f5cdd85@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Change page_size and cal_clat_percentiles name to something different
-as these are indirectly picked from engines/nvme.h (fio.h and stat.h)
+This patch adds support for async-passthru in t/io_uring. User needs to
+specify -u1 option in the command
+
+Example commandline:
+t/io_uring -b512 -d128 -c32 -s32 -p0 -F1 -B0 -O0 -n1 -u1 /dev/ng0n1
 
 Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
 ---
- t/io_uring.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ t/io_uring.c | 238 +++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 230 insertions(+), 8 deletions(-)
 
 diff --git a/t/io_uring.c b/t/io_uring.c
-index 35bf1956..a42abd46 100644
+index a42abd46..4e1d617f 100644
 --- a/t/io_uring.c
 +++ b/t/io_uring.c
-@@ -117,7 +117,7 @@ static struct submitter *submitter;
- static volatile int finish;
- static int stats_running;
- static unsigned long max_iops;
--static long page_size;
-+static long t_io_uring_page_size;
+@@ -35,6 +35,7 @@
+ #include "../lib/rand.h"
+ #include "../minmax.h"
+ #include "../os/linux/io_uring.h"
++#include "../engines/nvme.h"
  
- static int depth = DEPTH;
- static int batch_submit = BATCH_SUBMIT;
-@@ -195,9 +195,9 @@ static unsigned long plat_idx_to_val(unsigned int idx)
- 	return cycles_to_nsec(base + ((k + 0.5) * (1 << error_bits)));
- }
+ struct io_sq_ring {
+ 	unsigned *head;
+@@ -67,6 +68,8 @@ struct file {
+ 	unsigned long max_size;
+ 	unsigned long cur_off;
+ 	unsigned pending_ios;
++	unsigned int nsid;	/* nsid field required for nvme-passthrough */
++	unsigned int lba_shift;	/* lba_shift field required for nvme-passthrough */
+ 	int real_fd;
+ 	int fixed_fd;
+ 	int fileno;
+@@ -139,6 +142,7 @@ static int random_io = 1;	/* random or sequential IO */
+ static int register_ring = 1;	/* register ring */
+ static int use_sync = 0;	/* use preadv2 */
+ static int numa_placement = 0;	/* set to node of device */
++static int pt = 0;		/* passthrough I/O or not */
  
--unsigned int calc_clat_percentiles(unsigned long *io_u_plat, unsigned long nr,
--				   unsigned long **output,
--				   unsigned long *maxv, unsigned long *minv)
-+unsigned int calculate_clat_percentiles(unsigned long *io_u_plat,
-+		unsigned long nr, unsigned long **output,
-+		unsigned long *maxv, unsigned long *minv)
- {
- 	unsigned long sum = 0;
- 	unsigned int len = plist_len, i, j = 0;
-@@ -251,7 +251,7 @@ static void show_clat_percentiles(unsigned long *io_u_plat, unsigned long nr,
- 	bool is_last;
- 	char fmt[32];
+ static unsigned long tsc_rate;
  
--	len = calc_clat_percentiles(io_u_plat, nr, &ovals, &maxv, &minv);
-+	len = calculate_clat_percentiles(io_u_plat, nr, &ovals, &maxv, &minv);
- 	if (!len || !ovals)
- 		goto out;
- 
-@@ -786,7 +786,7 @@ static void *allocate_mem(struct submitter *s, int size)
- 		return numa_alloc_onnode(size, s->numa_node);
+@@ -161,6 +165,54 @@ struct io_uring_map_buffers {
+ };
  #endif
  
--	if (posix_memalign(&buf, page_size, bs)) {
-+	if (posix_memalign(&buf, t_io_uring_page_size, bs)) {
- 		printf("failed alloc\n");
- 		return NULL;
++static int nvme_identify(int fd, __u32 nsid, enum nvme_identify_cns cns,
++			 enum nvme_csi csi, void *data)
++{
++	struct nvme_passthru_cmd cmd = {
++		.opcode         = nvme_admin_identify,
++		.nsid           = nsid,
++		.addr           = (__u64)(uintptr_t)data,
++		.data_len       = NVME_IDENTIFY_DATA_SIZE,
++		.cdw10          = cns,
++		.cdw11          = csi << NVME_IDENTIFY_CSI_SHIFT,
++		.timeout_ms     = NVME_DEFAULT_IOCTL_TIMEOUT,
++	};
++
++	return ioctl(fd, NVME_IOCTL_ADMIN_CMD, &cmd);
++}
++
++static int nvme_get_info(int fd, __u32 *nsid, __u32 *lba_sz, __u64 *nlba)
++{
++	struct nvme_id_ns ns;
++	int namespace_id;
++	int err;
++
++	namespace_id = ioctl(fd, NVME_IOCTL_ID);
++	if (namespace_id < 0) {
++		fprintf(stderr, "error failed to fetch namespace-id\n");
++		close(fd);
++		return -errno;
++	}
++
++	/*
++	 * Identify namespace to get namespace-id, namespace size in LBA's
++	 * and LBA data size.
++	 */
++	err = nvme_identify(fd, namespace_id, NVME_IDENTIFY_CNS_NS,
++				NVME_CSI_NVM, &ns);
++	if (err) {
++		fprintf(stderr, "error failed to fetch identify namespace\n");
++		close(fd);
++		return err;
++	}
++
++	*nsid = namespace_id;
++	*lba_sz = 1 << ns.lbaf[(ns.flbas & 0x0f)].ds;
++	*nlba = ns.nsze;
++
++	return 0;
++}
++
+ static unsigned long cycles_to_nsec(unsigned long cycles)
+ {
+ 	uint64_t val;
+@@ -520,6 +572,65 @@ static void init_io(struct submitter *s, unsigned index)
+ 		sqe->user_data |= ((uint64_t)s->clock_index << 32);
+ }
+ 
++static void init_io_pt(struct submitter *s, unsigned index)
++{
++	struct io_uring_sqe *sqe = &s->sqes[index << 1];
++	unsigned long offset;
++	struct file *f;
++	struct nvme_uring_cmd *cmd;
++	unsigned long long slba;
++	unsigned long long nlb;
++	long r;
++
++	if (s->nr_files == 1) {
++		f = &s->files[0];
++	} else {
++		f = &s->files[s->cur_file];
++		if (f->pending_ios >= file_depth(s)) {
++			s->cur_file++;
++			if (s->cur_file == s->nr_files)
++				s->cur_file = 0;
++			f = &s->files[s->cur_file];
++		}
++	}
++	f->pending_ios++;
++
++	if (random_io) {
++		r = __rand64(&s->rand_state);
++		offset = (r % (f->max_blocks - 1)) * bs;
++	} else {
++		offset = f->cur_off;
++		f->cur_off += bs;
++		if (f->cur_off + bs > f->max_size)
++			f->cur_off = 0;
++	}
++
++	if (register_files) {
++		sqe->fd = f->fixed_fd;
++		sqe->flags = IOSQE_FIXED_FILE;
++	} else {
++		sqe->fd = f->real_fd;
++		sqe->flags = 0;
++	}
++	sqe->opcode = IORING_OP_URING_CMD;
++	sqe->user_data = (unsigned long) f->fileno;
++	if (stats)
++		sqe->user_data |= ((unsigned long)s->clock_index << 32);
++	sqe->cmd_op = NVME_URING_CMD_IO;
++	slba = offset >> f->lba_shift;
++	nlb = (bs >> f->lba_shift) - 1;
++	cmd = (struct nvme_uring_cmd *)&sqe->cmd;
++	/* cdw10 and cdw11 represent starting slba*/
++	cmd->cdw10 = slba & 0xffffffff;
++	cmd->cdw11 = slba >> 32;
++	/* cdw12 represent number of lba to be read*/
++	cmd->cdw12 = nlb;
++	cmd->addr = (unsigned long) s->iovecs[index].iov_base;
++	cmd->data_len = bs;
++	cmd->nsid = f->nsid;
++	cmd->opcode = 2;
++}
++
+ static int prep_more_ios_uring(struct submitter *s, int max_ios)
+ {
+ 	struct io_sq_ring *ring = &s->sq_ring;
+@@ -532,7 +643,10 @@ static int prep_more_ios_uring(struct submitter *s, int max_ios)
+ 			break;
+ 
+ 		index = tail & sq_ring_mask;
+-		init_io(s, index);
++		if (pt)
++			init_io_pt(s, index);
++		else
++			init_io(s, index);
+ 		ring->array[index] = index;
+ 		prepped++;
+ 		tail = next_tail;
+@@ -549,7 +663,29 @@ static int get_file_size(struct file *f)
+ 
+ 	if (fstat(f->real_fd, &st) < 0)
+ 		return -1;
+-	if (S_ISBLK(st.st_mode)) {
++	if (pt) {
++		__u64 nlba;
++		__u32 lbs;
++		int ret;
++
++		if (!S_ISCHR(st.st_mode)) {
++			fprintf(stderr, "passthrough works with only nvme-ns "
++					"generic devices (/dev/ngXnY)\n");
++			return -1;
++		}
++		ret = nvme_get_info(f->real_fd, &f->nsid, &lbs, &nlba);
++		if (ret)
++			return -1;
++		if ((bs % lbs) != 0) {
++			printf("error: bs:%d should be a multiple logical_block_size:%d\n",
++					bs, lbs);
++			return -1;
++		}
++		f->max_blocks = nlba / bs;
++		f->max_size = nlba;
++		f->lba_shift = ilog2(lbs);
++		return 0;
++	} else if (S_ISBLK(st.st_mode)) {
+ 		unsigned long long bytes;
+ 
+ 		if (ioctl(f->real_fd, BLKGETSIZE64, &bytes) != 0)
+@@ -620,6 +756,60 @@ static int reap_events_uring(struct submitter *s)
+ 	return reaped;
+ }
+ 
++static int reap_events_uring_pt(struct submitter *s)
++{
++	struct io_cq_ring *ring = &s->cq_ring;
++	struct io_uring_cqe *cqe;
++	unsigned head, reaped = 0;
++	int last_idx = -1, stat_nr = 0;
++	unsigned index;
++	int fileno;
++
++	head = *ring->head;
++	do {
++		struct file *f;
++
++		read_barrier();
++		if (head == atomic_load_acquire(ring->tail))
++			break;
++		index = head & cq_ring_mask;
++		cqe = &ring->cqes[index << 1];
++		fileno = cqe->user_data & 0xffffffff;
++		f = &s->files[fileno];
++		f->pending_ios--;
++
++		if (cqe->res != 0) {
++			printf("io: unexpected ret=%d\n", cqe->res);
++			if (polled && cqe->res == -EINVAL)
++				printf("passthrough doesn't support polled IO\n");
++			return -1;
++		}
++		if (stats) {
++			int clock_index = cqe->user_data >> 32;
++
++			if (last_idx != clock_index) {
++				if (last_idx != -1) {
++					add_stat(s, last_idx, stat_nr);
++					stat_nr = 0;
++				}
++				last_idx = clock_index;
++			}
++			stat_nr++;
++		}
++		reaped++;
++		head++;
++	} while (1);
++
++	if (stat_nr)
++		add_stat(s, last_idx, stat_nr);
++
++	if (reaped) {
++		s->inflight -= reaped;
++		atomic_store_release(ring->head, head);
++	}
++	return reaped;
++}
++
+ static void set_affinity(struct submitter *s)
+ {
+ #ifdef CONFIG_LIBNUMA
+@@ -697,6 +887,7 @@ static int setup_ring(struct submitter *s)
+ 	struct io_uring_params p;
+ 	int ret, fd;
+ 	void *ptr;
++	size_t len;
+ 
+ 	memset(&p, 0, sizeof(p));
+ 
+@@ -709,6 +900,10 @@ static int setup_ring(struct submitter *s)
+ 			p.sq_thread_cpu = sq_thread_cpu;
+ 		}
  	}
-@@ -1543,9 +1543,9 @@ int main(int argc, char *argv[])
++	if (pt) {
++		p.flags |= IORING_SETUP_SQE128;
++		p.flags |= IORING_SETUP_CQE32;
++	}
  
- 	arm_sig_int();
+ 	fd = io_uring_setup(depth, &p);
+ 	if (fd < 0) {
+@@ -761,11 +956,22 @@ static int setup_ring(struct submitter *s)
+ 	sring->array = ptr + p.sq_off.array;
+ 	sq_ring_mask = *sring->ring_mask;
  
--	page_size = sysconf(_SC_PAGESIZE);
--	if (page_size < 0)
--		page_size = 4096;
-+	t_io_uring_page_size = sysconf(_SC_PAGESIZE);
-+	if (t_io_uring_page_size < 0)
-+		t_io_uring_page_size = 4096;
+-	s->sqes = mmap(0, p.sq_entries * sizeof(struct io_uring_sqe),
++	if (p.flags & IORING_SETUP_SQE128)
++		len = 2 * p.sq_entries * sizeof(struct io_uring_sqe);
++	else
++		len = p.sq_entries * sizeof(struct io_uring_sqe);
++	s->sqes = mmap(0, len,
+ 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd,
+ 			IORING_OFF_SQES);
  
- 	for (j = 0; j < nthreads; j++) {
- 		s = get_submitter(j);
+-	ptr = mmap(0, p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe),
++	if (p.flags & IORING_SETUP_CQE32) {
++		len = p.cq_off.cqes +
++			2 * p.cq_entries * sizeof(struct io_uring_cqe);
++	} else {
++		len = p.cq_off.cqes +
++			p.cq_entries * sizeof(struct io_uring_cqe);
++	}
++	ptr = mmap(0, len,
+ 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE, fd,
+ 			IORING_OFF_CQ_RING);
+ 	cring->head = ptr + p.cq_off.head;
+@@ -856,7 +1062,16 @@ static int submitter_init(struct submitter *s)
+ 		s->plat = NULL;
+ 		nr_batch = 0;
+ 	}
++	/* perform the expensive command initialization part for passthrough here
++	 * rather than in the fast path
++	 */
++	if (pt) {
++		for (i = 0; i < roundup_pow2(depth); i++) {
++			struct io_uring_sqe *sqe = &s->sqes[i << 1];
+ 
++			memset(&sqe->cmd, 0, sizeof(struct nvme_uring_cmd));
++		}
++	}
+ 	return nr_batch;
+ }
+ 
+@@ -1112,7 +1327,10 @@ submit:
+ 		do {
+ 			int r;
+ 
+-			r = reap_events_uring(s);
++			if (pt)
++				r = reap_events_uring_pt(s);
++			else
++				r = reap_events_uring(s);
+ 			if (r == -1) {
+ 				s->finish = 1;
+ 				break;
+@@ -1306,11 +1524,12 @@ static void usage(char *argv, int status)
+ 		" -a <bool> : Use legacy aio, default %d\n"
+ 		" -S <bool> : Use sync IO (preadv2), default %d\n"
+ 		" -X <bool> : Use registered ring %d\n"
+-		" -P <bool> : Automatically place on device home node %d\n",
++		" -P <bool> : Automatically place on device home node %d\n"
++		" -u <bool> : Use nvme-passthrough I/O, default %d\n",
+ 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
+ 		fixedbufs, dma_map, register_files, nthreads, !buffered, do_nop,
+ 		stats, runtime == 0 ? "unlimited" : runtime_str, random_io, aio,
+-		use_sync, register_ring, numa_placement);
++		use_sync, register_ring, numa_placement, pt);
+ 	exit(status);
+ }
+ 
+@@ -1369,7 +1588,7 @@ int main(int argc, char *argv[])
+ 	if (!do_nop && argc < 2)
+ 		usage(argv[0], 1);
+ 
+-	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:R:X:S:P:h?")) != -1) {
++	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:R:X:S:P:u:h?")) != -1) {
+ 		switch (opt) {
+ 		case 'a':
+ 			aio = !!atoi(optarg);
+@@ -1450,6 +1669,9 @@ int main(int argc, char *argv[])
+ 		case 'P':
+ 			numa_placement = !!atoi(optarg);
+ 			break;
++		case 'u':
++			pt = !!atoi(optarg);
++			break;
+ 		case 'h':
+ 		case '?':
+ 		default:
 -- 
 2.25.1
 
