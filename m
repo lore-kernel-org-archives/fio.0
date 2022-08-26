@@ -2,87 +2,97 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9F2CECAAD4
-	for <fio@archiver.kernel.org>; Fri, 26 Aug 2022 12:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18E2CECAAA3
+	for <fio@archiver.kernel.org>; Fri, 26 Aug 2022 13:30:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237428AbiHZMAK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 26 Aug 2022 08:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48678 "EHLO
+        id S1344362AbiHZNaa (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 26 Aug 2022 09:30:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233093AbiHZMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 26 Aug 2022 08:00:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04264E00B
-        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 05:00:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=ZHlLkeW+OoKPHUPL9KTTVa7QiLT3gRwLoId4BYQ37Sw=; b=ok7gwfVCRSkL4Tv40EfPPBDPDd
-        VJJvrSfSjOGVZYh0oxOSVgWbGo6hwQKMXlmkypy3ZO4S6YwmkZV0W28OokNJ0qL/3xlIOso8h//rQ
-        WyuUsEVuiX+d2ZGHu4Np2hIOz5LSjL39FLA8t51rSqOjiNqdRX2dKYw7eqiYLG/AIk22XbXfEAHTD
-        AxGRWfOVk2zUiRa1hCH8qSwTL1IB1jFidd5dEIuNfdmc7HKOYbvlQTLdEmpkqtzgLFuBmHX1yaEtK
-        5EzVXLpHovbvhYMtzLNm9HzN2x9o9CGQUCH297HMxYXdTM9MeJSbuxKVrAoSNasBIiKR1ZDUPsQeJ
-        zMUheZnA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oRY0L-000Vzz-9a
-        for fio@vger.kernel.org; Fri, 26 Aug 2022 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 6527E1BC0142; Fri, 26 Aug 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
+        with ESMTP id S245689AbiHZNa1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 26 Aug 2022 09:30:27 -0400
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E1ED9E90
+        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 06:30:25 -0700 (PDT)
+Received: by mail-il1-x12e.google.com with SMTP id l16so577351ilj.2
+        for <fio@vger.kernel.org>; Fri, 26 Aug 2022 06:30:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc;
+        bh=+7z403ewNB3PObKPDvJmUvXjR9Im3pBjmlbS/GEDdmg=;
+        b=dd2YeM8nb8dB9TlnudtSic1L7DoxUVBsKly2zwjJVNNe9tdZ484Qst6FAPjz+NUhvw
+         3n75otVmN+Ib6juoh8/P9fg4+DYlVbGp2ml+8m/XxItbS6XDXVjtrsaQHa0FP4oUSG1i
+         K93C4g8Iheftb8RBbbqsh2GPr05XpvD78HKdfEHFrC/JmIsdv417816FjgkPRIG9s/4M
+         nyJY/UmKWfqBFEBBEyjUDz+5X4Bs7ImGHISOAdr3eOLTPTK9WSwPjuK61fl5PI5y1lWh
+         wgpqcq55J6pppmgMhZurU3LtU2LDEf0ePn/TmHyXE7MgVEsGcUZrzHQKOpDqFciHxZy1
+         Izyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc;
+        bh=+7z403ewNB3PObKPDvJmUvXjR9Im3pBjmlbS/GEDdmg=;
+        b=P7DEeXI3/AAZGJ9a96hLYuXvMUHBpzxe6pf9prxkc2aWRz+OjvArwZbWr1YCygbqwg
+         2OWfPHIz4VVjLTCPKXAN2XvMwPAp3oM/fcSVAbli6fO1m/cJx/5XsKQJ9Yr9iHLxU5ON
+         Ft+BXVQ8DeZqeH4urXhQ7QOFYBfeXu7I8uSUZ37KVb505rs5HAGz6lsFON7pl+a3Lu/N
+         aszd/DtbsmgB44K2L8C0yfw/DhPg7acOvl5ok3EwaNcgupMfC3TH8YUtw1XDITAxDOTb
+         r4gtx/gyPkjdssoYAulMK4T/z1IcH1NLye4993oO07a5bCfmSqaFKH41nZQITyzJh/nD
+         6NYw==
+X-Gm-Message-State: ACgBeo3N8HJmtPC0NzLUUdHcQLp3mzGo3zaN32fVVzuT6ETbAu36TS9l
+        0qJ4fV5oR9pqq3jqvM96frzsQg==
+X-Google-Smtp-Source: AA6agR4apAF+dFWLDbJE5DLFulOtWxlPhcNMN9H9pIogY5WA1YixKrs0KMuLn78R+YPodwI/r2+LAQ==
+X-Received: by 2002:a05:6e02:18cd:b0:2de:73e8:3f0 with SMTP id s13-20020a056e0218cd00b002de73e803f0mr4174822ilu.69.1661520624331;
+        Fri, 26 Aug 2022 06:30:24 -0700 (PDT)
+Received: from [127.0.0.1] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id h16-20020a92d850000000b002ddc8e785desm1119502ilq.15.2022.08.26.06.30.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Aug 2022 06:30:23 -0700 (PDT)
 From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220826120002.6527E1BC0142@kernel.dk>
-Date:   Fri, 26 Aug 2022 06:00:02 -0600 (MDT)
+To:     vincentfu@gmail.com, Anuj Gupta <anuj20.g@samsung.com>
+Cc:     ankit.kumar@samsung.com, joshi.k@samsung.com, fio@vger.kernel.org
+In-Reply-To: <20220826113306.4139-1-anuj20.g@samsung.com>
+References: <CGME20220826114305epcas5p4a5636b062f33534f75f0d907af31bc50@epcas5p4.samsung.com>
+ <20220826113306.4139-1-anuj20.g@samsung.com>
+Subject: Re: [PATCH v2 0/2] Add support for uring-passthrough in t/io_uring
+Message-Id: <166152062246.20608.667927693070648273.b4-ty@kernel.dk>
+Date:   Fri, 26 Aug 2022 07:30:22 -0600
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.10.0-dev-65ba7
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 05ef0e4e822ffa81d6e92ed538d32cc37a907279:
+On Fri, 26 Aug 2022 17:03:04 +0530, Anuj Gupta wrote:
+> This series adds support for measuring peak performance of uring-passthrough path
+> using t/io_uring utility. Added new -u1 option, that makes t/io_uring to do io using
+> nvme passthrough commands.
+> 
+> Uring-passthrough on nvme-generic device:
+> 
+> root@test-MS-7C34:/home/test/upstream/github/fio# taskset -c 0 t/io_uring -b512 -d128 -c32 -s32 -p0 -F1 -B0 -O0 -n1 -u1 /dev/ng0n1
+> submitter=0, tid=5415, file=/dev/ng0n1, node=-1
+> polled=0, fixedbufs=0/0, register_files=1, buffered=1, QD=128
+> Engine=io_uring, sq_ring=128, cq_ring=128
+> IOPS=1.97M, BW=959MiB/s, IOS/call=32/31
+> IOPS=1.96M, BW=956MiB/s, IOS/call=32/32
+> IOPS=1.96M, BW=957MiB/s, IOS/call=32/32
+> IOPS=1.96M, BW=956MiB/s, IOS/call=31/31
+> ^CExiting on signal
+> Maximum IOPS=1.97M
+> 
+> [...]
 
-  Merge branch 'master' of https://github.com/kraj/fio (2022-08-24 20:09:29 -0600)
+Applied, thanks!
 
-are available in the Git repository at:
+[1/2] t/io_uring: prep for including engines/nvme.h in t/io_uring
+      commit: c409e4c2a549ccc0334f2c084a76e80314d42c42
+[2/2] t/io_uring: add support for async-passthru
+      commit: 7d04588a766308d5903f6cfe34ed72f6c7612d19
 
-  git://git.kernel.dk/fio.git master
+Best regards,
+-- 
+Jens Axboe
 
-for you to fetch changes up to c27ae7ae6c3d9108bba80ff71cf36bf7fc8b34c9:
 
-  engines/io_uring: delete debug code (2022-08-25 11:19:34 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      engines/io_uring: delete debug code
-
- engines/io_uring.c | 6 ------
- 1 file changed, 6 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 89d64b06..94376efa 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -445,18 +445,12 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
- 	struct io_uring_cqe *cqe;
- 	struct io_u *io_u;
- 	unsigned index;
--	static int eio;
- 
- 	index = (event + ld->cq_ring_off) & ld->cq_ring_mask;
- 
- 	cqe = &ld->cq_ring.cqes[index];
- 	io_u = (struct io_u *) (uintptr_t) cqe->user_data;
- 
--	if (eio++ == 5) {
--		printf("mark EIO\n");
--		cqe->res = -EIO;
--	}
--
- 	if (cqe->res != io_u->xfer_buflen) {
- 		if (cqe->res > io_u->xfer_buflen)
- 			io_u->error = -cqe->res;
