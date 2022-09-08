@@ -2,127 +2,108 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81210C54EE9
-	for <fio@archiver.kernel.org>; Thu,  8 Sep 2022 15:00:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C75FC54EE9
+	for <fio@archiver.kernel.org>; Thu,  8 Sep 2022 16:24:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232268AbiIHO77 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 8 Sep 2022 10:59:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49820 "EHLO
+        id S230516AbiIHQYs (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 8 Sep 2022 12:24:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbiIHO76 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 8 Sep 2022 10:59:58 -0400
-Received: from mailout1.w2.samsung.com (mailout1.w2.samsung.com [211.189.100.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956D55209B
-        for <fio@vger.kernel.org>; Thu,  8 Sep 2022 07:59:55 -0700 (PDT)
-Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
-        by mailout1.w2.samsung.com (KnoxPortal) with ESMTP id 20220908145953usoutp01d90ab49e1a890c818d282748ef6f4be4~S6qHVwFYI3098830988usoutp01V;
-        Thu,  8 Sep 2022 14:59:53 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w2.samsung.com 20220908145953usoutp01d90ab49e1a890c818d282748ef6f4be4~S6qHVwFYI3098830988usoutp01V
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1662649193;
-        bh=Sy7GzxwlLdpot9hvZ5bXEga2QHx8s05UfZKxKR9gSwY=;
-        h=From:To:Subject:Date:In-Reply-To:References:From;
-        b=uACVvbkSiFk4D7LpY3jxhFNAR55Hx8OmDndjTZCgfTlbk7KA8DUM3HplJsGuHPP5P
-         x+GRdOffPbunUrYuIX1Ygqh4zbGY6JCbfJOwn7+Agvhag1gkEttLGzj1/9RtEQuTom
-         hq/KwjiNyZpA4PBXLeXpCWhVqjyrdv5R8+0o1FMI=
-Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
-        [203.254.195.111]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220908145953uscas1p1fdaebabf819f1ed49f15bc96d008bb18~S6qHIuiwT2305723057uscas1p1P;
-        Thu,  8 Sep 2022 14:59:53 +0000 (GMT)
-Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
-        ussmges2new.samsung.com (USCPEMTA) with SMTP id CB.41.18126.8630A136; Thu, 
-        8 Sep 2022 10:59:52 -0400 (EDT)
-Received: from ussmgxs2new.samsung.com (u91.gpu85.samsung.co.kr
-        [203.254.195.91]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20220908145952uscas1p166c407fdf0182e892b233a8269babc86~S6qGxDPD-2507725077uscas1p1B;
-        Thu,  8 Sep 2022 14:59:52 +0000 (GMT)
-X-AuditID: cbfec36f-ff9ff700000146ce-0c-631a03684318
-Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.145]) by
-        ussmgxs2new.samsung.com (USCPEXMTA) with SMTP id FB.4E.08434.8630A136; Thu, 
-        8 Sep 2022 10:59:52 -0400 (EDT)
-Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
-        SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
-        (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
-        15.1.2375.24; Thu, 8 Sep 2022 07:59:51 -0700
-Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
-        SSI-EX3.ssi.samsung.com ([105.128.5.228]) with mapi id 15.01.2375.024; Thu,
-        8 Sep 2022 07:59:51 -0700
-From:   Vincent Fu <vincent.fu@samsung.com>
-To:     Nick Neumann <nick@pcpartpicker.com>,
-        "fio@vger.kernel.org" <fio@vger.kernel.org>
-Subject: RE: Best practices for handling drive failures during a run?
-Thread-Topic: Best practices for handling drive failures during a run?
-Thread-Index: AQHYwtKq7u+o7wDXFU+M/iv0YYC8g63Vm+yw
-Date:   Thu, 8 Sep 2022 14:59:51 +0000
-Message-ID: <99cd72aca6274227825d5a50b263bab8@samsung.com>
-In-Reply-To: <CADqNVTpA4uX9rqBs9vCjvBuPp4=f9yYmrEyDuECAO2JySp907Q@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [105.128.2.176]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S231424AbiIHQYr (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 8 Sep 2022 12:24:47 -0400
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9801408D
+        for <fio@vger.kernel.org>; Thu,  8 Sep 2022 09:24:40 -0700 (PDT)
+Received: by mail-qt1-x834.google.com with SMTP id h22so13301887qtu.2
+        for <fio@vger.kernel.org>; Thu, 08 Sep 2022 09:24:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pcpartpicker.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=10qt5A5z8QWla19JU5pzG3qqCwN5VlrTV/Isck8gcrw=;
+        b=leNJjShA//Q8DcYy7nqS39zE4cLw/I1pYBqhtlRQnHsecctxqUJOgkqkiptGgDerpI
+         Tq70DxQ9sPCPo2Q989TOeYAP1gRTXYJqLExIIuuQ83CdNxxrpJNoUTMzlhTlXz6d4b1U
+         8aTpR70VqUHbVwAdGFfhfE4oth8TDbmqz7p+Z+GzH6vXppl/F8yWmcJZ+H4csXF0Q5KX
+         +Bdg6hYX7ycryCPz00RfRk4I96nEMJGAn9Z/auQmzAdOQfaEwovCwTmOK5yvrMbisjRn
+         Ote/je4PYrCOrj1p+osU+Sg3PBsoHEfrmF2poJLnzSWOYM+VHfFjjn4kq2hBMiR7PPl3
+         iPCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=10qt5A5z8QWla19JU5pzG3qqCwN5VlrTV/Isck8gcrw=;
+        b=KYIuj3TCGinBBdJR8aVgOMUx59g+VP5QIZiopQoiqYhDvJ2MO7RL7s2g6I75efKdEk
+         Bko6X6bx2eHAY5nBhAbycg1n5PL5jwjW4lG/ok+Bs8MnHq0xzp62do6xZ3xtoUQZB0vY
+         IX7WiKsLsLd8GthsLdMO7d4tLRykkMjdKo2SaFSSrd7Zbp0p8Mh2LDDZBj7+KTBHbvU3
+         LJ+6+YLswsE3/+SZ7uEarlohDJ3JS7h8sjFm4fVOThpeOdJP1z+JElp6UiLUI4dui5R3
+         yUukYNlqK/EXoqT9xr7EKMdHONgmxFd0Pugsi0QpjvMRjnm/vJJHSS+KCZqk/QlhZJIU
+         do3A==
+X-Gm-Message-State: ACgBeo1IjMsj0q37QILkwavh/GJYE9bArq1vEXY8LDf8BZFXk0oGwrI0
+        xpJXlnN0MA0lMmpX1u6QECNflwrDgAE2pzDomo7y1kem83dRlw==
+X-Google-Smtp-Source: AA6agR75ds/lQs734rwR/k4URDRQAQW5OvdFzzrCHx1jboGf1uCubyfU8PlDDnJFfZWWnPNgUhMHmYzDTkkZPmhyyn0=
+X-Received: by 2002:ac8:5fd1:0:b0:344:6746:edd8 with SMTP id
+ k17-20020ac85fd1000000b003446746edd8mr8650378qta.24.1662654279536; Thu, 08
+ Sep 2022 09:24:39 -0700 (PDT)
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrEIsWRmVeSWpSXmKPExsWy7djXc7oZzFLJBpvvmlt8nPWC2WLezt/s
-        Dkwe5zcqenzeJBfAFMVlk5Kak1mWWqRvl8CVMevCbpaCe7wVOx4eYWpg3MDbxcjJISFgIrGm
-        cT9LFyMXh5DASkaJc92v2SCcViaJc1f7mWCq5vQfYIVIrGWUuHd6GhOE85FRYsvH61CZpYwS
-        ex52APVzcLAJaEq83V8A0i0iEC7xdc5+sEnCAq4SyzZPYQcpERFwkzi+IR2ixEiibcoHFpAw
-        i4CKxNJF8SBhXgErieu7tzKDhDkFAiWmd4MNZBQQk/h+ag3YQGYBcYlbT+ZDnSkosWj2HmYI
-        W0zi366HbBC2osT97y/BljID3bV+lz5Eq6LElO6H7BCbBCVOznzCAlEuKXFwxQ1wmEgINHJI
-        rPr1B2q+i8TXBfcYIWxpib93lzFBFLUzSszd+AWqewKjxPUnUhC2tcS/zmvsENv4JP7+esQI
-        coSEAK9ER5vQBEalWUhemIVw3iwk581Cct4CRpZVjOKlxcW56anFRnmp5XrFibnFpXnpesn5
-        uZsYgcni9L/D+TsYr9/6qHeIkYmD8RCjBAezkgiv6FqJZCHelMTKqtSi/Pii0pzU4kOM0hws
-        SuK8yzI3JAoJpCeWpGanphakFsFkmTg4pRqYjLjdb9/YOyGzj6V52t0Ci7sWk967aO553Fsy
-        L/5vs/rz5TyHfy7qPWJgtfm536bb2gx6E6+b6c+yurNhlwt7Je+V18L2F6yeTd4U3cvLIe7y
-        t9xwf1zd6RfpUyr+zYlJvsR7cUXZNJn3a00DFxvGzFZYO3kv0+JT3FOa+i9PbEx4NGPCRd1D
-        k//lbvnp2brf23qX6ITt+dq79D6Kt4vw7LzmkmC2e0/IKpN/etObb9QLa63R/pvH+dhohZBI
-        wskN344d5z6u4hDRZppkZLGLb86JA09sTDuV+676Kq89lds3kfm12KEbSj8mqd31fyAbaiQi
-        HnIuPjm8TDZrxtLVXJ2LZdUdOjwCtha5+1qbKrEUZyQaajEXFScCAKX9A+iFAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBLMWRmVeSWpSXmKPExsWS2cA0UTeDWSrZ4NVCOYuPs14wW8zb+Zvd
-        gcnj/EZFj8+b5AKYorhsUlJzMstSi/TtErgyZl3YzVJwj7dix8MjTA2MG3i7GDk5JARMJOb0
-        H2DtYuTiEBJYzSgx7+wudgjnI6PEjWNLoZyljBKzr3cDlXFwsAloSrzdXwDSLSIQLvF1zn4m
-        EFtYwFVi2eYp7CAlIgJuEsc3pEOUGEm0TfnAAhJmEVCRWLooHiTMK2AlcX33VmaI6UsYJSat
-        PskEUsMpECgxvRtsOqOAmMT3U2vApjMLiEvcejKfCeJmAYkle84zQ9iiEi8f/2OFsBUl7n9/
-        CXYBM9CR63fpQ7QqSkzpfsgOsVZQ4uTMJywQ5ZISB1fcYJnAKDYLyYZZCN2zkHTPQtK9gJFl
-        FaN4aXFxbnpFsVFearlecWJucWleul5yfu4mRmDknP53OHoH4+1bH/UOMTJxMB5ilOBgVhLh
-        FV0rkSzEm5JYWZValB9fVJqTWnyIUZqDRUmc92XUxHghgfTEktTs1NSC1CKYLBMHp1QD07Lt
-        vxv6DY/rv1XafvDdvPUyzPEpLy5WvfmTLPV55d1dMuINoWkJZZNZvB5HphybtNxqQnS87s52
-        sWc2LutWhj5cVqOYfvRrxDrbtbnWHz6tUDj6x7ixaF3IntvlxfVzn+nW8kV9F0q6mDlvzYqF
-        V++/yJHN6V8gV571vW7xy6ij2TNyt/854FY7W35CZqmRengG567l0p8k7rAXHfxVeb/c71P9
-        Af/tfxh3C8wveqXJk7y7T3/lDZYtN+eEGUqISWkqRZcvUu2deGztNf4HkdO/10+f/7fs/+R7
-        nvePbwp1fPD4XU9FduwbhhWLWoIvPvBSP+YZu2F/emXOeoEvpeq9vRt0elasZFNsa3xqcEeJ
-        pTgj0VCLuag4EQD/UIB7CwMAAA==
-X-CMS-MailID: 20220908145952uscas1p166c407fdf0182e892b233a8269babc86
-CMS-TYPE: 301P
-X-CMS-RootMailID: 20220907155824uscas1p14b8cddb2c97e9b29b194f25ec3edc4b1
-References: <CGME20220907155824uscas1p14b8cddb2c97e9b29b194f25ec3edc4b1@uscas1p1.samsung.com>
-        <CADqNVTpA4uX9rqBs9vCjvBuPp4=f9yYmrEyDuECAO2JySp907Q@mail.gmail.com>
+References: <CADqNVTpA4uX9rqBs9vCjvBuPp4=f9yYmrEyDuECAO2JySp907Q@mail.gmail.com>
+ <a48796d8-5d66-a39c-caf0-9b83a47664ab@opensource.wdc.com>
+In-Reply-To: <a48796d8-5d66-a39c-caf0-9b83a47664ab@opensource.wdc.com>
+From:   Nick Neumann <nick@pcpartpicker.com>
+Date:   Thu, 8 Sep 2022 11:24:27 -0500
+Message-ID: <CADqNVTqQLuC6fXsBg6AnCgFWaNiDX=vjOhHvAskm_EP_vD-Q_Q@mail.gmail.com>
+Subject: Re: Best practices for handling drive failures during a run?
+To:     Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBOaWNrIE5ldW1hbm4gW21haWx0
-bzpuaWNrQHBjcGFydHBpY2tlci5jb21dDQo+IFNlbnQ6IFdlZG5lc2RheSwgU2VwdGVtYmVyIDcs
-IDIwMjIgMTE6NTggQU0NCj4gVG86IGZpb0B2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogQmVz
-dCBwcmFjdGljZXMgZm9yIGhhbmRsaW5nIGRyaXZlIGZhaWx1cmVzIGR1cmluZyBhIHJ1bj8NCj4g
-DQo+IEkgd2FzIHdvbmRlcmluZyBpZiB0aGVyZSB3ZXJlIGFueSByZWNvbW1lbmRhdGlvbnMvc3Vn
-Z2VzdGlvbnMgb24NCj4gaGFuZGxpbmcgZHJpdmUgZmFpbHVyZXMgZHVyaW5nIGEgZmlvIHJ1bi4g
-SSBoaXQgb25lIHllc3RlcmRheSB3aXRoIGENCj4gNjAgc2Vjb25kIG1peGVkIHVzZSB0ZXN0IG9u
-IGFuIFNTRC4gNTEgc2Vjb25kcyBpbiwgdGhlIGRyaXZlIGJhc2ljYWxseQ0KPiBzdG9wcGVkIHJl
-c3BvbmRpbmcuIChBIHNlcGFyYXRlIHByb2dyYW0gdGhhdCBwZXJpb2RpY2FsbHkgY2FsbHMNCj4g
-c21hcnRjdGwgdG8gZ2V0IGRyaXZlIHN0YXRlIGFsc28gc2hvd2VkIHNvbWV0aGluZyB3YXMgdXAs
-IGFzIGRhdGEgbGlrZQ0KPiB0ZW1wZXJhdHVyZSB3YXMgbWlzc2luZy4pDQo+IA0KPiBBdCAxMDcg
-c2Vjb25kcywgYSByZWFkIGNvbXBsZXRlZCwgYW5kIGZpbyBleGl0ZWQuDQo+IA0KPiBJdCBtYWRl
-IG1lIHdvbmRlciB3aGF0IHdvdWxkIGhhdmUgaGFwcGVuZWQgaWYgdGhlIHRlc3Qgd2FzIG5vdCB0
-aW1lDQo+IGxpbWl0ZWQgLSBlLmcuLCBhIGZ1bGwgZHJpdmUgd3JpdGUuIFdvdWxkIGl0IGhhdmUg
-anVzdCBodW5nLCB3YWl0aW5nDQo+IGZvcmV2ZXI/IE9yIHdvdWxkIHRoZSBPUyBldmVudHVhbGx5
-IGdldCBiYWNrIHRvIGZpbyBhbmQgdGVsbCBpdCB0aGUNCj4gc3VibWl0dGVkIG9wZXJhdGlvbnMg
-aGF2ZSBmYWlsZWQgYW5kIGZpbyB3b3VsZCBleGl0Pw0KPiANCj4gQW55IGlkZWFzIG9uIHdheXMg
-dG8gdGVzdCB0aGUgYmVoYXZpb3IsIG9yIGFyZWFzIG9mIHRoZSBjb2RlIHRvIGxvb2sgYXQ/DQo+
-IA0KDQpUaGUgbnVsbF9ibGsgZGV2aWNlIHN1cHBvcnRzIGVycm9yIGluamVjdGlvbiB2aWEgdGhl
-IGJhZGJsb2NrcyBjb25maWdmcw0KdmFyaWFibGUuIFNvIHlvdSBjb3VsZCB1c2UgaXQgZm9yIHRl
-c3RpbmcuIFRoZXJlIGlzIGEgaGVscCBndWlkZSBmb3Igc2V0dGluZyB1cA0KbnVsbF9ibGsgZGV2
-aWNlcyB2aWEgY29uZmlnZnMgYXQgaHR0cHM6Ly96b25lZHN0b3JhZ2UuaW8vZG9jcy9nZXR0aW5n
-LXN0YXJ0ZWQvbnVsbGJsaw0KDQpWaW5jZW50DQo=
+On Wed, Sep 7, 2022 at 4:01 PM Damien Le Moal
+<damien.lemoal@opensource.wdc.com> wrote:
+
+> Unless you are using continue_on_error=io (or "all"), fio will stop if it
+> sees an IO error, or at least the job that gets the IO error will stop.
+> The IO error will come from the kernel when your drive stops responding
+> (IO timeout and is failed and the drive is reset in that case).
+
+Thanks for this info.
+
+> Which behavior ? That fio stops ? You can try continue_on_error=none and
+> fio will not stop until it reaches the time or size limit, even if some
+> IOs fail.
+
+I would like fio to fail and exit when the I/O error happens. I was
+wondering about a way to setup a scenario where an artificial IO error
+will occur to make sure it does, if that makes sense.
+
+> The default IO timeout for the kernel is 30s. If your drive stops
+> responding for more than that, IOs will be aborted and failed (the user
+> sees an error) and drive reset.
+
+Hmm. I had 65 seconds between any I/O; it sounds like that would've
+been enough to fail things, but fio returned immediately after that 65
+second delayed I/O, and with no error.
+
+I also found the drive timeout error in syslog:
+Sep  7 12:37:43 localhost kernel: [ 4354.600211] nvme nvme0: I/O 870
+QID 4 timeout, aborting
+Sep  7 12:37:43 localhost kernel: [ 4354.615429] nvme nvme0: Abort status: 0x0
+Sep  7 12:38:15 localhost kernel: [ 4386.600297] nvme nvme0: I/O 870
+QID 4 timeout, reset controller
+Sep  7 12:38:17 localhost kernel: [ 4388.050831] nvme nvme0: 7/0/0
+default/read/poll queues
+Sep  7 12:38:18 localhost kernel: [ 4389.437287]  nvme0n1: AHDI p1 p2 p4
+Sep  7 12:38:18 localhost kernel: [ 4389.437347] nvme0n1: p2 start
+2240010287 is beyond EOD, truncated
+Sep  7 12:38:18 localhost kernel: [ 4389.437350] nvme0n1: p4 start
+2472081425 is beyond EOD, truncated
+
+Combining the fio and syslog, the chain of events appears to be:
+4332 seconds - drive IO stops
+4353 seconds - syslog entry for timeout/abort
+4386 seconds - syslog entry for timeout/reset
+4387 seconds - read completes and fio exits without error
+
+Thanks,
+Nick
