@@ -2,115 +2,92 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E743C54EE9
-	for <fio@archiver.kernel.org>; Fri, 16 Sep 2022 12:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AB80ECAAA1
+	for <fio@archiver.kernel.org>; Mon, 19 Sep 2022 03:33:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbiIPMAK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 16 Sep 2022 08:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49110 "EHLO
+        id S229473AbiISDdh (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 18 Sep 2022 23:33:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229935AbiIPMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 16 Sep 2022 08:00:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB1512E9E5
-        for <fio@vger.kernel.org>; Fri, 16 Sep 2022 05:00:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=M2uXdPZByBivxQ8eg10IXXHTzMvSKx23S+XT9ZtJl60=; b=UAgYMwEtQTe0Az3HEtA/s4ilRE
-        VxbAAN4W9qsiB5SlMfY4doM7u+59PDAWlVxBWgRaVortsoiJwHwLv6f0MAwtClnJdFLCNexIBoPi3
-        qe6QXltWjqxLRIUG0MXSxICGFiiVcQLdfYElVjPyw22htwYSFAA48xQSIyzbsfG7a8C1eCdb5StNp
-        5fPkg1TBgO54+rCbpntDbCxQTOJ8bhs95IRs+bu4rBVg1hEPYr32ZhhgXKi9cUn9R2+jRzzZn1T9s
-        1TEUIj/tnSJqXPL0rApfBUjKhxQrqD37Q//ozaiz59o8Rc91jHKJFordwEXMuSDk4Dc/0OzZfScJK
-        TXtNzHhA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oZA0t-002AQb-5O
-        for fio@vger.kernel.org; Fri, 16 Sep 2022 12:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 9D5B91BC0142; Fri, 16 Sep 2022 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20220916120001.9D5B91BC0142@kernel.dk>
-Date:   Fri, 16 Sep 2022 06:00:01 -0600 (MDT)
+        with ESMTP id S229505AbiISDd3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 18 Sep 2022 23:33:29 -0400
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF921ADAC
+        for <fio@vger.kernel.org>; Sun, 18 Sep 2022 20:33:27 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id BDF205C020C;
+        Sun, 18 Sep 2022 23:33:24 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sun, 18 Sep 2022 23:33:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bsdio.com; h=cc
+        :content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1663558404; x=1663644804; bh=S3TnY0Io+U
+        Er9kafUGppz50KHhi/FgszYiuOeP/6rIE=; b=M7FVIzu3RYq6lgH/oVNZTYVpZi
+        GlGrhYjgzDRnV4/BuBAOu3Nm0LWzFm2M7Qcc5wHm8/l5VCDi7o3Di/HcIooR3zKa
+        hFZxcQ9XBCAgbVhz5h6NB9wBvqDugeN7OAdg7TP2BaT7679WsQnlJX9tuUW6awK7
+        asPqi7xu5ua0ijHTnlZ/N/BzKqZq++3Nb0qtVGPWlE8PZ+GkPXwsZPSvedcJfjDE
+        S862lmE6sd0UuJycU2ayKCu5Cz+zxBGi+QFj8k07kauLEhZV8373VI48/X7g75hM
+        x2Mad9vcbSWQSP8lOnWHs75RoQyBV1BrOMAAsJJcfYICf8lXHhR9RBaYmEnw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:date:feedback-id:feedback-id:from:from:in-reply-to
+        :message-id:mime-version:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm2; t=1663558404; x=1663644804; bh=S3TnY0Io+UEr9kafUGppz50KHhi/
+        FgszYiuOeP/6rIE=; b=KVkNoxaEO02xq9Her5HL3nVkPSdP1qPL/JZUflwAICcg
+        bYJaXbYC0XPvelfrKVoT2hm9ndYqB6dKxHz3nzCFIVW9kVJVrfDVQOiWv8YR+0BD
+        3pTiamqU0vr1B2Q+OsOc5YD8R73f3QkDSpcLnQdv1KDECEiSq+Ilx1TDUFXGZ/GI
+        FxI1kgnZPmRXMNaNs8aFcGDjxpueW/PZ7CX03H/8ddbG2e8uly+Jh51JxJuTMDjF
+        aUKWHpGD3lb9uoVDD/PIb5tvgEeVkbcpddTn+ZjpP1I6E1wZfok9H8ipOEIaCQ4S
+        U65t/bRC3Ww7YZUN+7Xs4WiqU8VsyC1ynNNC/JuxPA==
+X-ME-Sender: <xms:BOMnY-FD-yCNy12HOCkLOhnMpjXWsCXnUS25TMBbnjfDzQ1JDWwEAw>
+    <xme:BOMnY_UoWsNQCjJ6sFsxx1j5XyZrZbUI6024krK0cCMYGNHDzY8SS1JFUDJJ4nrFL
+    RbAcNGvhUd4sfQnNa8>
+X-ME-Received: <xmr:BOMnY4Lma10Hd5GmqtTLn_RfXmrt-6C8S_-LHxSNn5SjkudKV5N8NR8sqI-eXCg8CmSHDBp64BVwuNM1zMcug6PLoCca2Ia4zX76WQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfedviedgjeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepkfffgggfvffhufgtgfesthejredttdefjeenucfhrhhomheptfgvsggvtggt
+    rgcuvehrrghnuceorhgvsggvtggtrgessghsughiohdrtghomheqnecuggftrfgrthhtvg
+    hrnhepudffjeeutdfhueeiveekjeevgfegtdeiteeugeeggfffieehgfetffehkeehheev
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprhgvsg
+    gvtggtrgessghsughiohdrtghomh
+X-ME-Proxy: <xmx:BOMnY4FdxThO7YfSpLF8maLubn0yP2-FzzHr11G5Ou2BdRNGX-5csg>
+    <xmx:BOMnY0V6OssZlyLMTBWorFSNTgBE_PnTO80AZg33xeofeQDWUovxBg>
+    <xmx:BOMnY7OpQiChVm17Xt-EkHANlmvrwiAsAthTOwfIwYVPj3ApqDINLA>
+    <xmx:BOMnY9eRKkYv_RSwHPi-ijkXAQrn4PbbpxRz0u37ZV0H4OeHz5t4rw>
+Feedback-ID: i5b994698:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 18 Sep 2022 23:33:24 -0400 (EDT)
+Message-ID: <7b55f5b3-ae72-b99a-9fe1-04d60ba7161e@bsdio.com>
+Date:   Sun, 18 Sep 2022 21:33:23 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Content-Language: en-US
+From:   Rebecca Cran <rebecca@bsdio.com>
+Subject: configure on FreeBSD reports "grep: The -P option is not supported"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 08996af41b2566565cbcdee71766030a2c8ba377:
+It looks like commit 7ff204c83595cd7d6b7b6a813d9fda97afd25198 introduced an error on some systems such as FreeBSD, whose grep doesn't support -P.
 
-  backend: number of ios not as expected for trimwrite (2022-09-13 15:03:21 -0600)
+num() {
+   echo "$1" | grep -P -q "^[0-9]+$"
+}
 
-are available in the Git repository at:
+./configure now reports:
 
-  git://git.kernel.dk/fio.git master
+grep: The -P option is not supported
+seed_buckets                  4
 
-for you to fetch changes up to 5932cf0f2a03396b5f3f0b4667f5e66f7d8477e5:
+Is -P required?
 
-  Merge branch 'fix-example-disk-zone-profile' of github.com:cvubrugier/fio (2022-09-15 11:02:49 -0400)
+-- 
+Rebecca Cran
 
-----------------------------------------------------------------
-Christophe Vu-Brugier (2):
-      examples: set zonemode to strided in disk-zone-profile.fio
-      examples: fix bandwidth logs generation in disk-zone-profile.fio
-
-Vincent Fu (2):
-      Merge branch 'master' of github.com:uniontech-lilinjie/fio
-      Merge branch 'fix-example-disk-zone-profile' of github.com:cvubrugier/fio
-
-lilinjie (1):
-      fix spelling error
-
- examples/disk-zone-profile.fio | 9 ++++++---
- fio.1                          | 4 ++--
- 2 files changed, 8 insertions(+), 5 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/examples/disk-zone-profile.fio b/examples/disk-zone-profile.fio
-index 96e56695..577820eb 100644
---- a/examples/disk-zone-profile.fio
-+++ b/examples/disk-zone-profile.fio
-@@ -1,4 +1,4 @@
--; Read disk in zones of 128m/2g, generating a plot of that afterwards
-+; Read disk in zones of 256m/2g. Generating a plot of that afterwards
- ; should give a nice picture of the zoning of this drive
- 
- [global]
-@@ -7,8 +7,11 @@ direct=1
- rw=read
- ioengine=libaio
- iodepth=2
-+zonemode=strided
- zonesize=256m
- zoneskip=2g
--write_bw_log
- 
--[/dev/sdb]
-+[disk-zone-profile]
-+filename=/dev/sdb
-+write_bw_log
-+log_offset=1
-diff --git a/fio.1 b/fio.1
-index c67bd464..39d6b4f4 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2491,11 +2491,11 @@ Specify the label or UUID of the DAOS pool to connect to.
- Specify the label or UUID of the DAOS container to open.
- .TP
- .BI (dfs)chunk_size
--Specificy a different chunk size (in bytes) for the dfs file.
-+Specify a different chunk size (in bytes) for the dfs file.
- Use DAOS container's chunk size by default.
- .TP
- .BI (dfs)object_class
--Specificy a different object class for the dfs file.
-+Specify a different object class for the dfs file.
- Use DAOS container's object class by default.
- .TP
- .BI (nfs)nfs_url
