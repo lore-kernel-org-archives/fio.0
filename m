@@ -2,117 +2,109 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3F49C54EE9
-	for <fio@archiver.kernel.org>; Mon, 19 Sep 2022 13:15:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37DA4ECAAD3
+	for <fio@archiver.kernel.org>; Mon, 19 Sep 2022 14:24:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229935AbiISNPq (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 19 Sep 2022 09:15:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40040 "EHLO
+        id S229699AbiISOYG (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 19 Sep 2022 10:24:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230252AbiISNPp (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 19 Sep 2022 09:15:45 -0400
-Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EF4D255BB
-        for <fio@vger.kernel.org>; Mon, 19 Sep 2022 06:15:44 -0700 (PDT)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id 503CB5C03A2;
-        Mon, 19 Sep 2022 09:15:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 19 Sep 2022 09:15:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bsdio.com; h=cc
-        :content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm3; t=1663593341; x=
-        1663679741; bh=mu6/vHf3Je8naIkUhvjZwoK852NSV8E8iK6SKeEM+ZQ=; b=i
-        4Ctl20X8bq9NR8FX6OOHKkp7CzlpArp4zOKgr8ZCjeAJVlCGgsjRDvRSL/W1911O
-        wUxyPUHrRXpdiEacw0F5LtRHL1FkT/pCGICWkCGFXepmMOtaHIUALgADt1cT1a+Q
-        mSIGBzq+dhx16ha7/KGym8XRE7Y0qmt4jcnDDw4qpRNAkoHd7lMOuUbOPrU03EKN
-        6wsSg0kBFhdVYr+hXhUc+EMhedbovpM02Bp/s3XaV+V+8zab8y/FF3iZ3Rkx+ES7
-        egltwj/B3kZ/2S/FQjTUgLxayFVM6jp9XjzTJpMjVmZVHC/qafkqiESz3ILzndVF
-        3QkMtp9qVB60oDpL4Hkbw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:date:feedback-id:feedback-id:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender
-        :x-me-sender:x-sasl-enc; s=fm2; t=1663593341; x=1663679741; bh=m
-        u6/vHf3Je8naIkUhvjZwoK852NSV8E8iK6SKeEM+ZQ=; b=XWLwS5L5ETg8TZzAv
-        N2ayVsf7hk1I2KOe0c0MAK/50Zs1ych3bYTjux3vCoLN70syp89C9pM23DJRN8u2
-        rJJPwJsdy6hdA5nwhHoeDri6UflZvDkeELUk4oGl/jscNZRON7USx5x2FyTHXa0+
-        p7wkrOV1p63DgNWfPGhrilLvfSg2Bg2dl6iHHFGelB388Gr971MfYNXT7Pe2GJ5T
-        J3UXr24dMVDeM4EUPynEexkwSjRK2+mCksCj8cassgKrfenEwGdfT5Yaqm4Apevb
-        suAtIJL7ZrIYBPdKtozq8XjhWcuFk09Fh5dmrvodYtj//JHqHPfcAlRTpDQyIyCQ
-        a/4gw==
-X-ME-Sender: <xms:fGsoY3hONlBBQWCyeZG6KsTMNFV-o0tDmWq6FWRarDmAp6bAawqg_A>
-    <xme:fGsoY0BVNaAALxPNzs65Jcno4A6IGrOFuyF2O4zhuatjwi51kBAuqW4BM9yzVLAJs
-    58Pkp9n0-ahGSeqEF4>
-X-ME-Received: <xmr:fGsoY3EkrS936m9JMJyTpNOyodZlPdEUV0otIRVqSWj-eZaKaz9RvVIGYZJNKyCFxHn3A2LrH7lCAGJPmIVEzGN4R9jAZISFIBnDuA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfedvjedgieefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepkfffgggfuffvfhfhjggtgfesthekredttdefjeenucfhrhhomheptfgvsggv
-    tggtrgcuvehrrghnuceorhgvsggvtggtrgessghsughiohdrtghomheqnecuggftrfgrth
-    htvghrnhepueehffegfeeluedufefffeejieeugeegvdefgffhueetheeuheegieeftddu
-    feehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprh
-    gvsggvtggtrgessghsughiohdrtghomh
-X-ME-Proxy: <xmx:fGsoY0R2hbaI1SbSpYFr7NUlFM1pHpH9h_vMG0vXW8f7qmxyZrOgzQ>
-    <xmx:fGsoY0w3CNrvRC6qd9KIoyJwqbigEb1nEPk3mtLFM4uOWhkzdUTPfA>
-    <xmx:fGsoY65vJJrTCf7kwElf4XpdX-YDICZcPqO2rQwO9FkHx6ejpJzYHg>
-    <xmx:fWsoYxqG09qLs3y5-OeUMQt-39gNFY9TPD00Imu3sBPl3TjoBdpC9Q>
-Feedback-ID: i5b994698:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 19 Sep 2022 09:15:40 -0400 (EDT)
-Message-ID: <26076f36-54d5-ca6e-0b96-a7371b1c5e49@bsdio.com>
-Date:   Mon, 19 Sep 2022 07:15:39 -0600
+        with ESMTP id S229611AbiISOYF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 19 Sep 2022 10:24:05 -0400
+Received: from mail-qt1-x82c.google.com (mail-qt1-x82c.google.com [IPv6:2607:f8b0:4864:20::82c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B30F51D316
+        for <fio@vger.kernel.org>; Mon, 19 Sep 2022 07:24:03 -0700 (PDT)
+Received: by mail-qt1-x82c.google.com with SMTP id h21so20672073qta.3
+        for <fio@vger.kernel.org>; Mon, 19 Sep 2022 07:24:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date;
+        bh=vT4IvyZO95Bcb3H6fLkP4KHiVJtt1hMDyfUBc5yLuyw=;
+        b=qqdXTawyVqi3zXDIj2FjfMIY5dycXmyU+zX7aQuPl8sea2pmqxqpDvua8tndEdUXDs
+         q+IhCgiM6azm1qPPJkFEW8M7zm5UfS55Ui4SkoE1YsAo/b38uKAkIvsmTaq6y+zbO/0K
+         JPSxBdjVwopqXqdPMsekea/96VuEHOPbskTlgLiuzbRn87dUNf9CadwEpz8WOy0XmfBZ
+         1I6hFOfrEZniPpBvP6xNTMYNUntOzNGrgQeTUI2Q9P6ngicf6F46s48n0O3Ii30uxzT8
+         KzxrZunucCvVWzKm6hym0Q/upDscxngg1ujWo21PKFmYAWmXV/N2Xp6fusy2SvHoOvh/
+         vjVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date;
+        bh=vT4IvyZO95Bcb3H6fLkP4KHiVJtt1hMDyfUBc5yLuyw=;
+        b=JGUogNohcY8hrmnLsX5lBH+zKYaRJQuB9AjSmSJ2ZjUIjfp1iMxSmmH+a/3UVxVi4T
+         Hfv7lCK8V5QjGtPBbO7O7vK0Gj7GrVHTeGHvRMViuVcoCGyeSqoCRsu7JT9VfVIibU6O
+         OPu04Kw0Ac4PwxkP6CwUFZ4Xp2DMzY5YTS5TlPHvOoCXlbH8TTlCf81q2sm6FAIfxuQw
+         YhssQSxTedBblwufFUwBg9D3GnlHYNFK9QoC3HZuslEtDEwYtRAt0mLPDGCgq3LwL+SP
+         LnAMCivjpQ5TjqadpZ0oDlQh5SSCl2EZsDiD7Eym6kwQc9rhqsnterQUVKEekBlpit4f
+         cV9A==
+X-Gm-Message-State: ACrzQf2kUWXv1dEogwsHn1yGXV9PVRREyt723WGMnSCrmser+foS+Z5U
+        tNW93mcxQDHfzRYyLfgZ0hw=
+X-Google-Smtp-Source: AMsMyM7CdHRxXYJhEaNj98PfOqZ5y4ntM5B8lesUKKP132xY0TuktFWt5lcH/ggvAt+CNIWTuvtlrA==
+X-Received: by 2002:ac8:5f53:0:b0:35b:b155:1c1f with SMTP id y19-20020ac85f53000000b0035bb1551c1fmr15437836qta.148.1663597442701;
+        Mon, 19 Sep 2022 07:24:02 -0700 (PDT)
+Received: from [192.168.1.218] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id bm29-20020a05620a199d00b006bb11f9a859sm13453624qkb.122.2022.09.19.07.24.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Sep 2022 07:24:02 -0700 (PDT)
+Message-ID: <4f2ca76e-30a3-e58d-4b13-6c1a43a6fddc@gmail.com>
+Date:   Mon, 19 Sep 2022 10:24:02 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
 Subject: Re: configure on FreeBSD reports "grep: The -P option is not
  supported"
 Content-Language: en-US
-To:     Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org,
+To:     Rebecca Cran <rebecca@bsdio.com>, fio@vger.kernel.org,
         Jens Axboe <axboe@kernel.dk>
 References: <7b55f5b3-ae72-b99a-9fe1-04d60ba7161e@bsdio.com>
  <9295573b-a112-eaba-f441-99ccad62d5c8@gmail.com>
-From:   Rebecca Cran <rebecca@bsdio.com>
-In-Reply-To: <9295573b-a112-eaba-f441-99ccad62d5c8@gmail.com>
+ <26076f36-54d5-ca6e-0b96-a7371b1c5e49@bsdio.com>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <26076f36-54d5-ca6e-0b96-a7371b1c5e49@bsdio.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 9/19/22 07:12, Vincent Fu wrote:
-> On 9/18/22 23:33, Rebecca Cran wrote:
->> It looks like commit 7ff204c83595cd7d6b7b6a813d9fda97afd25198 
->> introduced an error on some systems such as FreeBSD, whose grep 
->> doesn't support -P.
+On 9/19/22 09:15, Rebecca Cran wrote:
+> On 9/19/22 07:12, Vincent Fu wrote:
+>> On 9/18/22 23:33, Rebecca Cran wrote:
+>>> It looks like commit 7ff204c83595cd7d6b7b6a813d9fda97afd25198 
+>>> introduced an error on some systems such as FreeBSD, whose grep 
+>>> doesn't support -P.
+>>>
+>>> num() {
+>>>    echo "$1" | grep -P -q "^[0-9]+$"
+>>> }
+>>>
+>>> ./configure now reports:
+>>>
+>>> grep: The -P option is not supported
+>>> seed_buckets                  4
+>>>
+>>> Is -P required?
+>>>
 >>
->> num() {
->>    echo "$1" | grep -P -q "^[0-9]+$"
->> }
+>> Hello Bex,
 >>
->> ./configure now reports:
+>> Does it work for you to replace -P with -E?
 >>
->> grep: The -P option is not supported
->> seed_buckets                  4
+>> Alternatively, what if we replaced grep with
 >>
->> Is -P required?
->>
->
-> Hello Bex,
->
-> Does it work for you to replace -P with -E?
->
-> Alternatively, what if we replaced grep with
->
-> test "$1" -eq "$1" 2>/dev/null
+>> test "$1" -eq "$1" 2>/dev/null
+> 
+> 
+> Replacing it with -E works.
+> 
+> 
+Bex, change committed here:
 
+https://github.com/axboe/fio/commit/d14687025c0c61d047e4252036d1b024d62cb0a6
 
-Replacing it with -E works.
+Thanks.
 
-
--- 
-
-Rebecca Cran
-
+Vincent
