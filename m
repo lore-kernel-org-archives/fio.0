@@ -2,113 +2,96 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E7DCECAAD8
-	for <fio@archiver.kernel.org>; Thu, 22 Sep 2022 20:29:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E71D4ECAAD8
+	for <fio@archiver.kernel.org>; Thu, 22 Sep 2022 23:11:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229512AbiIVU3s (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 22 Sep 2022 16:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
+        id S229772AbiIVXL3 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 22 Sep 2022 19:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229624AbiIVU3s (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 22 Sep 2022 16:29:48 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 160CA24F29
-        for <fio@vger.kernel.org>; Thu, 22 Sep 2022 13:29:46 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id r7so17374243wrm.2
-        for <fio@vger.kernel.org>; Thu, 22 Sep 2022 13:29:46 -0700 (PDT)
+        with ESMTP id S230064AbiIVXL3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 22 Sep 2022 19:11:29 -0400
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A218CD2D5B
+        for <fio@vger.kernel.org>; Thu, 22 Sep 2022 16:11:27 -0700 (PDT)
+Received: by mail-wm1-x336.google.com with SMTP id e10-20020a05600c4e4a00b003b4eff4ab2cso2240767wmq.4
+        for <fio@vger.kernel.org>; Thu, 22 Sep 2022 16:11:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=pcpartpicker.com; s=google;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date;
-        bh=5Ui2pJ/Pi48k0DHQVY2X8NUTu6fdyhhMRMqKGWyexr8=;
-        b=DNTN/Y74oupNes2iqG9/aTyY1s4kz5WlXGJF/v+GGn8CrsJZ8QiMzFWPbEFNpk0J1V
-         9tzIxeIiFPYbQ0yXyFhIDZXoH1rcFSGjk4AloFsG5G7z2UA3k2n1eD6VuKYZ/cNPVdDJ
-         dHnCLLy4oi2uiHnuf4bTEW90xeYqsHy29b+wfYTrLXpBX1Wgd6UNa0zFGseCoteFkfQ8
-         eURV94ONaqsavNskonKpWv7MccuFJIcumigx6s9oSWOcw+1oZeupPxXrxuV6nQortqj6
-         e3mlN4mIYywNVRKb9WZnH8BwzvYfJ+H7swdxN9yRGIbzi7PUMN/SqlNEP0XEOydhiGvl
-         WA3Q==
+        bh=3d0KJHBYf+2XOzB0h4hbgbgKjfoRIPIvNexK/yd6KiQ=;
+        b=MMAgZgh954WN7VT5czgX5d2PM7UAS6jGrKv7/I3YFCe5KP9nfNdR/wEd2D3e/2G77y
+         4NDVwprxZSvlef0mftFWHrKtP5WVuspxSmn+QsAOPgndHjVPJjcgmHn+0OoXS6BQMezg
+         qPwa2WBQiXdlKSQJjaTwQ56E8ArRGunAL9PeQUSmLaeb13VK8aeEZLL0J5MFh3B9bOc6
+         KlGDRRnyiTsOTkOVlJzAUw0V7ZVP54PqY40+DAaOKn+/QVBPLIZHlLkzbDsh14hQa/29
+         CU3MFPuEPbV7xzVMVH41kpmIsGmjbqzWjZUb7K+uXbqS60N3ERs+VGkqAamU2xTU2Wx9
+         Ew/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=5Ui2pJ/Pi48k0DHQVY2X8NUTu6fdyhhMRMqKGWyexr8=;
-        b=v8b40A7MQc2wSI3h5EmARyospIQwUMMLI6E0MIAc2lHiF8cAZH/JN0dQIIGTokhobK
-         ZlzO1iA5YVWhuUBPAZE0B0/3kqM38IFekfEAV+H8+qCrQmSQbVf6oHSp68enH0IS07/b
-         dwl2E+lK4lsXjp80rS0Bq3qgGI36S2BdRY4Lj7O1skSgNwbITh/UYdaS9xuiK6b36kn6
-         rWyFuPM5BKBw7VjLil2DSlIX/xyZO5kujEZpuvVYKweQxHwHDlqb56jThQvbDl0subpk
-         JGDxmhrXKsbkwJ1UljronRtz4fbLSWT07+wBcT+jj4XhQL56bcsuWCvxSYQC4qF+/tK/
-         gM/A==
-X-Gm-Message-State: ACrzQf13dP0989Tz28GL1WI/xvZ128y1vMu/5chwQjGUVBLY43qBPxse
-        rMDma+jC6wKXv1gRf08hKqs7buBddG5orrH58P6CjOTf0EEqPjrM
-X-Google-Smtp-Source: AMsMyM7c46CCKrYFnTJoEYSIdM3z3cpbYLBcs5rzZSvl39uzVLCv2z6cvvB6g4Ukg0+4RWFwK/Sq0QS2+SMwRRQdn9E=
-X-Received: by 2002:a05:6000:1363:b0:228:d605:f9dc with SMTP id
- q3-20020a056000136300b00228d605f9dcmr2970797wrz.109.1663878584557; Thu, 22
- Sep 2022 13:29:44 -0700 (PDT)
+        bh=3d0KJHBYf+2XOzB0h4hbgbgKjfoRIPIvNexK/yd6KiQ=;
+        b=rIxSu4qWjlufsEfmhFAH5bWP+ipxCGuQ1uONip/GpIcL1Re0NB9/knWRjn6RZ/4FfK
+         wT3zJodEkheKvrQgyJR2sQ9e+KdgHwJwSEVxeT95N0WUGKe8atyUqBg6eBG8YIYKBzKR
+         fBw9JDT3KUG2XgJyOj7bhfLAIyxZf2WFUOpNcJG56YtoUZRkcHeliPL6+q/JdYILXklC
+         1ftnthqXcHKwkLhGzKfLNFFCuxxb01GosRiHLd92cfty6YoJeia/hUld27pBhUavHu4m
+         aFnz4R5dUMHKIse+PCoPjuOMJ5C6sBMN4NlbBud+Si8K1tAnY/KFOwRd4LNqW7nHXa1H
+         To4w==
+X-Gm-Message-State: ACrzQf21qmgrbhGy/Bc8AMEVkjcEdgTde5rNioWmm/f5PRBgjing9hpQ
+        eebwlPsO0xJK0S0cB5z4znsh3OTnLd9trenwaHWlOG1iKl/1qg==
+X-Google-Smtp-Source: AMsMyM5/CJyZW88ZMSR6TL54KM6lPw3/TPQ0Rk4hLZrOvnpRLSCkuPIQzA9V8yCvZ8BCgzmwVQe65rt65rU5LPivL3U=
+X-Received: by 2002:a05:600c:4ece:b0:3b4:a79c:1333 with SMTP id
+ g14-20020a05600c4ece00b003b4a79c1333mr4003343wmq.49.1663888286143; Thu, 22
+ Sep 2022 16:11:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <CGME20220907155824uscas1p14b8cddb2c97e9b29b194f25ec3edc4b1@uscas1p1.samsung.com>
- <CADqNVTpA4uX9rqBs9vCjvBuPp4=f9yYmrEyDuECAO2JySp907Q@mail.gmail.com>
- <99cd72aca6274227825d5a50b263bab8@samsung.com> <CADqNVTpvftJZaJ2AepPMcbaJJr7vYMaLdivCf85j8Rwrq_02Fw@mail.gmail.com>
- <CADqNVTpkMUVx2+tUXTRivNqsejbP_Sto90pihzm+L210=MC25A@mail.gmail.com> <9b0021d903894664ab0a698ff19588d0@samsung.com>
-In-Reply-To: <9b0021d903894664ab0a698ff19588d0@samsung.com>
+References: <CADqNVTpA4uX9rqBs9vCjvBuPp4=f9yYmrEyDuECAO2JySp907Q@mail.gmail.com>
+ <a48796d8-5d66-a39c-caf0-9b83a47664ab@opensource.wdc.com> <CADqNVTqQLuC6fXsBg6AnCgFWaNiDX=vjOhHvAskm_EP_vD-Q_Q@mail.gmail.com>
+ <022e132e-f051-28af-f85c-c2700b9ba992@opensource.wdc.com>
+In-Reply-To: <022e132e-f051-28af-f85c-c2700b9ba992@opensource.wdc.com>
 From:   Nick Neumann <nick@pcpartpicker.com>
-Date:   Thu, 22 Sep 2022 15:29:32 -0500
-Message-ID: <CADqNVTrzoL+7o1Q8FNE819wO5HgC8a5cTFOhmBVKAPnX9_JTuw@mail.gmail.com>
+Date:   Thu, 22 Sep 2022 18:11:13 -0500
+Message-ID: <CADqNVToJWUPRb7zP0AD5MVagmgtjVB-_OxhvKQJV3zKAxL3g=w@mail.gmail.com>
 Subject: Re: Best practices for handling drive failures during a run?
-To:     Vincent Fu <vincent.fu@samsung.com>
-Cc:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+To:     Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Cc:     fio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, Sep 9, 2022 at 10:56 PM Vincent Fu <vincent.fu@samsung.com> wrote:
-> You could test your theory about max_retries by creating an NVMe fabrics
-> loopback device backed by null_blk with error injection. Then try to access one
-> of the bad blocks via the nvme device and see if the delay before fio sees
-> the error depends on io_timeout and max_retries in the way that you expect.
+On Sat, Sep 10, 2022 at 3:28 AM Damien Le Moal
+<damien.lemoal@opensource.wdc.com> wrote:
+> You can use write-long, to "destroy" sectors: you will get errors when
+> attempting to read the affected sectors. But that is a really big hammer. A
+> simpler solution is to use dm-flakey to create "soft" IO errors.
 
-I finally got a chance to try this. I had to learn enough about nvme
-fabrics and combine it with the null_blk bad blocks as before. I think
-I'm doing everything right, but I'm wondering if I missed something,
-because the behavior trying to write to the nvme fabric device which
-has a null_blk device "backing" it is the same as trying to write to
-the null_blk device directly - immediate error and termination of fio.
-I wonder if this should really surprise me though since the underlying
-device doesn't experience a timeout and its error is immediately
-propagated to the client over the nvme fabric (apologies if I'm using
-any terminology wrong). This was my basic setup:
+Thank you for mentioning this - I'm not a linux veteran so I did not
+know about these tools.
 
-sudo modprobe null_blk nr_devices=0
-sudo mkdir /sys/kernel/config/nullb/nullb0
-echo 1 | sudo tee -a /sys/kernel/config/nullb/nullb0/memory_backed
-echo "+1-100" | sudo tee -a /sys/kernel/config/nullb/nullb0/badblocks
-echo 1 | sudo tee -a /sys/kernel/config/nullb/nullb0/power
-# First fio run directly on null device returns error immediately
-sudo fio --filename=/dev/nullb0 --name=job --ioengine=libaio
---direct=1 --size=1M --rw=rw --rwmixwrite=100 --bs=128K
-sudo modprobe nvme_tcp
-sudo modprobe nvmet-tcp
-sudo mkdir /sys/kernel/config/nvmet/subsystems/nvmet-test
-cd /sys/kernel/config/nvmet/subsystems/nvmet-test
-echo 1 | sudo tee -a attr_allow_any_host
-sudo mkdir namespaces/1
-cd namespaces/1
-echo -n /dev/nullb0 | sudo tee -a device_path
-echo 1 | sudo tee -a enable
-mkdir /sys/kernel/config/nvmet/ports/1
-sudo mkdir /sys/kernel/config/nvmet/ports/1
-echo 127.0.0.1 | sudo tee -a /sys/kernel/config/nvmet/ports/1/addr_traddr
-echo tcp | sudo tee -a /sys/kernel/config/nvmet/ports/1/addr_trtype
-echo 4420 | sudo tee -a /sys/kernel/config/nvmet/ports/1/addr_trsvcid
-echo ipv4 | sudo tee -a /sys/kernel/config/nvmet/ports/1/addr_adrfam
-sudo ln -s /sys/kernel/config/nvmet/subsystems/nvmet-test
-/sys/kernel/config/nvmet/ports/1/subsystems/nvmet-test
-sudo dmesg | grep nvmet_tcp
-sudo modprobe nvme
-sudo nvme discover -t tcp -a 127.0.0.1 -s 4420
-sudo nvme connect -t tcp -n nvmet-test -a 127.0.0.1 -s 4420
-sudo nvme list
-cat /proc/partitions | grep nvme
-# This guy also returns error immediately
-sudo fio --filename=/dev/nvme0n1 --name=job --ioengine=libaio
---direct=1 --size=1M --rw=rw --rwmixwrite=100 --bs=128K
+I tried dm-flakey, but when the device is down, the errors are
+returned immediately. I also looked at dm-delay, and that actually
+worked pretty well for getting fio to sit and wait on an I/O.
+
+Unfortunately I have a hard time getting the delay to be "big". The
+time it takes to add the delay rule appears to be a linear function of
+the amount of delay, with a very big constant factor. A half second
+delay takes 11 seconds to add, and a 5 second delay takes 112 seconds:
+sudo time dmsetup create test9 --table "0 1024 delay /dev/nullb1 0 500
+/dev/nullb1 0 0"
+0.00user
+0.00system
+0:11.28elapsed
+...
+sudo time dmsetup create test10 --table "0 1024 delay /dev/nullb1 0
+5000 /dev/nullb1 0 0"
+0.00user
+0.00system
+1:52.70elapsed
+
+And unfortunately something breaks at some point, as my attempt to do
+a 70 second delay had not finished after 2 hours. I'm experimenting
+right now to try to find a smaller but still big value that is useful
+for testing the nvme timeout/retry defaults. I've seen code snippets
+online though that set the delay to 100 seconds, so I'm at a loss why
+the time to do it is growing so large on my system.
