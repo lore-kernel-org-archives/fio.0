@@ -2,122 +2,171 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38B81C32771
-	for <fio@archiver.kernel.org>; Mon, 26 Sep 2022 19:15:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D3CC433F5
+	for <fio@archiver.kernel.org>; Thu, 29 Sep 2022 12:00:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229717AbiIZTPF (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 26 Sep 2022 15:15:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55928 "EHLO
+        id S235453AbiI2MAL (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 29 Sep 2022 08:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229574AbiIZTPE (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Sep 2022 15:15:04 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23C845076
-        for <fio@vger.kernel.org>; Mon, 26 Sep 2022 12:15:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1664219701;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vhnN07WkwVkY/KiYtJuHP7OYdXh9qy32bxwPCTJWUNI=;
-        b=iIak6uzHT1SZY/kVA1W4qEOccylFC7VZ7Pqv4RNq3pVqZKwJ3a+adISxSqI7dyxlxjy0uz
-        0hG9WO/tTa4g3SwVkb/3iIPCBqxmS6lTDVktclKjU0XkO3sVPW7vhek4eGY95yjtM6Sm5D
-        xUob84PCvW9sVvnl2la68J/SzlikLio=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-561-qzKL4n4kPzuUk0HjZfZKWg-1; Mon, 26 Sep 2022 15:14:57 -0400
-X-MC-Unique: qzKL4n4kPzuUk0HjZfZKWg-1
-Received: by mail-il1-f200.google.com with SMTP id r12-20020a92cd8c000000b002f32d0d9fceso5914417ilb.11
-        for <fio@vger.kernel.org>; Mon, 26 Sep 2022 12:14:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=vhnN07WkwVkY/KiYtJuHP7OYdXh9qy32bxwPCTJWUNI=;
-        b=XhjDlshie8rvWPHShfa6uHRTGyz6z7qcXBU/gPObugyp74Zrb5VIi+Wq4Jh6evL0vM
-         UO2k0gU/0l2m41Ci9ez4iEvGJFzJ2hVpzp9IidREB+8FpuAkeF9MjvcGR/zoh+myDjHO
-         WOu9W8I63/z4UwoY62PbuDY6DbD5gOVPFqe8qKSDo5+QE7qmOgUSGk65c/FPzi1XSCgu
-         UgylOD3zFWh1UIEhzGRMSrwAGDHrheiEAJKVAPG45pLtIC2XGT19SiouYDj1GKegAYW0
-         qAm20hrMjZDEil9c8sFC00RvtHLSKL3NlCDSoQABAgUAaUP6J4qXLQ+YJJQX7V6T7Njy
-         8Ddg==
-X-Gm-Message-State: ACrzQf2XA9/KRiUbJokU6+9cce0AMe7UF7+eRSqedk0jGwcKB53A+4NT
-        2jzZwRDF/1h2wTjFkkaMsnEYQmJ0SR2zGbRz+01gsvLkQUX1WghqGgowjs+O5XyA25gCT9aHZbH
-        x9HDy4UF9HZ3ALK8FX3qy9x+S+TqP
-X-Received: by 2002:a05:6e02:1749:b0:2f6:9928:f1d with SMTP id y9-20020a056e02174900b002f699280f1dmr11022769ill.52.1664219696513;
-        Mon, 26 Sep 2022 12:14:56 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM4r7LucXen6S3rwCNOzb0vAT4b/XhBJlJaoLaW/pUi0ZyIyuns2lwuk8XZ0MCBdbQitCIATc3ENkuUT0ICF/9U=
-X-Received: by 2002:a05:6e02:1749:b0:2f6:9928:f1d with SMTP id
- y9-20020a056e02174900b002f699280f1dmr11022759ill.52.1664219696293; Mon, 26
- Sep 2022 12:14:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <CADqNVTpA4uX9rqBs9vCjvBuPp4=f9yYmrEyDuECAO2JySp907Q@mail.gmail.com>
- <a48796d8-5d66-a39c-caf0-9b83a47664ab@opensource.wdc.com> <CADqNVTqQLuC6fXsBg6AnCgFWaNiDX=vjOhHvAskm_EP_vD-Q_Q@mail.gmail.com>
- <022e132e-f051-28af-f85c-c2700b9ba992@opensource.wdc.com> <CADqNVToJWUPRb7zP0AD5MVagmgtjVB-_OxhvKQJV3zKAxL3g=w@mail.gmail.com>
-In-Reply-To: <CADqNVToJWUPRb7zP0AD5MVagmgtjVB-_OxhvKQJV3zKAxL3g=w@mail.gmail.com>
-From:   Bryan Gurney <bgurney@redhat.com>
-Date:   Mon, 26 Sep 2022 15:14:45 -0400
-Message-ID: <CAHhmqcQkSUQ184JFtkfyVS24QfYqa_nG+guNf9c1dXf+ArZbBQ@mail.gmail.com>
-Subject: Re: Best practices for handling drive failures during a run?
-To:     Nick Neumann <nick@pcpartpicker.com>
-Cc:     fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S235386AbiI2MAI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 29 Sep 2022 08:00:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D84D1D0FD
+        for <fio@vger.kernel.org>; Thu, 29 Sep 2022 05:00:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=C7OQ80VR4pTzEOud/Qm5gWeP0dYeApbWs/lrSswR6KQ=; b=jz86HTc1tDkFbcRXnztNSE3Oud
+        hqZ6RW37ivYMuRTdSgQQt7xR9v82stg89yiovBiMU7T3+4N5X+PQjB38skeBT3oCA8PYl6ype1sPE
+        o+Yme3MmkXITBXbaIHWk6tLId8Ruq8lwRZYJ9EoYYZrTlHgj3ihgT78Hm14fQU6cq1zUQYlc57YVb
+        p3iEVrpCSY6YD2Rc4pHof5vg8Kd2T2R6hawU4q7RSaGqLL5+D8IyQ3FJ7Zsj88PcGssexZaDW2P5g
+        V5cuYi/XLni/ul/Ba5D8J3SXZX3Oimkqd57KW6y/EtWbyWv0++0LVMQl5dacZNgGKyHI2nS1k0WfT
+        0bmMgxJQ==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1odsD0-00DFPG-Nc
+        for fio@vger.kernel.org; Thu, 29 Sep 2022 12:00:07 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 8CDEB1BC016C; Thu, 29 Sep 2022 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20220929120001.8CDEB1BC016C@kernel.dk>
+Date:   Thu, 29 Sep 2022 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Thu, Sep 22, 2022 at 7:11 PM Nick Neumann <nick@pcpartpicker.com> wrote:
->
-> On Sat, Sep 10, 2022 at 3:28 AM Damien Le Moal
-> <damien.lemoal@opensource.wdc.com> wrote:
-> > You can use write-long, to "destroy" sectors: you will get errors when
-> > attempting to read the affected sectors. But that is a really big hammer. A
-> > simpler solution is to use dm-flakey to create "soft" IO errors.
->
-> Thank you for mentioning this - I'm not a linux veteran so I did not
-> know about these tools.
->
-> I tried dm-flakey, but when the device is down, the errors are
-> returned immediately. I also looked at dm-delay, and that actually
-> worked pretty well for getting fio to sit and wait on an I/O.
->
-> Unfortunately I have a hard time getting the delay to be "big". The
-> time it takes to add the delay rule appears to be a linear function of
-> the amount of delay, with a very big constant factor. A half second
-> delay takes 11 seconds to add, and a 5 second delay takes 112 seconds:
-> sudo time dmsetup create test9 --table "0 1024 delay /dev/nullb1 0 500
-> /dev/nullb1 0 0"
-> 0.00user
-> 0.00system
-> 0:11.28elapsed
-> ...
-> sudo time dmsetup create test10 --table "0 1024 delay /dev/nullb1 0
-> 5000 /dev/nullb1 0 0"
-> 0.00user
-> 0.00system
-> 1:52.70elapsed
->
-> And unfortunately something breaks at some point, as my attempt to do
-> a 70 second delay had not finished after 2 hours. I'm experimenting
-> right now to try to find a smaller but still big value that is useful
-> for testing the nvme timeout/retry defaults. I've seen code snippets
-> online though that set the delay to 100 seconds, so I'm at a loss why
-> the time to do it is growing so large on my system.
->
+The following changes since commit 6112c0f5a86c6b437e7158ab40a6e9384ce95e85:
 
-Hi Nick,
+  doc: build manpage from fio_doc.rst instead of fio_man.rst (2022-09-27 11:58:25 -0400)
 
-If you're trying to create an error at an arbitrary location, at an
-arbitrary time, you might be interested in using the dm-dust target.
-The documentation in the admin-guide for dm-dust [1] has information
-on the command interface that the target uses (via the "dmsetup
-message" command) in order to set up a specific failure scenario for a
-test device.
+are available in the Git repository at:
 
+  git://git.kernel.dk/fio.git master
 
-Thanks,
+for you to fetch changes up to c16dc793a3c45780f67ce65244b6e91323dee014:
 
-Bryan
+  Add randtrimwrite data direction (2022-09-28 10:06:40 -0600)
 
-[1] https://www.kernel.org/doc/html/v5.19/admin-guide/device-mapper/dm-dust.html
+----------------------------------------------------------------
+Jens Axboe (2):
+      t/io_uring: get rid of useless read barriers
+      Add randtrimwrite data direction
 
+ HOWTO.rst    |  3 +++
+ fio.1        |  5 +++++
+ io_ddir.h    |  4 +++-
+ options.c    |  4 ++++
+ t/io_uring.c | 10 ++++++----
+ 5 files changed, 21 insertions(+), 5 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 924f5ed9..e89d05f0 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -1134,6 +1134,9 @@ I/O type
+ 				write 64K bytes on the same trimmed blocks. This behaviour
+ 				will be consistent with ``number_ios`` or other Fio options
+ 				limiting the total bytes or number of I/O's.
++		**randtrimwrite**
++				Like trimwrite, but uses random offsets rather
++				than sequential writes.
+ 
+ 	Fio defaults to read if the option is not specified.  For the mixed I/O
+ 	types, the default is to split them 50/50.  For certain types of I/O the
+diff --git a/fio.1 b/fio.1
+index 39d6b4f4..4324a975 100644
+--- a/fio.1
++++ b/fio.1
+@@ -904,6 +904,11 @@ then the same blocks will be written to. So if `io_size=64K' is specified,
+ Fio will trim a total of 64K bytes and also write 64K bytes on the same
+ trimmed blocks. This behaviour will be consistent with `number_ios' or
+ other Fio options limiting the total bytes or number of I/O's.
++.TP
++.B randtrimwrite
++Like
++.B trimwrite ,
++but uses random offsets rather than sequential writes.
+ .RE
+ .P
+ Fio defaults to read if the option is not specified. For the mixed I/O
+diff --git a/io_ddir.h b/io_ddir.h
+index 296a9d04..7227e9ee 100644
+--- a/io_ddir.h
++++ b/io_ddir.h
+@@ -41,6 +41,7 @@ enum td_ddir {
+ 	TD_DDIR_RANDRW		= TD_DDIR_RW | TD_DDIR_RAND,
+ 	TD_DDIR_RANDTRIM	= TD_DDIR_TRIM | TD_DDIR_RAND,
+ 	TD_DDIR_TRIMWRITE	= TD_DDIR_TRIM | TD_DDIR_WRITE,
++	TD_DDIR_RANDTRIMWRITE	= TD_DDIR_RANDTRIM | TD_DDIR_WRITE,
+ };
+ 
+ #define td_read(td)		((td)->o.td_ddir & TD_DDIR_READ)
+@@ -67,7 +68,8 @@ static inline const char *ddir_str(enum td_ddir ddir)
+ {
+ 	static const char *__str[] = { NULL, "read", "write", "rw", "rand",
+ 				"randread", "randwrite", "randrw",
+-				"trim", NULL, "trimwrite", NULL, "randtrim" };
++				"trim", NULL, "trimwrite", NULL, "randtrim",
++				NULL, "randtrimwrite" };
+ 
+ 	return __str[ddir];
+ }
+diff --git a/options.c b/options.c
+index 5d3daedf..a668b0e4 100644
+--- a/options.c
++++ b/options.c
+@@ -1947,6 +1947,10 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			    .oval = TD_DDIR_TRIMWRITE,
+ 			    .help = "Trim and write mix, trims preceding writes"
+ 			  },
++			  { .ival = "randtrimwrite",
++			    .oval = TD_DDIR_RANDTRIMWRITE,
++			    .help = "Randomly trim and write mix, trims preceding writes"
++			  },
+ 		},
+ 	},
+ 	{
+diff --git a/t/io_uring.c b/t/io_uring.c
+index b9353ac8..edbacee3 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -661,8 +661,12 @@ static void init_io_pt(struct submitter *s, unsigned index)
+ static int prep_more_ios_uring(struct submitter *s, int max_ios)
+ {
+ 	struct io_sq_ring *ring = &s->sq_ring;
+-	unsigned index, tail, next_tail, prepped = 0;
+-	unsigned int head = atomic_load_acquire(ring->head);
++	unsigned head, index, tail, next_tail, prepped = 0;
++
++	if (sq_thread_poll)
++		head = atomic_load_acquire(ring->head);
++	else
++		head = *ring->head;
+ 
+ 	next_tail = tail = *ring->tail;
+ 	do {
+@@ -741,7 +745,6 @@ static int reap_events_uring(struct submitter *s)
+ 	do {
+ 		struct file *f;
+ 
+-		read_barrier();
+ 		if (head == atomic_load_acquire(ring->tail))
+ 			break;
+ 		cqe = &ring->cqes[head & cq_ring_mask];
+@@ -796,7 +799,6 @@ static int reap_events_uring_pt(struct submitter *s)
+ 	do {
+ 		struct file *f;
+ 
+-		read_barrier();
+ 		if (head == atomic_load_acquire(ring->tail))
+ 			break;
+ 		index = head & cq_ring_mask;
