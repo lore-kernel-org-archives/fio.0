@@ -2,46 +2,46 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD434C433F5
-	for <fio@archiver.kernel.org>; Mon,  3 Oct 2022 20:34:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 218CBC433FE
+	for <fio@archiver.kernel.org>; Mon,  3 Oct 2022 20:35:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229748AbiJCUe5 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 3 Oct 2022 16:34:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56180 "EHLO
+        id S230040AbiJCUe6 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 3 Oct 2022 16:34:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229588AbiJCUey (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S230023AbiJCUey (ORCPT <rfc822;fio@vger.kernel.org>);
         Mon, 3 Oct 2022 16:34:54 -0400
 Received: from mailout2.w2.samsung.com (mailout2.w2.samsung.com [211.189.100.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52EC5FAB
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E44782DE1
         for <fio@vger.kernel.org>; Mon,  3 Oct 2022 13:34:49 -0700 (PDT)
-Received: from uscas1p2.samsung.com (unknown [182.198.245.207])
-        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20221003203444usoutp0261287ea4bfa0f4aae2cfddb989daa1a3~aqWnoNew60750707507usoutp02L;
-        Mon,  3 Oct 2022 20:34:44 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20221003203444usoutp0261287ea4bfa0f4aae2cfddb989daa1a3~aqWnoNew60750707507usoutp02L
+Received: from uscas1p1.samsung.com (unknown [182.198.245.206])
+        by mailout2.w2.samsung.com (KnoxPortal) with ESMTP id 20221003203445usoutp02296344875ad2ce590c25a2fb2a89d088~aqWoidE8R0888408884usoutp02e;
+        Mon,  3 Oct 2022 20:34:45 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w2.samsung.com 20221003203445usoutp02296344875ad2ce590c25a2fb2a89d088~aqWoidE8R0888408884usoutp02e
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1664829284;
-        bh=HxSBvKwuU1cR5wAEKdXEaAanJyJBKPyxk+GK+YZ86cg=;
-        h=From:To:CC:Subject:Date:References:From;
-        b=NpHA67JdS5AW2k6ALYASTU7SfjEmke/uU/092upG83Kh6Bc0xsixEbJsYqPt8Ya28
-         nMXd+2BGb5Puzjy3BRe/NH2ovNMO7alN1SdNrduFfWiDPbYJV21w41JCZpo8o58PNw
-         fuDqrLZjTtvCXFGLFOOJy5KMkZe6JmYnK9Q6fJuU=
-Received: from ussmges2new.samsung.com (u111.gpu85.samsung.co.kr
-        [203.254.195.111]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20221003203444uscas1p25bc1fb5a6fa6030eb92802142a4a451f~aqWnfhT2s0313203132uscas1p28;
-        Mon,  3 Oct 2022 20:34:44 +0000 (GMT)
-Received: from uscas1p2.samsung.com ( [182.198.245.207]) by
-        ussmges2new.samsung.com (USCPEMTA) with SMTP id 0A.F9.18126.4674B336; Mon, 
+        s=mail20170921; t=1664829285;
+        bh=Qn1bLbq6Ih0Gh70OlIHwOcQ3tr2cW2HNmoGDPUNrkSM=;
+        h=From:To:CC:Subject:Date:In-Reply-To:References:From;
+        b=RdgzciHIfV539XDd0cIXfl19v+zqvpuwiiigDkIsqnyADT3iCHbNS2tymKoPZPrCs
+         oTfBlQcNXSFaiptI8oc5rvDLAs5prdN/vUHirVv4HHW0emE2VLe6DDcv7Lj4pod/RB
+         isjvfSVsLcj5mCe6pgm842d+xkC5Juc0uBJFS1/k=
+Received: from ussmges3new.samsung.com (u112.gpu85.samsung.co.kr
+        [203.254.195.112]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20221003203445uscas1p2b0e65e03849191fa64d7c27e47e383db~aqWoF2Gkp1598215982uscas1p22;
+        Mon,  3 Oct 2022 20:34:45 +0000 (GMT)
+Received: from uscas1p1.samsung.com ( [182.198.245.206]) by
+        ussmges3new.samsung.com (USCPEMTA) with SMTP id C2.B6.35398.4674B336; Mon, 
         3 Oct 2022 16:34:44 -0400 (EDT)
-Received: from ussmgxs1new.samsung.com (u89.gpu85.samsung.co.kr
-        [203.254.195.89]) by uscas1p2.samsung.com (KnoxPortal) with ESMTP id
-        20221003203444uscas1p2d6d912aaf5e34efc126cef5338bc0a18~aqWnQvCCt0313203132uscas1p27;
+Received: from ussmgxs3new.samsung.com (u92.gpu85.samsung.co.kr
+        [203.254.195.92]) by uscas1p1.samsung.com (KnoxPortal) with ESMTP id
+        20221003203444uscas1p13c033cfe15efd4bcbce4c2bf2ce33f63~aqWneFFpf1319213192uscas1p1o;
         Mon,  3 Oct 2022 20:34:44 +0000 (GMT)
-X-AuditID: cbfec36f-fe1ff700000146ce-e7-633b47649992
-Received: from SSI-EX4.ssi.samsung.com ( [105.128.2.146]) by
-        ussmgxs1new.samsung.com (USCPEXMTA) with SMTP id 73.A5.19363.3674B336; Mon, 
+X-AuditID: cbfec370-82fff70000028a46-52-633b476442f4
+Received: from SSI-EX3.ssi.samsung.com ( [105.128.2.146]) by
+        ussmgxs3new.samsung.com (USCPEXMTA) with SMTP id B0.D4.32876.4674B336; Mon, 
         3 Oct 2022 16:34:44 -0400 (EDT)
 Received: from SSI-EX3.ssi.samsung.com (105.128.2.228) by
-        SSI-EX4.ssi.samsung.com (105.128.2.229) with Microsoft SMTP Server
+        SSI-EX3.ssi.samsung.com (105.128.2.228) with Microsoft SMTP Server
         (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
         15.1.2375.24; Mon, 3 Oct 2022 13:34:43 -0700
 Received: from SSI-EX3.ssi.samsung.com ([105.128.5.228]) by
@@ -51,11 +51,12 @@ From:   Vincent Fu <vincent.fu@samsung.com>
 To:     "axboe@kernel.dk" <axboe@kernel.dk>,
         "fio@vger.kernel.org" <fio@vger.kernel.org>
 CC:     Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 0/4] randtrimwrite
-Thread-Topic: [PATCH 0/4] randtrimwrite
-Thread-Index: AQHY12eRsl91sRTyp0yln5bRatHTIg==
+Subject: [PATCH 1/4] randtrimwrite: write at same offset as trim
+Thread-Topic: [PATCH 1/4] randtrimwrite: write at same offset as trim
+Thread-Index: AQHY12eRvhawbuqLjUuvExLaH9Si4A==
 Date:   Mon, 3 Oct 2022 20:34:43 +0000
-Message-ID: <20221003203427.123969-1-vincent.fu@samsung.com>
+Message-ID: <20221003203427.123969-2-vincent.fu@samsung.com>
+In-Reply-To: <20221003203427.123969-1-vincent.fu@samsung.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -65,58 +66,115 @@ Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-CFilter-Loop: Reflected
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKIsWRmVeSWpSXmKPExsWy7djX87op7tbJBjPnSlisvtvPZvFx1gtm
-        ByaPy2dLPT5vkgtgiuKySUnNySxLLdK3S+DK2HLCtmAma8XcpvdMDYw9LF2MnBwSAiYSlxbv
-        Zexi5OIQEljJKNF96gE7hNPKJPHmexczTNWFRzBVaxklGmb+ZYVwPjJKHHj6lwnCWcoosWbT
-        HqDBHBxsApoSb/cXgHSLCIRJ/Hy0nRXEZhZQlzi2cQMbiC0soCRx499rJogadYlp13cyQth6
-        Eg8O/ge7j0VARWLy0U9gvbwCNhK/j+wEu4hRQEzi+6k1TBAzxSVuPZnPBHGpoMSi2XugrhaT
-        +LfrIRuErShx//tLdoh6PYkbU6ewQdjaEssWvmaGmC8ocXLmE2i4SEocXHGDBeQvCYGP7BKn
-        V25iBflLQsBF4nWzLkSNtMTV61OZIWraGSXmbvwC1TyBUeL6EykI21riX+c1qMV8En9/PWKE
-        mMMr0dEmNIFRaRaSF2YhOW8WkvNmITlvASPLKkbx0uLi3PTUYqO81HK94sTc4tK8dL3k/NxN
-        jMCUcfrf4fwdjNdvfdQ7xMjEwXiIUYKDWUmEd84jq2Qh3pTEyqrUovz4otKc1OJDjNIcLEri
-        vFEztJKFBNITS1KzU1MLUotgskwcnFINTDqKhp9kO7hY/xTYbm4W5p76+WSU6vNV5SpO836G
-        J0Ufzv5QImK1jOGNuNGFzkuv7t7bVSz3aOuyFbHluZYSx34zWUx6kvd+0f7KU11K6jM7Y5X9
-        /r/edyMh5xinQL1mZaDn+pIXx2dMnFP9RflC5r33xxli2F1XTJBuUlOP2J53a5eXZtj+n8HC
-        u59o70nbFZ6SG7Azrc4k210h+r+wWnnEkrcz/5zqZ+Y7H7yyqDJkvp11p8FF7i+rej4xpybs
-        EUl58rdBdPMaQylv/rSzsiKTzpfu5VokMsvf5ca14os217dtZ2n5n/RESTpvTYzbv+21O3UN
-        whNqJ8xhnNjYte2P72XBy0c+Jp462jZBVImlOCPRUIu5qDgRAA+lQ3CIAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrPLMWRmVeSWpSXmKPExsWS2cA0STfF3TrZYM03FovVd/vZLD7OesHs
-        wORx+Wypx+dNcgFMUVw2Kak5mWWpRfp2CVwZW07YFsxkrZjb9J6pgbGHpYuRk0NCwETiwqO9
-        jF2MXBxCAqsZJdobl7JAOB8ZJU49uMQG4SxllNi7+g97FyMHB5uApsTb/QUg3SICYRI/H21n
-        BbGZBdQljm3cwAZiCwsoSdz495oJokZdYtr1nYwQtp7Eg4P/wTazCKhITD76CayXV8BG4veR
-        ncwgNqOAmMT3U2uYIGaKS9x6Mp8J4lIBiSV7zjND2KISLx//Y4WwFSXuf3/JDlGvJ3Fj6hQ2
-        CFtbYtnC18wQ8wUlTs58AvWxpMTBFTdYJjCKzkKyYhaS9llI2mchaV/AyLKKUby0uDg3vaLY
-        MC+1XK84Mbe4NC9dLzk/dxMjME5O/zscuYPx6K2PeocYmTgYDzFKcDArifDOeWSVLMSbklhZ
-        lVqUH19UmpNafIhRmoNFSZxXyHVivJBAemJJanZqakFqEUyWiYNTqoGJR+BwzIYP3Tsy46Uu
-        lOTN6e0VZa//nizoaszpKPPp16l1Z7QmTdmbLHdqn3fTp9A3i1Tbfvo9WLAtoTyJ57/VU/t9
-        bSZtXlE6+tWXDr9QeN4Xdv+f3EPFRPM7lSoLNkR+vbn7Urvqp1nmLrKf3doPX9KzW71/wa26
-        OU+Ya8KYsvK+Tu02kDhyn2ePZuMy5uySnNUHFu6079bedNbdjzGjKmzDJ/lZ110/BLbdrej8
-        GnLiT7TxkpDsL3vkdnxiZ529w/20krReQfv2k4+vx/ZLdXhnxkQs/GOxK1fn5a/mr9dN934z
-        yu++wBhrkPmtnr3pWGZnTL1ZM2ft6YdfRauui0e3l93aXLPRmuNjq7kSS3FGoqEWc1FxIgB8
-        TfySAgMAAA==
-X-CMS-MailID: 20221003203444uscas1p2d6d912aaf5e34efc126cef5338bc0a18
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBIsWRmVeSWpSXmKPExsWy7djXc7op7tbJBlv3qVusvtvPZvFx1gtm
+        ByaPy2dLPT5vkgtgiuKySUnNySxLLdK3S+DKaP83la1glVDFrQcb2RsYH/J1MXJySAiYSDRO
+        2MfWxcjFISSwklFi1/FZUE4rk8S9x/8ZYaqOrZ/PDpFYyyjRsP0AM4TzkVHi/udVTBDOUkaJ
+        NZv2sHQxcnCwCWhKvN1fANItIhAm8fPRdlYQm1lAXeLYxg1sILawgIPE+p6jbBA1rhLd3zrY
+        IWw9id9HpzCB2CwCKhKTj34C6+UVsJHY9bMX7CJOAVuJbU2zWEBsRgExie+n1jBBzBeXuPVk
+        PhPE1YISi2bvYYawxST+7XrIBmErStz//pIdol5P4sbUKWwQtrbEsoWvmSF2CUqcnPmEBaJe
+        UuLgihssID9KCLRySHzeNgcq4SIx+eRZqAXSEtPXXIYqameUmLvxC1TRBEaJ60+kIGxriX+d
+        16A280n8/fWIcQKj8iwkh89CctQsJEfNQnLUAkaWVYzipcXFuempxcZ5qeV6xYm5xaV56XrJ
+        +bmbGIGJ4/S/wwU7GG/d+qh3iJGJg/EQowQHs5II75xHVslCvCmJlVWpRfnxRaU5qcWHGKU5
+        WJTEeaNmaCULCaQnlqRmp6YWpBbBZJk4OKUamNImHst+6O5p1NGaGXDAgcv9hdPSAM6Mgz22
+        X5kbnnCGTf8RHVJrVTmXy+Cs+5+Lf5/GBQt5fH87P6lWVGzq26khb/hPV4ifN6xMfe/0esm6
+        TXzL30qmHM1+tXe3/JTfqxJWqE2/Nk/oYrnoe33DILEp3yMXbRCTrnsu+zHS0ZEn7nDlhJNX
+        xcJspkebRjP+Xnmmzcw5fE9Z4yUzNselV5vNzuyZn8ixa8rBUHG9Ipve9ZtzXq6dyiHgsL/e
+        6l7eWeMSpiMFppwPH5VarFqy7d7NWqU5V2fFznj6uOS3YmTUjZgXJoemtArn2Px61hPS/1hk
+        laAL8zdv+/JryRKH/TdwTS5RvJF9oiSPX7lTR4mlOCPRUIu5qDgRAOtOfbaLAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgkeLIzCtJLcpLzFFi42LJbGCapJvibp1s8OmEkMXqu/1sFh9nvWB2
+        YPK4fLbU4/MmuQCmKC6blNSczLLUIn27BK6M9n9T2QpWCVXcerCRvYHxIV8XIyeHhICJxLH1
+        89m7GLk4hARWM0o8/v8GyvnIKLF36kUWCGcpkLP6D1CGg4NNQFPi7f4CkG4RgTCJn4+2s4LY
+        zALqEsc2bmADsYUFHCTW9xxlg6hxlej+1sEOYetJ/D46hQnEZhFQkZh89BNYL6+AjcSun72M
+        ILYQkP30wRmwOKeArcS2plksIDajgJjE91NrmCB2iUvcejKfCeIDAYkle84zQ9iiEi8f/2OF
+        sBUl7n9/yQ5RrydxY+oUNghbW2LZwtfMEHsFJU7OfMICUS8pcXDFDZYJjOKzkKyYhaR9FpL2
+        WUjaFzCyrGIULy0uzk2vKDbOSy3XK07MLS7NS9dLzs/dxAiMrNP/DsfsYLx366PeIUYmDsZD
+        jBIczEoivHMeWSUL8aYkVlalFuXHF5XmpBYfYpTmYFES5/WInRgvJJCeWJKanZpakFoEk2Xi
+        4JRqYAq7WbrnTLZPyRylb00Lp1zVfGSezbOyKX77ChHuPWHzAucdFJqpV+mzyfFsct/ew3u3
+        llj0dbxtr9H+FXVw/dNbHSrVrgW7Bbi3sx8qzlA2jbSQihSP0/f+6Xfwp2LV5KUb5m8UirGM
+        E5W7J8v6+82xgmSjszIKQReeafg2SNxXdUhZ9PijqZlQ9JarLlseilYKZXZk8Xe8XfL/nMyK
+        JO1G3yyOI1a39/HL/1nmVTWxeLFH15bgxc/TLA5pHPa+bavKoBu41q754ukv83g9lzzQ/ukz
+        idvnsqLhx3+n7ubEHb21lfH3ywSxvBVM5uI+dtONb3+4qZUUe+R39Kkr9sXy/k+0yn985zyj
+        7S8kqMRSnJFoqMVcVJwIAFRtIm8bAwAA
+X-CMS-MailID: 20221003203444uscas1p13c033cfe15efd4bcbce4c2bf2ce33f63
 CMS-TYPE: 301P
-X-CMS-RootMailID: 20221003203444uscas1p2d6d912aaf5e34efc126cef5338bc0a18
-References: <CGME20221003203444uscas1p2d6d912aaf5e34efc126cef5338bc0a18@uscas1p2.samsung.com>
+X-CMS-RootMailID: 20221003203444uscas1p13c033cfe15efd4bcbce4c2bf2ce33f63
+References: <20221003203427.123969-1-vincent.fu@samsung.com>
+        <CGME20221003203444uscas1p13c033cfe15efd4bcbce4c2bf2ce33f63@uscas1p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Jens, I've spent some time on the new randtrimwrite data direction.
-Please take a look and let me know if you have any thoughts.
+We need to do a little bit more to make sure that the writes land on the
+offsets that were trimmed.
 
-Vincent Fu (4):
-  randtrimwrite: write at same offset as trim
-  test: test job for randtrimwrite
-  randtrimwrite: fix offsets for corner case
-  randtrimwrite: fix corner case with variable block sizes
+We only have a single random seed for offsets. So we need to just use
+the offset from trim commands when issuing writes.
 
- io_ddir.h          |  2 ++
- io_u.c             | 34 +++++++++++++++++++--
- t/jobs/t0023.fio   | 75 ++++++++++++++++++++++++++++++++++++++++++++++
- t/run-fio-tests.py | 64 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 173 insertions(+), 2 deletions(-)
- create mode 100644 t/jobs/t0023.fio
+When we have variable block sizes we need to make sure that the trim and
+write commands are the same size.
 
+When randommap is enabled we have to let it adjust the block size for
+trim commands to make sure that the trim command does not touch any
+blocks that have already been touched.
+
+For sizes of write commands just use the size of the trim command.
+
+Fixes: c16dc793a3c45780f67ce65244b6e91323dee014 "Add randtrimwrite data
+direction"
+
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+---
+ io_ddir.h |  2 ++
+ io_u.c    | 14 +++++++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/io_ddir.h b/io_ddir.h
+index 7227e9ee..217eb628 100644
+--- a/io_ddir.h
++++ b/io_ddir.h
+@@ -52,6 +52,8 @@ enum td_ddir {
+ #define file_randommap(td, f)	(!(td)->o.norandommap && fio_file_axmap((f))=
+)
+ #define td_trimwrite(td)	(((td)->o.td_ddir & TD_DDIR_TRIMWRITE) \
+ 					=3D=3D TD_DDIR_TRIMWRITE)
++#define td_randtrimwrite(td)	(((td)->o.td_ddir & TD_DDIR_RANDTRIMWRITE) \
++					=3D=3D TD_DDIR_RANDTRIMWRITE)
+=20
+ static inline int ddir_sync(enum fio_ddir ddir)
+ {
+diff --git a/io_u.c b/io_u.c
+index eec378dd..3f6c60ee 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -417,7 +417,13 @@ static int get_next_block(struct thread_data *td, stru=
+ct io_u *io_u,
+=20
+ 	b =3D offset =3D -1ULL;
+=20
+-	if (rw_seq) {
++	if (td_randtrimwrite(td) && ddir =3D=3D DDIR_WRITE) {
++		/* don't mark randommap for these writes */
++		io_u_set(td, io_u, IO_U_F_BUSY_OK);
++		offset =3D f->last_start[DDIR_TRIM];
++		*is_random =3D true;
++		ret =3D 0;
++	} else if (rw_seq) {
+ 		if (td_random(td)) {
+ 			if (should_do_random(td, ddir)) {
+ 				ret =3D get_next_rand_block(td, f, ddir, &b);
+@@ -530,6 +536,12 @@ static unsigned long long get_next_buflen(struct threa=
+d_data *td, struct io_u *i
+=20
+ 	assert(ddir_rw(ddir));
+=20
++	if (td_randtrimwrite(td) && ddir =3D=3D DDIR_WRITE) {
++		struct fio_file *f =3D io_u->file;
++
++		return f->last_pos[DDIR_TRIM] - f->last_start[DDIR_TRIM];
++	}
++
+ 	if (td->o.bs_is_seq_rand)
+ 		ddir =3D is_random ? DDIR_WRITE : DDIR_READ;
+=20
 --=20
 2.25.1
