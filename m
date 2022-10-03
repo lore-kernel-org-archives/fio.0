@@ -2,132 +2,82 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98B19C433FE
-	for <fio@archiver.kernel.org>; Mon,  3 Oct 2022 04:07:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8366C433F5
+	for <fio@archiver.kernel.org>; Mon,  3 Oct 2022 15:09:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbiJCEHb (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 3 Oct 2022 00:07:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39932 "EHLO
+        id S229674AbiJCPJF (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 3 Oct 2022 11:09:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbiJCEHa (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 3 Oct 2022 00:07:30 -0400
-Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9832227B3A
-        for <fio@vger.kernel.org>; Sun,  2 Oct 2022 21:07:27 -0700 (PDT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20221003040723epoutp0314e01f6e3c0a01b45180679c86fe0b4a~ac4jYlHWd3205532055epoutp03G
-        for <fio@vger.kernel.org>; Mon,  3 Oct 2022 04:07:23 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20221003040723epoutp0314e01f6e3c0a01b45180679c86fe0b4a~ac4jYlHWd3205532055epoutp03G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1664770043;
-        bh=ESe7cadC1Imbuvq3MJFUca8OCRpmjsOff202zx5O5/s=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=kNs6A4xNk+f8DSaWPooqEzGMNoXmjedQovnM6/XVI156Zv22cDpBKVLlTBY2r98fY
-         lseqorq1py9pXTio1OwW33L71eVruZn+xrISFAfD6wJivDdrh43cUcroW8PEfXkOTe
-         6knvX5z560KSvlBN+jrnj6/vaSB5IWdouSUDQDdM=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20221003040723epcas5p32a7a857c0a83c386eec3a758886d82ee~ac4jIEF1u1477814778epcas5p3x;
-        Mon,  3 Oct 2022 04:07:23 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.177]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 4MgnNT5Cfmz4x9Pr; Mon,  3 Oct
-        2022 04:07:21 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        EE.E2.26992.2FF5A336; Mon,  3 Oct 2022 13:07:14 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-        20221003034159epcas5p1018bd8a2413cdd569a6d01b135163d35~aciXgR9Qs2803028030epcas5p1q;
-        Mon,  3 Oct 2022 03:41:59 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20221003034159epsmtrp13adfa5dd4b5b1f572cdf02f1d1135de5~aciXfnKqV2294122941epsmtrp1s;
-        Mon,  3 Oct 2022 03:41:59 +0000 (GMT)
-X-AuditID: b6c32a49-319fb70000016970-e3-633a5ff209c4
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        BB.EE.18644.70A5A336; Mon,  3 Oct 2022 12:41:59 +0900 (KST)
-Received: from localhost.localdomain (unknown [107.110.206.5]) by
-        epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20221003034158epsmtip251ab728acba6c110ab71819a663caaa0~aciWf6Yt33133631336epsmtip2f;
-        Mon,  3 Oct 2022 03:41:58 +0000 (GMT)
-From:   Anuj Gupta <anuj20.g@samsung.com>
-To:     axboe@kernel.dk, vincentfu@gmail.com
-Cc:     fio@vger.kernel.org, gost.dev@samsung.com, ankit.kumar@samsung.com,
-        Anuj Gupta <anuj20.g@samsung.com>
-Subject: [PATCH] engines/io_uring: add fixedbufs support for io_uring_cmd
-Date:   Mon,  3 Oct 2022 09:01:52 +0530
-Message-Id: <20221003033152.314763-1-anuj20.g@samsung.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGKsWRmVeSWpSXmKPExsWy7bCmpu6neKtkg7lbFC3WXPnNbtE04S+z
-        xeq7/WwWH2e9YLa4eWAnk8WGNkEHNo+ds+6ye1w+W+rRt2UVo8fnTXIBLFHZNhmpiSmpRQqp
-        ecn5KZl56bZK3sHxzvGmZgaGuoaWFuZKCnmJuam2Si4+AbpumTlAq5UUyhJzSoFCAYnFxUr6
-        djZF+aUlqQoZ+cUltkqpBSk5BSYFesWJucWleel6eaklVoYGBkamQIUJ2RkfNj1hKvjOWnF6
-        4UXWBsb3LF2MnBwSAiYS0x5OYO1i5OIQEtjNKPFjzxQ2kISQwCdGie7b2RCJz4wSjbO2scF0
-        /Du0iAUisYtRYtPBiUxwVS/n/GUCqWITUJc48ryVsYuRg0NEQENizd1UkDCzQLbEp2sTGEFs
-        YQFPiXkr+8FsFgFViS0/NoO18gpYSZxeMYkdYpm8xMxL39kh4oISJ2c+YYGYIy/RvHU2M8he
-        CYFd7BL7jlyFus5FovfiGSYIW1ji1fEtUIOkJF72t0HZ6RI/Lj+FqimQaD62jxHCtpdoPdXP
-        DHIzs4CmxPpd+hBhWYmpp9YxQezlk+j9/QSqlVdixzwYW0mifeUcKFtCYu+5BijbQ+L7g3mM
-        kBCNlbg0+RbbBEb5WUjemYXknVkImxcwMq9ilEwtKM5NTy02LTDMSy2Hx2tyfu4mRnAC1PLc
-        wXj3wQe9Q4xMHIyHGCU4mJVEeKcoWiYL8aYkVlalFuXHF5XmpBYfYjQFhvFEZinR5HxgCs4r
-        iTc0sTQwMTMzM7E0NjNUEuddPEMrWUggPbEkNTs1tSC1CKaPiYNTqoFJ/E79k6ovr9refDnt
-        dDuIf+Eufv9NS9gCHSc4Nptq1wYuNPrv76x1+1rfBGnxnLXWl+cpyjHsKmhus7j1+Uhf00pR
-        82PuJ/7dmHRebnat1KLS1LvFAv7vN29/fyrhZ2jp7XjZBYxh290elZ0PPzlj7fmDq3TPb9m/
-        svDTmbVrV23za392UvJMnYWxgaXkTPUnDgaXxebPN1waae5Utfdh8Fe9pi7Nv3Lyz3p3Pj3R
-        1V9z9DPHwTbPhjyz2HMzPz13S5u6oVjBc6WjrUFGiPFnU2NWNXbrW6Jrj/O2FYsI/1z+co5J
-        X/HKPdf4Jmq6rJv4X+OISkHusY9nt0wzDzqodWDnntdcj5Y5np6zrtmSXYmlOCPRUIu5qDgR
-        AInrpjkJBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrMLMWRmVeSWpSXmKPExsWy7bCSvC57lFWywZRWDos1V36zWzRN+Mts
-        sfpuP5vFx1kvmC1uHtjJZLGhTdCBzWPnrLvsHpfPlnr0bVnF6PF5k1wASxSXTUpqTmZZapG+
-        XQJXxodNT5gKvrNWnF54kbWB8T1LFyMnh4SAicS/Q4uAbC4OIYEdjBK7tn9jhEhISJx6uQzK
-        FpZY+e85O0TRR0aJhe8usYMk2ATUJY48bwUrEhHQkji2rokNxGYWyJd4+HUqE4gtLOApMW9l
-        P1gNi4CqxJYfm8HivAJWEqdXTGKHWCAvMfPSd3aIuKDEyZlPWCDmyEs0b53NPIGRbxaS1Cwk
-        qQWMTKsYJVMLinPTc4sNC4zyUsv1ihNzi0vz0vWS83M3MYLDUUtrB+OeVR/0DjEycTAeYpTg
-        YFYS4Z2iaJksxJuSWFmVWpQfX1Sak1p8iFGag0VJnPdC18l4IYH0xJLU7NTUgtQimCwTB6dU
-        A1OfZ9TXvwfi5Gd31a29aHAiRrhExWkJ/7lzlncY/hff3nPZgMeNm09I3eXHmpvlU0Pdl869
-        nh+nHzyN75sf59cXbRc3N57/ZrD87Pdrk63PTEjT3qgjwpNd///p71s/nhl7aP450eBwZIma
-        2NIFztwG1TuUuvdwNevyx869/3qdpds+Kz2Ngn3XL73uuVEabchRbbAxR2r+Rc7jFSt7psjF
-        r1x7x+tkxq6j/rNr+77HOdn+TJtUqDaxtmOxkv2yS8Wqc1pWp7FcF1ESZljNvf0va8iGi/yx
-        /taLq598t3f/kzBZzWyho8Xz3BlLeK2/26kxixtztnudqrX4stt0t8n1V/sqGRvXfHjZfFHH
-        UEeJpTgj0VCLuag4EQCOOAMdtgIAAA==
-X-CMS-MailID: 20221003034159epcas5p1018bd8a2413cdd569a6d01b135163d35
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20221003034159epcas5p1018bd8a2413cdd569a6d01b135163d35
+        with ESMTP id S230093AbiJCPJE (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 3 Oct 2022 11:09:04 -0400
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20AD63A17B
+        for <fio@vger.kernel.org>; Mon,  3 Oct 2022 08:09:03 -0700 (PDT)
+Received: by mail-io1-xd33.google.com with SMTP id z191so8286294iof.10
+        for <fio@vger.kernel.org>; Mon, 03 Oct 2022 08:09:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date;
+        bh=g534ajI44j3Qkf1j5Gcml2iA2qjgH4i/yUg7NOBBoUU=;
+        b=qEMwb6npiIgBDexxsRunE0i5ImXXzCwyDFT3yHo3qgVdMLknxLuPNPRI7f4c6G96H0
+         2W3Ku2OzLRk7Qt5KRyjBudEUvrga32BW6Bu7IfkWLBd5ftNZVHtFIFKoWk3t/8gPuHaL
+         oipKW46ZHgMQG+QAZvhFWt95hIaiIFM0GCDSJgfIzqLXBn05p1a9WSXpdGsf5pM6XEDx
+         c2R/wo63lSDDljlMib/4QTb+OckHcvA+lvuV6UpgOA5YGwm9xtssjydKLy5OtZtIJWQQ
+         XeZ0Edp/vW7PBwBOrwd9uAvbWWoxafxpKsI7F2JjfAglTcOvtotGD3T5Sesdpjd0jWQk
+         KcRQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=g534ajI44j3Qkf1j5Gcml2iA2qjgH4i/yUg7NOBBoUU=;
+        b=Aasbtnmvjc5ggJbSTVonnPawZpuqypMz1YZvVYe71tz7Y7bBRZ9iNQCl26SslOQzuW
+         BC0LvxQjUMii9U4Rd7aUFpvry98F/x8/f9ED89zjAVM+wwj+orpvY+a9182EFT8mZt2x
+         azLsKDwLdfPEec4MrODJ8+v/C1vqI+JcLy6pG4+YrQL78aoUq7UYM6+NUtH+Et7B3r6w
+         O2a4C9SdLmdKr32fMmNkXeMwzimY/j3WGWJra1JYfYldHw0FASypwcgq0vfUkcze5ply
+         q8PiaF4JiP26IHyD7+WB+lYdgnVZ1JhMaa8gomVLPkHY3s/mePdfA9yDqW/LY9Qv2smf
+         huJg==
+X-Gm-Message-State: ACrzQf33dq1mdexnFQJ6r4ZDL/LbLxerNqWcb1M/xrXvsWFw1VHUFk/u
+        pTDhg1OEeXnZTLMvjj7MJjmBJg==
+X-Google-Smtp-Source: AMsMyM6RST52wkmOJ4sYHkjOnya71YrQbKiiHyjQRMisuhLl32MxlRaplpaueJnt8ATVLHoB69rtgg==
+X-Received: by 2002:a05:6638:d0:b0:362:83eb:92b9 with SMTP id w16-20020a05663800d000b0036283eb92b9mr3424444jao.215.1664809742405;
+        Mon, 03 Oct 2022 08:09:02 -0700 (PDT)
+Received: from [127.0.0.1] ([207.135.234.126])
+        by smtp.gmail.com with ESMTPSA id w15-20020a02b0cf000000b0035a00f672a0sm4115502jah.112.2022.10.03.08.09.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 03 Oct 2022 08:09:01 -0700 (PDT)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     vincentfu@gmail.com, Anuj Gupta <anuj20.g@samsung.com>
+Cc:     fio@vger.kernel.org, ankit.kumar@samsung.com, gost.dev@samsung.com
+In-Reply-To: <20221003033152.314763-1-anuj20.g@samsung.com>
 References: <CGME20221003034159epcas5p1018bd8a2413cdd569a6d01b135163d35@epcas5p1.samsung.com>
+ <20221003033152.314763-1-anuj20.g@samsung.com>
+Subject: Re: [PATCH] engines/io_uring: add fixedbufs support for io_uring_cmd
+Message-Id: <166480974152.9399.17085754765963422452.b4-ty@kernel.dk>
+Date:   Mon, 03 Oct 2022 09:09:01 -0600
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.11.0-dev-d9ed3
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-This patch enables fixedbufs support for io_uring_cmd. This has already
-been done in t/io_uring, just do it here as well.
+On Mon, 3 Oct 2022 09:01:52 +0530, Anuj Gupta wrote:
+> This patch enables fixedbufs support for io_uring_cmd. This has already
+> been done in t/io_uring, just do it here as well.
+> 
+> 
 
-Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
----
- engines/io_uring.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Applied, thanks!
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index d0fc61dc..c679177f 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -433,6 +433,10 @@ static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
- 		ld->prepped = 0;
- 		sqe->flags |= IOSQE_ASYNC;
- 	}
-+	if (o->fixedbufs) {
-+		sqe->uring_cmd_flags = IORING_URING_CMD_FIXED;
-+		sqe->buf_index = io_u->index;
-+	}
- 
- 	cmd = (struct nvme_uring_cmd *)sqe->cmd;
- 	return fio_nvme_uring_cmd_prep(cmd, io_u,
+[1/1] engines/io_uring: add fixedbufs support for io_uring_cmd
+      commit: 0ebd3bf6186852408503f428c7a74fedd34214cb
+
+Best regards,
 -- 
-2.25.1
+Jens Axboe
+
 
