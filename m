@@ -2,146 +2,128 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB645C433F5
-	for <fio@archiver.kernel.org>; Fri,  7 Oct 2022 08:32:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8F4BC433FE
+	for <fio@archiver.kernel.org>; Fri,  7 Oct 2022 12:05:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229581AbiJGIcE (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 7 Oct 2022 04:32:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52354 "EHLO
+        id S229450AbiJGMFo (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 7 Oct 2022 08:05:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiJGIcC (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 7 Oct 2022 04:32:02 -0400
-Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-eopbgr60126.outbound.protection.outlook.com [40.107.6.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8117EB97A2
-        for <fio@vger.kernel.org>; Fri,  7 Oct 2022 01:32:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ghhktjki1fbv3zsrhIcVTTHFtkX0j3QF9fzmBYHUVIJqCXlZEvsIywYuREP3zBY2UcvRVrU2YM0MuY8GLajfrIkCUwl5TeprB/m8cevy7LrDV0kmbP4aRgLSkNQUaqO+zw26CK6zcqEQWtxI5HfZid/s4oQfhbq0rurJDsGqw09K/b8h2l8xX2nrtppmI1+5BsKLYCWUho3etFSetAtvofU9zTVtOZfdlsK3T5DolaqKcpy7VYChusc/9PSN7bMpaa7fB0LfBkDfLIh6Wr5tfFq/jsIayye4ku12mQkB5LElH/LUuvH5PKtoqU6YiZZT9oODsnMwv9DgxKwbd9u2Mg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FSChMfQInnn5dE8cPRCIPzL60k4LZ45iZClF5vYH3hU=;
- b=WyLwj8o3w45s35jRGR6GisSUoYV8iEV/g4XN4hTgvD7AiqdTL50Z6fnnuMjbOIBkXARHSeXW9hQNrAkDxg+wkF6AP/SnXJZJgx8SFONlDqL2NhvNjGHRvr0XijwoyrT9wjImzHIgRgWPjAK+EOGczluUVQYvtIV9caivi04D6YwoRBGozkw9LlIYUSms6TgZgIOluye/hWWYNOgZxhj91m5fFgx1y9jWaQqVQ956OO4Idh9U3ygcu8h+CHr3h/2NA6bd8/okXPbYl9P6ZDzwzUk3pBoHYTWokEfRMLqoOAdiwFpbCcYmErmzjfR3qJ+dSmDEoFBOfc5yYmj2AivBCg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=criteo.com; dmarc=pass action=none header.from=criteo.com;
- dkim=pass header.d=criteo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=criteo.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FSChMfQInnn5dE8cPRCIPzL60k4LZ45iZClF5vYH3hU=;
- b=O24sVlVOX5qIL9NR4o7FBXFH5ehx99u05M/SwS6MciVBw8PfU8W0NHV80VMsLpgqzPBbJKHIwLT7Wv194OStpXiA05/WNusVUHuTFbnDLu2xFGoELHrI2zHTQW893pKP19baXikUXiP0JJAE58KlYRfSe7tY5aWpdbYhnHV6Ito=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=criteo.com;
-Received: from PAXPR04MB8989.eurprd04.prod.outlook.com (2603:10a6:102:20c::11)
- by PA4PR04MB7551.eurprd04.prod.outlook.com (2603:10a6:102:e9::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5709.15; Fri, 7 Oct
- 2022 08:31:59 +0000
-Received: from PAXPR04MB8989.eurprd04.prod.outlook.com
- ([fe80::5e32:7425:68d6:33ad]) by PAXPR04MB8989.eurprd04.prod.outlook.com
- ([fe80::5e32:7425:68d6:33ad%8]) with mapi id 15.20.5676.038; Fri, 7 Oct 2022
- 08:31:59 +0000
-Message-ID: <9a806c16-ccc4-d31f-e421-87ee93d4fcce@criteo.com>
-Date:   Fri, 7 Oct 2022 10:31:58 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.0
-Subject: Re: one-core-peak.sh
-Content-Language: en-US
-To:     Stephen Bates <sbates@raithlin.com>, fio@vger.kernel.org
-Cc:     erwanaliasr1@gmail.com, Martin.Oliveira@eideticom.com,
-        info@bytehamster.com
-References: <Yz9B4sSqtjH6oKc8@bunbeg>
-From:   Erwan Velu <e.velu@criteo.com>
-In-Reply-To: <Yz9B4sSqtjH6oKc8@bunbeg>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: PR3PR09CA0018.eurprd09.prod.outlook.com
- (2603:10a6:102:b7::23) To PAXPR04MB8989.eurprd04.prod.outlook.com
- (2603:10a6:102:20c::11)
+        with ESMTP id S229531AbiJGMFn (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 7 Oct 2022 08:05:43 -0400
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E975558161
+        for <fio@vger.kernel.org>; Fri,  7 Oct 2022 05:05:36 -0700 (PDT)
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20221007120531euoutp01a804128ee835dbfd406723f90ca59168~bx-JzAy0I2441724417euoutp01r
+        for <fio@vger.kernel.org>; Fri,  7 Oct 2022 12:05:31 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20221007120531euoutp01a804128ee835dbfd406723f90ca59168~bx-JzAy0I2441724417euoutp01r
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1665144331;
+        bh=08TCUp4E3509Ok+nElHz10U+beWC284eTQ/m7KZ1Di8=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=UvPmdGVds/swY6Nk/NUolTBUU7VVL+tTKYz4nX9POBZZ0Locv539mreJwunsY2Oeg
+         aw9zVJ9DPnGtAJv5hLoO8rbkLznPhx/8EVyQH+xNFh8mPYQe3aXu5YAGFeMaGR2Qrg
+         YKcxmUuHa4qx5QP/yJmN7EXlPXDgz+9KiB4Y/iZA=
+Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
+        eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+        20221007120530eucas1p25eab628dcd9c5d73cd836e7bfbc1e278~bx-I7eAJz0054700547eucas1p2q;
+        Fri,  7 Oct 2022 12:05:30 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+        eusmges2new.samsung.com (EUCPMTA) with SMTP id 78.48.07817.A0610436; Fri,  7
+        Oct 2022 13:05:30 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20221007120530eucas1p16e2b45344e7148a39789645352a5aba8~bx-Iod1Q_2983629836eucas1p1T;
+        Fri,  7 Oct 2022 12:05:30 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20221007120530eusmtrp1db8eeb1838ac2b374fb6c82a098c013c~bx-InpOWK2739927399eusmtrp1I;
+        Fri,  7 Oct 2022 12:05:30 +0000 (GMT)
+X-AuditID: cbfec7f4-8abff70000011e89-5e-6340160aeec1
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+        eusmgms1.samsung.com (EUCPMTA) with SMTP id 16.3A.07473.A0610436; Fri,  7
+        Oct 2022 13:05:30 +0100 (BST)
+Received: from localhost (unknown [106.210.248.47]) by eusmtip1.samsung.com
+        (KnoxPortal) with ESMTPA id
+        20221007120529eusmtip1a2da0f657b5824a31b09d37642095990~bx-ITgzBF1406914069eusmtip1B;
+        Fri,  7 Oct 2022 12:05:29 +0000 (GMT)
+From:   Pankaj Raghav <p.raghav@samsung.com>
+To:     fio@vger.kernel.org
+Cc:     gost.dev@samsung.com, Pankaj Raghav <p.raghav@samsung.com>
+Subject: [PATCH] examples: uring-cmd-zoned: expand the reasoning behind QD1
+Date:   Fri,  7 Oct 2022 14:05:28 +0200
+Message-Id: <20221007120528.58106-1-p.raghav@samsung.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PAXPR04MB8989:EE_|PA4PR04MB7551:EE_
-X-MS-Office365-Filtering-Correlation-Id: 169a173a-078e-435b-0322-08daa83e66e4
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 9BoSBvbhQgGRCnpAhIXwFzLT1O4TUXNHCfmYSbFYleXjh+gR3APbD0a0YWZTH4qq4COOUmmEaVZe+iD0PuOUlSF2HSlJ2YnJsJ6ZnP7XCeM0x6Ohi3r2fX52VzDiHYO7o0FS49TCF2dRUomNCXykapLZurO4sIcG2K6zaprZ6CuXmXTHPyegT8m38D95mXNg7yt8OU9SUdAtlfQ1uUwfRB6BFyOTk044G2XKgShAYIS0mAL7wliShaKC0GlfXzNgYVSBPu8Mq2RQs4RduVaHTnyenCw58J9DHCVG59b5+jFSVhn2b9xK5A1Qx4CopFo+Vh3PYLMlmeYtx7Kfxku66EIZbxkSRuPRHaHE0q8aVhOTHStYouZwDV9GQJ25weH/cSeoXklXiQwhh6S4wIIlwZwzUFblmDPkBhIpyNw4Bd7ES/lDQj89gNHCgtiW+pvqg9ix0wN+7FX3uy9SVhEwhArxdzG9+3tNtJzVFDnnKdO7t+h1JSdOy9xXhH+UiNZAqdMI9qDDIq326ltK0f0hhCwzaLjvZbHyxAWhljJwhNoYtrYU+DKwuSRUZdxCZRyi5jriLuN/0bi7C0U6ay4kZMbJOLMI84OQ5RJm3h3tw4Ynj9GAy5ktTT+AGvHLAODbjTHESP1Vl/FOhClsCQg/DE4XV3IqfYWSOTkIe5dPAyHlqqs29CPFo1JqOSFRcaeugdbawiv7Ep7t0Bh7/k2WJ+ah+CGKPXmf4Zism3/RHdr/QF6X+wGZtpwcu7Lod5HllKjxynbOkHDQf002ZfqJr8zS3HQzS4OH/Gs9duNPo4uCAzmNznBY47RHGQeMMalE
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8989.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(366004)(346002)(39860400002)(396003)(376002)(451199015)(86362001)(31696002)(4744005)(36756003)(2906002)(316002)(6486002)(478600001)(2616005)(6506007)(8936002)(3480700007)(66574015)(8676002)(4326008)(66946007)(66556008)(66476007)(41300700001)(186003)(6512007)(38100700002)(5660300002)(31686004)(66899015)(219204002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WEZlWXcvbFljaVdlZGZBUks3K0pnL001THNXTk1QbEZDMW1TanhMbEs1WXdX?=
- =?utf-8?B?N1pCT2V3T25PN0Q5SlFwM1N4eVRvNTM5Y2tmdTRLWkw2WVVldG5CZXJhcW1M?=
- =?utf-8?B?V2lzWi8xOFpHeXB2Z0t0WFgrSWRLMVZudWJEdUZmbVg1RWQyWXBtNWwwd01y?=
- =?utf-8?B?LzF3TnQ0SVRyVmhjMkU0N0FEcXl2aVdYeXVLZVFKeXIyMTFFWGVMSzNCK2d6?=
- =?utf-8?B?aFlBaEdDNHk0NXRHeUlud2UxZzRLdkhEdXRhVGU1d0czNXQrSkpReXdoS1Br?=
- =?utf-8?B?dk1zZXg0WWhEUC81RzFVT0wyc3I4YnE3TXNmd0FuVmtBQk51MmNqRm1ldzFm?=
- =?utf-8?B?V1pwU1R1V1ZMM3BpdHJsekl6VFVWM0gxSE5XczJwUFd4bDRxSWhtdEViK2tk?=
- =?utf-8?B?YnorQUgwaHBmbm9zQnM1dTVFSnI5eXlJVzFkZ0NUNlVWUHhmYjlzYTdvMWoy?=
- =?utf-8?B?TkVlR0QwWnZBdUVrSWFtaGdILzRZdGZTSDJqRGptclNyN1N3UGRJN2tCOExk?=
- =?utf-8?B?amZGTnNGRldjU2Mra3FCWFpIbUxnd1dDejd2Mkt4V21BbWc4ZTExOThIVzZw?=
- =?utf-8?B?R0V5bFJPTmNFR1ZoeDdSYkVzeTNUWk9DaTZrZ3M0WEhIWU5vZHRNT3RDZ2Zm?=
- =?utf-8?B?NzBlRm1hTmVTOHA4YzdPSTJhNnVMdjJUcWFWZ0N6a244MkMxWFhCSWJBWmtW?=
- =?utf-8?B?YVRzSTMzd0pwOUpnUWFHQ1p5ZVJScHR3UUpuQURyYzZkZkpuQ1kvNUtzeFhL?=
- =?utf-8?B?RWlqaTVlblNwOVBZOGdlamdvK3h6M2t6QTRPQ3E4bmQ0WnlVd1Q2b3QrUEZh?=
- =?utf-8?B?ZUV0bC9UMUE1VXVveHpEVlVCQSt2VzFvU1JCOWxGWVF3WHdONjBoQytKNTc4?=
- =?utf-8?B?c1p6b2NUQ1ZBTTVnSGN2QllCZ2lJWG04TURnNFVVUE5oZTlnQSszY2JCd01V?=
- =?utf-8?B?Z1dUMFVCYW9CS0pqZnJ5aG5TeHdGT25aOExIZGtsQnZmT0o1V2VrSnlHcmZt?=
- =?utf-8?B?K1U1ZWR5YWpJMjc4cEJISCt4bUIvYytrVmppMHd5c1R4NE53T01NYk5ac3Ns?=
- =?utf-8?B?aTFNL1lnK3ZEeDhRSTdUQmZqS3AvU0RSWEtwclozYnRQbElMTlV2bm0xV25h?=
- =?utf-8?B?Q3NGVW9kZXl3eHpRNTNwRk1RbEdZa214eFI4WVVlOUthUWdodkVYSlc5Rnhs?=
- =?utf-8?B?WXkzUER1WW9WT0tTdXUyZFdMTDU5eEZmTXlZYXJRMjczTENNbnFidzlkeW8r?=
- =?utf-8?B?Z2xSelgxbGNReUdKYjhYWTBYUVQ0amR4djUvRG9rRHR6Ri9rRnQ5R243bDMx?=
- =?utf-8?B?M1U2YkxNODE2T04velVyM1FaUzNaYVlxOWl1ZVRBYm92L2czQnVnTmNWVmlk?=
- =?utf-8?B?MjN5TEJvMC9yUWJWMGk3Rk9nUHFCditYdVU3ZVdCRHo4R0pMaUV1NEZPdkNL?=
- =?utf-8?B?MmlmbWt4WGZ6NFdKQ1M1ZnZPelBQTkJLTjdxRkt6V1A0QldUSk5tT1FsZ3A4?=
- =?utf-8?B?b0ZYZ3dnRDUzeGJlejVGOWkySWtTV0o1T25pTDRYRG9GS1h3L2gvQllGZzBs?=
- =?utf-8?B?b01nRzg1NWNVS2x4MUZ2TEZOc2psaUtWMUlsQzZucXdUcGE4MnhPWmNMN1NZ?=
- =?utf-8?B?MG8rNWVCY0R5SW1DcndUK0htWEtaYlcrYkRqZEpUMDVUeVAwbGI3TWdkWDRt?=
- =?utf-8?B?MDcwN25rU3FpNldNUnR2dHIrdForTnpoYmNGc3FRczlJZGhJb1lSMk8vbU0w?=
- =?utf-8?B?eDRwd2poU1VwdXcrYWtXajlDQk90cWYvSEk4REpETzUzcllWdXA4c25VcTV2?=
- =?utf-8?B?L0lOWnFXVHhJeWMvdjlGWWZiWGpTaHc3MjdxdVRiVWFod2NLdm1rQ3hoNGFx?=
- =?utf-8?B?NWRLNDZGaHBsS1Z4WDVsaEVkWkNqQ2lwbkVkUndmSUxzeFgyNjVaWU5zdlNS?=
- =?utf-8?B?T3V4TlRlS3V4a0FsK1gwLzN4YStzL1NKL09vTEVOdG1UY3cybnBycDZOdVN4?=
- =?utf-8?B?NHlLWFF2WlNDWDRTMW1hTzkvR2s5NEZOUmJGZEdlQldqUkFad1pORUpUMzJz?=
- =?utf-8?B?NXhJN0xSWGN1M1N3RGRYcFV2Zy9GZTdnTkVBaUE2c00ycC8zaEJMTzBJNkZt?=
- =?utf-8?B?VDBoRUpncGd2R1RVS1dpWC9QNXhYSmovL2hkd2lGSlY2Z3l6STdGVG41V055?=
- =?utf-8?Q?aWRym0ExQkHdospWvD159QwtAas4crqSM9Sc+HsBlFnC?=
-X-OriginatorOrg: criteo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 169a173a-078e-435b-0322-08daa83e66e4
-X-MS-Exchange-CrossTenant-AuthSource: PAXPR04MB8989.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Oct 2022 08:31:59.5722
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 2a35d8fd-574d-48e3-927c-8c398e225a01
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: dULoup8tNbyqzlNF82dAdUZ8HAwKTU3X4gxwbg86ZcXBQsNO2YXiD2IVO5SrU0FoHZHn7EhRHE+bOTkatpHk5A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR04MB7551
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrNIsWRmVeSWpSXmKPExsWy7djP87pcYg7JBpf7JCw+znrBbHHzwE4m
+        i89LW9gdmD36tqxi9Pi8SS6AKYrLJiU1J7MstUjfLoEr4/avxSwFM9grVu5sZW5g/MjaxcjJ
+        ISFgInHr1iS2LkYuDiGBFYwS69o/sEI4XxglJh05wwThfGaUmP9wLQtMy+1bC6FaljNK/Pn3
+        nBkkISTwglFi3yH2LkYODjYBLYnGTnaQsIiAuMS1F+vAbGYBO4mj59YygdjCAt4SX/fcA2tl
+        EVCVuHxoGTNIK6+ApcTNA9kQq+QlZl76DtbKKyAocXLmExaIMfISzVtnM4OcICHwkl1iz8YN
+        7BANLhLP//dDvSYs8er4Fqi4jMTpyT1Q91dLPL3xG6q5hVGif+d6NpDFEgLWEn1nckBMZgFN
+        ifW79CHKHSWOvf3NClHBJ3HjrSDECXwSk7ZNZ4YI80p0tAlBVCtJ7Pz5BGqphMTlpjlQSz0k
+        tn+9zwYJp1iJhoNT2ScwKsxC8tgsJI/NQrhhASPzKkbx1NLi3PTUYqO81HK94sTc4tK8dL3k
+        /NxNjMD0cPrf8S87GJe/+qh3iJGJg/EQowQHs5II786ddslCvCmJlVWpRfnxRaU5qcWHGKU5
+        WJTEedlmaCULCaQnlqRmp6YWpBbBZJk4OKUamCQz587YOPurQfeKjvroSxetlmbJ7l0k2Op2
+        TCDGafHO4Cm2HOU6rb+35FRHHmDYk6jZnBgqHvNMY0aKZbu1aPDb7YfuZTyJctDd6NNiKKb7
+        KzT5pbn3V5uFKfaLXe7aL/j0+e48VT+pdoUvbyVlnLkXH/xrnPvJ5p98nO55hg+Vl/yXPzlS
+        5/Dm7OXnp19cWCT/57rR9L+a1dnuWh3zfspn/XXeHeZhtd8vvvn1vB851WwZQj1ahZ+lp0pK
+        tf7sn/zx+EfJp51H/9x0OuYoMttJJuoe88SzJR8Mdy9/7/kh2qdBWKnO1uX2wZYgU1ERIyMH
+        l717drI83zV7QVQZ39R0qZZCy6onB96mO98KV2Ipzkg01GIuKk4EAAbQRMx+AwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrMLMWRmVeSWpSXmKPExsVy+t/xu7pcYg7JBhtfMVt8nPWC2eLmgZ1M
+        Fp+XtrA7MHv0bVnF6PF5k1wAU5SeTVF+aUmqQkZ+cYmtUrShhZGeoaWFnpGJpZ6hsXmslZGp
+        kr6dTUpqTmZZapG+XYJexu1fi1kKZrBXrNzZytzA+JG1i5GTQ0LAROL2rYVsXYxcHEICSxkl
+        9l7bwQiRkJC4vbAJyhaW+HOtC6roGaPEypc3gLo5ONgEtCQaO9lBakQExCWuvVgHZjMLOEg0
+        bzgD1iss4C3xdc89ZhCbRUBV4vKhZcwgrbwClhI3D2RDjJeXmHnpO1grr4CgxMmZT1ggxshL
+        NG+dzTyBkW8WktQsJKkFjEyrGEVSS4tz03OLDfWKE3OLS/PS9ZLzczcxAkNz27Gfm3cwznv1
+        Ue8QIxMH4yFGCQ5mJRHenTvtkoV4UxIrq1KL8uOLSnNSiw8xmgKdN5FZSjQ5HxgdeSXxhmYG
+        poYmZpYGppZmxkrivJ4FHYlCAumJJanZqakFqUUwfUwcnFINTEmJWqWeq/mKmAvduPZOLJNk
+        9bVZcbBm5bp9SwUWGHOyxCcWZZxLN5RSfLLkGf+tgAVz2E9/O3H0mQ1fesXpKEZdVzcJJ82c
+        2JlCLxPjeJat+HXX98mpizel8vVt5R+z2n3L6pxZWKohmxN+Oe21YZLs1Du6Wx+kZaR5JRkF
+        OrAcVJD5vT217PblBzlRsgllXXeFWdxjtS68+CX0btMc/8v5N4TE02/3HX/IFTI7THTBxsXT
+        fiqGuFwJ/q5Z5yTc7vHyeF0ra3TG8rD2xHPztG5vaV7A88P6+u++wn1bpL/Nr9RjLjzTfHOS
+        hEs4z/LuqNW1em+Dcg52Sr09IK2vJzS/Q2aZe7HPrnrekmglluKMREMt5qLiRADQc35z1gIA
+        AA==
+X-CMS-MailID: 20221007120530eucas1p16e2b45344e7148a39789645352a5aba8
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20221007120530eucas1p16e2b45344e7148a39789645352a5aba8
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20221007120530eucas1p16e2b45344e7148a39789645352a5aba8
+References: <CGME20221007120530eucas1p16e2b45344e7148a39789645352a5aba8@eucas1p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Le 06/10/2022 à 23:00, Stephen Bates a écrit :
-> Hi All
->
-> We are working on measuring one core peak performance and have been
-> using the one-core-peak.sh script. While the script does what it needs
-> to do we find it a bit hard to use and not written in an ideal
-> fashion. We are planning to do a python version which can be done in a
-> much cleaner and more readable fashion.
->
-> Rather than stomping on toes and just sending a patch to replace this
-> script I wanted to solicit feedback from the original authors and
-> community that this is acceptable.
+Expand the reasoning behind using QD1 for zoned devices with io_uring_cmd
+engine.
 
-Hey,
+Signed-off-by: Pankaj Raghav <p.raghav@samsung.com>
+---
+ examples/uring-cmd-zoned.fio | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Thanks for reaching out.
-
-I wrote this tool as a simple helper and though it would be short enough 
-to stay in bash.
-
-The bash was clearly a POC more than a solution.
-
-I totally support moving to python3. I can provide help in this.
-
-Erwan,
+diff --git a/examples/uring-cmd-zoned.fio b/examples/uring-cmd-zoned.fio
+index 58e8f79e..89be61be 100644
+--- a/examples/uring-cmd-zoned.fio
++++ b/examples/uring-cmd-zoned.fio
+@@ -1,7 +1,11 @@
+ # io_uring_cmd I/O engine for nvme-ns generic zoned character device
+ #
+-# NOTE: with write workload iodepth must be set to 1 as there is no IO
+-# scheduler.
++# NOTE:
++# Regular writes against a zone should be limited to QD1, as the device can
++# reorder the requests.
++#
++# As the passthrough path do not use an IO scheduler (such as mq-deadline),
++# the queue depth should be limited to 1 to avoid zone invalid writes.
+ 
+ [global]
+ filename=/dev/ng0n1
+-- 
+2.25.1
 
