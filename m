@@ -2,99 +2,89 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 053E1C433FE
-	for <fio@archiver.kernel.org>; Sat, 15 Oct 2022 12:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0742C433FE
+	for <fio@archiver.kernel.org>; Sat, 15 Oct 2022 19:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229616AbiJOMAN (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 15 Oct 2022 08:00:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45460 "EHLO
+        id S229618AbiJOTlO (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sat, 15 Oct 2022 15:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229600AbiJOMAM (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 15 Oct 2022 08:00:12 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5E62BB25
-        for <fio@vger.kernel.org>; Sat, 15 Oct 2022 05:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=NgIpMlyGXEZgDJGPgI4Fvgw9cPU8iDs1IXnZaEWV7K8=; b=XEFTYYyc8j7lMbs20tn5vvt/08
-        IGa0qKRdSX/QuxF0tOKVqOwhU+ytv4CEvDFi1MNAOlxgY/xSw+NWsJK7LKGVZo8LhR4PUraTb4U3s
-        cA4Jfnj7y8H+kuLstVN3zhfR4NzHGpXbi3Db2OxMu6HkB3A5l9vJ7RV1+4Fv5zie0kSqFaqWozH1p
-        NmhHx56i70n6AGrdXlWtS08yAmSf8MysosoPaaxDnAVovsnrgRfvw74GUIIB8JJEXgXo3J4IL77DM
-        ul+Wroer6785ky3WC/O0eocIkvudr8vMsiwzsNznwKyw1GIE1kagL6/ZvFVRUxTPF/so77EAZbzus
-        oEFJDE4g==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1ojfpq-008MMn-3u
-        for fio@vger.kernel.org; Sat, 15 Oct 2022 12:00:10 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 42AA11BC016F; Sat, 15 Oct 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20221015120002.42AA11BC016F@kernel.dk>
-Date:   Sat, 15 Oct 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S229567AbiJOTlN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 15 Oct 2022 15:41:13 -0400
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EBC33FA1F
+        for <fio@vger.kernel.org>; Sat, 15 Oct 2022 12:41:12 -0700 (PDT)
+Received: by mail-ed1-x535.google.com with SMTP id s30so11018224eds.1
+        for <fio@vger.kernel.org>; Sat, 15 Oct 2022 12:41:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FZf5x5oi2eNxBR9uvZ1LtyOkjnuwHt2SgAcT2vQl3JQ=;
+        b=SE7eLGWy7OA+ITXpMYtYy7JlSbeUPaHlUYyGdDR7BdKCS/vuQ7IRqyd2h2GnGfU4hQ
+         RW4lWTFalAFleinPHoEEXTeQ0IMuAChNVrb2OyBB0X+PzH2ZCHJ7vJtdbb9oa2lUpuOt
+         Kf78Ms6MV5agrPzsgZcxv6YO85aIpfF/HBW0vidWlJl1qcstD38bc9z9tfbbnADSNxyj
+         SYvQ6Mva47wIGwMFL5LJq82ZLo89wD48wngIvRsXnMeUQPMtdFQsvsmQJYoqdYyZ+j8Q
+         zqEDKqoTtPQObYErA4Po14yk4yb0GgI7IFVxN7dgNgF6OImPyd0mRPNOcO+SK4IgwUlq
+         6JTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FZf5x5oi2eNxBR9uvZ1LtyOkjnuwHt2SgAcT2vQl3JQ=;
+        b=vR4ZOvaC9DpGXBtcybTOXFg4rt6Fovv5BW5sdy2wKQ74y/vRH5BFaUk3KFlXPvkmPw
+         RoD9x9jtvwNOPFrYhSThAceVGZa/VtcU8anwK9pv3pEFP8wBs3KYfwGLH7jjpr1E79Us
+         5/LUSGwWkB7CEgcpjfd/cXvjDiKyLqlAWbujOQMtwEjDhdgvicI8uv/mPOrQS9Ri4RHb
+         HKPtEWeCYvrPQB1Bs56hSpUMT82jAKX1JT9NUKHGPoy0utNEM+mwQXorXFkezA/m+VXw
+         pTBHoATOtuRYgCqeeUjKpLHT/Q7PWJE2mG0wNMm8kM3c66f9a+8aogGKfEmxqky4ooay
+         1NQg==
+X-Gm-Message-State: ACrzQf0xHXQKhhDqSzCVg/sIgk2uWV6FEif+ovlaQAe4iGvEstx5dONK
+        3jlFf6iNxiI3rgsgaIDjgw==
+X-Google-Smtp-Source: AMsMyM5sLq9PJKoWg9KN44DXI9lqcoLz1n73FFMGxtogaZb8h9LzCgjR1lPvHzR716cWfjwKWr2iVw==
+X-Received: by 2002:a05:6402:5190:b0:45c:fca7:e07b with SMTP id q16-20020a056402519000b0045cfca7e07bmr3485250edd.327.1665862870982;
+        Sat, 15 Oct 2022 12:41:10 -0700 (PDT)
+Received: from localhost.localdomain ([46.53.248.196])
+        by smtp.gmail.com with ESMTPSA id de13-20020a1709069bcd00b0078d957e65b6sm3531299ejc.23.2022.10.15.12.41.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 15 Oct 2022 12:41:10 -0700 (PDT)
+Date:   Sat, 15 Oct 2022 22:41:08 +0300
+From:   Alexey Dobriyan <adobriyan@gmail.com>
+To:     axboe@kernel.dk
+Cc:     fio@vger.kernel.org
+Subject: [PATCH] fio: warn about "ioengine=psync" and "iodepth >= 1"
+Message-ID: <Y0sM1PJKEzfv47ZB@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit b19c5ee1357ffb74f4de57b1617364bbbaacf1a0:
+Some users are using both ioengine=psync and iodepth=2+
+without blinking in front of the millions:
 
-  examples: uring-cmd-zoned: expand the reasoning behind QD1 (2022-10-07 09:50:37 -0400)
+	https://youtu.be/coShLkCriXc?t=840
+	https://youtu.be/coShLkCriXc?t=890
+	
+Help them with helpful message.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 07f78c37833730594778fb5684ac6ec40d0289f8:
-
-  engines/io_uring: set coop taskrun, single issuer and defer taskrun (2022-10-12 07:19:35 -0600)
-
-----------------------------------------------------------------
-Ankit Kumar (1):
-      engines/io_uring: set coop taskrun, single issuer and defer taskrun
-
- engines/io_uring.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
-
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
-Diff of recent changes:
+ backend.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index c679177f..6906e0a4 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -889,9 +889,30 @@ static int fio_ioring_cmd_queue_init(struct thread_data *td)
- 	p.flags |= IORING_SETUP_CQSIZE;
- 	p.cq_entries = depth;
+--- a/backend.c
++++ b/backend.c
+@@ -1791,6 +1791,11 @@ static void *thread_main(void *data)
+ 	if (td_io_init(td))
+ 		goto err;
  
-+	/*
-+	 * Setup COOP_TASKRUN as we don't need to get IPI interrupted for
-+	 * completing IO operations.
-+	 */
-+	p.flags |= IORING_SETUP_COOP_TASKRUN;
++	if (td_ioengine_flagged(td, FIO_SYNCIO) && td->o.iodepth > 1) {
++		log_info("note: both iodepth>=1 and synchronous I/O engine are selected, "
++			 "queue depth will be capped at 1\n");
++	}
 +
-+	/*
-+	 * io_uring is always a single issuer, and we can defer task_work
-+	 * runs until we reap events.
-+	 */
-+	p.flags |= IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
-+
- retry:
- 	ret = syscall(__NR_io_uring_setup, depth, &p);
- 	if (ret < 0) {
-+		if (errno == EINVAL && p.flags & IORING_SETUP_DEFER_TASKRUN) {
-+			p.flags &= ~IORING_SETUP_DEFER_TASKRUN;
-+			p.flags &= ~IORING_SETUP_SINGLE_ISSUER;
-+			goto retry;
-+		}
-+		if (errno == EINVAL && p.flags & IORING_SETUP_COOP_TASKRUN) {
-+			p.flags &= ~IORING_SETUP_COOP_TASKRUN;
-+			goto retry;
-+		}
- 		if (errno == EINVAL && p.flags & IORING_SETUP_CQSIZE) {
- 			p.flags &= ~IORING_SETUP_CQSIZE;
- 			goto retry;
+ 	if (init_io_u(td))
+ 		goto err;
+ 
