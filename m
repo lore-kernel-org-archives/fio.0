@@ -2,152 +2,114 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 492F1C43219
-	for <fio@archiver.kernel.org>; Mon, 17 Oct 2022 12:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ADFAC433FE
+	for <fio@archiver.kernel.org>; Tue, 18 Oct 2022 04:17:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230087AbiJQMAj (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 17 Oct 2022 08:00:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52826 "EHLO
+        id S229782AbiJRERa (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 18 Oct 2022 00:17:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229673AbiJQMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 17 Oct 2022 08:00:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052CA27917
-        for <fio@vger.kernel.org>; Mon, 17 Oct 2022 05:00:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=cqyV55XnDUL01RnCHOopyKTJvX2RghGbPrtRxPBJ8FI=; b=EP+PEBUCqniZYxo9XqsdgLVeZn
-        dGd/Ni3tkD2tpSjlhOA6yjYD5xJSNDY1HRLtxX/ijFff1izMO1778BKaENXDzgGK88qmW1KYJQ8Bz
-        w4elOpq5N2lOiQik0zcAarKOJO1bmckKxpg1O5fsp9okzYZnnyhbET7awljclBS7xNoSpdAccaM3/
-        4O2s5zZsrPy9VLrSwsS++pwh1SqDJUZSc8AER5VBrNnBnaO9dgHYJPnx/gLw0XuZmENjGtqYkDxhM
-        OrXAz24KP2DJb0PMQ3kW9wc8u+ds2setCcaVDTSrE7BSd3WfB43dmQCRVnBLiBJdbvXJuYdoByfdm
-        PTjkLJ8w==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1okOmu-009p3q-Ku
-        for fio@vger.kernel.org; Mon, 17 Oct 2022 12:00:08 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 22E521BC0183; Mon, 17 Oct 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20221017120002.22E521BC0183@kernel.dk>
-Date:   Mon, 17 Oct 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S229489AbiJRER3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 18 Oct 2022 00:17:29 -0400
+Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E41F896221
+        for <fio@vger.kernel.org>; Mon, 17 Oct 2022 21:17:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1666066647; x=1697602647;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=ri9yynMwzm2k+wbqkfIEma72O9we7zM28wrYkTAas5E=;
+  b=oRKacEsdQ2LsT9T4tVhC6OquNGbg6LTI2zBs7BfJBGtPdcmUQLRSrS52
+   ld5BDE4C2sdFi7bv+iGjHP9T9CJ72srlhJm6gBk3MnQPdEU5Z78WFiFww
+   +8SOGXgFHIzdGTyQcjLbD/rlDY7Qqf5Cm+edqNI0C/kcZ1M3CQxb7QOBw
+   PkE86nBsB/P+0j7TLtUv8ctTVd2N1OmEGQXL4Ip0tu+4XijW1kIoZc/+1
+   0o7eC1K9kb8x9oQ5fGXVp8bQ+Jyu3Vxk06zoa8nXrODQiV7nYniOTLm/z
+   6NUA/TdHumlDGNTxUa/eFiZjcz9vjaw+5woblQnwQgXeu2SbaH1GoOzu0
+   g==;
+X-IronPort-AV: E=Sophos;i="5.95,193,1661788800"; 
+   d="scan'208";a="214084022"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 18 Oct 2022 12:17:27 +0800
+IronPort-SDR: DD1jN8rP/+6NNvijfYN9ZoQJB7/t0aP8BwH5TPYA0Hab+cqzoPzfpj818PXfXVFbYsndn8rtEu
+ GRKlwv25q7DYXyRoI+Ru6r00IKC0r1Z4IxTmdXYYZmr9QWAztz82JvogPBs9nm/A96vFEpOafY
+ HbtBdQV0H26eZ1QEhaAzjyNwVYaH6z1bh/ZhxJc69g5+ZCtMQMj1nXWnSxM0IGLotQ4UrgHNh/
+ J5dBgeshk9hCO5qFe7vLY+KRpE99P3fLEi2EpJJRiYuqp3CNMW3Hr5953Fop/8DmcWsqXCN+xL
+ cM5iB3tm3bMFXyOH6ZnHuSEb
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 17 Oct 2022 20:36:58 -0700
+IronPort-SDR: 9zdTmcs0CMYL0OLnzQfuLedFGJi61+mZ9Er8ZeXGn/L4ihCpU6hBLeSbzeRHujbCUWSpgKV1nv
+ 9KtF9f8n08ePhLML4rM9KN/UC0Jqp1vp60ZvD+SjD4za9dent4VwLQvsYSWuT0ZNpmEEuYgT5H
+ yj+AfOwNtSMT9GwtNAfNlYUJrZRkAcNRPQQwLPGKtlbLH+LVfT2rnGuY+QDhvh3wYA0qfznkx9
+ SB3q07GLCYoSFvUq8uKZzwWtdE67A9aS5BvljvxT2cZTBX/pTINlYCYetNMPI77CCpmQQoVO0Y
+ NfI=
+WDCIronportException: Internal
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
+  by uls-op-cesaip01.wdc.com with ESMTP; 17 Oct 2022 21:17:26 -0700
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Vincent Fu <vincentfu@gmail.com>
+Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 0/4] fix experimental verify
+Date:   Tue, 18 Oct 2022 13:17:21 +0900
+Message-Id: <20221018041725.807940-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.37.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 8a63e7a32fcb6b7b131c4678ba95b81a9f2f8bca:
+Recently I noticed that verify workload with --experimental_verify option does
+not read back verify data. I confirmed it with simple job below:
 
-  Merge branch 'readme-update' of https://github.com/nikoandpiko/fio (2022-10-15 09:05:32 -0600)
+  [job]
+  filename=t0025file
+  size=128k
+  readwrite=write
+  do_verify=1
+  verify=md5
+  experimental_verify=1
 
-are available in the Git repository at:
+Fio reported as follows. No read for verify data.
 
-  git://git.kernel.dk/fio.git master
+  Run status group 0 (all jobs):
+     READ: bw=0B/s (0B/s), 0B/s-0B/s (0B/s-0B/s), io=0B (0B), run=1-1msec
+     WRITE: bw=41.7MiB/s (43.7MB/s), 41.7MiB/s-41.7MiB/s (43.7MB/s-43.7MB/s)...
 
-for you to fetch changes up to 0360d61fbfcc1f07bcdc16672f5040f8cf49681f:
+The debug log trace with --debug=io,verify option showed no verify data read
+either. It indicates that experimental verify is not working as expected.
 
-  t/zbd: add a CLI option to force io_uring (2022-10-16 17:05:03 -0600)
+This series addresses two issues to make experimental verify work again. Also
+add two test cases to confirm the issue fixes.
 
-----------------------------------------------------------------
-Alexey Dobriyan (1):
-      fio: warn about "ioengine=psync" and "iodepth >= 1"
+Of note is that this series makes test case #54 of t/zbd/test-zbd-support fail.
+I'm preparing another series to address it as well as other verify issues
+related to zonemode=zbd.
 
-Dmitry Fomichev (2):
-      t/zbd: fix max_open_zones determination in tests
-      t/zbd: add a CLI option to force io_uring
+Shin'ichiro Kawasaki (4):
+  verify: fix bytes_done accounting of experimental verify
+  verify: fix numberio accounting of experimental verify
+  test: add test for verify read back of experimental verify
+  test: add test for experimental verify with loops and time_based
+    options
 
- backend.c              |  5 +++++
- t/zbd/functions        |  4 +++-
- t/zbd/test-zbd-support | 10 ++++++++++
- 3 files changed, 18 insertions(+), 1 deletion(-)
+ backend.c          |  8 ++++++--
+ fio.h              |  2 ++
+ io_u.c             | 23 +++++++++++++++++------
+ libfio.c           |  1 +
+ rate-submit.c      |  2 ++
+ t/jobs/t0025.fio   |  8 ++++++++
+ t/jobs/t0026.fio   | 20 ++++++++++++++++++++
+ t/run-fio-tests.py | 31 +++++++++++++++++++++++++++++++
+ verify.c           |  2 --
+ 9 files changed, 87 insertions(+), 10 deletions(-)
+ create mode 100644 t/jobs/t0025.fio
+ create mode 100644 t/jobs/t0026.fio
 
----
+-- 
+2.37.1
 
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index ec535bcc..d8f4f2a5 100644
---- a/backend.c
-+++ b/backend.c
-@@ -1791,6 +1791,11 @@ static void *thread_main(void *data)
- 	if (td_io_init(td))
- 		goto err;
- 
-+	if (td_ioengine_flagged(td, FIO_SYNCIO) && td->o.iodepth > 1) {
-+		log_info("note: both iodepth >= 1 and synchronous I/O engine "
-+			 "are selected, queue depth will be capped at 1\n");
-+	}
-+
- 	if (init_io_u(td))
- 		goto err;
- 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 7cff18fd..812320f5 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -230,9 +230,11 @@ max_open_zones() {
- 		    echo ${max_nr_open_zones}
- 		}
- 	fi
--    else
-+    elif [ -n "${use_libzbc}" ]; then
- 	${zbc_report_zones} "$dev" |
- 	    sed -n 's/^[[:blank:]]*Maximum number of open sequential write required zones:[[:blank:]]*//p'
-+    else
-+	echo 0
-     fi
- }
- 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index d4aaa813..cdc03f28 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -17,6 +17,7 @@ usage() {
- 	echo -e "\t-t <test #> Run only a single test case with specified number"
- 	echo -e "\t-q Quit the test run after any failed test"
- 	echo -e "\t-z Run fio with debug=zbd option"
-+	echo -e "\t-u Use io_uring ioengine in place of libaio"
- }
- 
- max() {
-@@ -38,6 +39,8 @@ min() {
- ioengine() {
- 	if [ -n "$use_libzbc" ]; then
- 		echo -n "--ioengine=libzbc"
-+	elif [ "$1" = "libaio" -a -n "$force_io_uring" ]; then
-+		echo -n "--ioengine=io_uring"
- 	else
- 		echo -n "--ioengine=$1"
- 	fi
-@@ -1275,6 +1278,7 @@ use_libzbc=
- zbd_debug=
- max_open_zones_opt=
- quit_on_err=
-+force_io_uring=
- 
- while [ "${1#-}" != "$1" ]; do
-   case "$1" in
-@@ -1292,6 +1296,7 @@ while [ "${1#-}" != "$1" ]; do
- 	shift;;
-     -q) quit_on_err=1; shift;;
-     -z) zbd_debug=1; shift;;
-+    -u) force_io_uring=1; shift;;
-     --) shift; break;;
-      *) usage; exit 1;;
-   esac
-@@ -1302,6 +1307,11 @@ if [ $# != 1 ]; then
-     exit 1
- fi
- 
-+if [ -n "$use_libzbc" -a -n "$force_io_uring" ]; then
-+    echo "Please specify only one of -l and -u options"
-+    exit 1
-+fi
-+
- # shellcheck source=functions
- source "$(dirname "$0")/functions" || exit $?
- 
