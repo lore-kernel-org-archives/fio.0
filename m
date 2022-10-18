@@ -2,125 +2,134 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB37EC433FE
-	for <fio@archiver.kernel.org>; Tue, 18 Oct 2022 04:17:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE6D1C433FE
+	for <fio@archiver.kernel.org>; Tue, 18 Oct 2022 16:14:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230022AbiJRERg (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 18 Oct 2022 00:17:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43790 "EHLO
+        id S230288AbiJRQOr (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 18 Oct 2022 12:14:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbiJRERd (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 18 Oct 2022 00:17:33 -0400
-Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 639D597D76
-        for <fio@vger.kernel.org>; Mon, 17 Oct 2022 21:17:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666066652; x=1697602652;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=eAZYUB3zze6J043ZjktW1vErx1X7tBNEpRoZXSz4a5M=;
-  b=X3TobifJzz3KQbs7Kc0AANZX8H3YVfwlzLdHZTtyj1RM4Dcz92Kj3Lv3
-   Acm6AVc/JVFqirjZlWC3hcPYNeR4EE7Ht6t5/gKKbn/w1VbBC/rkLtOki
-   cDHLeeKkkbywgxa8TSR/eRBro8k2PPRwt340GB6GRzbTm2u2cMbX3c/JX
-   q+lP/0Ym8BolFRP0fyP5hPAWwcjDyJSBMAHeUTuXG6QrRyEL18yXDPA8g
-   7O1LHOBdO3WHWa5IkDtBD7Z6C25BZeCYNVVRqfLw9NVy0EptB5FjJCrha
-   jJuIkh16aes9m4jvlzT6o91jToN42IRMsCQkc3cztb1rXBFp/5KrntBJZ
-   g==;
-X-IronPort-AV: E=Sophos;i="5.95,193,1661788800"; 
-   d="scan'208";a="214084032"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 18 Oct 2022 12:17:32 +0800
-IronPort-SDR: eGDny+q78DaWFlbjKNwZOPO7lx07xfqSalJ1ideBl4+vymLfKLlsxjc6Q8TwWzh604CDWE/ZPQ
- laOxfbklBP7akYSoTLko9mhTJI94TsEVcE3HgcAhCarQPxH7gM3SUVoPwL4hqOo2SKX2yD2QJC
- EomB+NFWDlBw2J435/WLidpTTpvPMk1fGNHYOMQXqgRcW6K7XeSrnQZSBe16nirO84eL35Z5m6
- gcsy/Vnkzmz7woAzB6/06KSAfaEA+VtnFSRSx6tcA5QDrUjTPO6Xd8JKc1vosDTvRAHcuU6Qcy
- MnKPJmgOc5z+Nx5+ff4uiML+
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 17 Oct 2022 20:37:03 -0700
-IronPort-SDR: oy8N6U09ZmFLSxrpOG+E4r4rltL8JYj6Zgy2tkfQLFJvXk504GwUr/M/bEJEafe0CF7MXOjYUS
- TcEXvyOKBeF7Z13FHDqqI/l1ieLZs9YhBL+Rb2MPqzhF9HXP2MiK7XjDlo9VCauTUbPXRkYUQZ
- oH2G0XKbQ1fpm5sfHU1+zMmR+/DoQb7T3+fUK7qfRnhs/Y/Fyus7HkB/ruK3oSAqXGQYxbP8F7
- CE5awRb31prxmsjgtYSPT2Bf+slRSCoOrFpMi5+5+EjGr2jEnjPRNUPDOAVOD+Z3U12HTvCgDX
- Ci0=
-WDCIronportException: Internal
-Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 17 Oct 2022 21:17:31 -0700
-From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Vincent Fu <vincentfu@gmail.com>
+        with ESMTP id S230285AbiJRQOp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 18 Oct 2022 12:14:45 -0400
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEDD61006B
+        for <fio@vger.kernel.org>; Tue, 18 Oct 2022 09:14:40 -0700 (PDT)
+Received: by mail-qv1-xf2c.google.com with SMTP id de14so9609038qvb.5
+        for <fio@vger.kernel.org>; Tue, 18 Oct 2022 09:14:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=A03UXBsRhUeiHGzJdN+YtboOUqzWAyIdDpGza5jdTEY=;
+        b=hlDurg245+3Vzv1fBiihUJ9V9oq9ASDsmrcVUsFBOw51tCGWiWBmbDaSA3b0B2xHCQ
+         4yT9ZNXW+EotPZX1oMCEQAJfjk7syXusHLcFHw0Um350YbtYDDa2hWsB7zLzkXO0gPwu
+         kiVFINnEh0Tdu2PYiruz2zbhYADKPJMa0pI+HMREHurqb15ONlUSZ+oQeanJShHeZ3qo
+         NO/nh2vdeChPT5rBh1ZQqJUVsO6TgGC9hcWzLzKoSH2sSpxIlfiRV5RtZxTFR0INvytq
+         reM92nLpWEH+7McvdFIXxlsmXWgte8AvkeiVpV88sr0/OsgPjEIITiEnfq/QFVsm6x85
+         xrCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=A03UXBsRhUeiHGzJdN+YtboOUqzWAyIdDpGza5jdTEY=;
+        b=JCojKK/TiKFniBr0W9m42su0iMGkM6oLlG9B8aRiydEp9vkVl7Byvr+WBsqfAJ9Cvc
+         c+UpFvCOItSD82QPq5JNczT0w2PHC0ieuEpPSKZxHMxhLGeR0A0zEwVTXKqkC1i18WY8
+         8wrFK2Wb9hkrKe8WiaOI0Ew30iTBX2SL8aHWVmJ5T5bnDjjlr/+n2vMGCjWIblxmDVJH
+         ao6FI6ldpr1Vmei9JPU3qcjk7OqizlV7rya3zugbabOCzoLG44ELxyNzUXc0PIrn6hkP
+         kUebZRNEkvPcRhQnpfUrKgjNfIPvYSHN0oQWSYocCHXF/PgxDLrGgcylS73FzsDJR2vp
+         LI0g==
+X-Gm-Message-State: ACrzQf0HqkDQTBs3gijtoh1v7T/Mnye31tjcErE+4fJB4Cy0XrgCq2kn
+        MTmgTyc2uk+f30uqqHVtigc=
+X-Google-Smtp-Source: AMsMyM7NzulGpuMPO0XUWDvetMm7vzgMcBubWyRgkiBGCMAgi17t72dNKHAS0henQTV7lWJAFiWY2w==
+X-Received: by 2002:a05:6214:c86:b0:4b4:4e78:c0b with SMTP id r6-20020a0562140c8600b004b44e780c0bmr2986561qvr.126.1666109679695;
+        Tue, 18 Oct 2022 09:14:39 -0700 (PDT)
+Received: from [192.168.1.218] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id o14-20020a05620a2a0e00b006cbc00db595sm2785296qkp.23.2022.10.18.09.14.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Oct 2022 09:14:39 -0700 (PDT)
+Message-ID: <e1d0b1fa-b36a-1269-7d3d-4998d2b62177@gmail.com>
+Date:   Tue, 18 Oct 2022 12:14:38 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: [PATCH 0/4] fix experimental verify
+Content-Language: en-US
+To:     Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
 Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 4/4] test: add test for experimental verify with loops and time_based options
-Date:   Tue, 18 Oct 2022 13:17:25 +0900
-Message-Id: <20221018041725.807940-5-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20221018041725.807940-1-shinichiro.kawasaki@wdc.com>
+        Niklas Cassel <niklas.cassel@wdc.com>
 References: <20221018041725.807940-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20221018041725.807940-1-shinichiro.kawasaki@wdc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Add a test case to confirm fix of numberio accounting issue of
-experimental verify using loops and time_based options.
+On 10/18/22 00:17, Shin'ichiro Kawasaki wrote:
+> Recently I noticed that verify workload with --experimental_verify option does
+> not read back verify data. I confirmed it with simple job below:
+> 
+>    [job]
+>    filename=t0025file
+>    size=128k
+>    readwrite=write
+>    do_verify=1
+>    verify=md5
+>    experimental_verify=1
+> 
+> Fio reported as follows. No read for verify data.
+> 
+>    Run status group 0 (all jobs):
+>       READ: bw=0B/s (0B/s), 0B/s-0B/s (0B/s-0B/s), io=0B (0B), run=1-1msec
+>       WRITE: bw=41.7MiB/s (43.7MB/s), 41.7MiB/s-41.7MiB/s (43.7MB/s-43.7MB/s)...
+> 
+> The debug log trace with --debug=io,verify option showed no verify data read
+> either. It indicates that experimental verify is not working as expected.
+> 
+> This series addresses two issues to make experimental verify work again. Also
+> add two test cases to confirm the issue fixes.
+> 
+> Of note is that this series makes test case #54 of t/zbd/test-zbd-support fail.
+> I'm preparing another series to address it as well as other verify issues
+> related to zonemode=zbd.
+> 
+> Shin'ichiro Kawasaki (4):
+>    verify: fix bytes_done accounting of experimental verify
+>    verify: fix numberio accounting of experimental verify
+>    test: add test for verify read back of experimental verify
+>    test: add test for experimental verify with loops and time_based
+>      options
+> 
+>   backend.c          |  8 ++++++--
+>   fio.h              |  2 ++
+>   io_u.c             | 23 +++++++++++++++++------
+>   libfio.c           |  1 +
+>   rate-submit.c      |  2 ++
+>   t/jobs/t0025.fio   |  8 ++++++++
+>   t/jobs/t0026.fio   | 20 ++++++++++++++++++++
+>   t/run-fio-tests.py | 31 +++++++++++++++++++++++++++++++
+>   verify.c           |  2 --
+>   9 files changed, 87 insertions(+), 10 deletions(-)
+>   create mode 100644 t/jobs/t0025.fio
+>   create mode 100644 t/jobs/t0026.fio
+> 
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/jobs/t0026.fio   | 20 ++++++++++++++++++++
- t/run-fio-tests.py |  9 +++++++++
- 2 files changed, 29 insertions(+)
- create mode 100644 t/jobs/t0026.fio
+Hello Shin'ichiro,
 
-diff --git a/t/jobs/t0026.fio b/t/jobs/t0026.fio
-new file mode 100644
-index 00000000..4436392f
---- /dev/null
-+++ b/t/jobs/t0026.fio
-@@ -0,0 +1,20 @@
-+[job1]
-+filename=t0026file
-+size=1M
-+readwrite=randwrite
-+loops=8
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-+
-+[job2]
-+stonewall=1
-+filename=t0026file
-+size=1M
-+readwrite=randrw
-+time_based
-+runtime=5
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-+
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 0e15068d..436042b1 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -1205,6 +1205,15 @@ TEST_LIST = [
-         'output_format':    'json',
-         'requirements':     [],
-     },
-+    {
-+        'test_id':          26,
-+        'test_class':       FioJobTest,
-+        'job':              't0026.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'requirements':     [],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
--- 
-2.37.1
+I applied your patches to a branch on GitHub:
 
+https://github.com/vincentkfu/fio/commits/exp-verify
+
+All of the automated Linux and macOS tests pass but on Windows I see 
+failures with t0026:
+
+https://ci.appveyor.com/project/vincentkfu/fio/builds/45105941
+
+Would you take a look?
+
+Vincent
