@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA8F5C4332F
-	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F790C433FE
+	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230167AbiJTGjI (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 20 Oct 2022 02:39:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
+        id S230169AbiJTGjJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 20 Oct 2022 02:39:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230100AbiJTGjH (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S230096AbiJTGjH (ORCPT <rfc822;fio@vger.kernel.org>);
         Thu, 20 Oct 2022 02:39:07 -0400
 Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDA81C25D6
-        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:39:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF971911F6
+        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:39:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666247941; x=1697783941;
+  t=1666247942; x=1697783942;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=ucCl0wLFmJiM/uGAfkzSYX1iGnddcKOU8vjjZKCdAwM=;
-  b=ieDrVH5T1WbNkJLRIkzE2gHNmkHS/90pNSKXdyAmYc4uvP/9wk6yEvXx
-   0eP3jvLhEi6UzvNBZGH2VH0/a622Zzf+2X2qZQdBTZ/aCnNJldZNxQ9lP
-   YTvJc/BMmL0H3JL5RlPaYxDxPK8M2KQN4wEymSl5E8mSEDmUZLmzlZQoI
-   eD1FLWKaQmvEL6PRbIGdC7eHLH9Cxr6TCvrc3+E0FZvZfkVZNkAQ/S6jA
-   PQQTomZ7fyjF/GTDlhLcURQhgy/oPsydzSDRMb9kj+ZVJS/553YSplwZj
-   +4HwXuceKRYRso/TQoDNh96HuNZS5h4iZm1XDmQLB/1zuKb6af28dx/Xu
-   A==;
+  bh=rEZDmwB5AAeXTZY9DJzKVu9Bfm6ZNoR8rwi8EH+0H2E=;
+  b=n3a6KwhOtZ89CjR7MLZ86MHmZ9WLzRmHkdbRmDr89Y5Ausfhhk5BONl0
+   DeFShrsR7GlaG6AYWJBybDEnC1cUCz2X+tHCAsDEa9NcJwOnoNdtZ93zu
+   r0ytXq+/dDFnS5v/iIKAc52XqY4H7IZixRiqrWClW+zj+9zIuTX/zU0Mp
+   4ygbaEWe6G/ffomy/s6hcYbe9TF2nq9WXGTsB/SLuPqZczv3ikl6iFvrn
+   szmYNUrlbL/soBu9TRUJlTqO/xuxylGZ2OwGDAcWve/ZCgmuTqh2VkC6y
+   3qOL1Dy0Gqtdtz9GilRK0Kt4XIb49/mhpXp5Ic7LaDtCDnNVoo6FFM8qb
+   w==;
 X-IronPort-AV: E=Sophos;i="5.95,198,1661788800"; 
-   d="scan'208";a="212615963"
+   d="scan'208";a="212615969"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:39:00 +0800
-IronPort-SDR: ldte/T6XUE3CSaIp9w/fpOG18KN7wpdQUAgebe8NBGLC8vvra5+HLSOPEIKlo9Wsh1kb8Xe4+F
- U25kfyHT2wnMJTMlhPS9VBwh8O/fAi7bq9I9BPd8oAOiEEKf9QBIYwNBbworu1WzFBEVu2vMAf
- 5i6vuMKzisSPd6nD2AisoVWmZQz8PVnZEHAUZ9tibH3Pyk7LI9EsvBcHw/8GS5UahfFzL53f0E
- l0NilwFHX4lt/zslnyzVud+FrMaYgaVvHt7G1O3RnG6rsly8xNadhT6jXf0cKrZnsYvuzM4k65
- wKXiFmMqdXL0TUTx6kaVStak
+  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:39:01 +0800
+IronPort-SDR: 6jMWTz2LbBJ0/VxHKgegZMAOhYleofYngqqo7p31to2biDftjdNBu+uiF4t/8xeYsqIlVDv9Dg
+ MylONVkvTV7bSaYSR0LSD1kScymVQdYILMsONiEV77jWyF57twRhr78PnB7QiurTck7hREfR1j
+ oocEvfkN/YzykL7utcXBzVbkg+4cU44MjLl8JMURwJD1k72emgp/L68h6EE7sGVV5D1qTBXfwo
+ Gpik8hWxK7lWO6N0dMcHJfKCyNbb94srQ4P5QcIZBbFgyLTaqr4ayV1wbuicdi85KYBQlUAqye
+ xJWKpFjMBCFRqAmfx6zctjOc
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:29 -0700
-IronPort-SDR: MUBnKmZF4OSkPb8Qfo9SYK+tQLhKvH9rAse8RcckIoRZbpetPVisfLIKOC7+e/tjorvrGnXxe5
- nJGBUw2Qmbhv/0fo0vzZGxFRL/cNJAVHt0IpRsX2hf0A41p7KCO9c2fnJ9IV+J5ElYa2jcBwzI
- 1WWdjr1hnMEcYOyenN7Pa6ymJCGWr/ARupCONZ2opwSUqF0APTrAjy1g7WHEwFo+U9r6FaOfMF
- 3sxkjVPK3DWaDMuNCEkxaYkKWAkI8MXfNjUw0BL37km+Dt9Gnw94mswDNw9iAiQPU9ak5pPJ7e
- xLI=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:31 -0700
+IronPort-SDR: F32I8qSuPjyujxGx8GJIzcG3iVxOjryDgn9e/Vgd4vesCcBrM+K7sKyleRpUd7cxxZ6bkqrfP1
+ StRLa5u0nA2OEFS8iG5qVZd4RNKllujaxJJ+ydb2Z76oBfZqOoOkr0e3DSMGKMv1EZcF6VmYvQ
+ Eaw2LZ3kn2tzH47sHH7es8y+iOuQBjuwNN4sSvhzos4izZBgdr5PrxYI2CKjriJEMUGWDY3avw
+ jC3T1KyDMS4ZDG/HFtmY/Q+UNFAwwX+SUzyrZth+p3Gnl5P/Fj8wr7Y+vkJXBWjd3y98xjsSsv
+ nxE=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:39:00 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:39:01 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 3/4] test: add test for verify read back of experimental verify
-Date:   Thu, 20 Oct 2022 15:38:53 +0900
-Message-Id: <20221020063854.839158-4-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 4/4] test: add test for experimental verify with loops and time_based options
+Date:   Thu, 20 Oct 2022 15:38:54 +0900
+Message-Id: <20221020063854.839158-5-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
 References: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
@@ -65,67 +65,62 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Add a test case to confirm fix of bytes_done accounting issue of
-experimental verify. The test job runs a simple workload with
-experimental verify and confirm verify read amount is the file size.
+Add a test case to confirm fix of numberio accounting issue of
+experimental verify using loops and time_based options.
+
+Of note is that this case fails on Windows with error "bad header
+rand_seed". Until it gets fixed, require to non-Windows OS for this test
+case so that CI does not report the known failure.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/jobs/t0025.fio   |  8 ++++++++
- t/run-fio-tests.py | 22 ++++++++++++++++++++++
- 2 files changed, 30 insertions(+)
- create mode 100644 t/jobs/t0025.fio
+ t/jobs/t0026.fio   | 20 ++++++++++++++++++++
+ t/run-fio-tests.py |  9 +++++++++
+ 2 files changed, 29 insertions(+)
+ create mode 100644 t/jobs/t0026.fio
 
-diff --git a/t/jobs/t0025.fio b/t/jobs/t0025.fio
+diff --git a/t/jobs/t0026.fio b/t/jobs/t0026.fio
 new file mode 100644
-index 00000000..2b35a9ac
+index 00000000..4436392f
 --- /dev/null
-+++ b/t/jobs/t0025.fio
-@@ -0,0 +1,8 @@
-+[job]
-+filename=t0025file
-+size=128k
-+readwrite=write
++++ b/t/jobs/t0026.fio
+@@ -0,0 +1,20 @@
++[job1]
++filename=t0026file
++size=1M
++readwrite=randwrite
++loops=8
++do_verify=1
++verify=md5
++experimental_verify=1
++
++[job2]
++stonewall=1
++filename=t0026file
++size=1M
++readwrite=randrw
++time_based
++runtime=5
 +do_verify=1
 +verify=md5
 +experimental_verify=1
 +
 diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index df87ae72..439991a1 100755
+index 439991a1..e5b307ac 100755
 --- a/t/run-fio-tests.py
 +++ b/t/run-fio-tests.py
-@@ -788,6 +788,18 @@ class FioJobTest_t0024(FioJobTest_t0023):
-         self.check_all_offsets("bssplit_bw.log", 512, filesize)
- 
- 
-+class FioJobTest_t0025(FioJobTest):
-+    """Test experimental verify read backs written data pattern."""
-+    def check_result(self):
-+        super(FioJobTest_t0025, self).check_result()
-+
-+        if not self.passed:
-+            return
-+
-+        if self.json_data['jobs'][0]['read']['io_kbytes'] != 128:
-+            self.passed = False
-+
-+
- class FioJobTest_iops_rate(FioJobTest):
-     """Test consists of fio test job t0009
-     Confirm that job0 iops == 1000
-@@ -1183,6 +1195,16 @@ TEST_LIST = [
-         'pre_success':      None,
+@@ -1205,6 +1205,15 @@ TEST_LIST = [
+         'output_format':    'json',
          'requirements':     [],
      },
 +    {
-+        'test_id':          25,
-+        'test_class':       FioJobTest_t0025,
-+        'job':              't0025.fio',
++        'test_id':          26,
++        'test_class':       FioJobTest,
++        'job':              't0026.fio',
 +        'success':          SUCCESS_DEFAULT,
 +        'pre_job':          None,
 +        'pre_success':      None,
-+        'output_format':    'json',
-+        'requirements':     [],
++        'requirements':     [Requirements.not_windows],
 +    },
      {
          'test_id':          1000,
