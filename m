@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A57BC4332F
-	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3ECFBC4332F
+	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbiJTGjD (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 20 Oct 2022 02:39:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51110 "EHLO
+        id S229448AbiJTGjG (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 20 Oct 2022 02:39:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbiJTGjB (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Oct 2022 02:39:01 -0400
+        with ESMTP id S229796AbiJTGjF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 20 Oct 2022 02:39:05 -0400
 Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 769CD1BE43A
-        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:38:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F571C19F1
+        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:39:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666247938; x=1697783938;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=df7oOal8E7cbXvqi0QJSxba5k2i4+TacORRW6kUje9A=;
-  b=o+SoDVUfEDyDio5JiCKKaTfGA5yFuVwu9CdXoa2zUqf7UZlyWIvyvkrY
-   kL/6VPb5tP0H2lBEE4yikOLIyAslyRccJLNWQghgss/2Vl6WVM+YVfI1d
-   pBRhXLqPcHjjdOPHpfbW1dhdo5X3k1TS4f9N3evrZS4OMtZUQ3oORGe51
-   nfY7XmPxYVjfZ2RukUUft1Jg8a7/o7/9XpX6zf878cLPMwHxg/xLr21D6
-   FDk668VteiP69Ryg8jWKlY7SU0jihzcEzrL4paA/aaafvLfn3NkCBK8Pf
-   TMxU/Izb6FLLHmCzyfG2NwBjFtB1UtD6IQspv0nOyFA9sggmYqf5pRPiZ
-   w==;
+  t=1666247940; x=1697783940;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Eld8vrDIY6YfNDPqE8QpRF5/+L9NANOfM0Pq2XuaJ+I=;
+  b=EYnkyyJD5IwN6Zt2sSLtYwJQw/Q+yYkksoNhnNE4ttWTsJ/cWxlWeUC5
+   JTLLq8VetDaAbAoSpgV47v9Imo2KY15jFjvlFuFWQ+SIfWrGbzPafK6GF
+   QwbDLaqtd6axVfZJYmOuXS5RWRO3Xp6QpgMhsTWLn9f30/aylxIOvkHIh
+   JLle8PiHroWd28BRQxUrBttuZ6tM/sFYXh2woaiQDAGI7hbLNScafFf3P
+   Hy8vhc8LGoBMUNK8GCDiYdRx1O0WvFeX0gt2+UJQZfNuJs7mJle4Jfumh
+   stXir4LiiVdpgIl8vgYX/stCnPEDI4dbzkuzwU4B4VR4VtAK1rKm2SSLB
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.95,198,1661788800"; 
-   d="scan'208";a="212615950"
+   d="scan'208";a="212615961"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:38:56 +0800
-IronPort-SDR: P3aOQquEGrkicc0l9UdpU5zHVSdYUGFFlwhUU/P/Fje8lzPTyJep52AYhTLOof7jbq/vQhRZPm
- TVa+k4ysXyntThuoan1rp3gbWz3gaQ/uUa7Ldats8f/+O8RU2Vx8AYrLZineozBudlEIkzgnxI
- neWsVLU15mS6bIWkPLACUbpZ5OgWNDapgpwSzTHwVoTYLDP0Y4fAQ8SQ4akTkT5BsMciorhAu2
- xW485y2xlIKABel96KfOo6m9dMsyhVaKQpXbI7Q7qRZbKi8shd6K5xzB5RM7SWBiSgXjhepYRu
- aj96bYeNVOHYrtlXmhSEtxi5
+  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:38:59 +0800
+IronPort-SDR: BzD43z481B8SoxNYIaBCkPxb4Xoe5MunuZSKH4SqO8I1lnxCrV8mXDepoB43OCaNdvsRDU89u9
+ 83ANy5P6MKQ1rrs7/47MBNwHjlZnHbVrwWO8bMqNpQf9hNgAUSOpB4mqiUDrTSVV3H0Eub5fU7
+ I5TaNKaoV1XRyBpOud5GkDscygxpu5yNx1Fq/yRPPPuoJr/5VSXWepej30u5Jq0I4Taw8gUULU
+ SdCfQ+0VvJsG6UB+IZbfhxDwggdPrZh4vT5TyI2OTvldh5UJXDl7+qb3HjrrADYAh7SMj4AhZ6
+ Ivc7jEas0ZrQRsnu9bbRYiJq
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:25 -0700
-IronPort-SDR: pTPj3S7QHJfna7C20grlAn9GYQqTDNxX7AvH9ljXNBDZ/JDAMQTtWWMfP8RfbId2Iy/m958v7W
- REOURqTGuwbn4drFLph7eAre24x4ugrusD4WrGc8HW2miT7c7MO0ZcE+VQTlkPZnmOv7qyIxi/
- XiTIyJd5u5w55b36WPWgy981KrYfWE3eNMdLjAzSssQ8H4EHu2XoikrOoedjvWcRMMZb8J6CTW
- l0f/ciLMPGGr/sFRsHunaI9tGaTSkEUmH7R90pXkAn3uj8tQcjjgLxhYI7rzdCQnqpD+2/ak0p
- VHA=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:28 -0700
+IronPort-SDR: FjQImZ4VQe18ZwJU/fHTL3Hhh+Z86SaCSW692x60qors7xVlen/F6cdeV9H7hKMG5ToLL4et+q
+ 6ItA04ZDoCpNkduPHfrbWUh7TWmWfMvMjqEeMluVBAJ2JferBKJbvLBZkhUgr+I2gJyobPgXcO
+ GezU1H0U02y99b2aqM6XnrUaxVH35l1XLeO/iP/8W2sYBNHG+/8dsu+bitEhrjajIVKVzOCo2K
+ hqBPtIWYHKPkYXMGmd8dH73F/jycnlkhuZJOwHlCcDxZ+KFjB/Eja0xyvSGBUv4qb4U7/g0Okf
+ zBs=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:38:55 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:38:58 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,66 +53,90 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 0/4] fix experimental verify
-Date:   Thu, 20 Oct 2022 15:38:50 +0900
-Message-Id: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 2/4] verify: fix numberio accounting of experimental verify
+Date:   Thu, 20 Oct 2022 15:38:52 +0900
+Message-Id: <20221020063854.839158-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
+In-Reply-To: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
+References: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Recently I noticed that verify workload with --experimental_verify option does
-not read back verify data. I confirmed it with simple job below:
+As for non-experimental verify, numberio is compared between the numbers
+saved in metadata and written data header. As for experimental verify,
+the metadata is not available. Instead of numberio in metadata, it
+refers td->io_issues[] as the numberio value for the comparison.
+However, td->io_issues[] is used not only for verify reads but also for
+normal I/Os. It results in comparison with wrong numberio value and
+verification failure.
 
-  [job]
-  filename=t0025file
-  size=128k
-  readwrite=write
-  do_verify=1
-  verify=md5
-  experimental_verify=1
+Fix this issue by adding a new field td->verify_read_issues which counts
+up number of verify reads. Substitute td->verify_read_issues to
+io_u->numberio to refer it for the comparison in experimental verify
+path. Also move td->io_issues[] substitution to io_u->numberio out of
+populate_verify_io_u() to keep same behavior in non-experimental verify
+path.
 
-Fio reported as follows. No read for verify data.
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ backend.c | 6 +++++-
+ fio.h     | 1 +
+ verify.c  | 2 --
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
-  Run status group 0 (all jobs):
-     READ: bw=0B/s (0B/s), 0B/s-0B/s (0B/s-0B/s), io=0B (0B), run=1-1msec
-     WRITE: bw=41.7MiB/s (43.7MB/s), 41.7MiB/s-41.7MiB/s (43.7MB/s-43.7MB/s)...
-
-The debug log trace with --debug=io,verify option showed no verify data read
-either. It indicates that experimental verify is not working as expected.
-
-This series addresses two issues to make experimental verify work again. Also
-add two test cases to confirm the issue fixes.
-
-Of note is that this series makes test case #54 of t/zbd/test-zbd-support fail.
-I'm preparing another series to address it as well as other verify issues
-related to zonemode=zbd.
-
-Changes from v1:
-* Reflected comments on the list to patch 3 and 4
-
-Shin'ichiro Kawasaki (4):
-  verify: fix bytes_done accounting of experimental verify
-  verify: fix numberio accounting of experimental verify
-  test: add test for verify read back of experimental verify
-  test: add test for experimental verify with loops and time_based
-    options
-
- backend.c          |  8 ++++++--
- fio.h              |  2 ++
- io_u.c             | 23 +++++++++++++++++------
- libfio.c           |  1 +
- rate-submit.c      |  2 ++
- t/jobs/t0025.fio   |  8 ++++++++
- t/jobs/t0026.fio   | 20 ++++++++++++++++++++
- t/run-fio-tests.py | 31 +++++++++++++++++++++++++++++++
- verify.c           |  2 --
- 9 files changed, 87 insertions(+), 10 deletions(-)
- create mode 100644 t/jobs/t0025.fio
- create mode 100644 t/jobs/t0026.fio
-
+diff --git a/backend.c b/backend.c
+index 15c6e0b3..ba954a6b 100644
+--- a/backend.c
++++ b/backend.c
+@@ -711,6 +711,8 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
+ 					break;
+ 				} else if (io_u->ddir == DDIR_WRITE) {
+ 					io_u->ddir = DDIR_READ;
++					io_u->numberio = td->verify_read_issues;
++					td->verify_read_issues++;
+ 					populate_verify_io_u(td, io_u);
+ 					break;
+ 				} else {
+@@ -1030,8 +1032,10 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
+ 			break;
+ 		}
+ 
+-		if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY)
++		if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY) {
++			io_u->numberio = td->io_issues[io_u->ddir];
+ 			populate_verify_io_u(td, io_u);
++		}
+ 
+ 		ddir = io_u->ddir;
+ 
+diff --git a/fio.h b/fio.h
+index 0592a4c3..8da77640 100644
+--- a/fio.h
++++ b/fio.h
+@@ -356,6 +356,7 @@ struct thread_data {
+ 	 * Issue side
+ 	 */
+ 	uint64_t io_issues[DDIR_RWDIR_CNT];
++	uint64_t verify_read_issues;
+ 	uint64_t io_issue_bytes[DDIR_RWDIR_CNT];
+ 	uint64_t loops;
+ 
+diff --git a/verify.c b/verify.c
+index 0e1e4639..d6a229ca 100644
+--- a/verify.c
++++ b/verify.c
+@@ -1287,8 +1287,6 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
+ 	if (td->o.verify == VERIFY_NULL)
+ 		return;
+ 
+-	io_u->numberio = td->io_issues[io_u->ddir];
+-
+ 	fill_pattern_headers(td, io_u, 0, 0);
+ }
+ 
 -- 
 2.37.1
 
