@@ -2,129 +2,97 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F790C433FE
-	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBA84C4332F
+	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 12:00:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230169AbiJTGjJ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 20 Oct 2022 02:39:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51330 "EHLO
+        id S229964AbiJTMAR (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 20 Oct 2022 08:00:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230096AbiJTGjH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Oct 2022 02:39:07 -0400
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF971911F6
-        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:39:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666247942; x=1697783942;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=rEZDmwB5AAeXTZY9DJzKVu9Bfm6ZNoR8rwi8EH+0H2E=;
-  b=n3a6KwhOtZ89CjR7MLZ86MHmZ9WLzRmHkdbRmDr89Y5Ausfhhk5BONl0
-   DeFShrsR7GlaG6AYWJBybDEnC1cUCz2X+tHCAsDEa9NcJwOnoNdtZ93zu
-   r0ytXq+/dDFnS5v/iIKAc52XqY4H7IZixRiqrWClW+zj+9zIuTX/zU0Mp
-   4ygbaEWe6G/ffomy/s6hcYbe9TF2nq9WXGTsB/SLuPqZczv3ikl6iFvrn
-   szmYNUrlbL/soBu9TRUJlTqO/xuxylGZ2OwGDAcWve/ZCgmuTqh2VkC6y
-   3qOL1Dy0Gqtdtz9GilRK0Kt4XIb49/mhpXp5Ic7LaDtCDnNVoo6FFM8qb
-   w==;
-X-IronPort-AV: E=Sophos;i="5.95,198,1661788800"; 
-   d="scan'208";a="212615969"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:39:01 +0800
-IronPort-SDR: 6jMWTz2LbBJ0/VxHKgegZMAOhYleofYngqqo7p31to2biDftjdNBu+uiF4t/8xeYsqIlVDv9Dg
- MylONVkvTV7bSaYSR0LSD1kScymVQdYILMsONiEV77jWyF57twRhr78PnB7QiurTck7hREfR1j
- oocEvfkN/YzykL7utcXBzVbkg+4cU44MjLl8JMURwJD1k72emgp/L68h6EE7sGVV5D1qTBXfwo
- Gpik8hWxK7lWO6N0dMcHJfKCyNbb94srQ4P5QcIZBbFgyLTaqr4ayV1wbuicdi85KYBQlUAqye
- xJWKpFjMBCFRqAmfx6zctjOc
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:31 -0700
-IronPort-SDR: F32I8qSuPjyujxGx8GJIzcG3iVxOjryDgn9e/Vgd4vesCcBrM+K7sKyleRpUd7cxxZ6bkqrfP1
- StRLa5u0nA2OEFS8iG5qVZd4RNKllujaxJJ+ydb2Z76oBfZqOoOkr0e3DSMGKMv1EZcF6VmYvQ
- Eaw2LZ3kn2tzH47sHH7es8y+iOuQBjuwNN4sSvhzos4izZBgdr5PrxYI2CKjriJEMUGWDY3avw
- jC3T1KyDMS4ZDG/HFtmY/Q+UNFAwwX+SUzyrZth+p3Gnl5P/Fj8wr7Y+vkJXBWjd3y98xjsSsv
- nxE=
-WDCIronportException: Internal
-Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:39:01 -0700
-From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Vincent Fu <vincentfu@gmail.com>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 4/4] test: add test for experimental verify with loops and time_based options
-Date:   Thu, 20 Oct 2022 15:38:54 +0900
-Message-Id: <20221020063854.839158-5-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
-References: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S229876AbiJTMAQ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 20 Oct 2022 08:00:16 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE13C5130
+        for <fio@vger.kernel.org>; Thu, 20 Oct 2022 05:00:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=fiFyw2yNeozQkyDxIvRYLHDAa7px+A/xckT+kbkxntc=; b=QlF6LdnkdEbyvVOfX8/5c6Rsn6
+        1TC0hkNrJXW7S6tfr/2RN4QsaatwdmRU0DUQesWf9dtzwYfie9QGgEDTiQsKlZsYiqZ7yaNGoCOdw
+        qRVzQ5cMmvzcIj3L/mudOaLW/OaScISkYnw5Qx3UZ7syzxG7urAKKaMejp98p3y60/QiSgeuMzYx8
+        BDThocsuj8kryiZ4z3EZlvBWt4B+wjwA9ZWXLfL+5oC/CoTfglKRre2OpbjMJAmZybiLCYtlYS4TW
+        /wIZand3oG9nUtVpnlgJe+wZdNAcAQnBkLLTYcBzsQO6V2FrCULRJPXLklYFrw6+tL/DhPfN+53dB
+        bPlJY5FQ==;
+Received: from [207.135.234.126] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1olUDV-0051YK-Ag
+        for fio@vger.kernel.org; Thu, 20 Oct 2022 12:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id DEF0A1BC015C; Thu, 20 Oct 2022 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20221020120001.DEF0A1BC015C@kernel.dk>
+Date:   Thu, 20 Oct 2022 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Add a test case to confirm fix of numberio accounting issue of
-experimental verify using loops and time_based options.
+The following changes since commit 2f160e0c8848bab566427a11eee116d8e834bcf0:
 
-Of note is that this case fails on Windows with error "bad header
-rand_seed". Until it gets fixed, require to non-Windows OS for this test
-case so that CI does not report the known failure.
+  test: change GitHub actions checkout from v2 to v3 (2022-10-18 11:13:03 -0400)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 548f1269e3772c666cac4148453d9c63bdfa65c4:
+
+  Merge branch 'issue-1213' of https://github.com/SystemFabricWorks/fio (2022-10-19 12:04:50 -0400)
+
+----------------------------------------------------------------
+Brian T. Smith (2):
+      fix configure probe for libcufile
+      libcufile: use generic_get_file_size
+
+Vincent Fu (1):
+      Merge branch 'issue-1213' of https://github.com/SystemFabricWorks/fio
+
+ configure           | 4 ++--
+ engines/libcufile.c | 1 +
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
 ---
- t/jobs/t0026.fio   | 20 ++++++++++++++++++++
- t/run-fio-tests.py |  9 +++++++++
- 2 files changed, 29 insertions(+)
- create mode 100644 t/jobs/t0026.fio
 
-diff --git a/t/jobs/t0026.fio b/t/jobs/t0026.fio
-new file mode 100644
-index 00000000..4436392f
---- /dev/null
-+++ b/t/jobs/t0026.fio
-@@ -0,0 +1,20 @@
-+[job1]
-+filename=t0026file
-+size=1M
-+readwrite=randwrite
-+loops=8
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-+
-+[job2]
-+stonewall=1
-+filename=t0026file
-+size=1M
-+readwrite=randrw
-+time_based
-+runtime=5
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-+
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 439991a1..e5b307ac 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -1205,6 +1205,15 @@ TEST_LIST = [
-         'output_format':    'json',
-         'requirements':     [],
-     },
-+    {
-+        'test_id':          26,
-+        'test_class':       FioJobTest,
-+        'job':              't0026.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'requirements':     [Requirements.not_windows],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
--- 
-2.37.1
+Diff of recent changes:
 
+diff --git a/configure b/configure
+index 546541a2..24c599a8 100755
+--- a/configure
++++ b/configure
+@@ -2723,9 +2723,9 @@ int main(int argc, char* argv[]) {
+    return 0;
+ }
+ EOF
+-  if compile_prog "" "-lcuda -lcudart -lcufile" "libcufile"; then
++  if compile_prog "" "-lcuda -lcudart -lcufile -ldl" "libcufile"; then
+     libcufile="yes"
+-    LIBS="-lcuda -lcudart -lcufile $LIBS"
++    LIBS="-lcuda -lcudart -lcufile -ldl $LIBS"
+   else
+     if test "$libcufile" = "yes" ; then
+       feature_not_found "libcufile" ""
+diff --git a/engines/libcufile.c b/engines/libcufile.c
+index e575b786..2bedf261 100644
+--- a/engines/libcufile.c
++++ b/engines/libcufile.c
+@@ -606,6 +606,7 @@ FIO_STATIC struct ioengine_ops ioengine = {
+ 	.version             = FIO_IOOPS_VERSION,
+ 	.init                = fio_libcufile_init,
+ 	.queue               = fio_libcufile_queue,
++	.get_file_size       = generic_get_file_size,
+ 	.open_file           = fio_libcufile_open_file,
+ 	.close_file          = fio_libcufile_close_file,
+ 	.iomem_alloc         = fio_libcufile_iomem_alloc,
