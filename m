@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3ECFBC4332F
-	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA8F5C4332F
+	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 06:39:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbiJTGjG (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 20 Oct 2022 02:39:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51254 "EHLO
+        id S230167AbiJTGjI (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 20 Oct 2022 02:39:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229796AbiJTGjF (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Oct 2022 02:39:05 -0400
+        with ESMTP id S230100AbiJTGjH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 20 Oct 2022 02:39:07 -0400
 Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F571C19F1
-        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:39:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDA81C25D6
+        for <fio@vger.kernel.org>; Wed, 19 Oct 2022 23:39:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666247940; x=1697783940;
+  t=1666247941; x=1697783941;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Eld8vrDIY6YfNDPqE8QpRF5/+L9NANOfM0Pq2XuaJ+I=;
-  b=EYnkyyJD5IwN6Zt2sSLtYwJQw/Q+yYkksoNhnNE4ttWTsJ/cWxlWeUC5
-   JTLLq8VetDaAbAoSpgV47v9Imo2KY15jFjvlFuFWQ+SIfWrGbzPafK6GF
-   QwbDLaqtd6axVfZJYmOuXS5RWRO3Xp6QpgMhsTWLn9f30/aylxIOvkHIh
-   JLle8PiHroWd28BRQxUrBttuZ6tM/sFYXh2woaiQDAGI7hbLNScafFf3P
-   Hy8vhc8LGoBMUNK8GCDiYdRx1O0WvFeX0gt2+UJQZfNuJs7mJle4Jfumh
-   stXir4LiiVdpgIl8vgYX/stCnPEDI4dbzkuzwU4B4VR4VtAK1rKm2SSLB
-   Q==;
+  bh=ucCl0wLFmJiM/uGAfkzSYX1iGnddcKOU8vjjZKCdAwM=;
+  b=ieDrVH5T1WbNkJLRIkzE2gHNmkHS/90pNSKXdyAmYc4uvP/9wk6yEvXx
+   0eP3jvLhEi6UzvNBZGH2VH0/a622Zzf+2X2qZQdBTZ/aCnNJldZNxQ9lP
+   YTvJc/BMmL0H3JL5RlPaYxDxPK8M2KQN4wEymSl5E8mSEDmUZLmzlZQoI
+   eD1FLWKaQmvEL6PRbIGdC7eHLH9Cxr6TCvrc3+E0FZvZfkVZNkAQ/S6jA
+   PQQTomZ7fyjF/GTDlhLcURQhgy/oPsydzSDRMb9kj+ZVJS/553YSplwZj
+   +4HwXuceKRYRso/TQoDNh96HuNZS5h4iZm1XDmQLB/1zuKb6af28dx/Xu
+   A==;
 X-IronPort-AV: E=Sophos;i="5.95,198,1661788800"; 
-   d="scan'208";a="212615961"
+   d="scan'208";a="212615963"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:38:59 +0800
-IronPort-SDR: BzD43z481B8SoxNYIaBCkPxb4Xoe5MunuZSKH4SqO8I1lnxCrV8mXDepoB43OCaNdvsRDU89u9
- 83ANy5P6MKQ1rrs7/47MBNwHjlZnHbVrwWO8bMqNpQf9hNgAUSOpB4mqiUDrTSVV3H0Eub5fU7
- I5TaNKaoV1XRyBpOud5GkDscygxpu5yNx1Fq/yRPPPuoJr/5VSXWepej30u5Jq0I4Taw8gUULU
- SdCfQ+0VvJsG6UB+IZbfhxDwggdPrZh4vT5TyI2OTvldh5UJXDl7+qb3HjrrADYAh7SMj4AhZ6
- Ivc7jEas0ZrQRsnu9bbRYiJq
+  by ob1.hgst.iphmx.com with ESMTP; 20 Oct 2022 14:39:00 +0800
+IronPort-SDR: ldte/T6XUE3CSaIp9w/fpOG18KN7wpdQUAgebe8NBGLC8vvra5+HLSOPEIKlo9Wsh1kb8Xe4+F
+ U25kfyHT2wnMJTMlhPS9VBwh8O/fAi7bq9I9BPd8oAOiEEKf9QBIYwNBbworu1WzFBEVu2vMAf
+ 5i6vuMKzisSPd6nD2AisoVWmZQz8PVnZEHAUZ9tibH3Pyk7LI9EsvBcHw/8GS5UahfFzL53f0E
+ l0NilwFHX4lt/zslnyzVud+FrMaYgaVvHt7G1O3RnG6rsly8xNadhT6jXf0cKrZnsYvuzM4k65
+ wKXiFmMqdXL0TUTx6kaVStak
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:28 -0700
-IronPort-SDR: FjQImZ4VQe18ZwJU/fHTL3Hhh+Z86SaCSW692x60qors7xVlen/F6cdeV9H7hKMG5ToLL4et+q
- 6ItA04ZDoCpNkduPHfrbWUh7TWmWfMvMjqEeMluVBAJ2JferBKJbvLBZkhUgr+I2gJyobPgXcO
- GezU1H0U02y99b2aqM6XnrUaxVH35l1XLeO/iP/8W2sYBNHG+/8dsu+bitEhrjajIVKVzOCo2K
- hqBPtIWYHKPkYXMGmd8dH73F/jycnlkhuZJOwHlCcDxZ+KFjB/Eja0xyvSGBUv4qb4U7/g0Okf
- zBs=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Oct 2022 22:58:29 -0700
+IronPort-SDR: MUBnKmZF4OSkPb8Qfo9SYK+tQLhKvH9rAse8RcckIoRZbpetPVisfLIKOC7+e/tjorvrGnXxe5
+ nJGBUw2Qmbhv/0fo0vzZGxFRL/cNJAVHt0IpRsX2hf0A41p7KCO9c2fnJ9IV+J5ElYa2jcBwzI
+ 1WWdjr1hnMEcYOyenN7Pa6ymJCGWr/ARupCONZ2opwSUqF0APTrAjy1g7WHEwFo+U9r6FaOfMF
+ 3sxkjVPK3DWaDMuNCEkxaYkKWAkI8MXfNjUw0BL37km+Dt9Gnw94mswDNw9iAiQPU9ak5pPJ7e
+ xLI=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:38:58 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 19 Oct 2022 23:39:00 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 2/4] verify: fix numberio accounting of experimental verify
-Date:   Thu, 20 Oct 2022 15:38:52 +0900
-Message-Id: <20221020063854.839158-3-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 3/4] test: add test for verify read back of experimental verify
+Date:   Thu, 20 Oct 2022 15:38:53 +0900
+Message-Id: <20221020063854.839158-4-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
 References: <20221020063854.839158-1-shinichiro.kawasaki@wdc.com>
@@ -65,78 +65,71 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-As for non-experimental verify, numberio is compared between the numbers
-saved in metadata and written data header. As for experimental verify,
-the metadata is not available. Instead of numberio in metadata, it
-refers td->io_issues[] as the numberio value for the comparison.
-However, td->io_issues[] is used not only for verify reads but also for
-normal I/Os. It results in comparison with wrong numberio value and
-verification failure.
-
-Fix this issue by adding a new field td->verify_read_issues which counts
-up number of verify reads. Substitute td->verify_read_issues to
-io_u->numberio to refer it for the comparison in experimental verify
-path. Also move td->io_issues[] substitution to io_u->numberio out of
-populate_verify_io_u() to keep same behavior in non-experimental verify
-path.
+Add a test case to confirm fix of bytes_done accounting issue of
+experimental verify. The test job runs a simple workload with
+experimental verify and confirm verify read amount is the file size.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- backend.c | 6 +++++-
- fio.h     | 1 +
- verify.c  | 2 --
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ t/jobs/t0025.fio   |  8 ++++++++
+ t/run-fio-tests.py | 22 ++++++++++++++++++++++
+ 2 files changed, 30 insertions(+)
+ create mode 100644 t/jobs/t0025.fio
 
-diff --git a/backend.c b/backend.c
-index 15c6e0b3..ba954a6b 100644
---- a/backend.c
-+++ b/backend.c
-@@ -711,6 +711,8 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 					break;
- 				} else if (io_u->ddir == DDIR_WRITE) {
- 					io_u->ddir = DDIR_READ;
-+					io_u->numberio = td->verify_read_issues;
-+					td->verify_read_issues++;
- 					populate_verify_io_u(td, io_u);
- 					break;
- 				} else {
-@@ -1030,8 +1032,10 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
- 			break;
- 		}
+diff --git a/t/jobs/t0025.fio b/t/jobs/t0025.fio
+new file mode 100644
+index 00000000..2b35a9ac
+--- /dev/null
++++ b/t/jobs/t0025.fio
+@@ -0,0 +1,8 @@
++[job]
++filename=t0025file
++size=128k
++readwrite=write
++do_verify=1
++verify=md5
++experimental_verify=1
++
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index df87ae72..439991a1 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -788,6 +788,18 @@ class FioJobTest_t0024(FioJobTest_t0023):
+         self.check_all_offsets("bssplit_bw.log", 512, filesize)
  
--		if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY)
-+		if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY) {
-+			io_u->numberio = td->io_issues[io_u->ddir];
- 			populate_verify_io_u(td, io_u);
-+		}
  
- 		ddir = io_u->ddir;
- 
-diff --git a/fio.h b/fio.h
-index 0592a4c3..8da77640 100644
---- a/fio.h
-+++ b/fio.h
-@@ -356,6 +356,7 @@ struct thread_data {
- 	 * Issue side
- 	 */
- 	uint64_t io_issues[DDIR_RWDIR_CNT];
-+	uint64_t verify_read_issues;
- 	uint64_t io_issue_bytes[DDIR_RWDIR_CNT];
- 	uint64_t loops;
- 
-diff --git a/verify.c b/verify.c
-index 0e1e4639..d6a229ca 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1287,8 +1287,6 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
- 	if (td->o.verify == VERIFY_NULL)
- 		return;
- 
--	io_u->numberio = td->io_issues[io_u->ddir];
--
- 	fill_pattern_headers(td, io_u, 0, 0);
- }
- 
++class FioJobTest_t0025(FioJobTest):
++    """Test experimental verify read backs written data pattern."""
++    def check_result(self):
++        super(FioJobTest_t0025, self).check_result()
++
++        if not self.passed:
++            return
++
++        if self.json_data['jobs'][0]['read']['io_kbytes'] != 128:
++            self.passed = False
++
++
+ class FioJobTest_iops_rate(FioJobTest):
+     """Test consists of fio test job t0009
+     Confirm that job0 iops == 1000
+@@ -1183,6 +1195,16 @@ TEST_LIST = [
+         'pre_success':      None,
+         'requirements':     [],
+     },
++    {
++        'test_id':          25,
++        'test_class':       FioJobTest_t0025,
++        'job':              't0025.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          None,
++        'pre_success':      None,
++        'output_format':    'json',
++        'requirements':     [],
++    },
+     {
+         'test_id':          1000,
+         'test_class':       FioExeTest,
 -- 
 2.37.1
 
