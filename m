@@ -2,120 +2,119 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF750C43219
-	for <fio@archiver.kernel.org>; Fri, 21 Oct 2022 06:34:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3E91C43219
+	for <fio@archiver.kernel.org>; Fri, 21 Oct 2022 07:14:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230140AbiJUGem (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 21 Oct 2022 02:34:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48246 "EHLO
+        id S230093AbiJUHOc (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 21 Oct 2022 03:14:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230182AbiJUGek (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 21 Oct 2022 02:34:40 -0400
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF8932F3A2
-        for <fio@vger.kernel.org>; Thu, 20 Oct 2022 23:34:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666334076; x=1697870076;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=hBhQeWxDg2ksk5lSUhQNmj/wEraAbhcFUCu0gcmkybM=;
-  b=LSjQOobbZUqNuznkfHxF1NTgnmSTdy3nYRyGOc8b0qKG0w7ycUVbxMKV
-   K5bo+PQjaLw7+qPdyhRhVCmp6dPpkYDcCw0O861KOCK1gSQHoHKQjFarP
-   dpXr6p/jmNo8lvw3kwMYVOC9Gd6yYolSil9NinXQIDjLickGvjRdSQRDP
-   0eO5o9pjoAfRMr5h39klnl1lgKV3Dx5P6xtfT9AS/0l6KOmmSWIbaa3iZ
-   t1smHHDhh+NEL8/rwlOztaEE3iur9nX6d4n4fBAMwOMlZVBmDoGi4nz3J
-   rQ93qt8C8m8JaPYX9miRQdYMdi7vM10TxrXynZRJtMpHMtrJlinbpmOop
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.95,200,1661788800"; 
-   d="scan'208";a="318733121"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 21 Oct 2022 14:34:29 +0800
-IronPort-SDR: tQWLaffgBUlAxHs+BBoQKTHqf7fRDV471cS9CazwXzqA4ijViKmWjdr3liwv3j1QLOGRdqP3Fc
- NzQ+O/r0pFoOUkqeUnA9KI5ZwOwFhDK16laUH4Ua4WRUSv8hPKT6dUR38b7InQGO2aNj7cq5YC
- RE1QgaElGSLX6W5hLu0i36L4MchZ0vcdoJOOarlKLMlfZtI7EPFD2kI0V7hHXFnBUk7c+Q1JWu
- 1jURQN4IIa2EHY5tq5M5fLOYALqKUfvOOFkPjuN54Uisi8YoOfwwal0UXWjv8G4r4pyTwhmyrx
- AQLhtMFSMasRaMRXn/5X7Ibc
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Oct 2022 22:48:17 -0700
-IronPort-SDR: JGT5H02EihDDQFuHbeucp03o96OqAh7LfdNlLmTzxDGaCueg1o9GojwlHslCtSUg0L20WkYsTB
- m3g0E1DREpdi093c/e3wCbRyV7BdoeAwlzpfDJjPtda5O5CZTpAM2zPoXu3svC8ov7VyuZpsGk
- HrtF8XPbKUDNrTgGcbz6uU/NKXu23rrKpoNJ1xqAuPcX4kdGom1eKD+ZLeyrDhJUQcKZVAlt29
- XkYWzWklQjUGLVxjYG35h6r04nP8rXd2yGjJPezaNflUthBD7YWMawKyl4pbo5JOSi9M2Uiuie
- tqU=
-WDCIronportException: Internal
-Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 20 Oct 2022 23:34:29 -0700
-From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Vincent Fu <vincentfu@gmail.com>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 09/11] t/zbd: modify test case #34 for block size unaligned to zone size
-Date:   Fri, 21 Oct 2022 15:34:14 +0900
-Message-Id: <20221021063416.860438-10-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20221021063416.860438-1-shinichiro.kawasaki@wdc.com>
-References: <20221021063416.860438-1-shinichiro.kawasaki@wdc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S230094AbiJUHOb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Oct 2022 03:14:31 -0400
+Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A87CDFFA
+        for <fio@vger.kernel.org>; Fri, 21 Oct 2022 00:14:26 -0700 (PDT)
+Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20221021071420epoutp035a9ccb42958fc86fcc769242800c8590~gBC6vUBnc2035720357epoutp03j
+        for <fio@vger.kernel.org>; Fri, 21 Oct 2022 07:14:20 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20221021071420epoutp035a9ccb42958fc86fcc769242800c8590~gBC6vUBnc2035720357epoutp03j
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1666336460;
+        bh=Wb0QZwkwVe/jeixWkcidoguDM0kgt54GGBgJEL3Wfhk=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=siJrrKuc6pZQ8U/qQN4zDlo8nYHj7PA3YrjxBPRvRtFB7WcrV7hX9SSg6XFL5DxXO
+         nTWVpHH7qw+xBYwbf60nCAn/sjzG7R90blq7zv6t6u+28wZnLF+MHgCJvvgCpgjAR4
+         OLYoYUN4mqiJFMZjVtbohQpm52ndz8jeKKK/2SfQ=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
+        20221021071420epcas5p4af57732021a45dd032b5c1584f835ed2~gBC6aAln80911409114epcas5p49;
+        Fri, 21 Oct 2022 07:14:20 +0000 (GMT)
+Received: from epsmges5p1new.samsung.com (unknown [182.195.38.179]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4Mtwgp6S22z4x9Q1; Fri, 21 Oct
+        2022 07:14:14 +0000 (GMT)
+Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        4B.7E.10166.4C642536; Fri, 21 Oct 2022 16:14:12 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+        20221021070023epcas5p4fb87f4bf54dee358f193f66d910dd624~gA2vDC4Bo3193131931epcas5p4j;
+        Fri, 21 Oct 2022 07:00:23 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20221021070023epsmtrp25dd0c00c035e9d5606bb565db859cef0~gA2vCZb5w1650516505epsmtrp2Q;
+        Fri, 21 Oct 2022 07:00:23 +0000 (GMT)
+X-AuditID: b6c32a49-7ed91a80000227b6-16-635246c4fe9a
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        3F.3F.14392.78342536; Fri, 21 Oct 2022 16:00:23 +0900 (KST)
+Received: from test-zns.sa.corp.samsungelectronics.net (unknown
+        [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20221021070022epsmtip24c6744d3eba89832409c7b9e074c8806~gA2uTyxAP1507215072epsmtip2X;
+        Fri, 21 Oct 2022 07:00:22 +0000 (GMT)
+From:   Ankit Kumar <ankit.kumar@samsung.com>
+To:     axboe@kernel.dk
+Cc:     fio@vger.kernel.org, vincentfu@gmail.com,
+        Ankit Kumar <ankit.kumar@samsung.com>
+Subject: [PATCH 0/1] fix segmentation fault with option bandwidth-log
+Date:   Fri, 21 Oct 2022 12:18:59 +0530
+Message-Id: <20221021064900.12341-1-ankit.kumar@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrDKsWRmVeSWpSXmKPExsWy7bCmuu4Rt6Bkg4OTeSzWXPnNbrH6bj+b
+        xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJyrbJSE1MSS1SSM1Lzk/JzEu3VfIO
+        jneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvMAVqopFCWmFMKFApILC5W0rezKcovLUlVyMgv
+        LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOmNy+krXgPXPFpP7XLA2MXcxdjJwc
+        EgImEkt+TmDtYuTiEBLYzSjx8esXNgjnE6PE3OfzWSCcb4wSP75fZodpOXGqlR0isZdRYnHH
+        fmYIp5VJoulPPxNIFZuAtsSrtzfAlogICEvs72hlAbGZBUIlTl77AjZJWMBV4vGEp6wgNouA
+        qsSahcvB4rwCNhK7l/2FOlBeYvWGA1B2N7vE7o+iELaLROvVLqiLhCVeHd8CZUtJfH63lw3C
+        zpbY9PAnE4RdIHHkRS/UHHuJ1lP9QDYH0D2aEut36UOEZSWmnlrHBHEmn0Tv7ydQrbwSO+bB
+        2KoSf+/dZoGwpSVuvrvKAjJGQsBD4sUzK5CwkECsxIG2A8wTGGVnISxYwMi4ilEytaA4Nz21
+        2LTAMC+1HB5Pyfm5mxjByUjLcwfj3Qcf9A4xMnEwHmKU4GBWEuEteBeQLMSbklhZlVqUH19U
+        mpNafIjRFBhiE5mlRJPzgekwryTe0MTSwMTMzMzE0tjMUEmcd/EMrWQhgfTEktTs1NSC1CKY
+        PiYOTqkGpnzrs4au0+LWddRsP64vbnG01Oamqf5KrtsWEpYdmYfaRBl235Zkl7ouYJEyt+30
+        vRfOnHaOV+/2XnXfZPTrwedwFvE/Do5Xrts7LVstev2ar4ip+MK1Lso7u4QfHwi2We5pt8hg
+        gujWiTdW3Ez8W1e+mf3HsuCWE7WOn+8ETJ0+eWvFEo5iB823aQdzS1fsmNrZ7cx6prp0kYEl
+        b4H18u7MluYe3+SZxyZz574OLclbfe7rzAfp1VpxKkrthx3kxS9lSR9bZfja8cl2K/m1q6Ld
+        jnpJZHyU1/x8JufOzdUu2Q6unfUyJ0On2ze+Vb9odzH0HdcMHYf794IVb4e8TGZMXHFgyuG8
+        r1eTLa5VKLEUZyQaajEXFScCAJS3b2TPAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrBJMWRmVeSWpSXmKPExsWy7bCSvG67c1CyQcNBaYs1V36zW6y+289m
+        8XHWC2aLDW2CDiweO2fdZfe4fLbUo2/LKkaPz5vkAliiuGxSUnMyy1KL9O0SuDImt69kLXjP
+        XDGp/zVLA2MXcxcjJ4eEgInEiVOt7F2MXBxCArsZJfZ0/WbrYuQASkhLLFyfCFEjLLHy33Oo
+        mmYmibNHZrGBJNgEtCVevb0BNkgEqGh/RysLiM0sEC4x/cBkRhBbWMBV4vGEp6wgNouAqsSa
+        hcvZQWxeARuJ3cv+Qh0hL7F6wwHmCYw8CxgZVjFKphYU56bnFhsWGOallusVJ+YWl+al6yXn
+        525iBAeGluYOxu2rPugdYmTiYDzEKMHBrCTCW/AuIFmINyWxsiq1KD++qDQntfgQozQHi5I4
+        74Wuk/FCAumJJanZqakFqUUwWSYOTqkGJv209GOpC/pvP/yyYtP2D/G6l8url+85dmjS5cgT
+        izZe32L9cl9o+O6srrI/kyVLVlmZLLfd93Gt4aXnUeUhnO2LOk2djtYu6o/h7Sn0tzQ8ciSp
+        JujRG8n3FVcufH3od/ZukPrcNVxsm+6k3BDrvLhcUvrggSCBhzm6eaEFV3X23j0/JcfvcrGY
+        0ektNw0TuG+tCQio15y7UTU+dk/BtmWv87dHinvPvv3QhJGzO6FGrW/eir9bo+oOnvmwXyyX
+        fU3OnxV2lzJ2aecLTfJdu4XT/sxj36wzWh4eKwq9ZPvLiyaq6gaEasucN3XYxD1967uWtR1h
+        SuXdh2dOmaDFtx3oq1kXuIX2FZ1r2Xb8gRJLcUaioRZzUXEiAIVTsLJ7AgAA
+X-CMS-MailID: 20221021070023epcas5p4fb87f4bf54dee358f193f66d910dd624
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20221021070023epcas5p4fb87f4bf54dee358f193f66d910dd624
+References: <CGME20221021070023epcas5p4fb87f4bf54dee358f193f66d910dd624@epcas5p4.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The test case #34 confirmed that the block size unaligned to zone size
-is handled as an error. After recent fix, now fio is able to handle such
-block sizes, then the check for the error is no longer required.
+The log parameters for aggregate read, write and trim only specify
+log type. As a result the io_log data structure doesn't have the
+relevant thread_data. While specifying fio option bandwidth-log this
+results in segmentation fault.
+Add a check and use DEF_LOG_ENTRIES for such case.
 
-Instead of removing this unnecessary test case, change it to cover
-verify with complex workload. It runs read-write mix workload with high
-queue depth with verify and block size unaligned to zone size. This test
-is same as test case #57 except the verify option.
+This was introduced with the commit 0a852a50
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+Ankit Kumar (1):
+  stat: fix segfault with fio option bandwidth-log
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index debe3763..e17a81de 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -826,17 +826,23 @@ test33() {
-     check_written $((io_size / bs * bs)) || return $?
- }
- 
--# Write to sequential zones with a block size that is not a divisor of the
--# zone size and with data verification enabled.
-+# Test repeated async write job with verify.
- test34() {
--    local size
-+	local bs off
- 
--    prep_write
--    size=$((2 * zone_size))
--    run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write --size=$size \
--		   --do_verify=1 --verify=md5 --bs=$((3 * zone_size / 4)) \
--		   >> "${logfile}.${test_number}" 2>&1 && return 1
--    grep -q 'not a divisor of' "${logfile}.${test_number}"
-+	require_zbd || return $SKIP_TESTCASE
-+	prep_write
-+
-+	bs=$((4096 * 7))
-+	off=$((first_sequential_zone_sector * 512))
-+
-+	run_fio --name=job --filename="${dev}" --rw=randwrite --bs="${bs}" \
-+		--offset="${off}" --size=$((4 * zone_size)) --iodepth=256 \
-+		"$(ioengine "libaio")" --time_based=1 --runtime=30s \
-+		--zonemode=zbd --direct=1 --zonesize="${zone_size}" \
-+		--verify=crc32c --do_verify=1 \
-+		${job_var_opts[@]} \
-+		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
- # Test 1/4 for the I/O boundary rounding code: $size < $zone_size.
+ stat.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
 -- 
-2.37.1
+2.17.1
 
