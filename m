@@ -2,97 +2,105 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBA84C4332F
-	for <fio@archiver.kernel.org>; Thu, 20 Oct 2022 12:00:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 198ACC433FE
+	for <fio@archiver.kernel.org>; Fri, 21 Oct 2022 06:34:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229964AbiJTMAR (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 20 Oct 2022 08:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55928 "EHLO
+        id S229707AbiJUGeX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 21 Oct 2022 02:34:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229876AbiJTMAQ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Oct 2022 08:00:16 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE13C5130
-        for <fio@vger.kernel.org>; Thu, 20 Oct 2022 05:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=fiFyw2yNeozQkyDxIvRYLHDAa7px+A/xckT+kbkxntc=; b=QlF6LdnkdEbyvVOfX8/5c6Rsn6
-        1TC0hkNrJXW7S6tfr/2RN4QsaatwdmRU0DUQesWf9dtzwYfie9QGgEDTiQsKlZsYiqZ7yaNGoCOdw
-        qRVzQ5cMmvzcIj3L/mudOaLW/OaScISkYnw5Qx3UZ7syzxG7urAKKaMejp98p3y60/QiSgeuMzYx8
-        BDThocsuj8kryiZ4z3EZlvBWt4B+wjwA9ZWXLfL+5oC/CoTfglKRre2OpbjMJAmZybiLCYtlYS4TW
-        /wIZand3oG9nUtVpnlgJe+wZdNAcAQnBkLLTYcBzsQO6V2FrCULRJPXLklYFrw6+tL/DhPfN+53dB
-        bPlJY5FQ==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1olUDV-0051YK-Ag
-        for fio@vger.kernel.org; Thu, 20 Oct 2022 12:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id DEF0A1BC015C; Thu, 20 Oct 2022 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20221020120001.DEF0A1BC015C@kernel.dk>
-Date:   Thu, 20 Oct 2022 06:00:01 -0600 (MDT)
+        with ESMTP id S229645AbiJUGeW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Oct 2022 02:34:22 -0400
+Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0C6F39
+        for <fio@vger.kernel.org>; Thu, 20 Oct 2022 23:34:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1666334059; x=1697870059;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=st0ZvyxqRaBXfzI30RWYnIt/M5+1ocuRiAZFf+Gg/2c=;
+  b=fMM39sdxAR3VEr/Qpdbrj1cVmunEHVHRrolpzqu6QqNtx22rQZvWH+y2
+   KK/b/o1M2qmvZx9pKcFZOE7FXsjrKARmRzd1Z5gwxyS+llutTpFBJpEyu
+   C6ZQLdwsJhjo3udM2OrQ4IJFr2/5C8WzdN63Y3tdMXRji9kEtlj7U27pI
+   /yDmSvekUnLM6B/IslkoEqvS48PGA2fZovsSHtBvpJrMcmIbd2zmby/tb
+   HjDPJXjNza5+oLdokUXs2AP7KF23PtX/mGlf0v+PI5YUoqrqA5DxjlZAf
+   DWLTbMSSlxoqq41SesGEFcD7+2+9pHDCtGt5UmI6bklsMHyf+ogiDBdPN
+   w==;
+X-IronPort-AV: E=Sophos;i="5.95,200,1661788800"; 
+   d="scan'208";a="318733095"
+Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 21 Oct 2022 14:34:18 +0800
+IronPort-SDR: zuBBKyA7vOaE3Xp+ViU+gtF8z/SXHQ+UMerUvI8Ns0JS4axoMHCVPVpnzTerCYJFouoVsivKWl
+ m9BftUHreqLwDXbr8CLnYpvA3Rlgx5NgOnQjCO0VsKhITs9KxQZpy4zmH4tJuco2En1nVUnTW7
+ XJUciRNwv7Er6HxLXlsf9MhmOfaIfTbPFrAFCihbSKgKgiI1gY1sE4kEymBQe5hIt3FvD1c3iW
+ S2q3JayHL7jtUTLN3cN9M6uT/aNMsh96NQbUvs3+uqxlBJZ4Lw8BwdeAwBRpZLR5WtCUSRxyOm
+ LcL6ZnKXnA7TTEPnGvvLkexz
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Oct 2022 22:48:05 -0700
+IronPort-SDR: Dkc0JjMGThrOgsikpvyM5/aoaTpuBNTQkVtLXb5W3Tr/exW5A0HFzaH7lp1LHgOz1HtiJLn54v
+ X0e3T2IS5ddK+614YWFJ8azySYCs2895KsKhQAPqUU4VWC07IFp3sN7Qy7U6W9j0fcvL8To5zZ
+ +xV56+UR2DK6icGo7gxEKRQLU3boOCiLPxqiJhXOX1silb1s4jnP+OzvqY9LRmFG5Qk4wFQZa5
+ bWSpLdr7SKKHLt70m2UyncZUiwNZfZTurQjLWMonFf9W18JNT9iezHKsG7+3UUJrT+sqYjz18n
+ AFQ=
+WDCIronportException: Internal
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
+  by uls-op-cesaip01.wdc.com with ESMTP; 20 Oct 2022 23:34:17 -0700
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Vincent Fu <vincentfu@gmail.com>
+Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 00/11] zbd: fix unaligned block size issue and verify issues
+Date:   Fri, 21 Oct 2022 15:34:05 +0900
+Message-Id: <20221021063416.860438-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.37.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 2f160e0c8848bab566427a11eee116d8e834bcf0:
+When zonemode is zbd and block size is not divisor of zone size, write target
+zone selection does not work as expected. First three patches in this series
+fix the issue by introducing zone finish operation. First two patches do
+preparation and the 3rd patch does the fix.
 
-  test: change GitHub actions checkout from v2 to v3 (2022-10-18 11:13:03 -0400)
+This series also fix four more issues related to verify with zonemode zbd. The
+first issue is that verify is allowed only when block size is divisor of zone
+size. The 4th patch removes this limitation. The second and third issue are
+caused by zone reset, which erases data pattern for verify. The 5th and 6th
+patches adjust verify and zone reset timing to avoid verify errors by the erased
+data pattern. The last issue is experimental verify, which does not work with
+zonemode=zbd. The 7th patch checks options to error out when experimental
+verify is specified together with zonemode=zbd.
 
-are available in the Git repository at:
+Four more patches follow to make test cases in t/zbd match with the fixes.
 
-  git://git.kernel.dk/fio.git master
+Shin'ichiro Kawasaki (11):
+  oslib: blkzoned: add blkzoned_finish_zone() helper function
+  engines/libzbc: add libzbc_finish_zone() helper function
+  zbd: finish zones with remainder smaller than minimum write block size
+  zbd: allow block size not divisor of zone size
+  zbd: verify before zone reset for zone_reset_threshold option
+  zbd: fix zone reset condition for verify_backlog option
+  zbd: prevent experimental verify with zonemode=zbd
+  t/zbd: fix test case #33 for block size unaligned to zone size
+  t/zbd: modify test case #34 for block size unaligned to zone size
+  t/zbd: add test case to check zone_reset_threshold option with verify
+  t/zbd: remove experimental_verify option from test case #54
 
-for you to fetch changes up to 548f1269e3772c666cac4148453d9c63bdfa65c4:
+ engines/libzbc.c       |  34 ++++++++++
+ ioengines.h            |   2 +
+ oslib/blkzoned.h       |   8 +++
+ oslib/linux-blkzoned.c |  37 +++++++++++
+ t/zbd/test-zbd-support |  44 +++++++++----
+ zbd.c                  | 146 ++++++++++++++++++++++++++---------------
+ zbd.h                  |   2 -
+ 7 files changed, 207 insertions(+), 66 deletions(-)
 
-  Merge branch 'issue-1213' of https://github.com/SystemFabricWorks/fio (2022-10-19 12:04:50 -0400)
+-- 
+2.37.1
 
-----------------------------------------------------------------
-Brian T. Smith (2):
-      fix configure probe for libcufile
-      libcufile: use generic_get_file_size
-
-Vincent Fu (1):
-      Merge branch 'issue-1213' of https://github.com/SystemFabricWorks/fio
-
- configure           | 4 ++--
- engines/libcufile.c | 1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index 546541a2..24c599a8 100755
---- a/configure
-+++ b/configure
-@@ -2723,9 +2723,9 @@ int main(int argc, char* argv[]) {
-    return 0;
- }
- EOF
--  if compile_prog "" "-lcuda -lcudart -lcufile" "libcufile"; then
-+  if compile_prog "" "-lcuda -lcudart -lcufile -ldl" "libcufile"; then
-     libcufile="yes"
--    LIBS="-lcuda -lcudart -lcufile $LIBS"
-+    LIBS="-lcuda -lcudart -lcufile -ldl $LIBS"
-   else
-     if test "$libcufile" = "yes" ; then
-       feature_not_found "libcufile" ""
-diff --git a/engines/libcufile.c b/engines/libcufile.c
-index e575b786..2bedf261 100644
---- a/engines/libcufile.c
-+++ b/engines/libcufile.c
-@@ -606,6 +606,7 @@ FIO_STATIC struct ioengine_ops ioengine = {
- 	.version             = FIO_IOOPS_VERSION,
- 	.init                = fio_libcufile_init,
- 	.queue               = fio_libcufile_queue,
-+	.get_file_size       = generic_get_file_size,
- 	.open_file           = fio_libcufile_open_file,
- 	.close_file          = fio_libcufile_close_file,
- 	.iomem_alloc         = fio_libcufile_iomem_alloc,
