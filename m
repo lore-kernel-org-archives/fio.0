@@ -2,575 +2,220 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0B52ECDFA1
-	for <fio@archiver.kernel.org>; Tue, 25 Oct 2022 12:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F40DBECDFA1
+	for <fio@archiver.kernel.org>; Tue, 25 Oct 2022 23:51:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbiJYMAL (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 25 Oct 2022 08:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43254 "EHLO
+        id S232978AbiJYXvV (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 25 Oct 2022 19:51:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229995AbiJYMAK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 25 Oct 2022 08:00:10 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE683ED74
-        for <fio@vger.kernel.org>; Tue, 25 Oct 2022 05:00:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=nKZdJisYCCCfy3tMeDfHxWMpscGqQun+3zrezVgV9AI=; b=v87KB8DUXtBeCQ/uc9IQyjZN4r
-        nFgkgq9wCbhZb/0VYHyuoMRJiauxQD8kjix7/WbSrTiOuMxA7Olc7/KoQl8/4IfMgCRmdPXT/B45L
-        5MWckE5dmjFZ7G1Im/a+RaYlE+pqA2ShNeqSWDyZXu/cBcnxz3XFPl9TxhYZ6NipLluG52F4sClU3
-        kN1v6vuMa8Uky7cYWDNAYiGfMk3Br5LBvlAwXdeVDA2ilqHZMykSWYdPCHbR8n3Ha3JU2ZBd/GH53
-        bHF6cZsKO1ztOTFAHH6vCnBZKJ1UnIpquTjZd2XyTJwfuFIUfzDD8+4rZKSk/ZMju2Jt05/FGsD4X
-        GQEE/OIA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1onIbJ-00GEvZ-OJ
-        for fio@vger.kernel.org; Tue, 25 Oct 2022 12:00:10 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 0A8D51BC0145; Tue, 25 Oct 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20221025120002.0A8D51BC0145@kernel.dk>
-Date:   Tue, 25 Oct 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S232936AbiJYXvU (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 25 Oct 2022 19:51:20 -0400
+Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EED3F97D40
+        for <fio@vger.kernel.org>; Tue, 25 Oct 2022 16:51:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1666741878; x=1698277878;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=Q7TdWK6oOiIoy7LCojPcYpCnM9iGhHJ/5i9GXwiwL/U=;
+  b=IJAzQ4kWFj7WOfdY1FejQ34Xud0KjdLKYBiq2e3oxPuZaNvhdIWIwZX6
+   hKzSjnVtAONugsiH8lelx8aEZ0TmDFoq1u4zehy/bofhGGePBMG35S+O0
+   dKCRHAEBnsGmoFXHiHdigfK1SKyfjN3T36XRJUBDhc2Kv6nxnUmpLT1Y1
+   /89gFevB83QDN40UhHQYrgzeqC2Ue+ZebprZrDo86qiyN1SUZ4CkvsFpt
+   L1V3ggYX8KAsNP+OyJ0sDGnw5vskqqyeeA6xtg/Ts2deG+1iIJDutfguV
+   4QWbPhATzNus9M5DLG4usfx0UHbS2lVvOe5J7oJBAcwEd6Rcm2OYDZUdc
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.95,213,1661788800"; 
+   d="scan'208";a="215099488"
+Received: from mail-bn8nam11lp2168.outbound.protection.outlook.com (HELO NAM11-BN8-obe.outbound.protection.outlook.com) ([104.47.58.168])
+  by ob1.hgst.iphmx.com with ESMTP; 26 Oct 2022 07:51:17 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cWZXGbnW5l22RLUVJYdhRwscDmNuilq44KLH25pBQL50J4kb8+95DnRAAecM1uTNQd18zNUD1WvmtE27E5PYLn4bYt+VzfuNoogZt6QzWewzcDxajaA+pIeRNAWNQYYrwJBFXvBzf6OAT9hquNA5YKfEX8/HmHAoKJnrcO5BCnH0uBG7cEalOh9vS27OAPdRORDiPYugMYLBrSCATKNKxO1uA6DDXrRWfZ8nRBsaFeXH4Fe9iLV/gK1F+22pSzaR08mERGPXlorLEv+Oms9QSFeceOs971bZtL7DDBmAgXlzIcSEjCMrA5cCxnkFo32I7Per4khvqvMnXlUQtIcZdQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Q7TdWK6oOiIoy7LCojPcYpCnM9iGhHJ/5i9GXwiwL/U=;
+ b=hL/f/qPIYa6srft9IEM0EZdDXf4MA6vyDuIVu0JWArRzVif1xxBA47EUmBMOoGH65vOrTUvZdpF7qATWfT5MgMEwoa+KZ9Ur1Q/4nWFnTDdI2PSfV4Mnx2He4NU1tnEI6Lwt/1Nr6C5cePanhoxcPNUR3xa8TfDuN3eF0whTzkzvJjGhUlOKVOkGyzrSMfVfc+uHbmjXWZbQD/HppEqds2Um4pzMUm0NY2mr3zQJm9LGUk23Tv+4h9ZDiUDzLM1vr9h1YE6hMgDW9q6UgVAWX+b6cK/YSvS7Yi0h4PAsmegoSF3ul/QHohtB6AmiJKHlJ6KbcLTfn4cp/Ky0R4iJmg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Q7TdWK6oOiIoy7LCojPcYpCnM9iGhHJ/5i9GXwiwL/U=;
+ b=Yslyc2P6WwY7VWai7gLYX+nZBd3RbqclfjDxbAhLB+BFef9aeQBQ4u7/28e+iuU1oyyg9Z4A86eUy8+wlxR72T3GBenpi5t4p33PypDd9phULo3/J0bgtaE6GJG710Ln3Jco7/7KaCWdzX3BS+ews5z7L+gDYwp5qlZwpfb3SVo=
+Received: from MN2PR04MB5951.namprd04.prod.outlook.com (2603:10b6:208:3f::13)
+ by SA0PR04MB7244.namprd04.prod.outlook.com (2603:10b6:806:e4::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.23; Tue, 25 Oct
+ 2022 23:51:13 +0000
+Received: from MN2PR04MB5951.namprd04.prod.outlook.com
+ ([fe80::51df:fdd7:7c49:12ee]) by MN2PR04MB5951.namprd04.prod.outlook.com
+ ([fe80::51df:fdd7:7c49:12ee%5]) with mapi id 15.20.5723.032; Tue, 25 Oct 2022
+ 23:51:13 +0000
+From:   Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        "vincentfu@gmail.com" <vincentfu@gmail.com>
+CC:     Niklas Cassel <Niklas.Cassel@wdc.com>,
+        "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>
+Subject: Re: [PATCH 01/11] oslib: blkzoned: add blkzoned_finish_zone() helper
+ function
+Thread-Topic: [PATCH 01/11] oslib: blkzoned: add blkzoned_finish_zone() helper
+ function
+Thread-Index: AQHY5RcoCGvbtBpHOEmTlacG8npIzK4fzyQA
+Date:   Tue, 25 Oct 2022 23:51:13 +0000
+Message-ID: <6a722bf378ab4f5237542db786e5ddcb202efa47.camel@wdc.com>
+References: <20221021063416.860438-1-shinichiro.kawasaki@wdc.com>
+         <20221021063416.860438-2-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20221021063416.860438-2-shinichiro.kawasaki@wdc.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.44.4-0ubuntu1 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MN2PR04MB5951:EE_|SA0PR04MB7244:EE_
+x-ms-office365-filtering-correlation-id: 7dee6dad-cfb0-4543-6ad5-08dab6e3cc95
+wdcipoutbound: EOP-TRUE
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: ZP5VlgAJyKlFHv24WDhbLAqL9Eoy0oFFPS8nwqxyUPknvOTwHcYZVxEiEE61AUYYUZMdCW47TdGaZVPKF/mwmnWljWWnisDZPEHWMpAUGPvElLC6StSlfh7Vf5J78p3redvtR9muCovXx6rIh7qPj4bKIAD1Mc+GvqCz9W2p7tGbRBybB9XM8pdWwFveiK4D95tuh9UTxAR0y43cJPVrHJsczXdRU6yaPhzNcOaLHwQLll4Sqf+eYG5GJfm7Pz5akl6Pr9yhwt3X9psUfdmJnNNaegNeJYOkNklUIXNgEMT17wxCmgNFtvbYQF7ujkoPEblzJiPQlUMUP6JOhZTVTZBxb3e5jaiVc0bfOgWmcAU7A6fwCymijXD6LerE4eZrDln+mgaXSr4j+A+wMwsnEQn4M8Mza2qMLqtnXFI6idpYo7JdIwz05JRNcig7ssaS0l6c/mxjKMvKIZJqjxGENbC+Qajf5wi8V0/1u+z1EWY0mUWChr0cZV6QnStNcD4sjYvX34q9xjNl/5ans99e/ENb7Si46WMEqYdnKzPBrFU3orYpFIKIpejGyPgqw7wit7/bh6dcHLMVD4nWwfvpbhSpXIM/7c2P1ru0YvYWQNiyHspuQfG/XIoWe6Ye8AUuHxrVzQ+pnaBHqaIFQDg4A5sZwTm9aOmOf6It/vcZiVMIBp5xXE3ksdCxOH8qq8WZHVuBdNQ0FG8WuKuvZHKaDeRapXtMTYEObhnm7vZVW3FmvYAvyZ+ftFBnlX+a5mqFuvK/stT4QbZKQ9uy7+Pmfg==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB5951.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(136003)(396003)(366004)(346002)(39860400002)(376002)(451199015)(6512007)(41300700001)(36756003)(8936002)(38070700005)(54906003)(4001150100001)(26005)(110136005)(86362001)(122000001)(316002)(6486002)(82960400001)(83380400001)(38100700002)(186003)(2906002)(91956017)(76116006)(66946007)(6506007)(66556008)(8676002)(4326008)(66446008)(66476007)(64756008)(478600001)(5660300002)(71200400001)(2616005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WHlYYUdZYkVSa3B6Wmo4M3NWakRLUHlhaHZONWxIMnVING9QdkdBUkU2OGhV?=
+ =?utf-8?B?WjZnOFduS2hscThxdG40TnZqQis3azd3Ky83M1UwSWpHVDFZbHk0R09lNnR0?=
+ =?utf-8?B?TjNaWVdVTjZqUm5CWER5U3BMcm9jREdsQkp3UDNWVFl5TG1zQVNoL0lVVFlI?=
+ =?utf-8?B?UW9aM3Y1c28zV0NVc25pOFdManhpMFo5NnVYUnVWL1lFdkxkekxPUjVZM1cr?=
+ =?utf-8?B?WGQvZnZ6WmIvMURSV3dJenU5RDhsUjRDcEZlR2htcWEzTkNBeVpPZm0zTDJC?=
+ =?utf-8?B?d0ZPOWtiNzBEV3lTcVZnanJWRkw1RWVwTUUvNXhHTFMwRWgvZEFubklDSGo4?=
+ =?utf-8?B?MDRsNm1lbGw3cUdQNlQxSTJXaDhGalBta0VwNEFYejFjTDErQjhBVkgzMXlz?=
+ =?utf-8?B?eXdLd2JiamZRaDJzNTlpQVV5RlNRZ1hCMWlPT1lzUk9CNzd1VkRuUmlxMXNT?=
+ =?utf-8?B?M1MrNmt1RnVtVGpBL0NzNmJMbk1VU1RnbHV0M3dSVWQvNzZnVFVFdkZqcmJT?=
+ =?utf-8?B?Nk5iaWdqM21IQ01MWlJ4U2p3QnJ2UFNMZFRkcDJOOC8xTEsrbTAwMmFwbXJW?=
+ =?utf-8?B?N3E5Z250UmxLM3dhTlkwV2N6VzZTbUhnVHlaUzlScEtkZlFQYlVUWThhcW4r?=
+ =?utf-8?B?d3lDNmo0eVhHU1NFUFozOHovMVAzWjViejBPWkp2RFJuUTRCRGFvVWVoSWNU?=
+ =?utf-8?B?Ty9YTmE3UzNMNGdTRkg1QjdkdUxTWHFFWmsxRUtoYTlsVGFpa24yNVM5Mnhy?=
+ =?utf-8?B?NzY3Q0k3VXVpT0ZsTjJFSEVkdDEvd0RhRXd6eU9JelEwellqdU1WMVFLd0RG?=
+ =?utf-8?B?SmIvTDA3bktDQXNNVkRzdTFIUnppWC9uSUlqUHM1ZC9kbFB2ZG1uYWM4VUtO?=
+ =?utf-8?B?ZTgyYnUrNDFvQ0hsaW41NitUZUwxVmMyN3F5Z0RGR1ZEY0pjRUlxMlJHUlFr?=
+ =?utf-8?B?VFZKZldvK3ZnM3lML2dpZlZaNGxLMU5NWllZOWhTRU9mWUVscW1UOS92TXN6?=
+ =?utf-8?B?NnpSbFRvd0JLMHlacm5nYmw2U00yM1VFVU02YTh4c01wTVBPTVpod3B4dUlk?=
+ =?utf-8?B?U1pubVB0dVFuQ0hQYzJhNHZkMUpEenF4ZCtydFptZDNibHF6M1B3bjUzUEk3?=
+ =?utf-8?B?Q2VuQ0pGZlBMUnN2bVZwVGtWTVNKT2xRMHhlRHlGMmRmNVBrMGxJR0F0bzln?=
+ =?utf-8?B?MzZibEZDcEIvZzRFenFYelhKVlRFWkZQNnljQXoweHZ0dEVPKzhoNDdiQXpM?=
+ =?utf-8?B?UndBZ3lLRTBVOGJvejY2KzFReFIyWjl3ZFdYN3kyU0RMalB6VWhHYjRlZjM2?=
+ =?utf-8?B?UjFncko3cnhPRlJ3VDBWVEFhc0QrcURPVXlYU3QwVjZNd2RjN3lXOWg2OHVY?=
+ =?utf-8?B?L29sTHFRS3NOMlM0TGFTSjFzV0h4elI3amF6bjRFN3VKdERWdVpodVI3ZkpQ?=
+ =?utf-8?B?V1JpY3BaMnowZm1kNkFVZGQ0TjNZcUptV3FuOXR0enRTa0E5c1FmQmxRSWM1?=
+ =?utf-8?B?VEJIZGxleUExbmJQdWR5NGhUVFR1amhKMnJQUnJrRSt0U1MxVEU4UENhTENI?=
+ =?utf-8?B?L0tGYnAvOVlxWG9YOW1JbDRuZTF3RzBMUmRYZGZkdnIxQU9TNEtSS1lNUmxK?=
+ =?utf-8?B?cm5PVTZ0b0pvL05GNHNvcUhBNmpJbXE2QkRKb3l2OFZ3TTRUM0NXMEJGbUFw?=
+ =?utf-8?B?ck9GUTVDbTJYWjM0b2liK3kzNVRRdDNDZUhjckk2OFBkOEp6MzlCelhiUFBH?=
+ =?utf-8?B?T3hWZ1JSbzdHbTBIc3VZSjBpcm5LdExnemx3OGNTVVdTcStzSmlFbTV1bzVC?=
+ =?utf-8?B?UXd5VnJ1YkdvWUQvMGNSaHJTMVBiY3ZrOEhBa2ZYcmVXeUNRL0tSYU8yVjh6?=
+ =?utf-8?B?bHl0UGYrRTNVT2VYMEtVdFBvMmZGc3hueXczN3ZkTVJrV3FoaTRta3Y5UHcx?=
+ =?utf-8?B?SzhjVVhzem1HMy9xOEY2Y0JUbE9jUzdIdkl3RGZZMTIrQzFuY29kOEhmTFVn?=
+ =?utf-8?B?VnZQU2ttem02dncvMnRMTFBiNG1POHErQVFSTFV2K2NIVCs4eEdKOVIrTFZB?=
+ =?utf-8?B?aURVSXJaWUtXZmh3VU5uV3lkeHJZM3Rtakl4YlBHOFFybGt6clI1VS9lTHVj?=
+ =?utf-8?B?SW5UWkFyaFhuZ0YzRXhJUlZ6VWx3emJKcXVacVJPUnprZVI0aDcvbVBYRkE3?=
+ =?utf-8?B?aEE9PQ==?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <6F81D9D3A804E34A85A3F0152218F841@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR04MB5951.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7dee6dad-cfb0-4543-6ad5-08dab6e3cc95
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Oct 2022 23:51:13.1897
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 8y8ZfLi8Uut7NmESbYWJ2vjxnuB8Yezyxzq1pqG8a3wQaz04E8GKk4OGO/fub+wjqW3Dokgv9BeYWyxxHds8cg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR04MB7244
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit d72244761b2230fbb2d6eaec59cdedd3ea651d4f:
-
-  stat: fix segfault with fio option --bandwidth-log (2022-10-21 13:23:41 -0400)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to c4704c081a54160621227b42238f6e439c28fba3:
-
-  test: add test for experimental verify with loops and time_based options (2022-10-24 10:34:57 -0400)
-
-----------------------------------------------------------------
-Shin'ichiro Kawasaki (4):
-      verify: fix bytes_done accounting of experimental verify
-      verify: fix numberio accounting of experimental verify
-      test: add test for verify read back of experimental verify
-      test: add test for experimental verify with loops and time_based options
-
-Vincent Fu (1):
-      Merge branch 'fix-cpus_allowed' of https://github.com/roxma/fio
-
-mayuanpeng (1):
-      cpus_allowed: use __NRPROCESSORS_CONF instead of __SC_NPROCESSORS_ONLN for non-sequential CPU ids
-
- backend.c                 |  8 ++++++--
- fio.h                     |  2 ++
- gettime.c                 |  2 +-
- idletime.c                |  2 +-
- io_u.c                    | 23 +++++++++++++++++------
- libfio.c                  |  1 +
- options.c                 |  8 ++++----
- os/os-hpux.h              |  4 ++--
- os/os-linux.h             |  8 --------
- os/os-solaris.h           |  2 +-
- os/os-windows.h           |  5 +----
- os/os.h                   |  8 ++++----
- os/windows/cpu-affinity.c |  6 ------
- os/windows/posix.c        | 16 ++++++++++++----
- rate-submit.c             |  2 ++
- server.c                  |  2 +-
- t/dedupe.c                |  2 +-
- t/jobs/t0025.fio          |  7 +++++++
- t/jobs/t0026.fio          | 19 +++++++++++++++++++
- t/run-fio-tests.py        | 31 +++++++++++++++++++++++++++++++
- verify.c                  |  2 --
- 21 files changed, 113 insertions(+), 47 deletions(-)
- create mode 100644 t/jobs/t0025.fio
- create mode 100644 t/jobs/t0026.fio
-
----
-
-Diff of recent changes:
-
-diff --git a/backend.c b/backend.c
-index d8f4f2a5..ba954a6b 100644
---- a/backend.c
-+++ b/backend.c
-@@ -682,7 +682,7 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 				break;
- 			}
- 		} else {
--			if (ddir_rw_sum(td->bytes_done) + td->o.rw_min_bs > verify_bytes)
-+			if (td->bytes_verified + td->o.rw_min_bs > verify_bytes)
- 				break;
- 
- 			while ((io_u = get_io_u(td)) != NULL) {
-@@ -711,6 +711,8 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 					break;
- 				} else if (io_u->ddir == DDIR_WRITE) {
- 					io_u->ddir = DDIR_READ;
-+					io_u->numberio = td->verify_read_issues;
-+					td->verify_read_issues++;
- 					populate_verify_io_u(td, io_u);
- 					break;
- 				} else {
-@@ -1030,8 +1032,10 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
- 			break;
- 		}
- 
--		if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY)
-+		if (io_u->ddir == DDIR_WRITE && td->flags & TD_F_DO_VERIFY) {
-+			io_u->numberio = td->io_issues[io_u->ddir];
- 			populate_verify_io_u(td, io_u);
-+		}
- 
- 		ddir = io_u->ddir;
- 
-diff --git a/fio.h b/fio.h
-index de7eca79..8da77640 100644
---- a/fio.h
-+++ b/fio.h
-@@ -356,6 +356,7 @@ struct thread_data {
- 	 * Issue side
- 	 */
- 	uint64_t io_issues[DDIR_RWDIR_CNT];
-+	uint64_t verify_read_issues;
- 	uint64_t io_issue_bytes[DDIR_RWDIR_CNT];
- 	uint64_t loops;
- 
-@@ -370,6 +371,7 @@ struct thread_data {
- 	uint64_t zone_bytes;
- 	struct fio_sem *sem;
- 	uint64_t bytes_done[DDIR_RWDIR_CNT];
-+	uint64_t bytes_verified;
- 
- 	uint64_t *thinktime_blocks_counter;
- 	struct timespec last_thinktime;
-diff --git a/gettime.c b/gettime.c
-index 8993be16..bc66a3ac 100644
---- a/gettime.c
-+++ b/gettime.c
-@@ -671,7 +671,7 @@ static int clock_cmp(const void *p1, const void *p2)
- int fio_monotonic_clocktest(int debug)
- {
- 	struct clock_thread *cthreads;
--	unsigned int seen_cpus, nr_cpus = cpus_online();
-+	unsigned int seen_cpus, nr_cpus = cpus_configured();
- 	struct clock_entry *entries;
- 	unsigned long nr_entries, tentries, failed = 0;
- 	struct clock_entry *prev, *this;
-diff --git a/idletime.c b/idletime.c
-index fc1df8e9..90ed77ea 100644
---- a/idletime.c
-+++ b/idletime.c
-@@ -189,7 +189,7 @@ void fio_idle_prof_init(void)
- 	pthread_condattr_t cattr;
- 	struct idle_prof_thread *ipt;
- 
--	ipc.nr_cpus = cpus_online();
-+	ipc.nr_cpus = cpus_configured();
- 	ipc.status = IDLE_PROF_STATUS_OK;
- 
- 	if (ipc.opt == IDLE_PROF_OPT_NONE)
-diff --git a/io_u.c b/io_u.c
-index 91f1a358..8035f4b7 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2121,13 +2121,26 @@ static void ios_completed(struct thread_data *td,
- 	}
- }
- 
-+static void io_u_update_bytes_done(struct thread_data *td,
-+				   struct io_completion_data *icd)
-+{
-+	int ddir;
-+
-+	if (td->runstate == TD_VERIFYING) {
-+		td->bytes_verified += icd->bytes_done[DDIR_READ];
-+		return;
-+	}
-+
-+	for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
-+		td->bytes_done[ddir] += icd->bytes_done[ddir];
-+}
-+
- /*
-  * Complete a single io_u for the sync engines.
-  */
- int io_u_sync_complete(struct thread_data *td, struct io_u *io_u)
- {
- 	struct io_completion_data icd;
--	int ddir;
- 
- 	init_icd(td, &icd, 1);
- 	io_completed(td, &io_u, &icd);
-@@ -2140,8 +2153,7 @@ int io_u_sync_complete(struct thread_data *td, struct io_u *io_u)
- 		return -1;
- 	}
- 
--	for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
--		td->bytes_done[ddir] += icd.bytes_done[ddir];
-+	io_u_update_bytes_done(td, &icd);
- 
- 	return 0;
- }
-@@ -2153,7 +2165,7 @@ int io_u_queued_complete(struct thread_data *td, int min_evts)
- {
- 	struct io_completion_data icd;
- 	struct timespec *tvp = NULL;
--	int ret, ddir;
-+	int ret;
- 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 0, };
- 
- 	dprint(FD_IO, "io_u_queued_complete: min=%d\n", min_evts);
-@@ -2179,8 +2191,7 @@ int io_u_queued_complete(struct thread_data *td, int min_evts)
- 		return -1;
- 	}
- 
--	for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
--		td->bytes_done[ddir] += icd.bytes_done[ddir];
-+	io_u_update_bytes_done(td, &icd);
- 
- 	return ret;
- }
-diff --git a/libfio.c b/libfio.c
-index 1a891776..ac521974 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -94,6 +94,7 @@ static void reset_io_counters(struct thread_data *td, int all)
- 			td->rate_next_io_time[ddir] = 0;
- 			td->last_usec[ddir] = 0;
- 		}
-+		td->bytes_verified = 0;
- 	}
- 
- 	td->zone_bytes = 0;
-diff --git a/options.c b/options.c
-index a668b0e4..9e4d8cd1 100644
---- a/options.c
-+++ b/options.c
-@@ -627,7 +627,7 @@ static int str_exitall_cb(void)
- int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu_index)
- {
- 	unsigned int i, index, cpus_in_mask;
--	const long max_cpu = cpus_online();
-+	const long max_cpu = cpus_configured();
- 
- 	cpus_in_mask = fio_cpu_count(mask);
- 	if (!cpus_in_mask)
-@@ -666,7 +666,7 @@ static int str_cpumask_cb(void *data, unsigned long long *val)
- 		return 1;
- 	}
- 
--	max_cpu = cpus_online();
-+	max_cpu = cpus_configured();
- 
- 	for (i = 0; i < sizeof(int) * 8; i++) {
- 		if ((1 << i) & *val) {
-@@ -702,7 +702,7 @@ static int set_cpus_allowed(struct thread_data *td, os_cpu_mask_t *mask,
- 	strip_blank_front(&str);
- 	strip_blank_end(str);
- 
--	max_cpu = cpus_online();
-+	max_cpu = cpus_configured();
- 
- 	while ((cpu = strsep(&str, ",")) != NULL) {
- 		char *str2, *cpu2;
-@@ -5305,7 +5305,7 @@ void fio_keywords_init(void)
- 	sprintf(buf, "%llu", mb_memory);
- 	fio_keywords[1].replace = strdup(buf);
- 
--	l = cpus_online();
-+	l = cpus_configured();
- 	sprintf(buf, "%lu", l);
- 	fio_keywords[2].replace = strdup(buf);
- }
-diff --git a/os/os-hpux.h b/os/os-hpux.h
-index a80cb2bc..9f3d76f5 100644
---- a/os/os-hpux.h
-+++ b/os/os-hpux.h
-@@ -88,9 +88,9 @@ static inline unsigned long long os_phys_mem(void)
- 	return ret;
- }
- 
--#define FIO_HAVE_CPU_ONLINE_SYSCONF
-+#define FIO_HAVE_CPU_CONF_SYSCONF
- 
--static inline unsigned int cpus_online(void)
-+static inline unsigned int cpus_configured(void)
- {
- 	return mpctl(MPC_GETNUMSPUS, 0, NULL);
- }
-diff --git a/os/os-linux.h b/os/os-linux.h
-index 831f0ad0..bbb1f27c 100644
---- a/os/os-linux.h
-+++ b/os/os-linux.h
-@@ -251,14 +251,6 @@ static inline int arch_cache_line_size(void)
- 		return atoi(size);
- }
- 
--#ifdef __powerpc64__
--#define FIO_HAVE_CPU_ONLINE_SYSCONF
--static inline unsigned int cpus_online(void)
--{
--        return sysconf(_SC_NPROCESSORS_CONF);
--}
--#endif
--
- static inline unsigned long long get_fs_free_size(const char *path)
- {
- 	unsigned long long ret;
-diff --git a/os/os-solaris.h b/os/os-solaris.h
-index ea1f081c..60d4c1ec 100644
---- a/os/os-solaris.h
-+++ b/os/os-solaris.h
-@@ -119,7 +119,7 @@ static inline int fio_set_odirect(struct fio_file *f)
- 
- static inline bool fio_cpu_isset(os_cpu_mask_t *mask, int cpu)
- {
--	const unsigned int max_cpus = sysconf(_SC_NPROCESSORS_ONLN);
-+	const unsigned int max_cpus = sysconf(_SC_NPROCESSORS_CONF);
- 	unsigned int num_cpus;
- 	processorid_t *cpus;
- 	bool ret;
-diff --git a/os/os-windows.h b/os/os-windows.h
-index 510b8143..12f33486 100644
---- a/os/os-windows.h
-+++ b/os/os-windows.h
-@@ -44,7 +44,7 @@
- #define fio_swap64(x)	_byteswap_uint64(x)
- 
- #define _SC_PAGESIZE			0x1
--#define _SC_NPROCESSORS_ONLN	0x2
-+#define _SC_NPROCESSORS_CONF	0x2
- #define _SC_PHYS_PAGES			0x4
- 
- #define SA_RESTART	0
-@@ -219,9 +219,6 @@ static inline int fio_mkdir(const char *path, mode_t mode) {
- 	return 0;
- }
- 
--#define FIO_HAVE_CPU_ONLINE_SYSCONF
--unsigned int cpus_online(void);
--
- int first_set_cpu(os_cpu_mask_t *cpumask);
- int fio_setaffinity(int pid, os_cpu_mask_t cpumask);
- int fio_cpuset_init(os_cpu_mask_t *mask);
-diff --git a/os/os.h b/os/os.h
-index aba6813f..a6fde1fd 100644
---- a/os/os.h
-+++ b/os/os.h
-@@ -352,10 +352,10 @@ static inline unsigned long long get_fs_free_size(const char *path)
- }
- #endif
- 
--#ifndef FIO_HAVE_CPU_ONLINE_SYSCONF
--static inline unsigned int cpus_online(void)
-+#ifndef FIO_HAVE_CPU_CONF_SYSCONF
-+static inline unsigned int cpus_configured(void)
- {
--	return sysconf(_SC_NPROCESSORS_ONLN);
-+	return sysconf(_SC_NPROCESSORS_CONF);
- }
- #endif
- 
-@@ -363,7 +363,7 @@ static inline unsigned int cpus_online(void)
- #ifdef FIO_HAVE_CPU_AFFINITY
- static inline int CPU_COUNT(os_cpu_mask_t *mask)
- {
--	int max_cpus = cpus_online();
-+	int max_cpus = cpus_configured();
- 	int nr_cpus, i;
- 
- 	for (i = 0, nr_cpus = 0; i < max_cpus; i++)
-diff --git a/os/windows/cpu-affinity.c b/os/windows/cpu-affinity.c
-index 7601970f..8f3d6a76 100644
---- a/os/windows/cpu-affinity.c
-+++ b/os/windows/cpu-affinity.c
-@@ -2,12 +2,6 @@
- 
- #include <windows.h>
- 
--/* Return all processors regardless of processor group */
--unsigned int cpus_online(void)
--{
--	return GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
--}
--
- static void print_mask(os_cpu_mask_t *cpumask)
- {
- 	for (int i = 0; i < FIO_CPU_MASK_ROWS; i++)
-diff --git a/os/windows/posix.c b/os/windows/posix.c
-index a3a6c89f..a47223da 100644
---- a/os/windows/posix.c
-+++ b/os/windows/posix.c
-@@ -216,10 +216,18 @@ long sysconf(int name)
- 	MEMORYSTATUSEX status;
- 
- 	switch (name) {
--	case _SC_NPROCESSORS_ONLN:
--		val = GetNumLogicalProcessors();
-+	case _SC_NPROCESSORS_CONF:
-+		/*
-+		 * Using GetMaximumProcessorCount introduces a problem in
-+		 * gettime.c because Windows does not have
-+		 * fio_get_thread_affinity. Log sample (see #1479):
-+		 *
-+		 *   CPU mask contains processor beyond last active processor index (2)
-+		 *   clock setaffinity failed: No error
-+		 */
-+		val = GetActiveProcessorCount(ALL_PROCESSOR_GROUPS);
- 		if (val == -1)
--			log_err("sysconf(_SC_NPROCESSORS_ONLN) failed\n");
-+			log_err("sysconf(_SC_NPROCESSORS_CONF) failed\n");
- 
- 		break;
- 
-@@ -1201,4 +1209,4 @@ cleanup:
- 	DisconnectNamedPipe(hpipe);
- 	CloseHandle(hpipe);
- 	return ret;
--}
-\ No newline at end of file
-+}
-diff --git a/rate-submit.c b/rate-submit.c
-index 268356d1..2fe768c0 100644
---- a/rate-submit.c
-+++ b/rate-submit.c
-@@ -263,6 +263,8 @@ static void sum_ddir(struct thread_data *dst, struct thread_data *src,
- 	sum_val(&dst->this_io_blocks[ddir], &src->this_io_blocks[ddir]);
- 	sum_val(&dst->this_io_bytes[ddir], &src->this_io_bytes[ddir]);
- 	sum_val(&dst->bytes_done[ddir], &src->bytes_done[ddir]);
-+	if (ddir == DDIR_READ)
-+		sum_val(&dst->bytes_verified, &src->bytes_verified);
- 
- 	pthread_double_unlock(&dst->io_wq.stat_lock, &src->io_wq.stat_lock);
- }
-diff --git a/server.c b/server.c
-index b453be5f..b869d387 100644
---- a/server.c
-+++ b/server.c
-@@ -999,7 +999,7 @@ static int handle_probe_cmd(struct fio_net_cmd *cmd)
- 		.os		= FIO_OS,
- 		.arch		= FIO_ARCH,
- 		.bpp		= sizeof(void *),
--		.cpus		= __cpu_to_le32(cpus_online()),
-+		.cpus		= __cpu_to_le32(cpus_configured()),
- 	};
- 
- 	dprint(FD_NET, "server: sending probe reply\n");
-diff --git a/t/dedupe.c b/t/dedupe.c
-index d21e96f4..02e52b74 100644
---- a/t/dedupe.c
-+++ b/t/dedupe.c
-@@ -688,7 +688,7 @@ int main(int argc, char *argv[])
- 		use_bloom = 0;
- 
- 	if (!num_threads)
--		num_threads = cpus_online();
-+		num_threads = cpus_configured();
- 
- 	if (argc == optind)
- 		return usage(argv);
-diff --git a/t/jobs/t0025.fio b/t/jobs/t0025.fio
-new file mode 100644
-index 00000000..29b5fe80
---- /dev/null
-+++ b/t/jobs/t0025.fio
-@@ -0,0 +1,7 @@
-+[job]
-+filename=t0025file
-+size=128k
-+readwrite=write
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-diff --git a/t/jobs/t0026.fio b/t/jobs/t0026.fio
-new file mode 100644
-index 00000000..ee89b140
---- /dev/null
-+++ b/t/jobs/t0026.fio
-@@ -0,0 +1,19 @@
-+[job1]
-+filename=t0026file
-+size=1M
-+readwrite=randwrite
-+loops=8
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-+
-+[job2]
-+stonewall=1
-+filename=t0026file
-+size=1M
-+readwrite=randrw
-+time_based
-+runtime=5
-+do_verify=1
-+verify=md5
-+experimental_verify=1
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index df87ae72..e5b307ac 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -788,6 +788,18 @@ class FioJobTest_t0024(FioJobTest_t0023):
-         self.check_all_offsets("bssplit_bw.log", 512, filesize)
- 
- 
-+class FioJobTest_t0025(FioJobTest):
-+    """Test experimental verify read backs written data pattern."""
-+    def check_result(self):
-+        super(FioJobTest_t0025, self).check_result()
-+
-+        if not self.passed:
-+            return
-+
-+        if self.json_data['jobs'][0]['read']['io_kbytes'] != 128:
-+            self.passed = False
-+
-+
- class FioJobTest_iops_rate(FioJobTest):
-     """Test consists of fio test job t0009
-     Confirm that job0 iops == 1000
-@@ -1183,6 +1195,25 @@ TEST_LIST = [
-         'pre_success':      None,
-         'requirements':     [],
-     },
-+    {
-+        'test_id':          25,
-+        'test_class':       FioJobTest_t0025,
-+        'job':              't0025.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'output_format':    'json',
-+        'requirements':     [],
-+    },
-+    {
-+        'test_id':          26,
-+        'test_class':       FioJobTest,
-+        'job':              't0026.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'requirements':     [Requirements.not_windows],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
-diff --git a/verify.c b/verify.c
-index 0e1e4639..d6a229ca 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1287,8 +1287,6 @@ void populate_verify_io_u(struct thread_data *td, struct io_u *io_u)
- 	if (td->o.verify == VERIFY_NULL)
- 		return;
- 
--	io_u->numberio = td->io_issues[io_u->ddir];
--
- 	fill_pattern_headers(td, io_u, 0, 0);
- }
- 
+T24gRnJpLCAyMDIyLTEwLTIxIGF0IDE1OjM0ICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
+cm90ZToKPiBBZGQgdGhlIGhlbHBlciBmdW5jdGlvbiBibGt6b25lZF9maW5pc2hfem9uZSgpIHRv
+IHN1cHBvcnQgem9uZSBmaW5pc2gKPiBvcGVyYXRpb24gdG8gem9uZWQgYmxvY2sgZGV2aWNlcyB0
+aHJvdWdoIGlvY3RsLiBUaGlzIGZlYXR1cmUgd2lsbCBiZQo+IHVzZWQgdG8gY2hhbmdlIHN0YXR1
+cyBvZiB6b25lcyB3aGljaCBpcyBub3QgeWV0IGZ1bGwgYnV0IGRvZXMgbm90IGhhdmUKPiBlbm91
+Z2ggc2l6ZSB0byB3cml0ZSBuZXh0IGJsb2NrLCBzbyB0aGF0IHN1Y2ggem9uZXMgZG8gbm90IGV4
+Y2VlZCBtYXgKPiBhY3RpdmUgem9uZXMgbGltaXQuIFRoaXMgZnVuY3Rpb24gZG9lcyB6b25lIGZp
+bmlzaCBvbmx5IHdoZW4ga2VybmVsCj4gc3VwcG9ydHMgdGhlIGlvY3RsIEJMS0ZJTklTSFpPTkUu
+IE90aGVyd2lzZSwgaXQgZG9lcyBub3RoaW5nLiBUaGlzCj4gc2hvdWxkIGJlIGZpbmUgc2luY2Ug
+dGhlIGtlcm5lbCB3aXRob3V0IEJMS0ZJTklTSFpPTkUgZG9lcyBub3QgcmVwb3J0Cj4gbWF4IGFj
+dGl2ZSB6b25lIGxpbWl0IHRocm91Z2ggc3lzZnMgdG8gdXNlciBzcGFjZS4KPiAKPiBTaWduZWQt
+b2ZmLWJ5OiBTaGluJ2ljaGlybyBLYXdhc2FraSA8c2hpbmljaGlyby5rYXdhc2FraUB3ZGMuY29t
+PgoKTG9va3MgZ29vZC4KClRlc3RlZC1ieTogRG1pdHJ5IEZvbWljaGV2IDxkbWl0cnkuZm9taWNo
+ZXZAd2RjLmNvbT4KUmV2aWV3ZWQtYnk6IERtaXRyeSBGb21pY2hldiA8ZG1pdHJ5LmZvbWljaGV2
+QHdkYy5jb20+Cgo+IC0tLQo+IMKgb3NsaWIvYmxrem9uZWQuaMKgwqDCoMKgwqDCoCB8wqAgOCAr
+KysrKysrKwo+IMKgb3NsaWIvbGludXgtYmxrem9uZWQuYyB8IDM3ICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysKPiDCoDIgZmlsZXMgY2hhbmdlZCwgNDUgaW5zZXJ0aW9ucygr
+KQo+IAo+IGRpZmYgLS1naXQgYS9vc2xpYi9ibGt6b25lZC5oIGIvb3NsaWIvYmxrem9uZWQuaAo+
+IGluZGV4IDcxOWIwNDFkLi4yOWZiMDM0ZiAxMDA2NDQKPiAtLS0gYS9vc2xpYi9ibGt6b25lZC5o
+Cj4gKysrIGIvb3NsaWIvYmxrem9uZWQuaAo+IEBAIC0xOCw2ICsxOCw4IEBAIGV4dGVybiBpbnQg
+Ymxrem9uZWRfcmVzZXRfd3Aoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0Cj4gZmlvX2Zp
+bGUgKmYsCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoHVpbnQ2NF90IG9mZnNldCwgdWludDY0X3QgbGVuZ3RoKTsKPiDCoGV4
+dGVybiBpbnQgYmxrem9uZWRfZ2V0X21heF9vcGVuX3pvbmVzKHN0cnVjdCB0aHJlYWRfZGF0YSAq
+dGQsIHN0cnVjdCBmaW9fZmlsZQo+ICpmLAo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdW5zaWduZWQg
+aW50ICptYXhfb3Blbl96b25lcyk7Cj4gK2V4dGVybiBpbnQgYmxrem9uZWRfZmluaXNoX3pvbmUo
+c3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGZpb19maWxlICpmLAo+ICvCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHVpbnQ2
+NF90IG9mZnNldCwgdWludDY0X3QgbGVuZ3RoKTsKPiDCoCNlbHNlCj4gwqAvKgo+IMKgICogRGVm
+aW5lIHN0dWJzIGZvciBzeXN0ZW1zIHRoYXQgZG8gbm90IGhhdmUgem9uZWQgYmxvY2sgZGV2aWNl
+IHN1cHBvcnQuCj4gQEAgLTUxLDYgKzUzLDEyIEBAIHN0YXRpYyBpbmxpbmUgaW50IGJsa3pvbmVk
+X2dldF9tYXhfb3Blbl96b25lcyhzdHJ1Y3QKPiB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW8K
+PiDCoHsKPiDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuIC1FSU87Cj4gwqB9Cj4gK3N0YXRpYyBpbmxp
+bmUgaW50IGJsa3pvbmVkX2ZpbmlzaF96b25lKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsCj4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIHN0cnVjdCBmaW9fZmlsZSAqZiwKPiArwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+dWludDY0X3Qgb2Zmc2V0LCB1aW50NjRfdCBsZW5ndGgpCj4gK3sKPiArwqDCoMKgwqDCoMKgwqBy
+ZXR1cm4gLUVJTzsKPiArfQo+IMKgI2VuZGlmCj4gwqAKPiDCoCNlbmRpZiAvKiBGSU9fQkxLWk9O
+RURfSCAqLwo+IGRpZmYgLS1naXQgYS9vc2xpYi9saW51eC1ibGt6b25lZC5jIGIvb3NsaWIvbGlu
+dXgtYmxrem9uZWQuYwo+IGluZGV4IDE4NWJkNTAxLi5jMzEzMGQwZSAxMDA2NDQKPiAtLS0gYS9v
+c2xpYi9saW51eC1ibGt6b25lZC5jCj4gKysrIGIvb3NsaWIvbGludXgtYmxrem9uZWQuYwo+IEBA
+IC0zMDgsMyArMzA4LDQwIEBAIGludCBibGt6b25lZF9yZXNldF93cChzdHJ1Y3QgdGhyZWFkX2Rh
+dGEgKnRkLCBzdHJ1Y3QKPiBmaW9fZmlsZSAqZiwKPiDCoAo+IMKgwqDCoMKgwqDCoMKgwqByZXR1
+cm4gcmV0Owo+IMKgfQo+ICsKPiAraW50IGJsa3pvbmVkX2ZpbmlzaF96b25lKHN0cnVjdCB0aHJl
+YWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAqZiwKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB1aW50NjRfdCBvZmZzZXQsIHVpbnQ2NF90IGxlbmd0
+aCkKPiArewo+ICsjaWZkZWYgQkxLRklOSVNIWk9ORQo+ICvCoMKgwqDCoMKgwqDCoHN0cnVjdCBi
+bGtfem9uZV9yYW5nZSB6ciA9IHsKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgLnNl
+Y3RvcsKgwqDCoMKgwqDCoMKgwqAgPSBvZmZzZXQgPj4gOSwKPiArwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgLm5yX3NlY3RvcnPCoMKgwqDCoCA9IGxlbmd0aCA+PiA5LAo+ICvCoMKgwqDC
+oMKgwqDCoH07Cj4gK8KgwqDCoMKgwqDCoMKgaW50IGZkLCByZXQgPSAwOwo+ICsKPiArwqDCoMKg
+wqDCoMKgwqAvKiBJZiB0aGUgZmlsZSBpcyBub3QgeWV0IG9wZW5lZCwgb3BlbiBpdCBmb3IgdGhp
+cyBmdW5jdGlvbi4gKi8KPiArwqDCoMKgwqDCoMKgwqBmZCA9IGYtPmZkOwo+ICvCoMKgwqDCoMKg
+wqDCoGlmIChmZCA8IDApIHsKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZmQgPSBv
+cGVuKGYtPmZpbGVfbmFtZSwgT19SRFdSIHwgT19MQVJHRUZJTEUpOwo+ICvCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqBpZiAoZmQgPCAwKQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuIC1lcnJubzsKPiArwqDCoMKgwqDCoMKgwqB9Cj4g
+Kwo+ICvCoMKgwqDCoMKgwqDCoGlmIChpb2N0bChmZCwgQkxLRklOSVNIWk9ORSwgJnpyKSA8IDAp
+Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldCA9IC1lcnJubzsKPiArCj4gK8Kg
+wqDCoMKgwqDCoMKgaWYgKGYtPmZkIDwgMCkKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgY2xvc2UoZmQpOwo+ICsKPiArwqDCoMKgwqDCoMKgwqByZXR1cm4gcmV0Owo+ICsjZWxzZQo+
+ICvCoMKgwqDCoMKgwqDCoC8qCj4gK8KgwqDCoMKgwqDCoMKgICogS2VybmVsIHZlcnNpb25zIG9s
+ZGVyIHRoYW4gNS41IGRvZXMgbm90IHN1cHBvcnQgQkxLRklOSVNIWk9ORS4gVGhlc2UKPiArwqDC
+oMKgwqDCoMKgwqAgKiBvbGQga2VybmVscyBhc3N1bWVkIHpvbmVzIGFyZSBjbG9zZWQgYXV0b21h
+dGljYWxseSBhdCBtYXhfb3Blbl96b25lcwo+ICvCoMKgwqDCoMKgwqDCoCAqIGxpbWl0LiBBbHNv
+IHRoZXkgZGlkIG5vdCBzdXBwb3J0IG1heF9hY3RpdmVfem9uZXMgbGltaXQuIFRoZW4gdGhlcmUK
+PiArwqDCoMKgwqDCoMKgwqAgKiB3YXMgbm8gbmVlZCB0byBmaW5pc2ggem9uZXMgdG8gYXZvaWQg
+ZXJyb3JzIGNhdXNlZCBieSBtYXhfb3Blbl96b25lcwo+ICvCoMKgwqDCoMKgwqDCoCAqIG9yIG1h
+eF9hY3RpdmVfem9uZXMuIEZvciB0aG9zZSBvbGQgdmVyc2lvbnMsIGp1c3QgZG8gbm90aGluZy4K
+PiArwqDCoMKgwqDCoMKgwqAgKi8KPiArwqDCoMKgwqDCoMKgwqByZXR1cm4gMDsKPiArI2VuZGlm
+Cj4gK30KCg==
