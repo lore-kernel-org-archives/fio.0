@@ -2,52 +2,53 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B19D3ECDFA1
-	for <fio@archiver.kernel.org>; Wed, 26 Oct 2022 19:40:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B62FA3743
+	for <fio@archiver.kernel.org>; Wed, 26 Oct 2022 19:40:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233449AbiJZTk3 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 26 Oct 2022 15:40:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
+        id S233343AbiJZTkb (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 26 Oct 2022 15:40:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233940AbiJZTk2 (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S234412AbiJZTk2 (ORCPT <rfc822;fio@vger.kernel.org>);
         Wed, 26 Oct 2022 15:40:28 -0400
 Received: from ale.deltatee.com (ale.deltatee.com [204.191.154.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9941D419A7
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C604A102
         for <fio@vger.kernel.org>; Wed, 26 Oct 2022 12:40:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=deltatee.com; s=20200525; h=Subject:MIME-Version:References:In-Reply-To:
         Message-Id:Date:Cc:To:From:content-disposition;
-        bh=KTOhoheYBntt1rgBNXpkSQJ7xA/XK3xI94yTYvkXkE0=; b=rerInKJ9XuT0wQLJmEoJ6JTqGQ
-        GefBv/8hwYjOVDJs61jQnztlysiRRAaFUCPVdzoyHcKNeZznfcLWxer3xA3l8bSS39PtqPJQ87aVB
-        aQUl7Bv9kZmaEQpCFHBHYuLLDFsc8BZFnv4ckuo/SeXXehLgEq9jU5L3miQfVzTC6z93mPuCfDVz/
-        B77N2+6tcAwvFElAeQiV6QJKjgw1ZnJqbrkmGjwwNogpc+0g3ZChOQHIzMbLV8Wm66hNePKBfhnhn
-        wq5Srz6ob2ImSZCpxy0hyPF7zAxb1TiPqO7S3dVdgcmlAHVoO2gsa3MBhsY8gK28QJyrYVI7GM/IK
-        6CK2Z9gg==;
+        bh=dpOwxWtuNVUS578oJGa/JrLPnbhbWbGkpRZ4llFXAnY=; b=s7FiuEoWlZQ2HtO6+iaC+5KpUa
+        NUqh0vTt3qTt5o+JBxCfekljpjpioVcpvx5DfPPXVumhpf8TWZNH+Bf1No+XDr7b86iXXXt+HbAwZ
+        4gWCau8nrCBfq8a3F28pwWKzMoMkIlSOa/O75TpGXJhOGX6zH2ypZpNcZYzg/HWwVtD9yZFIABxNB
+        43vQno4jmX3D5latksTTxiiQObqlbD59tzGdFzdpOVPU45VxualiQW+I3pNRzNz+O2gjoX02wwjsB
+        KBKBQwITGxpXZN2pVblRd/YqwbhUEyUUl0XIEHslmhL/QONPLPsYdEkiqrnaCdboQZ2o1KkBNOmcd
+        cIskumYQ==;
 Received: from cgy1-donard.priv.deltatee.com ([172.16.1.31])
         by ale.deltatee.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1onmGG-000HiL-Ii; Wed, 26 Oct 2022 13:40:25 -0600
+        id 1onmGG-000HiJ-H7; Wed, 26 Oct 2022 13:40:26 -0600
 Received: from gunthorp by cgy1-donard.priv.deltatee.com with local (Exim 4.94.2)
         (envelope-from <gunthorp@deltatee.com>)
-        id 1onmGG-0008Xd-77; Wed, 26 Oct 2022 13:40:24 -0600
+        id 1onmGG-0008XX-0R; Wed, 26 Oct 2022 13:40:24 -0600
 From:   Logan Gunthorpe <logang@deltatee.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
 Cc:     David Sloan <David.Sloan@eideticom.com>,
         Stephen Bates <sbates@raithlin.com>,
-        Logan Gunthorpe <logan.gunthorpe@eideticom.com>
-Date:   Wed, 26 Oct 2022 13:40:18 -0600
-Message-Id: <20221026194019.32776-4-logang@deltatee.com>
+        Logan Gunthorpe <logan.gunthorpe@eideticom.com>,
+        Logan Gunthorpe <logang@deltatee.com>
+Date:   Wed, 26 Oct 2022 13:40:16 -0600
+Message-Id: <20221026194019.32776-2-logang@deltatee.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20221026194019.32776-1-logang@deltatee.com>
 References: <20221026194019.32776-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 172.16.1.31
-X-SA-Exim-Rcpt-To: fio@vger.kernel.org, axboe@kernel.dk, vincentfu@gmail.com, sbates@raithlin.com, David.Sloan@eideticom.com, logan.gunthorpe@eideticom.com
+X-SA-Exim-Rcpt-To: fio@vger.kernel.org, axboe@kernel.dk, vincentfu@gmail.com, sbates@raithlin.com, David.Sloan@eideticom.com, logan.gunthorpe@eideticom.com, logang@deltatee.com
 X-SA-Exim-Mail-From: gunthorp@deltatee.com
-Subject: [PATCH 3/4] lib/pattern: Support short repeated read calls when loading from file
+Subject: [PATCH 1/4] cconv: Support pattern buffers of arbitrary size
 X-SA-Exim-Version: 4.2.1 (built Sat, 13 Feb 2021 17:57:42 +0000)
 X-SA-Exim-Scanned: Yes (on ale.deltatee.com)
 Precedence: bulk
@@ -56,49 +57,328 @@ X-Mailing-List: fio@vger.kernel.org
 
 From: Logan Gunthorpe <logan.gunthorpe@eideticom.com>
 
-Once a pattern file can be much larger, it will be possible that
-kernel will return a short read while loading the file and thus may
-randomly only load part of the file.
+Change the thread_options_pack structure to support pattern buffers
+of arbitrary size by using a flexible array at the end of the the
+structure to store both the verify_pattern and the buffer_pattern
+in that order.
 
-Fix this by putting the read in a loop so the entire file will be
-read.
+In this way, only the actual bytes of each pattern will be sent over
+the wire and patterns of an arbitrary size can be used with the packed
+structure.
+
+In order to determine the required size of the structure the function
+thread_options_pack_size() is introduced which returns the total
+number of bytes required for a given thread_options instance.
+
+The two callsites of convert_thread_options_to_net() are then converted
+to dynamically allocate a pdu of the appropriate size and the
+two callsites of convert_thread_options_to_cpu() are modified to
+take the size of the received data to prevent buffer overruns.
+
+Also add specific testing of this feature in fio_test_cconv().
+
+Seeing this changes the client/server protocol, the FIO_SERVER_VER
+is bumped.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- lib/pattern.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ cconv.c          | 75 +++++++++++++++++++++++++++++++++---------------
+ client.c         | 17 +++++++----
+ gclient.c        | 12 ++++++--
+ server.c         | 23 +++++++++------
+ server.h         |  2 +-
+ thread_options.h |  8 ++++--
+ 6 files changed, 93 insertions(+), 44 deletions(-)
 
-diff --git a/lib/pattern.c b/lib/pattern.c
-index 70d0313d237e..d324263c2b34 100644
---- a/lib/pattern.c
-+++ b/lib/pattern.c
-@@ -32,7 +32,7 @@ static const char *parse_file(const char *beg, char *out,
- 	const char *end;
- 	char *file;
- 	int fd;
--	ssize_t count;
-+	ssize_t rc, count = 0;
+diff --git a/cconv.c b/cconv.c
+index 6c36afb72d1e..bb1af4970e97 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -54,8 +54,15 @@ static void free_thread_options_to_cpu(struct thread_options *o)
+ 	}
+ }
  
- 	if (!out_len)
- 		goto err_out;
-@@ -52,9 +52,16 @@ static const char *parse_file(const char *beg, char *out,
- 		goto err_free_out;
- 
- 	if (out) {
--		count = read(fd, out, out_len);
--		if (count == -1)
--			goto err_free_close_out;
-+		while (1) {
-+			rc = read(fd, out, out_len - count);
-+			if (rc == 0)
-+				break;
-+			if (rc == -1)
-+				goto err_free_close_out;
+-void convert_thread_options_to_cpu(struct thread_options *o,
+-				   struct thread_options_pack *top)
++size_t thread_options_pack_size(struct thread_options *o)
++{
++	return sizeof(struct thread_options_pack) + o->verify_pattern_bytes +
++		o->buffer_pattern_bytes;
++}
 +
-+			count += rc;
-+			out += rc;
-+		}
- 	} else {
- 		count = lseek(fd, 0, SEEK_END);
- 		if (count == -1)
++int convert_thread_options_to_cpu(struct thread_options *o,
++				  struct thread_options_pack *top,
++				  size_t top_sz)
+ {
+ 	int i, j;
+ 
+@@ -171,10 +178,17 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->verify_interval = le32_to_cpu(top->verify_interval);
+ 	o->verify_offset = le32_to_cpu(top->verify_offset);
+ 
+-	memcpy(o->verify_pattern, top->verify_pattern, MAX_PATTERN_SIZE);
+-	memcpy(o->buffer_pattern, top->buffer_pattern, MAX_PATTERN_SIZE);
+-
+ 	o->verify_pattern_bytes = le32_to_cpu(top->verify_pattern_bytes);
++	o->buffer_pattern_bytes = le32_to_cpu(top->buffer_pattern_bytes);
++	if (o->verify_pattern_bytes >= MAX_PATTERN_SIZE ||
++	    o->buffer_pattern_bytes >= MAX_PATTERN_SIZE ||
++	    thread_options_pack_size(o) > top_sz)
++		return -EINVAL;
++
++	memcpy(o->verify_pattern, top->patterns, o->verify_pattern_bytes);
++	memcpy(o->buffer_pattern, &top->patterns[o->verify_pattern_bytes],
++	       o->buffer_pattern_bytes);
++
+ 	o->verify_fatal = le32_to_cpu(top->verify_fatal);
+ 	o->verify_dump = le32_to_cpu(top->verify_dump);
+ 	o->verify_async = le32_to_cpu(top->verify_async);
+@@ -268,7 +282,6 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->zero_buffers = le32_to_cpu(top->zero_buffers);
+ 	o->refill_buffers = le32_to_cpu(top->refill_buffers);
+ 	o->scramble_buffers = le32_to_cpu(top->scramble_buffers);
+-	o->buffer_pattern_bytes = le32_to_cpu(top->buffer_pattern_bytes);
+ 	o->time_based = le32_to_cpu(top->time_based);
+ 	o->disable_lat = le32_to_cpu(top->disable_lat);
+ 	o->disable_clat = le32_to_cpu(top->disable_clat);
+@@ -334,6 +347,8 @@ void convert_thread_options_to_cpu(struct thread_options *o,
+ 	uint8_t verify_cpumask[FIO_TOP_STR_MAX];
+ 	uint8_t log_gz_cpumask[FIO_TOP_STR_MAX];
+ #endif
++
++	return 0;
+ }
+ 
+ void convert_thread_options_to_net(struct thread_options_pack *top,
+@@ -572,8 +587,9 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 		top->max_latency[i] = __cpu_to_le64(o->max_latency[i]);
+ 	}
+ 
+-	memcpy(top->verify_pattern, o->verify_pattern, MAX_PATTERN_SIZE);
+-	memcpy(top->buffer_pattern, o->buffer_pattern, MAX_PATTERN_SIZE);
++	memcpy(top->patterns, o->verify_pattern, o->verify_pattern_bytes);
++	memcpy(&top->patterns[o->verify_pattern_bytes], o->buffer_pattern,
++	       o->buffer_pattern_bytes);
+ 
+ 	top->size = __cpu_to_le64(o->size);
+ 	top->io_size = __cpu_to_le64(o->io_size);
+@@ -620,7 +636,6 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	uint8_t verify_cpumask[FIO_TOP_STR_MAX];
+ 	uint8_t log_gz_cpumask[FIO_TOP_STR_MAX];
+ #endif
+-
+ }
+ 
+ /*
+@@ -630,18 +645,32 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+  */
+ int fio_test_cconv(struct thread_options *__o)
+ {
+-	struct thread_options o;
+-	struct thread_options_pack top1, top2;
+-
+-	memset(&top1, 0, sizeof(top1));
+-	memset(&top2, 0, sizeof(top2));
+-
+-	convert_thread_options_to_net(&top1, __o);
+-	memset(&o, 0, sizeof(o));
+-	convert_thread_options_to_cpu(&o, &top1);
+-	convert_thread_options_to_net(&top2, &o);
+-
+-	free_thread_options_to_cpu(&o);
+-
+-	return memcmp(&top1, &top2, sizeof(top1));
++	struct thread_options o1 = *__o, o2;
++	struct thread_options_pack *top1, *top2;
++	size_t top_sz;
++	int ret;
++
++	o1.verify_pattern_bytes = 61;
++	memset(o1.verify_pattern, 'V', o1.verify_pattern_bytes);
++	o1.buffer_pattern_bytes = 15;
++	memset(o1.buffer_pattern, 'B', o1.buffer_pattern_bytes);
++
++	top_sz = thread_options_pack_size(&o1);
++	top1 = calloc(1, top_sz);
++	top2 = calloc(1, top_sz);
++
++	convert_thread_options_to_net(top1, &o1);
++	memset(&o2, 0, sizeof(o2));
++	ret = convert_thread_options_to_cpu(&o2, top1, top_sz);
++	if (ret)
++		goto out;
++
++	convert_thread_options_to_net(top2, &o2);
++	ret = memcmp(top1, top2, top_sz);
++
++out:
++	free_thread_options_to_cpu(&o2);
++	free(top2);
++	free(top1);
++	return ret;
+ }
+diff --git a/client.c b/client.c
+index 37da74bca5d7..51496c770248 100644
+--- a/client.c
++++ b/client.c
+@@ -922,13 +922,20 @@ int fio_clients_send_ini(const char *filename)
+ int fio_client_update_options(struct fio_client *client,
+ 			      struct thread_options *o, uint64_t *tag)
+ {
+-	struct cmd_add_job_pdu pdu;
++	size_t cmd_sz = offsetof(struct cmd_add_job_pdu, top) +
++		thread_options_pack_size(o);
++	struct cmd_add_job_pdu *pdu;
++	int ret;
+ 
+-	pdu.thread_number = cpu_to_le32(client->thread_number);
+-	pdu.groupid = cpu_to_le32(client->groupid);
+-	convert_thread_options_to_net(&pdu.top, o);
++	pdu = malloc(cmd_sz);
++	pdu->thread_number = cpu_to_le32(client->thread_number);
++	pdu->groupid = cpu_to_le32(client->groupid);
++	convert_thread_options_to_net(&pdu->top, o);
+ 
+-	return fio_net_send_cmd(client->fd, FIO_NET_CMD_UPDATE_JOB, &pdu, sizeof(pdu), tag, &client->cmd_list);
++	ret = fio_net_send_cmd(client->fd, FIO_NET_CMD_UPDATE_JOB, pdu,
++			       cmd_sz, tag, &client->cmd_list);
++	free(pdu);
++	return ret;
+ }
+ 
+ static void convert_io_stat(struct io_stat *dst, struct io_stat *src)
+diff --git a/gclient.c b/gclient.c
+index c59bcfe2f6f3..73f64b3b87f1 100644
+--- a/gclient.c
++++ b/gclient.c
+@@ -553,12 +553,15 @@ static void gfio_quit_op(struct fio_client *client, struct fio_net_cmd *cmd)
+ }
+ 
+ static struct thread_options *gfio_client_add_job(struct gfio_client *gc,
+-			struct thread_options_pack *top)
++			struct thread_options_pack *top, size_t top_sz)
+ {
+ 	struct gfio_client_options *gco;
+ 
+ 	gco = calloc(1, sizeof(*gco));
+-	convert_thread_options_to_cpu(&gco->o, top);
++	if (convert_thread_options_to_cpu(&gco->o, top, top_sz)) {
++		dprint(FD_NET, "client: failed parsing add_job command\n");
++		return NULL;
++	}
+ 	INIT_FLIST_HEAD(&gco->list);
+ 	flist_add_tail(&gco->list, &gc->o_list);
+ 	gc->o_list_nr = 1;
+@@ -577,7 +580,10 @@ static void gfio_add_job_op(struct fio_client *client, struct fio_net_cmd *cmd)
+ 
+ 	p->thread_number = le32_to_cpu(p->thread_number);
+ 	p->groupid = le32_to_cpu(p->groupid);
+-	o = gfio_client_add_job(gc, &p->top);
++	o = gfio_client_add_job(gc, &p->top,
++			cmd->pdu_len - offsetof(struct cmd_add_job_pdu, top));
++	if (o == NULL)
++		return;
+ 
+ 	gdk_threads_enter();
+ 
+diff --git a/server.c b/server.c
+index b869d3872734..a6347efd8281 100644
+--- a/server.c
++++ b/server.c
+@@ -1082,6 +1082,7 @@ static int handle_update_job_cmd(struct fio_net_cmd *cmd)
+ 	struct cmd_add_job_pdu *pdu = (struct cmd_add_job_pdu *) cmd->payload;
+ 	struct thread_data *td;
+ 	uint32_t tnumber;
++	int ret;
+ 
+ 	tnumber = le32_to_cpu(pdu->thread_number);
+ 
+@@ -1093,8 +1094,9 @@ static int handle_update_job_cmd(struct fio_net_cmd *cmd)
+ 	}
+ 
+ 	td = tnumber_to_td(tnumber);
+-	convert_thread_options_to_cpu(&td->o, &pdu->top);
+-	send_update_job_reply(cmd->tag, 0);
++	ret = convert_thread_options_to_cpu(&td->o, &pdu->top,
++			cmd->pdu_len - offsetof(struct cmd_add_job_pdu, top));
++	send_update_job_reply(cmd->tag, ret);
+ 	return 0;
+ }
+ 
+@@ -2323,15 +2325,18 @@ int fio_send_iolog(struct thread_data *td, struct io_log *log, const char *name)
+ 
+ void fio_server_send_add_job(struct thread_data *td)
+ {
+-	struct cmd_add_job_pdu pdu = {
+-		.thread_number = cpu_to_le32(td->thread_number),
+-		.groupid = cpu_to_le32(td->groupid),
+-	};
++	struct cmd_add_job_pdu *pdu;
++	size_t cmd_sz = offsetof(struct cmd_add_job_pdu, top) +
++		thread_options_pack_size(&td->o);
+ 
+-	convert_thread_options_to_net(&pdu.top, &td->o);
++	pdu = malloc(cmd_sz);
++	pdu->thread_number = cpu_to_le32(td->thread_number);
++	pdu->groupid = cpu_to_le32(td->groupid);
+ 
+-	fio_net_queue_cmd(FIO_NET_CMD_ADD_JOB, &pdu, sizeof(pdu), NULL,
+-				SK_F_COPY);
++	convert_thread_options_to_net(&pdu->top, &td->o);
++
++	fio_net_queue_cmd(FIO_NET_CMD_ADD_JOB, pdu, cmd_sz, NULL, SK_F_COPY);
++	free(pdu);
+ }
+ 
+ void fio_server_send_start(struct thread_data *td)
+diff --git a/server.h b/server.h
+index b0c5e2dfafa0..281330202884 100644
+--- a/server.h
++++ b/server.h
+@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
+ };
+ 
+ enum {
+-	FIO_SERVER_VER			= 97,
++	FIO_SERVER_VER			= 98,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
+diff --git a/thread_options.h b/thread_options.h
+index 634070af00ec..8a1340f23e97 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -464,7 +464,6 @@ struct thread_options_pack {
+ 	uint32_t do_verify;
+ 	uint32_t verify_interval;
+ 	uint32_t verify_offset;
+-	uint8_t verify_pattern[MAX_PATTERN_SIZE];
+ 	uint32_t verify_pattern_bytes;
+ 	uint32_t verify_fatal;
+ 	uint32_t verify_dump;
+@@ -572,7 +571,6 @@ struct thread_options_pack {
+ 	uint32_t zero_buffers;
+ 	uint32_t refill_buffers;
+ 	uint32_t scramble_buffers;
+-	uint8_t buffer_pattern[MAX_PATTERN_SIZE];
+ 	uint32_t buffer_pattern_bytes;
+ 	uint32_t compress_percentage;
+ 	uint32_t compress_chunk;
+@@ -699,9 +697,13 @@ struct thread_options_pack {
+ 
+ 	uint32_t log_entries;
+ 	uint32_t log_prio;
++
++	uint8_t patterns[];
+ } __attribute__((packed));
+ 
+-extern void convert_thread_options_to_cpu(struct thread_options *o, struct thread_options_pack *top);
++extern int convert_thread_options_to_cpu(struct thread_options *o,
++		struct thread_options_pack *top, size_t top_sz);
++extern size_t thread_options_pack_size(struct thread_options *o);
+ extern void convert_thread_options_to_net(struct thread_options_pack *top, struct thread_options *);
+ extern int fio_test_cconv(struct thread_options *);
+ extern void options_default_fill(struct thread_options *o);
 -- 
 2.30.2
 
