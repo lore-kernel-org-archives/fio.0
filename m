@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7B38C67871
-	for <fio@archiver.kernel.org>; Thu, 27 Oct 2022 06:02:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D811C38A2D
+	for <fio@archiver.kernel.org>; Thu, 27 Oct 2022 06:02:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234367AbiJ0GCI (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 27 Oct 2022 02:02:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60088 "EHLO
+        id S234467AbiJ0GC6 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 27 Oct 2022 02:02:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234282AbiJ0GB4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Oct 2022 02:01:56 -0400
-Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84B077B58F
-        for <fio@vger.kernel.org>; Wed, 26 Oct 2022 23:01:53 -0700 (PDT)
+        with ESMTP id S234477AbiJ0GCZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Oct 2022 02:02:25 -0400
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA36C7B58F
+        for <fio@vger.kernel.org>; Wed, 26 Oct 2022 23:02:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666850513; x=1698386513;
+  t=1666850530; x=1698386530;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=9jPnnjN+AgrmtRFfokTzVQ5/zCKJpS+zSjT5AqDsMJs=;
-  b=rMt3P8cZkRPnToPn697hnBWkl3nQdACsxdP6ozBDjgJvAtHKCZbWlRYS
-   q3VozjJQP04cM/BUUScBYHjMFB+2rulG8AKL3W9JBgTRDaQ6mrMhAFLq/
-   aqLMaR8jXgqe83k4pHXp0ToT6GEihy6qSydXNIHBiUJMZoEONyrNBIZTH
-   REwHaPO274XWkTXG3vJ5V7f3BB068W0XOGckTDI77S94wk2PQdnVNnDV6
-   6TVYEEwu+GckQwI32cK+PWTxakhJe60hEXcbrRGknCwqOXwroeUp7aesP
-   ztYNCKc/KJTx45HS4ciKzBASU++1F/Ke8sMsgB+0LPfmpf4oosze0Dc6R
-   w==;
+  bh=EApRTPRV06eRhm+H4XD30DUVom2xcrTuw9Cn4lsH0WI=;
+  b=adCXPwUdIXSHAwdMRfLK6CzrrOKuEeMEXWBQe57/AP+VzQc6u4/TVHzd
+   yiZLf4queEHCRZ+zxSjezoyrfYjDtv8FB/AU4FmLq788Olg+uJen9KaxZ
+   sMWpXog2DPc16EL/1cVRatdnY7zN9WLh7fNgt0mDSU1ZeX8J/dE7ZcqLt
+   LF0H/A/2gd5cvFY8b2ZJgiUGF/nn30MYnB4vsQ+tL88JisVt0EHytHR+i
+   H94tdCjK33K9m9kpvpKKGBwo05IMgkqvgkVUnoT/m5g69vaNFhI9FgopT
+   NJq04go7zaPU4ha4VSo0J6wId7PHM619S88psOjqYSjLvlqJ5NR1KPRTK
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.95,215,1661788800"; 
-   d="scan'208";a="214845871"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Oct 2022 14:01:53 +0800
-IronPort-SDR: Yi+/jpltcLWvXM1CsnsMdxmSPvS11Pe+Rkv4xyjeYDlhOTLnPQKNPUp9IMmgPh9sQFEiu02knP
- a5AacjL1DQIZQ5laam4Gra7ZZct9HP1pSaZj7Y5rVo8/V0QHz7FjsWO/OnZix/b2Jr41q1tjBd
- R8FX2VRSsFrlrLaXyuriOgqQR7XvRkDdwhDTsYiF3V+OdPmFLoQWS5erJzs7ycgjpJZQZkAVZy
- EAo/UaaEVdTrejfGc8eJiSg9qwCmp3/pZTtxcAlKV2e3CCK4leO1Jzh0ppBu42byfNouXRsd4z
- b/bGviXCBE251yHNhhLyT6wx
+   d="scan'208";a="326954552"
+Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 27 Oct 2022 14:01:46 +0800
+IronPort-SDR: JdMT0OgNbcaNUJ8RjrVPc/cih6x3JQYiW8/qxYItY8Vo9skrHNjF7vOWfisKj1ggMKsq3mPk8Z
+ YbtNrnzOFNC4iJpaFlj8RLg6GXr4zEKPYHTYB0aJUYP7wp68np+COxNsAUO0BZv+F+1oZfV2Jn
+ dRX+zp6S1RENdN+npG/7bdDDn8cAFehs3UzKeWxAwf9CWHvGvx9eyS/zw6Pn6uSWTpO0FGo2qB
+ FLPzbZy1wWiURr0xjw7AEKwTTD1vfG1zfM58gej/2iX6kHkeRkUiQdLs+8akSSdm1rItCCPM22
+ xavhC3Ctr6ApX2NwZF6pX4O+
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Oct 2022 22:15:31 -0700
-IronPort-SDR: MkcsZBceO/lariw3HgeWSmLpEw3f3k1y1IN09MYMwn1e27QoVOwug70WiEWLZB6iaZoGKaHxDM
- 3LN3yZYfTfaFHiyNkn8qr7oFYVGrgV1Xwdpl+XqCUbp84jKleBD6641QRC16C/20h7+UVm9Z24
- bMeaGdxf8q3vPGzFA9NO2bGTuz/B3slQpTZJo9AQO6oD2hQlHWK74/YKh5tIj+w5aQrEfEfCh6
- adYhUFcLOVIzUWvxICnF0kZKAN8j7nUOFCmQMWhVX0I3VsAxxOmJMNkwcEheGUkltbE/rJ57Ju
- FP8=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Oct 2022 22:15:23 -0700
+IronPort-SDR: +WEDjxN/nuGbVbfK1Tiw8vRLsLlBBdi6VGVF9XKo8UOQplC1E3oXP63HDIVa1Z13PT+IJi7vZR
+ npokpJ6HZzdFfvge7F/gwIL294tZztarrm9E8kh0vOThpNrxivHkyJ7WHzQI96+9oRFglX53pK
+ 7S/h9EOOHxhPCMYRVmWOk/lB5EyRtglL9WZYX5eYmakpD4Ks+zjbQCccOwrLOlW/O+aDpAZqIy
+ j2e8Kd7mkhTWUpv3/9DMiyhxbizANRvsPMLjYwfQmfzOC2Qa0yx7TvhY7inPuPRnEjwUEbgNw1
+ f+k=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip02.wdc.com with ESMTP; 26 Oct 2022 23:01:52 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 26 Oct 2022 23:01:44 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 09/13] t/zbd: fix test case #33 for block size unaligned to zone size
-Date:   Thu, 27 Oct 2022 15:01:35 +0900
-Message-Id: <20221027060139.952508-10-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 03/13] zbd: add zbd_zone_remainder() helper function
+Date:   Thu, 27 Oct 2022 15:01:29 +0900
+Message-Id: <20221027060139.952508-4-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20221027060139.952508-1-shinichiro.kawasaki@wdc.com>
 References: <20221027060139.952508-1-shinichiro.kawasaki@wdc.com>
@@ -65,60 +65,75 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Recent fix of zonemode=zbd support for block size unaligned to zone size
-unveiled that the test case #33 has two issues.
-
-First issue is test preparation. Before the fix, write was done to only
-to the first zone due to a bug in zone selection which happens when
-block size is not a divisor of zone size. Then, status of second zone
-did not affect. After the fix, write count to the zones may vary if the
-second zone has almost full status since the zone is skipped from write
-target. Fix this by resetting the write target zones.
-
-Second issue is expected written data size. The test case checks that
-the written data size is larger than the io_size option value. This
-expectation was fine before the fix because data write was repeated in
-do_io() and the limit was checked with io_issue_bytes_exceeded(),
-which triggers loop break when written data is larger than io_size.
-However, after the fix, the limit is checked with keep_running() in
-thread_main(). According to code and block comment in keep_running(),
-fio job terminates even when written data size is smaller than io_size
-if the gap is smaller than maximum IO size. Then the expected written
-data size is the largest multiple of block size smaller than or equal to
-the io_size. This io_size check change resulted in the test case
-failure. Avoid the failure by fixing the expected written data size
-calculation.
+Add the helper function zbd_zone_remainder(), which returns bytes can be
+written to the zone. Use this function to improve readability. It will
+also be used in the following patch.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/test-zbd-support | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ zbd.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index cdc03f28..debe3763 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -813,7 +813,8 @@ test33() {
-     local bs io_size size
-     local off capacity=0;
- 
--    prep_write
-+    [ -n "$is_zbd" ] && reset_zone "$dev" -1
-+
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
-     size=$((2 * zone_size))
-@@ -822,7 +823,7 @@ test33() {
-     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
- 		   --size=$size --io_size=$io_size --bs=$bs	\
- 		   >> "${logfile}.${test_number}" 2>&1 || return $?
--    check_written $(((io_size + bs - 1) / bs * bs)) || return $?
-+    check_written $((io_size / bs * bs)) || return $?
+diff --git a/zbd.c b/zbd.c
+index 627fb968..3e9c66d9 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -70,6 +70,18 @@ static inline uint64_t zbd_zone_capacity_end(const struct fio_zone_info *z)
+ 	return z->start + z->capacity;
  }
  
- # Write to sequential zones with a block size that is not a divisor of the
++/**
++ * zbd_zone_remainder - Return bytes can be written to the zone.
++ * @z: zone info pointer.
++ */
++static inline uint64_t zbd_zone_remainder(struct fio_zone_info *z)
++{
++	if (z->wp >= zbd_zone_capacity_end(z))
++		return 0;
++
++	return zbd_zone_capacity_end(z) - z->wp;
++}
++
+ /**
+  * zbd_zone_full - verify whether a minimum number of bytes remain in a zone
+  * @f: file pointer.
+@@ -83,8 +95,7 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
+ {
+ 	assert((required & 511) == 0);
+ 
+-	return z->has_wp &&
+-		z->wp + required > zbd_zone_capacity_end(z);
++	return z->has_wp && required > zbd_zone_remainder(z);
+ }
+ 
+ static void zone_lock(struct thread_data *td, const struct fio_file *f,
+@@ -440,7 +451,7 @@ static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
+ 		 * already in-flight, handle it as a full zone instead of an
+ 		 * open zone.
+ 		 */
+-		if (z->wp >= zbd_zone_capacity_end(z))
++		if (!zbd_zone_remainder(z))
+ 			res = false;
+ 		goto out;
+ 	}
+@@ -1368,7 +1379,7 @@ found_candidate_zone:
+ 	/* Both z->mutex and zbdi->mutex are held. */
+ 
+ examine_zone:
+-	if (z->wp + min_bs <= zbd_zone_capacity_end(z)) {
++	if (zbd_zone_remainder(z) >= min_bs) {
+ 		pthread_mutex_unlock(&zbdi->mutex);
+ 		goto out;
+ 	}
+@@ -1433,7 +1444,7 @@ retry:
+ 		z = zbd_get_zone(f, zone_idx);
+ 
+ 		zone_lock(td, f, z);
+-		if (z->wp + min_bs <= zbd_zone_capacity_end(z))
++		if (zbd_zone_remainder(z) >= min_bs)
+ 			goto out;
+ 		pthread_mutex_lock(&zbdi->mutex);
+ 	}
 -- 
 2.37.1
 
