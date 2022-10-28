@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DD07C38A02
-	for <fio@archiver.kernel.org>; Fri, 28 Oct 2022 11:54:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44876FA3741
+	for <fio@archiver.kernel.org>; Fri, 28 Oct 2022 11:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230008AbiJ1LyL (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 28 Oct 2022 07:54:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49214 "EHLO
+        id S230029AbiJ1LyN (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 28 Oct 2022 07:54:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229785AbiJ1LyK (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Oct 2022 07:54:10 -0400
+        with ESMTP id S230089AbiJ1LyL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 28 Oct 2022 07:54:11 -0400
 Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20B351D2B77
-        for <fio@vger.kernel.org>; Fri, 28 Oct 2022 04:54:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EE841D2F52
+        for <fio@vger.kernel.org>; Fri, 28 Oct 2022 04:54:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1666958047; x=1698494047;
+  t=1666958049; x=1698494049;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=66gEBiDfMup2ZsfSsgnNGfZhGsfVsYgE2rm6toujTBQ=;
-  b=WC16xtTr6oRCXixswZmio01suM/GzjiOJm90hpVLky8v9aeyFp8zcxb1
-   ZVsAL3Owk0ECDM+MpVgdw0I6gWxRFzk76OP5xSWkd65vdBj7CnE/0u6EZ
-   B8DodSm4/BRFY3rMmcNdVX1J/hQoPo3AVmlbKRf3g9L019igrLAmBm4RM
-   1M4n8nqtwjwtMyw+dYc4a9zZcLnZRp9Hu7lRlxKasFB+QCMzMiOwHbiag
-   SOTccCdrdbbSd2R3425YGBKxzibtKcKYGxPbECOPd6JY2iqWe02Tcu5Mx
-   LBCs9vkYPrqj0LxMAc02Z8a3yEApdaozY2xZQgTRLeyKxcygv8jj/xezs
+  bh=9jPnnjN+AgrmtRFfokTzVQ5/zCKJpS+zSjT5AqDsMJs=;
+  b=IoJnM2njed0EWRvy/fmuWAkal0jPYaxsH3wfU+YRwWNrCXanoOdUydIl
+   fU2PkDWwn+3u6wdHaJ2LmOcPudtKpl5WQH4WccO2KAw+LmH6KegqNz6W9
+   rj3SSqSROG+UpQhG2VNVKVcPYr7ZIwYIgXAut1o6tyW1qETRbeJpNEzRN
+   Fj1Mh39EyIL+S6AZ6z+s28k95R2mLm5pTAJ5OBUfm8N+2/pzSfIcqYvL7
+   JjchDgwaQ2B6e2LFXIImR2vJeNU287hqGhs/e15kzkCjpxqzE0osJsERX
+   91B7ui5oboXf8fh3oARyVuchXZRU3iHKVVLOhIrx0dQPL3HuCMB7vJKN6
    Q==;
 X-IronPort-AV: E=Sophos;i="5.95,221,1661788800"; 
-   d="scan'208";a="327074532"
+   d="scan'208";a="327074535"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 28 Oct 2022 19:54:07 +0800
-IronPort-SDR: /QsOk286V5729opmM7zkDQx2JLbTGH3tq5DveeJhqwB/4h6Qh6c6eCLDsl0OU03qHDTbthIKvQ
- r/R4fNJPxzPYjQyh5AxH2izMxYR2AGyViiI0dK+zy+87ECQwUQUb66hW/bvaQdfIb1d/Cq4HGq
- ylz75X11frGDROjtRneaapunDhzPuIUx/j0uzvUsIMfusPqnmy2znBCe+cjLbQ9q3tyIV3L89z
- VErZIerR83+YvR8zYUVfsVQeEsIIbw9A/aymwybRotVpPjFypABHDV+6RDUoPB1nXogQxw2KDi
- 7jb2OH1J5OhKCSUIoygSeIVV
+  by ob1.hgst.iphmx.com with ESMTP; 28 Oct 2022 19:54:09 +0800
+IronPort-SDR: JUg3y9mL1s0gAoBsHhcB33d4D59eJN1+5E3i5XEn6V7uAAg0slWIEJ9Mm7jOl4QYUkaGi+eYAd
+ 2x5kLwUnN2lOUTd7eRtQNvT6lXtfb5cadOhjsAvVPil3wME7pDaOU49DAJ5n2ws2h5D+wuWu0L
+ IsyhmaRit/GkfZDydMghfhWz9KrRMba1gxISPuJPcxHtlwuCyL1KHQC/oX7SB4IBdvDQ7kEH6D
+ 7ZRjam7RtNOwc0+CpaDCCSlrowrs6ixrUcXiSi234pIqr18VOOTgX2lD1xrbi6KVFteaHpySe/
+ IvzcPQ2QX2Bp5GIUv+cRGaWo
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 28 Oct 2022 04:07:44 -0700
-IronPort-SDR: Q9hWRqhgoSjqIpo3QDevtEaFfjvZZoLwKSWl3K5AAatOXyerQlqWkeOr6mSn6AYeuCUk1BPxEz
- 1RnTAW59CM562Mqr1L2MxYb5Qlv5Dhmqax0K00I2uELotK83KG4uPfmqVKBlvzrulNVGqVgskM
- rUzf1VFVRSHOf/ggDzsebSaiSc25P9F7PTaYfDxYTDGIPCEcvIol/Q1i5LYp1X8CWn+ZI9E1T6
- ynyaAhAcHzM+xMMxkqUrq9BUcNzBRK4C7HOpooNrHSQyM3YSzqkwf8C6xI+GqRRYU1D+cpCCz7
- mx8=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 28 Oct 2022 04:07:45 -0700
+IronPort-SDR: YjwKn8+HjbURHfzFq3FRdLb5B+zMHLIGQhEjt/paresZ2WL8cAdtl/BTD8uCZLEh4roKFL1+OR
+ wcGkS/+m+iyO4Y0bZ4rFtzXK3Blz50oo15F/tE7JcvOvxdeySsayQPmNiXmfiwH93uOxBRUhmW
+ zMxBTe2Mmte6dMZGBpdYlX4oTFtC/Sn1O2rFF1KpgpYOaXorBlInhlxNPci8OohC9k2w8FPo49
+ Ws7NDG8NZghiLzAI3aTYCmstNnhUNglhMipWBa1u1YwZx5abYXMcvIvjL3WgZGCAU2PB2sgOgm
+ dyc=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 28 Oct 2022 04:54:07 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 28 Oct 2022 04:54:08 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v3 08/13] zbd: prevent experimental verify with zonemode=zbd
-Date:   Fri, 28 Oct 2022 20:53:49 +0900
-Message-Id: <20221028115354.971715-9-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v3 09/13] t/zbd: fix test case #33 for block size unaligned to zone size
+Date:   Fri, 28 Oct 2022 20:53:50 +0900
+Message-Id: <20221028115354.971715-10-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20221028115354.971715-1-shinichiro.kawasaki@wdc.com>
 References: <20221028115354.971715-1-shinichiro.kawasaki@wdc.com>
@@ -65,128 +65,60 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-When the experimental_verify option is specified, fio does not record
-normal I/O metadata to create verify read unit. Instead, fio resets file
-status after normal I/O and before verify start, then replay I/Os to
-regenerate write unit and adjust it to verify read. This I/O replay does
-not work for zonemode=zbd since zone status needs to be restored at
-verify start to the status before the normal I/O. However, such status
-restore moves write pointers and erases data pattern for verify.
+Recent fix of zonemode=zbd support for block size unaligned to zone size
+unveiled that the test case #33 has two issues.
 
-Check that the options experimental_verify and zonemode=zbd are not
-specified together and error out in case they are both specified. Also
-remove the helper function zbd_replay_write_order() which is called from
-zbd_adjust_block(). This function adjusts verify read unit to meet zone
-write restrictions for experimental verify, but such adjustment does not
-work because zone status is not restored before verify start.
+First issue is test preparation. Before the fix, write was done to only
+to the first zone due to a bug in zone selection which happens when
+block size is not a divisor of zone size. Then, status of second zone
+did not affect. After the fix, write count to the zones may vary if the
+second zone has almost full status since the zone is skipped from write
+target. Fix this by resetting the write target zones.
+
+Second issue is expected written data size. The test case checks that
+the written data size is larger than the io_size option value. This
+expectation was fine before the fix because data write was repeated in
+do_io() and the limit was checked with io_issue_bytes_exceeded(),
+which triggers loop break when written data is larger than io_size.
+However, after the fix, the limit is checked with keep_running() in
+thread_main(). According to code and block comment in keep_running(),
+fio job terminates even when written data size is smaller than io_size
+if the gap is smaller than maximum IO size. Then the expected written
+data size is the largest multiple of block size smaller than or equal to
+the io_size. This io_size check change resulted in the test case
+failure. Avoid the failure by fixing the expected written data size
+calculation.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 46 ++++++----------------------------------------
- zbd.h |  2 --
- 2 files changed, 6 insertions(+), 42 deletions(-)
+ t/zbd/test-zbd-support | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index 54bbc82b..6bc6a5dc 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -291,7 +291,6 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index cdc03f28..debe3763 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -813,7 +813,8 @@ test33() {
+     local bs io_size size
+     local off capacity=0;
  
- 	z->wp = z->start;
--	z->verify_block = 0;
- 
- 	td->ts.nr_zone_resets++;
- 
-@@ -1085,6 +1084,11 @@ int zbd_setup_files(struct thread_data *td)
- 	if (!zbd_verify_bs())
- 		return 1;
- 
-+	if (td->o.experimental_verify) {
-+		log_err("zonemode=zbd does not support experimental verify\n");
-+		return 1;
-+	}
+-    prep_write
++    [ -n "$is_zbd" ] && reset_zone "$dev" -1
 +
- 	for_each_file(td, f, i) {
- 		struct zoned_block_device_info *zbd = f->zbd_info;
- 		struct fio_zone_info *z;
-@@ -1521,42 +1525,6 @@ out:
- 	return z;
+     off=$((first_sequential_zone_sector * 512))
+     capacity=$(total_zone_capacity 1 $off $dev)
+     size=$((2 * zone_size))
+@@ -822,7 +823,7 @@ test33() {
+     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
+ 		   --size=$size --io_size=$io_size --bs=$bs	\
+ 		   >> "${logfile}.${test_number}" 2>&1 || return $?
+-    check_written $(((io_size + bs - 1) / bs * bs)) || return $?
++    check_written $((io_size / bs * bs)) || return $?
  }
  
--/* The caller must hold z->mutex. */
--static struct fio_zone_info *zbd_replay_write_order(struct thread_data *td,
--						    struct io_u *io_u,
--						    struct fio_zone_info *z)
--{
--	const struct fio_file *f = io_u->file;
--	const uint64_t min_bs = td->o.min_bs[DDIR_WRITE];
--
--	if (!zbd_open_zone(td, f, z)) {
--		zone_unlock(z);
--		z = zbd_convert_to_open_zone(td, io_u);
--		assert(z);
--	}
--
--	if (z->verify_block * min_bs >= z->capacity) {
--		log_err("%s: %d * %"PRIu64" >= %"PRIu64"\n",
--			f->file_name, z->verify_block, min_bs, z->capacity);
--		/*
--		 * If the assertion below fails during a test run, adding
--		 * "--experimental_verify=1" to the command line may help.
--		 */
--		assert(false);
--	}
--
--	io_u->offset = z->start + z->verify_block * min_bs;
--	if (io_u->offset + io_u->buflen >= zbd_zone_capacity_end(z)) {
--		log_err("%s: %llu + %llu >= %"PRIu64"\n",
--			f->file_name, io_u->offset, io_u->buflen,
--			zbd_zone_capacity_end(z));
--		assert(false);
--	}
--	z->verify_block += io_u->buflen / min_bs;
--
--	return z;
--}
--
- /*
-  * Find another zone which has @min_bytes of readable data. Search in zones
-  * @zb + 1 .. @zl. For random workload, also search in zones @zb - 1 .. @zf.
-@@ -1907,10 +1875,8 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 
- 	switch (io_u->ddir) {
- 	case DDIR_READ:
--		if (td->runstate == TD_VERIFYING && td_write(td)) {
--			zb = zbd_replay_write_order(td, io_u, zb);
-+		if (td->runstate == TD_VERIFYING && td_write(td))
- 			goto accept;
--		}
- 
- 		/*
- 		 * Check that there is enough written data in the zone to do an
-diff --git a/zbd.h b/zbd.h
-index 0a73b41d..d425707e 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -25,7 +25,6 @@ enum io_u_action {
-  * @start: zone start location (bytes)
-  * @wp: zone write pointer location (bytes)
-  * @capacity: maximum size usable from the start of a zone (bytes)
-- * @verify_block: number of blocks that have been verified for this zone
-  * @mutex: protects the modifiable members in this structure
-  * @type: zone type (BLK_ZONE_TYPE_*)
-  * @cond: zone state (BLK_ZONE_COND_*)
-@@ -39,7 +38,6 @@ struct fio_zone_info {
- 	uint64_t		start;
- 	uint64_t		wp;
- 	uint64_t		capacity;
--	uint32_t		verify_block;
- 	enum zbd_zone_type	type:2;
- 	enum zbd_zone_cond	cond:4;
- 	unsigned int		has_wp:1;
+ # Write to sequential zones with a block size that is not a divisor of the
 -- 
 2.37.1
 
