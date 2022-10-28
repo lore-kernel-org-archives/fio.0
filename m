@@ -2,198 +2,201 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79126FA3742
-	for <fio@archiver.kernel.org>; Thu, 27 Oct 2022 12:03:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E5FEECAAA1
+	for <fio@archiver.kernel.org>; Fri, 28 Oct 2022 02:11:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235484AbiJ0MDk (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 27 Oct 2022 08:03:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49584 "EHLO
+        id S235514AbiJ1CLf (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 27 Oct 2022 22:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235506AbiJ0MDi (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Oct 2022 08:03:38 -0400
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E8A783F1C
-        for <fio@vger.kernel.org>; Thu, 27 Oct 2022 05:03:35 -0700 (PDT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20221027120332epoutp04bdd82904422077562c370f75734acbf4~h63Ij4DAP0381503815epoutp04F
-        for <fio@vger.kernel.org>; Thu, 27 Oct 2022 12:03:32 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20221027120332epoutp04bdd82904422077562c370f75734acbf4~h63Ij4DAP0381503815epoutp04F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1666872212;
-        bh=sROe2YaKPvT2m0+tQayOOmtITXxjPN5v/QkJOUumHH4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T+7wijpbNRrQZIqeaS+5QbaIYIrxJZ7UYXVJPTtgvUN2qB32YRJpWEfW/WhssJNTN
-         22h9823WH2aRq0MGxxjlLYhPMeIEYH1EQbGAkQ6BidJqc7o1aqfDchnaBiyTSDnZa0
-         BBWiT9EEEChsheQz/1UeNwEVbhXSF31icWTMPmR8=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
-        20221027120331epcas5p2cde72c414a5392981fdab94a7ee0daad~h63HzaPI42583425834epcas5p27;
-        Thu, 27 Oct 2022 12:03:31 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.175]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 4Mykpn5zVcz4x9Ps; Thu, 27 Oct
-        2022 12:03:29 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        15.95.01710.1937A536; Thu, 27 Oct 2022 21:03:29 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20221021114407epcas5p20666d7d1e4a0f8b65a09e4df02e99187~gEudsp2EQ1251612516epcas5p2K;
-        Fri, 21 Oct 2022 11:44:07 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20221021114407epsmtrp25605511a87a1f961e918699e315a5d68~gEudr8qrk2098020980epsmtrp2j;
-        Fri, 21 Oct 2022 11:44:07 +0000 (GMT)
-X-AuditID: b6c32a49-a41ff700000006ae-86-635a7391f320
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        8C.9A.14392.70682536; Fri, 21 Oct 2022 20:44:07 +0900 (KST)
-Received: from test-zns.sa.corp.samsungelectronics.net (unknown
-        [107.110.206.5]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20221021114406epsmtip12ee33544437989433d9fe04c028f7cb1~gEuctab1l0497804978epsmtip1o;
-        Fri, 21 Oct 2022 11:44:05 +0000 (GMT)
-From:   Ankit Kumar <ankit.kumar@samsung.com>
-To:     axboe@kernel.dk
-Cc:     fio@vger.kernel.org, vincentfu@gmail.com,
-        Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 2/2] io_uring: update documentation and small fix for
- sqthread_poll
-Date:   Fri, 21 Oct 2022 17:02:36 +0530
-Message-Id: <20221021113236.32340-3-ankit.kumar@samsung.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20221021113236.32340-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrOKsWRmVeSWpSXmKPExsWy7bCmpu7E4qhkg11XdCzWXPnNbrH6bj+b
-        xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJyrbJSE1MSS1SSM1Lzk/JzEu3VfIO
-        jneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvMAVqopFCWmFMKFApILC5W0rezKcovLUlVyMgv
-        LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOmLzTv+CvXMWLT8tZGxi7JbsYOTkk
-        BEwk/pzawQpiCwnsZpRY/TCpi5ELyP7EKPHhyAuoxDdGif0HvGEa+jZfYIEo2sso0dk8kxHC
-        aWWSmN6xlx2kik1AW+LV2xvMILaIgLDE/o5WFhCbWSBU4uS1L2A1wkB298uvTCA2i4CqxOP7
-        3WwgNq+AjcSdPRPZILbJS6zecABsDqeArcTGronMEPFl7BKHZ3FC2C4S25q2skDYwhKvjm9h
-        h7ClJD6/2ws1J1ti08OfTBB2gcSRF71Qc+wlWk/1A9kcQLdpSqzfpQ8RlpWYemodE8TJfBK9
-        v59AtfJK7JgHY6tK/L13G2qttMTNd1ehbA+JnUdWsELCZAKjRMO91ywTGOVmIaxYwMi4ilEy
-        taA4Nz212LTAMC+1HB5lyfm5mxjBKUrLcwfj3Qcf9A4xMnEwHmKU4GBWEuE9eyM8WYg3JbGy
-        KrUoP76oNCe1+BCjKTD8JjJLiSbnA5NkXkm8oYmlgYmZmZmJpbGZoZI47+IZWslCAumJJanZ
-        qakFqUUwfUwcnFINTD7Kx5uPcei90C1/lDO79fGBxFjj6Yfqzk6S6vn6YfK+Gys025bZVtTe
-        vnXnmrrdxAxOsTCJfSzKXIuX/Mib4Tqj7fmOhen8Cl3uDrHqRmeD1R6fS9kYuFpvx9054V5T
-        zJ4s0413Kr0utm2l6/pXsVukI5XFNzBZn0pPPuVTLPZnZdKPW1FeuamZQrrywqxueuXlAWw5
-        NyIOv4+UuJNpE1h7YLMPr0eKoXHv7BVnJt+0PnwhQXGGV73aroPe8uukWMum8564vND3pWp6
-        8hfNe3Xlu5UTwmK/SShE2rSpeJl4l8/ulvl6dOrLKZ9T41/mOn4V6XZoUYhY+l521sS0N6ra
-        v3jPTixl31/XZiOuxFKckWioxVxUnAgALbRPh9oDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrPJMWRmVeSWpSXmKPExsWy7bCSnC57W1CywfvtXBZrrvxmt1h9t5/N
-        4uOsF8wWG9oEHVg8ds66y+5x+WypR9+WVYwenzfJBbBEcdmkpOZklqUW6dslcGVM3ulf8Feu
-        4sWn5awNjN2SXYycHBICJhJ9my+wdDFycQgJ7GaU2PDrMFsXIwdQQlpi4fpEiBphiZX/nrND
-        1DQzSRw/c5wNJMEmoC3x6u0NZhBbBKhof0crC4jNLBAuMf3AZEYQW1ggWKLh5R0wm0VAVeLx
-        /W6wXl4BG4k7eyayQSyQl1i94QDYHE4BW4mNXRPBbCGgmvuXzzJOYORbwMiwilEytaA4Nz23
-        2LDAMC+1XK84Mbe4NC9dLzk/dxMjOIy0NHcwbl/1Qe8QIxMH4yFGCQ5mJRFei7qgZCHelMTK
-        qtSi/Pii0pzU4kOM0hwsSuK8F7pOxgsJpCeWpGanphakFsFkmTg4pRqYbF/NWzfh3PkL5yQv
-        lNtNSFNYmfElpSnh4+WX/JzPlgY2nxCLLz7dbjF9mUrUfLea22L/JFwY97uUigT/qHE2M+h4
-        uE2RW8tM/MAS26kH1kkciFstVHfiVUr4kfdCnx03OAdu+sgSwGRSpsP8/JDcph6WGy635tyL
-        iz2oXnvxsZZqxMOLO2KSLgju+WziV38ipF55waU1kY8mKl1oMekTvqN/eHuimd3fmswJt96F
-        XmLwWXz/sJl5U8A3jlK9w9FPDvRP//RH6z9zwNwImR5306sSgk5G7Vd2uM3YkP7xifWUiWtL
-        lNeq5ItW8Bmk2Zxdv+C5VcPnzM+ruX/3uy8XXMbBXcpz/XqOgOCF+Bc5SizFGYmGWsxFxYkA
-        XgiDZJICAAA=
-X-CMS-MailID: 20221021114407epcas5p20666d7d1e4a0f8b65a09e4df02e99187
-X-Msg-Generator: CA
+        with ESMTP id S235708AbiJ1CLb (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Oct 2022 22:11:31 -0400
+Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90A0A5999
+        for <fio@vger.kernel.org>; Thu, 27 Oct 2022 19:11:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1666923087; x=1698459087;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=sRPb5Iy9iZCqNdqfnkKhhH/aS+YQXroFuLNlyB5Fumw=;
+  b=i/n0qKxO7gRlJLzAawpLvwVBKQjGKNDu/lCu+lsC7wCCwAIgpLarCDFR
+   lXYWIeeLPml2lUMOqMtxG3MM0cnqjGD7GzGCIChhmvzh7E+WP+oLfMUSS
+   ZI9qp2coxuAgM2rlf6HJvxp4RPWnUQXPN1OgoO8xTMrc9aF/p1Oj60d8M
+   PNOE67pwqpUAy+1G0lPs/txM0hM3VZ+R+W/lJQlIfjZeS+WDIGe9Uq2Ce
+   92g39qjppVBjED3a3z6SKjmGi3DZFWvjWGPCemkxdH7FM2ynMDpNP9z3v
+   7mGck/jjUXLHf+4ROm8OQAgAr8mEDbVeyRy3dIFacqWMMKSDYqf5N3c9t
+   A==;
+X-IronPort-AV: E=Sophos;i="5.95,219,1661788800"; 
+   d="scan'208";a="214930680"
+Received: from mail-dm6nam12lp2172.outbound.protection.outlook.com (HELO NAM12-DM6-obe.outbound.protection.outlook.com) ([104.47.59.172])
+  by ob1.hgst.iphmx.com with ESMTP; 28 Oct 2022 10:11:26 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z4yjZXCB/+VVPQ0UKBW7BAf68L79eTDzDw/UVRTqzC9DiY+QaZU3Yy4JCpQUazx1zZ4AZvYSWK7tCopizf3+SfoQFovCTqea9ofhuhEyQEA36AZvF4CJ/bBpLDg9crmXVkkjDBoegprvCxvLbpKtMWtB+AejHXFuzvhIRpizKWiEPRtaSBXU5qIhaNlLyfl6xYKcBxtxcStvvv1p7h7Vl9qfqSJHKLlw7JmsEvuMEUg8R1g5a+Sdk/R9G0Gv0UrqdVyL6QMWXNQYituBRwp+71pZAsCrdSlRRAwxp+Z1EMXAzJhJtIeeB/nnNHbn9AR3uO74FEuvtN98Utvec9AgIA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=sRPb5Iy9iZCqNdqfnkKhhH/aS+YQXroFuLNlyB5Fumw=;
+ b=GSYcy25GmWSwSQrW/ZND0pnNb18b8exYrbAdmaSUeAgE5WNAK0T+WYudXI/n4sS/1rFx1XHNUkYqp8D1Qq5wW3uA05i36v8lBaJNlLbk4MIUBFTPOAtaA8NhfImZxE68S4rRsksq4mfRrqPhhL6MzArR/YUvDdpjF+MUpswbm8nbx4LKD4OrhIrprZwPw2JFCZSdlX7EeSuoySBPGTuId83QDRZyDmvBWEEryiSeKUeWnT9LD0m3x64tgrxjpq1xDUgD3nel9Zt1wWNZnFe8MLxOyk2+A0EL1/2u/ludbNv1j3zFtnBw4JIMtKztzuOUhAOXUjm1KexeErP5YVGfyQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=sRPb5Iy9iZCqNdqfnkKhhH/aS+YQXroFuLNlyB5Fumw=;
+ b=ujH/mWH/hRMNi+zwNe+YNjQ3F3fYc3TgYADNlc7gCEvmoEn8n/58wr9n4EypDHDtufIQGGC9OOeSHyp/FItSWzm39mLmGFpWv9AQkKt0VG2Q2LCbzQ3+hxOjo+KKDXvg/LrNfIjZhASdX4rwbwL02RsvOdaDzDen4nBmrb6s8ag=
+Received: from MN2PR04MB5951.namprd04.prod.outlook.com (2603:10b6:208:3f::13)
+ by MWHPR0401MB3548.namprd04.prod.outlook.com (2603:10b6:301:79::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.28; Fri, 28 Oct
+ 2022 02:11:24 +0000
+Received: from MN2PR04MB5951.namprd04.prod.outlook.com
+ ([fe80::51df:fdd7:7c49:12ee]) by MN2PR04MB5951.namprd04.prod.outlook.com
+ ([fe80::51df:fdd7:7c49:12ee%5]) with mapi id 15.20.5723.032; Fri, 28 Oct 2022
+ 02:11:23 +0000
+From:   Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        "vincentfu@gmail.com" <vincentfu@gmail.com>
+CC:     Niklas Cassel <Niklas.Cassel@wdc.com>,
+        "damien.lemoal@opensource.wdc.com" <damien.lemoal@opensource.wdc.com>
+Subject: Re: [PATCH v2 03/13] zbd: add zbd_zone_remainder() helper function
+Thread-Topic: [PATCH v2 03/13] zbd: add zbd_zone_remainder() helper function
+Thread-Index: AQHY6cmcRC81BuOGX06VzvMR5an6Z64jEZOA
+Date:   Fri, 28 Oct 2022 02:11:23 +0000
+Message-ID: <75f4b490287caa45a46af0a31db9608426c767c5.camel@wdc.com>
+References: <20221027060139.952508-1-shinichiro.kawasaki@wdc.com>
+         <20221027060139.952508-4-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20221027060139.952508-4-shinichiro.kawasaki@wdc.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.44.4-0ubuntu1 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: MN2PR04MB5951:EE_|MWHPR0401MB3548:EE_
+x-ms-office365-filtering-correlation-id: 1fadc96c-4dbc-42a4-ced5-08dab889b67f
+wdcipoutbound: EOP-TRUE
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: G340eOC5f/CH4PWHD7mQeAD6IdzMp9/FvxaK+/+X0sYtU1nv65Sw/+diKO127bQL58F5Mhk0yLrF0ztLCmThuhw6NSMwaCNowTbdpeX2sHQUoelOrU/1uZtg1UUpcC43j6L4eAmRZL4nexv78RjWgTIGZauFzWhoUAdi1hWpaY/ILHx9Dif5d+v4f2KEiRrRRbfl6PgUYhEcVm8ZQt4aIZhIjOs0z9r3+oACHkYe0vSLcl75bfzO+vuSBe4I0VlLDlZwV3D8N0RFWcwCsw98OOaTod1pWk4xTfwfbTXQj67hn/QTNwzOT8kTTZSmLL/pCrgnYngvgy1uTQQPsQ95ZqwnU/TU/2kAWHNm6/pymx74PGeEO3ic8LQiboAUdO6kc3ExiCcac9axoOIqFJ6+Hw1r5PZk1o1H+pBO+YyBoqreB4y52wH4y8yqhhfqvGNmGEuUazi7Fd4YPvsqOwjtImPFALLEMRbJmvSIgPyJMuDjqIQtjUz6xcZVHIa/9hp5BBwD6Sxu1elE1yRWmNJ2G6sDIc//K5+lk8jaXH/zx1KDfbkFgorpoSyarxv2GqqTJNgy8iy95O0+e2dWYjT5DkyMa7G8r1YTctPvrv4x02+uZWXjJ2g6xiOUiMEwfI8wYULtbUklOzldeqrK1W9jQXDRekcUbLlALQrPdJx969Qf1/I3rH5sk+bkyhqhDIewJUcA98wfndxMM+6uohbvKSsUVJxgJuPYLRKXwmNPlwfEGStj6y+rpGi4iqmbkC90gHSBdMzJfQpkuE3/K3qpXQ==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB5951.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(366004)(396003)(346002)(376002)(39860400002)(136003)(451199015)(8936002)(6512007)(5660300002)(6506007)(26005)(186003)(82960400001)(122000001)(2616005)(4001150100001)(38100700002)(2906002)(36756003)(41300700001)(38070700005)(83380400001)(478600001)(86362001)(316002)(64756008)(8676002)(6486002)(54906003)(66946007)(76116006)(66556008)(66446008)(66476007)(91956017)(110136005)(71200400001)(4326008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?QnJESkY1Y0VaWmlGK1pYeFVnVXJ0eC9iVk02YzJrTlR3VzEzT3hCcWp4WVN2?=
+ =?utf-8?B?WU9XTTUyQnZRQ2dEaU9XVWliMlNGczZ6a3NTd2E5Z09uUmxPMHl6YnNnS0pU?=
+ =?utf-8?B?bXlocHA0NDZFdGp3SXdkeWRkaEdlVitCRkIreTdZc0tjUkRNdFpIRFZpVUta?=
+ =?utf-8?B?cFJWcmt4UStPWXZRQ2xYNlJYTzh3SnlnQk9rVlNaTHZJb0gzbDQrSzNya0t5?=
+ =?utf-8?B?ckI3SVZrQXRXdjdpbEVRS0VBaURpcGlyb0d4eWVrbVkrK2JkbWZScGdNM2Jx?=
+ =?utf-8?B?dzZPbVo2OEhLdC9PQVVoTlZCcnNjT0xwazRqeVRObzJ3YnF5TitkWjNjbmt1?=
+ =?utf-8?B?MFk2RmJXWGFoWWh6dUFISlhKUHBGaUI2d1pGZTgxVUkvdFhqTjY4UjM0UUpT?=
+ =?utf-8?B?b0VoaUs5SlZKUHhIZzh5b3lnalRQSmpTcmZFOWRoa1U3YkNaZjRyYUtPWGta?=
+ =?utf-8?B?L0JFZVQzcElIRlRnNStnYWtDV1JSdS9EYjN6ZnpjSm9zTTF5VUtCb2ZqNHVX?=
+ =?utf-8?B?OXUyMVRFUDF5KzlnR1FkdnVSMUNkSXVSQkp6dXFDa0pWYThBRjk1SmFIaFAy?=
+ =?utf-8?B?WVFCdVN0bUxCOGVsOUhENGd5QkhGWnZUMW0yeXVQdG42THVkYUl4NTRnWmhk?=
+ =?utf-8?B?bFJURCtrQkZrRXJLT0ZKUTdRWXgvNnZwVHRLbDMrQVRSajlqUmcvRm8xTUtH?=
+ =?utf-8?B?Vm0wUy9mbWRkRzlUYTgxQ1VqVC95ZzFaMjJqY3UwaXd3SHpFbEYrVmdCWkty?=
+ =?utf-8?B?bys3em42eUI2b3paZGNpbkV1MXNQdXR5SytRanlUQWlPdEdURGxMQUU3TFFZ?=
+ =?utf-8?B?UEh4cG85d3VOYlJZWjNUbHRUOTZlNkJYZEZwQWdZYjNvdVRsQkRQdkF1RGxX?=
+ =?utf-8?B?ZUl6azhOcnE3ajhkcW1OZGRtTlZtVmh2cUw5NFhhOGhzcU1uT3ZVbjBaUyt2?=
+ =?utf-8?B?ajN0SlVMbG5MaXZkUWdYbElTOHFYVlVUVlJwc3ptMkphQmtqZjBrUzlFM2Uv?=
+ =?utf-8?B?S3dzbnE5ZUZlSjFhcFlBV0s5eGVmNnBaa2RwclF3NlpuZ2FibFAzVDcwalRQ?=
+ =?utf-8?B?NCswVnBZWlhDS2llQ3AyZzZSOElUeHBIRUFtejZQVldHNjlOdTRiK05Yamlj?=
+ =?utf-8?B?R1JyQzFTNDNPcmtNMXpyZExjQnpFNEVUWjExYU1qZG92SVA2VmFBT0lHQm1X?=
+ =?utf-8?B?dlhlRTdCYTZMRHBXNGhCZVJ1UUQ2ckZESGI2a3lqWnk3NmNBeTMreWJaL2NW?=
+ =?utf-8?B?cWk0YWhhVXhqUlJHZWFpUmtGSGlCZWFubjAzNDdxLzhNTWRRb0oycTdhRWxS?=
+ =?utf-8?B?Q3A5ZE1GaDF5aXBSZDF0anAzdGRXM3RxRUVNKzBCYUgwWlFvS1V0eElwTnZW?=
+ =?utf-8?B?ZlFtakNDMEYxVWFtTFlwelludkhySmdMMlIzR1E3Tm52aGpEd0VJNGQvRnBN?=
+ =?utf-8?B?M1ozMTRIR2tReEhvOXFsVlBJQTdkTEtVSUlrcVRQQzVTTHU0QWg1dmtSN1Ew?=
+ =?utf-8?B?N05xY0VDOU5mVmhHUlVzMWRqMzQybnVXZXJnQ3ZKcGNvaXlFK0JoMlRDWU1S?=
+ =?utf-8?B?UUJDV25tc0ZKN0VUaTlJbStkSG5yMk9CbTF1Z3IzTHlIeTdmRUxKMTJzaWVO?=
+ =?utf-8?B?alNGaFVxNzgrTG1EVHVBTmUyQjFqdCt0U1VTOEFDdEE4eEM1YkRRUXpnOHl3?=
+ =?utf-8?B?SThmWk13TU1Bd3JobzZMcXlja0RZeDIzL3Jsb2QwZzB4Q1RZT05WZXZCSENp?=
+ =?utf-8?B?Z1NqdVYralZtcEJYM093bldUY1pLQ1ZBQVZNYW5nOEQ5LzdkNk1SUkR6UE5G?=
+ =?utf-8?B?UFJDMnZoZnFncU90K1BYQ1dVQ2tiZXpHY0FUM1RYRlY3Ump1aTFORVFmVFVL?=
+ =?utf-8?B?QnovcFJzZ253TjZ4TnF2bkIxMVFyd0hXR2ZvRExjZGkyKzFUUWFaTzI0dFFK?=
+ =?utf-8?B?bGhMTFBOOXZYalV1dG5aY2NOdnM0TTVmZ1pXcS9PMUxTMlNqdzY1cS9sbGZs?=
+ =?utf-8?B?Wk5rR29mdnZhVE5HZitGYkxRREZEWURwTllDbU95ZjR2K0xIZENJUllEaFor?=
+ =?utf-8?B?M0wyaWszbHo1V1FVQ3ZhL3lCaHZoODNHeXZIeU14aDNrK05kckY4blc4SmxK?=
+ =?utf-8?B?UHBBSDVFTHhCMVp6ekpnOGxQR2p5WlBINzhoZWh5VmxrL0dXVkkwUjc3RGpt?=
+ =?utf-8?B?dFE9PQ==?=
 Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20221021114407epcas5p20666d7d1e4a0f8b65a09e4df02e99187
-References: <20221021113236.32340-1-ankit.kumar@samsung.com>
-        <CGME20221021114407epcas5p20666d7d1e4a0f8b65a09e4df02e99187@epcas5p2.samsung.com>
+Content-ID: <05E18ACE3AEC5D4E951456C8E15B7337@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR04MB5951.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1fadc96c-4dbc-42a4-ced5-08dab889b67f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Oct 2022 02:11:23.7581
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: N60JcnxciNa6wO4WjC/FLqFYlBlHqL/IrH4O+GXsqWWO8qZcbEveFLYK7Z/5gcJjNPOGwRSh0W9ia6PlGQ4xiw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR0401MB3548
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-type for sqthread_poll should be FIO_OPT_STR_SET, as this only
-requires it to be set. This also fixes the issue:
-https://github.com/axboe/fio/issues/927
-
-Update the HOWTO and man page to specify the missing types for all
-the remaining io_uring options.
-
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
----
- HOWTO.rst          | 6 +++---
- engines/io_uring.c | 2 +-
- fio.1              | 6 +++---
- 3 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index e89d05f0..4b6ae4cc 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2274,7 +2274,7 @@ with the caveat that when used on the command line, they must come after the
- 	map and release for each IO. This is more efficient, and reduces the
- 	IO latency as well.
- 
--.. option:: nonvectored : [io_uring] [io_uring_cmd]
-+.. option:: nonvectored=int : [io_uring] [io_uring_cmd]
- 
- 	With this option, fio will use non-vectored read/write commands, where
- 	address must contain the address directly. Default is -1.
-@@ -2301,7 +2301,7 @@ with the caveat that when used on the command line, they must come after the
- 	This frees up cycles for fio, at the cost of using more CPU in the
- 	system.
- 
--.. option:: sqthread_poll_cpu : [io_uring] [io_uring_cmd]
-+.. option:: sqthread_poll_cpu=int : [io_uring] [io_uring_cmd]
- 
- 	When :option:`sqthread_poll` is set, this option provides a way to
- 	define which CPU should be used for the polling thread.
-@@ -2351,7 +2351,7 @@ with the caveat that when used on the command line, they must come after the
- 	When hipri is set this determines the probability of a pvsync2 I/O being high
- 	priority. The default is 100%.
- 
--.. option:: nowait : [pvsync2] [libaio] [io_uring]
-+.. option:: nowait=bool : [pvsync2] [libaio] [io_uring] [io_uring_cmd]
- 
- 	By default if a request cannot be executed immediately (e.g. resource starvation,
- 	waiting on locks) it is queued and the initiating process will be blocked until
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 6906e0a4..3c656b77 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -226,7 +226,7 @@ static struct fio_option options[] = {
- 	{
- 		.name	= "sqthread_poll",
- 		.lname	= "Kernel SQ thread polling",
--		.type	= FIO_OPT_INT,
-+		.type	= FIO_OPT_STR_SET,
- 		.off1	= offsetof(struct ioring_options, sqpoll_thread),
- 		.help	= "Offload submission/completion to kernel thread",
- 		.category = FIO_OPT_C_ENGINE,
-diff --git a/fio.1 b/fio.1
-index 4324a975..9e33c9e1 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2063,7 +2063,7 @@ release them when IO is done. If this option is set, the pages are pre-mapped
- before IO is started. This eliminates the need to map and release for each IO.
- This is more efficient, and reduces the IO latency as well.
- .TP
--.BI (io_uring,io_uring_cmd)nonvectored
-+.BI (io_uring,io_uring_cmd)nonvectored \fR=\fPint
- With this option, fio will use non-vectored read/write commands, where address
- must contain the address directly. Default is -1.
- .TP
-@@ -2092,7 +2092,7 @@ available items in the SQ ring. If this option is set, the act of submitting IO
- will be done by a polling thread in the kernel. This frees up cycles for fio, at
- the cost of using more CPU in the system.
- .TP
--.BI (io_uring,io_uring_cmd)sqthread_poll_cpu
-+.BI (io_uring,io_uring_cmd)sqthread_poll_cpu \fR=\fPint
- When `sqthread_poll` is set, this option provides a way to define which CPU
- should be used for the polling thread.
- .TP
-@@ -2115,7 +2115,7 @@ than normal.
- When hipri is set this determines the probability of a pvsync2 I/O being high
- priority. The default is 100%.
- .TP
--.BI (pvsync2,libaio,io_uring)nowait
-+.BI (pvsync2,libaio,io_uring,io_uring_cmd)nowait \fR=\fPbool
- By default if a request cannot be executed immediately (e.g. resource starvation,
- waiting on locks) it is queued and the initiating process will be blocked until
- the required resource becomes free.
--- 
-2.17.1
-
+T24gVGh1LCAyMDIyLTEwLTI3IGF0IDE1OjAxICswOTAwLCBTaGluJ2ljaGlybyBLYXdhc2FraSB3
+cm90ZToKPiBBZGQgdGhlIGhlbHBlciBmdW5jdGlvbiB6YmRfem9uZV9yZW1haW5kZXIoKSwgd2hp
+Y2ggcmV0dXJucyBieXRlcyBjYW4gYmUKPiB3cml0dGVuIHRvIHRoZSB6b25lLiBVc2UgdGhpcyBm
+dW5jdGlvbiB0byBpbXByb3ZlIHJlYWRhYmlsaXR5LiBJdCB3aWxsCj4gCgpOaXQ6IHRoZSAiYnl0
+ZXMgY2FuIGJlIHdyaXR0ZW4gdG8gdGhlIHpvbmUiIHBhcnQgY291bGQgYmUgcGhyYXNlZCBhIGJp
+dCBiZXR0ZXIgYnkKc2F5aW5nICJ0aGUgbnVtYmVyIG9mIGJ5dGVzIHRoYXQgYXJlIHN0aWxsIGF2
+YWlsYWJsZSBmb3Igd3JpdGluZyBiZWZvcmUgdGhlIHpvbmUKZ2V0cyBmdWxsIiBpbnN0ZWFkLgoK
+Cj4gYWxzbyBiZSB1c2VkIGluIHRoZSBmb2xsb3dpbmcgcGF0Y2guCj4gCj4gU2lnbmVkLW9mZi1i
+eTogU2hpbidpY2hpcm8gS2F3YXNha2kgPHNoaW5pY2hpcm8ua2F3YXNha2lAd2RjLmNvbT4KPiAt
+LS0KPiDCoHpiZC5jIHwgMjEgKysrKysrKysrKysrKysrKy0tLS0tCj4gwqAxIGZpbGUgY2hhbmdl
+ZCwgMTYgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvemJk
+LmMgYi96YmQuYwo+IGluZGV4IDYyN2ZiOTY4Li4zZTljNjZkOSAxMDA2NDQKPiAtLS0gYS96YmQu
+Ywo+ICsrKyBiL3piZC5jCj4gQEAgLTcwLDYgKzcwLDE4IEBAIHN0YXRpYyBpbmxpbmUgdWludDY0
+X3QgemJkX3pvbmVfY2FwYWNpdHlfZW5kKGNvbnN0IHN0cnVjdAo+IGZpb196b25lX2luZm8gKnop
+Cj4gwqDCoMKgwqDCoMKgwqDCoHJldHVybiB6LT5zdGFydCArIHotPmNhcGFjaXR5Owo+IMKgfQo+
+IMKgCj4gKy8qKgo+ICsgKiB6YmRfem9uZV9yZW1haW5kZXIgLSBSZXR1cm4gYnl0ZXMgY2FuIGJl
+IHdyaXR0ZW4gdG8gdGhlIHpvbmUuCj4gKyAqIEB6OiB6b25lIGluZm8gcG9pbnRlci4KPiArICov
+Cj4gK3N0YXRpYyBpbmxpbmUgdWludDY0X3QgemJkX3pvbmVfcmVtYWluZGVyKHN0cnVjdCBmaW9f
+em9uZV9pbmZvICp6KQo+ICt7Cj4gK8KgwqDCoMKgwqDCoMKgaWYgKHotPndwID49IHpiZF96b25l
+X2NhcGFjaXR5X2VuZCh6KSkKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJu
+IDA7Cj4gKwo+ICvCoMKgwqDCoMKgwqDCoHJldHVybiB6YmRfem9uZV9jYXBhY2l0eV9lbmQoeikg
+LSB6LT53cDsKPiArfQo+ICsKPiDCoC8qKgo+IMKgICogemJkX3pvbmVfZnVsbCAtIHZlcmlmeSB3
+aGV0aGVyIGEgbWluaW11bSBudW1iZXIgb2YgYnl0ZXMgcmVtYWluIGluIGEgem9uZQo+IMKgICog
+QGY6IGZpbGUgcG9pbnRlci4KPiBAQCAtODMsOCArOTUsNyBAQCBzdGF0aWMgYm9vbCB6YmRfem9u
+ZV9mdWxsKGNvbnN0IHN0cnVjdCBmaW9fZmlsZSAqZiwgc3RydWN0Cj4gZmlvX3pvbmVfaW5mbyAq
+eiwKPiDCoHsKPiDCoMKgwqDCoMKgwqDCoMKgYXNzZXJ0KChyZXF1aXJlZCAmIDUxMSkgPT0gMCk7
+Cj4gwqAKPiAtwqDCoMKgwqDCoMKgwqByZXR1cm4gei0+aGFzX3dwICYmCj4gLcKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoHotPndwICsgcmVxdWlyZWQgPiB6YmRfem9uZV9jYXBhY2l0eV9l
+bmQoeik7Cj4gK8KgwqDCoMKgwqDCoMKgcmV0dXJuIHotPmhhc193cCAmJiByZXF1aXJlZCA+IHpi
+ZF96b25lX3JlbWFpbmRlcih6KTsKPiDCoH0KPiDCoAo+IMKgc3RhdGljIHZvaWQgem9uZV9sb2Nr
+KHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIGNvbnN0IHN0cnVjdCBmaW9fZmlsZSAqZiwKPiBAQCAt
+NDQwLDcgKzQ1MSw3IEBAIHN0YXRpYyBib29sIHpiZF9vcGVuX3pvbmUoc3RydWN0IHRocmVhZF9k
+YXRhICp0ZCwgY29uc3QKPiBzdHJ1Y3QgZmlvX2ZpbGUgKmYsCj4gwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgKiBhbHJlYWR5IGluLWZsaWdodCwgaGFuZGxlIGl0IGFzIGEgZnVsbCB6
+b25lIGluc3RlYWQgb2YgYW4KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqIG9w
+ZW4gem9uZS4KPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAqLwo+IC3CoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoei0+d3AgPj0gemJkX3pvbmVfY2FwYWNpdHlfZW5k
+KHopKQo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBpZiAoIXpiZF96b25lX3JlbWFp
+bmRlcih6KSkKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqByZXMgPSBmYWxzZTsKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGdvdG8gb3V0
+Owo+IMKgwqDCoMKgwqDCoMKgwqB9Cj4gQEAgLTEzNjgsNyArMTM3OSw3IEBAIGZvdW5kX2NhbmRp
+ZGF0ZV96b25lOgo+IMKgwqDCoMKgwqDCoMKgwqAvKiBCb3RoIHotPm11dGV4IGFuZCB6YmRpLT5t
+dXRleCBhcmUgaGVsZC4gKi8KPiDCoAo+IMKgZXhhbWluZV96b25lOgo+IC3CoMKgwqDCoMKgwqDC
+oGlmICh6LT53cCArIG1pbl9icyA8PSB6YmRfem9uZV9jYXBhY2l0eV9lbmQoeikpIHsKPiArwqDC
+oMKgwqDCoMKgwqBpZiAoemJkX3pvbmVfcmVtYWluZGVyKHopID49IG1pbl9icykgewo+IMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcHRocmVhZF9tdXRleF91bmxvY2soJnpiZGktPm11
+dGV4KTsKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGdvdG8gb3V0Owo+IMKgwqDC
+oMKgwqDCoMKgwqB9Cj4gQEAgLTE0MzMsNyArMTQ0NCw3IEBAIHJldHJ5Ogo+IMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgeiA9IHpiZF9nZXRfem9uZShmLCB6b25lX2lkeCk7Cj4gwqAK
+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHpvbmVfbG9jayh0ZCwgZiwgeik7Cj4g
+LcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmICh6LT53cCArIG1pbl9icyA8PSB6YmRf
+em9uZV9jYXBhY2l0eV9lbmQoeikpCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlm
+ICh6YmRfem9uZV9yZW1haW5kZXIoeikgPj0gbWluX2JzKQo+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGdvdG8gb3V0Owo+IMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgcHRocmVhZF9tdXRleF9sb2NrKCZ6YmRpLT5tdXRleCk7Cj4gwqDCoMKg
+wqDCoMKgwqDCoH0KCg==
