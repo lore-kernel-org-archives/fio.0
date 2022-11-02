@@ -2,89 +2,112 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 474C5C43217
-	for <fio@archiver.kernel.org>; Wed,  2 Nov 2022 12:00:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E33FEC4332F
+	for <fio@archiver.kernel.org>; Wed,  2 Nov 2022 20:34:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230254AbiKBMAf (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 2 Nov 2022 08:00:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53956 "EHLO
+        id S231237AbiKBUeY (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 2 Nov 2022 16:34:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231180AbiKBMAQ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 2 Nov 2022 08:00:16 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60E882251C
-        for <fio@vger.kernel.org>; Wed,  2 Nov 2022 05:00:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=N98zAsg7ChBxk0uVjlOnswYOfTrxCCdepbyTvNVhYU4=; b=Qiws57111/tFynip4oVOc3CGx7
-        Xqscd8ia5nA4GILbFTop0khOnAo7u50FJ0uQmX1Se7P2fBoWVI3n4LvzXggVDr2tYlQjXK2lJVeXP
-        KkTkNa2i9gapfz9BsFm9VEuxS8htrjubGHKWwWzg4mKo1f5lbt7U05jwrVDEsEbDZAZvVXlUW5+Ly
-        bJ1dHq2FaYwMKde6yeSfo6QRUXgZlwVB/012wq8Sov7BwftUZnXTOQFHHeEIRTadQNe/jQ7CU3aKW
-        moKhZdiKD86WPJDKeLdqFKBEpDcjUJJVEZh8yTw0/WbC+iR7clqEFtYjChFLNWuieNfhVtxeJAV7z
-        CapAnCzw==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oqCPh-005UfQ-4L
-        for fio@vger.kernel.org; Wed, 02 Nov 2022 12:00:09 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 296111BC012D; Wed,  2 Nov 2022 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20221102120002.296111BC012D@kernel.dk>
-Date:   Wed,  2 Nov 2022 06:00:02 -0600 (MDT)
+        with ESMTP id S230515AbiKBUeX (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 2 Nov 2022 16:34:23 -0400
+Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084266387
+        for <fio@vger.kernel.org>; Wed,  2 Nov 2022 13:34:22 -0700 (PDT)
+Received: by mail-yb1-xb33.google.com with SMTP id o70so22561386yba.7
+        for <fio@vger.kernel.org>; Wed, 02 Nov 2022 13:34:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=6gkMduZB3fiewJxhleE3sLVfvjlRK1OzvuIIgdVMUr0=;
+        b=g0oHhRMPvF3VL/LbzB614+595NkE7YAXGV6Cm5PQfTbsdOyHUu6J7dzLv7UM+wV53J
+         rEuxML38K6cMRaNDM9RLCWX/vudKRnA7mz3KopWGWCLtR0o+5InsF8whLi329/olpE3l
+         eiMrdZfXmGUB6bSFvYMlfEg1PzQDCKDkOrCd2MxgwreaoJYvhPsY8HXljHNQUBxU3AEE
+         Jspq7LkPqMUvR/u3WrheKaHIsEOvdFyobOMU1H7sUUwIWsqz9y6PDycdahTCKeHbObkm
+         970xVLkgNAQxAk3h0bIZNKI6EUZivNWyKoUzyMNX/5ZFDsfVZIS60CgUHemIaUbQDqel
+         6KvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6gkMduZB3fiewJxhleE3sLVfvjlRK1OzvuIIgdVMUr0=;
+        b=ePRec+7Rs3HdF2pfQ93QV0ZEOpo3A2THqpiOmG5/wmy3fTiYVJMDck8YWb3tAnzmS7
+         D2qvKAVpD9qXPK3Gl6xGinSrF4UTI7hsQ6/doYjJU3Q14rdo/FBM7Fc0Ah0E4RHeEBhy
+         W/kvJa1MjAzXVvF4NNZghpkdSMEvNn3hK5NCqP7Wsa1iWPyKzJ69YMOSK+u0Z4bAOQsS
+         nzad3OavSgmeaUAzLxAXWu7VrS/Lcr8ObX3dFVYjsZwCQDMOqHGRscoxtI1Wj5hVsHnd
+         p0nxehYtn/Vw5xUAMHbP+kwzhqtFQ3x9QpAtSh7J8evVQOqSQSKwBfY7gadn7fa17Aml
+         ByFg==
+X-Gm-Message-State: ACrzQf1uuW/QHd9xzaasVfqWhSkgkOB8rNbeDUJzZO7SFZS+TgsDHAKX
+        M06Mt+5ETajncDJ7lOHhfqeowZSK0iDQe53wR6yD3130TaQ=
+X-Google-Smtp-Source: AMsMyM7w7ojMP1hGeyVrgdD8QzEE7XnChuj5344IwyYjRM17awmLm42CC5J2cJU3uuaSMrxJk6d/8xQvhldCKwyZObo=
+X-Received: by 2002:a25:2491:0:b0:6c9:d402:8556 with SMTP id
+ k139-20020a252491000000b006c9d4028556mr26364061ybk.536.1667421260786; Wed, 02
+ Nov 2022 13:34:20 -0700 (PDT)
+MIME-Version: 1.0
+From:   Tom Cameron <tomc603@gmail.com>
+Date:   Wed, 2 Nov 2022 16:34:09 -0400
+Message-ID: <CA+Huu1HtX7qggn36DyqTrZCrrpm5hzNr7v4RbPbUo-2REULGwQ@mail.gmail.com>
+Subject: Details about the usage of flow
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit c4704c081a54160621227b42238f6e439c28fba3:
+All,
 
-  test: add test for experimental verify with loops and time_based options (2022-10-24 10:34:57 -0400)
+I recently filed https://github.com/axboe/fio/issues/1483 on github
+describing my usage of multiple concurrent jobs to split random read
+and random write so I can have a different number of reader and writer
+threads. I was informed that what I actually want is to use "flow=" to
+specify the ratio of activity between jobs.
 
-are available in the Git repository at:
+My issue while testing the use of flow, is that it seems to be off by
+a factor of 10x. For example, the following has two jobs, one for
+readers and one for writers. The writer, as can be seen, has "numjobs"
+set to 8, while the reader has "numjobs" set to 64. Flow is set to
+"100" for reader, and "1" for writer. But from the output below we can
+see the actual split is more like 786 to 1.
 
-  git://git.kernel.dk/fio.git master
+Jobs: 72 (f=72):
+[w(8),r(64)][26.6%][r=1254MiB/s,w=1632KiB/s][r=321k,w=408 IOPS][eta
+44m:11s]
 
-for you to fetch changes up to 73f168ea2c9a66145559c2217fc5a70c992cb80e:
+Should I be dividing the flow value by the ratio of "numjobs" as well?
+The command running obviously has an 8:1 ratio of readers to writers,
+and I've defined a 100:1 ratio in the value of "flow", so am I
+actually seeing an 800:1 here?
 
-  HOWTO: update description for flow option (2022-11-01 17:24:34 -0400)
+I suspect I'm missing a key piece of information, but the
+documentation doesn't explicitly call this out. The line that makes me
+think I may need to adjust for "numjobs" within each job is "The flow
+parameter stands for how much should be added or subtracted to the
+flow counter on each iteration of the main I/O loop.". This makes me
+suspect that each of the threads spawned under a job definition is
+spawned with it's own 100:1 ratio, and since there's an 8:1 numjobs
+ratio, I end up seeing the above.
 
-----------------------------------------------------------------
-Vincent Fu (1):
-      HOWTO: update description for flow option
+The command, in total, is below.
 
- HOWTO.rst | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+fio --output=fio-logs/m2test-01/20221102/manual-flow-test.write-1.qd-32/fio.manual-flow-test.log
+\
+--exitall_on_error --bs=4Ki --direct=1 --fadvise_hint=random
+--filename=/mnt/testing/fio \
+--group_reporting=1 --iodepth=32 --ioengine=libaio
+--ioscheduler=mq-deadline --log_avg_msec=1000 \
+--log_compression=1m --log_store_compressed=1 --ramp_time=10
+--randrepeat=0 --runtime=1h --thread \
+--time_based --write_bw_log=fio-logs/m2test-01/20221102/manual-flow-test.write-1.qd-32/fio-stress
+\
+--write_iops_log=fio-logs/m2test-01/20221102/manual-flow-test.write-1.qd-32/fio-stress
+\
+--write_lat_log=fio-logs/m2test-01/20221102/manual-flow-test.write-1.qd-32/fio-stress
+\
+--name=writer --new_group --stonewall --numjobs=8 --rw=randwrite
+--flow=1 --exitall \
+--name=reader --new_group --numjobs=64 --rw=randread --flow=100
 
----
 
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index e89d05f0..53ae8c17 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -3329,13 +3329,13 @@ Threads, processes and job synchronization
- 
- .. option:: flow=int
- 
--	Weight in token-based flow control. If this value is used, then there is a
--	'flow counter' which is used to regulate the proportion of activity between
--	two or more jobs. Fio attempts to keep this flow counter near zero. The
--	``flow`` parameter stands for how much should be added or subtracted to the
--	flow counter on each iteration of the main I/O loop. That is, if one job has
--	``flow=8`` and another job has ``flow=-1``, then there will be a roughly 1:8
--	ratio in how much one runs vs the other.
-+        Weight in token-based flow control. If this value is used, then fio
-+        regulates the activity between two or more jobs sharing the same
-+        flow_id. Fio attempts to keep each job activity proportional to other
-+        jobs' activities in the same flow_id group, with respect to requested
-+        weight per job. That is, if one job has `flow=3', another job has
-+        `flow=2' and another with `flow=1`, then there will be a roughly 3:2:1
-+        ratio in how much one runs vs the others.
- 
- .. option:: flow_sleep=int
- 
+Thanks for any advice,
+Tom
