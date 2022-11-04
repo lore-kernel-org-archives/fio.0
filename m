@@ -2,168 +2,148 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6A05C433FE
-	for <fio@archiver.kernel.org>; Fri,  4 Nov 2022 12:38:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF752C4332F
+	for <fio@archiver.kernel.org>; Fri,  4 Nov 2022 12:38:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231696AbiKDMiR (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 4 Nov 2022 08:38:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53746 "EHLO
+        id S230051AbiKDMiS (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 4 Nov 2022 08:38:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230051AbiKDMiG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 4 Nov 2022 08:38:06 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323932DA92
-        for <fio@vger.kernel.org>; Fri,  4 Nov 2022 05:38:05 -0700 (PDT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20221104123802epoutp01017483ffb71882e8a41a05ba2881d06b~kYfikpNdE0583105831epoutp01c
-        for <fio@vger.kernel.org>; Fri,  4 Nov 2022 12:38:02 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20221104123802epoutp01017483ffb71882e8a41a05ba2881d06b~kYfikpNdE0583105831epoutp01c
+        with ESMTP id S231728AbiKDMiO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 4 Nov 2022 08:38:14 -0400
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7894E2DA95
+        for <fio@vger.kernel.org>; Fri,  4 Nov 2022 05:38:12 -0700 (PDT)
+Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20221104123808epoutp04fca0f93053646c9f95bebd47e31fa7b5~kYfn5LdD53092630926epoutp04C
+        for <fio@vger.kernel.org>; Fri,  4 Nov 2022 12:38:08 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20221104123808epoutp04fca0f93053646c9f95bebd47e31fa7b5~kYfn5LdD53092630926epoutp04C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1667565482;
-        bh=c/wVkZ0G1jKOkKNqRo6tNfZ/rhyQwx45T1GcB9u/T2w=;
+        s=mail20170921; t=1667565488;
+        bh=LTssuTXWDoR736O4BGKsB8UEyF4nLqzg1N10ciJNlRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwslY004rXzDj920mYQPCfLY9LdNWsemzDPay9dEkyxX/GL62bKvIoBfBUK1b19hn
-         a93ZlEhH+hE+GZlwQlMr4zEL4TGMtj5emmsZ5vBuUylXOKSn6qUsc9ikscY7YoMrzX
-         idHK4JmqxW/WkCbbewpQ0EvhgBzhr3K37twTu5Zw=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        b=a54PorqIrvVGgG5QPPG6RZ7bdKHYaUh+sOTilMy8bch+C2WiOPbKIGPEQXkTD/9uW
+         AZTtHcDlBE8RBs7IaNTM4SipMPzoJtcBscSTW9rN/07VEW9iSWpiklkUPqoSmJnM9P
+         cXY7VD4mTwbaLhA45OjOmG2WA9bfzD+dVG9uEPiQ=
+Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
         epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20221104123802epcas5p468851af64fa5225991a4b94b7028ead0~kYfiUf0Y01948819488epcas5p4H;
-        Fri,  4 Nov 2022 12:38:02 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.179]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 4N3gBw4vwvz4x9Pt; Fri,  4 Nov
-        2022 12:38:00 +0000 (GMT)
-Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+        20221104123807epcas5p4e3ecb4de0a7808d02523dea4d6576f77~kYfnXc7zX1700017000epcas5p4i;
+        Fri,  4 Nov 2022 12:38:07 +0000 (GMT)
+Received: from epsmges5p1new.samsung.com (unknown [182.195.38.181]) by
+        epsnrtp2.localdomain (Postfix) with ESMTP id 4N3gC21DYfz4x9Px; Fri,  4 Nov
+        2022 12:38:06 +0000 (GMT)
+Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
         epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        ED.1B.01710.8A705636; Fri,  4 Nov 2022 21:38:00 +0900 (KST)
+        AF.1B.01710.BA705636; Fri,  4 Nov 2022 21:38:03 +0900 (KST)
 Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20221104112441epcas5p211f3960a712ba954139173a9c3b343df~kXffz4Nc51885918859epcas5p2P;
-        Fri,  4 Nov 2022 11:24:41 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+        20221104112442epcas5p4dab9270f5d970618f1a13cc39e26016a~kXfg6A5KJ2575525755epcas5p4p;
+        Fri,  4 Nov 2022 11:24:42 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
         epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20221104112441epsmtrp1bb084cee46a4937d07d98edc71b81658~kXffzHjda1396613966epsmtrp1K;
-        Fri,  4 Nov 2022 11:24:41 +0000 (GMT)
-X-AuditID: b6c32a49-a41ff700000006ae-61-636507a87887
+        20221104112442epsmtrp1fad3fa115f866fde0a516a82885f4774~kXfg5ZxxI1354313543epsmtrp1d;
+        Fri,  4 Nov 2022 11:24:42 +0000 (GMT)
+X-AuditID: b6c32a49-a41ff700000006ae-6b-636507abd8c5
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        DD.7B.14392.976F4636; Fri,  4 Nov 2022 20:24:41 +0900 (KST)
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        4B.34.18644.A76F4636; Fri,  4 Nov 2022 20:24:42 +0900 (KST)
 Received: from test-zns.sa.corp.samsungelectronics.net (unknown
         [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20221104112440epsmtip2fab3e499e03d3c312e37a22bcde7262c~kXfe4eZAo0554505545epsmtip2C;
-        Fri,  4 Nov 2022 11:24:40 +0000 (GMT)
+        20221104112441epsmtip2bbe2c1a62732a9a2af633a18186dbe73~kXff2P5H00272702727epsmtip22;
+        Fri,  4 Nov 2022 11:24:41 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, vincentfu@gmail.com,
         Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 1/2] engines:io_uring: slat and clat calculation with
- sqthread_poll
-Date:   Fri,  4 Nov 2022 16:43:13 +0530
-Message-Id: <20221104111314.25535-2-ankit.kumar@samsung.com>
+Subject: [PATCH 2/2] doc: update about sqthread_poll
+Date:   Fri,  4 Nov 2022 16:43:14 +0530
+Message-Id: <20221104111314.25535-3-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20221104111314.25535-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrOKsWRmVeSWpSXmKPExsWy7bCmuu4K9tRkg03PuCzWXPnNbrH6bj+b
-        xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJyrbJSE1MSS1SSM1Lzk/JzEu3VfIO
-        jneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvMAVqopFCWmFMKFApILC5W0rezKcovLUlVyMgv
-        LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOOLdyPmvBVOGK1dceMzUwbuHvYuTk
-        kBAwkXh9YClbFyMXh5DAbkaJCR0zmCGcT4wSj3c0MEI43xglbq5aytrFyAHW0rE7DSK+l1Hi
-        /sXzUB2tTBKL395jBZnLJqAt8ertDWYQW0RAWGJ/RysLiM0sECpx8toXdhBbGMheur2DDcRm
-        EVCV6Hg+gR1kAa+AjcTVAz4Q58lLrN5wgBkkzClgK7HthDzIKgmBZewSi2Z8Z4aocZE4tqmB
-        HcIWlnh1fAuULSXxsr8Nys6W2PTwJxOEXSBx5EUvVK+9ROupfrD5zAKaEut36UOEZSWmnlrH
-        BHExn0Tv7ydQrbwSO+bB2KoSf+/dZoGwpSVuvrsKZXtIzH7cDA4FIYEJjBJzrxlOYJSbhbBh
-        ASPjKkbJ1ILi3PTUYtMCw7zUcniUJefnbmIEpygtzx2Mdx980DvEyMTBeIhRgoNZSYT307bk
-        ZCHelMTKqtSi/Pii0pzU4kOMpsDQm8gsJZqcD0ySeSXxhiaWBiZmZmYmlsZmhkrivItnaCUL
-        CaQnlqRmp6YWpBbB9DFxcEo1MEnMD1l1fenzl3ZB7ic6fIQ9Hl9Lvldx6R1/vO5uk2bdHK3r
-        qtKz69nuha4LLT3n4u7hnqube1G20PPes+iskg1W5lZS97RXSlg+iVv66eQlVt6uLtnG/N9Z
-        qWI2r3tUWuwi+JV/FnpOqbuyJXTKDYOJRZrWSimvvk8t/JzTK/B6zswXBhuNNXKsZ09LOOxR
-        7ct3+FZd9a7Vk5I/75p09Ln5waKZPg8L0hJvfzqh9VTxj+LXxwub3xbIN7ja6kRqmX7T/Z9+
-        Z2FCgM8MqYqe+I6lJz9qPvf8Mb1m58TKugNiWqUBTs/Oy6m+mPtC77p81dS8rtlfXxWxbWj3
-        uN8StjZxUchLq4VmypGLYuzFlViKMxINtZiLihMBfAhhy9oDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrDJMWRmVeSWpSXmKPExsWy7bCSvG7lt5Rkg0OLJS3WXPnNbrH6bj+b
-        xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJ4rJJSc3JLEst0rdL4Mo4t3I+a8FU
-        4YrV1x4zNTBu4e9i5OCQEDCR6Nid1sXIxSEksJtRYumNY2wQcWmJhesTuxg5gUxhiZX/nrOD
-        2EICzUwSnyZlgdhsAtoSr97eYAaxRYBq9ne0soDYzALhEtMPTGYEsYUFgiXWtO9gBbFZBFQl
-        Op5PYAcZzytgI3H1gA/EeHmJ1RsOMIOEOQVsJbadkIfYZCOxctFklgmMfAsYGVYxSqYWFOem
-        5xYbFhjmpZbrFSfmFpfmpesl5+duYgQHkJbmDsbtqz7oHWJk4mA8xCjBwawkwvtpW3KyEG9K
-        YmVValF+fFFpTmrxIUZpDhYlcd4LXSfjhQTSE0tSs1NTC1KLYLJMHJxSDUxbvyT/yt+8sruv
-        o/OO8iyRVp8Pv9vu5p7WkXK83uteLXDnrEqb25IPWqX5kz/kFrifsk/LXNznK3LNr9pum5TV
-        diHD7Meej4U2vVzzWCwgX3XFxtXpptXTvctKxJ9zFaXfXs/+eY9wVOAJn9l/jndY/zmZJ9x/
-        McPxlNrsl9+41m9YnPCw+5bdK+Hv/M2HtjYXHl27d4uWfuYWmfevLbVj15ruK4juEd56XetO
-        BEvEffv5zLkPL/RZvDtSK7w5TXX2K8aP7HLzNC+aPWVZLxLc9cQt3EyF2eGzrYL+r5Yr7i86
-        bsiocDFfbfdliNvy0/NMue+VtD1n0yN027o2GrR8thW5Ud/jaBJ381S6pRJLcUaioRZzUXEi
-        ABBuauCPAgAA
-X-CMS-MailID: 20221104112441epcas5p211f3960a712ba954139173a9c3b343df
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrKKsWRmVeSWpSXmKPExsWy7bCmpu4a9tRkg5kSFmuu/Ga3WH23n83i
+        46wXzBYb2gQdWDx2zrrL7nH5bKlH35ZVjB6fN8kFsERl22SkJqakFimk5iXnp2TmpdsqeQfH
+        O8ebmhkY6hpaWpgrKeQl5qbaKrn4BOi6ZeYA7VNSKEvMKQUKBSQWFyvp29kU5ZeWpCpk5BeX
+        2CqlFqTkFJgU6BUn5haX5qXr5aWWWBkaGBiZAhUmZGdcOq5TcI+34v+fWawNjH+4uhg5OSQE
+        TCTu9i1iArGFBHYzSqz/LNfFyAVkf2KUONX1khnC+cwo0fb6EStMx/Kz81khErsYJb5272GE
+        aG9lkuiYKwViswloS7x6e4MZxBYREJbY39HKAmIzC4RKnLz2hR3EFgYa9PnwXrA4i4CqxIOV
+        z8HO4BWwkbhys5cRYpm8xOoNB4DmcHBwCthKbDshDxFexS6xcQI7hO0iMeHsGihbWOLV8S1Q
+        tpTEy/42KDtbYtPDn0wQdoHEkRe9zBC2vUTrqX6w8cwCmhLrd+lDhGUlpp5axwRxMZ9E7+8n
+        UK28EjvmwdiqEn/v3WaBsKUlbr67CmV7SEx8fJkREjwTGCVWb+5gmcAoNwthxQJGxlWMkqkF
+        xbnpqcWmBYZ5qeXwGEvOz93ECE5PWp47GO8++KB3iJGJg/EQowQHs5II76dtyclCvCmJlVWp
+        RfnxRaU5qcWHGE2BwTeRWUo0OR+YIPNK4g1NLA1MzMzMTCyNzQyVxHkXz9BKFhJITyxJzU5N
+        LUgtgulj4uCUamDa1v2wyV1f6kSr/vLrlucSRJXvCz5g+MZ35dimZUtlRNdWFim1/2Y+ud5i
+        7vvkxQ5HJgUK7di68vhTY5O6TOO/dxNDD2zOndA1s9/YOXb3iaop2/vXqirxBnTHnL/IfK/i
+        wI4vExpvGxyttLt5NmFiFGfU9MbQa8mNXHk3rGacZJit+GdW5cbui9Uh2xJ1LgU5Naj+3XB5
+        vqjBtx9KdR/epapu5z229/tSTX+GNa8f1r74pLHik9vCPw8fun2aYO/Rm3Hz0HGX+Hkaf9my
+        xfkblt4+9D65+YfEogN6t1+pxwQveXGmv7S22bv11l0DzlKWOdYeaY2vTdbvvvHnSWanyIRK
+        bje7Gxen3pE4ZHdypxJLcUaioRZzUXEiABPG0U3YAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrHJMWRmVeSWpSXmKPExsWy7bCSvG7Vt5Rkg6nH1S3WXPnNbrH6bj+b
+        xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJ4rJJSc3JLEst0rdL4Mq4dFyn4B5v
+        xf8/s1gbGP9wdTFyckgImEgsPzuftYuRi0NIYAejxMGr59i7GDmAEtISC9cnQtQIS6z895wd
+        oqaZSeLv9EWsIAk2AW2JV29vMIPYIkBF+ztaWUBsZoFwiekHJjOC2MJACz4f3gsWZxFQlXiw
+        8jkTiM0rYCNx5WYvI8QCeYnVGw4wg+zlFLCV2HZCHiQsBFSyctFklgmMfAsYGVYxSqYWFOem
+        5xYbFhjlpZbrFSfmFpfmpesl5+duYgQHkZbWDsY9qz7oHWJk4mA8xCjBwawkwvtpW3KyEG9K
+        YmVValF+fFFpTmrxIUZpDhYlcd4LXSfjhQTSE0tSs1NTC1KLYLJMHJxSDUypzYr9oasOVX0Q
+        9rVq11t4Pz1D4W3vtRvRHxyOeRq92WjUy2UszRvfsiP4Xba4RuIW/0l/a1cW619IN/K8tlXi
+        e+nqv2+K2xcc2/100hYvmVMXMtkXSc3M6W840fHYypd3wh2zhrlfll6r2aXtcjNh3d40O40I
+        ZZt5+89drzeJj54gIDOT00DPumLTCfdKRnG90qp/W3l//Nv0Y2URu/rG47W/J8xYqNTSuPBW
+        TsmTPXw+bZeVfq3muM2fxv1zbt/9HVOvMD/alprd+Ez5+snMZWaPLz2PUPy8UHb6Rf3nBpzK
+        ncb8SgW/naeYe8QXpZopbvNkSUkNuHmx+P0Gz7lpAt/3djjpB1vs2fnguZQSS3FGoqEWc1Fx
+        IgB530/nkQIAAA==
+X-CMS-MailID: 20221104112442epcas5p4dab9270f5d970618f1a13cc39e26016a
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20221104112441epcas5p211f3960a712ba954139173a9c3b343df
+X-CMS-RootMailID: 20221104112442epcas5p4dab9270f5d970618f1a13cc39e26016a
 References: <20221104111314.25535-1-ankit.kumar@samsung.com>
-        <CGME20221104112441epcas5p211f3960a712ba954139173a9c3b343df@epcas5p2.samsung.com>
+        <CGME20221104112442epcas5p4dab9270f5d970618f1a13cc39e26016a@epcas5p4.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-When sqthread_poll is specified for io_uring and io_uring_cmd I/O engines,
-fio doesn't report submission latency and the completion latency is too big.
-Latency data before:
-
-fio --name=test --size=1M --rw=randread --ioengine=io_uring --sqthread_poll=1
-    clat (msec): min=1120.1k, max=1120.1k, avg=1120092.65, stdev= 8.32
-     lat (usec): min=104, max=5312, avg=132.81, stdev=325.05
-    clat percentiles (msec):
-     |  1.00th=[17113],  5.00th=[17113], 10.00th=[17113], 20.00th=[17113],
-     | 30.00th=[17113], 40.00th=[17113], 50.00th=[17113], 60.00th=[17113],
-     | 70.00th=[17113], 80.00th=[17113], 90.00th=[17113], 95.00th=[17113],
-     | 99.00th=[17113], 99.50th=[17113], 99.90th=[17113], 99.95th=[17113],
-     | 99.99th=[17113]
-  lat (msec)   : >=2000=100.00%
-
-As kernel polling thread handles the submission, there is no way to know when
-the actual submission happened. We can only rely on the commit hook and
-measure the issue time.
-Latency data after the change:
-
-fio --name=test --size=1M --rw=randread --ioengine=io_uring --sqthread_poll=1
-    slat (nsec): min=50, max=2230, avg=146.68, stdev=138.08
-    clat (usec): min=105, max=5151, avg=132.98, stdev=314.89
-     lat (usec): min=105, max=5153, avg=133.13, stdev=315.03
-    clat percentiles (usec):
-     |  1.00th=[  106],  5.00th=[  108], 10.00th=[  109], 20.00th=[  110],
-     | 30.00th=[  111], 40.00th=[  113], 50.00th=[  114], 60.00th=[  115],
-     | 70.00th=[  117], 80.00th=[  118], 90.00th=[  119], 95.00th=[  121],
-     | 99.00th=[  123], 99.50th=[  123], 99.90th=[ 5145], 99.95th=[ 5145],
-     | 99.99th=[ 5145]
-  lat (usec)   : 250=99.61%
-  lat (msec)   : 10=0.39%
+Update that when sqthread_poll is enabled the submission and completion
+latencies reported may not be accurate. This is because the actual submission
+is done by the kernel polling thread.
 
 Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
- engines/io_uring.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ HOWTO.rst | 4 +++-
+ fio.1     | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 6906e0a4..0d18fd4a 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -637,12 +637,16 @@ static int fio_ioring_commit(struct thread_data *td)
- 	 */
- 	if (o->sqpoll_thread) {
- 		struct io_sq_ring *ring = &ld->sq_ring;
-+		unsigned start = *ld->sq_ring.head;
- 		unsigned flags;
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 0fb5593e..dea625fe 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -2299,7 +2299,9 @@ with the caveat that when used on the command line, they must come after the
+ 	kernel of available items in the SQ ring. If this option is set, the
+ 	act of submitting IO will be done by a polling thread in the kernel.
+ 	This frees up cycles for fio, at the cost of using more CPU in the
+-	system.
++	system. The submission and completion latencies reported may not be
++	accurate as fio has no idea when the kernel polling thread submits the
++	actual I/O.
  
- 		flags = atomic_load_acquire(ring->flags);
- 		if (flags & IORING_SQ_NEED_WAKEUP)
- 			io_uring_enter(ld, ld->queued, 0,
- 					IORING_ENTER_SQ_WAKEUP);
-+		fio_ioring_queued(td, start, ld->queued);
-+		io_u_mark_submit(td, ld->queued);
-+
- 		ld->queued = 0;
- 		return 0;
- 	}
+ .. option:: sqthread_poll_cpu : [io_uring] [io_uring_cmd]
+ 
+diff --git a/fio.1 b/fio.1
+index 4324a975..95c5ce55 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2090,7 +2090,9 @@ sqthread_poll option.
+ Normally fio will submit IO by issuing a system call to notify the kernel of
+ available items in the SQ ring. If this option is set, the act of submitting IO
+ will be done by a polling thread in the kernel. This frees up cycles for fio, at
+-the cost of using more CPU in the system.
++the cost of using more CPU in the system. The submission and completion
++latencies reported may not be accurate as fio has no idea when the kernel
++polling thread submits the actual I/O.
+ .TP
+ .BI (io_uring,io_uring_cmd)sqthread_poll_cpu
+ When `sqthread_poll` is set, this option provides a way to define which CPU
 -- 
 2.17.1
 
