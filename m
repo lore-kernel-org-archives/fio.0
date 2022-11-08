@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBCA1C433FE
-	for <fio@archiver.kernel.org>; Tue,  8 Nov 2022 08:49:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDB77C433FE
+	for <fio@archiver.kernel.org>; Tue,  8 Nov 2022 08:50:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233606AbiKHIt5 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 8 Nov 2022 03:49:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52996 "EHLO
+        id S233654AbiKHIuB (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 8 Nov 2022 03:50:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233653AbiKHIty (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 8 Nov 2022 03:49:54 -0500
-Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21FB2DABC
-        for <fio@vger.kernel.org>; Tue,  8 Nov 2022 00:49:53 -0800 (PST)
+        with ESMTP id S233663AbiKHIt4 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 8 Nov 2022 03:49:56 -0500
+Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B454A2E6A5
+        for <fio@vger.kernel.org>; Tue,  8 Nov 2022 00:49:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1667897393; x=1699433393;
+  t=1667897394; x=1699433394;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=9jPnnjN+AgrmtRFfokTzVQ5/zCKJpS+zSjT5AqDsMJs=;
-  b=TJaFoJEG+hjCoYlX4kR+qvqi7dWzp2LoA7IxbmwGAX5c+qucDpMncO+g
-   b30iqBZqbNYImuJyY4PGgM4VBBT8Id34AAS7ucgSNuHTZscuGzYamzmMK
-   rEJbjioKW6u+YO+A1fwqwiXiseI6iN5UvuWyZPwFtQ20lPoLXqNSdCdWv
-   69JWXmk1tj0cc/m7g5g9FhYmx7xH76OfcMuXXKHzHFfzrVmVlj+r5GZgh
-   WTfo85kVAXHRY/E0IUhYlXJOSra4eQJo1M9YztqvLCO588Mbmn/2H4TZQ
-   lKqImKyFAVnys7jLM9E7Fgt5qY8oBTXt/B14yDlv/Zl3rTAm5u0293dz4
-   g==;
+  bh=cbzXMAu+CJYlvADpUBKjYCkzMPz9XVfSyR2up2n/ris=;
+  b=Yma8zLnr3yRXMHvHC7CoV/PY4/p1Npyz+heKcOlEDs31YLfI9hCW98ej
+   QmRmwSULuJxTvETe5ii+dKcVbstbw+8cKWjNE+0UXLBWqyazNI9cYWBRZ
+   vAZyqtLLblTMmMXlTL8X/mG40dkHiAvboZDlg+6p2wnSb27i3mK33g16d
+   Or20PvK1Wan1WbRrC6fhwEDcwW9N3qb1vpXp6MOAnA9oXfvnJRcgy7PRf
+   iGx3CL1kk1305ZAFLvHxpyf/FCqB7U/7rCrWsEEHwVstzYVocqD6+qPI2
+   oSmsikXHXFrthgY8CHm2Iez9PxMH33RZOHmQdPFPSXdxMB17IP1I7R4FH
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.96,147,1665417600"; 
-   d="scan'208";a="215743473"
+   d="scan'208";a="214025965"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 08 Nov 2022 16:49:53 +0800
-IronPort-SDR: cWBuabz6ijMz9cQtdNMoK6qPeWUABRgpWAPPuF/BqTjKtSFHYf+YJaGLH449iwCm8OTgCliwRz
- QGOF9E+oZVeQE67vgYdIhed9bFmgs6qGkYqdINMNRtxUr+i0xCOtkcTvc9utmsmU+yEXxtjHyh
- WE7z7V7NFXGxhR+cyUHEjjw1H6zRKtvvhs+jJBSMt/hS56w4fWORV7zyJOZ/VUmxe7FtwQxuz5
- Ki22kbrrUPd7jjJysjl5DC/R0Qu9qzHObXlHO3He1+dNiMvbnvhtEbspfBwwRbmlmwkj8MtXPX
- 37U=
+  by ob1.hgst.iphmx.com with ESMTP; 08 Nov 2022 16:49:50 +0800
+IronPort-SDR: 23XtnkBuO4k94lW8behpFxZKQn2M33HXlzGPXHAaez5eeIqf/d8zPSU4RIqXaDaYGbtRnBOwaF
+ WgYB4KigmeO4l7xuFOA1YmnKViinIKiwOFYSF2C5b4pevlVsD9HJKxL+hbnu8oZyvc/hFz6eM8
+ zskRtjys9ZfZWlp004WjUNoemGUgHBMbGHaFMtIHNLhQEB2lD882mNFiyCRcx1glCdaxOqVrzE
+ 0b+vQFZbXRML0LX8mZIqYcoHNn6L75NYCGzmY4C6NLVMkvPLTgRATqpEuLsXOINVmC+fJZR9He
+ HiM=
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Nov 2022 00:03:14 -0800
-IronPort-SDR: zUN84q4aL/PEpGBHID3pVPDYLZp4gg+Iam/Q/Jon2UhIktNZMK4y5zlE4TzS4XLGcRx9zZ4qkG
- Tk3QkZZPspLAxS8UcolFvNQ3pe/lVZQhDkMycm4jNWEsE/SA4dkUlxzqwBsR8is1ZIr07oPp2b
- Vop3GLZduteIkpCurm0bvcZp6pX2yUW9OcMitTtqkaeZC3Z7e9kQefqoUgSAnoYTz5Pcwe9xfz
- pqrtfHR8dl8jbdMaDY1f9DMXu2W4XhQFA7476AnB0FAbMfwn6b98oDjq5XjfHG/9rVaWLiXnCS
- f3k=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Nov 2022 00:03:10 -0800
+IronPort-SDR: 17qwkEYhAff+3iu41nMrtM805pbHwwkKeWMbGO3ve77SVuIAlmJTg/R2RekJTBnzd+tUVD3viB
+ Wf+9x47DYgHnM4LoFw7Hg+5F8cu54NKUVKNlp9tEEu7TkI0zy8x7io8PvqaYyy9eDwaD2ktEep
+ XhvwWuKxIooiWh/PWJ8jvh25Bn/L+ftTf1dVOyfoSYOTK/UMRqN/1Xrkw5zXgY3aYMUkn4i+D5
+ FMkHo/CWFCArtmtgkrBWKFu8qwi3VwWB9vwMgGWk5JoFkAhA6JXNJoqYLGM3k1R7+PrbyMxgwx
+ vFc=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 08 Nov 2022 00:49:53 -0800
+  by uls-op-cesaip01.wdc.com with ESMTP; 08 Nov 2022 00:49:49 -0800
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v4 09/13] t/zbd: fix test case #33 for block size unaligned to zone size
-Date:   Tue,  8 Nov 2022 17:49:36 +0900
-Message-Id: <20221108084940.1574939-10-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v4 06/13] zbd, verify: verify before zone reset for zone_reset_threshold/frequency
+Date:   Tue,  8 Nov 2022 17:49:33 +0900
+Message-Id: <20221108084940.1574939-7-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20221108084940.1574939-1-shinichiro.kawasaki@wdc.com>
 References: <20221108084940.1574939-1-shinichiro.kawasaki@wdc.com>
@@ -65,60 +65,73 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Recent fix of zonemode=zbd support for block size unaligned to zone size
-unveiled that the test case #33 has two issues.
+When zone_reset_threshold and zone_reset_frequency options are specified
+with zonemode=zbd, it resets zones not full. When verify option is
+specified on top of that, the zone reset of non-full zones erases data
+for verify and causes verify failure. Current implementation avoids this
+scenario by assert.
 
-First issue is test preparation. Before the fix, write was done to only
-to the first zone due to a bug in zone selection which happens when
-block size is not a divisor of zone size. Then, status of second zone
-did not affect. After the fix, write count to the zones may vary if the
-second zone has almost full status since the zone is skipped from write
-target. Fix this by resetting the write target zones.
+To allow zone_reset_threshold/frequency options together with verify,
+do verify before the zone reset. When zone reset is required to an open
+zone with verify data, call get_next_verify() to get io_u for verify
+read and return it from zbd_adjust_block(). When io_u->file is set,
+get_next_verify() assumes the io_u is requeued and does nothing. Unset
+io_u->file to tell get_next_verify() is not requeued.
 
-Second issue is expected written data size. The test case checks that
-the written data size is larger than the io_size option value. This
-expectation was fine before the fix because data write was repeated in
-do_io() and the limit was checked with io_issue_bytes_exceeded(),
-which triggers loop break when written data is larger than io_size.
-However, after the fix, the limit is checked with keep_running() in
-thread_main(). According to code and block comment in keep_running(),
-fio job terminates even when written data size is smaller than io_size
-if the gap is smaller than maximum IO size. Then the expected written
-data size is the largest multiple of block size smaller than or equal to
-the io_size. This io_size check change resulted in the test case
-failure. Avoid the failure by fixing the expected written data size
-calculation.
+Also modify verify_io_u() to skip rand_seed check when the option
+zone_reset_frequency is set. When the option is set, random seed is not
+reset for verify reads in same manner as verify_backlog option, then
+this check is not valid.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/test-zbd-support | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ verify.c |  6 ++++--
+ zbd.c    | 14 +++++++++++++-
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index cdc03f28..debe3763 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -813,7 +813,8 @@ test33() {
-     local bs io_size size
-     local off capacity=0;
+diff --git a/verify.c b/verify.c
+index d6a229ca..ddfadcc8 100644
+--- a/verify.c
++++ b/verify.c
+@@ -917,9 +917,11 @@ int verify_io_u(struct thread_data *td, struct io_u **io_u_ptr)
+ 		hdr = p;
  
--    prep_write
-+    [ -n "$is_zbd" ] && reset_zone "$dev" -1
+ 		/*
+-		 * Make rand_seed check pass when have verify_backlog.
++		 * Make rand_seed check pass when have verify_backlog or
++		 * zone reset frequency for zonemode=zbd.
+ 		 */
+-		if (!td_rw(td) || (td->flags & TD_F_VER_BACKLOG))
++		if (!td_rw(td) || (td->flags & TD_F_VER_BACKLOG) ||
++		    td->o.zrf.u.f)
+ 			io_u->rand_seed = hdr->rand_seed;
+ 
+ 		if (td->o.verify != VERIFY_PATTERN_NO_HDR) {
+diff --git a/zbd.c b/zbd.c
+index 6f4e5ab2..fadeb458 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -2032,7 +2032,19 @@ retry:
+ 
+ 		/* Reset the zone pointer if necessary */
+ 		if (zb->reset_zone || zbd_zone_full(f, zb, min_bs)) {
+-			assert(td->o.verify == VERIFY_NONE);
++			if (td->o.verify != VERIFY_NONE) {
++				/*
++				 * Unset io-u->file to tell get_next_verify()
++				 * that this IO is not requeue.
++				 */
++				io_u->file = NULL;
++				if (!get_next_verify(td, io_u)) {
++					zone_unlock(zb);
++					return io_u_accept;
++				}
++				io_u->file = f;
++			}
 +
-     off=$((first_sequential_zone_sector * 512))
-     capacity=$(total_zone_capacity 1 $off $dev)
-     size=$((2 * zone_size))
-@@ -822,7 +823,7 @@ test33() {
-     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
- 		   --size=$size --io_size=$io_size --bs=$bs	\
- 		   >> "${logfile}.${test_number}" 2>&1 || return $?
--    check_written $(((io_size + bs - 1) / bs * bs)) || return $?
-+    check_written $((io_size / bs * bs)) || return $?
- }
- 
- # Write to sequential zones with a block size that is not a divisor of the
+ 			/*
+ 			 * Since previous write requests may have been submitted
+ 			 * asynchronously and since we will submit the zone
 -- 
 2.37.1
 
