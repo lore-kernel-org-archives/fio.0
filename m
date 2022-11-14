@@ -2,50 +2,50 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7C4AC4332F
-	for <fio@archiver.kernel.org>; Mon, 14 Nov 2022 02:13:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3EE8C433FE
+	for <fio@archiver.kernel.org>; Mon, 14 Nov 2022 02:13:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235484AbiKNCNW (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 13 Nov 2022 21:13:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34070 "EHLO
+        id S229692AbiKNCNX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 13 Nov 2022 21:13:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbiKNCNW (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S235508AbiKNCNW (ORCPT <rfc822;fio@vger.kernel.org>);
         Sun, 13 Nov 2022 21:13:22 -0500
 Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB68FE009
-        for <fio@vger.kernel.org>; Sun, 13 Nov 2022 18:13:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07472E001
+        for <fio@vger.kernel.org>; Sun, 13 Nov 2022 18:13:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1668392000; x=1699928000;
+  t=1668392001; x=1699928001;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=I6UAzvilVVoBBtzWSSmri4OR5oAhhrOEZg2sx+LueRM=;
-  b=bUmszEzMI4NnYnCxmxoklLOAmnW5L6DVrPAL1bU72kG2Jb4lw06MW3ky
-   dAttqBdndbsPwC8w6qGQc1oKkVtmsUv3dPmBjuOJsfbxayxhtsjfjvwWv
-   0ZCt1jNjq/VPmLxLMsFwRzFc9rR1mocJLtxNpBdFMzNLTn1A7nntQ1Xkc
-   k+seqJYqY+fR1a+jZh+FURO/iN/bXsdZ3pfakujhw1THz3nCzdLa20iZS
-   QKH22ZIK3H8as4RP2aLhCojX155TUwwx75foCNUFLblGAoLNMZWrFjUiS
-   3KFVmGbrXqO70VT0KfXje6vaHHJ8ea6IThBnID88w8OxiRFhK/kjQ2sFC
-   w==;
+  bh=Ixii7KEu/NzsYFQOPTvg6BQ/iQaq+nOmBln5fxl7xHw=;
+  b=Xj0WWWfCjup+Lw8hYqwcn/vvwh1AG3ZfTSQqwfmCG75PcLIyDpJbHdqN
+   t5S7U7xehEIfcoeUKNnhJJVoeb5Sw04AB2sjEi6qBPuDOvGVaJ6t5jsE4
+   VLJUUPiXLEjvM7+c4Cw5G6Z/ynEGxEWu+TVrCsrLVJd4xKOMQcKoXsQ0h
+   cA+qMsUprqZe5aqboav85TRMZLcSObGkPZ3MUKP67CaL6e/7ET8TO8rl3
+   lnQ+uCGRKhrMfnyF61/GuYbjwIYKpJgHZBhvjYwiRy1AiUo15T2GflAl+
+   ITANVHzFGFBAvbzxIp5v4VdV1sdEJTwGkZCvxll9fomEPER/i2+IcFe1U
+   A==;
 X-IronPort-AV: E=Sophos;i="5.96,161,1665417600"; 
-   d="scan'208";a="328279207"
+   d="scan'208";a="328279217"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 14 Nov 2022 10:13:12 +0800
-IronPort-SDR: FDoZXTrQMdapCMY75Vfdty5SIhMrs6+0Yqtla2KoYNP8Z8KvzebHk2B2xdXk3edZha3KPKSXUa
- l//Hk573iSE9S1em0P+Ae7hnVuJ7JeJJKCypOgCk92nQJGUE/E82RdGe7XXlSYSLNKLy20snZB
- 3JN2dMk+4R7zeZt5iokGGNw4mqCF5UMZJrcnGeJeKim/1kB++86oXUSfffZo59LhroHVEz6ZM8
- VQ1UNoocmztcut21Trocx28VhVZagGyalmAKUiK+BwjZFfgzE4b2WgX02cJpcLLTrzjKiNzUU8
- wGc=
+  by ob1.hgst.iphmx.com with ESMTP; 14 Nov 2022 10:13:16 +0800
+IronPort-SDR: qnd+HMJaUf6EMq5g4G72spIvyE+zXUi7SWGlHHMe5Je7/EJ+0tE+SSuUq3ilkScY5k2k5nh2bW
+ hKf7/VqRExpwX/wpXEtZxpQ1i+/usbdDVyKeBmRWCe+j5807ksYtDK8MgGtap4CWXqXOJ9Ru8J
+ 8notZ3br6lWHj70sGaavregmvT+MIwFoRW8acNfuyB+TZr2xSgR5KRj1VVuHoBlMZ3MNa/cze1
+ 9irViBFDVkhCn9sA8MNKd0QraIHr1borMLnQaO7RqYYE2D13yyGo519fgONsS74BAxsrDemPG/
+ 4b4=
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 13 Nov 2022 17:32:12 -0800
-IronPort-SDR: L92WQUGRaDffc8PShk7Zv+Dv6iZlPksI8tJ4JHQeemUg/MF6kJFPsd66DvXjcLsqvswXH4sssx
- I2wVn6QsInDKZbdCV0Lch1n1dfQdc3a5jY2oNOwKtJHHXRV8N69fUWDpkjqkw2POeXKTNPvdta
- 2NBOkuj9+YxoDTWKrBb3q+6RUo71+4EJOjGf+uLY+JEMDy+nc5Eq4IvXL/IppK08aKpPJwOJGT
- 4LO9Os5srL/MDvU6UkLthgdYzXt1zk6Zu5cR9kITK8F8+Lt6QEXdHz5DQbL3/5mKIm+EbKjnG/
- cpE=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 13 Nov 2022 17:32:16 -0800
+IronPort-SDR: uNPP+v3A+XNNwaBpeiM6mtDp3d/j7bzik/PKeJOwM3PFmQZXEQfvxEZRQqoWekO2rUUUVklDxe
+ V51tYZ4vQiAsyCb9YN6fFiekbAu+eBF297mj7SuIxgujDNH0dJA6n1Oro7qoKDsKdT8BNR1c6f
+ Bw0Gqz0X1Gl2wK2CKcf6AKmS8TICnUq0p4r6mKD7GZPg/ZcPTTLlxxKc0ndNEz3eYWZ5yX7gEP
+ yYZpi7ktuc68Cku0OwhXTolVVzs1usbosdd5mxKJShPcz0i6G4N8/epIMXQrhyfidcLH9RDOtZ
+ FqE=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip02.wdc.com with ESMTP; 13 Nov 2022 18:13:12 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 13 Nov 2022 18:13:16 -0800
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v5 01/13] oslib: blkzoned: add blkzoned_finish_zone() helper function
-Date:   Mon, 14 Nov 2022 11:12:56 +0900
-Message-Id: <20221114021308.1684141-2-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v5 03/13] zbd: add zbd_zone_remainder() helper function
+Date:   Mon, 14 Nov 2022 11:12:58 +0900
+Message-Id: <20221114021308.1684141-4-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20221114021308.1684141-1-shinichiro.kawasaki@wdc.com>
 References: <20221114021308.1684141-1-shinichiro.kawasaki@wdc.com>
@@ -65,94 +65,79 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Add the helper function blkzoned_finish_zone() to support zone finish
-operation to zoned block devices through ioctl. This feature will be
-used to change status of zones which is not yet full but does not have
-enough size to write next block, so that such zones do not exceed max
-active zones limit. This function does zone finish only when kernel
-supports the ioctl BLKFINISHZONE. Otherwise, it does nothing. This
-should be fine since the kernel without BLKFINISHZONE does not report
-max active zone limit through sysfs to user space.
+Add the helper function zbd_zone_remainder(), which returns the number
+of bytes that are still available for writing before the zone gets full.
+Use this function to improve readability. It will also be used in the
+following patch.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 Tested-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 Reviewed-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- oslib/blkzoned.h       |  8 ++++++++
- oslib/linux-blkzoned.c | 37 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 45 insertions(+)
+ zbd.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/oslib/blkzoned.h b/oslib/blkzoned.h
-index 719b041d..29fb034f 100644
---- a/oslib/blkzoned.h
-+++ b/oslib/blkzoned.h
-@@ -18,6 +18,8 @@ extern int blkzoned_reset_wp(struct thread_data *td, struct fio_file *f,
- 				uint64_t offset, uint64_t length);
- extern int blkzoned_get_max_open_zones(struct thread_data *td, struct fio_file *f,
- 				       unsigned int *max_open_zones);
-+extern int blkzoned_finish_zone(struct thread_data *td, struct fio_file *f,
-+				uint64_t offset, uint64_t length);
- #else
- /*
-  * Define stubs for systems that do not have zoned block device support.
-@@ -51,6 +53,12 @@ static inline int blkzoned_get_max_open_zones(struct thread_data *td, struct fio
+diff --git a/zbd.c b/zbd.c
+index 627fb968..26a6404d 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -70,6 +70,19 @@ static inline uint64_t zbd_zone_capacity_end(const struct fio_zone_info *z)
+ 	return z->start + z->capacity;
+ }
+ 
++/**
++ * zbd_zone_remainder - Return the number of bytes that are still available for
++ *                      writing before the zone gets full
++ * @z: zone info pointer.
++ */
++static inline uint64_t zbd_zone_remainder(struct fio_zone_info *z)
++{
++	if (z->wp >= zbd_zone_capacity_end(z))
++		return 0;
++
++	return zbd_zone_capacity_end(z) - z->wp;
++}
++
+ /**
+  * zbd_zone_full - verify whether a minimum number of bytes remain in a zone
+  * @f: file pointer.
+@@ -83,8 +96,7 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
  {
- 	return -EIO;
- }
-+static inline int blkzoned_finish_zone(struct thread_data *td,
-+				       struct fio_file *f,
-+				       uint64_t offset, uint64_t length)
-+{
-+	return -EIO;
-+}
- #endif
+ 	assert((required & 511) == 0);
  
- #endif /* FIO_BLKZONED_H */
-diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
-index 185bd501..c3130d0e 100644
---- a/oslib/linux-blkzoned.c
-+++ b/oslib/linux-blkzoned.c
-@@ -308,3 +308,40 @@ int blkzoned_reset_wp(struct thread_data *td, struct fio_file *f,
- 
- 	return ret;
+-	return z->has_wp &&
+-		z->wp + required > zbd_zone_capacity_end(z);
++	return z->has_wp && required > zbd_zone_remainder(z);
  }
-+
-+int blkzoned_finish_zone(struct thread_data *td, struct fio_file *f,
-+			 uint64_t offset, uint64_t length)
-+{
-+#ifdef BLKFINISHZONE
-+	struct blk_zone_range zr = {
-+		.sector         = offset >> 9,
-+		.nr_sectors     = length >> 9,
-+	};
-+	int fd, ret = 0;
-+
-+	/* If the file is not yet opened, open it for this function. */
-+	fd = f->fd;
-+	if (fd < 0) {
-+		fd = open(f->file_name, O_RDWR | O_LARGEFILE);
-+		if (fd < 0)
-+			return -errno;
-+	}
-+
-+	if (ioctl(fd, BLKFINISHZONE, &zr) < 0)
-+		ret = -errno;
-+
-+	if (f->fd < 0)
-+		close(fd);
-+
-+	return ret;
-+#else
-+	/*
-+	 * Kernel versions older than 5.5 does not support BLKFINISHZONE. These
-+	 * old kernels assumed zones are closed automatically at max_open_zones
-+	 * limit. Also they did not support max_active_zones limit. Then there
-+	 * was no need to finish zones to avoid errors caused by max_open_zones
-+	 * or max_active_zones. For those old versions, just do nothing.
-+	 */
-+	return 0;
-+#endif
-+}
+ 
+ static void zone_lock(struct thread_data *td, const struct fio_file *f,
+@@ -440,7 +452,7 @@ static bool zbd_open_zone(struct thread_data *td, const struct fio_file *f,
+ 		 * already in-flight, handle it as a full zone instead of an
+ 		 * open zone.
+ 		 */
+-		if (z->wp >= zbd_zone_capacity_end(z))
++		if (!zbd_zone_remainder(z))
+ 			res = false;
+ 		goto out;
+ 	}
+@@ -1368,7 +1380,7 @@ found_candidate_zone:
+ 	/* Both z->mutex and zbdi->mutex are held. */
+ 
+ examine_zone:
+-	if (z->wp + min_bs <= zbd_zone_capacity_end(z)) {
++	if (zbd_zone_remainder(z) >= min_bs) {
+ 		pthread_mutex_unlock(&zbdi->mutex);
+ 		goto out;
+ 	}
+@@ -1433,7 +1445,7 @@ retry:
+ 		z = zbd_get_zone(f, zone_idx);
+ 
+ 		zone_lock(td, f, z);
+-		if (z->wp + min_bs <= zbd_zone_capacity_end(z))
++		if (zbd_zone_remainder(z) >= min_bs)
+ 			goto out;
+ 		pthread_mutex_lock(&zbdi->mutex);
+ 	}
 -- 
 2.37.1
 
