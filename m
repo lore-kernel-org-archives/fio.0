@@ -2,242 +2,131 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57FA2C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF681C43217
 	for <fio@archiver.kernel.org>; Fri, 18 Nov 2022 05:39:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233999AbiKRFjG (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 18 Nov 2022 00:39:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55186 "EHLO
+        id S234976AbiKRFjH (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 18 Nov 2022 00:39:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234976AbiKRFjF (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S235063AbiKRFjF (ORCPT <rfc822;fio@vger.kernel.org>);
         Fri, 18 Nov 2022 00:39:05 -0500
 Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C85A786DA
-        for <fio@vger.kernel.org>; Thu, 17 Nov 2022 21:38:59 -0800 (PST)
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20221118053858epoutp03da26c92e1fcc6f23d018c7b9c0d86158~olzow4jzD1108811088epoutp03K
-        for <fio@vger.kernel.org>; Fri, 18 Nov 2022 05:38:58 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20221118053858epoutp03da26c92e1fcc6f23d018c7b9c0d86158~olzow4jzD1108811088epoutp03K
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9578719008
+        for <fio@vger.kernel.org>; Thu, 17 Nov 2022 21:38:55 -0800 (PST)
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20221118053852epoutp039d75cb05952c4382f865295f243695de~olzjHVXvl1067710677epoutp03n
+        for <fio@vger.kernel.org>; Fri, 18 Nov 2022 05:38:52 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20221118053852epoutp039d75cb05952c4382f865295f243695de~olzjHVXvl1067710677epoutp03n
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1668749938;
-        bh=Ln3J44Em2vs5tLjyQHSaOqEHcAh9k2QW1TYdTwTp8ZY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KU6CtgMq7aaG81eowAtKTp56+76BgbE2ZOrczkY7sEavktp1UpZaMBJ0LqfW2sPu9
-         Btxrc6kiWumO6QBVmCgbktRcDQa86I47W3pmnD2M7e8XPklX2tM81bHnPpuqMopLoN
-         ACUpgqDv9CEtE5wxD59hoIuOVFEm+QMbUvrjpeU0=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20221118053857epcas5p3564c0f0606fbf3c16c1fc697b6d9540e~olzoPzHjs0315803158epcas5p3p;
-        Fri, 18 Nov 2022 05:38:57 +0000 (GMT)
-Received: from epsmges5p3new.samsung.com (unknown [182.195.38.176]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4ND5Dw27b7z4x9Q7; Fri, 18 Nov
-        2022 05:38:56 +0000 (GMT)
+        s=mail20170921; t=1668749932;
+        bh=2lzbE6nJp7k2Wf9GjFyJvr9wuloYiK4dP0UD8NGefx0=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=CM21rdsg2P///XfUCDfCEYePAGBJb/7cwnkbzb4LZiVGfo2iEl2ciszM8vBjJOZcP
+         wZ+moYfXKOfSKVSaDK6k8cJpS6WTumm54Fox97FHybUGuJ727VMbgKwUoyyNsOEwez
+         PfhQ7CAmyAHoYFSGx4ihiDzg8K8rLeabN7LE5044=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20221118053851epcas5p1473f65ad81ed0f1e61d4804396ff7264~olzidvSw41759817598epcas5p18;
+        Fri, 18 Nov 2022 05:38:51 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.181]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4ND5Dn2H3rz4x9QC; Fri, 18 Nov
+        2022 05:38:49 +0000 (GMT)
 Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        D3.AC.56352.07A17736; Fri, 18 Nov 2022 14:38:56 +0900 (KST)
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        BF.34.39477.96A17736; Fri, 18 Nov 2022 14:38:49 +0900 (KST)
 Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-        20221118052634epcas5p1955a5364530a816efb34065542ad2e78~olo0C1-LY1008910089epcas5p17;
-        Fri, 18 Nov 2022 05:26:34 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+        20221118052632epcas5p48ffea1e5c9b88f99b2bc90147e93321d~oloyCzoUF3267232672epcas5p4n;
+        Fri, 18 Nov 2022 05:26:32 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
         epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20221118052634epsmtrp1084ae98687b2420e0b7377eb2c54062d~olo0CMp412947929479epsmtrp1Z;
-        Fri, 18 Nov 2022 05:26:34 +0000 (GMT)
-X-AuditID: b6c32a4b-383ff7000001dc20-97-63771a7031a4
+        20221118052632epsmtrp1475bc816926f5c4ecc25fad8f7907752~oloyCNKxW2947929479epsmtrp1X;
+        Fri, 18 Nov 2022 05:26:32 +0000 (GMT)
+X-AuditID: b6c32a4a-259fb70000019a35-22-63771a69e46b
 Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        A2.0B.14392.A8717736; Fri, 18 Nov 2022 14:26:34 +0900 (KST)
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        24.55.18644.88717736; Fri, 18 Nov 2022 14:26:32 +0900 (KST)
 Received: from test-zns.sa.corp.samsungelectronics.net (unknown
         [107.110.206.5]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20221118052633epsmtip1fd1c4de821b30493696dad3d8aaedc39~olozEV4RR2456124561epsmtip1G;
-        Fri, 18 Nov 2022 05:26:33 +0000 (GMT)
+        20221118052631epsmtip19b165c048446c8de89571003d2a9da7e~oloxVAcKU2282222822epsmtip1L;
+        Fri, 18 Nov 2022 05:26:31 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, vincentfu@gmail.com,
         Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 2/2] test: add test for mix random and sequential workload
-Date:   Fri, 18 Nov 2022 10:44:54 +0530
-Message-Id: <20221118051454.31288-3-ankit.kumar@samsung.com>
+Subject: [PATCH 0/2] Fix percentage random workload and add test case
+Date:   Fri, 18 Nov 2022 10:44:52 +0530
+Message-Id: <20221118051454.31288-1-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20221118051454.31288-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrJKsWRmVeSWpSXmKPExsWy7bCmpm6BVHmywettvBZrrvxmt1h9t5/N
-        4uOsF8wWG9oEHVg8ds66y+5x+WypR9+WVYwenzfJBbBEZdtkpCampBYppOYl56dk5qXbKnkH
-        xzvHm5oZGOoaWlqYKynkJeam2iq5+AToumXmAC1UUihLzCkFCgUkFhcr6dvZFOWXlqQqZOQX
-        l9gqpRak5BSYFOgVJ+YWl+al6+WlllgZGhgYmQIVJmRnTPywh7FgukLF4WXfWRsY70p0MXJy
-        SAiYSFyZ/Zuxi5GLQ0hgN6PE1MnroZxPjBLHO54wQTjfGCXWf1jFCNOy8uhbNojEXkaJW9t/
-        skA4rUwSW+btYwWpYhPQlnj19gYziC0iICyxv6OVBcRmFgiVOHntCzuILSzgJdH7bgXYVBYB
-        VYnlyy6B9fIK2EjsuLeaFWKbvMTqDQeA5nBwcArYSsxtiYUIr2KXOPHEFsJ2kZj75wZUubDE
-        q+Nb2CFsKYmX/W1QdrbEpoc/mSDsAokjL3qZIWx7idZT/WDjmQU0Jdbv0ocIy0pMPbWOCeJi
-        Pone30+gWnkldsyDsVUl/t67zQJhS0vcfHcVyvaQuNvygh0SJBMYJWYvW8c8gVFuFsKKBYyM
-        qxglUwuKc9NTi00LjPNSy+GRlpyfu4kRnKa0vHcwPnrwQe8QIxMH4yFGCQ5mJRHe3IulyUK8
-        KYmVValF+fFFpTmpxYcYTYHBN5FZSjQ5H5go80riDU0sDUzMzMxMLI3NDJXEeRfP0EoWEkhP
-        LEnNTk0tSC2C6WPi4JRqYJLPmc6Sy3LFyM5Cc6FyRI6GY06/tp73xLiX8i8e3ayQ3jphgf6X
-        Tzd+XlwgYPrf41/NO9ZGafEVDm5f49fdV4rXTFvc7Lv+7rLfvy5N/WpacP38rsdXtrLb2mnd
-        UhT+fviJ9Jr2WNvCzW0hzNMtU2RLrhb0f4oKe6Jgr6AdO/eN0Sv+2nCPzf1+y7YwTzfleDjr
-        Cm9tUM4e4wT7wLtRP0srOp+UvNK7v2Xr9eItTx9tOBo6l0eX+57DZd/7mYtKflzyM9Uq2+n/
-        /pnc88PfZT6Wajz6ZHpUcJvNjZ3lb892FxfbiIv/sa8qLJz/8mfrs9WGPnVrvpw4V27ziuNT
-        x17R06nley8sn9vwPFNvpp0SS3FGoqEWc1FxIgBFqot63AMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrPJMWRmVeSWpSXmKPExsWy7bCSnG6XeHmywZy53BZrrvxmt1h9t5/N
-        4uOsF8wWG9oEHVg8ds66y+5x+WypR9+WVYwenzfJBbBEcdmkpOZklqUW6dslcGVM/LCHsWC6
-        QsXhZd9ZGxjvSnQxcnJICJhIrDz6lq2LkYtDSGA3o8SKrgdMXYwcQAlpiYXrEyFqhCVW/nvO
-        DlHTzCQx5X4TM0iCTUBb4tXbG2C2CFDR/o5WFhCbWSBcYvqByYwgtrCAl0TvuxVgNouAqsTy
-        ZZdYQWxeARuJHfdWs0IskJdYveEAM8heTgFbibktsSBhIaCS02teM09g5FvAyLCKUTK1oDg3
-        PbfYsMAwL7Vcrzgxt7g0L10vOT93EyM4jLQ0dzBuX/VB7xAjEwfjIUYJDmYlEd7ci6XJQrwp
-        iZVVqUX58UWlOanFhxilOViUxHkvdJ2MFxJITyxJzU5NLUgtgskycXBKNTA17tJ933N5WsDd
-        a55WH1/YimTJlCSKafFN621imOMjuUFqXuyVnMT5s6c4/e2e7bRX8Gbki+dz79pypu1KXe+p
-        odU+/U/k0pdcfRzTnrwWmGg9VXc236J8l6miDtl2zj1xm6yXuShw9qxWNu9xeDZ10bpc8Qs9
-        X8PS715LcbLaEXpQwPn246OP1uzlC3C+ec9ni1rc1KfHGC9tCfum7RyobbOe6diq4KfeqtvO
-        Fj3e2aguv49pKpfyh3MaSlXH1NKNgvqU2s6sjlhavbhpY/Kso+kH6oLvT1QpUHiVVHtXb5HB
-        ovkvA+94SwatUPBUvPkqfVfVq+22x9/M5Uq58PrTU53e52eO1KddKzjwslRViaU4I9FQi7mo
-        OBEAH6ozYpICAAA=
-X-CMS-MailID: 20221118052634epcas5p1955a5364530a816efb34065542ad2e78
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrLKsWRmVeSWpSXmKPExsWy7bCmpm6mVHmywf4ePos1V36zW6y+289m
+        8XHWC2aLDW2CDiweO2fdZfe4fLbUo2/LKkaPz5vkAliism0yUhNTUosUUvOS81My89JtlbyD
+        453jTc0MDHUNLS3MlRTyEnNTbZVcfAJ03TJzgBYqKZQl5pQChQISi4uV9O1sivJLS1IVMvKL
+        S2yVUgtScgpMCvSKE3OLS/PS9fJSS6wMDQyMTIEKE7IzFv7byFbwnaPi8+f/LA2Mk9m7GDk5
+        JARMJBqPnmMFsYUEdjNKdD+P7WLkArI/MUos2bGbGcL5zCgx5/8xVpiOKa/+MEIkdjFKTH31
+        HMppZZKY1HiXBaSKTUBb4tXbG8wgtoiAsMT+jlawOLNAqMTJa1/AdgsLuEr8u36GEcRmEVCV
+        +LlwKpjNK2Aj8WHBZCaIbfISqzccADtDQqCfXWLl4ZtQCReJJW9fQj0hLPHq+BYoW0riZX8b
+        lJ0tsenhT6j6AokjL3qZIWx7idZT/UA2B9BBmhLrd+lDhGUlpp5axwRxJ59E7+8nUK28Ejvm
+        wdiqEn/v3WaBsKUlbr67CmV7SMxd184CCcdYiUvvzzNNYJSdhbBhASPjKkbJ1ILi3PTUYtMC
+        o7zUcnhEJefnbmIEpyMtrx2MDx980DvEyMTBeIhRgoNZSYQ392JpshBvSmJlVWpRfnxRaU5q
+        8SFGU2CYTWSWEk3OBybEvJJ4QxNLAxMzMzMTS2MzQyVx3sUztJKFBNITS1KzU1MLUotg+pg4
+        OKUamFh0/8X1/dnb9GCJtufBA1rXdBLL75786XhVLnfqtMKMyXNFZq76fk40+MDTiR+WvPdz
+        DWe60uVw7ox8Vtd353MWX5a2W58PNPQtfmTYtnlFVI3q1TWigt/KbycFy5vsvrI/J+HILP3w
+        Ny94JylOC3qwwfzS543bqtd0PRI31ZQ+Jb5Q/veV/536ajH3bGPqioyu3Fd5aPPu8F5+nely
+        G9d+Fpt1ukQ4Y8Pet/1B9r33D7qFli8Pm+t52cg2Seqgm/P+OxyZ2o6xV5UPhW9fMluXf+Pz
+        a9ziUa0G/sUbDj4vSis75hkRIi7k+OWoymexFyEPalQ0b5tPvlC040NeTu+uhjm8TDFvZzAv
+        zuBe2qbEUpyRaKjFXFScCAAXgGZz0AMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrOJMWRmVeSWpSXmKPExsWy7bCSnG6HeHmywa3rLBZrrvxmt1h9t5/N
+        4uOsF8wWG9oEHVg8ds66y+5x+WypR9+WVYwenzfJBbBEcdmkpOZklqUW6dslcGUs/LeRreA7
+        R8Xnz/9ZGhgns3cxcnJICJhITHn1h7GLkYtDSGAHo8TFH6tZuhg5gBLSEgvXJ0LUCEus/Pcc
+        rF5IoJlJYsvpeBCbTUBb4tXbG8wgtghQzf6OVhYQm1kgXGL6gcmMILawgKvEv+tnwGwWAVWJ
+        nwungtm8AjYSHxZMZoKYLy+xesMB5gmMPAsYGVYxSqYWFOem5xYbFhjlpZbrFSfmFpfmpesl
+        5+duYgSHhZbWDsY9qz7oHWJk4mA8xCjBwawkwpt7sTRZiDclsbIqtSg/vqg0J7X4EKM0B4uS
+        OO+FrpPxQgLpiSWp2ampBalFMFkmDk6pBiZFRsl/Mxn2vDj3UnrjgV19xo0+sfkrHfIrGtcf
+        XhTZd++vdvQuoxW6dQX7OG2YD1yMfv0pn/3vLiW9e5FNGcs9wpKf/5yn01JxUODuDNP3gWrt
+        YUsu1woXb/Q3mm/+VGNd4aOLmpI3hJrvzL3ddnDb31c5L917Tmv9mcGX/aPHo3CfWrus7KUn
+        x87PW39291rpl6nWf93XmVvKPOQN7Giws1zOV8K4lr1PYfum8vJ4qVTW8j0LPJuStpWxTxdu
+        /Gz0n1347/r33s4aTr/ePtQtPeS2Kvenuex13rkyxzb5MU49wLBwPRvr5HaOK+516/9OlJBN
+        iHx8qyFToMt/PzfvWiPdWu+dh/xq5tR9f6LEUpyRaKjFXFScCACnUVCEegIAAA==
+X-CMS-MailID: 20221118052632epcas5p48ffea1e5c9b88f99b2bc90147e93321d
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20221118052634epcas5p1955a5364530a816efb34065542ad2e78
-References: <20221118051454.31288-1-ankit.kumar@samsung.com>
-        <CGME20221118052634epcas5p1955a5364530a816efb34065542ad2e78@epcas5p1.samsung.com>
+X-CMS-RootMailID: 20221118052632epcas5p48ffea1e5c9b88f99b2bc90147e93321d
+References: <CGME20221118052632epcas5p48ffea1e5c9b88f99b2bc90147e93321d@epcas5p4.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Add a test case to confirm that with mix sequential and random workload
-i.e. with fio option percentage_random set to 0 < percentage_random < 100
-we are actually writing the specified size.
+Sometimes while running a mix of sequential and random I/O's the
+generated sequential offset is outside the I/O region. This usually
+happens if the previous I/O is the last block in the region which
+results in this sequential I/O offset to be just outside the region.
+This results in fio finishing without doing the specified amount of
+I/O's.
+With this fix fio now generates a random offset within the region.
 
-The test includes pre and post job files, where the former lays out 3
-I/O files each of size 4MiB to be used by latter to do random write
-with 1MiB size per job. This is intended to cover such cases where
-fio generates offset just at the end of I/O region resulting in the
-next sequential I/O to be outside the region, when the size is less than
-actual filesize.
+Added a test case for the same (test_id: 28)
+As I see there is a pending patch with test_id: 27
+so I decided to skip it to avoid conflict.
 
-This covers #1486
+This now fixes the issue: https://github.com/axboe/fio/issues/1486
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
----
+Ankit Kumar (2):
+  io_u: fix offset generation for mix of random and sequential workload
+  test: add test for mix random and sequential workload
+
+ io_u.c                |  5 ++++-
  t/jobs/t0028-post.fio | 27 +++++++++++++++++++++++++++
  t/jobs/t0028-pre.fio  | 21 +++++++++++++++++++++
  t/run-fio-tests.py    | 34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 82 insertions(+)
+ 4 files changed, 86 insertions(+), 1 deletion(-)
  create mode 100644 t/jobs/t0028-post.fio
  create mode 100644 t/jobs/t0028-pre.fio
 
-diff --git a/t/jobs/t0028-post.fio b/t/jobs/t0028-post.fio
-new file mode 100644
-index 00000000..d5ad88ca
---- /dev/null
-+++ b/t/jobs/t0028-post.fio
-@@ -0,0 +1,27 @@
-+# specify mixture of sequential and random workloads
-+[global]
-+ioengine=libaio
-+size=1M
-+rw=randwrite
-+
-+# Expected result: 	1M data written
-+# Buggy result: 	Less than 1M data written
-+[basic]
-+bs=4K
-+percentage_random=50
-+
-+# Expected result: 	1M data written
-+# Buggy result: 	Less than 1M data written
-+[rand_skewed]
-+bs=4K
-+randseed=47827
-+percentage_random=90
-+iodepth=32
-+
-+# Expected result: 	1M data written
-+# Buggy result: 	Less than 1M data written
-+[bsrange]
-+bsrange=512-4K
-+randseed=7847
-+percentage_random=50
-+iodepth=32
-diff --git a/t/jobs/t0028-pre.fio b/t/jobs/t0028-pre.fio
-new file mode 100644
-index 00000000..dafc4b06
---- /dev/null
-+++ b/t/jobs/t0028-pre.fio
-@@ -0,0 +1,21 @@
-+# specify mixture of sequential and random workloads
-+[global]
-+ioengine=libaio
-+size=4M
-+rw=randwrite
-+
-+[basic]
-+bs=4K
-+percentage_random=50
-+
-+[rand_skewed]
-+bs=4K
-+randseed=47827
-+percentage_random=90
-+iodepth=32
-+
-+[bsrange]
-+bsrange=512-4K
-+randseed=7847
-+percentage_random=50
-+iodepth=32
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index e5b307ac..500ca841 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -800,6 +800,30 @@ class FioJobTest_t0025(FioJobTest):
-             self.passed = False
- 
- 
-+class FioJobTest_t0028(FioJobTest):
-+    """Test consists for test job t0028-post.fio
-+    Confirm for all jobs that write['io_kbytes'] == 1024"""
-+
-+    def check_result(self):
-+        super(FioJobTest_t0028, self).check_result()
-+
-+        if not self.passed:
-+            return
-+
-+        if self.json_data['jobs'][0]['write']['io_kbytes'] != 1024:
-+            self.passed = False
-+            self.failure_reason = "{basic} data written != 1024KiB,".format(self.failure_reason)
-+
-+        if self.json_data['jobs'][1]['write']['io_kbytes'] != 1024:
-+            self.passed = False
-+            self.failure_reason = "{rand_skewed} data written != 1024KiB,".format(self.failure_reason)
-+
-+        kbytes = self.json_data['jobs'][2]['write']['io_kbytes']
-+        if kbytes < 1021 or kbytes > 1027:
-+            self.passed = False
-+            self.failure_reason = "{bsrange} data written != 1024KiB,".format(self.failure_reason)
-+
-+
- class FioJobTest_iops_rate(FioJobTest):
-     """Test consists of fio test job t0009
-     Confirm that job0 iops == 1000
-@@ -1214,6 +1238,16 @@ TEST_LIST = [
-         'pre_success':      None,
-         'requirements':     [Requirements.not_windows],
-     },
-+    {
-+        'test_id':          28,
-+        'test_class':       FioJobTest_t0028,
-+        'job':              't0028-post.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          't0028-pre.fio',
-+        'pre_success':      None,
-+        'output_format':    'json',
-+        'requirements':     [Requirements.linux, Requirements.libaio],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
 -- 
 2.17.1
 
