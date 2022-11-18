@@ -2,148 +2,122 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 664ECC4332F
-	for <fio@archiver.kernel.org>; Fri, 18 Nov 2022 15:00:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11D9DC4332F
+	for <fio@archiver.kernel.org>; Fri, 18 Nov 2022 15:06:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242136AbiKRPA2 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 18 Nov 2022 10:00:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53940 "EHLO
+        id S242185AbiKRPGe (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 18 Nov 2022 10:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242150AbiKRPAD (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 18 Nov 2022 10:00:03 -0500
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B64A69208B
-        for <fio@vger.kernel.org>; Fri, 18 Nov 2022 06:57:14 -0800 (PST)
-Received: by mail-qt1-x82e.google.com with SMTP id a27so3228989qtw.10
-        for <fio@vger.kernel.org>; Fri, 18 Nov 2022 06:57:14 -0800 (PST)
+        with ESMTP id S235165AbiKRPGP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 18 Nov 2022 10:06:15 -0500
+Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050238C794
+        for <fio@vger.kernel.org>; Fri, 18 Nov 2022 07:04:46 -0800 (PST)
+Received: by mail-qk1-x72d.google.com with SMTP id x18so3565087qki.4
+        for <fio@vger.kernel.org>; Fri, 18 Nov 2022 07:04:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=I2W4n4KneGh4VO8dWf2KKzUAAkZI86MI0ZqDFnep97o=;
-        b=c2madDmp9ENcPftkq9p1ls2d7ZLBwL7P31e1LJQ/RWjjn/U8Qi1BQ3X2th8f5NLTHV
-         1apEATnL21KmeegqfDqAmO691qeuSArMd0+YBdk5GrW3RDgBJ3l2FenhNLIhj3qBCbMF
-         bdpKtF6nlJNIMRTEnZpBiKn7pGG3h1mlF1E71escw5VJ0ZfKosjg5EC85GJG/PNfKLlQ
-         1vYNYYcgX4R5Yo7WO+qXTEmsHlGBYcMUqlMgyic3a6omw6JrTdqY4PDqPLrgjURx3lZz
-         gX8Gd6+tWOYyfQ1ClOAYE83JuvahLWkJuDW4fT0RdwqnUIOBTjb1Hk8RAXWyvBag0lXC
-         VmOw==
+        bh=FC8wLMwYliXU0Zz1dUYBmBlaHfSUBgc1gY70nGaFCTM=;
+        b=YH7ZQhaw+cE5VQslCQlIz6liLqWrxKfA6t9FBkLiUrbpZmTW1J9S/1ep+z4zoKLfmJ
+         ZPTOsy3+1rnzcu9on5Yy6d29jcwrp03JBUhzDn4Wq19HjndnWBYno5XEFlJn++p+wVmF
+         HT3sDzY2mH2eqNH+/qFYJ55bFBAIhNsTzRTzO/RgTJuEDQOooPVk2e6rWPOl5ezopiEN
+         hP2iaNhwe1rHDp+J7ReAR0+wYMAU/apWUI2FA2WSnm5lsyIlvhEI7Rajcw1UpYCMUR8A
+         HhIGXUKvlU5W30iyv4ZWczf7ejAPLfp3ycyIVttm83zCiVrCMw25er/EtwYZKDvSTGpE
+         3jMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=I2W4n4KneGh4VO8dWf2KKzUAAkZI86MI0ZqDFnep97o=;
-        b=MDEBa5v5Um4EziCOB+p/sYPntY+BETqFxrPG5mzDKTseYT3D4FWzXwt41Ygc0b/Jxj
-         op7i4hm3aPP/QePzFcrS8GEWKDaLnRV/DXaEkh+8/cei93h34CBFyYSFB2z12PhP+w3k
-         bWKORU3F5lVaNV8P9EE02L494iaUZpU7Dt3y61mgpMhMiv5vXRMUVRQaPhsuoP4/guc5
-         Ct3btea/HI+Bvpop2/n5y2Tq8/k9tsxyohPFv6kBmQdz1tZT3ElDyQKHWyVI+aqlrGV3
-         ddkLa1O8NpKyI2ZFCRYle7L5U6glrMykHMEOoiRNO/JpgLN34G0M1i4fczS0zwhts6/4
-         +Czw==
-X-Gm-Message-State: ANoB5pkx5yU1puwqsudEOKD5dG3b8f8MMbt54kIvG1nS11jNjnw6tPZE
-        eVcp+oKUAYHYDxQxjp76L3Y=
-X-Google-Smtp-Source: AA0mqf5bYvyBtzjn5U3aQgxzAlv5VtuPRxDMV9K1yPLXTAY+RW2QBxa/0JlYBH0aBaWTm/HClUU2WA==
-X-Received: by 2002:ac8:41cf:0:b0:3a5:868a:5b86 with SMTP id o15-20020ac841cf000000b003a5868a5b86mr6828932qtm.488.1668783433669;
-        Fri, 18 Nov 2022 06:57:13 -0800 (PST)
+        bh=FC8wLMwYliXU0Zz1dUYBmBlaHfSUBgc1gY70nGaFCTM=;
+        b=0J4NqbxFwlBxzT0cKgkcVBOfv7nMGLt7p+FN0TotoRN6fSo3qkCu3PJ+cfV2AjvYVF
+         2CBD4dDHfNPc3j3EYh2ejY/39pJfR29mtaaXxCn7p11ajjq9fE/wVNY1pvdl0+SMJILQ
+         N7vEAYjZgZyn072Ax6YP7DeNUg1exJcW7JebjMWn966GJgT2fei/o+SU/BVEEAp0aGxE
+         9okTZZAgA0O3wjDORELjNlN/lzrs1vyz/VCmcvTB4TsVZHABOmv7DA4tGpbQOofdSjDr
+         GcUE14f5mrxErYo3EE7LodtoDralz/4gqKKS4KraIcKlYsstnssi6vQjK5g/hGukXcNP
+         +7NA==
+X-Gm-Message-State: ANoB5pn0YE1InZx/IX2341JsoCdeENWeMilD2kqWug288v9fxLGHOkLR
+        ddqQShvjwmuY4zJZ5tzfAUUMuoLIdAqWHw==
+X-Google-Smtp-Source: AA0mqf6RrCCAFY4pI278FvEuVkaq7jP0LzM2cuLiAHKeKZmDpYykxrLYnfn7ffk0vF/sYej5vKSBVQ==
+X-Received: by 2002:a05:620a:21ce:b0:6fa:d149:6d47 with SMTP id h14-20020a05620a21ce00b006fad1496d47mr6218434qka.734.1668783884900;
+        Fri, 18 Nov 2022 07:04:44 -0800 (PST)
 Received: from [192.168.1.218] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id g10-20020a05620a40ca00b006faf76e7c9asm2588680qko.115.2022.11.18.06.57.12
+        by smtp.gmail.com with ESMTPSA id r13-20020ac8794d000000b0039cc82a319asm2062491qtt.76.2022.11.18.07.04.43
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 18 Nov 2022 06:57:12 -0800 (PST)
-Message-ID: <10fb80d0-788d-9f92-cc66-896a262fffb6@gmail.com>
-Date:   Fri, 18 Nov 2022 09:57:11 -0500
+        Fri, 18 Nov 2022 07:04:44 -0800 (PST)
+Message-ID: <7c4b684c-03e8-9f33-3809-443ac7678a07@gmail.com>
+Date:   Fri, 18 Nov 2022 10:04:43 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.4.2
-Subject: Re: [PATCH v5 00/13] zbd: fix unaligned block size issue and verify
- issues
-To:     Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>
-References: <20221114021308.1684141-1-shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v1] fio: Append "filecreate/filestat/filedelete" to
+ 'readwrite='
 Content-Language: en-US
+To:     "Friendy.Su@sony.com" <Friendy.Su@sony.com>,
+        fio <fio@vger.kernel.org>
+Cc:     "Wataru.Aoyama@sony.com" <Wataru.Aoyama@sony.com>,
+        "Kento.A.Kobayashi@sony.com" <Kento.A.Kobayashi@sony.com>
+References: <HK0PR04MB23884FFF415F7EFCB424CABEFD049@HK0PR04MB2388.apcprd04.prod.outlook.com>
 From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20221114021308.1684141-1-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <HK0PR04MB23884FFF415F7EFCB424CABEFD049@HK0PR04MB2388.apcprd04.prod.outlook.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 11/13/22 21:12, Shin'ichiro Kawasaki wrote:
-> When zonemode is zbd and block size is not divisor of zone size, write target
-> zone selection does not work as expected. First four patches in this series fix
-> the issue by introducing zone finish operation. First three patches do
-> preparation and the 4th patch does the fix.
+On 11/15/22 03:39, Friendy.Su@sony.com wrote:
+> Show correct file operation strings in log.
 > 
-> This series also fix four more issues related to verify with zonemode zbd. The
-> first issue is that verify is allowed only when block size is divisor of zone
-> size. The 5th patch removes this limitation. The second and third issue are
-> caused by zone reset, which erases data pattern for verify. The 6th and 7th
-> patches adjust verify and zone reset timing to avoid verify errors by the erased
-> data pattern. The last issue is experimental verify, which does not work with
-> zonemode=zbd. The 8th patch checks options to error out when experimental
-> verify is specified together with zonemode=zbd.
+> For file operation measurement, 'rw' field is set to 'read' in job file.
+> The corresponding 'rw' in log is also 'read'. This makes user confused
+> since file operation and IO read are totally different things.
+> In this commit, add 3 new file operations to 'rw' field.
 > 
-> Five more patches follow to make test cases in t/zbd match with the fixes.
+> For implementation, TD_DDIR_FILECREATE/TD_DDIR_FILESTAT/TD_DDIR_FILEDELETE
+> are added. Meanwhile, DDIR_FILE_OP is added to identify the file
+> operation and IO operation. DDIR_FILE_OP is same value as
+> DDIR_READ, then clat_stat[DDIR_FILE_READ] can be 'borrowed' for file
+> operation statistics. Just set DDIR_FILE_OP_MASK when get io_ddir_name().
+> This avoid big code change if add a new index to enum fio_ddir.
 > 
-> Of note is that the new test case #59 added by 11th patch may fail, when libzbc
-> IO engine is specified to t/zbd/test-zbd-support script with -l option. For SAS
-> ZBC drive, use latest libzbc with fix to avoid the faliure [1]. For SATA ZAC
-> drive, use kernel with a fix posted to linux-ide list recently [2].
+> With this commit, user can explicitly specify the exact file operation
+> in job file 'rw' field. 'rw' string and 'ddir' string in log is also
+> correct.
 > 
-> [1] https://github.com/westerndigitalcorporation/libzbc/commit/6de6869acbe7c3a12758b1f42c9da47bb873e621
-> [2] https://lore.kernel.org/linux-ide/20221107040229.1548793-1-shinichiro.kawasaki@wdc.com/
+> Example:
 > 
+> $ fio   filestat-ioengine.fio
+> t0: (g=0): rw=filestat, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=filestat, iodepth=1
+> t1: (g=0): rw=filestat, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=filestat, iodepth=1
+> fio-3.33
+> Starting 2 threads
 > 
-> Changes from v4:
-> * 7th patch: improved fix for test case #34 failure found with 16MB zone size
-> * 10th patch: improved the test case #34 to trigger the failure found with 16MB
->                zone size
+> t0: (groupid=0, jobs=1): err= 0: pid=4744: Thu Nov 10 18:24:00 2022
+>    file_operation: IOPS=20.0k, BW=78.1MiB/s (81.9MB/s)(80.0KiB/1msec)
+>      clat (nsec): min=12645, max=29394, avg=13751.35, stdev=3690.55
+>      clat percentiles (nsec):
+>       |  1.00th=[12608],  5.00th=[12608], 10.00th=[12736], 20.00th=[12736],
+>       | 30.00th=[12736], 40.00th=[12736], 50.00th=[12864], 60.00th=[12992],
+>       | 70.00th=[12992], 80.00th=[13120], 90.00th=[13120], 95.00th=[13760],
+>       | 99.00th=[29312], 99.50th=[29312], 99.90th=[29312], 99.95th=[29312],
+>       | 99.99th=[29312]
 > 
-> Changes from v3:
-> * 6th patch: fixed get_next_verify() call and rand_seed check condition
-> * 11th patch: improved to cover four types of workloads
-> 
-> Changes from v2:
-> * Improved commit message and block comment in 3rd patch
-> * Fixed a comment typo in last patch
-> * Added Tested-by and Reviewed-by tags
-> 
-> Changes from v1:
-> * Separated zbd_zone_remainder() addition to 3rd patch and added suggested hunks
-> * Added last 13th patch for a new test case to test experimental_verify option
-> * Reflected other comments on the list
-> * Added Tested-by and Reviewed-by tags
-> 
-> 
-> Shin'ichiro Kawasaki (13):
->    oslib: blkzoned: add blkzoned_finish_zone() helper function
->    engines/libzbc: add libzbc_finish_zone() helper function
->    zbd: add zbd_zone_remainder() helper function
->    zbd: finish zones with remainder smaller than minimum write block size
->    zbd: allow block size not divisor of zone size
->    zbd, verify: verify before zone reset for
->      zone_reset_threshold/frequency
->    zbd: fix zone reset condition for verify
->    zbd: prevent experimental verify with zonemode=zbd
->    t/zbd: fix test case #33 for block size unaligned to zone size
->    t/zbd: modify test case #34 for block size unaligned to zone size
->    t/zbd: add test case to check zone_reset_threshold/frequency with
->      verify
->    t/zbd: remove experimental_verify option from test case #54
->    t/zbd: add test case to check experimental_verify option
-> 
->   engines/libzbc.c       |  34 ++++++++
->   ioengines.h            |   2 +
->   oslib/blkzoned.h       |   8 ++
->   oslib/linux-blkzoned.c |  37 +++++++++
->   t/zbd/test-zbd-support |  60 +++++++++++---
->   verify.c               |   6 +-
->   zbd.c                  | 175 +++++++++++++++++++++++++++--------------
->   zbd.h                  |   2 -
->   8 files changed, 250 insertions(+), 74 deletions(-)
-> 
+> Signed-off-by: friendy-su <friendy.su@sony.com>
 
-Applied. Thanks.
+<snip>
+
+I think having this option will be confusing and lead to users trying to 
+run a job with --ioengine=psync --rw=filecreate.
+
+However, I understand the confusion that arises when the file operation 
+ioengines are used. Might there be some other way to help? Perhaps the 
+ioengine could emit some sort of message? Or the documentation for the 
+file operation ioengines could be enhanced?
+
+Vincent
+
