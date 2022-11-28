@@ -2,163 +2,130 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3EB8C43217
-	for <fio@archiver.kernel.org>; Thu, 24 Nov 2022 13:00:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C853C4321E
+	for <fio@archiver.kernel.org>; Mon, 28 Nov 2022 21:57:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbiKXNAW (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 24 Nov 2022 08:00:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51150 "EHLO
+        id S234127AbiK1V5c (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 28 Nov 2022 16:57:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230015AbiKXNAT (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 24 Nov 2022 08:00:19 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 867BB94A60
-        for <fio@vger.kernel.org>; Thu, 24 Nov 2022 05:00:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=pVmS04CNadKbL425zW54s+yhg+sDIe2lUIXnfDUiReg=; b=Lp5slRFIocHYfKyn0Qcl+dubZU
-        h9SoP7ycYL7FHE2IbAAqsD/QiJ5wvzk8N+I4XGpOteGv/N+ffECZEdIynf1q2bIERkLVzh+0u9MGs
-        vwxTAX6isjTuMBBLuRqv53P8hTqFhgXFduxBP3NUoHWRPAADYfyvYFWBrQ7o7T517ZmPv0oIClLxA
-        aOZxInNJVe+mw3NICCDm3uY1RqbYCuXk8VkZvmlBWhvWcgmv6GSmjjtndeHjTYJhICZI9gYpAUDVD
-        NJ+yPcbBDfQARieFIX5RafiQS9hpR/S6/5Tqgoi9FtjvQ5yt+YKqz8IXI3J6BifBg0sOgJcX2Zf4I
-        rjQLwwLA==;
-Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1oyBpk-004AJ6-M4
-        for fio@vger.kernel.org; Thu, 24 Nov 2022 13:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 0803A1BC0106; Thu, 24 Nov 2022 06:00:02 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20221124130002.0803A1BC0106@kernel.dk>
-Date:   Thu, 24 Nov 2022 06:00:02 -0700 (MST)
+        with ESMTP id S232280AbiK1V5b (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 28 Nov 2022 16:57:31 -0500
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFA12C64C
+        for <fio@vger.kernel.org>; Mon, 28 Nov 2022 13:57:30 -0800 (PST)
+Received: by mail-qt1-x82a.google.com with SMTP id w9so7693043qtv.13
+        for <fio@vger.kernel.org>; Mon, 28 Nov 2022 13:57:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=sW881rPxtSzuVG/J9qH8APj2ymEQUUQPmGI9JbkMq0o=;
+        b=myfJI+YWotMvxAYB0tq3RVveVmwl+jVIW5QvC6/pFqgo+7oa0/hyqlWqBJqNhmiiY7
+         Jppbl01DQhCMIT43hijNXLesJv69m97ogsP6KPC0cqijT/b07UJDJPm9gw0qA4KNN4mg
+         WOKeqtlZjZa6ZjvJKbMevXWHX19RofzvJaIUSeAu26ra2ZiUvh8+XR1xFQQIvuxPGeYo
+         5ZZuS7NrftbU/970xdQj/t6ZgKmzxYuaAeAYXzkAu9OdDbEzbrfXd4G8CA7QumPXfQq+
+         qIDKfu3qbT/768iv92DnsS/sGb8iMEnwhkbTM8SE1XOMDLKv6oPOdDk+RNa9ZjAnahvl
+         bZgQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sW881rPxtSzuVG/J9qH8APj2ymEQUUQPmGI9JbkMq0o=;
+        b=pV3JgMOzVTBA/hbn9WvuB48r8kAf2z4b6XO4/9qzUbOySxDy43aU2iZlpgglem8EIa
+         nh24rns5iRM+7QLiVBt/E+lVjfxOScT35bpu8SVwcMxAjcw+tfeVc27w3HS0akx16Q9a
+         R/ZoDMEvAOxoemjvGBP68eSrRQi9w7iy0ksyxDPXqxkSNJmsVebHIRsFFVdueduSuCVp
+         AroGBS2eduG1dE+S6hnAbwum8omW8eBeh2OEuvcLZ7tAFKdphF1+auvJY18ree0VVAxG
+         bXM6pz30ftqurEFdlu9VrrrHVyv+SBd2Nd3vd+rKHCoy0xWWcf2tu4ZkHh38OgoTZC/2
+         5fbg==
+X-Gm-Message-State: ANoB5pmO2w9fqWmBacatGLqEIyQY4boltZOHzZL8wTpuv0iIF8gyJ74J
+        5A9JB/NvRRrrKcMUW1J/zX8=
+X-Google-Smtp-Source: AA0mqf58ZlMS+Qbf3nisz3yjPZrj3uxE65CgMjV+lXHZq04UVwjBD3zFzXiT4gBm5RpxDSyROdK4fg==
+X-Received: by 2002:ac8:4cd1:0:b0:3a5:1940:a027 with SMTP id l17-20020ac84cd1000000b003a51940a027mr48634258qtv.195.1669672649687;
+        Mon, 28 Nov 2022 13:57:29 -0800 (PST)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id bl15-20020a05620a1a8f00b006ce9e880c6fsm9198311qkb.111.2022.11.28.13.57.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Nov 2022 13:57:28 -0800 (PST)
+Message-ID: <1d29e8c8-ce79-0608-d979-d50bfbc9e112@gmail.com>
+Date:   Mon, 28 Nov 2022 16:57:28 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.0
+Subject: Re: [PATCH 1/2] io_u: fix offset generation for mix of random and
+ sequential workload
+Content-Language: en-US
+To:     Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
+Cc:     fio@vger.kernel.org
+References: <20221118051454.31288-1-ankit.kumar@samsung.com>
+ <CGME20221118052633epcas5p2c19a4398ff6a9d592eadb7b93f7e5d1e@epcas5p2.samsung.com>
+ <20221118051454.31288-2-ankit.kumar@samsung.com>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20221118051454.31288-2-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit ede04c27b618842e32b2a3349672f6b59a1697e1:
+On 11/18/22 00:14, Ankit Kumar wrote:
+ > Sometimes while running a mix of sequential and random I/O's the
+ > generated sequential offset is outside the I/O region. This usually
+ > happens if the previous I/O is the last block in the region and
+ > thus results in this sequential I/O's offset to be just outside the
+ > region.
+ > With this fix, fio generates a random offset within the I/O region.
+ >
+ > This fixes #1486
+ >
+ > Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+ > ---
+ >   io_u.c | 5 ++++-
+ >   1 file changed, 4 insertions(+), 1 deletion(-)
+ >
+ > diff --git a/io_u.c b/io_u.c
+ > index 8035f4b7..e49b1b29 100644
+ > --- a/io_u.c
+ > +++ b/io_u.c
+ > @@ -432,8 +432,11 @@ static int get_next_block(struct thread_data 
+*td, struct io_u *io_u,
+ >   				*is_random = false;
+ >   				io_u_set(td, io_u, IO_U_F_BUSY_OK);
+ >   				ret = get_next_seq_offset(td, f, ddir, &offset);
+ > -				if (ret)
+ > +				if (ret || offset >= f->io_size) {
+ >   					ret = get_next_rand_block(td, f, ddir, &b);
+ > +					offset = -1ULL;
+ > +					*is_random = true;
+ > +				}
+ >   			}
+ >   		} else {
+ >   			*is_random = false;
 
-  test: add large pattern test (2022-11-18 19:36:10 -0500)
+This patch causes a regression with a workload such as:
 
-are available in the Git repository at:
+fio --name=test --bs=4k --filesize=32k --nrfiles=10 --number_ios=10 
+--file_service_type=sequential --percentage_random=50 --rw=randread 
+--randrepeat=0 --ioengine=null --debug=io
 
-  git://git.kernel.dk/fio.git master
+Only the first file will be accessed when this patch is applied. Bad 
+offsets are needed in order to trigger the move to the next file.
 
-for you to fetch changes up to 72044c66ac7055a98c9b3021c298c81849e3c990:
+Here is a related issue: https://github.com/axboe/fio/issues/1372
 
-  doc: update about sqthread_poll (2022-11-23 14:06:03 -0500)
+Perhaps the right thing to do is to limit the offset >= f->io_size check 
+to cases where nrfiles = 1 as in the patch for issue 1372.
 
-----------------------------------------------------------------
-Ankit Kumar (2):
-      engines:io_uring: fix clat calculation for sqthread poll
-      doc: update about sqthread_poll
+Also, it seems to me that if we are intending to generate a sequential 
+offset for this case and succeed in doing so, we should just wrap around 
+to the beginning of the file instead of choosing a new random offset.
 
-Jens Axboe (1):
-      Merge branch 'patch-1' of https://github.com/chienfuchen32/fio
+In general we have an overwhelming set of ways to generate offsets and 
+little automated testing for offset generation. In the long run we 
+should develop a set of tests for offset generation that exercise the 
+different options. This will help us detect issues and give us 
+confidence that future code changes won't introduce regressions.
 
-chienfuchen32 (1):
-      update documentation typo
-
- HOWTO.rst          |  6 ++++--
- engines/io_uring.c | 20 ++++++++++++++++++++
- fio.1              |  4 +++-
- 3 files changed, 27 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index e796f961..4419ee1b 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2299,7 +2299,9 @@ with the caveat that when used on the command line, they must come after the
- 	kernel of available items in the SQ ring. If this option is set, the
- 	act of submitting IO will be done by a polling thread in the kernel.
- 	This frees up cycles for fio, at the cost of using more CPU in the
--	system.
-+	system. As submission is just the time it takes to fill in the sqe
-+	entries and any syscall required to wake up the idle kernel thread,
-+	fio will not report submission latencies.
- 
- .. option:: sqthread_poll_cpu=int : [io_uring] [io_uring_cmd]
- 
-@@ -4501,7 +4503,7 @@ Trace file format v2
- ~~~~~~~~~~~~~~~~~~~~
- 
- The second version of the trace file format was added in fio version 1.17.  It
--allows to access more then one file per trace and has a bigger set of possible
-+allows to access more than one file per trace and has a bigger set of possible
- file actions.
- 
- The first line of the trace file has to be::
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 3c656b77..a9abd11d 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -637,12 +637,16 @@ static int fio_ioring_commit(struct thread_data *td)
- 	 */
- 	if (o->sqpoll_thread) {
- 		struct io_sq_ring *ring = &ld->sq_ring;
-+		unsigned start = *ld->sq_ring.head;
- 		unsigned flags;
- 
- 		flags = atomic_load_acquire(ring->flags);
- 		if (flags & IORING_SQ_NEED_WAKEUP)
- 			io_uring_enter(ld, ld->queued, 0,
- 					IORING_ENTER_SQ_WAKEUP);
-+		fio_ioring_queued(td, start, ld->queued);
-+		io_u_mark_submit(td, ld->queued);
-+
- 		ld->queued = 0;
- 		return 0;
- 	}
-@@ -804,6 +808,14 @@ static int fio_ioring_queue_init(struct thread_data *td)
- 			p.flags |= IORING_SETUP_SQ_AFF;
- 			p.sq_thread_cpu = o->sqpoll_cpu;
- 		}
-+
-+		/*
-+		 * Submission latency for sqpoll_thread is just the time it
-+		 * takes to fill in the SQ ring entries, and any syscall if
-+		 * IORING_SQ_NEED_WAKEUP is set, we don't need to log that time
-+		 * separately.
-+		 */
-+		td->o.disable_slat = 1;
- 	}
- 
- 	/*
-@@ -876,6 +888,14 @@ static int fio_ioring_cmd_queue_init(struct thread_data *td)
- 			p.flags |= IORING_SETUP_SQ_AFF;
- 			p.sq_thread_cpu = o->sqpoll_cpu;
- 		}
-+
-+		/*
-+		 * Submission latency for sqpoll_thread is just the time it
-+		 * takes to fill in the SQ ring entries, and any syscall if
-+		 * IORING_SQ_NEED_WAKEUP is set, we don't need to log that time
-+		 * separately.
-+		 */
-+		td->o.disable_slat = 1;
- 	}
- 	if (o->cmd_type == FIO_URING_CMD_NVME) {
- 		p.flags |= IORING_SETUP_SQE128;
-diff --git a/fio.1 b/fio.1
-index 9e33c9e1..a156bf5d 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2090,7 +2090,9 @@ sqthread_poll option.
- Normally fio will submit IO by issuing a system call to notify the kernel of
- available items in the SQ ring. If this option is set, the act of submitting IO
- will be done by a polling thread in the kernel. This frees up cycles for fio, at
--the cost of using more CPU in the system.
-+the cost of using more CPU in the system. As submission is just the time it
-+takes to fill in the sqe entries and any syscall required to wake up the idle
-+kernel thread, fio will not report submission latencies.
- .TP
- .BI (io_uring,io_uring_cmd)sqthread_poll_cpu \fR=\fPint
- When `sqthread_poll` is set, this option provides a way to define which CPU
+Vincent
