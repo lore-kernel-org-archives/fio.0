@@ -2,90 +2,119 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81819C4321E
-	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 19:51:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37F73C4332F
+	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 22:09:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbiLATvM (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 1 Dec 2022 14:51:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48388 "EHLO
+        id S229853AbiLAWJP (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 1 Dec 2022 17:09:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229890AbiLATvL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 1 Dec 2022 14:51:11 -0500
-Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F037FB43CC
-        for <fio@vger.kernel.org>; Thu,  1 Dec 2022 11:51:10 -0800 (PST)
-Received: by mail-qt1-x835.google.com with SMTP id h16so2291893qtu.2
-        for <fio@vger.kernel.org>; Thu, 01 Dec 2022 11:51:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:cc:content-language
-         :references:to:subject:from:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=PP3CmO3BI63iahUMT05wVdKS8WwukeYYbe9ZmJ4LY5Y=;
-        b=k6JCLgrvfKHfMNqlmQjJSzKpIuJLPS2BkPE68hce9FBI/xwE4FlMzupR3VRkQlzFI2
-         UFrAcRhu73IWSQiPdJYWAFMSD845VObPLwXuhOnnMSgruvKWK4Q76/5QcVbnnqWIBexd
-         g5B+NYS1sheiVAgA/CxBS4nvpQxy7MQSS+ZS5NRddCm/6RLs0t9n+7z/EqlI3uIGksE4
-         9Gej9ZQcY/i5W2B6BXUo3k31iBUwEX/ifw5LEE15oDjTkKvJVkWrsI7H5aREDLFRiNbq
-         OaaDZICLreEuf2WnxbaUDH8bH8I5ERsw6tyR4VicaJVxCwkmlVchYFq+WcCElWa4SHak
-         EPoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:cc:content-language
-         :references:to:subject:from:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PP3CmO3BI63iahUMT05wVdKS8WwukeYYbe9ZmJ4LY5Y=;
-        b=V+jJOign0iHwuYN/PUs7otVObMwTT+2dTVNNJDSvAI5Lpm/QLhlxoh2PAdZBL9FLLY
-         h++Fa0jl3ztnnzdEMqc0uQkYF9mLN5rh6cWv0Poc7UVmtGpo3cZmoS/LsjUhX/+nOMnt
-         R3D60tKLpiaATdzsEzN046TbVQ3UK78nqxvOffNhqxD9vVR9RtnsxRUllOlade/5llrl
-         FqZqGZcY4gt9ka5Cr+EYr898iFT4d4Igenga5HtrRLMFJS1YeS3KNO2r51s5tkMiCXMt
-         YrlSV5tcE0ql2k6zFH9NB+LCUIyEV4HZ08w9DoWR82dBVnHW+Y1IAvq7BD53tjP7uJ89
-         PTEA==
-X-Gm-Message-State: ANoB5pkdWQN1800gh0IwO3qjgDih3Bz9nGyNXZx4gUtq3AQ/yl9Eiu3G
-        js1ymRREeiemvRqfkFW2RGstN7ugqUs=
-X-Google-Smtp-Source: AA0mqf5PRcl0/NAKwuVs1N5X+YBNVs3LqcGzgxikadukDgrRm9F4P0ZcE/kELxqNUIEWDj9CiipqYg==
-X-Received: by 2002:a37:ad0c:0:b0:6ee:91b3:2484 with SMTP id f12-20020a37ad0c000000b006ee91b32484mr58870159qkm.648.1669924269957;
-        Thu, 01 Dec 2022 11:51:09 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id k25-20020ac81419000000b003a569a0afcasm2944094qtj.66.2022.12.01.11.51.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Dec 2022 11:51:09 -0800 (PST)
-Message-ID: <a452131d-99bc-a801-9188-ea6febb9cc33@gmail.com>
-Date:   Thu, 1 Dec 2022 14:51:09 -0500
+        with ESMTP id S231263AbiLAWJI (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 1 Dec 2022 17:09:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7BE8286F7
+        for <fio@vger.kernel.org>; Thu,  1 Dec 2022 14:08:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1669932489;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=R8n3OlXjXWn+zVPiid6BHiNPHtzGvEoq4YSQPihLYPc=;
+        b=RsVHz3dd54RHcVACmWm8XkN2Lz9mlpEkhqymNtxvcNLxlRiHDfMBgPF86rVnmvygQIXDoh
+        qT7GgSyi/nR88I0KCdfNyFKm+zOusUhEdzc27cUg0rqntg0w2slGBwt8ElWCrz6jfshhBA
+        KI27Ogse/auQJ1F8ZgULGIvasPJ2buw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-38-_vzi_97_PjSYka2u6jgvwg-1; Thu, 01 Dec 2022 17:08:07 -0500
+X-MC-Unique: _vzi_97_PjSYka2u6jgvwg-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9A5CF185A7A8;
+        Thu,  1 Dec 2022 22:08:07 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.39.192.99])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2699B477F55;
+        Thu,  1 Dec 2022 22:08:06 +0000 (UTC)
+From:   Alberto Faria <afaria@redhat.com>
+To:     fio@vger.kernel.org
+Cc:     Vincent Fu <vincentfu@gmail.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        Kevin Wolf <kwolf@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Alberto Faria <afaria@redhat.com>
+Subject: [PATCH v2 00/10] Add a libblkio engine
+Date:   Thu,  1 Dec 2022 22:07:53 +0000
+Message-Id: <20221201220803.52057-1-afaria@redhat.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-From:   Vincent Fu <vincentfu@gmail.com>
-Subject: Re: [PATCH v2 0/1] documentation update for size
-To:     Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
-References: <CGME20221201052003epcas5p27b512af6c584d1e7e4ba95efb3668371@epcas5p2.samsung.com>
- <20221201050832.18513-1-ankit.kumar@samsung.com>
-Content-Language: en-US
-Cc:     fio@vger.kernel.org
-In-Reply-To: <20221201050832.18513-1-ankit.kumar@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 12/1/22 00:08, Ankit Kumar wrote:
-> There are cases with fio option size that the number of bytes of data
-> transferred is less than what is specified. This can happen if there are
-> gaps or holes while doing I/O's or if we are running a mix of sequential
-> and random workload. Update the documentation for that.
-> 
-> Fixes: https://github.com/axboe/fio/issues/1486
-> 
-> Changes since v1:
->   - Drop the code changes and only update the doc as suggested by
->     Vincent.
-> 
-> Ankit Kumar (1):
->    doc: update about size
-> 
->   HOWTO.rst | 7 +++++--
->   fio.1     | 7 +++++--
->   2 files changed, 10 insertions(+), 4 deletions(-)
-> 
+The libblkio library provides a unified API for efficiently accessing
+block devices using modern high-performance block I/O interfaces like
+io_uring and vhost-user-blk. Using libblkio reduces the amount of code
+needed for interfacing with storage devices and allows developers to
+focus on their applcations.
 
-Applied. Thanks.
+Add a libblkio engine that uses libblkio to perform I/O. This is useful
+to benchmark the library itself, and also adds support for storage
+interfaces and devices otherwise not supported by fio, such as
+virtio-blk PCI, vhost-user, and vhost-vDPA devices.
+
+See the libblkio documentation [2] or KVM Forum 2022 [3] presentation
+for more information on the library itself.
+
+[1] https://gitlab.com/libblkio/libblkio
+[2] https://libblkio.gitlab.io/libblkio/index.html
+[3] https://static.sched.com/hosted_files/kvmforum2022/8c/libblkio-kvm-forum-2022.pdf
+
+v2:
+- In the HOWTO and manpage, point users to the libblkio docs to know
+  what drivers and properties are available.
+- Avoid mentioning libblkio API symbols in the HOWTO and manpage.
+- Don't document FIO_OPT_STR_SET options as having type bool in the
+  HOWTO and manpage.
+- Prevent null deref in fio_blkio_init() error path.
+- Fix total_threaded_subjobs() to only count jobs using the libblkio
+  engine.
+- Force `td->o.disable_slat = 1`, as request enqueueing is fast and it
+  is not possible to know exactly when a request is submitted.
+- Have all type declarations near the top of the file.
+- Be more economical with blank lines.
+
+Alberto Faria (10):
+  Add a libblkio engine
+  Add engine flag FIO_SKIPPABLE_IOMEM_ALLOC
+  engines/libblkio: Allow setting option mem/iomem
+  engines/libblkio: Add support for poll queues
+  engines/libblkio: Add option libblkio_vectored
+  engines/libblkio: Add option libblkio_write_zeroes_on_trim
+  engines/libblkio: Add option libblkio_wait_mode
+  engines/libblkio: Add option libblkio_force_enable_completion_eventfd
+  engines/libblkio: Add options for some driver-specific properties
+  engines/libblkio: Share a single blkio instance among threads in same
+    process
+
+ HOWTO.rst                                 |  95 +++
+ Makefile                                  |   6 +
+ configure                                 |  25 +
+ engines/libblkio.c                        | 914 ++++++++++++++++++++++
+ examples/libblkio-io_uring.fio            |  29 +
+ examples/libblkio-virtio-blk-vfio-pci.fio |  29 +
+ fio.1                                     |  78 ++
+ ioengines.h                               |   2 +
+ memory.c                                  |  22 +-
+ optgroup.h                                |   2 +
+ 10 files changed, 1192 insertions(+), 10 deletions(-)
+ create mode 100644 engines/libblkio.c
+ create mode 100644 examples/libblkio-io_uring.fio
+ create mode 100644 examples/libblkio-virtio-blk-vfio-pci.fio
+
+-- 
+2.38.1
+
