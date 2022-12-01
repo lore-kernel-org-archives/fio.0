@@ -2,41 +2,41 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1314BC3A5A7
-	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 22:09:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F760C4332F
+	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 22:09:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230442AbiLAWJV (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 1 Dec 2022 17:09:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55564 "EHLO
+        id S230298AbiLAWJ3 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 1 Dec 2022 17:09:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230357AbiLAWJR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 1 Dec 2022 17:09:17 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7ED12A723
-        for <fio@vger.kernel.org>; Thu,  1 Dec 2022 14:08:13 -0800 (PST)
+        with ESMTP id S230426AbiLAWJ1 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 1 Dec 2022 17:09:27 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8036D43848
+        for <fio@vger.kernel.org>; Thu,  1 Dec 2022 14:08:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669932492;
+        s=mimecast20190719; t=1669932502;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=RrgXkAUGX6E0un/vBIaN9TKL+rgFei9scBHlaIWpg2c=;
-        b=foCBRLwl0TAFTL+PATydjNIISSjicV77mSZQSzZBtkPymNH7hNePZcIAFgX3R67yC+dBT3
-        jEbLPc+Q8MHzjoCzlsORerkw6Z0SmlsKQz8Y5gvY1wudwCkLBEYBcATkb8NHAMBtG0YJzV
-        SlVF1HRajIkLjNCLtnWypEwDM60DmaU=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=jD3g8Z+YPxWMuPOo5WOcaAHnNENe/k5e9x6xQhkosx0=;
+        b=HMea519MyT3Ljz95qE65KVAcNwrqIVCpf+wJE2qa6W6QKFfxusqZBni2OSIdFhQVRrGdN7
+        xq4e7Wxjo+Ujm6+j7PoSQNUsZlXPU5iF4h9Iwhu2Kd4UucP7988nSONKwNCfVNHyzPWjD2
+        Cag7yLGBcr+aqS+BSJ5Y8hi4EjT8W7U=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-121-HklpG1wvO1WhI_X2k39geg-1; Thu, 01 Dec 2022 17:08:09 -0500
-X-MC-Unique: HklpG1wvO1WhI_X2k39geg-1
+ us-mta-22--NT2Uv44NF6nFqMOnEv8qg-1; Thu, 01 Dec 2022 17:08:16 -0500
+X-MC-Unique: -NT2Uv44NF6nFqMOnEv8qg-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6C4231C06EE0;
-        Thu,  1 Dec 2022 22:08:09 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1F581185A7A3;
+        Thu,  1 Dec 2022 22:08:16 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.39.192.99])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E1C07477F55;
-        Thu,  1 Dec 2022 22:08:07 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B01CC477F55;
+        Thu,  1 Dec 2022 22:08:14 +0000 (UTC)
 From:   Alberto Faria <afaria@redhat.com>
 To:     fio@vger.kernel.org
 Cc:     Vincent Fu <vincentfu@gmail.com>,
@@ -45,9 +45,9 @@ Cc:     Vincent Fu <vincentfu@gmail.com>,
         Stefan Hajnoczi <stefanha@redhat.com>,
         Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Alberto Faria <afaria@redhat.com>
-Subject: [PATCH v2 01/10] Add a libblkio engine
-Date:   Thu,  1 Dec 2022 22:07:54 +0000
-Message-Id: <20221201220803.52057-2-afaria@redhat.com>
+Subject: [PATCH v2 05/10] engines/libblkio: Add option libblkio_vectored
+Date:   Thu,  1 Dec 2022 22:07:58 +0000
+Message-Id: <20221201220803.52057-6-afaria@redhat.com>
 In-Reply-To: <20221201220803.52057-1-afaria@redhat.com>
 References: <20221201220803.52057-1-afaria@redhat.com>
 MIME-Version: 1.0
@@ -57,722 +57,153 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The libblkio library provides a unified API for efficiently accessing
-block devices using modern high-performance block I/O interfaces like
-io_uring and vhost-user-blk. Using libblkio reduces the amount of code
-needed for interfacing with storage devices and allows developers to
-focus on their applcations.
-
-Add a libblkio engine that uses libblkio to perform I/O. This is useful
-to benchmark the library itself, and also adds support for storage
-interfaces and devices otherwise not supported by fio, such as
-virtio-blk PCI, vhost-user, and vhost-vDPA devices.
-
-See the libblkio documentation [2] or KVM Forum 2022 [3] presentation
-for more information on the library itself.
-
-[1] https://gitlab.com/libblkio/libblkio
-[2] https://libblkio.gitlab.io/libblkio/index.html
-[3] https://static.sched.com/hosted_files/kvmforum2022/8c/libblkio-kvm-forum-2022.pdf
+When enabled, read and write requests are submitted as vectored requests
+using blkioq_{readv,writev}(), instead of using blkioq_{read,write}().
 
 Signed-off-by: Alberto Faria <afaria@redhat.com>
 ---
- HOWTO.rst                                 |  33 ++
- Makefile                                  |   6 +
- configure                                 |  25 ++
- engines/libblkio.c                        | 433 ++++++++++++++++++++++
- examples/libblkio-io_uring.fio            |  18 +
- examples/libblkio-virtio-blk-vfio-pci.fio |  19 +
- fio.1                                     |  25 ++
- optgroup.h                                |   2 +
- 8 files changed, 561 insertions(+)
- create mode 100644 engines/libblkio.c
- create mode 100644 examples/libblkio-io_uring.fio
- create mode 100644 examples/libblkio-virtio-blk-vfio-pci.fio
+ HOWTO.rst          |  4 ++++
+ engines/libblkio.c | 46 +++++++++++++++++++++++++++++++++++++++++-----
+ fio.1              |  3 +++
+ 3 files changed, 48 insertions(+), 5 deletions(-)
 
 diff --git a/HOWTO.rst b/HOWTO.rst
-index 0aaf033a..08140165 100644
+index 2b3fe9c2..f77d76cc 100644
 --- a/HOWTO.rst
 +++ b/HOWTO.rst
-@@ -2195,6 +2195,12 @@ I/O engine
- 			the SPDK NVMe driver, or your own custom NVMe driver. The xnvme engine includes
- 			engine specific options. (See https://xnvme.io).
+@@ -2887,6 +2887,10 @@ with the caveat that when used on the command line, they must come after the
+ 	and are listed at
+ 	https://libblkio.gitlab.io/libblkio/blkio.html#properties
  
-+		**libblkio**
-+			Use the libblkio library
-+			(https://gitlab.com/libblkio/libblkio). The specific
-+			*driver* to use must be set using
-+			:option:`libblkio_driver`.
++.. option:: libblkio_vectored : [libblkio]
 +
- I/O engine specific parameters
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
-@@ -2847,6 +2853,33 @@ with the caveat that when used on the command line, they must come after the
- 
- 	If this option is set. xnvme will use vectored read/write commands.
- 
-+.. option:: libblkio_driver=str : [libblkio]
-+
-+	The libblkio *driver* to use. Different drivers access devices through
-+	different underlying interfaces. Available drivers depend on the
-+	libblkio version in use and are listed at
-+	https://libblkio.gitlab.io/libblkio/blkio.html#drivers
-+
-+.. option:: libblkio_pre_connect_props=str : [libblkio]
-+
-+	A colon-separated list of libblkio properties to be set after creating
-+	but before connecting the libblkio instance. Each property must have the
-+	format ``<name>=<value>``. Colons can be escaped as ``\:``. These are
-+	set after the engine sets any other properties, so those can be
-+	overriden. Available properties depend on the libblkio version in use
-+	and are listed at
-+	https://libblkio.gitlab.io/libblkio/blkio.html#properties
-+
-+.. option:: libblkio_pre_start_props=str : [libblkio]
-+
-+	A colon-separated list of libblkio properties to be set after connecting
-+	but before starting the libblkio instance. Each property must have the
-+	format ``<name>=<value>``. Colons can be escaped as ``\:``. These are
-+	set after the engine sets any other properties, so those can be
-+	overriden. Available properties depend on the libblkio version in use
-+	and are listed at
-+	https://libblkio.gitlab.io/libblkio/blkio.html#properties
++	Submit vectored read and write requests.
 +
  I/O depth
  ~~~~~~~~~
  
-diff --git a/Makefile b/Makefile
-index 7bd572d7..9fd8f59b 100644
---- a/Makefile
-+++ b/Makefile
-@@ -237,6 +237,12 @@ ifdef CONFIG_LIBXNVME
-   xnvme_CFLAGS = $(LIBXNVME_CFLAGS)
-   ENGINES += xnvme
- endif
-+ifdef CONFIG_LIBBLKIO
-+  libblkio_SRCS = engines/libblkio.c
-+  libblkio_LIBS = $(LIBBLKIO_LIBS)
-+  libblkio_CFLAGS = $(LIBBLKIO_CFLAGS)
-+  ENGINES += libblkio
-+endif
- ifeq ($(CONFIG_TARGET_OS), Linux)
-   SOURCE += diskutil.c fifo.c blktrace.c cgroup.c trim.c engines/sg.c \
- 		oslib/linux-dev-lookup.c engines/io_uring.c engines/nvme.c
-diff --git a/configure b/configure
-index 1b12d268..6d8e3a87 100755
---- a/configure
-+++ b/configure
-@@ -176,6 +176,7 @@ libiscsi="no"
- libnbd="no"
- libnfs=""
- xnvme=""
-+libblkio=""
- libzbc=""
- dfs=""
- seed_buckets=""
-@@ -248,6 +249,8 @@ for opt do
-   ;;
-   --disable-xnvme) xnvme="no"
-   ;;
-+  --disable-libblkio) libblkio="no"
-+  ;;
-   --disable-tcmalloc) disable_tcmalloc="yes"
-   ;;
-   --disable-libnfs) libnfs="no"
-@@ -304,6 +307,7 @@ if test "$show_help" = "yes" ; then
-   echo "--enable-libiscsi       Enable iscsi support"
-   echo "--enable-libnbd         Enable libnbd (NBD engine) support"
-   echo "--disable-xnvme         Disable xnvme support even if found"
-+  echo "--disable-libblkio      Disable libblkio support even if found"
-   echo "--disable-libzbc        Disable libzbc even if found"
-   echo "--disable-tcmalloc      Disable tcmalloc support"
-   echo "--dynamic-libengines    Lib-based ioengines as dynamic libraries"
-@@ -2663,6 +2667,22 @@ if test "$xnvme" != "no" ; then
- fi
- print_config "xnvme engine" "$xnvme"
- 
-+##########################################
-+# Check if we have libblkio
-+if test "$libblkio" != "no" ; then
-+  if check_min_lib_version blkio 1.0.0; then
-+    libblkio="yes"
-+    libblkio_cflags=$(pkg-config --cflags blkio)
-+    libblkio_libs=$(pkg-config --libs blkio)
-+  else
-+    if test "$libblkio" = "yes" ; then
-+      feature_not_found "libblkio" "libblkio-dev or libblkio-devel"
-+    fi
-+    libblkio="no"
-+  fi
-+fi
-+print_config "libblkio engine" "$libblkio"
-+
- ##########################################
- # check march=armv8-a+crc+crypto
- if test "$march_armv8_a_crc_crypto" != "yes" ; then
-@@ -3276,6 +3296,11 @@ if test "$xnvme" = "yes" ; then
-   echo "LIBXNVME_CFLAGS=$xnvme_cflags" >> $config_host_mak
-   echo "LIBXNVME_LIBS=$xnvme_libs" >> $config_host_mak
- fi
-+if test "$libblkio" = "yes" ; then
-+  output_sym "CONFIG_LIBBLKIO"
-+  echo "LIBBLKIO_CFLAGS=$libblkio_cflags" >> $config_host_mak
-+  echo "LIBBLKIO_LIBS=$libblkio_libs" >> $config_host_mak
-+fi
- if test "$dynamic_engines" = "yes" ; then
-   output_sym "CONFIG_DYNAMIC_ENGINES"
- fi
 diff --git a/engines/libblkio.c b/engines/libblkio.c
-new file mode 100644
-index 00000000..7a5d4271
---- /dev/null
+index 6decfd39..219bb0dc 100644
+--- a/engines/libblkio.c
 +++ b/engines/libblkio.c
-@@ -0,0 +1,433 @@
-+/*
-+ * libblkio engine
-+ *
-+ * IO engine using libblkio to access various block I/O interfaces:
-+ * https://gitlab.com/libblkio/libblkio
-+ */
-+
-+#include <assert.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <stddef.h>
-+#include <stdint.h>
-+#include <stdlib.h>
-+#include <string.h>
-+
-+#include <blkio.h>
-+
-+#include "../fio.h"
-+#include "../optgroup.h"
-+#include "../options.h"
-+#include "../parse.h"
-+
-+/* per-thread state */
-+struct fio_blkio_data {
-+	struct blkio *b;
-+	struct blkioq *q;
-+
-+	bool has_mem_region; /* whether mem_region is valid */
-+	struct blkio_mem_region mem_region;
-+
-+	struct blkio_completion *completions;
-+};
-+
-+struct fio_blkio_options {
-+	void *pad; /* option fields must not have offset 0 */
-+
-+	char *driver;
-+	char *pre_connect_props;
-+	char *pre_start_props;
-+};
-+
-+static struct fio_option options[] = {
+@@ -28,6 +28,7 @@ struct fio_blkio_data {
+ 	bool has_mem_region; /* whether mem_region is valid */
+ 	struct blkio_mem_region mem_region; /* only if allocated by libblkio */
+ 
++	struct iovec *iovecs; /* for vectored requests */
+ 	struct blkio_completion *completions;
+ };
+ 
+@@ -39,6 +40,7 @@ struct fio_blkio_options {
+ 	char *pre_start_props;
+ 
+ 	unsigned int hipri;
++	unsigned int vectored;
+ };
+ 
+ static struct fio_option options[] = {
+@@ -78,6 +80,15 @@ static struct fio_option options[] = {
+ 		.category = FIO_OPT_C_ENGINE,
+ 		.group	= FIO_OPT_G_LIBBLKIO,
+ 	},
 +	{
-+		.name	= "libblkio_driver",
-+		.lname	= "libblkio driver name",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= offsetof(struct fio_blkio_options, driver),
-+		.help	= "Name of the driver to be used by libblkio",
++		.name	= "libblkio_vectored",
++		.lname	= "Use blkioq_{readv,writev}()",
++		.type	= FIO_OPT_STR_SET,
++		.off1	= offsetof(struct fio_blkio_options, vectored),
++		.help	= "Use blkioq_{readv,writev}() instead of blkioq_{read,write}()",
 +		.category = FIO_OPT_C_ENGINE,
 +		.group	= FIO_OPT_G_LIBBLKIO,
 +	},
-+	{
-+		.name	= "libblkio_pre_connect_props",
-+		.lname	= "Properties to be set before blkio_connect()",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= offsetof(struct fio_blkio_options, pre_connect_props),
-+		.help	= "",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_LIBBLKIO,
-+	},
-+	{
-+		.name	= "libblkio_pre_start_props",
-+		.lname	= "Properties to be set before blkio_start()",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= offsetof(struct fio_blkio_options, pre_start_props),
-+		.help	= "",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_LIBBLKIO,
-+	},
-+	{
-+		.name = NULL,
-+	},
-+};
-+
-+static int fio_blkio_set_props_from_str(struct blkio *b, const char *opt_name,
-+					const char *str) {
-+	int ret = 0;
-+	char *new_str, *name, *value;
-+
-+	if (!str)
-+		return 0;
-+
-+	/* iteration can mutate string, so copy it */
-+	new_str = strdup(str);
-+	if (!new_str) {
-+		log_err("fio: strdup() failed\n");
-+		return 1;
-+	}
-+
-+	/* iterate over property name-value pairs */
-+	while ((name = get_next_str(&new_str))) {
-+		/* split into property name and value */
-+		value = strchr(name, '=');
-+		if (!value) {
-+			log_err("fio: missing '=' in option %s\n", opt_name);
-+			ret = 1;
-+			break;
-+		}
-+
-+		*value = '\0';
-+		++value;
-+
-+		/* strip whitespace from property name */
-+		strip_blank_front(&name);
-+		strip_blank_end(name);
-+
-+		if (name[0] == '\0') {
-+			log_err("fio: empty property name in option %s\n",
-+				opt_name);
-+			ret = 1;
-+			break;
-+		}
-+
-+		/* strip whitespace from property value */
-+		strip_blank_front(&value);
-+		strip_blank_end(value);
-+
-+		/* set property */
-+		if (blkio_set_str(b, name, value) != 0) {
-+			log_err("fio: error setting property '%s' to '%s': %s\n",
-+				name, value, blkio_get_error_msg());
-+			ret = 1;
-+			break;
-+		}
-+	}
-+
-+	free(new_str);
-+	return ret;
-+}
-+
-+/*
-+ * Log the failure of a libblkio function.
-+ *
-+ * `(void)func` is to ensure `func` exists and prevent typos
-+ */
-+#define fio_blkio_log_err(func) \
-+	({ \
-+		(void)func; \
-+		log_err("fio: %s() failed: %s\n", #func, \
-+			blkio_get_error_msg()); \
-+	})
-+
-+static int fio_blkio_create_and_connect(struct thread_data *td,
-+					struct blkio **out_blkio)
-+{
+ 	{
+ 		.name = NULL,
+ 	},
+@@ -249,8 +260,9 @@ static int fio_blkio_init(struct thread_data *td)
+ 		return 1;
+ 	}
+ 
++	data->iovecs = calloc(td->o.iodepth, sizeof(data->iovecs[0]));
+ 	data->completions = calloc(td->o.iodepth, sizeof(data->completions[0]));
+-	if (!data->completions) {
++	if (!data->iovecs || !data->completions) {
+ 		log_err("fio: calloc() failed\n");
+ 		goto err_free;
+ 	}
+@@ -288,6 +300,7 @@ err_blkio_destroy:
+ 	blkio_destroy(&data->b);
+ err_free:
+ 	free(data->completions);
++	free(data->iovecs);
+ 	free(data);
+ 	return 1;
+ }
+@@ -340,6 +353,7 @@ static void fio_blkio_cleanup(struct thread_data *td)
+ 	if (data) {
+ 		blkio_destroy(&data->b);
+ 		free(data->completions);
++		free(data->iovecs);
+ 		free(data);
+ 	}
+ }
+@@ -405,18 +419,40 @@ static int fio_blkio_open_file(struct thread_data *td, struct fio_file *f)
+ static enum fio_q_status fio_blkio_queue(struct thread_data *td,
+ 					 struct io_u *io_u)
+ {
 +	const struct fio_blkio_options *options = td->eo;
-+	struct blkio *b;
-+	int ret;
+ 	struct fio_blkio_data *data = td->io_ops_data;
+ 
+ 	fio_ro_check(td, io_u);
+ 
+ 	switch (io_u->ddir) {
+ 		case DDIR_READ:
+-			blkioq_read(data->q, io_u->offset, io_u->xfer_buf,
+-				    (size_t)io_u->xfer_buflen, io_u, 0);
++			if (options->vectored) {
++				struct iovec *iov = &data->iovecs[io_u->index];
++				iov->iov_base = io_u->xfer_buf;
++				iov->iov_len = (size_t)io_u->xfer_buflen;
 +
-+	if (!options->driver) {
-+		log_err("fio: engine libblkio requires option libblkio_driver to be set\n");
-+		return 1;
-+	}
++				blkioq_readv(data->q, io_u->offset, iov, 1,
++					     io_u, 0);
++			} else {
++				blkioq_read(data->q, io_u->offset,
++					    io_u->xfer_buf,
++					    (size_t)io_u->xfer_buflen, io_u, 0);
++			}
+ 			break;
+ 		case DDIR_WRITE:
+-			blkioq_write(data->q, io_u->offset, io_u->xfer_buf,
+-				     (size_t)io_u->xfer_buflen, io_u, 0);
++			if (options->vectored) {
++				struct iovec *iov = &data->iovecs[io_u->index];
++				iov->iov_base = io_u->xfer_buf;
++				iov->iov_len = (size_t)io_u->xfer_buflen;
 +
-+	if (blkio_create(options->driver, &b) != 0) {
-+		fio_blkio_log_err(blkio_create);
-+		return 1;
-+	}
-+
-+	/* don't fail if driver doesn't have a "direct" property */
-+	ret = blkio_set_bool(b, "direct", td->o.odirect);
-+	if (ret != 0 && ret != -ENOENT) {
-+		fio_blkio_log_err(blkio_set_bool);
-+		goto err_blkio_destroy;
-+	}
-+
-+	if (blkio_set_bool(b, "read-only", read_only) != 0) {
-+		fio_blkio_log_err(blkio_set_bool);
-+		goto err_blkio_destroy;
-+	}
-+
-+	if (fio_blkio_set_props_from_str(b, "libblkio_pre_connect_props",
-+					 options->pre_connect_props) != 0)
-+		goto err_blkio_destroy;
-+
-+	if (blkio_connect(b) != 0) {
-+		fio_blkio_log_err(blkio_connect);
-+		goto err_blkio_destroy;
-+	}
-+
-+	if (fio_blkio_set_props_from_str(b, "libblkio_pre_start_props",
-+					 options->pre_start_props) != 0)
-+		goto err_blkio_destroy;
-+
-+	*out_blkio = b;
-+	return 0;
-+
-+err_blkio_destroy:
-+	blkio_destroy(&b);
-+	return 1;
-+}
-+
-+/*
-+ * This callback determines the device/file size, so it creates and connects a
-+ * blkio instance. But it is invoked from the main thread in the original fio
-+ * process, not from the processes in which jobs will actually run. It thus
-+ * subsequently destroys the blkio, which is recreated in the init() callback.
-+ */
-+static int fio_blkio_setup(struct thread_data *td)
-+{
-+	struct blkio *b;
-+	int ret = 0;
-+	uint64_t capacity;
-+
-+	assert(td->files_index == 1);
-+
-+	if (fio_blkio_create_and_connect(td, &b) != 0)
-+		return 1;
-+
-+	if (blkio_get_uint64(b, "capacity", &capacity) != 0) {
-+		fio_blkio_log_err(blkio_get_uint64);
-+		ret = 1;
-+		goto out_blkio_destroy;
-+	}
-+
-+	td->files[0]->real_file_size = capacity;
-+	fio_file_set_size_known(td->files[0]);
-+
-+out_blkio_destroy:
-+	blkio_destroy(&b);
-+	return ret;
-+}
-+
-+static int fio_blkio_init(struct thread_data *td)
-+{
-+	struct fio_blkio_data *data;
-+
-+	/*
-+	 * Request enqueueing is fast, and it's not possible to know exactly
-+	 * when a request is submitted, so never report submission latencies.
-+	 */
-+	td->o.disable_slat = 1;
-+
-+	data = calloc(1, sizeof(*data));
-+	if (!data) {
-+		log_err("fio: calloc() failed\n");
-+		return 1;
-+	}
-+
-+	data->completions = calloc(td->o.iodepth, sizeof(data->completions[0]));
-+	if (!data->completions) {
-+		log_err("fio: calloc() failed\n");
-+		goto err_free;
-+	}
-+
-+	if (fio_blkio_create_and_connect(td, &data->b) != 0)
-+		goto err_free;
-+
-+	if (blkio_set_int(data->b, "num-queues", 1) != 0) {
-+		fio_blkio_log_err(blkio_set_int);
-+		goto err_blkio_destroy;
-+	}
-+
-+	if (blkio_start(data->b) != 0) {
-+		fio_blkio_log_err(blkio_start);
-+		goto err_blkio_destroy;
-+	}
-+
-+	data->q = blkio_get_queue(data->b, 0);
-+
-+	/* Set data last so cleanup() does nothing if init() fails. */
-+	td->io_ops_data = data;
-+
-+	return 0;
-+
-+err_blkio_destroy:
-+	blkio_destroy(&data->b);
-+err_free:
-+	free(data->completions);
-+	free(data);
-+	return 1;
-+}
-+
-+static void fio_blkio_cleanup(struct thread_data *td)
-+{
-+	struct fio_blkio_data *data = td->io_ops_data;
-+
-+	if (data) {
-+		blkio_destroy(&data->b);
-+		free(data->completions);
-+		free(data);
-+	}
-+}
-+
-+#define align_up(x, y) ((((x) + (y) - 1) / (y)) * (y))
-+
-+static int fio_blkio_iomem_alloc(struct thread_data *td, size_t size)
-+{
-+	struct fio_blkio_data *data = td->io_ops_data;
-+	int ret;
-+	uint64_t mem_region_alignment;
-+
-+	if (blkio_get_uint64(data->b, "mem-region-alignment",
-+			     &mem_region_alignment) != 0) {
-+		fio_blkio_log_err(blkio_get_uint64);
-+		return 1;
-+	}
-+
-+	/* round up size to satisfy mem-region-alignment */
-+	size = align_up(size, (size_t)mem_region_alignment);
-+
-+	if (blkio_alloc_mem_region(data->b, &data->mem_region, size) != 0) {
-+		fio_blkio_log_err(blkio_alloc_mem_region);
-+		ret = 1;
-+		goto out;
-+	}
-+
-+	if (blkio_map_mem_region(data->b, &data->mem_region) != 0) {
-+		fio_blkio_log_err(blkio_map_mem_region);
-+		ret = 1;
-+		goto out_free;
-+	}
-+
-+	td->orig_buffer = data->mem_region.addr;
-+	data->has_mem_region = true;
-+
-+	ret = 0;
-+	goto out;
-+
-+out_free:
-+	blkio_free_mem_region(data->b, &data->mem_region);
-+out:
-+	return ret;
-+}
-+
-+static void fio_blkio_iomem_free(struct thread_data *td)
-+{
-+	struct fio_blkio_data *data = td->io_ops_data;
-+
-+	if (data && data->has_mem_region) {
-+		blkio_unmap_mem_region(data->b, &data->mem_region);
-+		blkio_free_mem_region(data->b, &data->mem_region);
-+
-+		data->has_mem_region = false;
-+	}
-+}
-+
-+static int fio_blkio_open_file(struct thread_data *td, struct fio_file *f)
-+{
-+	return 0;
-+}
-+
-+static enum fio_q_status fio_blkio_queue(struct thread_data *td,
-+					 struct io_u *io_u)
-+{
-+	struct fio_blkio_data *data = td->io_ops_data;
-+
-+	fio_ro_check(td, io_u);
-+
-+	switch (io_u->ddir) {
-+		case DDIR_READ:
-+			blkioq_read(data->q, io_u->offset, io_u->xfer_buf,
-+				    (size_t)io_u->xfer_buflen, io_u, 0);
-+			break;
-+		case DDIR_WRITE:
-+			blkioq_write(data->q, io_u->offset, io_u->xfer_buf,
-+				     (size_t)io_u->xfer_buflen, io_u, 0);
-+			break;
-+		case DDIR_TRIM:
-+			blkioq_discard(data->q, io_u->offset, io_u->xfer_buflen,
-+				       io_u, 0);
-+		        break;
-+		case DDIR_SYNC:
-+		case DDIR_DATASYNC:
-+			blkioq_flush(data->q, io_u, 0);
-+			break;
-+		default:
-+			io_u->error = ENOTSUP;
-+			io_u_log_error(td, io_u);
-+			return FIO_Q_COMPLETED;
-+	}
-+
-+	return FIO_Q_QUEUED;
-+}
-+
-+static int fio_blkio_getevents(struct thread_data *td, unsigned int min,
-+			       unsigned int max, const struct timespec *t)
-+{
-+	struct fio_blkio_data *data = td->io_ops_data;
-+	int n;
-+
-+	n = blkioq_do_io(data->q, data->completions, (int)min, (int)max, NULL);
-+	if (n < 0) {
-+		fio_blkio_log_err(blkioq_do_io);
-+		return -1;
-+	}
-+
-+	return n;
-+}
-+
-+static struct io_u *fio_blkio_event(struct thread_data *td, int event)
-+{
-+	struct fio_blkio_data *data = td->io_ops_data;
-+	struct blkio_completion *completion = &data->completions[event];
-+	struct io_u *io_u = completion->user_data;
-+
-+	io_u->error = -completion->ret;
-+
-+	return io_u;
-+}
-+
-+FIO_STATIC struct ioengine_ops ioengine = {
-+	.name			= "libblkio",
-+	.version		= FIO_IOOPS_VERSION,
-+	.flags			= FIO_DISKLESSIO | FIO_NOEXTEND |
-+				  FIO_NO_OFFLOAD,
-+
-+	.setup			= fio_blkio_setup,
-+	.init			= fio_blkio_init,
-+	.cleanup		= fio_blkio_cleanup,
-+
-+	.iomem_alloc		= fio_blkio_iomem_alloc,
-+	.iomem_free		= fio_blkio_iomem_free,
-+
-+	.open_file		= fio_blkio_open_file,
-+
-+	.queue			= fio_blkio_queue,
-+	.getevents		= fio_blkio_getevents,
-+	.event			= fio_blkio_event,
-+
-+	.options		= options,
-+	.option_struct_size	= sizeof(struct fio_blkio_options),
-+};
-+
-+static void fio_init fio_blkio_register(void)
-+{
-+	register_ioengine(&ioengine);
-+}
-+
-+static void fio_exit fio_blkio_unregister(void)
-+{
-+	unregister_ioengine(&ioengine);
-+}
-diff --git a/examples/libblkio-io_uring.fio b/examples/libblkio-io_uring.fio
-new file mode 100644
-index 00000000..655a0b50
---- /dev/null
-+++ b/examples/libblkio-io_uring.fio
-@@ -0,0 +1,18 @@
-+; Benchmark accessing a regular file or block device using libblkio.
-+;
-+; Replace "/dev/nvme0n1" below with the path to your file or device, or override
-+; it by passing the '--libblkio_pre_connect_props=path=...' flag to fio.
-+;
-+; For information on libblkio, see: https://gitlab.com/libblkio/libblkio
-+
-+[global]
-+ioengine=libblkio
-+libblkio_driver=io_uring
-+libblkio_pre_connect_props=path=/dev/nvme0n1  ; REPLACE THIS WITH THE RIGHT PATH
-+rw=randread
-+blocksize=4k
-+direct=1
-+time_based=1
-+runtime=10s
-+
-+[job]
-diff --git a/examples/libblkio-virtio-blk-vfio-pci.fio b/examples/libblkio-virtio-blk-vfio-pci.fio
-new file mode 100644
-index 00000000..425df4a6
---- /dev/null
-+++ b/examples/libblkio-virtio-blk-vfio-pci.fio
-@@ -0,0 +1,19 @@
-+; Benchmark accessing a PCI virtio-blk device using libblkio.
-+;
-+; Replace "/sys/bus/pci/devices/0000\:00\:01.0" below with the path to your
-+; device's sysfs directory, or override it by passing the
-+; '--libblkio_pre_connect_props=path=...' flag to fio. Note that colons in the
-+; path must be escaped with a backslash.
-+;
-+; For information on libblkio, see: https://gitlab.com/libblkio/libblkio
-+
-+[global]
-+ioengine=libblkio
-+libblkio_driver=virtio-blk-vfio-pci
-+libblkio_pre_connect_props=path=/sys/bus/pci/devices/0000\:00\:01.0  ; REPLACE THIS WITH THE RIGHT PATH
-+rw=randread
-+blocksize=4k
-+time_based=1
-+runtime=10s
-+
-+[job]
++				blkioq_writev(data->q, io_u->offset, iov, 1,
++					      io_u, 0);
++			} else {
++				blkioq_write(data->q, io_u->offset,
++					     io_u->xfer_buf,
++					     (size_t)io_u->xfer_buflen, io_u,
++					     0);
++			}
+ 			break;
+ 		case DDIR_TRIM:
+ 			blkioq_discard(data->q, io_u->offset, io_u->xfer_buflen,
 diff --git a/fio.1 b/fio.1
-index 62af0bd2..3615f258 100644
+index 7f97e940..9b8995b5 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -1992,6 +1992,10 @@ I/O engine using the xNVMe C API, for NVMe devices. The xnvme engine provides
- flexibility to access GNU/Linux Kernel NVMe driver via libaio, IOCTLs, io_uring,
- the SPDK NVMe driver, or your own custom NVMe driver. The xnvme engine includes
- engine specific options. (See \fIhttps://xnvme.io/\fR).
-+.TP
-+.B libblkio
-+Use the libblkio library (\fIhttps://gitlab.com/libblkio/libblkio\fR). The
-+specific driver to use must be set using \fBlibblkio_driver\fR.
- .SS "I/O engine specific parameters"
- In addition, there are some parameters which are only valid when a specific
- \fBioengine\fR is in use. These are used identically to normal parameters,
-@@ -2604,6 +2608,27 @@ xnvme namespace identifier for userspace NVMe driver such as SPDK.
+@@ -2634,6 +2634,9 @@ properties depend on the libblkio version in use and are listed at
  .TP
- .BI (xnvme)xnvme_iovec
- If this option is set, xnvme will use vectored read/write commands.
+ .BI (libblkio)hipri
+ Use poll queues.
 +.TP
-+.BI (libblkio)libblkio_driver \fR=\fPstr
-+The libblkio driver to use. Different drivers access devices through different
-+underlying interfaces. Available drivers depend on the libblkio version in use
-+and are listed at \fIhttps://libblkio.gitlab.io/libblkio/blkio.html#drivers\fR
-+.TP
-+.BI (libblkio)libblkio_pre_connect_props \fR=\fPstr
-+A colon-separated list of libblkio properties to be set after creating but
-+before connecting the libblkio instance. Each property must have the format
-+\fB<name>=<value>\fR. Colons can be escaped as \fB\\:\fR. These are set after
-+the engine sets any other properties, so those can be overriden. Available
-+properties depend on the libblkio version in use and are listed at
-+\fIhttps://libblkio.gitlab.io/libblkio/blkio.html#properties\fR
-+.TP
-+.BI (libblkio)libblkio_pre_start_props \fR=\fPstr
-+A colon-separated list of libblkio properties to be set after connecting but
-+before starting the libblkio instance. Each property must have the format
-+\fB<name>=<value>\fR. Colons can be escaped as \fB\\:\fR. These are set after
-+the engine sets any other properties, so those can be overriden. Available
-+properties depend on the libblkio version in use and are listed at
-+\fIhttps://libblkio.gitlab.io/libblkio/blkio.html#properties\fR
++.BI (libblkio)libblkio_vectored
++Submit vectored read and write requests.
  .SS "I/O depth"
  .TP
  .BI iodepth \fR=\fPint
-diff --git a/optgroup.h b/optgroup.h
-index dc73c8f3..024b902f 100644
---- a/optgroup.h
-+++ b/optgroup.h
-@@ -73,6 +73,7 @@ enum opt_category_group {
- 	__FIO_OPT_G_NFS,
- 	__FIO_OPT_G_WINDOWSAIO,
- 	__FIO_OPT_G_XNVME,
-+	__FIO_OPT_G_LIBBLKIO,
- 
- 	FIO_OPT_G_RATE		= (1ULL << __FIO_OPT_G_RATE),
- 	FIO_OPT_G_ZONE		= (1ULL << __FIO_OPT_G_ZONE),
-@@ -120,6 +121,7 @@ enum opt_category_group {
- 	FIO_OPT_G_DFS		= (1ULL << __FIO_OPT_G_DFS),
- 	FIO_OPT_G_WINDOWSAIO	= (1ULL << __FIO_OPT_G_WINDOWSAIO),
- 	FIO_OPT_G_XNVME         = (1ULL << __FIO_OPT_G_XNVME),
-+	FIO_OPT_G_LIBBLKIO	= (1ULL << __FIO_OPT_G_LIBBLKIO),
- };
- 
- extern const struct opt_group *opt_group_from_mask(uint64_t *mask);
 -- 
 2.38.1
 
