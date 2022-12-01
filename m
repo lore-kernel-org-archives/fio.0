@@ -2,68 +2,68 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D3BCC4321E
-	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 17:02:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21420C43217
+	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 17:11:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbiLARCB (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 1 Dec 2022 12:02:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51656 "EHLO
+        id S230035AbiLARL4 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 1 Dec 2022 12:11:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbiLARCA (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 1 Dec 2022 12:02:00 -0500
-Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E9AA555A
-        for <fio@vger.kernel.org>; Thu,  1 Dec 2022 09:01:59 -0800 (PST)
-Received: by mail-qt1-x832.google.com with SMTP id jr1so1539248qtb.7
-        for <fio@vger.kernel.org>; Thu, 01 Dec 2022 09:01:59 -0800 (PST)
+        with ESMTP id S230039AbiLARLz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 1 Dec 2022 12:11:55 -0500
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D6EA8FFE
+        for <fio@vger.kernel.org>; Thu,  1 Dec 2022 09:11:54 -0800 (PST)
+Received: by mail-qt1-x82a.google.com with SMTP id e15so1602914qts.1
+        for <fio@vger.kernel.org>; Thu, 01 Dec 2022 09:11:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=fXSbYJNJ6/6fotru4b//cSDcH5iMHawKXO34ZkZiACI=;
-        b=YYitOuuyX4DfkXTMACTJjTSFNT2hYJVmBB41XSFYBoXS+sGYXRK3/72zzkZYhC/F+Y
-         XgfIKpZ+simfOCtd25YrrvhpMWzG17AN6vNRtbcAxHZGFYOJA68dTl6db9PJVWGernYW
-         ItSM6Kr5t3reMo6mzDGLqYXSSxxkeNle0RIQVYQJfPnH32HkWeMoNBo+uD/L5ArEjd/0
-         9eG6HDBwJO5WRlEM5i3YQTDAxR10LIfpnkxGnaXGrDn4bHI3UNLwku2lURTC9xU/OjA0
-         d2myH3KhLnARLwYN5IZZMJtr2ZPQRJXWDjj3pblAUmxtJJ95U2tRbqmRaQ5M3SC9V/t7
-         Ed1Q==
+        bh=fN/9LdOidGr47Fwd9CEWOsUkCdcPOS9fivUlfUsQ62s=;
+        b=SbZrWLMWQyN/UJ1u1jPuZLkvKluBcJUqr3QtGiLI/rWDTeFJFlmk1t9n89QyS91Tu2
+         oMmdy+nvB6va8caBJBoNVtWm3AxDej/x7F2I43/a9LS+nRnI6dOVJX5R5VwG76SM0SVr
+         uVJGYbQsbqXiiFYfjwOua30e5pMJLzIqzrezJfYo7WoxmuMdKSXrXtXNfivQWMixSxlQ
+         w/POhShw0HlW2+8I69M1olmOqkfOo8ATCVFLbeZOct5p1CA6hKrUDc5IYUxSLl0+TEVj
+         +zQVm5GJALz7sWR+tsKl33sj1kid6Fc5xLLd3HEumFvDlJuY52W3H2tuzWac/bWAF3kn
+         wjvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fXSbYJNJ6/6fotru4b//cSDcH5iMHawKXO34ZkZiACI=;
-        b=19INbEkk9X594A2f37FhsRZbbQs78h2PjHba5l+rSZeVqnymkJnIGhtuKDj61u/Fdf
-         MxJS8uV+lW0sj/oZqLP0Kx00YYWwhhn/lXEE0kAFV0IHMBpwrR25T4peLyNTvDAjGW2W
-         LDBZmFQ2P0dVMyz9OUovRNIJrWKdjZRo3ZbEyiDqosHBm2MGYiuTELxW8NN35eArOoPj
-         fQfXTINjiPUWpNx7878IZM+OW/wRPsIbDT8hGn7wlguRmvEFRuCZ6MXSJq0lkedAYEmo
-         LAPr3nCF4ulQZogq17VKAQOr8Gb/fyUfHtmmyoeRMbuPLh6TUdVaT1905A6RvWCZBQT+
-         X/ww==
-X-Gm-Message-State: ANoB5plZI0PdlbpijRTYgagAEQsasHJwYwAJXNx8gn5soAnFc8GpmJ1U
-        4YyhdHdocXBAfVSWXSDYZ/o=
-X-Google-Smtp-Source: AA0mqf6PWv2ix0J0jCkPe4lIi5I9QDC2ol63oIuYhbjNuGHdFq7Bu8zT+Za41XJtgvGR3F5DjyLZoQ==
-X-Received: by 2002:ac8:66d6:0:b0:3a5:f871:572c with SMTP id m22-20020ac866d6000000b003a5f871572cmr48348838qtp.230.1669914117966;
-        Thu, 01 Dec 2022 09:01:57 -0800 (PST)
+        bh=fN/9LdOidGr47Fwd9CEWOsUkCdcPOS9fivUlfUsQ62s=;
+        b=REAKYoOSKq4JvWIIFwPTMVC3A2mPAaX7R7LztdMYtMX900gMWAuTXvuZ05DaXdMVzq
+         5xl61eWlgBz4W9Kr8aYJOYO0xNSTY6a2KFrYTdR6W1ytVzzU38zcckcmqxyBhjmuEt7r
+         kr+FyZR0rQY1/hE2JoEnKdHbzUTIqF4N4adNl6Ol/vI1+smDdQsTvSJ3OmlTy+z2q1bC
+         sK+nJNv921Oa6Kz9WgAnabT520je7wc22svmNIg0dFGGbFhJZ1rAsspIUyDTPdTbfYFm
+         icaN5E06c9BFG2va/rc6kNbLohNWx0G/jS6a7BQfZCgruUxndLr9KtZHADL/m3SxT0LI
+         u+Jw==
+X-Gm-Message-State: ANoB5pn4Wp7Hc/TNLwkmPSIVdbZW6NgehmE4wlD650y8oZKMYFG+0mk7
+        uSjHBlCqpKU3FKWcXHYLtFynXPNvo1R7fQ==
+X-Google-Smtp-Source: AA0mqf6YJj8ucK7k+0BVfmL0s4FoI5EaV0A5rdq2kdghsu1RnRYoO00zt7O2I6L1PswxTGjVZA8eig==
+X-Received: by 2002:ac8:67c5:0:b0:3a4:f665:7791 with SMTP id r5-20020ac867c5000000b003a4f6657791mr63409975qtp.380.1669914713597;
+        Thu, 01 Dec 2022 09:11:53 -0800 (PST)
 Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id y14-20020a37f60e000000b006fbaf9c1b70sm3548281qkj.133.2022.12.01.09.01.57
+        by smtp.gmail.com with ESMTPSA id s18-20020a05620a29d200b006f9ddaaf01esm3919899qkp.102.2022.12.01.09.11.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 01 Dec 2022 09:01:57 -0800 (PST)
-Message-ID: <89ebb472-bcdc-5c35-8ab7-065c0b984130@gmail.com>
-Date:   Thu, 1 Dec 2022 12:01:57 -0500
+        Thu, 01 Dec 2022 09:11:53 -0800 (PST)
+Message-ID: <2fbfff28-30a4-97bd-fd2b-e48bb8b837d4@gmail.com>
+Date:   Thu, 1 Dec 2022 12:11:52 -0500
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.5.0
-Subject: Re: [PATCH 04/10] engines/libblkio: Add support for poll queues
+Subject: Re: [PATCH 05/10] engines/libblkio: Add option libblkio_vectored
 Content-Language: en-US
 To:     Alberto Faria <afaria@redhat.com>, fio@vger.kernel.org
 Cc:     Kevin Wolf <kwolf@redhat.com>,
         Stefan Hajnoczi <stefanha@redhat.com>,
         Stefano Garzarella <sgarzare@redhat.com>
 References: <20221121182902.373491-1-afaria@redhat.com>
- <20221121182902.373491-5-afaria@redhat.com>
+ <20221121182902.373491-6-afaria@redhat.com>
 From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20221121182902.373491-5-afaria@redhat.com>
+In-Reply-To: <20221121182902.373491-6-afaria@redhat.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -71,116 +71,160 @@ List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 On 11/21/22 13:28, Alberto Faria wrote:
-> Configure a poll queue instead of a "regular" queue when option hipri is
-> set.
+> When enabled, read and write requests are submitted as vectored requests
+> using blkioq_{readv,writev}(), instead of using blkioq_{read,write}().
 > 
 > Signed-off-by: Alberto Faria <afaria@redhat.com>
 > ---
 >   HOWTO.rst          |  4 ++++
->   engines/libblkio.c | 26 ++++++++++++++++++++++++--
+>   engines/libblkio.c | 46 +++++++++++++++++++++++++++++++++++++++++-----
 >   fio.1              |  3 +++
->   3 files changed, 31 insertions(+), 2 deletions(-)
+>   3 files changed, 48 insertions(+), 5 deletions(-)
 > 
 > diff --git a/HOWTO.rst b/HOWTO.rst
-> index fb27d3d3..cdea3258 100644
+> index cdea3258..b9c7c8df 100644
 > --- a/HOWTO.rst
 > +++ b/HOWTO.rst
-> @@ -2330,6 +2330,10 @@ with the caveat that when used on the command line, they must come after the
->           by the application. The benefits are more efficient IO for high IOPS
->           scenarios, and lower latencies for low queue depth IO.
+> @@ -2875,6 +2875,10 @@ with the caveat that when used on the command line, they must come after the
+>   	set after the engine sets any other properties, so those can be
+>   	overriden.
 >   
-> +   [libblkio]
+> +.. option:: libblkio_vectored=bool : [libblkio]
+
+See my response to the hipri patch regarding the difference between 
+booleans and FIO_OPT_STR_SET. I don't have strong feelings regarding 
+whether this should be a boolean or FIO_OPT_STR_SET but if the type 
+listed in the HOWTO and manpage is boolean then the type in the options 
+struct should be FIO_OPT_BOOL. No type should be listed when it's 
+FIO_OPT_STR_SET.
+
 > +
-> +	Use poll queues.
+> +	Submit vectored read and write requests. Default is 0.
 > +
->      [pvsync2]
+>   I/O depth
+>   ~~~~~~~~~
 >   
->   	Set RWF_HIPRI on I/O, indicating to the kernel that it's of higher priority
 > diff --git a/engines/libblkio.c b/engines/libblkio.c
-> index 54fd9ff6..d2ade3f1 100644
+> index d2ade3f1..dcf701ad 100644
 > --- a/engines/libblkio.c
 > +++ b/engines/libblkio.c
-> @@ -26,6 +26,8 @@ struct fio_blkio_options {
->   	char *driver;
->   	char *pre_connect_props;
+> @@ -28,6 +28,7 @@ struct fio_blkio_options {
 >   	char *pre_start_props;
-> +
-> +	unsigned int hipri;
+>   
+>   	unsigned int hipri;
+> +	unsigned int vectored;
 >   };
 >   
 >   static struct fio_option options[] = {
-> @@ -57,6 +59,16 @@ static struct fio_option options[] = {
+> @@ -68,6 +69,15 @@ static struct fio_option options[] = {
+>   		.category = FIO_OPT_C_ENGINE,
 >   		.group	= FIO_OPT_G_LIBBLKIO,
 >   	},
->   
 > +	{
-> +		.name	= "hipri",
-> +		.lname	= "Use poll queues",
+> +		.name	= "libblkio_vectored",
+> +		.lname	= "Use blkioq_{readv,writev}()",
 > +		.type	= FIO_OPT_STR_SET,
-> +		.off1	= offsetof(struct fio_blkio_options, hipri),
-> +		.help	= "Use poll queues",
+> +		.off1	= offsetof(struct fio_blkio_options, vectored),
+> +		.help	= "Use blkioq_{readv,writev}() instead of blkioq_{read,write}()",
 > +		.category = FIO_OPT_C_ENGINE,
 > +		.group	= FIO_OPT_G_LIBBLKIO,
 > +	},
-> +
-
-Some of these elements have blank lines before or after the { } and 
-others do not. For consistency I would eliminate the blank lines before 
-and after the { and }.
-
+>   
 >   	{
 >   		.name = NULL,
->   	},
-> @@ -244,6 +256,7 @@ struct fio_blkio_data {
+> @@ -251,6 +261,7 @@ struct fio_blkio_data {
+>   	bool has_mem_region; /* whether mem_region is valid */
+>   	struct blkio_mem_region mem_region; /* only if allocated by libblkio */
 >   
->   static int fio_blkio_init(struct thread_data *td)
+> +	struct iovec *iovecs; /* for vectored requests */
+>   	struct blkio_completion *completions;
+>   };
+>   
+> @@ -267,8 +278,9 @@ static int fio_blkio_init(struct thread_data *td)
+>   		goto err_free;
+>   	}
+>   
+> +	data->iovecs = calloc(td->o.iodepth, sizeof(data->iovecs[0]));
+>   	data->completions = calloc(td->o.iodepth, sizeof(data->completions[0]));
+> -	if (!data->completions) {
+> +	if (!data->iovecs || !data->completions) {
+>   		log_err("fio: calloc() failed\n");
+>   		goto err_free;
+>   	}
+> @@ -310,6 +322,7 @@ err_blkio_destroy:
+>   	blkio_destroy(&data->b);
+>   err_free:
+>   	free(data->completions);
+> +	free(data->iovecs);
+>   	free(data);
+>   	return 1;
+>   }
+> @@ -362,6 +375,7 @@ static void fio_blkio_cleanup(struct thread_data *td)
+>   	if (data) {
+>   		blkio_destroy(&data->b);
+>   		free(data->completions);
+> +		free(data->iovecs);
+>   		free(data);
+>   	}
+>   }
+> @@ -432,19 +446,41 @@ static int fio_blkio_open_file(struct thread_data *td, struct fio_file *f)
+>   static enum fio_q_status fio_blkio_queue(struct thread_data *td,
+>   					 struct io_u *io_u)
 >   {
 > +	const struct fio_blkio_options *options = td->eo;
->   	struct fio_blkio_data *data;
+>   	struct fio_blkio_data *data = td->io_ops_data;
 >   
->   	/* allocate per-thread data struct */
-> @@ -265,7 +278,13 @@ static int fio_blkio_init(struct thread_data *td)
->   	if (fio_blkio_create_and_connect(td, &data->b) != 0)
->   		goto err_free;
+>   	fio_ro_check(td, io_u);
 >   
-> -	if (blkio_set_int(data->b, "num-queues", 1) != 0) {
-> +	if (blkio_set_int(data->b, "num-queues", options->hipri ? 0 : 1) != 0) {
-> +		fio_blkio_log_err(blkio_set_int);
-> +		goto err_blkio_destroy;
-> +	}
+>   	switch (io_u->ddir) {
+>   		case DDIR_READ:
+> -			blkioq_read(data->q, io_u->offset, io_u->xfer_buf,
+> -				    (size_t)io_u->xfer_buflen, io_u, 0);
+> +			if (options->vectored) {
+> +				struct iovec *iov = &data->iovecs[io_u->index];
+> +				iov->iov_base = io_u->xfer_buf;
+> +				iov->iov_len = (size_t)io_u->xfer_buflen;
 > +
-> +	if (blkio_set_int(data->b, "num-poll-queues",
-> +			  options->hipri ? 1 : 0) != 0) {
->   		fio_blkio_log_err(blkio_set_int);
->   		goto err_blkio_destroy;
->   	}
-> @@ -277,7 +296,10 @@ static int fio_blkio_init(struct thread_data *td)
+> +				blkioq_readv(data->q, io_u->offset, iov, 1,
+> +					     io_u, 0);
+> +			} else {
+> +				blkioq_read(data->q, io_u->offset,
+> +					    io_u->xfer_buf,
+> +					    (size_t)io_u->xfer_buflen, io_u, 0);
+> +			}
+>   			break;
 >   
->   	/* get queue */
+>   		case DDIR_WRITE:
+> -			blkioq_write(data->q, io_u->offset, io_u->xfer_buf,
+> -				     (size_t)io_u->xfer_buflen, io_u, 0);
+> +			if (options->vectored) {
+> +				struct iovec *iov = &data->iovecs[io_u->index];
+> +				iov->iov_base = io_u->xfer_buf;
+> +				iov->iov_len = (size_t)io_u->xfer_buflen;
+> +
+> +				blkioq_writev(data->q, io_u->offset, iov, 1,
+> +					      io_u, 0);
+> +			} else {
+> +				blkioq_write(data->q, io_u->offset,
+> +					     io_u->xfer_buf,
+> +					     (size_t)io_u->xfer_buflen, io_u,
+> +					     0);
+> +			}
+>   			break;
 >   
-> -	data->q = blkio_get_queue(data->b, 0);
-> +	if (options->hipri)
-> +		data->q = blkio_get_poll_queue(data->b, 0);
-> +	else
-> +		data->q = blkio_get_queue(data->b, 0);
->   
->   	/* Set data only here so cleanup() does nothing if init() fails. */
->   	td->io_ops_data = data;
+>   		case DDIR_TRIM:
 > diff --git a/fio.1 b/fio.1
-> index 12eeb013..7c1b315a 100644
+> index 7c1b315a..a403b415 100644
 > --- a/fio.1
 > +++ b/fio.1
-> @@ -2620,6 +2620,9 @@ A colon-separated list of libblkio properties to be set after connecting but
->   before starting the \fBstruct blkio\fR. Each property must have the format
->   \fB<name>=<value>\fR. Colons can be escaped as \fB\\:\fR. These are set after
->   the engine sets any other properties, so those can be overriden.
+> @@ -2623,6 +2623,9 @@ the engine sets any other properties, so those can be overriden.
+>   .TP
+>   .BI (libblkio)hipri \fR=\fPbool
+>   Use poll queues.
 > +.TP
-> +.BI (libblkio)hipri \fR=\fPbool
+> +.BI (libblkio)libblkio_vectored \fR=\fPbool
+> +Submit vectored read and write requests. Default is 0.
+>   .SS "I/O depth"
+>   .TP
+>   .BI iodepth \fR=\fPint
 
-The type for hipri is FIO_OPT_STR_SET which is different from a boolean. 
-If it were a boolean fio would accept only hipri=0 or hipri=1. For 
-FIO_OPT_STR_SET fio accepts hipri=<any number>, or just hipri with no 
-value (same meaning as hipri=1), with 0 representing false.
-
-For FIO_OPT_STR_SET options (e.g., thread, time_based) the convention in 
-the man page is to not specify a type.
