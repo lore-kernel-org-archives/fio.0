@@ -2,175 +2,125 @@ Return-Path: <fio-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2BB7C433FE
-	for <fio@archiver.kernel.org>; Wed, 30 Nov 2022 19:10:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21002C4321E
+	for <fio@archiver.kernel.org>; Thu,  1 Dec 2022 02:44:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229539AbiK3TKx (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 30 Nov 2022 14:10:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58092 "EHLO
+        id S229758AbiLACob (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 30 Nov 2022 21:44:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiK3TKw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 30 Nov 2022 14:10:52 -0500
-Received: from mail-qk1-x736.google.com (mail-qk1-x736.google.com [IPv6:2607:f8b0:4864:20::736])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3441354465
-        for <fio@vger.kernel.org>; Wed, 30 Nov 2022 11:10:51 -0800 (PST)
-Received: by mail-qk1-x736.google.com with SMTP id x18so13041186qki.4
-        for <fio@vger.kernel.org>; Wed, 30 Nov 2022 11:10:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=g9A2LzNw01W+ONGN2kabS/JVJiEEC327OcyGq2mSdMs=;
-        b=jyueGJdFLTQuK0W8icsdeELWLW7l2XSEFLmE7Roup0GzS5mJYEq13q6BK6vc8RjqJH
-         QkrrQ3XoN8IjshZhKt84GV98dzOzsngf7PGJUgzTmQBCpgOTty5PnuymZP3vm+DNcHFx
-         U+MbksJMmgEUQQO55MWHurzGKR3DjuLNuIvwpNC2VhUF9PQicDvVv5hL6l5kgc/qfzLG
-         5YB2PeQZjnbmOAXE67a+3tJYGBr8s8rWmPIZjffiYdOuflmDZevVoNPLB9ZTCx6uAw76
-         iYeyeHjItSpt/7tbfxCklaeOCiVoMacJesMoyQZGXwd0PSS4iffTxPEi7l5c9N15slCj
-         J31Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g9A2LzNw01W+ONGN2kabS/JVJiEEC327OcyGq2mSdMs=;
-        b=ET/g/YJddD1YTl6Iv4XY1t+g+lp+sfRXeZI/4PWNTVSxq+ljCTdnjnVn8V/5KqrQCl
-         86AFBs/Mop/2NgMjVVMlNYH9jNum7Tx5L6ipgKSGPmjSYohL/blj8y1dxxN/JYDSpXY5
-         4ypMN2rN5Uphos2Lcxh6eBf9Ji7ZkY8O8rttu1VTWIYnqSxLvf2r9kN+gnShveHzp4RZ
-         Vp6RufUn/FPs/xMnGB4XB302Q+jmp0cL+0Nx4jJh/XZRWLWCeo3l3GgRWEa9uP/LAwx+
-         pNjRh68RwfWzL/iaF5Y0zTmu2pI0H95r28y7vEFG8OoGTKjCQAbWNhKDtwoPaFUaF4uU
-         sOwg==
-X-Gm-Message-State: ANoB5pkuBklj7hZerWx1mo9NE/OCdy33kzkUQds6nUFiCTIk5GIfG75g
-        e6dqqtPvV9AIQVEiAWvBilY=
-X-Google-Smtp-Source: AA0mqf64VWKZcNVbRdcaT8+T541IsWLLEtFKqY35I+3fOsQpbemEJuM1x9aufwHw0vhuMPgkIb5q9w==
-X-Received: by 2002:a05:620a:2186:b0:6fa:1e56:9b1 with SMTP id g6-20020a05620a218600b006fa1e5609b1mr56555527qka.637.1669835450042;
-        Wed, 30 Nov 2022 11:10:50 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id w17-20020a05620a425100b006eef13ef4c8sm1755689qko.94.2022.11.30.11.10.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 30 Nov 2022 11:10:49 -0800 (PST)
-Message-ID: <a927ca77-acc8-874f-f846-268d7a9ac1b9@gmail.com>
-Date:   Wed, 30 Nov 2022 14:10:48 -0500
+        with ESMTP id S229708AbiLACo3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 30 Nov 2022 21:44:29 -0500
+Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 500D994567
+        for <fio@vger.kernel.org>; Wed, 30 Nov 2022 18:44:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1669862669; x=1701398669;
+  h=from:to:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=h/19UPF/C1w3HOqWoniiP3qyNqrtVA6oETSggmI+uaA=;
+  b=ixlGIyXOxdYZjiaZBs1pEz5F6fGzoLuUDQX+L2BdlvP/6NfUJj6gVwPQ
+   02WzeROtGalnLluoKK/GgCV/Uc7fQiaby1WwZDyk0NvS0hgAyI5Y7YJhn
+   Px0Uae8ncqmBxYiTuA9xqpLBGWx0W9bADqqpQJiqStP/GkCHGCBUkTxLf
+   mcms6ey0+xb8+XFnNVtxXTDNc59v77vpZ8GAUJmpqdu27uJT2jqPy5BUe
+   x3iTVhuK+xbJmtruC1OdJVATB4wj7WJh1YVAjvMC6TYaWzJxHc+OhZOdn
+   9OdnJRJDgawo7yuEXtnH5LGkGY2RlvCm7o370K9dxzUt86a5vBtMFwcNX
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.96,207,1665417600"; 
+   d="scan'208";a="321963472"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 01 Dec 2022 10:44:26 +0800
+IronPort-SDR: Qir/WTg/598RTF/JEEYEL5erst72r8ximT4FuGLTLr26HY/WPNneXUW8o7TJjBNbS+yS1g/C2n
+ 1x0phMP2vIzBBUA/3eKhfn5noqxTedSBaqmVuQZx4KKLpm35pQ0cXp7XJFiImyxQ9n6h/oOyFZ
+ /EkJh1wg9oCZNHV7RSzv7B4vISu8P9Wg6bWM8nCvtbWTA3oAqxjlyCloC29RjcJNY0ZXm4Ju2/
+ 55nqVtdaK9zdL8f5ndWGcX0qsjm+N/sriUFnxorrBYoSkfxPK9mtWUt7CrtAJJUW7lKNw0yTm+
+ uDI=
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 30 Nov 2022 17:57:20 -0800
+IronPort-SDR: alde1Gs3utEGv1KvJK9ogedAMg6n368Wo1JqS1v/bK/9cEcFE6YunWElnuOHLuzB/rCPsGvLBX
+ fr99LTMHEoXNPXD1QryCJJCGbcjVAQUNSKdlrE9FLwp8RC+0ihWKYKV6tVN+RfV7smN+8eOAiH
+ bjcNk5q0iQPCrOfaK9AupKqUSAON/vpXthHwdkEatYLAWSsLRifkY9ZEdDTkqWcBgLvcuMZF+7
+ CqneGEWVtVqybC2D/LR1ChGp91tgVPUiIVSpTXRo5YKvUu6tkYmVxLHY12uHSgY+b11garT2Nn
+ tuU=
+WDCIronportException: Internal
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
+  by uls-op-cesaip01.wdc.com with ESMTP; 30 Nov 2022 18:44:26 -0800
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Vincent Fu <vincentfu@gmail.com>
+Subject: [PATCH] backend: respect return value of init_io_u_buffers
+Date:   Thu,  1 Dec 2022 11:44:25 +0900
+Message-Id: <20221201024425.2340442-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: [PATCH 1/2] io_u: fix offset generation for mix of random and
- sequential workload
-Content-Language: en-US
-To:     Ankit Kumar <ankit.kumar@samsung.com>
-Cc:     axboe@kernel.dk, fio@vger.kernel.org
-References: <20221118051454.31288-1-ankit.kumar@samsung.com>
- <CGME20221118052633epcas5p2c19a4398ff6a9d592eadb7b93f7e5d1e@epcas5p2.samsung.com>
- <20221118051454.31288-2-ankit.kumar@samsung.com>
- <1d29e8c8-ce79-0608-d979-d50bfbc9e112@gmail.com>
- <20221130105053.GA20432@test-zns>
-From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20221130105053.GA20432@test-zns>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 11/30/22 05:50, Ankit Kumar wrote:
-> On Mon, Nov 28, 2022 at 04:57:28PM -0500, Vincent Fu wrote:
->> On 11/18/22 00:14, Ankit Kumar wrote:
->>> Sometimes while running a mix of sequential and random I/O's the
->>> generated sequential offset is outside the I/O region. This usually
->>> happens if the previous I/O is the last block in the region and
->>> thus results in this sequential I/O's offset to be just outside the
->>> region.
->>> With this fix, fio generates a random offset within the I/O region.
->>>
->>> This fixes #1486
->>>
->>> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
->>> ---
->>>    io_u.c | 5 ++++-
->>>    1 file changed, 4 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/io_u.c b/io_u.c
->>> index 8035f4b7..e49b1b29 100644
->>> --- a/io_u.c
->>> +++ b/io_u.c
->>> @@ -432,8 +432,11 @@ static int get_next_block(struct thread_data *td,
->> struct io_u *io_u,
->>>    				*is_random = false;
->>>    				io_u_set(td, io_u, IO_U_F_BUSY_OK);
->>>    				ret = get_next_seq_offset(td, f, ddir, &offset);
->>> -				if (ret)
->>> +				if (ret || offset >= f->io_size) {
->>>    					ret = get_next_rand_block(td, f, ddir, &b);
->>> +					offset = -1ULL;
->>> +					*is_random = true;
->>> +				}
->>>    			}
->>>    		} else {
->>>    			*is_random = false;
->>
->> This patch causes a regression with a workload such as:
->>
->> fio --name=test --bs=4k --filesize=32k --nrfiles=10 --number_ios=10
->> --file_service_type=sequential --percentage_random=50 --rw=randread
->> --randrepeat=0 --ioengine=null --debug=io
->>
->> Only the first file will be accessed when this patch is applied. Bad offsets
->> are needed in order to trigger the move to the next file.
->>
->> Here is a related issue: https://protect2.fireeye.com/v1/url?k=9f1fdb0c-fe94ce3a-9f1e5043-74fe485fffe0-0f0dbb3b9fc8b673&q=1&e=c35fdef7-d5f7-487d-b2e8-9f36779622fe&u=https%3A%2F%2Fgithub.com%2Faxboe%2Ffio%2Fissues%2F1372
->>
->> Perhaps the right thing to do is to limit the offset >= f->io_size check to
->> cases where nrfiles = 1 as in the patch for issue 1372.
->>
->> Also, it seems to me that if we are intending to generate a sequential
->> offset for this case and succeed in doing so, we should just wrap around to
->> the beginning of the file instead of choosing a new random offset.
->>
->> In general we have an overwhelming set of ways to generate offsets and
->> little automated testing for offset generation. In the long run we should
->> develop a set of tests for offset generation that exercise the different
->> options. This will help us detect issues and give us confidence that future
->> code changes won't introduce regressions.
->>
->> Vincent
->>
-> Ok thanks for pointing out, adding the nrfiles == 1 check should suffice.
-> 
-> I thought about changing the current sequential offset generation logic but
-> its used for a lot of things as you pointed out. Modifying it may create
-> further regression.
-> 
-> One such case is with zone block devices when zone capacity is less than
-> zone size. Currently if we don't limit size by specifying io_size or
-> number_ios or runtime, fio will exit early without transferring size bytes
-> of data as it generates a bad offset i.e. offset outside the I/O region.
-> This is because of holes or gaps between a zone end and start of next zone.
-> All the test cases in t/zbd/test-zbd-support takes account of that.
-> 
-> There is another case with gaps ex: with workload such as "rw=read:4K"
-> where fio will exit early without transferring size bytes of data. I am
-> not sure whether this is the correct behavior.
-> This will only happen if file size is bigger than f->offset + f->io_size
-> i.e. we never reach the end of file, else it will wrap around.
-> 
-> I think to handle all these cases and percentage_random workload, for
-> multiple files is going to be tricky.
-> 
-> One solution I can think of is to just update the documentation for "size" by
-> mentioning that runtime can also get reduced if there are holes or gaps
-> while doing sequential I/O's, or if we have mixture of sequential or random
-> workload which can generate an out of I/O region offset.
-> 
-> Ankit
-> 
+When workloads require large buffer for I/O, fio fails to allocate I/O
+buffer but does not report meaningful error message. It just accesses
+to null pointer and fail with signal 11. This symptom is observed with
+the command line below:
 
-Ok. It seems like what is happening in 
-https://github.com/axboe/fio/issues/1486 is that fio is doing sequential 
-I/O, reaches the end of the device, and then decides that the job is 
-completed. This is arguably correct behavior. I agree that the right 
-approach is to improve the documentation because changing the code to 
-catch this special case may be risky. I think the io_size work around 
-you provided in the ticket is a reasonable resolution.
+$ fio --name=job --filename=/tmp/fio --rw=write --bs=1g --size=1g \
+      --iodepth=128 --ioengine=libaio
 
-Vincent
+The I/O buffer allocation is done in function init_io_u_buffers. The
+allocation failure is not reported because return value of the function
+is ignored. Check the return value and report to the higher layer.
+
+Fixes: 71e6e5a2fd5c ("iolog replay: Realloc io_u buffers to adapt to operation size.")
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ backend.c  | 3 ++-
+ blktrace.c | 3 ++-
+ iolog.c    | 3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/backend.c b/backend.c
+index ba954a6b..928e524a 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1301,7 +1301,8 @@ static int init_io_u(struct thread_data *td)
+ 		}
+ 	}
+ 
+-	init_io_u_buffers(td);
++	if (init_io_u_buffers(td))
++		return 1;
+ 
+ 	if (init_file_completion_logging(td, max_units))
+ 		return 1;
+diff --git a/blktrace.c b/blktrace.c
+index 00e5f9a9..d5c8aee7 100644
+--- a/blktrace.c
++++ b/blktrace.c
+@@ -545,7 +545,8 @@ bool read_blktrace(struct thread_data* td)
+ 			td->o.max_bs[DDIR_TRIM] = max(td->o.max_bs[DDIR_TRIM], rw_bs[DDIR_TRIM]);
+ 			io_u_quiesce(td);
+ 			free_io_mem(td);
+-			init_io_u_buffers(td);
++			if (init_io_u_buffers(td))
++				return false;
+ 		}
+ 		return true;
+ 	}
+diff --git a/iolog.c b/iolog.c
+index aa9c3bb1..62f2f524 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -620,7 +620,8 @@ static bool read_iolog(struct thread_data *td)
+ 		{
+ 			io_u_quiesce(td);
+ 			free_io_mem(td);
+-			init_io_u_buffers(td);
++			if (init_io_u_buffers(td))
++				return false;
+ 		}
+ 		return true;
+ 	}
+-- 
+2.37.1
 
