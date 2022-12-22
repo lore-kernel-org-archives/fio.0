@@ -2,163 +2,198 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7696C4332F
-	for <fio@archiver.kernel.org>; Thu, 22 Dec 2022 04:48:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59772C4332F
+	for <fio@archiver.kernel.org>; Thu, 22 Dec 2022 04:48:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234634AbiLVEsM (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 21 Dec 2022 23:48:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
+        id S234875AbiLVEsX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 21 Dec 2022 23:48:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229601AbiLVEsJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 21 Dec 2022 23:48:09 -0500
+        with ESMTP id S234829AbiLVEsR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 21 Dec 2022 23:48:17 -0500
 Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161631A80E
-        for <fio@vger.kernel.org>; Wed, 21 Dec 2022 20:48:07 -0800 (PST)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20221222044806epoutp02d32b5efc9d49ef4617d389b49e10fdaa~zBC7e8OXQ0754307543epoutp02e
-        for <fio@vger.kernel.org>; Thu, 22 Dec 2022 04:48:06 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20221222044806epoutp02d32b5efc9d49ef4617d389b49e10fdaa~zBC7e8OXQ0754307543epoutp02e
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D701A80E
+        for <fio@vger.kernel.org>; Wed, 21 Dec 2022 20:48:16 -0800 (PST)
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20221222044814epoutp02e774b623ce4348901a741290be83d094~zBDDio8Xg0754307543epoutp02j
+        for <fio@vger.kernel.org>; Thu, 22 Dec 2022 04:48:14 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20221222044814epoutp02e774b623ce4348901a741290be83d094~zBDDio8Xg0754307543epoutp02j
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1671684486;
-        bh=8veZQ9ok95aUs/TTWaLboEUcKH1llYm49Itm+R8lBxc=;
+        s=mail20170921; t=1671684494;
+        bh=nIcwU94CAdpTB6q5sf7DW651JFiNmyPJ3BsiNOfM9+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E9TVy6T/TISqvv0kpiWAYDs/3tZByn6JfPlJLV+Cb0EjXrjLaFDx92yN/P8BogIgC
-         uC0TDPkYuYRF/iQJR7/SnCfk2vSnhjouAAErR+qne9gQ+rBZhRxrM3RoOTmCy1xQtP
-         VQCpmCBQEDKZ+JwjfevL/O9TbAfwpqmXkC0gp/Hg=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20221222044805epcas5p4620631b31d84d89500939e358132bb5e~zBC7N7J5v0895308953epcas5p4V;
-        Thu, 22 Dec 2022 04:48:05 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.177]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4NcyVX3CGGz4x9Q9; Thu, 22 Dec
-        2022 04:48:04 +0000 (GMT)
+        b=hO0+qSdubv1mVSbutGmfkQYvbGMyn3NXWbfrtmotzgPfE7TlSJeapvztL+H3FE82o
+         Co+1UmV/Vie3VOdUuZe1Fb73QF00M2I/xVPfvoZlaC4d9E9FEwgOWnuxbb+q4/WE4d
+         EHfZ3oBxabZPP1HTZ+ZiXQxau9UZDZHnPzuvU3FQ=
+Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20221222044814epcas5p229876aa45f0457b8084605c92d9eca7b~zBDDAOuZt0954709547epcas5p2u;
+        Thu, 22 Dec 2022 04:48:14 +0000 (GMT)
+Received: from epsmges5p3new.samsung.com (unknown [182.195.38.175]) by
+        epsnrtp2.localdomain (Postfix) with ESMTP id 4NcyVh26M6z4x9Q0; Thu, 22 Dec
+        2022 04:48:12 +0000 (GMT)
 Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        AE.EB.02301.281E3A36; Thu, 22 Dec 2022 13:48:02 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20221222044041epcas5p28ebdf57c30725c2f266e55658e327564~zA8dSaoAD0408204082epcas5p2e;
-        Thu, 22 Dec 2022 04:40:41 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20221222044041epsmtrp20e9ee7f4f569d5dcf8fb2a2fadc4d4d8~zA8dRuihR0798207982epsmtrp2L;
-        Thu, 22 Dec 2022 04:40:41 +0000 (GMT)
-X-AuditID: b6c32a49-473fd700000108fd-56-63a3e182934e
+        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        7E.98.03362.781E3A36; Thu, 22 Dec 2022 13:48:07 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20221222044042epcas5p1d8fc77f1bf60d9857d6073a3e2c73ddb~zA8eSkNL01237812378epcas5p1L;
+        Thu, 22 Dec 2022 04:40:42 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20221222044042epsmtrp103ff4dc5fce716eff07caab7b3c87549~zA8eR5tow0236302363epsmtrp1G;
+        Thu, 22 Dec 2022 04:40:42 +0000 (GMT)
+X-AuditID: b6c32a4b-4e5fa70000010d22-11-63a3e1872c5f
 Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        41.12.10542.9CFD3A36; Thu, 22 Dec 2022 13:40:41 +0900 (KST)
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        64.64.02211.ACFD3A36; Thu, 22 Dec 2022 13:40:42 +0900 (KST)
 Received: from green.sa.corp.samsungelectronics.net (unknown
         [107.110.206.5]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20221222044040epsmtip17880d25509884283c3637e239db90d56~zA8cSkXqN0411504115epsmtip1l;
-        Thu, 22 Dec 2022 04:40:40 +0000 (GMT)
+        20221222044041epsmtip18d9ddb0a61295b3b1de8ef8f53eff2b1~zA8dV2lrt0411404114epsmtip1x;
+        Thu, 22 Dec 2022 04:40:41 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, vincentfu@gmail.com, simon.lund@samsung.com,
         m.ynddal@samsung.com, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 1/4] engines/xnvme: fixes for xnvme ioengine
-Date:   Thu, 22 Dec 2022 10:09:48 +0530
-Message-Id: <20221222043951.24590-2-ankit.kumar@samsung.com>
+Subject: [PATCH 2/4] engines/xnvme: user space vfio based backend
+Date:   Thu, 22 Dec 2022 10:09:49 +0530
+Message-Id: <20221222043951.24590-3-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20221222043951.24590-1-ankit.kumar@samsung.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrCKsWRmVeSWpSXmKPExsWy7bCmhm7Tw8XJBidfqVusufKb3WL13X42
-        i4+zXjBbTPrVyGhxt3sGu8WGNkEHNo+ds+6ye1w+W+rRt2UVo8fnTXIBLFHZNhmpiSmpRQqp
-        ecn5KZl56bZK3sHxzvGmZgaGuoaWFuZKCnmJuam2Si4+AbpumTlAq5UUyhJzSoFCAYnFxUr6
-        djZF+aUlqQoZ+cUltkqpBSk5BSYFesWJucWleel6eaklVoYGBkamQIUJ2RkLVsxjKWjirZi+
-        cTZTA+MOri5GTg4JAROJqbtesXUxcnEICexmlNj3ZyqU84lRYsmK7+wQzmdGiXNzLzDCtKz+
-        9Q3MFhLYxSjROjMSoqiJSeLPt0YmkASbgLbEq7c3mEFsEQFhif0drSwgRcwCzYwSay6uYQFJ
-        CAvYSLRcvMYKYrMIqEqsvvQLbCovUPzW/73MENvkJVZvOABmcwrYSkxfcoEFIr6LXeL3xFgI
-        20XiZOMmdghbWOLV8S1QtpTE53d72SDsbIlND38yQdgFEkde9ELNt5doPdUPZHMAHacpsX6X
-        PkRYVmLqqXVg5cwCfBK9v59AtfJK7JgHY6tK/L13G+ocaYmb765C2R4S9w8vZYUEygRGicWv
-        b7NMYJSbhbBiASPjKkbJ1ILi3PTUYtMCw7zUcnisJefnbmIEJy8tzx2Mdx980DvEyMTBeIhR
-        goNZSYT30oXFyUK8KYmVValF+fFFpTmpxYcYTYHhN5FZSjQ5H5g+80riDU0sDUzMzMxMLI3N
-        DJXEeVO3zk8WEkhPLEnNTk0tSC2C6WPi4JRqYCpwW112momHe75T6bFW3blbDJ89rg76OnUD
-        98v+Lp4/VpE9fHYLz1vlWb1aK3xvmh5XgMqTa1XTnmjeVPyy/lHt2uBXu3cxdx67NfXyiYrs
-        wL9Lcm9PK1Ko1p0w4WnjvA+lRyt2/9U0KnfebeHls1agxKXwRMWLlJOegfbZJ54dLjfJfWbt
-        9DJHyz7ykfoa7Uv6rO+v9x/+wsU0e9Lv7W09alVPwxW6Qi8b56zyWrK4rMiq+EGPjl3y33tp
-        P/rMT07en7ndz+lE2M8Hry79lWWa+9d125ECL/Mvn8UObTmgmPv/E8cT43S/wiv2S733+pn+
-        LBGQds3uexaxSaXR7O3arsh905TK6nmdw25++KDEUpyRaKjFXFScCAB4aI0m5wMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupmluLIzCtJLcpLzFFi42LZdlhJTvfk/cXJBnO+c1qsufKb3WL13X42
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrKKsWRmVeSWpSXmKPExsWy7bCmhm77w8XJBp0NlhZrrvxmt1h9t5/N
+        4uOsF8wWk341Mlrc7Z7BbrGhTdCBzWPnrLvsHpfPlnr0bVnF6PF5k1wAS1S2TUZqYkpqkUJq
+        XnJ+SmZeuq2Sd3C8c7ypmYGhrqGlhbmSQl5ibqqtkotPgK5bZg7QaiWFssScUqBQQGJxsZK+
+        nU1RfmlJqkJGfnGJrVJqQUpOgUmBXnFibnFpXrpeXmqJlaGBgZEpUGFCdsa1xtXMBVOlK569
+        OcTewNgk1sXIySEhYCLx/dAK9i5GLg4hgd2MEt/P3oByPjFKHLqzmhnC+cYo8e/aDBaYlp6e
+        yUwQib2MEtvnXGSDcJqYJHYcfgVWxSagLfHq7Q1mEFtEQFhif0crC0gRs0Azo8Sai2vAioQF
+        HCUW3/nIBGKzCKhKPOh8CmbzCthInGnoZIJYJy+xesMBsEGcArYS05dcABskIbCJXWLJgdOM
+        EEUuEn2H25ghbGGJV8e3sEPYUhIv+9ug7GyJTQ9/Qg0tkDjyoheq3l6i9VQ/kM0BdJ2mxPpd
+        +hBhWYmpp9aBlTML8En0/n4C1corsWMejK0q8ffebWiwSEvcfHeVBWSMhICHxPanCZBAmcAo
+        0fpoM+MERrlZCBsWMDKuYpRMLSjOTU8tNi0wzksth0dbcn7uJkZw+tLy3sH46MEHvUOMTByM
+        hxglOJiVRHgvXVicLMSbklhZlVqUH19UmpNafIjRFBh+E5mlRJPzgQk0ryTe0MTSwMTMzMzE
+        0tjMUEmcN3Xr/GQhgfTEktTs1NSC1CKYPiYOTqkGJssy7h8zp9fdswzjvrbh7E3Wi7HvEvjc
+        l7mLGU0133NeqtBOfV9u89oi8bkTN7SsX7N3yzXz5oCd5Stffy67v4tnbeGE9m2+Kmo7ipZO
+        MT0jO+uRXCUXn/frhJXcbAfO7dj0Se+r/l/Ry9PeGIk1MmqnTbqa0Xc452au3Ks0pzcT8/LC
+        Dzg+1Hhu9XeV7k9/qRDx6fOePfmobCsvdWy9AL/3uhp2F7ZH072EdzttqlyZ+Ssrafq9neGK
+        Donfm/+uW5d5YLbdxHsRxz9+fZTQfCbUq2G5f+/DsqOPLHdtyNk0Zf7qu42rczbwaP+OLrE+
+        xPKwK/jdGdb7Wj8EZ4lF+Trvsr14xOiSvO2S6js5rl+VWIozEg21mIuKEwE+5ayd6AMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupmluLIzCtJLcpLzFFi42LZdlhJTvfU/cXJBvtuCVqsufKb3WL13X42
         i4+zXjBbTPrVyGhxt3sGu8WGNkEHNo+ds+6ye1w+W+rRt2UVo8fnTXIBLFFcNimpOZllqUX6
-        dglcGQtWzGMpaOKtmL5xNlMD4w6uLkZODgkBE4nVv74xdjFycQgJ7GCU+Dt/AmsXIwdQQlpi
-        4fpEiBphiZX/nrND1DQwSUz6cZgJJMEmoC3x6u0NZhBbBKhof0crC0gRs0Ano8TOnwfAioQF
-        bCRaLl5jBbFZBFQlVl/6xQhi8wLFb/3fywyxQV5i9YYDYDangK3E9CUXWEBsIaCaBbtfMk1g
-        5FvAyLCKUTK1oDg3PbfYsMAoL7Vcrzgxt7g0L10vOT93EyM4vLS0djDuWfVB7xAjEwfjIUYJ
-        DmYlEd5LFxYnC/GmJFZWpRblxxeV5qQWH2KU5mBREue90HUyXkggPbEkNTs1tSC1CCbLxMEp
-        1cDkbKyuy23XFX+R5cKuN0+7yuYqTCyLS+daGmWzLqKgduUTU/n1P57uz6oN0NX3exZopRzL
-        v8BUwP+78VSR6PTrN59eKfYpE1srXqV30Fb0XaTYvjkTY5rmfzfaZH3XwLT9sqvJz1m7VI9J
-        LroStHF1WoWKi6h6v9cWuwNJT0pUFmyeUFaycoPGSfOe2LQJU978FjTb91Oxfk1XYWN5FlML
-        c8fMZxdbQjPezbn6/chUuz+Lvmw3CAt7s23li6kT5u3+s/Xm5Q3WXcHK1aGBW6fe6+vcZeO0
-        M3PPgmua/9OaH29YeuPKwwfvQlZvuaiTwfWH3UbC+cccic9TNSoP7bZ5KJt+wUoy9vmW6lmF
-        XkWLlViKMxINtZiLihMBoYGxop4CAAA=
-X-CMS-MailID: 20221222044041epcas5p28ebdf57c30725c2f266e55658e327564
+        dglcGdcaVzMXTJWuePbmEHsDY5NYFyMnh4SAiURPz2SmLkYuDiGB3YwSsy5/BHI4gBLSEgvX
+        J0LUCEus/PecHaKmgUlizaedbCAJNgFtiVdvbzCD2CJARfs7WllAipgFOhkldv48wASSEBZw
+        lFh85yOYzSKgKvGg8ymYzStgI3GmoZMJYoO8xOoNB8AGcQrYSkxfcoEFxBYCqlmw+yXTBEa+
+        BYwMqxglUwuKc9Nziw0LDPNSy/WKE3OLS/PS9ZLzczcxgsNLS3MH4/ZVH/QOMTJxMB5ilOBg
+        VhLhvXRhcbIQb0piZVVqUX58UWlOavEhRmkOFiVx3gtdJ+OFBNITS1KzU1MLUotgskwcnFIN
+        THWG1t4zr0s7S38J/3h152vHOfnai0ySVr59xag6K97e+qBqpVTo8UCb6RsSlxwsCmi3NHfn
+        K35WZSGdI/j4YxFr5pY37TmiIjP6A3RCelwW8KyQ+uAaKrbF6HGJ9w15I0eNREmdKvNlry+5
+        8pgUz3mjyMisGiCurGTbadzVZObeEhzAuHezT0ci82HzwhyO8MtTuf0nC8gVJzof1WH1e2em
+        9vzp0kTjXdfmV6Qcigx8svBr6b2TX5c0FDD/2GKkpPssiSnL1+45z23fJJ3vS02+75ZqUOvM
+        cTB6FFeabMP5R756vuHb/TEJ7/6Zl3bqe7mbaUxX5+7PYfgYudS3KOznZ43FnrduB9dHK7EU
+        ZyQaajEXFScCAJRgdZGeAgAA
+X-CMS-MailID: 20221222044042epcas5p1d8fc77f1bf60d9857d6073a3e2c73ddb
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20221222044041epcas5p28ebdf57c30725c2f266e55658e327564
+X-CMS-RootMailID: 20221222044042epcas5p1d8fc77f1bf60d9857d6073a3e2c73ddb
 References: <20221222043951.24590-1-ankit.kumar@samsung.com>
-        <CGME20221222044041epcas5p28ebdf57c30725c2f266e55658e327564@epcas5p2.samsung.com>
+        <CGME20221222044042epcas5p1d8fc77f1bf60d9857d6073a3e2c73ddb@epcas5p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-1. fix error-handling in xnvme_fioe_queue()
-2. fix resource-leak in xnvme_fioe_init()
+Add an option to use user-space VFIO-based backend,
+implemented using libvfn.
+Update xnvme engine options for missing backends.
 
-Signed-off-by: Simon A. F. Lund <simon.lund@samsung.com>
 Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
- engines/xnvme.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ HOWTO.rst       | 5 ++++-
+ engines/xnvme.c | 7 ++++---
+ fio.1           | 6 +++++-
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 97fe5350..aba6c9b3 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -2845,6 +2845,9 @@ with the caveat that when used on the command line, they must come after the
+ 	**posix**
+ 		Use the posix asynchronous I/O interface to perform one or
+ 		more I/O operations asynchronously.
++	**vfio**
++		Use the user-space VFIO-based backend, implemented using
++		libvfn instead of SPDK.
+ 	**nil**
+ 		Do not transfer any data; just pretend to. This is mainly used
+ 		for introspective performance evaluation.
+@@ -2875,7 +2878,7 @@ with the caveat that when used on the command line, they must come after the
+ 
+ .. option:: xnvme_dev_nsid=int : [xnvme]
+ 
+-	xnvme namespace identifier for userspace NVMe driver, such as SPDK.
++	xnvme namespace identifier for userspace NVMe driver, SPDK or vfio.
+ 
+ .. option:: xnvme_iovec=int : [xnvme]
+ 
 diff --git a/engines/xnvme.c b/engines/xnvme.c
-index d8647481..dcc54998 100644
+index dcc54998..ee6b67c1 100644
 --- a/engines/xnvme.c
 +++ b/engines/xnvme.c
-@@ -322,12 +322,15 @@ static int xnvme_fioe_init(struct thread_data *td)
- 
- 	xd->iocq = calloc(td->o.iodepth, sizeof(struct io_u *));
- 	if (!xd->iocq) {
--		log_err("ioeng->init(): !calloc(), err(%d)\n", errno);
-+		free(xd);
-+		log_err("ioeng->init(): !calloc(xd->iocq), err(%d)\n", errno);
- 		return 1;
- 	}
- 
- 	xd->iovec = calloc(td->o.iodepth, sizeof(*xd->iovec));
- 	if (!xd->iovec) {
-+		free(xd->iocq);
-+		free(xd);
- 		log_err("ioeng->init(): !calloc(xd->iovec), err(%d)\n", errno);
- 		return 1;
- 	}
-@@ -338,6 +341,10 @@ static int xnvme_fioe_init(struct thread_data *td)
- 	for_each_file(td, f, i)
- 	{
- 		if (_dev_open(td, f)) {
-+			/*
-+			 * Note: We are not freeing xd, iocq and iovec. This
-+			 * will be done as part of cleanup routine.
-+			 */
- 			log_err("ioeng->init(): failed; _dev_open(%s)\n", f->file_name);
- 			return 1;
- 		}
-@@ -506,9 +513,11 @@ static enum fio_q_status xnvme_fioe_queue(struct thread_data *td, struct io_u *i
- 
- 	default:
- 		log_err("ioeng->queue(): ENOSYS: %u\n", io_u->ddir);
--		err = -1;
-+		xnvme_queue_put_cmd_ctx(ctx->async.queue, ctx);
-+
-+		io_u->error = ENOSYS;
- 		assert(false);
--		break;
-+		return FIO_Q_COMPLETED;
- 	}
- 
- 	if (vectored_io) {
+@@ -113,7 +113,8 @@ static struct fio_option options[] = {
+ 		.lname = "xNVMe Asynchronous command-interface",
+ 		.type = FIO_OPT_STR_STORE,
+ 		.off1 = offsetof(struct xnvme_fioe_options, xnvme_async),
+-		.help = "Select xNVMe async. interface: [emu,thrpool,io_uring,libaio,posix,nil]",
++		.help = "Select xNVMe async. interface: "
++			"[emu,thrpool,io_uring,io_uring_cmd,libaio,posix,vfio,nil]",
+ 		.category = FIO_OPT_C_ENGINE,
+ 		.group = FIO_OPT_G_XNVME,
+ 	},
+@@ -122,7 +123,7 @@ static struct fio_option options[] = {
+ 		.lname = "xNVMe Synchronous. command-interface",
+ 		.type = FIO_OPT_STR_STORE,
+ 		.off1 = offsetof(struct xnvme_fioe_options, xnvme_sync),
+-		.help = "Select xNVMe sync. interface: [nvme,psync]",
++		.help = "Select xNVMe sync. interface: [nvme,psync,block]",
+ 		.category = FIO_OPT_C_ENGINE,
+ 		.group = FIO_OPT_G_XNVME,
+ 	},
+@@ -131,7 +132,7 @@ static struct fio_option options[] = {
+ 		.lname = "xNVMe Admin command-interface",
+ 		.type = FIO_OPT_STR_STORE,
+ 		.off1 = offsetof(struct xnvme_fioe_options, xnvme_admin),
+-		.help = "Select xNVMe admin. cmd-interface: [nvme,block,file_as_ns]",
++		.help = "Select xNVMe admin. cmd-interface: [nvme,block]",
+ 		.category = FIO_OPT_C_ENGINE,
+ 		.group = FIO_OPT_G_XNVME,
+ 	},
+diff --git a/fio.1 b/fio.1
+index 1074b52a..004d3ba0 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2584,6 +2584,10 @@ Use Linux aio for Asynchronous I/O
+ Use the posix asynchronous I/O interface to perform one or more I/O operations
+ asynchronously.
+ .TP
++.BI vfio
++Use the user-space VFIO-based backend, implemented using libvfn instead of
++SPDK.
++.TP
+ .BI nil
+ Do not transfer any data; just pretend to. This is mainly used for
+ introspective performance evaluation.
+@@ -2621,7 +2625,7 @@ Use Linux Block Layer ioctl() and sysfs for admin commands.
+ .RE
+ .TP
+ .BI (xnvme)xnvme_dev_nsid\fR=\fPint
+-xnvme namespace identifier for userspace NVMe driver such as SPDK.
++xnvme namespace identifier for userspace NVMe driver SPDK or vfio.
+ .TP
+ .BI (xnvme)xnvme_iovec
+ If this option is set, xnvme will use vectored read/write commands.
 -- 
 2.17.1
 
