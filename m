@@ -2,133 +2,223 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72FBFC54EBC
-	for <fio@archiver.kernel.org>; Tue, 10 Jan 2023 16:23:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B07C9C54EBE
+	for <fio@archiver.kernel.org>; Wed, 11 Jan 2023 06:56:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233222AbjAJQW5 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 10 Jan 2023 11:22:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
+        id S235794AbjAKG4d (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 11 Jan 2023 01:56:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238604AbjAJQWv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 10 Jan 2023 11:22:51 -0500
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1540271884
-        for <fio@vger.kernel.org>; Tue, 10 Jan 2023 08:22:50 -0800 (PST)
-Received: by mail-qt1-x82e.google.com with SMTP id j15so5832903qtv.4
-        for <fio@vger.kernel.org>; Tue, 10 Jan 2023 08:22:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xTLn0l8XJmuBYtsJb/3FpK+JdEixWN72PXLUtJ/BGLk=;
-        b=O4RYgdXs7I+qHpVJjPqVbJo1UTJlAeo9CxpabeO5BRsvRxxTfaxoE1JURC5gq4ntxY
-         +vMbAeBO7zS4OOFDsG8nCUIzEAVfYy7upA69J0IWIqhU5UR7DTbbN+jr2ydcWoX7cGBn
-         p9mTk5OCuBvGZH1Kg6zTLnam7jL5t0y39PEpTR0uZZeV0EPtpju2EyxSClyIbJsU9wua
-         TSrYZw+wILfxOIkbjahM5cwkn5HrqaC7JQlBMZdBvVHZzAdH8fo714ZE0zrd7E+flE6a
-         +DdxecqRMi83T77mnDEn3MBydhfGTclG50IjVe61OzJOkpcg6J9CFVzqBiOkiCqDDx+p
-         f+KQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xTLn0l8XJmuBYtsJb/3FpK+JdEixWN72PXLUtJ/BGLk=;
-        b=3Cz/O8eH5yi9ai65/DtXoWgTA8xx4nIoHwr0Wvv3NprIvw1MK7/usl6TKJLu6cO6W3
-         /DQHBooQJZO+C2iRsdOE7aGwd/GmJZzfecUYAur9xZME08NdvhCTY2hb41eYLTXyJ/Xr
-         FcEM9xDcF2wwBZk88kRMGFvT1eob1rOiU3b3NfTaqUrxW1fBHUbOnRwNCCshFbkAi+Nn
-         /Pfp3yiC0oZHKDjiZhR2MzQKy63vMHSsauU/wQ9WlzTZuc+mHVUObz2D7VhhwXwq2wGq
-         ZQUlqDrawILfVASHuYKG77mIrl8kH38Lh48um2f/SH3N8V+xUbmxrXNUcbOtTMy2Nlr2
-         cIXw==
-X-Gm-Message-State: AFqh2koAORRdZ8mLs8SLZ1y6HGBI97/derTI4UINzfSkSG6ATlS9XbVL
-        7ns5DAZUIP3qT7GP4VBe+Os=
-X-Google-Smtp-Source: AMrXdXs3NJmI4pU6n/WoIFakhC7e4mpjfI0naMRxk2b3cug7augE1eUM9yKkszuOrvUVLVuwOe0eyw==
-X-Received: by 2002:ac8:5e06:0:b0:3ab:5bb4:ae6d with SMTP id h6-20020ac85e06000000b003ab5bb4ae6dmr124881886qtx.43.1673367769045;
-        Tue, 10 Jan 2023 08:22:49 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id x23-20020ac87ed7000000b0039467aadeb8sm6138277qtj.13.2023.01.10.08.22.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 Jan 2023 08:22:48 -0800 (PST)
-Message-ID: <af40d4b4-2ce8-3e34-ddf5-a57fe4d14547@gmail.com>
-Date:   Tue, 10 Jan 2023 11:22:47 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH 1/1] doc: clarify the usage of rw_sequencer
-To:     Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
-Cc:     fio@vger.kernel.org
-References: <20230110064240.30344-1-ankit.kumar@samsung.com>
- <CGME20230110064319epcas5p3de72dc6ff06df62ba8d6441878c4ea6b@epcas5p3.samsung.com>
- <20230110064240.30344-2-ankit.kumar@samsung.com>
-Content-Language: en-US
-From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20230110064240.30344-2-ankit.kumar@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S232030AbjAKG4A (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 11 Jan 2023 01:56:00 -0500
+Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161D02675
+        for <fio@vger.kernel.org>; Tue, 10 Jan 2023 22:55:59 -0800 (PST)
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20230111065557epoutp03df29462e58c8886d5607a26ef89e70b4~5LsRoeW1o1975719757epoutp03k
+        for <fio@vger.kernel.org>; Wed, 11 Jan 2023 06:55:57 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20230111065557epoutp03df29462e58c8886d5607a26ef89e70b4~5LsRoeW1o1975719757epoutp03k
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1673420157;
+        bh=kK9vibrJjmC3VONBqgSAujsdMkBYTj3vqk1xhHdiOAc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=R0Xx+lgMuN52OJ5SR4bHDwPIIUfoG92jbhhpyqjXaeZDsHVj5BDOGmUHvPC+md408
+         O0aaiLFDSJ+VpyUmmYmez+l3CvWZxx8OWti6uGgTff8VNOKVzx83rcqDjep/qEPHk1
+         58r5uTKCo+FUftfWZ95amInlmcywveOneDd9XxwU=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20230111065557epcas5p2464b37b406ab8b046a31e497cfdc9ba0~5LsRRA8Z_2155221552epcas5p2-;
+        Wed, 11 Jan 2023 06:55:57 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.180]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4NsJNq4w5Jz4x9Q9; Wed, 11 Jan
+        2023 06:55:55 +0000 (GMT)
+Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        85.73.62806.B7D5EB36; Wed, 11 Jan 2023 15:55:55 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20230111064842epcas5p1340926e9fbd7fff97070ae2b6c90816c~5Ll8aFbbf2112621126epcas5p1I;
+        Wed, 11 Jan 2023 06:48:42 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20230111064842epsmtrp1a9da410fa6a80da80aeb2e3e24b59b70~5Ll8ZhWeK1758417584epsmtrp1L;
+        Wed, 11 Jan 2023 06:48:42 +0000 (GMT)
+X-AuditID: b6c32a4a-ea5fa7000000f556-12-63be5d7b571d
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        F3.AD.02211.ACB5EB36; Wed, 11 Jan 2023 15:48:42 +0900 (KST)
+Received: from green5.sa.corp.samsungelectronics.net (unknown
+        [107.110.206.5]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20230111064841epsmtip291a6859cfc19193125f7db13d067671a~5Ll7o57mD0276402764epsmtip2X;
+        Wed, 11 Jan 2023 06:48:41 +0000 (GMT)
+From:   Ankit Kumar <ankit.kumar@samsung.com>
+To:     axboe@kernel.dk
+Cc:     fio@vger.kernel.org, vincentfu@gmail.com,
+        Ankit Kumar <ankit.kumar@samsung.com>
+Subject: [PATCH v2 1/1] doc: clarify the usage of rw_sequencer
+Date:   Wed, 11 Jan 2023 12:18:05 +0530
+Message-Id: <20230111064805.10001-2-ankit.kumar@samsung.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230111064805.10001-1-ankit.kumar@samsung.com>
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrJKsWRmVeSWpSXmKPExsWy7bCmum517L5kg31HxC3WXPnNbrH6bj+b
+        xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJyrbJSE1MSS1SSM1Lzk/JzEu3VfIO
+        jneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvMAVqopFCWmFMKFApILC5W0rezKcovLUlVyMgv
+        LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjO+Nzwha3go3zF5k2PWBoYL0h2MXJy
+        SAiYSLx7087WxcjFISSwm1Giccl0ZgjnE6PE51VbGCGcb4wS8y/2s8G0vL01EaplL6NE19+3
+        rBBOM5PE0+dHWEGq2AS0JV69vcEMYosICEvs72hlAbGZBUIlTl77wg5iCwvYSdxdPxOsnkVA
+        VaJ301qwOK+AjcSy7/3sENvkJVZvOAA2h1PAVuLJqY1Q8VXsErPn+EHYLhLPdv2DigtLvDq+
+        BcqWknjZ3wZlZ0tseviTCcIukDjyopcZwraXaD3VD2RzAN2mKbF+lz5EWFZi6ql1TBAn80n0
+        /n4C1corsWMejK0q8ffebRYIW1ri5rurULaHxIQHB8CBJSQwgVGi457WBEa5WQgbFjAyrmKU
+        TC0ozk1PLTYtMMpLLYdHWnJ+7iZGcJrS8trB+PDBB71DjEwcjIcYJTiYlUR4V3LuSRbiTUms
+        rEotyo8vKs1JLT7EaAoMvonMUqLJ+cBEmVcSb2hiaWBiZmZmYmlsZqgkzpu6dX6ykEB6Yklq
+        dmpqQWoRTB8TB6dUAxPjmVXXdePvJRk+YRGSWCRT3jFXb94B9zzduc1HcqsKOwKOfd/5jUm0
+        unSXK6/t0Vs/77w78WbZj7dM7+b5OPgknJ3Lq2vcN8fObL0Ty4mywjW7P6nEfgh4efrsAgNp
+        HpVFbq+rZRvfPLnH79mTvNvnIM+m2QUd3OuZyg5/XHP99oP16wU8lQ+pTSlIruJiSc8Xv/j5
+        xitLrv8Xrp1a8k+Mq2Enw3XBfyf/zf7Zutsk4OOGW/eaOn+kbFiTv2ulzc3CZLf6+wuiD2xo
+        263ufmoeU+y/jidaN8+sms7x7oJ89Zx5/zSlewXbmRYH/OziOvj65C3/Gz5ruTx/nQ5bJnW5
+        LHpulfDTzMQpurfeveCcocRSnJFoqMVcVJwIAL5k0APcAwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrPJMWRmVeSWpSXmKPExsWy7bCSvO6p6H3JBlt2S1isufKb3WL13X42
+        i4+zXjBbbGgTdGDx2DnrLrvH5bOlHn1bVjF6fN4kF8ASxWWTkpqTWZZapG+XwJXxueELW8FH
+        +YrNmx6xNDBekOxi5OSQEDCReHtrIhuILSSwm1Hi4unILkYOoLi0xML1iRAlwhIr/z1n72Lk
+        AippZJKYuPcrM0iCTUBb4tXbG2C2CFDR/o5WFhCbWSBcYvqByYwgtrCAncTd9TNZQWwWAVWJ
+        3k1r2UFsXgEbiWXf+9khFshLrN5wAGwOp4CtxJNTG9kh7rGR2HZ7P9sERr4FjAyrGCVTC4pz
+        03OLDQsM81LL9YoTc4tL89L1kvNzNzGCw0hLcwfj9lUf9A4xMnEwHmKU4GBWEuFdybknWYg3
+        JbGyKrUoP76oNCe1+BCjNAeLkjjvha6T8UIC6YklqdmpqQWpRTBZJg5OqQamuffXypxkEVzp
+        dLXiztd2fu+nuSd0r7UYeUzhmPptvci+YmW7uCrl+J7ybx8NYgLqpl3Ic7X5Uyv/hy2lszqD
+        wb6j7sF93SUPJeITX33vCzu95GJy12ZHga1d+y4x6Jeetbfl6+DZYXNz8oSt16NVm5gviRqu
+        7/g0eaf6nG0HP54Sd7DVW1b5dNUF3V1Kp/bpux7l/x13MTU87GnsddugJZOev3Ct6nev5+E/
+        s3dLstHnY8JzosMzwu+v8/2cduGAiMrm2kMiMzP/WjV8WPYwpaJ1W2qXyrOPB/99y5z/ep/a
+        P80bf19PaF/BVOcW2BTNlMy6O1sgj7/DyMhr1gOnA438/+Yc+31oA+uf86eFlViKMxINtZiL
+        ihMBi3K6qJICAAA=
+X-CMS-MailID: 20230111064842epcas5p1340926e9fbd7fff97070ae2b6c90816c
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20230111064842epcas5p1340926e9fbd7fff97070ae2b6c90816c
+References: <20230111064805.10001-1-ankit.kumar@samsung.com>
+        <CGME20230111064842epcas5p1340926e9fbd7fff97070ae2b6c90816c@epcas5p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 1/10/23 01:42, Ankit Kumar wrote:
-> Update man page clarifying the usage of rw_sequencer=sequential
-> 
-> Fixes: https://github.com/axboe/fio/issues/1223
-> 
-> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
-> ---
->   HOWTO.rst | 10 +++++-----
->   fio.1     | 12 ++++++------
->   2 files changed, 11 insertions(+), 11 deletions(-)
-> 
-> diff --git a/HOWTO.rst b/HOWTO.rst
-> index 0a48a453..806c1053 100644
-> --- a/HOWTO.rst
-> +++ b/HOWTO.rst
-> @@ -1176,11 +1176,11 @@ I/O type
->   			Generate the same offset.
->   
->   	``sequential`` is only useful for random I/O, where fio would normally
-> -	generate a new random offset for every I/O. If you append e.g. 8 to randread,
-> -	you would get a new random offset for every 8 I/Os. The result would be a
-> -	seek for only every 8 I/Os, instead of for every I/O. Use ``rw=randread:8``
-> -	to specify that. As sequential I/O is already sequential, setting
-> -	``sequential`` for that would not result in any differences.  ``identical``
-> +	generate a new random offset for every I/O. If you append e.g. 8 to
-> +	randread, i.e. ``rw=randread:8`` you would get a new random offset for
-> +	every 8 I/Os. The result would be one single random offset and 7
-> +	sequential offset. As sequential I/O is already sequential, setting
-> +	``sequential`` for that would not result in any difference.  ``identical``
->   	behaves in a similar fashion, except it sends the same offset 8 number of
->   	times before generating a new offset.
->   
-> diff --git a/fio.1 b/fio.1
-> index eb87533f..c5ba0436 100644
-> --- a/fio.1
-> +++ b/fio.1
-> @@ -952,12 +952,12 @@ Generate the same offset.
->   .P
->   \fBsequential\fR is only useful for random I/O, where fio would normally
->   generate a new random offset for every I/O. If you append e.g. 8 to randread,
-> -you would get a new random offset for every 8 I/Os. The result would be a
-> -seek for only every 8 I/Os, instead of for every I/O. Use `rw=randread:8'
-> -to specify that. As sequential I/O is already sequential, setting
-> -\fBsequential\fR for that would not result in any differences. \fBidentical\fR
-> -behaves in a similar fashion, except it sends the same offset 8 number of
-> -times before generating a new offset.
-> +i.e. `rw=randread:8' you would get a new random offset for every 8 I/Os. The
-> +result would be one single random offset and 7 sequential offset. As
-> +sequential I/O is already sequential, setting \fBsequential\fR for that would
-> +not result in any difference. \fBidentical\fR behaves in a similar fashion,
-> +except it sends the same offset 8 number of times before generating a new
-> +offset.
->   .RE
->   .TP
->   .BI unified_rw_reporting \fR=\fPstr
+Update man page clarifying the usage of rw_sequencer=sequential
+Added few examples explaining the offset generation for rw_sequencer.
 
-Ankit, how about:
+Fixes: https://github.com/axboe/fio/issues/1223
 
-"The result would be a sequence of 8 sequential offsets with a random 
-starting point."
+Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+---
+ HOWTO.rst | 35 ++++++++++++++++++++++++++++-------
+ fio.1     | 47 +++++++++++++++++++++++++++++++++++++++++------
+ 2 files changed, 69 insertions(+), 13 deletions(-)
 
-Vincent
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 0a48a453..17caaf5d 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -1176,13 +1176,34 @@ I/O type
+ 			Generate the same offset.
+ 
+ 	``sequential`` is only useful for random I/O, where fio would normally
+-	generate a new random offset for every I/O. If you append e.g. 8 to randread,
+-	you would get a new random offset for every 8 I/Os. The result would be a
+-	seek for only every 8 I/Os, instead of for every I/O. Use ``rw=randread:8``
+-	to specify that. As sequential I/O is already sequential, setting
+-	``sequential`` for that would not result in any differences.  ``identical``
+-	behaves in a similar fashion, except it sends the same offset 8 number of
+-	times before generating a new offset.
++	generate a new random offset for every I/O. If you append e.g. 8 to
++	randread, i.e. ``rw=randread:8`` you would get a new random offset for
++	every 8 I/Os. The result would be a sequence of 8 sequential offsets
++	with a random starting point. However this behavior may change if a
++	sequential I/O reaches end of the file. As sequential I/O is already
++	sequential, setting ``sequential`` for that would not result in any
++	difference. ``identical`` behaves in a similar fashion, except it sends
++	the same offset 8 number of times before generating a new offset.
++
++	Example #1::
++
++		rw=randread:8
++		rw_sequencer=sequential
++		bs=4k
++
++	The generated sequence of offsets will look like this:
++	4k, 8k, 12k, 16k, 20k, 24k, 28k, 32k, 92k, 96k, 100k, 104k, 108k,
++	112k, 116k, 120k, 48k, 52k ...
++
++	Example #2::
++
++		rw=randread:8
++		rw_sequencer=identical
++		bs=4k
++
++	The generated sequence of offsets will look like this:
++	4k, 4k, 4k, 4k, 4k, 4k, 4k, 4k, 92k, 92k, 92k, 92k, 92k, 92k, 92k, 92k,
++	48k, 48k, 48k ...
+ 
+ .. option:: unified_rw_reporting=str
+ 
+diff --git a/fio.1 b/fio.1
+index eb87533f..527b3d46 100644
+--- a/fio.1
++++ b/fio.1
+@@ -952,12 +952,47 @@ Generate the same offset.
+ .P
+ \fBsequential\fR is only useful for random I/O, where fio would normally
+ generate a new random offset for every I/O. If you append e.g. 8 to randread,
+-you would get a new random offset for every 8 I/Os. The result would be a
+-seek for only every 8 I/Os, instead of for every I/O. Use `rw=randread:8'
+-to specify that. As sequential I/O is already sequential, setting
+-\fBsequential\fR for that would not result in any differences. \fBidentical\fR
+-behaves in a similar fashion, except it sends the same offset 8 number of
+-times before generating a new offset.
++i.e. `rw=randread:8' you would get a new random offset for every 8 I/Os. The
++result would be a sequence of 8 sequential offsets with a random starting
++point.  However this behavior may change if a sequential I/O reaches end of the
++file. As sequential I/O is already sequential, setting \fBsequential\fR for
++that would not result in any difference. \fBidentical\fR behaves in a similar
++fashion, except it sends the same offset 8 number of times before generating a
++new offset.
++.P
++.P
++Example #1:
++.RS
++.P
++.PD 0
++rw=randread:8
++.P
++rw_sequencer=sequential
++.P
++bs=4k
++.PD
++.RE
++.P
++The generated sequence of offsets will look like this:
++4k, 8k, 12k, 16k, 20k, 24k, 28k, 32k, 92k, 96k, 100k, 104k, 108k, 112k, 116k,
++120k, 48k, 52k ...
++.P
++.P
++Example #2:
++.RS
++.P
++.PD 0
++rw=randread:8
++.P
++rw_sequencer=identical
++.P
++bs=4k
++.PD
++.RE
++.P
++The generated sequence of offsets will look like this:
++4k, 4k, 4k, 4k, 4k, 4k, 4k, 4k, 92k, 92k, 92k, 92k, 92k, 92k, 92k, 92k, 48k,
++48k, 48k ...
+ .RE
+ .TP
+ .BI unified_rw_reporting \fR=\fPstr
+-- 
+2.17.1
 
