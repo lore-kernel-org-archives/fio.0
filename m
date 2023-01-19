@@ -2,179 +2,122 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67C3FC54EBD
-	for <fio@archiver.kernel.org>; Thu, 12 Jan 2023 13:02:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D62C3C00A5A
+	for <fio@archiver.kernel.org>; Thu, 19 Jan 2023 13:00:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232545AbjALNC6 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 12 Jan 2023 08:02:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45434 "EHLO
+        id S229767AbjASNAM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 19 Jan 2023 08:00:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232554AbjALNC3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 12 Jan 2023 08:02:29 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 382F654734
-        for <fio@vger.kernel.org>; Thu, 12 Jan 2023 05:00:08 -0800 (PST)
+        with ESMTP id S229609AbjASNAK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 19 Jan 2023 08:00:10 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95BAC3581
+        for <fio@vger.kernel.org>; Thu, 19 Jan 2023 05:00:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=8qTJO21XNzvnsxyNwJjaGZYQGaS5folhzhSCcergHfc=; b=L94DfCpoJoBsauR/Rw33KK2y7R
-        16xjl98BftDF4d2YCR6cTAVwKdPD/jQpGJLhKExDk0pQLKK9WyLGPbzWGXdgJD6GBUen7UK/ylkon
-        4UcCEU5tpGr4A7oDZQ/Gx7IPwc76NV31JBvTrs4ScZA3/zyb7PVKok2OBYXnPtLANf9+Nr28dB5zz
-        ByGXgGRPODAlTE3UCyrQxSGl3sW33U/qMfykIY1KD5idciafUR7gsM/igOT2bHJyiIqNrf85eLPuv
-        Yo4mcYDa7MUW/sFNeFpn5y7wqZ9rOFiM4yg/5TutlyPZFXAr/Ee/RHzluTk4kAXWLJkSH+XmV1D+M
-        nSXU6+KQ==;
+        bh=cMurExxi0FxtjCIfUVziCTx+BdYVzANd0m70rTqPVsI=; b=rVm+RfFOgXjajuT25wqKsSvEYH
+        9U90DH1TIlVkcK/wdkD9wZXFlLYE/cdvJsxUSLGn9s6Rweb2NDRIGHUWmbqVMtVXAkir99g+xswVo
+        ysATAGf0DUqTIf4nDWr7gdXqBEwcW+GHH9O9K5mHdJDKiG0fI016HCDrUd9k+LJoMbt2/D4tmDkBo
+        BzL4vJpZrPrD9eBKOLo+rVm9GUDo+ZUX/6bS+jVqxYgw5fdMq1syNV1B7cVLbv7gv4ahRxBtgUMwl
+        brf3BcgWMqe0w8saYZJ33JxdikZe8sZ2JQKvc3HZDsKl+FNhTWhwHWNcq9XuZ91DOxmDXwL9FR+7/
+        Tse8q3XQ==;
 Received: from [207.135.234.126] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pFxBV-003zoI-2W
-        for fio@vger.kernel.org;
-        Thu, 12 Jan 2023 12:59:58 +0000
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pIUWS-000yfP-4N
+        for fio@vger.kernel.org; Thu, 19 Jan 2023 13:00:04 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id 573791BC016B; Thu, 12 Jan 2023 06:00:02 -0700 (MST)
+        id 67FED1BC0175; Thu, 19 Jan 2023 06:00:02 -0700 (MST)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230112130002.573791BC016B@kernel.dk>
-Date:   Thu, 12 Jan 2023 06:00:02 -0700 (MST)
+Message-Id: <20230119130002.67FED1BC0175@kernel.dk>
+Date:   Thu, 19 Jan 2023 06:00:02 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit c945074c0336fb1720acead38e578d4dd7f29921:
+The following changes since commit 44834c57f944074684c1b58604cc44199cf5e633:
 
-  engines/xnvme: add support for picking mem backend (2022-12-22 08:50:03 -0500)
+  examples: add missing fiograph diagram for sg_write_same_ndob.fio (2023-01-11 15:22:40 -0500)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 44834c57f944074684c1b58604cc44199cf5e633:
+for you to fetch changes up to 69bb4b00b20047e7b5af9a6e35cc872cae605071:
 
-  examples: add missing fiograph diagram for sg_write_same_ndob.fio (2023-01-11 15:22:40 -0500)
+  tools/fiograph: improve default config file search (2023-01-18 19:52:15 -0500)
 
 ----------------------------------------------------------------
-Ankit Kumar (1):
-      doc: clarify the usage of rw_sequencer
+Vincent Fu (3):
+      tools/fiograph: add link to file formats
+      tools/fiograph: improve default output file name
+      tools/fiograph: improve default config file search
 
-Vincent Fu (1):
-      examples: add missing fiograph diagram for sg_write_same_ndob.fio
-
- HOWTO.rst                       |  35 ++++++++++++++++++++++++------
- examples/sg_write_same_ndob.png | Bin 0 -> 97793 bytes
- fio.1                           |  47 +++++++++++++++++++++++++++++++++++-----
- 3 files changed, 69 insertions(+), 13 deletions(-)
- create mode 100644 examples/sg_write_same_ndob.png
+ tools/fiograph/fiograph.py | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 0a48a453..17caaf5d 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -1176,13 +1176,34 @@ I/O type
- 			Generate the same offset.
- 
- 	``sequential`` is only useful for random I/O, where fio would normally
--	generate a new random offset for every I/O. If you append e.g. 8 to randread,
--	you would get a new random offset for every 8 I/Os. The result would be a
--	seek for only every 8 I/Os, instead of for every I/O. Use ``rw=randread:8``
--	to specify that. As sequential I/O is already sequential, setting
--	``sequential`` for that would not result in any differences.  ``identical``
--	behaves in a similar fashion, except it sends the same offset 8 number of
--	times before generating a new offset.
-+	generate a new random offset for every I/O. If you append e.g. 8 to
-+	randread, i.e. ``rw=randread:8`` you would get a new random offset for
-+	every 8 I/Os. The result would be a sequence of 8 sequential offsets
-+	with a random starting point. However this behavior may change if a
-+	sequential I/O reaches end of the file. As sequential I/O is already
-+	sequential, setting ``sequential`` for that would not result in any
-+	difference. ``identical`` behaves in a similar fashion, except it sends
-+	the same offset 8 number of times before generating a new offset.
+diff --git a/tools/fiograph/fiograph.py b/tools/fiograph/fiograph.py
+index 384decda..86ed40a8 100755
+--- a/tools/fiograph/fiograph.py
++++ b/tools/fiograph/fiograph.py
+@@ -1,4 +1,5 @@
+ #!/usr/bin/env python3
++import errno
+ from graphviz import Digraph
+ import argparse
+ import configparser
+@@ -274,7 +275,7 @@ def setup_commandline():
+     parser.add_argument('--format', action='store',
+                         type=str,
+                         default='png',
+-                        help='the output format')
++                        help='the output format (see https://graphviz.org/docs/outputs/)')
+     parser.add_argument('--view', action='store_true',
+                         default=False,
+                         help='view the graph')
+@@ -283,7 +284,6 @@ def setup_commandline():
+                         help='keep the graphviz script file')
+     parser.add_argument('--config', action='store',
+                         type=str,
+-                        default='fiograph.conf',
+                         help='the configuration filename')
+     args = parser.parse_args()
+     return args
+@@ -292,13 +292,26 @@ def setup_commandline():
+ def main():
+     global config_file
+     args = setup_commandline()
 +
-+	Example #1::
+     if args.output is None:
+         output_file = args.file
+-        output_file = output_file.replace('.fio', '')
++        if output_file.endswith('.fio'):
++            output_file = output_file[:-4]
+     else:
+         output_file = args.output
 +
-+		rw=randread:8
-+		rw_sequencer=sequential
-+		bs=4k
++    if args.config is None:
++        if os.path.exists('fiograph.conf'):
++            config_filename = 'fiograph.conf'
++        else:
++            config_filename = os.path.join(os.path.dirname(__file__), 'fiograph.conf')
++            if not os.path.exists(config_filename):
++                raise FileNotFoundError("Cannot locate configuration file")
++    else:
++        config_filename = args.config
+     config_file = configparser.RawConfigParser(allow_no_value=True)
+-    config_file.read(args.config)
++    config_file.read(config_filename)
 +
-+	The generated sequence of offsets will look like this:
-+	4k, 8k, 12k, 16k, 20k, 24k, 28k, 32k, 92k, 96k, 100k, 104k, 108k,
-+	112k, 116k, 120k, 48k, 52k ...
-+
-+	Example #2::
-+
-+		rw=randread:8
-+		rw_sequencer=identical
-+		bs=4k
-+
-+	The generated sequence of offsets will look like this:
-+	4k, 4k, 4k, 4k, 4k, 4k, 4k, 4k, 92k, 92k, 92k, 92k, 92k, 92k, 92k, 92k,
-+	48k, 48k, 48k ...
- 
- .. option:: unified_rw_reporting=str
- 
-diff --git a/examples/sg_write_same_ndob.png b/examples/sg_write_same_ndob.png
-new file mode 100644
-index 00000000..8b76fc6c
-Binary files /dev/null and b/examples/sg_write_same_ndob.png differ
-diff --git a/fio.1 b/fio.1
-index eb87533f..527b3d46 100644
---- a/fio.1
-+++ b/fio.1
-@@ -952,12 +952,47 @@ Generate the same offset.
- .P
- \fBsequential\fR is only useful for random I/O, where fio would normally
- generate a new random offset for every I/O. If you append e.g. 8 to randread,
--you would get a new random offset for every 8 I/Os. The result would be a
--seek for only every 8 I/Os, instead of for every I/O. Use `rw=randread:8'
--to specify that. As sequential I/O is already sequential, setting
--\fBsequential\fR for that would not result in any differences. \fBidentical\fR
--behaves in a similar fashion, except it sends the same offset 8 number of
--times before generating a new offset.
-+i.e. `rw=randread:8' you would get a new random offset for every 8 I/Os. The
-+result would be a sequence of 8 sequential offsets with a random starting
-+point.  However this behavior may change if a sequential I/O reaches end of the
-+file. As sequential I/O is already sequential, setting \fBsequential\fR for
-+that would not result in any difference. \fBidentical\fR behaves in a similar
-+fashion, except it sends the same offset 8 number of times before generating a
-+new offset.
-+.P
-+.P
-+Example #1:
-+.RS
-+.P
-+.PD 0
-+rw=randread:8
-+.P
-+rw_sequencer=sequential
-+.P
-+bs=4k
-+.PD
-+.RE
-+.P
-+The generated sequence of offsets will look like this:
-+4k, 8k, 12k, 16k, 20k, 24k, 28k, 32k, 92k, 96k, 100k, 104k, 108k, 112k, 116k,
-+120k, 48k, 52k ...
-+.P
-+.P
-+Example #2:
-+.RS
-+.P
-+.PD 0
-+rw=randread:8
-+.P
-+rw_sequencer=identical
-+.P
-+bs=4k
-+.PD
-+.RE
-+.P
-+The generated sequence of offsets will look like this:
-+4k, 4k, 4k, 4k, 4k, 4k, 4k, 4k, 92k, 92k, 92k, 92k, 92k, 92k, 92k, 92k, 48k,
-+48k, 48k ...
- .RE
- .TP
- .BI unified_rw_reporting \fR=\fPstr
+     fio_to_graphviz(args.file, args.format).render(output_file, view=args.view)
+     if not args.keep:
+         os.remove(output_file)
