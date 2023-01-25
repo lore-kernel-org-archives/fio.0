@@ -2,124 +2,76 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC9DC54E94
-	for <fio@archiver.kernel.org>; Wed, 25 Jan 2023 13:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09610C54E94
+	for <fio@archiver.kernel.org>; Wed, 25 Jan 2023 16:38:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234833AbjAYNAK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 25 Jan 2023 08:00:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43600 "EHLO
+        id S234999AbjAYQig (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 25 Jan 2023 11:38:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232999AbjAYNAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 25 Jan 2023 08:00:09 -0500
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D40912064
-        for <fio@vger.kernel.org>; Wed, 25 Jan 2023 05:00:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=xLLogSBz7SojGdhO7Qgh5LNzhXh7OIiJVkWHzFa7puI=; b=rDdUHmtQH+cXJ8qcYNq/EL3qH1
-        S6U5yXcIDBf+zgCohkiOg8N3C+sT3GuXyExhD6gkXfeFVsLc+FTKEA6ckQoEKKjS83MZDrSpU+52R
-        CJJ5EZ5PmMl2dxwUOVCFT+oaZ9NhHTSU6zU5xzXOEAfDZUzT0y8ounypiASgHMUfuHuUsJKl2nitH
-        hPRX/48vnARfuQioJZVCVVnXt7tjWJaQgmwH9yEgPfZW2MBTk4xZJEc3v1RnWDqQp7yfEnjnvoyl0
-        vGmdvmD00Sa4MBNaWJBXOFF57JGXG1Lb3GWqSFaBzh8gco8DQinSo3oh4fxnzXMYTS0qEj0FnxJsB
-        EWKjz3YA==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1pKfNG-0029HT-1o
-        for fio@vger.kernel.org;
-        Wed, 25 Jan 2023 12:59:34 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 9CF331BC0120; Wed, 25 Jan 2023 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230125130001.9CF331BC0120@kernel.dk>
-Date:   Wed, 25 Jan 2023 06:00:01 -0700 (MST)
+        with ESMTP id S234182AbjAYQif (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 25 Jan 2023 11:38:35 -0500
+Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE3A61A5
+        for <fio@vger.kernel.org>; Wed, 25 Jan 2023 08:38:34 -0800 (PST)
+Received: by mail-vs1-xe36.google.com with SMTP id n190so20308839vsc.11
+        for <fio@vger.kernel.org>; Wed, 25 Jan 2023 08:38:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iVj4ojm3n7wqf78jjQ8dmhaDh6EniCKU1W1uO884zeI=;
+        b=MHckK+p9P9MG4zVrHw8r55rrZhtYFoaXe1AnX5F11YgRm6yT4iWBvGQtT/gmTBdCWU
+         50oLkDtfoj81kRFvax7Ngm4lKTXG1k90W1iJ1JN4LQVZUzFmpqDFoY11MZ+c3oTt1Dh0
+         xS+0cLY+zItCGTZ/8/1bbE+Sh6YUU+i5RROfA2aWlREF1y6BFZbdwMSm4QeLTL71bkuM
+         KW7xvvgzUYcfntJeDELQwdmoZc86SrW4dMM0UNeYlRrwXjIV+P6edD5Og27WcOviViNq
+         ecjflISspXFjkJ52QdJEiWwDN2qLrS8W3OslOF86tddl53d8KGjE3uP+y/7xlemnhe9W
+         tATQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=iVj4ojm3n7wqf78jjQ8dmhaDh6EniCKU1W1uO884zeI=;
+        b=KePhNUUHpiabk5WZLADc4N+uGEgb32Nhc4QRbIHc0yO4SDRZqtcMK4jnFASmiiqs9R
+         GyG1eldZJKODiNhpOHltrClmEkYdpLXYOtDwmY+dS08ib8LFHC3aYINu2zZ+Lx5g2AsH
+         Wt5sC6Fpv9S/PlOJz1ACGD8I/kF1WKiNRlkFmQ1yxxrALhXMUxRztfxGr8jvwY8YJ4ev
+         6FBTJfC1i15Quq8sEz4WdthPofntGVDAMc8SRfg2aI9cphGFrXYEzJjWwy5sYruipsjF
+         6zitvRqfgOCy/P2IohaIIcEXRuJAhdVTU+Uby24S2e01a028vUFew+SLjty5f0Shy1EK
+         sX7A==
+X-Gm-Message-State: AFqh2krnAD/eHLsLCMvr5GpiYk6U77wRsM/kngnyNMP3HAwFD+fzgXeK
+        SzxlZaMYilDYIQTG9/o9bRHWqKcbzxk=
+X-Google-Smtp-Source: AMrXdXsTB+WorR8hhL0BziNgipRsXW1uYaqL+TcM7UyczaAxzV8D7PcB+r3GQBTCsc6GBVJerCk4wg==
+X-Received: by 2002:a05:6102:dc9:b0:3d3:d138:2ef6 with SMTP id e9-20020a0561020dc900b003d3d1382ef6mr23222141vst.29.1674664713409;
+        Wed, 25 Jan 2023 08:38:33 -0800 (PST)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id b64-20020a378043000000b00704a9942708sm3761910qkd.73.2023.01.25.08.38.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Jan 2023 08:38:32 -0800 (PST)
+Message-ID: <b7a769fa-ad2f-ef75-9444-f751f498b407@gmail.com>
+Date:   Wed, 25 Jan 2023 11:38:32 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+From:   Vincent Fu <vincentfu@gmail.com>
+Subject: Fio blog post on Erwan Velu's fiograph tool
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc:     gost.dev@samsung.com, a.manzanares@samsung.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 13bc47b65d32df6fd212c4687c7fd29b4ab7c09d:
+I am happy to announce that the fio blog has a new post. I provide an 
+introduction to the fiograph tool contributed by Erwan Velu. This clever 
+script generates diagrams illustrating the main features of fio job 
+files. Take a look:
 
-  tools/fiograph: accommodate job files not ending in .fio (2023-01-23 13:51:16 -0500)
+https://github.com/vincentkfu/fio-blog/wiki/fiograph
 
-are available in the Git repository at:
+Feedback is welcome!
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 5ca54c1ba2db849dfaef5fe3aec60329b3df0bd1:
-
-  Makefile: add -Wno-stringop-truncation for y.tab.o (2023-01-24 21:07:37 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Makefile: add -Wno-stringop-truncation for y.tab.o
-
- Makefile  |  6 +++++-
- configure | 19 +++++++++++++++++++
- 2 files changed, 24 insertions(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index 9fd8f59b..5f4e6562 100644
---- a/Makefile
-+++ b/Makefile
-@@ -554,11 +554,15 @@ ifneq (,$(findstring -Wimplicit-fallthrough,$(CFLAGS)))
- LEX_YY_CFLAGS := -Wno-implicit-fallthrough
- endif
- 
-+ifdef CONFIG_HAVE_NO_STRINGOP
-+YTAB_YY_CFLAGS := -Wno-stringop-truncation
-+endif
-+
- lex.yy.o: lex.yy.c y.tab.h
- 	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) $(LEX_YY_CFLAGS) -c $<
- 
- y.tab.o: y.tab.c y.tab.h
--	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) -c $<
-+	$(QUIET_CC)$(CC) -o $@ $(CFLAGS) $(CPPFLAGS) $(YTAB_YY_CFLAGS) -c $<
- 
- y.tab.c: exp/expression-parser.y
- 	$(QUIET_YACC)$(YACC) -o $@ -l -d -b y $<
-diff --git a/configure b/configure
-index 6d8e3a87..a17d1cda 100755
---- a/configure
-+++ b/configure
-@@ -2826,6 +2826,22 @@ if compile_prog "-Wimplicit-fallthrough=2" "" "-Wimplicit-fallthrough=2"; then
- fi
- print_config "-Wimplicit-fallthrough=2" "$fallthrough"
- 
-+##########################################
-+# check if the compiler has -Wno-stringop-concatenation
-+no_stringop="no"
-+cat > $TMPC << EOF
-+#include <stdio.h>
-+
-+int main(int argc, char **argv)
-+{
-+	return printf("%s\n", argv[0]);
-+}
-+EOF
-+if compile_prog "-Wno-stringop-truncation -Werror" "" "no_stringop"; then
-+  no_stringop="yes"
-+fi
-+print_config "-Wno-stringop-truncation" "$no_stringop"
-+
- ##########################################
- # check for MADV_HUGEPAGE support
- if test "$thp" != "yes" ; then
-@@ -3271,6 +3287,9 @@ fi
- if test "$fallthrough" = "yes"; then
-   CFLAGS="$CFLAGS -Wimplicit-fallthrough"
- fi
-+if test "$no_stringop" = "yes"; then
-+  output_sym "CONFIG_HAVE_NO_STRINGOP"
-+fi
- if test "$thp" = "yes" ; then
-   output_sym "CONFIG_HAVE_THP"
- fi
+Vincent
