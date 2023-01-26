@@ -2,76 +2,127 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09610C54E94
-	for <fio@archiver.kernel.org>; Wed, 25 Jan 2023 16:38:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D352C05027
+	for <fio@archiver.kernel.org>; Thu, 26 Jan 2023 13:00:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234999AbjAYQig (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 25 Jan 2023 11:38:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35814 "EHLO
+        id S229495AbjAZNAj (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 26 Jan 2023 08:00:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234182AbjAYQif (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 25 Jan 2023 11:38:35 -0500
-Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE3A61A5
-        for <fio@vger.kernel.org>; Wed, 25 Jan 2023 08:38:34 -0800 (PST)
-Received: by mail-vs1-xe36.google.com with SMTP id n190so20308839vsc.11
-        for <fio@vger.kernel.org>; Wed, 25 Jan 2023 08:38:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iVj4ojm3n7wqf78jjQ8dmhaDh6EniCKU1W1uO884zeI=;
-        b=MHckK+p9P9MG4zVrHw8r55rrZhtYFoaXe1AnX5F11YgRm6yT4iWBvGQtT/gmTBdCWU
-         50oLkDtfoj81kRFvax7Ngm4lKTXG1k90W1iJ1JN4LQVZUzFmpqDFoY11MZ+c3oTt1Dh0
-         xS+0cLY+zItCGTZ/8/1bbE+Sh6YUU+i5RROfA2aWlREF1y6BFZbdwMSm4QeLTL71bkuM
-         KW7xvvgzUYcfntJeDELQwdmoZc86SrW4dMM0UNeYlRrwXjIV+P6edD5Og27WcOviViNq
-         ecjflISspXFjkJ52QdJEiWwDN2qLrS8W3OslOF86tddl53d8KGjE3uP+y/7xlemnhe9W
-         tATQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=iVj4ojm3n7wqf78jjQ8dmhaDh6EniCKU1W1uO884zeI=;
-        b=KePhNUUHpiabk5WZLADc4N+uGEgb32Nhc4QRbIHc0yO4SDRZqtcMK4jnFASmiiqs9R
-         GyG1eldZJKODiNhpOHltrClmEkYdpLXYOtDwmY+dS08ib8LFHC3aYINu2zZ+Lx5g2AsH
-         Wt5sC6Fpv9S/PlOJz1ACGD8I/kF1WKiNRlkFmQ1yxxrALhXMUxRztfxGr8jvwY8YJ4ev
-         6FBTJfC1i15Quq8sEz4WdthPofntGVDAMc8SRfg2aI9cphGFrXYEzJjWwy5sYruipsjF
-         6zitvRqfgOCy/P2IohaIIcEXRuJAhdVTU+Uby24S2e01a028vUFew+SLjty5f0Shy1EK
-         sX7A==
-X-Gm-Message-State: AFqh2krnAD/eHLsLCMvr5GpiYk6U77wRsM/kngnyNMP3HAwFD+fzgXeK
-        SzxlZaMYilDYIQTG9/o9bRHWqKcbzxk=
-X-Google-Smtp-Source: AMrXdXsTB+WorR8hhL0BziNgipRsXW1uYaqL+TcM7UyczaAxzV8D7PcB+r3GQBTCsc6GBVJerCk4wg==
-X-Received: by 2002:a05:6102:dc9:b0:3d3:d138:2ef6 with SMTP id e9-20020a0561020dc900b003d3d1382ef6mr23222141vst.29.1674664713409;
-        Wed, 25 Jan 2023 08:38:33 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id b64-20020a378043000000b00704a9942708sm3761910qkd.73.2023.01.25.08.38.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 25 Jan 2023 08:38:32 -0800 (PST)
-Message-ID: <b7a769fa-ad2f-ef75-9444-f751f498b407@gmail.com>
-Date:   Wed, 25 Jan 2023 11:38:32 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-From:   Vincent Fu <vincentfu@gmail.com>
-Subject: Fio blog post on Erwan Velu's fiograph tool
-To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc:     gost.dev@samsung.com, a.manzanares@samsung.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S236692AbjAZNAf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 26 Jan 2023 08:00:35 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C034FCDD
+        for <fio@vger.kernel.org>; Thu, 26 Jan 2023 05:00:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=GOPJovLpPYA3Pmj/ANjkek56LxiDQN6NxCbQqWGGpFE=; b=m8e5Xk2mZ3vCP4WcQ1o8Z+/xLf
+        WTFE+SJTjRYDQiBBVoMgZZuI1Bs8Ch+3nZTt0NXpU78WmM5Zr/8IPmqnoXVJ87L4NFsU4uBkRJzQL
+        diGlcZzRl3WQjBAmuY6WQJGpDUpebfUaze6n/aAegX78Z4czzqk39a9MJf7HJDdcGYcRNfX6dJX8m
+        F07MdVpNI/BWJ04qlABfzNnuVJxvZtmJJwxow9CICuDcqsUHrVwy1hBnQ/kXDazcMJ2xfJqdLF+/b
+        GQewCC/QjfCJIpPUtKVuPXN26eNhAZCfbjRZbZ4LESDYxStWveCp0lwKSwOcv4uWOe9rExpbm1xSr
+        YhKvvKTw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pL1rK-006kL2-KG
+        for fio@vger.kernel.org; Thu, 26 Jan 2023 13:00:07 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 2BC8A1BC016B; Thu, 26 Jan 2023 06:00:03 -0700 (MST)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230126130003.2BC8A1BC016B@kernel.dk>
+Date:   Thu, 26 Jan 2023 06:00:03 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-I am happy to announce that the fio blog has a new post. I provide an 
-introduction to the fiograph tool contributed by Erwan Velu. This clever 
-script generates diagrams illustrating the main features of fio job 
-files. Take a look:
+The following changes since commit 5ca54c1ba2db849dfaef5fe3aec60329b3df0bd1:
 
-https://github.com/vincentkfu/fio-blog/wiki/fiograph
+  Makefile: add -Wno-stringop-truncation for y.tab.o (2023-01-24 21:07:37 -0700)
 
-Feedback is welcome!
+are available in the Git repository at:
 
-Vincent
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 1e8ec88fd5f3ab4b7bbd0119708d94fd64a4e7ad:
+
+  Enable crc32c accelleration for arm64 on OSX (2023-01-25 08:01:30 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Enable crc32c accelleration for arm64 on OSX
+
+ configure   |  8 +++++---
+ os/os-mac.h | 10 ++++++++++
+ 2 files changed, 15 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index a17d1cda..182cd3c3 100755
+--- a/configure
++++ b/configure
+@@ -2685,20 +2685,22 @@ print_config "libblkio engine" "$libblkio"
+ 
+ ##########################################
+ # check march=armv8-a+crc+crypto
+-if test "$march_armv8_a_crc_crypto" != "yes" ; then
+-  march_armv8_a_crc_crypto="no"
+-fi
++march_armv8_a_crc_crypto="no"
+ if test "$cpu" = "arm64" ; then
+   cat > $TMPC <<EOF
++#if __linux__
+ #include <arm_acle.h>
+ #include <arm_neon.h>
+ #include <sys/auxv.h>
++#endif
+ 
+ int main(void)
+ {
+   /* Can we also do a runtime probe? */
+ #if __linux__
+   return getauxval(AT_HWCAP);
++#elif defined(__APPLE__)
++  return 0;
+ #else
+ # error "Don't know how to do runtime probe for ARM CRC32c"
+ #endif
+diff --git a/os/os-mac.h b/os/os-mac.h
+index ec2cc1e5..c9103c45 100644
+--- a/os/os-mac.h
++++ b/os/os-mac.h
+@@ -14,12 +14,14 @@
+ #include <machine/endian.h>
+ #include <libkern/OSByteOrder.h>
+ 
++#include "../arch/arch.h"
+ #include "../file.h"
+ 
+ #define FIO_USE_GENERIC_INIT_RANDOM_STATE
+ #define FIO_HAVE_GETTID
+ #define FIO_HAVE_CHARDEV_SIZE
+ #define FIO_HAVE_NATIVE_FALLOCATE
++#define FIO_HAVE_CPU_HAS
+ 
+ #define OS_MAP_ANON		MAP_ANON
+ 
+@@ -106,4 +108,12 @@ static inline bool fio_fallocate(struct fio_file *f, uint64_t offset, uint64_t l
+ 	return false;
+ }
+ 
++static inline bool os_cpu_has(cpu_features feature)
++{
++	/* just check for arm on OSX for now, we know that has it */
++	if (feature != CPU_ARM64_CRC32C)
++		return false;
++	return FIO_ARCH == arch_aarch64;
++}
++
+ #endif
