@@ -2,50 +2,50 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 552E5C05027
-	for <fio@archiver.kernel.org>; Mon, 30 Jan 2023 02:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98D11C05027
+	for <fio@archiver.kernel.org>; Mon, 30 Jan 2023 02:29:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235480AbjA3C25 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 29 Jan 2023 21:28:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44690 "EHLO
+        id S235474AbjA3C27 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 29 Jan 2023 21:28:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230335AbjA3C24 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 29 Jan 2023 21:28:56 -0500
+        with ESMTP id S230335AbjA3C26 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 29 Jan 2023 21:28:58 -0500
 Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103EF1D902
-        for <fio@vger.kernel.org>; Sun, 29 Jan 2023 18:28:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543071EBC0
+        for <fio@vger.kernel.org>; Sun, 29 Jan 2023 18:28:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1675045735; x=1706581735;
+  t=1675045737; x=1706581737;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=4gzOM0QO4O1R34XViO/KPTDFDP4XxLcodk/b/HcWlJE=;
-  b=omxKetLR8sAnXE4sW/1HwzNrCmpWuSYlF028DXy+eRacCJJweWnrMmZr
-   Qg7dlXYcLIu8SlkoQCviXz/vraGvI6FHAhjgDO5Vqqfv9xQsUQ0hu/Uc9
-   tXSPfsuCLYLaUD7ojRiGK5a5nTyEXCi+DLH1ZVbWX0f00NIoPSIJHI0XN
-   obsW14NNjrjTtZ3yaExdXrexqRgAjOtzA1zTlH2aYy+giIF228Sqgffw0
-   5Q52xYKjbE49brwyzKBpYHjXof+NDt80cQe3CzjB7JupSU639mLUzT1BA
-   p7eVTgia9zadUAEnXGR8SvqAGamCb7uWcOdx/JEBZ0hZKIGHcYFcWzAXT
+  bh=WrDOGGaS8jQq6ySsTojtlXXsF5z/cY3b29f0iEoWN44=;
+  b=OQfEu9VCthSKoYfRepdomTvbdrqsy2gsOhefnNaIYWGGpNLWKMmO5aY8
+   9wzHcc+pdJoNdkKBX2lphl2KjFiMU9COghIufSD6ACog9zvVSAFU32IA1
+   NKnGEiCTav2u1rinnnzVXBs6A37fkMW4CVK7BlIDmnAu5S0by+u89WJDM
+   bj2RyHFR9EBhUVYTPTL9j369fxA7g1pDXl/01jR28zPsQiY7jgVMo4nBs
+   sfP40vMS044MAEL1eWanWijCwFI9Ape5+9rFmDGxC7yrgzJqdJSjVbVBR
+   gHY6RrD0HlhAsvNhC7ccg3IQSyX60cKFeNkS9Bnf7F4rbbMG4hz5siaWF
    w==;
 X-IronPort-AV: E=Sophos;i="5.97,256,1669046400"; 
-   d="scan'208";a="227010389"
+   d="scan'208";a="227010394"
 Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 30 Jan 2023 10:28:55 +0800
-IronPort-SDR: kfh9+JR2ybt7K05Noe0x3uxfOd4EI35MhBAZS8xgKbX3QB9+aBlJn0Lv8FMmeFgv3U42XwykMh
- UMC3lsfd6teZ1IBnxHORAWa2Up1JL+yVmw1Pnd1DTLkK+s4AqSfrFL+YgirK41mn9LtDcd+42y
- 4FyhznwnB/McJhO0L0BJDmzClinJXQ15Ba2rF01zv4h2syZ8UJ8GJRazAFen3hWxHcaZhPstXA
- pL+RSYS1e4URtQnCuB8NI1H2U7bLwUBGea7zBiX1m7RQMrG8S2sF08zBpQyjAZgoyhZNoVorEn
- kpY=
+  by ob1.hgst.iphmx.com with ESMTP; 30 Jan 2023 10:28:56 +0800
+IronPort-SDR: Apv6rxuieLUFaLVL1lTaAEr2T1WeRNo5X348z2h87WmeiDqp2z7Jvk/J4OPIcSCNBen23t7orx
+ NcGDI3rprANrxGc40IljnzgModFwmCFQ99Wpw2YEheqJxTpbOyg12ePvaBOLTVtCjfRsCl5Dd7
+ G1Ncx+L6L99kQWj83Y8JcD0+iwo4hy+DrhvgGR4yWIPNvJuklgC4QVMuH3CiWu4X2aNVaroDFV
+ h9aPNoI9EeyCmQJhrFZfa69kJwAXJdqj8T9231toTMjs1kH/Xo8Ag1aYiQKDQrHwd2oKTXkN/L
+ vMY=
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Jan 2023 17:40:38 -0800
-IronPort-SDR: pq2wV4sQUBpYUNHe6NsAQxKe8vyRBu/DpYdYgP6Mkzg1Vh0CeX0cpJKjuCH4LOv5M4rgzMVzjn
- 3e+JtuZ2OxNYFge1+ql6RLueaeON0+4pmxGH9Uqs8tjznnAZ1B97ZksSHxpyyadzehxzyc8hy9
- yH22ajaz6L+sqxR8Y2/Uh0ub216+UvJmHuM+Sqwe//x3XzvT3PkkmY+ZQcxpMmvoEgiHQtJA06
- CvIvF7AltrMkMSOhLKqG35XgOcyqFxSMJgz4+R4pFSeiCwdkMcFJ1opMZsk+EvHATiHw3tg0Cg
- EAE=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Jan 2023 17:40:39 -0800
+IronPort-SDR: T0bVD/2at/EdlshAlDWROUiIJtkoCrzjV4Qh/zDjL+DIGFO2fuqfw/DtOuaDUEeoo9V1WQ4SaL
+ iLW15RtfENcWRaudc9Ga03cHZpbBKNNSuJ/tP8rq1ZIpt40jr8npzjaLsxSOnoVxMb05V7mLZh
+ gMSpxc/L605VIfeDrB9hBllKDiadoWkwYZK+junaAArJZXKintWs89N3xRmnXEOMwZhxH2AAKV
+ qCp2EmVuXUkoXw9C3etQTrvHrYd6E3GkXjiL7vqOPWKdJM9uLMvrXpSdJpVWNOjT65KFP7f6fj
+ qh4=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip02.wdc.com with ESMTP; 29 Jan 2023 18:28:54 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 29 Jan 2023 18:28:55 -0800
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 3/5] zbd: remove sectors with data accounting feature
-Date:   Mon, 30 Jan 2023 11:28:48 +0900
-Message-Id: <20230130022850.1375523-4-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 4/5] t/zbd: adjust test cases to zone_reset_threshold change
+Date:   Mon, 30 Jan 2023 11:28:49 +0900
+Message-Id: <20230130022850.1375523-5-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20230130022850.1375523-1-shinichiro.kawasaki@wdc.com>
 References: <20230130022850.1375523-1-shinichiro.kawasaki@wdc.com>
@@ -65,162 +65,154 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The sectors with data accounting values are no longer used by the helper
-functions zbd_adjust_ddir() and zbd_adjust_block(). Remove the code
-related to this accounting.
+The commit ("zbd: calculate zone_reset_threshold ratio for device")
+changed definition of the zone_reset_threshold option. Adjust test cases
+24, 52 and 59 to reflect the change. Calculate the option using bc
+command. Add a new global variable nr_seq_zones which holds the number
+of sequential write required zones on the target device. Also add a
+helper function require_command to check availability of the bc command.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- zbd.c | 73 +----------------------------------------------------------
- zbd.h |  5 ----
- 2 files changed, 1 insertion(+), 77 deletions(-)
+ t/zbd/test-zbd-support | 66 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 21 deletions(-)
 
-diff --git a/zbd.c b/zbd.c
-index 8de909b7..7d19a214 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -286,8 +286,6 @@ static int zbd_reset_zone(struct thread_data *td, struct fio_file *f,
- 	}
- 
- 	pthread_mutex_lock(&f->zbd_info->mutex);
--	f->zbd_info->sectors_with_data -= data_in_zone;
--	f->zbd_info->wp_sectors_with_data -= data_in_zone;
- 	f->zbd_info->wp_zones_written_size -= data_in_zone;
- 	pthread_mutex_unlock(&f->zbd_info->mutex);
- 
-@@ -1196,68 +1194,9 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
- 	return write_cnt == 0;
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 4091d9ac..22cbd4ce 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -272,6 +272,16 @@ require_max_open_zones() {
+ 	return 0
  }
  
--enum swd_action {
--	CHECK_SWD,
--	SET_SWD,
--};
--
--/* Calculate the number of sectors with data (swd) and perform action 'a' */
--static uint64_t zbd_process_swd(struct thread_data *td,
--				const struct fio_file *f, enum swd_action a)
--{
--	struct fio_zone_info *zb, *ze, *z;
--	uint64_t swd = 0;
--	uint64_t wp_swd = 0;
--
--	zb = zbd_get_zone(f, f->min_zone);
--	ze = zbd_get_zone(f, f->max_zone);
--	for (z = zb; z < ze; z++) {
--		if (z->has_wp) {
--			zone_lock(td, f, z);
--			wp_swd += z->wp - z->start;
--		}
--		swd += z->wp - z->start;
--	}
--
--	pthread_mutex_lock(&f->zbd_info->mutex);
--	switch (a) {
--	case CHECK_SWD:
--		assert(f->zbd_info->sectors_with_data == swd);
--		assert(f->zbd_info->wp_sectors_with_data == wp_swd);
--		break;
--	case SET_SWD:
--		f->zbd_info->sectors_with_data = swd;
--		f->zbd_info->wp_sectors_with_data = wp_swd;
--		break;
--	}
--	pthread_mutex_unlock(&f->zbd_info->mutex);
--
--	for (z = zb; z < ze; z++)
--		if (z->has_wp)
--			zone_unlock(z);
--
--	return swd;
--}
--
--/*
-- * The swd check is useful for debugging but takes too much time to leave
-- * it enabled all the time. Hence it is disabled by default.
-- */
--static const bool enable_check_swd = false;
--
--/* Check whether the values of zbd_info.*sectors_with_data are correct. */
--static void zbd_check_swd(struct thread_data *td, const struct fio_file *f)
--{
--	if (!enable_check_swd)
--		return;
--
--	zbd_process_swd(td, f, CHECK_SWD);
--}
--
- void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- {
- 	struct fio_zone_info *zb, *ze;
--	uint64_t swd;
- 	bool verify_data_left = false;
++require_command() {
++	local cmd=${1}
++
++	if ! command -v "${cmd}" > /dev/null; then
++		SKIP_REASON="command $cmd is not available"
++		return 1
++	fi
++	return 0
++}
++
+ # Check whether buffered writes are refused for block devices.
+ test1() {
+     require_block_dev || return $SKIP_TESTCASE
+@@ -630,21 +640,26 @@ test23() {
  
- 	if (!f->zbd_info || !td_write(td))
-@@ -1265,10 +1204,6 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ test24() {
+     local bs loops=9 size=$((zone_size))
+-    local off capacity
++    local off capacity ratio
++
++    require_command bc || return $SKIP_TESTCASE
++
++    [ -n "$is_zbd" ] && reset_zone "$dev" -1
  
- 	zb = zbd_get_zone(f, f->min_zone);
- 	ze = zbd_get_zone(f, f->max_zone);
--	swd = zbd_process_swd(td, f, SET_SWD);
--
--	dprint(FD_ZBD, "%s(%s): swd = %" PRIu64 "\n",
--	       __func__, f->file_name, swd);
+-    prep_write
+     off=$((first_sequential_zone_sector * 512))
+     capacity=$(total_zone_capacity 1 $off $dev)
++    bs=$(min $((256*1024)) $((zone_size / 2)))
++    # Trigger zone reset when half of zone was filled.
++    ratio=$(echo "scale=7; $size / 2 / $((nr_seq_zones * zone_size))" | bc)
  
- 	/*
- 	 * If data verification is enabled reset the affected zones before
-@@ -1645,11 +1580,8 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 		 * have occurred.
- 		 */
- 		pthread_mutex_lock(&zbd_info->mutex);
--		if (z->wp <= zone_end) {
--			zbd_info->sectors_with_data += zone_end - z->wp;
--			zbd_info->wp_sectors_with_data += zone_end - z->wp;
-+		if (z->wp <= zone_end)
- 			zbd_info->wp_zones_written_size += zone_end - z->wp;
--		}
- 		pthread_mutex_unlock(&zbd_info->mutex);
- 		z->wp = zone_end;
- 		break;
-@@ -1690,7 +1622,6 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
- 	zbd_end_zone_io(td, io_u, z);
- 
- 	zone_unlock(z);
--	zbd_check_swd(td, f);
+-    bs=$(min $((256*1024)) "$zone_size")
+     run_fio_on_seq "$(ioengine "psync")" --rw=write --bs="$bs"		\
+ 		   --size=$size --loops=$loops				\
+-		   --zone_reset_frequency=.01 --zone_reset_threshold=.90 \
++		   --zone_reset_frequency=1 --zone_reset_threshold="${ratio}" \
+ 		   >> "${logfile}.${test_number}" 2>&1 || return $?
+-    check_written $((capacity * loops)) || return $?
+-    check_reset_count -eq 8 ||
+-	check_reset_count -eq 9 ||
+-	check_reset_count -eq 10 || return $?
++    check_written $((size * loops)) || return $?
++
++    # Zone reset is expected loop * 2 times or minus one.
++    check_reset_count -eq 17 || check_reset_count -eq 18 || return $?
  }
  
- /*
-@@ -1879,8 +1810,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	    io_u->ddir == DDIR_READ && td->o.read_beyond_wp)
- 		return io_u_accept;
+ # Multiple non-overlapping sequential write jobs for the same drive.
+@@ -1110,31 +1125,35 @@ test51() {
+ 	run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+ }
  
--	zbd_check_swd(td, f);
--
- 	zone_lock(td, f, zb);
+-# Verify that zone_reset_threshold only takes logical blocks from seq
+-# zones into account, and logical blocks of conv zones are not counted.
++# Verify that zone_reset_threshold only account seq zones and conv zones are not
++# accounted.
+ test52() {
+-	local off io_size
++	local off io_size capacity ratio
  
- 	switch (io_u->ddir) {
-diff --git a/zbd.h b/zbd.h
-index 161dd5e0..534338bc 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -54,9 +54,6 @@ struct fio_zone_info {
-  * @mutex: Protects the modifiable members in this structure (refcount and
-  *		num_open_zones).
-  * @zone_size: size of a single zone in bytes.
-- * @sectors_with_data: total size of data in all zones in units of 512 bytes
-- * @wp_sectors_with_data: total size of data in zones with write pointers in
-- *                        units of 512 bytes
-  * @zone_size_log2: log2 of the zone size in bytes if it is a power of 2 or 0
-  *		if the zone size is not a power of 2.
-  * @nr_zones: number of zones
-@@ -79,8 +76,6 @@ struct zoned_block_device_info {
- 	uint32_t		max_open_zones;
- 	pthread_mutex_t		mutex;
- 	uint64_t		zone_size;
--	uint64_t		sectors_with_data;
--	uint64_t		wp_sectors_with_data;
- 	uint32_t		zone_size_log2;
- 	uint32_t		nr_zones;
- 	uint32_t		refcount;
+ 	require_zbd || return $SKIP_TESTCASE
++	require_command bc || return $SKIP_TESTCASE
+ 	require_conv_zones 8 || return $SKIP_TESTCASE
+ 	require_seq_zones 8 || return $SKIP_TESTCASE
+ 
+ 	reset_zone "${dev}" -1
+ 
+-	# Total I/O size is 1/8 = 0.125 of the I/O range of cont + seq zones.
+-	# Set zone_reset_threshold as 0.1. The threshold size is less than
+-	# 0.125, then, reset count zero is expected.
+-	# On the other hand, half of the I/O range is covered by conv zones.
+-	# If fio would count the conv zones for zone_reset_threshold, the ratio
+-	# were more than 0.5 and would trigger zone resets.
++	# Use 16 zones as the IO range: 8 conv zones and 8 seq zones. Set
++	# zone_reset_threshold ratio so that zone reset to happen when single
++	# seq zone was filled. Write to the first 8 conv zones in the IO range.
++	# This write should not trigger zone reset since they are out of seq
++	# zones for zone_reset_threshold accounting. Then reset count zero is
++	# expected. If fio would count the conv zones for zone_reset_threshold,
++	# 2 conv zones write would exceed the zone_reset_threshold ratio and
++	# would trigger zone resets.
+ 
+ 	off=$((first_sequential_zone_sector * 512 - 8 * zone_size))
+ 	io_size=$((zone_size * 16 / 8))
++	ratio=$(echo "scale=7; $zone_size / $((nr_seq_zones * zone_size))" | bc)
+ 	run_fio --name=job --filename=$dev --rw=randwrite --bs=$((zone_size/16))\
+ 		--size=$((zone_size * 16)) --softrandommap=1 \
+ 		--io_size=$((io_size)) "$(ioengine "psync")" --offset=$off \
+ 		--zonemode=zbd --direct=1 --zonesize=${zone_size} \
+-		--zone_reset_threshold=.1 --zone_reset_frequency=1.0 \
++		--zone_reset_threshold="${ratio}" --zone_reset_frequency=1.0 \
+ 		${job_var_opts[@]} --debug=zbd \
+ 		>> "${logfile}.${test_number}" 2>&1 || return $?
+ 
+@@ -1281,18 +1300,22 @@ test58() {
+ 
+ # Test zone_reset_threshold with verify.
+ test59() {
+-	local off bs loops=2 size=$((zone_size)) w
++	local off bs loops=2 size=$((zone_size)) w capacity ratio
+ 	local -a workloads=(write randwrite rw randrw)
+ 
++	require_command bc || return $SKIP_TESTCASE
++
+ 	prep_write
+ 	off=$((first_sequential_zone_sector * 512))
++	capacity=$(total_zone_capacity 1 $off "$dev")
++	ratio=$(echo "scale=7; $capacity / 4 / $((nr_seq_zones * zone_size))" | bc)
+ 
+ 	bs=$(min $((256*1024)) "$zone_size")
+ 	for w in "${workloads[@]}"; do
+ 		run_fio_on_seq "$(ioengine "psync")" --rw=${w} --bs="$bs" \
+ 			       --size=$size --loops=$loops --do_verify=1 \
+-			       --verify=md5 --zone_reset_frequency=.9 \
+-			       --zone_reset_threshold=.1 \
++			       --verify=md5 --zone_reset_frequency=1 \
++			       --zone_reset_threshold="${ratio}" \
+ 			       >> "${logfile}.${test_number}" 2>&1 || return $?
+ 	done
+ }
+@@ -1450,6 +1473,7 @@ fi
+ echo -n "First sequential zone starts at sector $first_sequential_zone_sector;"
+ echo " zone size: $((zone_size >> 20)) MB"
+ 
++nr_seq_zones=$(((disk_size - first_sequential_zone_sector * 512) / zone_size))
+ zone_cap_bs=$(zone_cap_bs "$dev" "$zone_size")
+ 
+ if [ "${#tests[@]}" = 0 ]; then
 -- 
 2.38.1
 
