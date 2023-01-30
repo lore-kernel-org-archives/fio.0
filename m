@@ -2,127 +2,105 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D352C05027
-	for <fio@archiver.kernel.org>; Thu, 26 Jan 2023 13:00:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FAFC05027
+	for <fio@archiver.kernel.org>; Mon, 30 Jan 2023 02:28:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229495AbjAZNAj (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 26 Jan 2023 08:00:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42448 "EHLO
+        id S234378AbjA3C2y (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 29 Jan 2023 21:28:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236692AbjAZNAf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 26 Jan 2023 08:00:35 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01C034FCDD
-        for <fio@vger.kernel.org>; Thu, 26 Jan 2023 05:00:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=GOPJovLpPYA3Pmj/ANjkek56LxiDQN6NxCbQqWGGpFE=; b=m8e5Xk2mZ3vCP4WcQ1o8Z+/xLf
-        WTFE+SJTjRYDQiBBVoMgZZuI1Bs8Ch+3nZTt0NXpU78WmM5Zr/8IPmqnoXVJ87L4NFsU4uBkRJzQL
-        diGlcZzRl3WQjBAmuY6WQJGpDUpebfUaze6n/aAegX78Z4czzqk39a9MJf7HJDdcGYcRNfX6dJX8m
-        F07MdVpNI/BWJ04qlABfzNnuVJxvZtmJJwxow9CICuDcqsUHrVwy1hBnQ/kXDazcMJ2xfJqdLF+/b
-        GQewCC/QjfCJIpPUtKVuPXN26eNhAZCfbjRZbZ4LESDYxStWveCp0lwKSwOcv4uWOe9rExpbm1xSr
-        YhKvvKTw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pL1rK-006kL2-KG
-        for fio@vger.kernel.org; Thu, 26 Jan 2023 13:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 2BC8A1BC016B; Thu, 26 Jan 2023 06:00:03 -0700 (MST)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230126130003.2BC8A1BC016B@kernel.dk>
-Date:   Thu, 26 Jan 2023 06:00:03 -0700 (MST)
+        with ESMTP id S229614AbjA3C2x (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 29 Jan 2023 21:28:53 -0500
+Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5AC3166D3
+        for <fio@vger.kernel.org>; Sun, 29 Jan 2023 18:28:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1675045732; x=1706581732;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=tFnmdO4kfkoRQ888ZzAWyol45wGh446H9CS9OFRHnU8=;
+  b=Kotm7ZE2e5MciJG3d26tbYghqD8odQ0J4AVeEELDrw74ivNdSWnR3BNQ
+   tAgdVHlKdcwejrkPspm0KWXmJKFZW7/qcg6q/BTX2p3RiXqRL/UPTCH1U
+   loXnmlfLinlPvs1yqCLyE0kiBE2bBvJjFf2+JU+t5jnl4JbzuqGt/XYXv
+   FkKx1LnVzWxhpfmORGQ1UVVKOGadkTGX49WqbWDKtZ5Ojz6G2pednPxym
+   fSW5ZYPKpMkmfwemOQc78kkdKqQ7vrmMBvYXE38scoNHtYCVOl2Hb3PaN
+   BYnjH8ZHR9Szg+T3NFNasAGpk/s6W039qKmK/6Z7ToEj5zLcOchcuXU/I
+   w==;
+X-IronPort-AV: E=Sophos;i="5.97,256,1669046400"; 
+   d="scan'208";a="227010377"
+Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 30 Jan 2023 10:28:52 +0800
+IronPort-SDR: AIfKv0ChgLoWczLyklsj3ae5CZxEKEYAPOJrQUlQ/t+QLk4vc0V5EHho8u8jQs83ujJ2GxWbBe
+ 2ouN123U4GjwTvZcZVacJH6S3g+DnizpVntLE01IKn5FbceAi7Y6SD0D5Wwyia26A0tKeqPp5c
+ ggqoSy1jWc16k9b72gp8bAx+HMJUbKoiYqaQ8ujjbvptfaXZXwM+k2M7Sts/tj0kZfwRouQd6/
+ G00l7f2+uUZEpUovRQOhslG5BgPNR50E5aX0qtRttLhDsOhYJ/onvuoGqXZ6omQkToW3csuCUA
+ vPc=
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Jan 2023 17:40:34 -0800
+IronPort-SDR: oi1rdqcSZgO3yQXPQLV52T6ls6ee/vQfEhi1/I+1QKN+ohaFoO6XFxeQvWisvln0FibPYluSEM
+ bLRmglXibJIcqlnHSmavfd5UoxgjxJiHR0c0AUVExbM5xkRUd1F1grWK6xYGo8GGdUKBKEXOfQ
+ X4jLUqgQw46p+Tn1AT/Lk9ErAVCQqqV57cI3bMzVrOOMMiosxbZQ9UlN5yYZrxeD/S4wMqBMPE
+ 9t2JtBkiwDp/sbeJzoSkNnv0pdqdZdnSVWLVWqHx8hOt/SAPhp6o1LQZ81O9CbBtHPsWj1DTn7
+ zrw=
+WDCIronportException: Internal
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
+  by uls-op-cesaip02.wdc.com with ESMTP; 29 Jan 2023 18:28:50 -0800
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Vincent Fu <vincentfu@gmail.com>
+Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 0/5] zbd: drop 'sectors with data' accounting
+Date:   Mon, 30 Jan 2023 11:28:45 +0900
+Message-Id: <20230130022850.1375523-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.38.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 5ca54c1ba2db849dfaef5fe3aec60329b3df0bd1:
+When zonemode=zbd is specified, fio does 'sectors with data' accounting to
+record the total number of sectors that have been written on a zoned block
+device. This accounting has two issues:
 
-  Makefile: add -Wno-stringop-truncation for y.tab.o (2023-01-24 21:07:37 -0700)
+1) The current implementation counts sectors with data per job, over the IO
+   range of the job. So for a workload with multiple jobs with overlapping IO
+   ranges, the number of sectors with data is overestimated as written sectors
+   common to multiple jobs are counted multiple times.
 
-are available in the Git repository at:
+2) Counting the total number of written sectors requires taking the zone lock of
+   all zones in a job IO range. For a multi-job workload with overlapping IO
+   ranges, this often leads to significant zone lock contention, resulting in
+   some jobs starting doing IOs only after other jobs have completed their work
+   (which looks like an apparent deadlock on startup).
 
-  git://git.kernel.dk/fio.git master
+This series addresses the issues by dropping the 'sectors with data' accounting.
+The accounting is used only for two features: 1) randrw first IO direction
+decision and 2) zone_reset_threshold ratio check. The first two patches modify
+these two features to not rely on the 'sectors with data' accounting. The third
+patch drops the 'sectors with data' accounting. The last two patches adjust test
+cases and an fio example script for the zone_reset_threshold.
 
-for you to fetch changes up to 1e8ec88fd5f3ab4b7bbd0119708d94fd64a4e7ad:
+Shin'ichiro Kawasaki (5):
+  zbd: refer file->last_start[] instead of sectors with data accounting
+  zbd: calculate zone_reset_threshold ratio for device
+  zbd: remove sectors with data accounting feature
+  t/zbd: adjust test cases to zone_reset_threshold change
+  example: adjust example to zone_reset_threshold change
 
-  Enable crc32c accelleration for arm64 on OSX (2023-01-25 08:01:30 -0700)
+ HOWTO.rst                                 |   7 +-
+ examples/zbd-rand-write-zone-reset-gc.fio |  20 ++---
+ examples/zbd-rand-write-zone-reset-gc.png | Bin 59186 -> 62974 bytes
+ fio.1                                     |   7 +-
+ t/zbd/test-zbd-support                    |  66 +++++++++++------
+ zbd.c                                     |  85 +++-------------------
+ zbd.h                                     |  10 +--
+ 7 files changed, 79 insertions(+), 116 deletions(-)
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Enable crc32c accelleration for arm64 on OSX
+-- 
+2.38.1
 
- configure   |  8 +++++---
- os/os-mac.h | 10 ++++++++++
- 2 files changed, 15 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index a17d1cda..182cd3c3 100755
---- a/configure
-+++ b/configure
-@@ -2685,20 +2685,22 @@ print_config "libblkio engine" "$libblkio"
- 
- ##########################################
- # check march=armv8-a+crc+crypto
--if test "$march_armv8_a_crc_crypto" != "yes" ; then
--  march_armv8_a_crc_crypto="no"
--fi
-+march_armv8_a_crc_crypto="no"
- if test "$cpu" = "arm64" ; then
-   cat > $TMPC <<EOF
-+#if __linux__
- #include <arm_acle.h>
- #include <arm_neon.h>
- #include <sys/auxv.h>
-+#endif
- 
- int main(void)
- {
-   /* Can we also do a runtime probe? */
- #if __linux__
-   return getauxval(AT_HWCAP);
-+#elif defined(__APPLE__)
-+  return 0;
- #else
- # error "Don't know how to do runtime probe for ARM CRC32c"
- #endif
-diff --git a/os/os-mac.h b/os/os-mac.h
-index ec2cc1e5..c9103c45 100644
---- a/os/os-mac.h
-+++ b/os/os-mac.h
-@@ -14,12 +14,14 @@
- #include <machine/endian.h>
- #include <libkern/OSByteOrder.h>
- 
-+#include "../arch/arch.h"
- #include "../file.h"
- 
- #define FIO_USE_GENERIC_INIT_RANDOM_STATE
- #define FIO_HAVE_GETTID
- #define FIO_HAVE_CHARDEV_SIZE
- #define FIO_HAVE_NATIVE_FALLOCATE
-+#define FIO_HAVE_CPU_HAS
- 
- #define OS_MAP_ANON		MAP_ANON
- 
-@@ -106,4 +108,12 @@ static inline bool fio_fallocate(struct fio_file *f, uint64_t offset, uint64_t l
- 	return false;
- }
- 
-+static inline bool os_cpu_has(cpu_features feature)
-+{
-+	/* just check for arm on OSX for now, we know that has it */
-+	if (feature != CPU_ARM64_CRC32C)
-+		return false;
-+	return FIO_ARCH == arch_aarch64;
-+}
-+
- #endif
