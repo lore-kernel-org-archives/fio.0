@@ -2,112 +2,117 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4C3BC61DA4
-	for <fio@archiver.kernel.org>; Fri,  3 Feb 2023 12:47:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECCB9C61DA4
+	for <fio@archiver.kernel.org>; Fri,  3 Feb 2023 14:11:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229785AbjBCMrH (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 3 Feb 2023 07:47:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51888 "EHLO
+        id S233320AbjBCOLT (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 3 Feb 2023 09:11:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232573AbjBCMrG (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 3 Feb 2023 07:47:06 -0500
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7FF49AFF5
-        for <fio@vger.kernel.org>; Fri,  3 Feb 2023 04:47:05 -0800 (PST)
-Received: by mail-pl1-x62d.google.com with SMTP id b5so5107186plz.5
-        for <fio@vger.kernel.org>; Fri, 03 Feb 2023 04:47:05 -0800 (PST)
+        with ESMTP id S233339AbjBCOKt (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 3 Feb 2023 09:10:49 -0500
+Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C8DDA9D63
+        for <fio@vger.kernel.org>; Fri,  3 Feb 2023 06:08:44 -0800 (PST)
+Received: by mail-qt1-x836.google.com with SMTP id g8so5456641qtq.13
+        for <fio@vger.kernel.org>; Fri, 03 Feb 2023 06:08:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=to:in-reply-to:cc:references:message-id:date:subject:mime-version
-         :from:content-transfer-encoding:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=gm8lZyG0hfYqIVnN2+IqcI0ksO3jai030RhBZHCJxEg=;
-        b=RUPX0MWftlLJ6qxiZLs87DVP1tHx05Q39ZeoOXP0AKxMhmt6jPkjs0sdmMtv8mSsir
-         nXuOWpLtBGtN5YB8Dt7+8eMLTzu0KvN3HlO2vgYPcHAOIaxzGyRgXk69ePMmX36uEmQX
-         SCxNizlkmebvAmRRDWPmp87jtV8Le7i81susE7acc/3ZcJl6qOSqYw9EQC2fiDfOh/2T
-         dqHK/+2ii/U8garltzsv2M5qnTObsqgZSc+TXnzqMYj9s2npIAz3+AXITSAVhLhCi41R
-         7Nper7ThpgG2t5dPQmW3JpBUny27mcSmOGVWJcRfarMSYnDKuFY53mb/86xJBO5k+SPw
-         kuSA==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=XnIK+DT9M3emGQe+g8rVAMa5dcfdXFrs1tXiXLOIGC4=;
+        b=fFoiI66ADn+Jram5hrWz2rux8Trf1fA/pI5VXjGoehABYCoBwKO7qNU/+RSduZdB4Q
+         zcT1AOhWerUEhgQV58y9yrEZnOrZmxd1yjoALKhO3VRlP+c8jgEdPCcLz4a8FDedIBtH
+         j8QrvMhxCAQ2WARYyLOdA8wqeY5KEEeaOG1v5aw+1Q1GN+MPiJ/GuFYOu6Me/qbFfUMa
+         wERqTt6gL701JpnnmbBtf4JqLk2fCYz/wz1XOzvUtU1qZax75UQy206LFzttDs2AGta+
+         +3CTy/HAU6+QWdXSml2bt0EaslEncEoXumplrIpE5ZWv3ZPliHofrWMLDNiAiUPlrAWF
+         GMwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:in-reply-to:cc:references:message-id:date:subject:mime-version
-         :from:content-transfer-encoding:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gm8lZyG0hfYqIVnN2+IqcI0ksO3jai030RhBZHCJxEg=;
-        b=dPzTo3AM/9krbL3qenIBgCnKgcq/dAwL2PD321MkZsH0D+55KFhCW5ghd10zlGw6p0
-         5GH3QsniHyw7w/JeC4To+JNDa2W8+ukECJKX2ytZIaF63zgNcytH2dcErnW0MGIoZ7eT
-         TxOhlXrHUSh0xup7pcs6q8w0jh9l274t7wx8/de7+L/VQBt8GQkKeu76zInxPl27yA87
-         27DBWJdwTe5OAPCyirGpmQnql0tMlMfo/Xn39mo9wCo8E8G+tG648ri42T3T2I3Q/Mo8
-         lfpGYo/5dE6OjGKeegeK0pjPnVLB8g0VgnkUn2NNkVoZh26/UmJQeEpE2fOOcrlyXAHe
-         jEhw==
-X-Gm-Message-State: AO0yUKUQMdG5qhkUOtyhzlPAE027gh047qwe2QnObvbaPMXkuz6T9J7k
-        y92HZyz8ZrU9YN2dCdaS+kbY9hPJbBww9MLT
-X-Google-Smtp-Source: AK7set9IX+6Aw1WAMjFSPh6YKuaJyIBiW5BMYS7aDyV02NGCccdon9rZEZv6ka29I4zwoE1xR7IQfw==
-X-Received: by 2002:a05:6a20:8e08:b0:bc:f665:8659 with SMTP id y8-20020a056a208e0800b000bcf6658659mr12912982pzj.3.1675428424826;
-        Fri, 03 Feb 2023 04:47:04 -0800 (PST)
-Received: from smtpclient.apple ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id c124-20020a633582000000b004e63aa44474sm1458912pga.33.2023.02.03.04.47.04
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XnIK+DT9M3emGQe+g8rVAMa5dcfdXFrs1tXiXLOIGC4=;
+        b=wah2zIjf8iiZ/NpOLVVZOPKOY3QOcgGRSJkbAYcNL/baCpOvNioyRMmX/bElYorzhC
+         FmFZ6mz9SFImEa9ccjvmkHwdUtIVhcSPosIGv8ypY0Q1QS5Rmv2k+95M75mdW+slqNUZ
+         WC4eq1FusNRXLrhJ0VRCXiQ08eyveruArCWi8XAiF3hi+0/8SbB3AhfYckymyxWIFXjQ
+         MT29qqfe/r3qOWt7il244fzwj04xJ2Ar99xbRCGJIYkof8CB+FiWpAyMvCshO+njB63T
+         +GArZyKcrFcdUagBy5g5kSQEDD2W65/4Ja4leu/1i2Ey7nwHUHEvRcytkeDILrBMYDac
+         chiA==
+X-Gm-Message-State: AO0yUKVgDkrc/JLOqlWqYeemn9vx7d5Z6pYYdki4Vf5ijx9Zz6YYAnEV
+        IfOwDt8lYLYK1IwzigZ4QC4=
+X-Google-Smtp-Source: AK7set91kMmtOYhU8+VwtlmV82HdIxWtYRqSsW5LsEBetCMq3f1tGs33iLNMogP1jIbJQaEs5weBKg==
+X-Received: by 2002:a05:622a:120e:b0:3b8:6075:5d16 with SMTP id y14-20020a05622a120e00b003b860755d16mr20240925qtx.56.1675433323113;
+        Fri, 03 Feb 2023 06:08:43 -0800 (PST)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id e18-20020ac86712000000b003b9a505627bsm1575808qtp.79.2023.02.03.06.08.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Feb 2023 04:47:04 -0800 (PST)
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-From:   Jens Axboe <axboe@kernel.dk>
-Mime-Version: 1.0 (1.0)
+        Fri, 03 Feb 2023 06:08:42 -0800 (PST)
+Message-ID: <b14eae2a-56f9-0063-42b0-50ca35961d1a@gmail.com>
+Date:   Fri, 3 Feb 2023 09:08:42 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
 Subject: Re: [PATCH] filesetup: do not ask O_RDWR for read-only workload
-Date:   Fri, 3 Feb 2023 05:46:53 -0700
-Message-Id: <5B11C29F-19ED-4ADF-A900-F430608CC46C@kernel.dk>
-References: <20230203123421.126720-1-joshi.k@samsung.com>
+Content-Language: en-US
+To:     Jens Axboe <axboe@kernel.dk>, Kanchan Joshi <joshi.k@samsung.com>
 Cc:     fio@vger.kernel.org, vincent.fu@samsung.com
-In-Reply-To: <20230203123421.126720-1-joshi.k@samsung.com>
-To:     Kanchan Joshi <joshi.k@samsung.com>
-X-Mailer: iPhone Mail (20D47)
+References: <20230203123421.126720-1-joshi.k@samsung.com>
+ <5B11C29F-19ED-4ADF-A900-F430608CC46C@kernel.dk>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <5B11C29F-19ED-4ADF-A900-F430608CC46C@kernel.dk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Feb 3, 2023, at 5:35 AM, Kanchan Joshi <joshi.k@samsung.com> wrote:
->=20
-> =EF=BB=BFUse O_RDONLY flag when read is requested on char-type files.
->=20
-> Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
-> ---
->=20
-> Before this patch: unexpected permission-denial for unprivileged-user.
->=20
-> $ ls -l /dev/ng0n1
-> cr--r--r-- 1 root root 242, 0 Feb  3 16:30 /dev/ng0n1
->=20
-> $ ./fio -iodepth=3D1 -rw=3Drandread -ioengine=3Dio_uring_cmd -bs=3D4k -num=
-jobs=3D1
-> -size=3D4k -cmd_type=3Dnvme -filename=3D/dev/ng0n1 -name=3Dt
-> t: (g=3D0): rw=3Drandread, bs=3D(R) 4096B-4096B, (W) 4096B-4096B, (T)
-> 4096B-4096B, ioengine=3Dio_uring_cmd, iodepth=3D1
-> fio-3.33-71-g7d7a
-> Starting 1 process
-> fio: pid=3D131312, err=3D13/file:filesetup.c:805, func=3Dopen(/dev/ng0n1),=
+On 2/3/23 07:46, Jens Axboe wrote:
+> On Feb 3, 2023, at 5:35 AM, Kanchan Joshi <joshi.k@samsung.com> wrote:
+>>
+>> ﻿Use O_RDONLY flag when read is requested on char-type files.
+>>
+>> Signed-off-by: Kanchan Joshi <joshi.k@samsung.com>
+>> ---
+>>
+>> Before this patch: unexpected permission-denial for unprivileged-user.
+>>
+>> $ ls -l /dev/ng0n1
+>> cr--r--r-- 1 root root 242, 0 Feb  3 16:30 /dev/ng0n1
+>>
+>> $ ./fio -iodepth=1 -rw=randread -ioengine=io_uring_cmd -bs=4k -numjobs=1
+>> -size=4k -cmd_type=nvme -filename=/dev/ng0n1 -name=t
+>> t: (g=0): rw=randread, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T)
+>> 4096B-4096B, ioengine=io_uring_cmd, iodepth=1
+>> fio-3.33-71-g7d7a
+>> Starting 1 process
+>> fio: pid=131312, err=13/file:filesetup.c:805, func=open(/dev/ng0n1),
+>> error=Permission denied
+>>
+>> filesetup.c | 5 +----
+>> 1 file changed, 1 insertion(+), 4 deletions(-)
+>>
+>> diff --git a/filesetup.c b/filesetup.c
+>> index 1d3cc5ad..d77b8ba4 100644
+>> --- a/filesetup.c
+>> +++ b/filesetup.c
+>> @@ -768,10 +768,7 @@ open_again:
+>>         else
+>>             from_hash = file_lookup_open(f, flags);
+>>     } else if (td_read(td)) {
+>> -        if (f->filetype == FIO_TYPE_CHAR && !read_only)
+>> -            flags |= O_RDWR;
+>> -        else
+>> -            flags |= O_RDONLY;
+>> +        flags |= O_RDONLY;
+> 
+> This will break sg like interfaces, where a read is done by writing the command to the char device.
+> 
+> —
+> Jens Axboe
+> 
 
-> error=3DPermission denied
->=20
-> filesetup.c | 5 +----
-> 1 file changed, 1 insertion(+), 4 deletions(-)
->=20
-> diff --git a/filesetup.c b/filesetup.c
-> index 1d3cc5ad..d77b8ba4 100644
-> --- a/filesetup.c
-> +++ b/filesetup.c
-> @@ -768,10 +768,7 @@ open_again:
->        else
->            from_hash =3D file_lookup_open(f, flags);
->    } else if (td_read(td)) {
-> -        if (f->filetype =3D=3D FIO_TYPE_CHAR && !read_only)
-> -            flags |=3D O_RDWR;
-> -        else
-> -            flags |=3D O_RDONLY;
-> +        flags |=3D O_RDONLY;
+Kanchan, does it work if you run fio with the --readonly option?
 
-This will break sg like interfaces, where a read is done by writing the comm=
-and to the char device.=20
-
-=E2=80=94=20
-Jens Axboe
-
+Vincent
