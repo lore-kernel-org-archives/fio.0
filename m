@@ -2,76 +2,76 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD333C636CC
-	for <fio@archiver.kernel.org>; Tue,  7 Feb 2023 14:06:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72960C636CC
+	for <fio@archiver.kernel.org>; Tue,  7 Feb 2023 14:06:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231790AbjBGOGK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 7 Feb 2023 09:06:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
+        id S231934AbjBGOGb (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 7 Feb 2023 09:06:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231934AbjBGOGJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 Feb 2023 09:06:09 -0500
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3A401F924
-        for <fio@vger.kernel.org>; Tue,  7 Feb 2023 06:06:05 -0800 (PST)
+        with ESMTP id S231956AbjBGOGa (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Feb 2023 09:06:30 -0500
+Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C818EF8F
+        for <fio@vger.kernel.org>; Tue,  7 Feb 2023 06:06:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1675778765; x=1707314765;
+  t=1675778775; x=1707314775;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-id:content-transfer-encoding:
    mime-version;
-  bh=nQMTBfgnmMZYROdcsHYVvfrH0yI+DtfFLkt5Jv8pfq4=;
-  b=b26YZQM9tfIplWonIV1/HlRAcMQAg7lQJzcpoXH+ywnzjDgCWHJ884DP
-   tXNYGfM5Ytz3TvdosiK8VJGV/5plxAe4A75C8xC46ZZe/nv/J8ciVbtm3
-   e9Hn4Ql8l+EmsYHj7N7CYppGPh2ddqHDG7jHl2YEpjJ3P80thlS2XlLX0
-   xmKick86vba7R6uhJvQYNxUjiUqkE7KVSq0oxIbpzDhCMEIjWLqPwTesv
-   AE90J2JZfePAWmK+SIByr3CsDJVxYOiQi/wPAGCnCbjiPTZS9omyvZHEN
-   4zo6XySe81as6qof7STgkOKH0HKecMZUlBhPnwapR+nFyYhPuHFpotXGc
-   g==;
+  bh=rzDCe/u6Ppiz2X4Z4ZyRrUXHWZFlr8yEHLxmTbSdGQA=;
+  b=e4h+wrZvce/dI4E4swgCMkxKf80J5Vfut2fiKCDMaKfEw5x3X3O2oAyH
+   K7DyQPXtph/4Rsf8b7VJkx+34yS7NkJKmGli3JoJYnJXZHkCmji7agCz6
+   JYGH+ImvOIuZOMg8FuJiMYd3SKoleyOKmUxdHi1u9bIb2ucoRPxEZB840
+   hREecKjSg6M50ZmE41bszm/f0iHIs/BZdLIKQDPPgw14rCuXqfzfeHkqZ
+   fa2KS6Ph+B3PGDlMaraX/87nJ7ihzvRz93CCCRC7HWcBm+eYjGzgr6II4
+   uyh35qN6Mi58s/ZNde6O7ZLuT8n8N/pN+T5OMVN7YGARa4BWT5s8O4y8r
+   w==;
 X-IronPort-AV: E=Sophos;i="5.97,278,1669046400"; 
-   d="scan'208";a="227685239"
-Received: from mail-mw2nam10lp2107.outbound.protection.outlook.com (HELO NAM10-MW2-obe.outbound.protection.outlook.com) ([104.47.55.107])
-  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2023 22:06:05 +0800
+   d="scan'208";a="221030800"
+Received: from mail-bn8nam12lp2169.outbound.protection.outlook.com (HELO NAM12-BN8-obe.outbound.protection.outlook.com) ([104.47.55.169])
+  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2023 22:06:13 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kiahmXDwHk151SDZoqPbThUyiCNfzo2x+guBVHvgPlAj3yNqHsIoFY0h+H9n//yyIgNUU2HskCDLIdETdRvTkiQiDIeeEkUBgp/xr+YVpnPBXBEObcyK/vPxODK/DGjpXEzMeBjwCLmcOysO5V2yMN3Xz55pA/P/Q7B34/u43EJR5om/56FCX7cB/SvKb3lkelopHKBDpMaRIlVvLEUho7utoMUb3VhkfjvIPSOffUrzL45rFT9nCMld29GwKTAlohzVP8O3HCj4xx71BgoPzxEwIIf5Gns+JbFA0wrwN6YNOfJkH9Ip4sUo9adhpaQS+VJzTBMUy3a5ZcZ3Tpojww==
+ b=WHUSwBMBbllNAteigmxk8oT93nvHgZWkFkBOqCqdJNz/NUASMQOk9vzIZ4OfL5QT5pt0woLRuERa/2AdMU4vuK4wVj06h3kGfmjn1twT9tUAYqIk3ZHvFoexPU2LJmisCYORbbMoEpQGIzLrQTqZSg+FvaLXh9jHQ64tYRKlbxkGcybgu311nU1SSfaL4JZiv34RIIgr6URnfE491Fr+j4az5tp/51i2qovaa05RfmNTHdlVea3I7A8V/it8ZVEkzTC5LAcedAeb919LgIcBwUUYMT+rQ/wJhiJVyGbWTUQc9ZmezPLEWLXM4yF9cpCseYk0BQw3mmlrATWK0GMDFw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/TBOwMEw3TgAWhLTl5WuArA2V0LUkYB7Y/K0URA0WJM=;
- b=Motd8g/xnF+Aun0FuJDl9hJTBla2w028lPDkTCRcpOrLUWKEFmrGX0WHx8kyGm/z0WXtcttPUIppNteEbN3q5S5pxGwkiQnIrJKzmpQ2cmIEwn+lUUX7lyO2B2hvW0p2U0hsjhkKzCk2LejrVR+rUeZd8/aZPHgQDAUgYFwC9ZaGuioNzZ2aKKM2oYHLXK3nvu0yH/TPq9YHdGDxPqY2bHqzTjnGPbcn3NM90xa1aA/AZe3pKW0ubLoIX5mq/Zq9x+r/SEgRdYC1HM4n1eXz0QkikNZZsJrqzpavUMxuQCR8iFAJ5Lfvepe/cTGB+6z+76iRZcE5c8iy+RVYsfUNYg==
+ bh=GFawfSuFg9dPY2UCO9O28lAB4WLHdbhfdn2t4FrPEq0=;
+ b=IXQsTJwsfG1v+dkiDkUQsKe/CyIx5BIE2vruJlKI02jgqop4ZNVl5OSUNssFsUbCebGQMvMaAK+bN6ZBtgswZS45kF1GwwZE4Y6eHxCAWjvOzhInJLQvg3TERXxc41wZhAd1ztTcd59jbmxETXZl4UqQAEarxe2fA1IeAk5hPRFmswCgZqJ4rx/bs7ARyjAAaropAOKGKKDsWoqiBwXSODiNNwEnsniYdQGPNRBzki0Jvz7wVRMcFGli9ocOYUQXsX7NOKfkEiEgwDFh/dHUM9CsXLTHfRzo34ZFwvwp3sOrj8hGClGyjGHvAB1n5FWqKSjX+e4i2QArtDn05zu+HQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/TBOwMEw3TgAWhLTl5WuArA2V0LUkYB7Y/K0URA0WJM=;
- b=fhGWTcMu8ocl2MoSsWhtv46iu97R97Pxmd5Xy2WsBG0MM17KSltXRhHAJkkTJ0WdnyTVX20/i0OvBmh52wUbp+VfDkmjklTiBgJH9pIU9xfl3/Tm8vucnqR7yNaY3y6NDRLgggXS6qRV1kffWbqAlsImYSJVBifwC+8UepyrTgM=
+ bh=GFawfSuFg9dPY2UCO9O28lAB4WLHdbhfdn2t4FrPEq0=;
+ b=HBIWwxtqMt9tuPocaZ6I3r1u9Qqh5XuoLBiyjtF7Eoeei7Ll9ypEAVgEN7QT5iSNxNhTaXzUnxANXT+Zl43vYRZWGaDkAwAl8Rr0m6Yt8biGoWoM5msJNeMESi4toJP7O8uTPumzRnP7FgO/23OXBTe8iHJNam40rXYiK5Jx8w0=
 Received: from MN2PR04MB6272.namprd04.prod.outlook.com (2603:10b6:208:e0::27)
  by BY5PR04MB7042.namprd04.prod.outlook.com (2603:10b6:a03:22f::22) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.35; Tue, 7 Feb
- 2023 14:06:02 +0000
+ 2023 14:06:10 +0000
 Received: from MN2PR04MB6272.namprd04.prod.outlook.com
  ([fe80::4fcf:ae46:b9c4:127a]) by MN2PR04MB6272.namprd04.prod.outlook.com
  ([fe80::4fcf:ae46:b9c4:127a%7]) with mapi id 15.20.6043.023; Tue, 7 Feb 2023
- 14:06:02 +0000
+ 14:06:10 +0000
 From:   Niklas Cassel <Niklas.Cassel@wdc.com>
 To:     Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
         Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>,
         Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH v2 3/8] zbd: rename the accounting 'sectors with data' to
- 'valid data bytes'
-Thread-Topic: [PATCH v2 3/8] zbd: rename the accounting 'sectors with data' to
- 'valid data bytes'
-Thread-Index: AQHZOr6x65rj4v7yAUCrJtMn7a0N0K7DhR8A
-Date:   Tue, 7 Feb 2023 14:06:02 +0000
-Message-ID: <Y+JayPYxd4tzsftE@x1-carbon>
+Subject: Re: [PATCH v2 4/8] doc: fix unit of zone_reset_threshold and relation
+ to other option
+Thread-Topic: [PATCH v2 4/8] doc: fix unit of zone_reset_threshold and
+ relation to other option
+Thread-Index: AQHZOr60wM4MeUQ5eEa3Ug47rOORmq7DhSgA
+Date:   Tue, 7 Feb 2023 14:06:10 +0000
+Message-ID: <Y+Ja0MV6GDYGybDk@x1-carbon>
 References: <20230207063739.1661191-1-shinichiro.kawasaki@wdc.com>
- <20230207063739.1661191-4-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20230207063739.1661191-4-shinichiro.kawasaki@wdc.com>
+ <20230207063739.1661191-5-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20230207063739.1661191-5-shinichiro.kawasaki@wdc.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -80,214 +80,124 @@ authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: MN2PR04MB6272:EE_|BY5PR04MB7042:EE_
-x-ms-office365-filtering-correlation-id: f7ce12e7-d60a-457d-b991-08db0914722e
+x-ms-office365-filtering-correlation-id: c29fd4ce-c1bd-4a2e-bbf9-08db091476f5
 wdcipoutbound: EOP-TRUE
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: u0vo6amXX5S5tqpHpSdHwWGAG58JpFqDeWZKK7Y692kLm4Un+ASMIj/on+2DXFZuR+baGhn45Uj6b7SKQZSETmFG4rcVlW2pyC+o23Cz3XPuAVs/aed3P/b6F8SZivTpqUIrRjjypPkoAb2YS/x1KHOI4XPyhCpSeewJYuGx7/n9i0NG8nFhcEUBrc59mLPpWmR0Q2rX/RuG3jjSNntybJ5XbJ6874rwvFzsgHqINagDHeUhn8cElXWzmpALcSWc3hFCSIOrVeEWC2WzQOl9zdCiRh91hv41ZpaTiDKnxACwWLE5IGRHE9x6DgINgpfHZ+3wbVOIB/6YYFsfbNjucHy/1xjIRYwAG3kANBjKs9WhPRFzYunrhDxJkqpNBCUWjKoTaaqMceCWgkMNieEGHArYUiGO8TMOAw1KZXhKUgcQHiAz6xH1R2GNbOeHtCTIC9kBev8C5ABMh5qrpJrEyUm4xKQfxfwND019CmQ54Cd0ejofgArVH3WEb46IPBxzC/7+gdIIQobzF2rI5X0OlTOkuFDzmMSlbYYheJdd4XoQBfRgmGVCU1a1c0SN+l5dJVU9ZuX3hbcia66H1EAyJRmoI2r6t+m+k99qSMsZe62wOVynmmnRYRSVl60YoUj0qVbjBW8YgUFiq3yygxz/EVd5IWfBt46nt0ABohH/NxRegLruR4FigbjFAi8W2oRfTIzS1h4J8G7QESuPNolxnLyEi2FkuVxEh0pvqq1onOA=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(7916004)(4636009)(346002)(39860400002)(366004)(136003)(376002)(396003)(451199018)(38070700005)(86362001)(122000001)(66946007)(54906003)(316002)(66556008)(66446008)(91956017)(8676002)(76116006)(38100700002)(64756008)(6486002)(4326008)(478600001)(66476007)(5660300002)(6636002)(2906002)(6862004)(33716001)(8936002)(41300700001)(15650500001)(26005)(6506007)(186003)(9686003)(6512007)(71200400001)(83380400001)(82960400001)(67856001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: 9hyBDVSiz171N3kcbYCeOEFiD9wvOnN2Zgzgo7FLEX6UfuftpOdCO89iuGgtFsWZGIMZy01RA0hGszVcHU3CiI9xLD2F2gw3GnGUaJ2hICQvHWL8cmsKyj7ZJ0vAj8yEwHVMjSgkewm2aLovZ2LNKMCTDHf96P6WTfq3y2Wy6aRxryAgiB/P7j3Avo4HHrecZqoMZZi4vgF9hwcQ5Vo5bX3Yth+NZc+ZZpzN9NWfvZgdcRGq4ua1/Mh48d3z6ROtkT0Pz4bSGOpxUf+8QmtyEnSCDCg4YhZND1aPoYVz8UxyFJg2M52q8SJOwflsac1S5O8T8U7r2z0uUtAabRN8HhmjVeaG51SMmwUcikJ0C5Bi7zm0ltjQQnA+2TwzJSnsebdwz8PgK87zlN2MBzA2ZVh8Ufg1oY4LvwWKDMq3r6vbDXGWCupq89opzFc/5yAo0EmkwF6FHEEl/jYIKvoxNDTd9pYqPhiXohOdNqdOV9JGMniSDFfu9MUEZ0JqOsl9/AX4x7l5s+CN7dnprVR2wJwclwU37clPylyZuS/OYk87gYfxKnXacI9Cep6aD7EhX7drYVM5DlEnATJDnVZ8thqb32BnWmcfKMOG+EQZUytZw7k5cer04FisRJsanI4ekz3czYlwFG9+Xhn3DMYm+Pci+a4TDOQ3uW+wbjawK461Tt6ZJG24p8ohot68zc6Fy/W5A9bt8/WrUqaUlxes9VhH8q0rFofT6uTt+p9oOBQ=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(7916004)(4636009)(346002)(39860400002)(366004)(136003)(376002)(396003)(451199018)(38070700005)(86362001)(122000001)(66946007)(54906003)(316002)(66556008)(66446008)(91956017)(8676002)(76116006)(38100700002)(64756008)(6486002)(4326008)(478600001)(66476007)(5660300002)(6636002)(2906002)(6862004)(33716001)(8936002)(41300700001)(26005)(6506007)(186003)(9686003)(6512007)(71200400001)(83380400001)(82960400001)(67856001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?kKh4iOJJ44fS0Jnd4VazGRr4E53KtjinKs2QlNwRDNu6KH3w8UAwF92luaEH?=
- =?us-ascii?Q?aZUzXNMeyUVkdwQ9GbCgt0vIC/bIxw+F6jxrb+tPfU349QYkBnsZLolO/FDj?=
- =?us-ascii?Q?RjbQ3K1wZnDbcn2kj+qIxkBAq+2EFSKE7qsYbx7Zepl0cRecMFkiN6PY8lOn?=
- =?us-ascii?Q?xmBqB7gvbjQnQHTz6MkqQjq1s8BdF227KpPd5+pnTb6I6eeQthy02fFt2WUl?=
- =?us-ascii?Q?HtvvQvRGHVD1w/x/g79TdBMNoZiHaSRFls/kYXvojUfPHlx1SozQp4bxyv2V?=
- =?us-ascii?Q?qb41zWY0EtNCUYq88bCnNUPqzeLBRLlvoasjifsMRF++JsOLKXADFBLCIACu?=
- =?us-ascii?Q?IrvyQkZulKBE5MxpzrNu0EkqiW9fiu3NfoHBNfpzUoCF/fjUPk9n0jlS4g6S?=
- =?us-ascii?Q?T7E37SXBWEUQnOsq8fAqZDMNXfbE6nT2MaXNSd8/yCMHz9NxexutKiCuUifD?=
- =?us-ascii?Q?SH3IoYik8P4RTINYkWG9iUwl9t1v449dHsvYmmroh6FfQZLGREPTfVLUDUDa?=
- =?us-ascii?Q?GmiZovViZlG/CHfXdnyi9fqFjFuOtlnc4AulOI6V+wwzs+qP1ZlML2Bl6jHb?=
- =?us-ascii?Q?VW6ZvErrIdFJMGgrn4iYGYsQbghIfXSMWViN2VYGiZa/rx4A0sBpodxRMstT?=
- =?us-ascii?Q?/JklOd6aM1cYY0y1AnhgyIutAvvbwEYRI4mV7Uw3fhm9KifIvyWP1GkXPD/n?=
- =?us-ascii?Q?+A7NXqsMHprSd5NoVzClAeLkD19gdxmee4znqcovFtrBldVyjUYr+OPdVd1V?=
- =?us-ascii?Q?MTdsbwOvGSoKC+uV4EXU7s3CMkJO3hQ3gMT8Qq5PD18vAAG7fmh2bPraHm+2?=
- =?us-ascii?Q?EYTh4PMgE5BK220piKEod6zB5Lmfw0r+cCqOpeufv/rjceSecz8ux7b5Bf8I?=
- =?us-ascii?Q?5XVGst4la9/+V+ZgbjLK+H1ZIULAM+zqshH0elbaY/2fGcC+8nwRDX94PWYw?=
- =?us-ascii?Q?QmRhnFfGJgBChNyNI0UhRW/q0gaiJCiA1sst+gAb3BFAps8/eS4CzaHZexAI?=
- =?us-ascii?Q?eqPOj+8KZCnIZM6TjIrp87wa8F5Gz0lUP/N/ydJDIlIPMsiVBH9UZ9RJMxU+?=
- =?us-ascii?Q?S+87gMmnNeGkQjhfuJUVMYJNXxC1Y5ggawsrITJvCvd9VS3QhjIxbecAqtXh?=
- =?us-ascii?Q?79nPd3og5kLttXckB2XJAZ4AI0U02Eft6Oj71BlAO18hN/6afZ0uxB8j3mjj?=
- =?us-ascii?Q?8f8AetodIOgnIzQIU9D//M5j/kRzMDjamJOHsYgzT7oT19KGvdZZEgZI0qKf?=
- =?us-ascii?Q?rMRfKAy3Zli9Wre6f6UXpMGyb4ceqZPVdMWDu+HYHDWGsdZUazT40hOF1Zok?=
- =?us-ascii?Q?n9xEavLg92GIsfOOSzSY1PtqzFf0+QE8H0/BIlWLtwmdqWa4DpBpn1XJOzh6?=
- =?us-ascii?Q?m/wF/54Msjh5CqSJJyLVpibF9Vt8vPDEnpzcNhcFacQy0q4hCaIuNJemMY7w?=
- =?us-ascii?Q?DXx7PYgOIaXvbXOzTKjr/AbjO3A/qy8et1l2XPfjIC92PjSTplp7uqQAFHkx?=
- =?us-ascii?Q?CysxoVmkvyz8G8erKjuExX9oPCMe4bHapo9jeM38pakJs6bm5iP25PtOQ5Jf?=
- =?us-ascii?Q?3nTQmE3vC/2fncYgpGSEK35NB669hzZzMNo/x48E13IvsqgcYlvUjsttLXgZ?=
- =?us-ascii?Q?Zw=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?A+exs4UCCM+hUtxEEl7E6tM0+6UVtxBDQBHoJchgPXbakQw1mx+haIlPg1Oc?=
+ =?us-ascii?Q?Lho5m7hDe+yNA1RTS+Z/m9xLpBYkPaNR2W9ONioHa4KivFwSiEZsgrKnTc/c?=
+ =?us-ascii?Q?eQErTqRQddgpWpf6oy02sMnAYgj1Fz0c3W9TF3oZbfmj5ZyKhnvMwO7E+mhi?=
+ =?us-ascii?Q?K+ToMJO/DG81Uz9NZpFCMkozXA9Y4baS3zZnALqI0aQUuJOx6qXEqX6Z8Z2y?=
+ =?us-ascii?Q?49QJOFcp4bg33o3rr9LfnUz3FQmanGSnlTkr01gZ8IM3GEhoud4tlyOBcVYJ?=
+ =?us-ascii?Q?S/TKVtk/AAw0UV01UH4y06Syqnx5IJfUI5aFPRpuiEU9ej2hyaZ1ZfGXECJ5?=
+ =?us-ascii?Q?Z8Pnx2rQUodAeZQ1HsXJXlYyqVFl8KaoCUmcBSrFqWVO8kkgxmoqM9C8Ex7H?=
+ =?us-ascii?Q?YMQiwkmCfDAg/ZVIgZofEh5SUyOIeaUmhEdEDFVl9Ew1gkh9QV54fc98oJkc?=
+ =?us-ascii?Q?kvkCCc15u1zBQXuOtSh0OnasFd2bVVyUXEwCyWfsTOl5tFxmOTBpyMgwue96?=
+ =?us-ascii?Q?eZN+xDTy7l0pIjyBcXbAInMAPz4etDn5o3mlVf45ic9t0IA0CsWa36aABAf2?=
+ =?us-ascii?Q?4P9x4zEOIEyAtcwWtnbQ5BDnAO0x372ahjrJ1N1N8FnrN4wvFIXzjWnK0iEe?=
+ =?us-ascii?Q?61IPhTAGLcoG0Gxx8PqHXZYT8rEeGmxoo3sknZ0qQdyE7vcjK+UEd+59UGcO?=
+ =?us-ascii?Q?wArhFXK8mVJo8qAJP29kEp9JW/s8+tnZt512INYe2k7tvXdCjSae5WVaXGEz?=
+ =?us-ascii?Q?1ag2yFzdJLf+4vhaPXS/rMQ4UxLxpTUwJQVMwNzJX+56TcK3ZLM0BckHyLmM?=
+ =?us-ascii?Q?eTIOauPXiE5B/naC5kJXSyA0srjSFGMoxyeq21VpOenm+fo2/FD9KPHFFp+L?=
+ =?us-ascii?Q?fRv6D+gm25ENUxdV/oiXboRddNqxXwtvDci31CDP62rRcoMnwxEarHJclxYy?=
+ =?us-ascii?Q?NaOTP58fvYqp6o7tv0yDPEHrVGysXiNBuq5Ai10edXiWR9UZNhDraxniWxT4?=
+ =?us-ascii?Q?Hm382maahY+PLt4BURezEMsUIwRyWHbms8PaRw3ZiOlMUWJFNgkEo9EnSEN5?=
+ =?us-ascii?Q?s4ai/Ra1zkytIvRv639/PSieu4e2q4yfhNCp+74nP2Rhqv3eA5cmsdNTe8bs?=
+ =?us-ascii?Q?jqeP8jhuIrNRGDXB6nwSuEc/Gvee7FcUx9eemR5CoyV156fHZpsjMgtaWXup?=
+ =?us-ascii?Q?twAEezm0yTvHOTAs3MbCoF5MOBhOG7vEyGb626pDXKaqvHoa+WFY02LzebCe?=
+ =?us-ascii?Q?WWdloTfKC8dDZ/VV9GxtX0teD2+7/SgMHF6cKb0f2kLC/AzZlOUxYqkHhvbp?=
+ =?us-ascii?Q?5zlMrJt7Z0msYGTahmFSvfSYjt1JjWYIr9zaEtEtDxSMANfdA64OqCuHHJCC?=
+ =?us-ascii?Q?QjK5Evfnbf6g69oOTZ+rH3C0MwtEfAJgge7vHVJNu9Wa8HebvW3brwAxf2aZ?=
+ =?us-ascii?Q?OUfHhy5MoaNvggM4S/lNFs+rGXl1zVgr34wq/Y3YCD5sONxypeMl9OpE58NK?=
+ =?us-ascii?Q?0XecuDUa79T9NC+5+EYNoxcmsm/+3RzyhZFPjF48eiim5NKcQuDOmeBxdvUb?=
+ =?us-ascii?Q?6BjAmVIRMvm9qP0y63N8TTHi/wYTJVML74ESsH/O0Ub+C86AcBXaTbIfHc2X?=
+ =?us-ascii?Q?+Q=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D7149C296EB1654289D64D76E91A6E8A@namprd04.prod.outlook.com>
+Content-ID: <8DD5BD5DF85C3542B8732B25C7981150@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: maQtYycvOnzxfu9n1v4VC+r+lZDRStZYajrGSYI5khFeBXStb5m6pFy1F+kIbgqEi13kbvUEivv+e3T5c7qIZT6fhziImTyiuXo839o/T7AGBKTpzGoljj4dMOUt6ydmM8kOK8inIlZxoxYf0xTMYi6IxFJ12Pn/TU8XRwmIa+H4psaHGtdCEVedIZoI1qatKFPGltQhqkl1NyH6B6tKAUdCIRMMfVb5Kj8FxUF04QR9O7QCC0xRR3Hq9ou8BSjjrxZDpzQuSeE68rd/76IuqfJmb4ju3P1lSj5xnZQaSRwXPJTn/aaz4i6IsD1lL9eEhxQppsB8zl2eEkSzFimSQrlwOXarKOYg3fLKKpoapfGJerBMYmBa8LgYyX8y1U+qJxxXDB/8yc0B2W1t8ATyvpKDvPz+UxUF+SDF8aGvWI/tooHgoHG6X2nnBGCaWpod3Q0YwbOi1Ern2PFhiD8BZie2TsAGn5FwZBbDF3qyv6WLcFY5bPffYrSOjcsOtfJgJE5iSmntsCFg5Jt3bYqD3HsQsOzb10Y4wobWWH40lIg2zXvPCsnJAAscnki8xVyN3nr0EFq4dF5NHvKAGrKBrS5udu1blmGdyMkKOPrc4sEr6MUsgUJl8jNUyOdi0uYgvRRfhhh7L0e8IV0K6+yP8fQ+RPTn7R/4Psff87UDGe2YgVHEwZgKSps22b7FiumbESfb00tryE2RdHOrriMz8Qeuc3ypN2VXFMzN4h5sP7DmfHg9qZo9/5mAMSMAodD5EhvLt5vxAaW3BFLnv6mkaUeXO98wwXc/R2f1G7/vGqfr5kgybFrXMUyvmLx80adM
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: wJI7pD9MtDTY52aCNGbrpXnuaGNBXT0DkPeRDnFhuY6LhVLbSZb4WufbwjeGJuDbpBgOuefu1fv+DUwRRCtTdutHFsD23chNiYDcam6tuVRzECWJu2VP7dYpU0xSo2T+AZ2C9Pyea/xwOOLSCorDg4hHfZ0xd6gMxSI3DYNJQfzEwvMrkRWtjIoR1SvFrnfOkD4PFnCnkp6X9/Vxv5WJ4taNcGNbDZ0UsLPs4Gk6/7Yc/zmzAkq/3K8imkkBKU/i68n5MHeccCM32KsbDV2TmTuVG0sw9fp945AR/0TllTc09v8jdT7UQY7UhiNZ47WLE+dwfdJyj60waS5q4Db9Kkpl7BIK4QBX0R6nS6wdqwYftikhMNCfp7jzcjK9giCYM2NfSlq5gQXqwEKqq9XgrlJuLu5NfSsVCwA/hs50aSwKJ7+nnmxncnBCmU3wRkjz53u4skgUiFWJ4EZIl8MHDZluuKVV0bkrXJcrtnIcBFu9x2CtsZy5rMWYkFwxnQFpkuMVOF8m2qQg1112iS2xSHXTKbImEZ/d8SmHkKFvNpgdNKlB1UKyFysr6O+ph6Vve29CZmDLIoQQlJMCFuQMPMGhxJ2WLpxu6sV5mDZgSQNkZeRzwdt5IKrYv11oCASxWn3rFqybZtZx1VkWwKS+OIqtvp8g51kzLN67Sze5a3Yues2Q2LxvuKWpBz93/nwi6gCbP5q6lI1w1/sneAn6+tjTUhAAGlhCho3VO1DPRR8UsYjAgzIkz6VW/qr2+4NgrtnpdRL60U41DDBWtHlvsEsrazPl8TFQL3e/rDZQw0YKT+HgwjZ6nKZsTr/F53oW
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR04MB6272.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f7ce12e7-d60a-457d-b991-08db0914722e
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Feb 2023 14:06:02.2249
+X-MS-Exchange-CrossTenant-Network-Message-Id: c29fd4ce-c1bd-4a2e-bbf9-08db091476f5
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Feb 2023 14:06:10.2712
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: QX0SeaOiMrje5cHkt1h6kkVw0L2Vbm2LmpU+Pj5eXkAduRSN22Nrww6IvKBrc1qCej+szHIidx2M4eNoEU032w==
+X-MS-Exchange-CrossTenant-userprincipalname: eG4Be4PBG3+qCvOm9Il1GLomD6SufZvhqE+njLYOefIHex197mV8fPF8HnFWj7Z/GWzQZTlbMkllqKrcI2lHCA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR04MB7042
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Tue, Feb 07, 2023 at 03:37:34PM +0900, Shin'ichiro Kawasaki wrote:
-> The 'sectors with data' accounting was designed to have 'sector' as its
-> unit. Then related variables have the word 'sector' in their names. Also
-> related code comments use the words 'sector' or 'logical blocks'.
-> However, actually it was implemented to have 'byte' as unit. Rename
-> related variables and comments to indicate the byte unit. Also replace
-> the abbreviation swd to vdb.
+On Tue, Feb 07, 2023 at 03:37:35PM +0900, Shin'ichiro Kawasaki wrote:
+> The zone_reset_threshold option uses the 'sectors with data' accounting
+> then it was described to have 'logical block' as its unit. However, the
+> accounting was implement with 'byte' unit. Fix the description of the
+
+nit: s/implement/implemented/
+
+> option.
 >=20
-> Fixes: a7c2b6fc2959 ("Add support for resetting zones periodically")
+> Also, the zone_reset_threshold option works together with the
+> zone_reset_frequency option. Describe this relation also.
+>=20
 > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 > ---
->  t/zbd/test-zbd-support |  4 ++--
->  zbd.c                  | 25 +++++++++++++------------
->  zbd.h                  |  5 ++---
->  3 files changed, 17 insertions(+), 17 deletions(-)
+>  HOWTO.rst | 7 ++++---
+>  fio.1     | 7 ++++---
+>  2 files changed, 8 insertions(+), 6 deletions(-)
 >=20
-> diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-> index 4091d9ac..c32953c4 100755
-> --- a/t/zbd/test-zbd-support
-> +++ b/t/zbd/test-zbd-support
-> @@ -1110,8 +1110,8 @@ test51() {
->  	run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
->  }
+> diff --git a/HOWTO.rst b/HOWTO.rst
+> index 17caaf5d..d08f8a18 100644
+> --- a/HOWTO.rst
+> +++ b/HOWTO.rst
+> @@ -1085,9 +1085,10 @@ Target file/device
 > =20
-> -# Verify that zone_reset_threshold only takes logical blocks from seq
-> -# zones into account, and logical blocks of conv zones are not counted.
-> +# Verify that zone_reset_threshold only accounts written bytes in seq
-> +# zones, and written data bytes of conv zones are not counted.
->  test52() {
->  	local off io_size
+>  .. option:: zone_reset_threshold=3Dfloat
 > =20
-> diff --git a/zbd.c b/zbd.c
-> index b6cf2a93..455dad53 100644
-> --- a/zbd.c
-> +++ b/zbd.c
-> @@ -286,7 +286,7 @@ static int zbd_reset_zone(struct thread_data *td, str=
-uct fio_file *f,
->  	}
+> -	A number between zero and one that indicates the ratio of logical
+> -	blocks with data to the total number of logical blocks in the test
+> -	above which zones should be reset periodically.
+> +	A number between zero and one that indicates the ratio of written bytes
+> +	to the total size of the zones with write pointers in the IO range. Whe=
+n
+> +	current ratio is above this ratio, zones are reset periodically as
+> +	:option:`zone_reset_frequency` specifies.
 > =20
->  	pthread_mutex_lock(&f->zbd_info->mutex);
-> -	f->zbd_info->wp_sectors_with_data -=3D data_in_zone;
-> +	f->zbd_info->wp_valid_data_bytes -=3D data_in_zone;
->  	pthread_mutex_unlock(&f->zbd_info->mutex);
+>  .. option:: zone_reset_frequency=3Dfloat
 > =20
->  	z->wp =3D z->start;
-> @@ -1190,35 +1190,35 @@ static bool zbd_dec_and_reset_write_cnt(const str=
-uct thread_data *td,
->  	return write_cnt =3D=3D 0;
->  }
-> =20
-> -static uint64_t zbd_set_swd(struct thread_data *td, const struct fio_fil=
-e *f)
-> +static uint64_t zbd_set_vdb(struct thread_data *td, const struct fio_fil=
-e *f)
->  {
->  	struct fio_zone_info *zb, *ze, *z;
-> -	uint64_t wp_swd =3D 0;
-> +	uint64_t wp_vdb =3D 0;
-> =20
->  	zb =3D zbd_get_zone(f, f->min_zone);
->  	ze =3D zbd_get_zone(f, f->max_zone);
->  	for (z =3D zb; z < ze; z++) {
->  		if (z->has_wp) {
->  			zone_lock(td, f, z);
-> -			wp_swd +=3D z->wp - z->start;
-> +			wp_vdb +=3D z->wp - z->start;
->  		}
->  	}
-> =20
->  	pthread_mutex_lock(&f->zbd_info->mutex);
-> -	f->zbd_info->wp_sectors_with_data =3D wp_swd;
-> +	f->zbd_info->wp_valid_data_bytes =3D wp_vdb;
->  	pthread_mutex_unlock(&f->zbd_info->mutex);
-> =20
->  	for (z =3D zb; z < ze; z++)
->  		if (z->has_wp)
->  			zone_unlock(z);
-> =20
-> -	return wp_swd;
-> +	return wp_vdb;
->  }
-> =20
->  void zbd_file_reset(struct thread_data *td, struct fio_file *f)
->  {
->  	struct fio_zone_info *zb, *ze;
-> -	uint64_t swd;
-> +	uint64_t vdb;
->  	bool verify_data_left =3D false;
-> =20
->  	if (!f->zbd_info || !td_write(td))
-> @@ -1226,10 +1226,10 @@ void zbd_file_reset(struct thread_data *td, struc=
-t fio_file *f)
-> =20
->  	zb =3D zbd_get_zone(f, f->min_zone);
->  	ze =3D zbd_get_zone(f, f->max_zone);
-> -	swd =3D zbd_set_swd(td, f);
-> +	vdb =3D zbd_set_vdb(td, f);
-> =20
-> -	dprint(FD_ZBD, "%s(%s): swd =3D %" PRIu64 "\n",
-> -	       __func__, f->file_name, swd);
-> +	dprint(FD_ZBD, "%s(%s): valid data bytes =3D %" PRIu64 "\n",
-> +	       __func__, f->file_name, vdb);
-> =20
->  	/*
->  	 * If data verification is enabled reset the affected zones before
-> @@ -1607,7 +1607,7 @@ static void zbd_queue_io(struct thread_data *td, st=
-ruct io_u *io_u, int q,
->  		 */
->  		pthread_mutex_lock(&zbd_info->mutex);
->  		if (z->wp <=3D zone_end)
-> -			zbd_info->wp_sectors_with_data +=3D zone_end - z->wp;
-> +			zbd_info->wp_valid_data_bytes +=3D zone_end - z->wp;
->  		pthread_mutex_unlock(&zbd_info->mutex);
->  		z->wp =3D zone_end;
->  		break;
-> @@ -1960,7 +1960,8 @@ retry:
-> =20
->  		/* Check whether the zone reset threshold has been exceeded */
->  		if (td->o.zrf.u.f) {
-> -			if (zbdi->wp_sectors_with_data >=3D f->io_size * td->o.zrt.u.f &&
-> +			if (zbdi->wp_valid_data_bytes >=3D
-> +			    f->io_size * td->o.zrt.u.f &&
->  			    zbd_dec_and_reset_write_cnt(td, f))
->  				zb->reset_zone =3D 1;
->  		}
-> diff --git a/zbd.h b/zbd.h
-> index 9ab25c47..20b2fe17 100644
-> --- a/zbd.h
-> +++ b/zbd.h
-> @@ -54,8 +54,7 @@ struct fio_zone_info {
->   * @mutex: Protects the modifiable members in this structure (refcount a=
-nd
->   *		num_open_zones).
->   * @zone_size: size of a single zone in bytes.
-> - * @wp_sectors_with_data: total size of data in zones with write pointer=
-s in
-> - *                        units of 512 bytes
-> + * @wp_valid_data_bytes: total size of data in zones with write pointers
->   * @zone_size_log2: log2 of the zone size in bytes if it is a power of 2=
- or 0
->   *		if the zone size is not a power of 2.
->   * @nr_zones: number of zones
-> @@ -75,7 +74,7 @@ struct zoned_block_device_info {
->  	uint32_t		max_open_zones;
->  	pthread_mutex_t		mutex;
->  	uint64_t		zone_size;
-> -	uint64_t		wp_sectors_with_data;
-> +	uint64_t		wp_valid_data_bytes;
->  	uint32_t		zone_size_log2;
->  	uint32_t		nr_zones;
->  	uint32_t		refcount;
+> diff --git a/fio.1 b/fio.1
+> index 527b3d46..54d2c403 100644
+> --- a/fio.1
+> +++ b/fio.1
+> @@ -854,9 +854,10 @@ of the zoned block device in use, thus allowing the =
+option \fBmax_open_zones\fR
+>  value to be larger than the device reported limit. Default: false.
+>  .TP
+>  .BI zone_reset_threshold \fR=3D\fPfloat
+> -A number between zero and one that indicates the ratio of logical blocks=
+ with
+> -data to the total number of logical blocks in the test above which zones
+> -should be reset periodically.
+> +A number between zero and one that indicates the ratio of written bytes =
+to the
+> +total size of the zones with write pointers in the IO range. When curren=
+t ratio
+> +is above this ratio, zones are reset periodically as \fBzone_reset_frequ=
+ency\fR
+> +specifies.
+>  .TP
+>  .BI zone_reset_frequency \fR=3D\fPfloat
+>  A number between zero and one that indicates how often a zone reset shou=
+ld be
 > --=20
 > 2.38.1
 >=20
