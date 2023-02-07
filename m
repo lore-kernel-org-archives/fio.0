@@ -2,50 +2,50 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05169C636D4
-	for <fio@archiver.kernel.org>; Tue,  7 Feb 2023 06:37:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3302C64EC4
+	for <fio@archiver.kernel.org>; Tue,  7 Feb 2023 06:37:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229447AbjBGGho (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 7 Feb 2023 01:37:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49184 "EHLO
+        id S229896AbjBGGhq (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 7 Feb 2023 01:37:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230243AbjBGGhn (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 Feb 2023 01:37:43 -0500
+        with ESMTP id S230238AbjBGGhq (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Feb 2023 01:37:46 -0500
 Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C19222E7
-        for <fio@vger.kernel.org>; Mon,  6 Feb 2023 22:37:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69275222E7
+        for <fio@vger.kernel.org>; Mon,  6 Feb 2023 22:37:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1675751862; x=1707287862;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=u5GecBrnCgszpZRfjycrhHjvNyXetj3U2MldQ8fHcHk=;
-  b=SRTqpBWLfEjIYZ+G9dGS2viCzgwHYecC+sbZrJYFSCAJPHPGvmAppBO4
-   ZwusxkSkywKmpLG4MOk/IvD/wI5Ed+DRZpe3imEaIFVQV/iRg5sB6v7wT
-   gqWE4C/rI+cG2MW4DwV2sVPNTe8BYF3+1UIB+4H6vqXtyDzpqPQeWmj4d
-   Q1bZlvM0lhF6/pKBsdARP9ypYEyeTknHUETjx1x01AvOodzKOqpabO7Mz
-   M3lwz9kANsFHH0e+QVlIYaZBBHDjVnfNyCFYGigaIPyXEi7CK4FKwthOz
-   o9/5kWsAmUQMbJK5RFcuc8U8epOwrg9xegj36lNZPFpGsE+YQtL6kXQQ9
+  t=1675751864; x=1707287864;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=K/uqivJKEjKxZ6V6HOkPXYid/UQQAd1EnmJy3P0jSaI=;
+  b=elBc/WrkR2Qubb4JdWsZwznZwN0nYg+agn8IB6RhAhXepZP/Aawq40O/
+   ZDYOCXFcp7tq04INONNg6ZNjhooWExbUsl24KYsbWB2VpfQ1QuYudY2f6
+   Clx8MSq0h98XHtBdSvH9S0jwZUpvX9SRlGxuc9mNQYl7aWB5PqSKhfr60
+   dY1m23iR0QgKz+IRPr9Tas9rsOx2J+UGM1MuH4yOSeWPY9s3tnmtfGid8
+   bSJhftmT+r9sf+9vVh0rX8K+qR8ew3oCaHDNx2eJ1EJ54So/30Lr9MkfQ
+   S58OI12Qmsepz0lvrIt2/ZDhKb9+wSMKe/8ykV/sbuJsGR+vzFgHUxdi6
    g==;
 X-IronPort-AV: E=Sophos;i="5.97,278,1669046400"; 
-   d="scan'208";a="326982646"
+   d="scan'208";a="326982652"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2023 14:37:41 +0800
-IronPort-SDR: dRqHdAeuow0399LaInsYhnn0jpoFrFTILXJ0NXCJ5STMba9qvuBBzGLZbh6ArDdENmswchuA3C
- FUHia7MN5FJGH8S5ZRNeOJg650AkHtk8szUXMCGELyFTBRL7KDccYQ1d/tTOFH7yzkrYpS2rSb
- JiuYaXO+TGdNRn3SJM1zC4jJBCNsmIkFF8h71iyQWlOMbZ2Hp3v73fuv9/ke3Y4Ax2hs7PcbHY
- gO4vqarbokDft1Hw6gZcef5Ib7sGYKn6bcUdS6nxP8ccwBTnvdstHJiyeFOystM3AEhn2Zcwbd
- Pxk=
+  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2023 14:37:44 +0800
+IronPort-SDR: SWcjF+tsn59OFEYPnIT8u59C3rUoxtyDRLX54TZcmRXCiU9ZZSKRk8lIIMIuy8lIYA4F9NLtfZ
+ Q6U/+rO8hcyVdLEB/KJOSU6McIHsn4Pv6Nf1kyGVuvbj0Dylketio3VvVAsKBHCLvM3ntioaD1
+ GzvB2qWWkgGKut0XNHqVZbfvpAgUyUGFHqosb34tONexthvGeZdcShwLAIFt0CaaCjjDpeXkTj
+ ILYFAePqkNG5idgLWq27hpdeCnbsBGIiDwpr12NslxpEBSxv/EZVyeZN4KAg/JhJuyGPKeh54w
+ QHQ=
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Feb 2023 21:54:58 -0800
-IronPort-SDR: JFzOiSMD0+kjToiwekK7dl1l/UvOyH+1IdI4fFwcdt7rlnOPMTg8mv4H43nP3lvEEP1/+rNc6R
- MhbueacacJHulraqYHHW9ZWMHW4Psl8pxhcNrqU35mPe8wvTLIaTa/kETnX46pOmqCUuNvdOLi
- GBKKKckPoSGc6ITFxeVyK+A8JZk6yW1DZwW+b1fxnRthcDHgphdz94AmwQnEXhRP3nYuVPtp2o
- +a060fbcMtVTAfpj5gKhonaKDLeI72iX8yRlnX9Ty+ElYz3ItR7hf4Pk0G5Jh9XQ35B0gJHWvX
- JkY=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Feb 2023 21:55:00 -0800
+IronPort-SDR: snmyPqrRpZ+viHO/xOzsRB/Xbsy64swhTdu839NpqxBTxle9/9uSWbwKMgTTAdpr5LNfI0hGdh
+ F/n1yVFWA/VqudXU5C+6iRyJ1VEgNqGOWgQQ20gjRqCVeN2N5GswXYJogTFjP8OstU+cpN3f+9
+ +3MQOIhKdht2DNwjV1+xoh9nf1XPmFY22okHHF1xz8EMjsKv6c2Hu7YHys3Rd0qFy/WbIipidS
+ +iVVJkivZN4+N48DKNI6CrDoNVaNXMzUBcwwEIyEG8v0pWIA56YrxT1Av8vMLpTGvqs3SstqBy
+ zj0=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip02.wdc.com with ESMTP; 06 Feb 2023 22:37:40 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 06 Feb 2023 22:37:42 -0800
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,84 +53,119 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 0/8] zbd: fix 'sectors with data' and zone_reset_threshold accounting issues
-Date:   Tue,  7 Feb 2023 15:37:31 +0900
-Message-Id: <20230207063739.1661191-1-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 2/8] zbd: remove CHECK_SWD feature
+Date:   Tue,  7 Feb 2023 15:37:33 +0900
+Message-Id: <20230207063739.1661191-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20230207063739.1661191-1-shinichiro.kawasaki@wdc.com>
+References: <20230207063739.1661191-1-shinichiro.kawasaki@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-When zonemode=zbd is specified, fio does 'sectors with data' accounting to
-record the total number of sectors that have been written on a zoned block
-device. This accounting has issues as follows:
+The 'sectors with data' accounting had been used for CHECK_SWD debug
+feature. It compared expected written data size and actually written
+data size for zonemode=zbd. However, this feature has been disabled for
+a while and not actively used. Also, the sector with data accounting has
+two issues. The first issue is wrong accounting for multiple jobs with
+different write ranges. The second issue is job start up failure due to
+zone lock contention.
 
-Issue 1)
-   The name 'sectors with data' indicates that the accounting uses 'sector' as
-   the unit. However, it is implemented using 'byte' as the unit.
+Avoid using the accounting by removing the CHECK_SWD feature and related
+code. Also rename the function zbd_process_swd() to zbd_set_swd() to
+clarify that it no longer works for CHECK_SWD.
 
-Issue 2)
-   The accounting does not work correctly when multi-jobs with different IO
-   ranges due to two reasons. One reason is the accounting field initialization.
-   The accounting field is shared across all jobs, but it is initialized
-   repeatedly by all jobs. This results in wrong behaviors except the last job.
-   The second reason is definition difference between the zone_reset_threshold
-   option and the accounting. The option is defined as the ratio of valid
-   written data to the IO range of each job. However, the accounting is done
-   per device and shared across all jobs. This coverage gap between each job's
-   IO range and the accounting range causes unexpected zone reset.
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+---
+ zbd.c | 38 +++-----------------------------------
+ 1 file changed, 3 insertions(+), 35 deletions(-)
 
-Issue 3)
-   Counting the total number of written sectors requires taking the zone lock of
-   all zones in a job IO range. For a multi-job workload with overlapping IO
-   ranges, this often leads to significant zone lock contention, resulting in
-   some jobs starting IOs only after other jobs have completed their work
-   (which looks like an apparent deadlock on startup).
-
-This series addresses the issues with solutions as follows:
-
-For Issue 1)
-   Rephrase variables, comments and man pages to indicate that the accounting
-   unit is not sector. -> 3rd and 4th patches
-
-For Issue 2)
-   Limit the condition of the accounting to ensure correct accounting. Do the
-   accounting only when the zone_reset_threshold option is specified and all
-   write jobs have the same IO range. Initialize the accounting field only once
-   for the 1st job. -> 5th and 6th patches
-
-For Issue 3)
-   Move the total valid bytes counting code from "file reset" after job start
-   to "file set up" before job start. This allows to count without zone locks,
-   then avoids the lock contention. -> 7th patch
-
-The first two patches are preparation patches to reduce references to the
-'sectors with data' accounting field. The last 8th patch adds test cases for the
-zone_reset_threshold option.
-
-Changes from v1:
-* Reworked not to change the definition of the zone_reset_threshold option
-* Separated the patch to remove CHECK_SWD (or CHECK_VDB) to clarify the removal
-
-Shin'ichiro Kawasaki (8):
-  zbd: refer file->last_start[] instead of sectors with data accounting
-  zbd: remove CHECK_SWD feature
-  zbd: rename the accounting 'sectors with data' to 'valid data bytes'
-  doc: fix unit of zone_reset_threshold and relation to other option
-  zbd: account valid data bytes only for zone_reset_threshold option
-  zbd: check write ranges for zone_reset_threshold option
-  zbd: initialize valid data bytes accounting at file set up
-  t/zbd: add test cases for zone_reset_threshold option
-
- HOWTO.rst              |   8 ++-
- fio.1                  |   8 ++-
- t/zbd/test-zbd-support |  60 +++++++++++++++++-
- zbd.c                  | 139 ++++++++++++++++++-----------------------
- zbd.h                  |  11 ++--
- 5 files changed, 135 insertions(+), 91 deletions(-)
-
+diff --git a/zbd.c b/zbd.c
+index f5e76c40..b6cf2a93 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -1190,14 +1190,7 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
+ 	return write_cnt == 0;
+ }
+ 
+-enum swd_action {
+-	CHECK_SWD,
+-	SET_SWD,
+-};
+-
+-/* Calculate the number of sectors with data (swd) and perform action 'a' */
+-static uint64_t zbd_process_swd(struct thread_data *td,
+-				const struct fio_file *f, enum swd_action a)
++static uint64_t zbd_set_swd(struct thread_data *td, const struct fio_file *f)
+ {
+ 	struct fio_zone_info *zb, *ze, *z;
+ 	uint64_t wp_swd = 0;
+@@ -1212,14 +1205,7 @@ static uint64_t zbd_process_swd(struct thread_data *td,
+ 	}
+ 
+ 	pthread_mutex_lock(&f->zbd_info->mutex);
+-	switch (a) {
+-	case CHECK_SWD:
+-		assert(f->zbd_info->wp_sectors_with_data == wp_swd);
+-		break;
+-	case SET_SWD:
+-		f->zbd_info->wp_sectors_with_data = wp_swd;
+-		break;
+-	}
++	f->zbd_info->wp_sectors_with_data = wp_swd;
+ 	pthread_mutex_unlock(&f->zbd_info->mutex);
+ 
+ 	for (z = zb; z < ze; z++)
+@@ -1229,21 +1215,6 @@ static uint64_t zbd_process_swd(struct thread_data *td,
+ 	return wp_swd;
+ }
+ 
+-/*
+- * The swd check is useful for debugging but takes too much time to leave
+- * it enabled all the time. Hence it is disabled by default.
+- */
+-static const bool enable_check_swd = false;
+-
+-/* Check whether the values of zbd_info.*sectors_with_data are correct. */
+-static void zbd_check_swd(struct thread_data *td, const struct fio_file *f)
+-{
+-	if (!enable_check_swd)
+-		return;
+-
+-	zbd_process_swd(td, f, CHECK_SWD);
+-}
+-
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ {
+ 	struct fio_zone_info *zb, *ze;
+@@ -1255,7 +1226,7 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ 
+ 	zb = zbd_get_zone(f, f->min_zone);
+ 	ze = zbd_get_zone(f, f->max_zone);
+-	swd = zbd_process_swd(td, f, SET_SWD);
++	swd = zbd_set_swd(td, f);
+ 
+ 	dprint(FD_ZBD, "%s(%s): swd = %" PRIu64 "\n",
+ 	       __func__, f->file_name, swd);
+@@ -1677,7 +1648,6 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ 	zbd_end_zone_io(td, io_u, z);
+ 
+ 	zone_unlock(z);
+-	zbd_check_swd(td, f);
+ }
+ 
+ /*
+@@ -1866,8 +1836,6 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
+ 	    io_u->ddir == DDIR_READ && td->o.read_beyond_wp)
+ 		return io_u_accept;
+ 
+-	zbd_check_swd(td, f);
+-
+ 	zone_lock(td, f, zb);
+ 
+ 	switch (io_u->ddir) {
 -- 
 2.38.1
 
