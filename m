@@ -2,50 +2,50 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEDB7C636D4
-	for <fio@archiver.kernel.org>; Tue,  7 Feb 2023 06:37:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02D42C636CD
+	for <fio@archiver.kernel.org>; Tue,  7 Feb 2023 06:37:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230245AbjBGGhw (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 7 Feb 2023 01:37:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49386 "EHLO
+        id S230248AbjBGGh4 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 7 Feb 2023 01:37:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230248AbjBGGhv (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 Feb 2023 01:37:51 -0500
+        with ESMTP id S230048AbjBGGhz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Feb 2023 01:37:55 -0500
 Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD85A2916C
-        for <fio@vger.kernel.org>; Mon,  6 Feb 2023 22:37:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EA8C2CFDA
+        for <fio@vger.kernel.org>; Mon,  6 Feb 2023 22:37:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1675751869; x=1707287869;
+  t=1675751871; x=1707287871;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=f1Js0lu0XUfEKxPDjXmAZkcRWOnIDk7nWXFRd1mUkS0=;
-  b=cb/qsirjN3GKn5puVRd2dRqyBHZCSpHLuOtgT3gPtS/4Xp1sqwYg+A2N
-   J0uFD9mGcJr2AeKZ1fJYBJwXLROzDiwjyhp0dvdEAxgSZCjuWvnpKCHcv
-   Eo1F5pv01r2HuGekuErQS/GT2QDBwr+QMm0t/4jfmv40Z14rakRvyHh04
-   xcQykCAXT4qPNpdoFeze4UqQ10O90/p7AWnFAdAQjfxv3hZxlMbTvRLD0
-   X02Z0+Y00cnW+qJWj3BOYSnQZbvnbJPsXsLBvzJqyS5KvyFtEpuS8X+yq
-   cS73QIVYrWBzNogqKJC0APjZyOOv26FiLhJNitX0OXh7zcz9HKbnvbjLL
-   A==;
+  bh=g6HnyVyU0H5CjyCKKbk4GmZksiOnr1BF9jI+sGKgARc=;
+  b=LMOYAn+u2yUbeQFAsfoFMapVIffGaUyrlldhEfe30MsHuzSPfseVFzks
+   3H6Ioq60WAtwTfPPtFOqAAagM3SNJ7rxl79PsoSLO6fWUdl1wB8976IGO
+   5UTuBn6W1KI9DCDiP1lrk4dkQJveoroMYHPyC1IGv06lnGpa+Y5RC4Pc7
+   ifkm6I4WtIzf0VoDbXc1AcOUkFUWEILfP5dd4tqf5p28EFVKNLb/Le8b0
+   lWWlpsKDgFwK9e8ZqzbiuniKbSRO4JWHbDsCoy4B2DHhfPRPkSWQe3uYY
+   s3tuig+X8BZYFoyw1OV/XDkm8NNsLIy85ehEo9cQxk7b4L1812oFYvbno
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.97,278,1669046400"; 
-   d="scan'208";a="326982667"
+   d="scan'208";a="326982669"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2023 14:37:49 +0800
-IronPort-SDR: jJ8+H3bKh6HwZNmIjn8SAVR69Gmu2oeUmRXCqmzEYpr8e7lmbBpet3pbhstBDCjmUhR5XiHpUq
- bw4vj98f6WVfhKymU295voXSo0GC50y6EMgnGpb4ThLNgieIF+pGFgAaeAw6iwf2vpN32U5X2u
- XUfSokMHFpuUpbuqUsMsAQDAHQXaAz7KBQadQ5qK0j0cPU1rgIbKpZcPnLKrRFyPKw9eacNMr5
- iqxLMtGbo0F1b24w99ifjPcvw/vu8V6QOkJrGM8hOSImFUzfYt8Cbsxc7uQCo+2QRW08VpwA8J
- OaM=
+  by ob1.hgst.iphmx.com with ESMTP; 07 Feb 2023 14:37:51 +0800
+IronPort-SDR: +EpWjRS3PKh9uRplnUdBz97AX5dW7mfWyUEHSgbBWRn95WYyfMKVD7xN4VG8j/qUWL6yZaW9LI
+ D5hkhy3AI6iAKh8DjR8TA6zdt7UEuR6gijlCIF/QcPkIjX7BDmWpqm71+NFUWseepz7cZSYs/+
+ G7L2YfqB9IKyU9SeuMvjHD51/GNXHWk+kucI2WR8yTExvp4/Z910rx+Rfc+NibBCNy9H8dNHPJ
+ /xW6ikx8kpEkrDPANin0sQo6FfBTtSFbZJMayhW/oGbaRtig5CwqjqcLwrpRL38eAGSP3dkoLy
+ 5O8=
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Feb 2023 21:55:06 -0800
-IronPort-SDR: KvdIsOVPFMplytOYifFKFIAhdHFAIiynXyoqLcXGiyHtvoy/LhZWUYPgna3GWdN+HoKVAyb+JZ
- dmbUuv0YfGs2cFPT3lt0DnBzw4bzYkfe1C4VsilEjFlKM/w3JatVahH0ZNxLkCp0mLLhNKC3AM
- V5jVKY6eYUIfQc4tRKqBbuSk7gIsYxzypIVWmiIb7QJYP/XK3UDtIcaKLRJvDID/mqcCkVxDKw
- FQPDWFVIiUJLEJw+iIa5MBQzFEx6xwBFzP1wYQEk8aypWReyNC6kbblOmLhQnNYZddKDUK4Qyf
- 2cQ=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Feb 2023 21:55:07 -0800
+IronPort-SDR: 1+s/t3nevIGjXyyl/mXhLOaIOPlZmjWxcIGH+aLmPdh//GP6pP1pqquEBsM/mw0LF/uFiY9coc
+ 5we2ZD/jPG9hnpvf6r0Wztfv0YlD3Xgd54PyUoioTViywV61z5AEpLHrkDVaYM/r1zRpB6bvg9
+ yc2r62DguyUXNtwNPU74awd1bCKXl/gMMR9n4+G8cf0MI5rgrS3riXCoqXo/4AiCxXaRNdbqqL
+ kSCiVM527ozVcxfZLfwr1UG4oZ97ycnTmxYWusAuNP2j3DBtnY7yZpAFf5varwiciQydB/4TVh
+ 6S4=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip02.wdc.com with ESMTP; 06 Feb 2023 22:37:48 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 06 Feb 2023 22:37:49 -0800
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 6/8] zbd: check write ranges for zone_reset_threshold option
-Date:   Tue,  7 Feb 2023 15:37:37 +0900
-Message-Id: <20230207063739.1661191-7-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 7/8] zbd: initialize valid data bytes accounting at file set up
+Date:   Tue,  7 Feb 2023 15:37:38 +0900
+Message-Id: <20230207063739.1661191-8-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20230207063739.1661191-1-shinichiro.kawasaki@wdc.com>
 References: <20230207063739.1661191-1-shinichiro.kawasaki@wdc.com>
@@ -65,78 +65,42 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The valid data bytes accounting is used for zone_reset_threshold option.
-This accounting usage has two issues. The first issue is unexpected
-zone reset due to different IO ranges. The valid data bytes accounting
-is done for all IO ranges per device, and shared by all jobs. On the
-other hand, the zone_reset_threshold option is defined as the ratio to
-each job's IO range. When a job refers to the accounting value, it
-includes writes to IO ranges out of the job's IO range. Then zone reset
-is triggered earlier than expected.
+The valid data bytes accounting field is initialized at file reset,
+after each job started. Each job locks zones to check write pointer
+positions of its write target zones. This can cause zone lock contention
+with write by other jobs.
 
-The second issue is accounting value initialization. The initialization
-of the accounting field is repeated for each job, then the value
-initialized by the first job is overwritten by other jobs. This works as
-expected for single job or multiple jobs with same write range. However,
-when multiple jobs have different write ranges, the overwritten value is
-wrong except for the last job.
-
-To ensure that the accounting works as expected for the option, check
-that write ranges of all jobs are same. If jobs have different write
-ranges, report it as an error. Initialize the accounting field only once
-for the first job. All jobs have same write range, then one time
-initialization is enough. Update man page to clarify this limitation of
-the option.
+To avoid the zone lock contention, move the initialization from file
+reset to file set up before job start. It allows to access the write
+pointers and the accounting field without locks. Remove the lock and
+unlock codes which are no longer required. Ensure the locks are not
+required by checking run-state in the struct thread_data.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- HOWTO.rst |  3 ++-
- fio.1     |  3 ++-
- zbd.c     | 22 +++++++++++++++++++---
- zbd.h     |  4 ++++
- 4 files changed, 27 insertions(+), 5 deletions(-)
+ zbd.c | 93 ++++++++++++++++++++++++++++-------------------------------
+ 1 file changed, 44 insertions(+), 49 deletions(-)
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index d08f8a18..c71c3949 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -1088,7 +1088,8 @@ Target file/device
- 	A number between zero and one that indicates the ratio of written bytes
- 	to the total size of the zones with write pointers in the IO range. When
- 	current ratio is above this ratio, zones are reset periodically as
--	:option:`zone_reset_frequency` specifies.
-+	:option:`zone_reset_frequency` specifies. If there are multiple jobs when
-+	using this option, the IO range for all write jobs shall be the same.
- 
- .. option:: zone_reset_frequency=float
- 
-diff --git a/fio.1 b/fio.1
-index 54d2c403..80cd23b5 100644
---- a/fio.1
-+++ b/fio.1
-@@ -857,7 +857,8 @@ value to be larger than the device reported limit. Default: false.
- A number between zero and one that indicates the ratio of written bytes to the
- total size of the zones with write pointers in the IO range. When current ratio
- is above this ratio, zones are reset periodically as \fBzone_reset_frequency\fR
--specifies.
-+specifies. If there are multiple jobs when using this option, the IO range for
-+all write jobs shall be the same.
- .TP
- .BI zone_reset_frequency \fR=\fPfloat
- A number between zero and one that indicates how often a zone reset should be
 diff --git a/zbd.c b/zbd.c
-index 6783acf9..ca6816b9 100644
+index ca6816b9..a464d6df 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -1201,10 +1201,26 @@ static uint64_t zbd_set_vdb(struct thread_data *td, const struct fio_file *f)
- {
- 	struct fio_zone_info *zb, *ze, *z;
- 	uint64_t wp_vdb = 0;
+@@ -1074,6 +1074,44 @@ void zbd_recalc_options_with_zone_granularity(struct thread_data *td)
+ 	}
+ }
+ 
++static uint64_t zbd_set_vdb(struct thread_data *td, const struct fio_file *f)
++{
++	struct fio_zone_info *zb, *ze, *z;
++	uint64_t wp_vdb = 0;
 +	struct zoned_block_device_info *zbdi = f->zbd_info;
- 
- 	if (!accounting_vdb(td, f))
- 		return 0;
- 
++
++	assert(td->runstate < TD_RUNNING);
++	assert(zbdi);
++
++	if (!accounting_vdb(td, f))
++		return 0;
++
 +	if (zbdi->wp_write_min_zone != zbdi->wp_write_max_zone) {
 +		if (zbdi->wp_write_min_zone != f->min_zone ||
 +		    zbdi->wp_write_max_zone != f->max_zone) {
@@ -152,44 +116,106 @@ index 6783acf9..ca6816b9 100644
 +	zbdi->wp_write_min_zone = f->min_zone;
 +	zbdi->wp_write_max_zone = f->max_zone;
 +
++	zb = zbd_get_zone(f, f->min_zone);
++	ze = zbd_get_zone(f, f->max_zone);
++	for (z = zb; z < ze; z++)
++		if (z->has_wp)
++			wp_vdb += z->wp - z->start;
++
++	zbdi->wp_valid_data_bytes = wp_vdb;
++
++	return wp_vdb;
++}
++
+ int zbd_setup_files(struct thread_data *td)
+ {
+ 	struct fio_file *f;
+@@ -1099,6 +1137,7 @@ int zbd_setup_files(struct thread_data *td)
+ 		struct zoned_block_device_info *zbd = f->zbd_info;
+ 		struct fio_zone_info *z;
+ 		int zi;
++		uint64_t vdb;
+ 
+ 		assert(zbd);
+ 
+@@ -1106,6 +1145,11 @@ int zbd_setup_files(struct thread_data *td)
+ 		f->max_zone =
+ 			zbd_offset_to_zone_idx(f, f->file_offset + f->io_size);
+ 
++		vdb = zbd_set_vdb(td, f);
++
++		dprint(FD_ZBD, "%s(%s): valid data bytes = %" PRIu64 "\n",
++		       __func__, f->file_name, vdb);
++
+ 		/*
+ 		 * When all zones in the I/O range are conventional, io_size
+ 		 * can be smaller than zone size, making min_zone the same
+@@ -1197,54 +1241,9 @@ static bool zbd_dec_and_reset_write_cnt(const struct thread_data *td,
+ 	return write_cnt == 0;
+ }
+ 
+-static uint64_t zbd_set_vdb(struct thread_data *td, const struct fio_file *f)
+-{
+-	struct fio_zone_info *zb, *ze, *z;
+-	uint64_t wp_vdb = 0;
+-	struct zoned_block_device_info *zbdi = f->zbd_info;
+-
+-	if (!accounting_vdb(td, f))
+-		return 0;
+-
+-	if (zbdi->wp_write_min_zone != zbdi->wp_write_max_zone) {
+-		if (zbdi->wp_write_min_zone != f->min_zone ||
+-		    zbdi->wp_write_max_zone != f->max_zone) {
+-			td_verror(td, EINVAL,
+-				  "multi-jobs with different write ranges are "
+-				  "not supported with zone_reset_threshold");
+-			log_err("multi-jobs with different write ranges are "
+-				"not supported with zone_reset_threshold\n");
+-		}
+-		return 0;
+-	}
+-
+-	zbdi->wp_write_min_zone = f->min_zone;
+-	zbdi->wp_write_max_zone = f->max_zone;
+-
+-	zb = zbd_get_zone(f, f->min_zone);
+-	ze = zbd_get_zone(f, f->max_zone);
+-	for (z = zb; z < ze; z++) {
+-		if (z->has_wp) {
+-			zone_lock(td, f, z);
+-			wp_vdb += z->wp - z->start;
+-		}
+-	}
+-
+-	pthread_mutex_lock(&zbdi->mutex);
+-	zbdi->wp_valid_data_bytes = wp_vdb;
+-	pthread_mutex_unlock(&zbdi->mutex);
+-
+-	for (z = zb; z < ze; z++)
+-		if (z->has_wp)
+-			zone_unlock(z);
+-
+-	return wp_vdb;
+-}
+-
+ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ {
+ 	struct fio_zone_info *zb, *ze;
+-	uint64_t vdb;
+ 	bool verify_data_left = false;
+ 
+ 	if (!f->zbd_info || !td_write(td))
+@@ -1252,10 +1251,6 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
+ 
  	zb = zbd_get_zone(f, f->min_zone);
  	ze = zbd_get_zone(f, f->max_zone);
- 	for (z = zb; z < ze; z++) {
-@@ -1214,9 +1230,9 @@ static uint64_t zbd_set_vdb(struct thread_data *td, const struct fio_file *f)
- 		}
- 	}
+-	vdb = zbd_set_vdb(td, f);
+-
+-	dprint(FD_ZBD, "%s(%s): valid data bytes = %" PRIu64 "\n",
+-	       __func__, f->file_name, vdb);
  
--	pthread_mutex_lock(&f->zbd_info->mutex);
--	f->zbd_info->wp_valid_data_bytes = wp_vdb;
--	pthread_mutex_unlock(&f->zbd_info->mutex);
-+	pthread_mutex_lock(&zbdi->mutex);
-+	zbdi->wp_valid_data_bytes = wp_vdb;
-+	pthread_mutex_unlock(&zbdi->mutex);
- 
- 	for (z = zb; z < ze; z++)
- 		if (z->has_wp)
-diff --git a/zbd.h b/zbd.h
-index 20b2fe17..d4f81325 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -55,6 +55,8 @@ struct fio_zone_info {
-  *		num_open_zones).
-  * @zone_size: size of a single zone in bytes.
-  * @wp_valid_data_bytes: total size of data in zones with write pointers
-+ * @wp_write_min_zone: Minimum zone index of all job's write ranges. Inclusive.
-+ * @wp_write_max_zone: Maximum zone index of all job's write ranges. Exclusive.
-  * @zone_size_log2: log2 of the zone size in bytes if it is a power of 2 or 0
-  *		if the zone size is not a power of 2.
-  * @nr_zones: number of zones
-@@ -75,6 +77,8 @@ struct zoned_block_device_info {
- 	pthread_mutex_t		mutex;
- 	uint64_t		zone_size;
- 	uint64_t		wp_valid_data_bytes;
-+	uint32_t		wp_write_min_zone;
-+	uint32_t		wp_write_max_zone;
- 	uint32_t		zone_size_log2;
- 	uint32_t		nr_zones;
- 	uint32_t		refcount;
+ 	/*
+ 	 * If data verification is enabled reset the affected zones before
 -- 
 2.38.1
 
