@@ -2,144 +2,141 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1C24C636CC
-	for <fio@archiver.kernel.org>; Thu,  9 Feb 2023 01:00:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 281F9C61DA4
+	for <fio@archiver.kernel.org>; Thu,  9 Feb 2023 07:09:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230449AbjBIBAZ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 8 Feb 2023 20:00:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41422 "EHLO
+        id S229585AbjBIHJM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 9 Feb 2023 02:09:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230430AbjBIBAV (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 8 Feb 2023 20:00:21 -0500
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 720FB23320
-        for <fio@vger.kernel.org>; Wed,  8 Feb 2023 17:00:17 -0800 (PST)
+        with ESMTP id S229457AbjBIHJL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 9 Feb 2023 02:09:11 -0500
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43ABE1B33C
+        for <fio@vger.kernel.org>; Wed,  8 Feb 2023 23:09:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1675904417; x=1707440417;
-  h=message-id:date:mime-version:subject:from:to:cc:
-   references:in-reply-to:content-transfer-encoding;
-  bh=hDLyWv66PkvwHV4SSDoHT7Ux9WYP6lqlzaV7wVpNxAw=;
-  b=q/Iyrj7pGHRxIYV7zNsq4Q1PFtYra41Ii0kToaRBHMfoBbzz+F4jgo6K
-   9XoIJ9iRQITOLsIUeRPnP7q0avbO1vLTXdbFldQfnLsill1FTuBV38YfS
-   L26PqLlSDXjZEvd+pAQjxTsH1xOOjPVDx5sra54ZUsYW5yp6AvZN0xwR0
-   2OfjbzZWfkfDP//AWft5V8lCr8sV/HZiYiLYSKLbmhKB4nRaeaIXyQzZs
-   Y2zO+DJOOCGY2ltxvi4zGn4MRJmAEWNtd3yXmRDMPYzBcZNSNDqLBgnL/
-   /U1zdB6uAcbn1PFF0HbMzQ172XtlF27ShuBJVZxqG2Qhi7Aq38qVuQGF/
-   Q==;
+  t=1675926549; x=1707462549;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=fbFKPS56IMsJiDg+neYaQs97MMeQrEjsEuZDMO41Q4k=;
+  b=LmDkfSzfMtHSf1zLC+assEMWOuQZtMzSJ4PXCRVu2zpH2GAMk0v2UOFp
+   BPLTKB9VDZ7WmGwvEWR6zi3ZBQ/S5JH+0sT6kN75bS1gw2RdPEtCMtfW6
+   dZbTfk6AZjS3x5li/u7wP2ZPOlJJMZuWbWp+x5HDHuA/gkUhyP+aR+t4j
+   3J5q0a/wotyw3vUjAxdfhzIiG7AufTbr5+KAaEchKTk1QIM2CuvDg0uPI
+   NDOU0Y+RtNMuPoW0UVV60ht8Dl1joncdyhsSExW87ZfXIc4GgEAZ6d6yp
+   xYvDj24wKmeTJHwxILTcGX2DjaenctgKlHr0lktGRJheg48wt0QNeVdzP
+   A==;
 X-IronPort-AV: E=Sophos;i="5.97,281,1669046400"; 
-   d="scan'208";a="221169305"
+   d="scan'208";a="334848066"
 Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 09 Feb 2023 09:00:16 +0800
-IronPort-SDR: pORpQyl0RqGauybKt4+s47bUSnlppiQNNE07grvZ59zLbtoI0sRdNOBimfEOo6xmIfUbXoFKvB
- FFAJ4KA5KrlAAt9rqBo0SdRPfltkR56qnL1f5CP54B+QkF+RKqqQns3MDglQpIonvEtZJFkyca
- 4vDa7y06wCURgOAz9L8z3en4MkJe4xjAAuYEmW756UdSmLTCNLM5hzqrXLETJyR7zv3WUDkhNC
- JFyvMfB3D27iDF1IT/GUC6d/HxCOXoHhhGlCOpM9MxGw8P0bCCgQDKPr2QFu4D7SzLdzihQAN2
- ahA=
+  by ob1.hgst.iphmx.com with ESMTP; 09 Feb 2023 15:09:09 +0800
+IronPort-SDR: ukoGGq0JCKsxYpewKa5Rlpq/EJfnTo4W+73wdXIVmnvXnzLxYTXjCjUnnObg4p+tBSLUJ7lDZ3
+ M3nG3Tr3TPfU1h0j7K0AiY6a535QkU2oXmL/j0ZU20yqA9aW+ZkrEUFQT5NikzuMPnw+mMskwT
+ T0gp84an4i7JiZNFG6PVJeMyP6QT8bG8sHV2WJ1/sb1zZ91mdCVw2ps09BigopbjRx5FZ+gOBz
+ brQEtn7obsUXuWV4GWBVwcS6FOLGDMvjaN0JFduKBkBrEPP260Q5y+fI6XfF7DRrNhmUdgZiW6
+ eYs=
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Feb 2023 16:11:46 -0800
-IronPort-SDR: sHq3rUeAU2KyB7Q6eReVECJmfWQXkVMt1+m2bN8u27CBI7g2Bxmn38an/lvVpRK1shMNB5Bd9f
- 2bOcT62x93IFK24Cp4+2VHxRW9vz4q6Yj2RzGbvjpyFUJmcgsKNZdRj6EK5TC+zmAkh5F9chbu
- hD7/F+n0flIevfRzb637Ar/deSFkOIQmBe8i/nyHZpHtvULlZd6wCR3L4Y7mOUT0aAVqANJHuE
- UAqNZF2g5K5FvSz6zMGGhVKjBJSg9oEm9byljtMmbiYG8etEH35ejMo/YLB1qaoZY6L/PkRupV
- GmU=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Feb 2023 22:20:39 -0800
+IronPort-SDR: faMNlYjXz5i1NegYjEvkMKyXpefqaBO9wa1Htvlndk8N/k8+PcuY3OsshkhHTsA0uEo6+hMHcd
+ Mw9laFSgyAcjVOz39TRo986JQGimEms3AMJurETp278eXsopHZ9TfuQzV3Ten08rbehvBVp5YB
+ 8xxDmuUXwkEAfgOYac/G82VXbbx4lRXUGnnuvgeimOJ36dZg3VbvenUKX2XksB+TfP4e3JXTQ9
+ IuUfKk2LAyBqCVEjgAckyIZK4J+P2HOfmclOowUFF3p7Hq7i0rO3aTM6EdWyg/U+czSlClVd1j
+ kJ8=
 WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Feb 2023 17:00:17 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4PBz74323hz1Rwrq
-        for <fio@vger.kernel.org>; Wed,  8 Feb 2023 17:00:16 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:references:to:from:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1675904415; x=1678496416; bh=hDLyWv66PkvwHV4SSDoHT7Ux9WYP6lqlzaV
-        7wVpNxAw=; b=W5ypeBFqRuGdmwF4+J62A2MzkViZadgLe8wPz79KUbqDWxrp9hj
-        eCDlZdQbTUgL5z4vfzb0+oYlBuIblITWEaQf1zwZFCrREmKfIcQgVxdw6in7HCCc
-        1DeFH3XUvuzDophHlqFYI7BEYxdkU2h9ewcpUchzaNkQ/Jpa0qal+z5pwlILptKi
-        6VFsgte5WGP6FxUoai2vfqyygZal8zFuHp4LUSguuIyArW8aXTU91341QQV82aDv
-        L1asQSrvcIXtiCLot3+3i3+QeiketcZKItneuA28ZGnlRDzxtL0XA++rpQk+K/lG
-        2ypk9/WKrFjF46QI3b/LfpssQlPHzEpGjRw==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id naSZxkS4ruXG for <fio@vger.kernel.org>;
-        Wed,  8 Feb 2023 17:00:15 -0800 (PST)
-Received: from [10.225.163.102] (unknown [10.225.163.102])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4PBz7256nzz1RvLy;
-        Wed,  8 Feb 2023 17:00:14 -0800 (PST)
-Message-ID: <572794b4-ebf2-bacb-55d9-4d13f6ec0514@opensource.wdc.com>
-Date:   Thu, 9 Feb 2023 10:00:13 +0900
+Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
+  by uls-op-cesaip01.wdc.com with ESMTP; 08 Feb 2023 23:09:08 -0800
+From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Vincent Fu <vincentfu@gmail.com>
+Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v3 0/8] zbd: fix 'sectors with data' and zone_reset_threshold accounting issues
+Date:   Thu,  9 Feb 2023 16:08:59 +0900
+Message-Id: <20230209070907.1733138-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH] fio: add nvme fdp support for io_uring_cmd engine
-Content-Language: en-US
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-To:     Keith Busch <kbusch@meta.com>, fio@vger.kernel.org, axboe@kernel.dk
-Cc:     its@irrelevant.dk, Keith Busch <kbusch@kernel.org>,
-        Ankit Kumar <ankit.kumar@samsung.com>
-References: <20230208222023.895024-1-kbusch@meta.com>
- <29a27af4-f74a-5e80-f1f0-41fcd4fb6d4f@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <29a27af4-f74a-5e80-f1f0-41fcd4fb6d4f@opensource.wdc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 2/9/23 09:59, Damien Le Moal wrote:
-> On 2/9/23 07:20, Keith Busch wrote:
->> From: Keith Busch <kbusch@kernel.org>
->>
->> NVMe TP4146 creates a new feature called Flexible Data Placement. This
->> feature allows a host to tell the device how to group write data through
->> the use of "Placement Identifiers" in write commands.
->>
->> Add support for using placement identifiers in write commands. The user
->> can enabled this with the new "fdp=1" parameter for fio's io_uring_cmd
->> ioengine. By default, the fio jobs will cycle through all the namespace's
->> available placement identifiers for write commands. The user can limit
->> which placement identifiers can be used with additional parameter,
->> "fdp_plis=<list,>", which can be used to separate write intensive jobs
->> from less intenstive ones.
->>
->> Setting up your namespace for FDP is outside the scope of 'fio', so this
->> assumes the namespace is already properly configured for the mode.
->>
->> Based-on-a-patch-by: Ankit Kumar <ankit.kumar@samsung.com>
->> Signed-off-by: Keith Busch <kbusch@kernel.org>
-> 
-> [...]
+When zonemode=zbd is specified, fio does 'sectors with data' accounting to
+record the total number of sectors that have been written on a zoned block
+device. This accounting has issues as follows:
 
->> diff --git a/file.h b/file.h
->> index da1b8947..deb36e02 100644
->> --- a/file.h
->> +++ b/file.h
->> @@ -12,6 +12,7 @@
->>  
->>  /* Forward declarations */
->>  struct zoned_block_device_info;
->> +struct fdp_ruh_info;
->>  
->>  /*
->>   * The type of object we are working on
->> @@ -101,6 +102,8 @@ struct fio_file {
->>  	uint64_t file_offset;
->>  	uint64_t io_size;
->>  
->> +	struct fio_ruhs_info *ruhs_info;
-> 
-> white line before declaration can be removed I think.
+Issue 1)
+   The name 'sectors with data' indicates that the accounting uses 'sector' as
+   the unit. However, it is implemented using 'byte' as the unit.
 
-My bad. This is not a function :)
+Issue 2)
+   The accounting does not work correctly when multi-jobs with different IO
+   ranges due to two reasons. One reason is the accounting field initialization.
+   The accounting field is shared across all jobs, but it is initialized
+   repeatedly by all jobs. This results in wrong behaviors except the last job.
+   The second reason is definition difference between the zone_reset_threshold
+   option and the accounting. The option is defined as the ratio of valid
+   written data to the IO range of each job. However, the accounting is done
+   per device and shared across all jobs. This coverage gap between each job's
+   IO range and the accounting range causes unexpected zone reset.
 
+Issue 3)
+   Counting the total number of written sectors requires taking the zone lock of
+   all zones in a job IO range. For a multi-job workload with overlapping IO
+   ranges, this often leads to significant zone lock contention, resulting in
+   some jobs starting IOs only after other jobs have completed their work
+   (which looks like an apparent deadlock on startup).
+
+This series addresses the issues with solutions as follows:
+
+For Issue 1)
+   Rephrase variables, comments and man pages to indicate that the accounting
+   unit is not sector. -> 3rd and 4th patches
+
+For Issue 2)
+   Limit the condition of the accounting to ensure correct accounting. Do the
+   accounting only when the zone_reset_threshold option is specified and all
+   write jobs have the same IO range. Initialize the accounting field only once
+   for the 1st job. -> 5th and 6th patches
+
+For Issue 3)
+   Move the total valid bytes counting code from "file reset" after job start
+   to "file set up" before job start. This allows to count without zone locks,
+   then avoids the lock contention. -> 7th patch
+
+The first two patches are preparation patches to reduce references to the
+'sectors with data' accounting field. The last 8th patch adds test cases for the
+zone_reset_threshold option.
+
+Changes from v2:
+* 4th patch: rephrased to cover the case that IO range has conventional zones
+* 6th patch: added a check to ensure f->min_zone and f->max_zones are different
+* 7th patch: renamed zbd_set_vdb() to zbd_verify_and_set_vdb()
+* Reflected other comments on the list and added Reviewed-by tags
+
+Changes from v1:
+* Reworked not to change the definition of the zone_reset_threshold option
+* Separated the patch to remove CHECK_SWD (or CHECK_VDB) to clarify the removal
+
+Shin'ichiro Kawasaki (8):
+  zbd: refer file->last_start[] instead of sectors with data accounting
+  zbd: remove CHECK_SWD feature
+  zbd: rename the accounting 'sectors with data' to 'valid data bytes'
+  doc: fix unit of zone_reset_threshold and relation to other option
+  zbd: account valid data bytes only for zone_reset_threshold option
+  zbd: check write ranges for zone_reset_threshold option
+  zbd: initialize valid data bytes accounting at file setup
+  t/zbd: add test cases for zone_reset_threshold option
+
+ HOWTO.rst              |   9 ++-
+ fio.1                  |   8 ++-
+ t/zbd/test-zbd-support |  60 ++++++++++++++++-
+ zbd.c                  | 149 +++++++++++++++++++----------------------
+ zbd.h                  |  11 +--
+ 5 files changed, 145 insertions(+), 92 deletions(-)
 
 -- 
-Damien Le Moal
-Western Digital Research
+2.38.1
 
