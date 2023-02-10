@@ -2,126 +2,131 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB317C636CD
-	for <fio@archiver.kernel.org>; Fri, 10 Feb 2023 08:16:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E57D7C05027
+	for <fio@archiver.kernel.org>; Fri, 10 Feb 2023 11:57:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230510AbjBJIQi (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 10 Feb 2023 03:16:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60376 "EHLO
+        id S231744AbjBJL56 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 10 Feb 2023 06:57:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230359AbjBJIQh (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 10 Feb 2023 03:16:37 -0500
-Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92066B46F
-        for <fio@vger.kernel.org>; Fri, 10 Feb 2023 00:16:35 -0800 (PST)
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.nyi.internal (Postfix) with ESMTP id F09985C010E;
-        Fri, 10 Feb 2023 03:16:34 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Fri, 10 Feb 2023 03:16:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=irrelevant.dk;
-         h=cc:cc:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm3; t=1676016994; x=1676103394; bh=nY
-        NAuglR6aMTeioTesP0Eo0KEC8ihN/iCl5u4Sg3xXM=; b=DO/5HgRaC2suprX/PS
-        vupmkl2KUKoWxzjtTHcvkMtalpN9rTDc1E2LuFaK4LzXFdtX0xyHlxZzKPCONhi8
-        MtsgvExQ6miHHjtD53F2ToxcxjatE9YHEc2C/0y6wqDnSuStd18lU7GkOPiJ54O8
-        jY/26FVM5NoQle48n3Og/UXzfDY2MsKMQgxROVlVaXowIq4uPUHPPYvlhJ3Z8ZoB
-        gKc2AqUhQW3+7oZxJG0imGDG11RahmTOZLpyeLOsSbf7CHvRAPO2Gj1tKsw8Lcwa
-        gizi/Qo/YFwQ9NveelN7jmk7oueB1BNh3f7Z4n0wgZ2IhOv/mN7f/gUr4ZoXyUmx
-        TIqQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1676016994; x=1676103394; bh=nYNAuglR6aMTeioTesP0Eo0KEC8i
-        hN/iCl5u4Sg3xXM=; b=l4TGZFqJyT+vyjih0eAxIVRj48c+j5A7x/A4MbyPHCD7
-        3d6Y9gi4088BIKklppaWIdk14vpsSM3tIV7Ubp2XsBARCr+0EhBgEcU37PE5XsHe
-        RGJjCI9Fg8DF1pOM9RunGFPfQ0dQsV/qTzvulsbNaMvFIltJtUjYdeBje09vAVU/
-        HKjPUOyHM5ImmkDICmOokcCTVRlqg5A9BlyQYMi4EZhE0ANWR5UrzFWjKzHThaE/
-        Dv4+Zwkso9uIZxtz/6FbG6OU5NTgQ8x4F7JfuacaiyTT5f9SqmW1PNST21C88VnS
-        sOfPpRBEmT/WNmTFRvIgCyWg4P/OG1dX2Iwja8kZSQ==
-X-ME-Sender: <xms:Yf3lY0XRdQM-UexdjT_Xl4KAwxE6zQjR4UcPvTv2ouSkmumfpiI-1g>
-    <xme:Yf3lY4k0wFz9U3wm98n5MLwcPAjo9hKSJfcCmft706stl9h7L0P0iOaAejpTFSsKb
-    Ovh8wR1hbAmae9RiLU>
-X-ME-Received: <xmr:Yf3lY4bMtWDhSxJd7_nmCJxHUf3Jg5OdXrXkHubWe9pgQiR-p7VKfaeYfIGK1kDutYU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudehgedguddugecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvvefukfhfgggtuggjsehgtderredttdejnecuhfhrohhmpefmlhgr
-    uhhsucflvghnshgvnhcuoehithhssehirhhrvghlvghvrghnthdrughkqeenucggtffrrg
-    htthgvrhhnpeejgfejfeffvdeuhfeifefhgffgueelhedukeevjeevtdduudegieegteff
-    ffejveenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hithhssehirhhrvghlvghvrghnthdrughk
-X-ME-Proxy: <xmx:Yf3lYzXlk4ebdlH3Ctx6tUBRxaXD7qKzYkNLhDOXeZuOKdVG7ItvGw>
-    <xmx:Yf3lY-n5BRnC3kbtYGtTeHFfEMunY8f4HaQmYFXvGZzoBTDmIzjV-A>
-    <xmx:Yf3lY4daxfcdYgkOuopKIiqtedl21wK1yVcz70u6BJgX1H3u79XNgw>
-    <xmx:Yv3lY8YRPiskkZsXBpnJXbV4QsZn7kOJ4OW5Yp_d4UZ-3I1-a4bDng>
-Feedback-ID: idc91472f:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 10 Feb 2023 03:16:32 -0500 (EST)
-Date:   Fri, 10 Feb 2023 09:16:29 +0100
-From:   Klaus Jensen <its@irrelevant.dk>
-To:     Keith Busch <kbusch@meta.com>
-Cc:     fio@vger.kernel.org, axboe@kernel.dk,
-        damien.lemoal@opensource.wdc.com, vincentfu@gmail.com,
-        Keith Busch <kbusch@kernel.org>,
-        Ankit Kumar <ankit.kumar@samsung.com>
-Subject: Re: [PATCHv2] fio: add fdp support for io_uring_cmd nvme engine
-Message-ID: <Y+X9XZjsdwz9GpLM@cormorant.local>
-References: <20230209171236.1113887-1-kbusch@meta.com>
+        with ESMTP id S231400AbjBJL55 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 10 Feb 2023 06:57:57 -0500
+Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F5D34035
+        for <fio@vger.kernel.org>; Fri, 10 Feb 2023 03:57:56 -0800 (PST)
+Received: by mail-yb1-xb30.google.com with SMTP id q9so6083852ybk.2
+        for <fio@vger.kernel.org>; Fri, 10 Feb 2023 03:57:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=FnforvsmGAqGxMVNWzWUtR46tPvuwhgmzL+FyYWknKI=;
+        b=H4Q22YJ8gQm8SaY+Xopg2SlOUGUtY4ir9PkvqDuhaYS3+DpchhbQT6n+Fwf/yFtRnF
+         04/oan25W/aQqGI9vvG4tJ03m0v/fG8mr9W22aGyq/g0kwiTdBW2XPc1YhJ5bo/ppk5N
+         UNDlaDqhIxpJ/hA1u5EuMPeuLaQCdlCGC3Bk/GyNsBsWk8/OtXrV0uWezwXFPqafCuHo
+         OOaBIumIFTgwv/2iiQG1c3WItduKOfh32hD30kstjZEgXEuUDHkDtU+uz5UYe6KaUrA1
+         8S8wBaO1qFQz09QTxEPbaU7ijbTIU/QwAO/XlwuqWW/eseYCarEkdPODTUS9r6hdqDZm
+         wcTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FnforvsmGAqGxMVNWzWUtR46tPvuwhgmzL+FyYWknKI=;
+        b=UiWLKHPgYZ7EGocN8j2MGnH6VtOKA2KoUs0IakRA/GJ0ydgxzYZ6aHz+U1bhH41SeP
+         dBWg9xa3vAR49NiqgEsxkyePga++1V+mAniCbcCnNsBj4/JZjHZ2bfgojdXjtYcJyESN
+         CqWeAMHRbWhGmmTmelvQmnwlCeH48avX2c0RSaSoYSoI4b3ZQPLEPCwUmk30mn5E6mNP
+         XusEeUSmUhhQx/+VFTvUMrtn19+fhyBM3xhG5lUfhQzyZEOZvo4FbBmUA0UWvzX9DO9H
+         9MSD1RjFfWYYKUQN4tKQnKyrJ5DjJylp6pgZbLIA/UqKN+8dyQgPtuWiOSoWKXnO/BC7
+         KeaQ==
+X-Gm-Message-State: AO0yUKUOeS8ZFww1tdllC/w5y6AdMX/TI3dAM53GMWkVzflc7PICATFa
+        1LvlV+dStAlY9Q1R5ZzBkL1IPo6+/6rpKKuB3WoNOwNv
+X-Google-Smtp-Source: AK7set8f4hQN5gpG7Zf/PZgWfilNf+/ToW5/AqLNwO/ATuZgtGG5H4bxJ5bgp8ISXLQbT7dZQtLrr1vrNFi3/zxQUvc=
+X-Received: by 2002:a5b:cc9:0:b0:8a7:4685:a263 with SMTP id
+ e9-20020a5b0cc9000000b008a74685a263mr1573560ybr.125.1676030275785; Fri, 10
+ Feb 2023 03:57:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="MJ56EODp08zdY1FH"
-Content-Disposition: inline
-In-Reply-To: <20230209171236.1113887-1-kbusch@meta.com>
+References: <CGME20230209144042epcas5p4ede6ce94dee46af4d4452cfd3ce7e6e6@epcas5p4.samsung.com>
+ <20230209144004.15298-1-ankit.kumar@samsung.com>
+In-Reply-To: <20230209144004.15298-1-ankit.kumar@samsung.com>
+From:   Ankit Kumar <ankit1455@gmail.com>
+Date:   Fri, 10 Feb 2023 17:27:03 +0530
+Message-ID: <CAKi7+wfN_5KqFvPuxWY8Y-Z23R5GQQipeKfetfwo_GBy2Lx5Gg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] fdp support in fio
+To:     Ankit Kumar <ankit.kumar@samsung.com>
+Cc:     axboe@kernel.dk, kbusch@kernel.org, fio@vger.kernel.org,
+        vincentfu@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
+Kindly ignore this, will send incremental change once the existing
+series from Keith gets merged.
 
---MJ56EODp08zdY1FH
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regards
+Ankit Kumar
 
-On Feb  9 09:12, Keith Busch wrote:
-> From: Keith Busch <kbusch@kernel.org>
->=20
-> Add support for NVMe TP4146 Flexible Data Placemen, allowing placement
-> identifiers in write commands. The user can enabled this with the new
-> "fdp=3D1" parameter for fio's io_uring_cmd ioengine. By default, the fio
-> jobs will cycle through all the namespace's available placement
-> identifiers for write commands.
 
-Technically, the namespace has Placement *Handles* associated and when
-writing, a Placement *Identifier* is used to also specify the Reclaim
-Group.
-
-> The user can limit which placement
-> identifiers can be used with additional parameter, "fdp_plis=3D<list,>",
-> which can be used to separate write intensive jobs from less intensive
-> ones.
-
-With the above in mind, it might make sense to align with the spec and
-call this "fdp_pids" instead. As far as I can tell, fio won't cycle
-through reclaim groups and create the pid on its own, without fdp_plis
-explicitly indicating it?
-
---MJ56EODp08zdY1FH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEUigzqnXi3OaiR2bATeGvMW1PDekFAmPl/VwACgkQTeGvMW1P
-Dek0EQf9HDNbbCbIjBe9Llg6h6CGMX0aM7QqTxpmQweeIXcJz7Wr9L8b17MtEH/e
-L43vQ0Oa+I62QIpIgJsgUl9q/6+Nw0ANJBLXHfF0CGkmLkYC90Vn/bXuCEwZWjQE
-h733JgCIzSOuYjQyGW1qzf6TPXxjh9RyFDbAOH8B+93h5ecaXInVCcliYqJWEedG
-c0P+nWTdjsHfKJl80cY+2p4CtODVEyLwzpOOvO8xVyNTfdE3TuCMZ+Z1KjoaemLf
-0iPhxESTd1SwqIXdkc85/AwhYJSdsoLzj2CPX4TG7EleTTnCxkG/F73j8LpAc4gr
-0cedZxN61nDAvBuSUtHAZ6p2ZDIS9g==
-=QDmk
------END PGP SIGNATURE-----
-
---MJ56EODp08zdY1FH--
+On Fri, Feb 10, 2023 at 10:19 AM Ankit Kumar <ankit.kumar@samsung.com> wrote:
+>
+> NVMe TP4146 creates a new feature called Flexible Data Placement. This
+> feature allows a host to tell the device how to group write data through
+> the use of "Placement Identifiers" in write commands.
+>
+> Add support for using placement identifiers in write commands. The user
+> can enabled this with the new "fdp=1" parameter for fio's io_uring_cmd
+> ioengine. By default, the fio jobs will cycle through all the namespace's
+> available placement identifiers for write commands. The user can limit
+> which placement identifiers can be used with additional parameter,
+> "fdp_pli=<list,>", which can be used to separate write intensive jobs
+> from less intenstive ones.
+>
+> Setting up your namespace for FDP is outside the scope of 'fio', so this
+> assumes the namespace is already properly configured for the mode.
+>
+> v2 -> v1
+> 1. Enhance fdp support check. Check if get feature fdp has fdp
+> configuration enabled. Use the fdp config index to determine the
+> reclaim unit size. This will be handy when we update the fdp backend
+> to write in different fashion.
+> 2. fetch ruhs info, can even work for more than 1024 reclaim unit
+> handle descripotors. We just need to query io mangement recv command
+> twice.
+> 3. Add the missing fdp backend.
+> 4. Update man page for the new options.
+>
+> Note: I have purposefully left out Signed-off-by tag (Keith's and mine).
+> Feedback is appreciated.
+>
+> Ankit Kumar (3):
+>   fio/fdp: add fdp support to fio
+>   engines/io_uring: add fdp support for io_uring_cmd engine
+>   example: add fdp example for uring_cmd engine
+>
+>  HOWTO.rst                  |  14 +++
+>  Makefile                   |   2 +-
+>  engines/io_uring.c         |  15 +++
+>  engines/nvme.c             | 224 ++++++++++++++++++++++++++++++++++++-
+>  engines/nvme.h             |  74 ++++++++++++
+>  examples/uring-cmd-fdp.fio |  37 ++++++
+>  fdp.c                      | 219 ++++++++++++++++++++++++++++++++++++
+>  fdp.h                      |  25 +++++
+>  file.h                     |   3 +
+>  filesetup.c                |   7 ++
+>  fio.1                      |  12 ++
+>  fio.h                      |   2 +
+>  init.c                     |   1 +
+>  io_u.c                     |   3 +
+>  io_u.h                     |   3 +
+>  ioengines.h                |   7 +-
+>  options.c                  |  49 ++++++++
+>  thread_options.h           |   8 ++
+>  18 files changed, 702 insertions(+), 3 deletions(-)
+>  create mode 100644 examples/uring-cmd-fdp.fio
+>  create mode 100644 fdp.c
+>  create mode 100644 fdp.h
+>
+> --
+> 2.17.1
+>
