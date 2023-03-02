@@ -2,88 +2,84 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B45EC6FA9D
-	for <fio@archiver.kernel.org>; Wed,  1 Mar 2023 16:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA037C678D4
+	for <fio@archiver.kernel.org>; Thu,  2 Mar 2023 09:50:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbjCAQQg (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 1 Mar 2023 11:16:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37028 "EHLO
+        id S230206AbjCBJuL (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 2 Mar 2023 04:50:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229620AbjCAQQf (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 1 Mar 2023 11:16:35 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E09457C0
-        for <fio@vger.kernel.org>; Wed,  1 Mar 2023 08:16:34 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id h11so2074901wrm.5
-        for <fio@vger.kernel.org>; Wed, 01 Mar 2023 08:16:34 -0800 (PST)
+        with ESMTP id S230288AbjCBJti (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 2 Mar 2023 04:49:38 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2284E22A0E
+        for <fio@vger.kernel.org>; Thu,  2 Mar 2023 01:49:37 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id d30so65217815eda.4
+        for <fio@vger.kernel.org>; Thu, 02 Mar 2023 01:49:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:subject:from:to:user-agent:mime-version
+        h=content-transfer-encoding:to:subject:from:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=39bDRNo7Wc09exBJ/yMxD8FqXo/2aTySYhQkWsDqlAE=;
-        b=Kgu9ChttcLMvLr98MduyKvSu+8LAysGnj97+ludErayzfK1F2JXvHHh2Wj5NVmhp+R
-         /j+l+ufXrcUAPpF96WNFaFLIg/27bL9TRDVFi1uPWnVM+NGFhFWl/dmlMZnVn6+018/T
-         iwhqd6smBgfAi1C6KiGLC0bBlqELW3NbxkjpiL0BKSAy/4sFcxx6mCUFNJJflOnDNe9f
-         omPo6ahEfhuLxla7Rj5/JuLSI3v6GtuaXUqbbE9ydwXDs6y/oS+sSlv+w2DsJoFRJRtl
-         J+ehkdb6qNARjNTe0OHC7F7WFhLqZABcMlPWpJ8P+/Oem20dT+rxQYxMBjBMccFZDMAm
-         3GrQ==
+        bh=el1dVetnn4Oefbot2LqS0MoBMz0fFN2//6st4qr4ysk=;
+        b=NcewgMG5BJ3P0wDrn7BHuLxuPuOl2ifOQziJcdPX1kaiHYKrGJA5JxWezEYmCTRG5m
+         su+OFJ16mU91MvmZJICc8WspxB46tWQOgxeUVWNdm9Hga+oOP8hS6fN1gR/lW5qmDTL3
+         va9Uxn37AxgzcEhKAxuAcMsB9lBBeemuA4wadj2vmg2Ol3XHrZ5nvTtesEHJX40jlhBd
+         nTv5LDwb191qPW7jWG5iCx0w6plIVu7+JwkwujM3wicWWx6RiAAbUvkPjZZsZJuf7uQt
+         ti2o3CDgI0iFRhNdYMhvMrRLPQYNsuypDl1CNNOjfRRDV6JnrOIxxk/Wst/xvqUGR/Yq
+         mKSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:subject:from:to:user-agent:mime-version
+        h=content-transfer-encoding:to:subject:from:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=39bDRNo7Wc09exBJ/yMxD8FqXo/2aTySYhQkWsDqlAE=;
-        b=b02I2sFIRjSoPQrP+DqQB171MVFQDX+WLAi74SBU5NZeS31FoJ9G9XmM/9lxw32a4c
-         gHvrWh/Ogg/yjU1WHNQOrGwThiVrB0vjxGuRrbMbRY4SGMVYz0p19T118n1thOUWQbEO
-         kfjvcugSamDuhzaATONwvZjHvyf66wdEj6xvWHqptesTiVUkbxLVWgoQMD4CwSgM80qp
-         urn59VPShlIX+SWhc2XvCewJa8JvZ/IHN1ZWErdmycgb/ThNEycJ5eNp9O5POT069AIQ
-         IQooN9rAwckplEU1wuTlTKXWrdLL9LMNxFd/+PLO+XchRB7klHVWy4qCCrGyTkiIkD9R
-         lasA==
-X-Gm-Message-State: AO0yUKXBaHTwPrtwZGZn4gmHNTYfZu72aahbcnHM5fO3le6wfA/cnyKS
-        nAlV2ejtA4ZXbH7DbNKQKo4zRAaUeTKfYw==
-X-Google-Smtp-Source: AK7set9bA9sadI3S30pXMjU9pErJ7PS8CEjGIezafBsy1QTJ0XHBipsikpoJnkuyyuDMT1UFkhdeww==
-X-Received: by 2002:a05:6000:106:b0:2c9:993a:f4db with SMTP id o6-20020a056000010600b002c9993af4dbmr5900918wrx.7.1677687392664;
-        Wed, 01 Mar 2023 08:16:32 -0800 (PST)
-Received: from [10.65.149.89] ([165.1.187.221])
-        by smtp.gmail.com with ESMTPSA id u5-20020a5d6ac5000000b002c5a1bd5280sm12845301wrw.95.2023.03.01.08.16.32
+        bh=el1dVetnn4Oefbot2LqS0MoBMz0fFN2//6st4qr4ysk=;
+        b=1I1JzWvrqIHQ72gWFkbgiIGSxUln9Wod8u5dbGCntkwd+hSzmqQo0d9t4OyB/Eup8t
+         S2++zTQNWaVH9Zxj43flXxFf4+y1TgtqqXLYvC74NaMKFSIEtbOrGkohakSPTKO/WeVO
+         BCYfv4sJFJlPePtpq5KlkakS3Ys7ns2QKJzOT/OHJQASOF2D1snmk4DNuRIjEkvYeGnH
+         lPUOFEoq4h3OXKrDVoVUlZidihAjhtrZwaw5FPKimBwL2zKe1dO+VeIq3YGASJ3rFs5q
+         rpl8AqC4FygvkWbFFNhTQZb0uE3+rXmxdZOjB0TVojgLeHTR+Ljm3/GkQSjp/HY+48Yq
+         1HJQ==
+X-Gm-Message-State: AO0yUKW3TA3ymm2KKbGY4AMhwNkTj7THE3AfTc3GsZ66BLQM7VZyzEEH
+        VCH7X+kuH7CZUO+tiM1nM/dTzyd2YH4=
+X-Google-Smtp-Source: AK7set93Y0BdmK6jaDXsyV9lqpEXS6b/LAhlazgh8XyUlGikV7zEXbFe6kgHfCyEw3YaoEU6ylxvFg==
+X-Received: by 2002:a17:906:aadb:b0:905:a46b:a725 with SMTP id kt27-20020a170906aadb00b00905a46ba725mr1384264ejb.16.1677750575640;
+        Thu, 02 Mar 2023 01:49:35 -0800 (PST)
+Received: from [10.88.133.44] ([193.16.224.12])
+        by smtp.gmail.com with ESMTPSA id rs9-20020a170907036900b008d21431e705sm6778854ejb.84.2023.03.02.01.49.35
         for <fio@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 01 Mar 2023 08:16:32 -0800 (PST)
-Message-ID: <40cbe297-f8ed-f4a1-b60a-f4aa2adef995@gmail.com>
-Date:   Wed, 1 Mar 2023 17:16:31 +0100
+        Thu, 02 Mar 2023 01:49:35 -0800 (PST)
+Message-ID: <3dfe5c3e-7555-1ad3-bb4c-0116efe4d275@gmail.com>
+Date:   Thu, 2 Mar 2023 10:49:34 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.8.0
+From:   74cmonty@gmail.com
+Subject: Using fio with adjusted parameters for use case "DB"
 To:     fio@vger.kernel.org
-From:   Thomas Schneider <74cmonty@gmail.com>
-Subject: Using fio with adjusted parameters for use case "Hana DB"
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hello Vincent,
+Hello,
 
-I'm starting evaluating usage of fio <https://github.com/axboe/fio>.
+I want to benchmark different storage devices with an I/O workload 
+generated by the "real" application: DB.
 
-My goal is to benchmark different storage device types, e.g. SSD and 
-shared storage, that is close to the I/O workload generated by the 
-"real" application: Hana DB.
+A typcial command could be:
+fio --name=random-writers --ioengine=libaio --iodepth=4 --rw=randwrite 
+--bs=1024 --direct=1 --size=64m --numjobs=2 runtime=120s
 
-But before defining this "application related benchmark" I would run a 
-generic benchmark first that gives an idea of the IO performance of the 
-relevant storage device; this generic benchmark is using options that 
-are well known to deliver meaningful results with an acceptable (short) 
-runtime.
-
-The idea behind this strategy is:
-If the generic benchmark already indicates poor IO performance, there's 
-no need to execute another benchmark that simulates the "real" application.
-
-Could you please share some information of this generic benchmark(s) for 
-devices SSD, RAID and NFS share (e.g. NetApp, EMC)?
+The question is regarding parameters size and runtime:
+- What value should be used for size? Should this be the same as 
+allocated disk space by DB data files? Or just a (reasonable) portion of 
+this? DB data files could be up to n TB.
+- Is it advisable to use runtime? If yes, would this somehow contradict 
+to size, means if I use a larger size, then runtime is obviously longer.
 
 
 Regards
 Thomas
+
