@@ -2,84 +2,80 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA037C678D4
-	for <fio@archiver.kernel.org>; Thu,  2 Mar 2023 09:50:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87EF5C678D4
+	for <fio@archiver.kernel.org>; Fri,  3 Mar 2023 13:00:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230206AbjCBJuL (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 2 Mar 2023 04:50:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58206 "EHLO
+        id S230334AbjCCNAT (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 3 Mar 2023 08:00:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230288AbjCBJti (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 2 Mar 2023 04:49:38 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2284E22A0E
-        for <fio@vger.kernel.org>; Thu,  2 Mar 2023 01:49:37 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id d30so65217815eda.4
-        for <fio@vger.kernel.org>; Thu, 02 Mar 2023 01:49:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:from:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=el1dVetnn4Oefbot2LqS0MoBMz0fFN2//6st4qr4ysk=;
-        b=NcewgMG5BJ3P0wDrn7BHuLxuPuOl2ifOQziJcdPX1kaiHYKrGJA5JxWezEYmCTRG5m
-         su+OFJ16mU91MvmZJICc8WspxB46tWQOgxeUVWNdm9Hga+oOP8hS6fN1gR/lW5qmDTL3
-         va9Uxn37AxgzcEhKAxuAcMsB9lBBeemuA4wadj2vmg2Ol3XHrZ5nvTtesEHJX40jlhBd
-         nTv5LDwb191qPW7jWG5iCx0w6plIVu7+JwkwujM3wicWWx6RiAAbUvkPjZZsZJuf7uQt
-         ti2o3CDgI0iFRhNdYMhvMrRLPQYNsuypDl1CNNOjfRRDV6JnrOIxxk/Wst/xvqUGR/Yq
-         mKSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:from:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=el1dVetnn4Oefbot2LqS0MoBMz0fFN2//6st4qr4ysk=;
-        b=1I1JzWvrqIHQ72gWFkbgiIGSxUln9Wod8u5dbGCntkwd+hSzmqQo0d9t4OyB/Eup8t
-         S2++zTQNWaVH9Zxj43flXxFf4+y1TgtqqXLYvC74NaMKFSIEtbOrGkohakSPTKO/WeVO
-         BCYfv4sJFJlPePtpq5KlkakS3Ys7ns2QKJzOT/OHJQASOF2D1snmk4DNuRIjEkvYeGnH
-         lPUOFEoq4h3OXKrDVoVUlZidihAjhtrZwaw5FPKimBwL2zKe1dO+VeIq3YGASJ3rFs5q
-         rpl8AqC4FygvkWbFFNhTQZb0uE3+rXmxdZOjB0TVojgLeHTR+Ljm3/GkQSjp/HY+48Yq
-         1HJQ==
-X-Gm-Message-State: AO0yUKW3TA3ymm2KKbGY4AMhwNkTj7THE3AfTc3GsZ66BLQM7VZyzEEH
-        VCH7X+kuH7CZUO+tiM1nM/dTzyd2YH4=
-X-Google-Smtp-Source: AK7set93Y0BdmK6jaDXsyV9lqpEXS6b/LAhlazgh8XyUlGikV7zEXbFe6kgHfCyEw3YaoEU6ylxvFg==
-X-Received: by 2002:a17:906:aadb:b0:905:a46b:a725 with SMTP id kt27-20020a170906aadb00b00905a46ba725mr1384264ejb.16.1677750575640;
-        Thu, 02 Mar 2023 01:49:35 -0800 (PST)
-Received: from [10.88.133.44] ([193.16.224.12])
-        by smtp.gmail.com with ESMTPSA id rs9-20020a170907036900b008d21431e705sm6778854ejb.84.2023.03.02.01.49.35
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Mar 2023 01:49:35 -0800 (PST)
-Message-ID: <3dfe5c3e-7555-1ad3-bb4c-0116efe4d275@gmail.com>
-Date:   Thu, 2 Mar 2023 10:49:34 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-From:   74cmonty@gmail.com
-Subject: Using fio with adjusted parameters for use case "DB"
-To:     fio@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S230387AbjCCNAS (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 3 Mar 2023 08:00:18 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960945CC1B
+        for <fio@vger.kernel.org>; Fri,  3 Mar 2023 05:00:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=rIIdydnYq80h8WhqCemNGpujWMrx519Xm1MSGfImGqs=; b=mp+mA6p25M2QsXIvWc0WhBv+Kx
+        R3wRrfoWhQStIepok3CILXLUSZqRgOfjWfVx4NYg0NJLrUnIcwq2BbYhtX/AVYvfnagQyoxY7bAxG
+        4DVmD8wdPkGoiiNzeMTu2Crb69QHsdH4qpsGBvnzGLQTYZUVHQe3rMJMAYbonzH4IPgOY8L+DBfTQ
+        gbWT+nHczx0hOs5MoRQdEvRPDHVTU0G/2GV1s7+5HbE4F4RzlFcA1ZgIE9DjKTMQdU2WKXOnn2fmc
+        uTZWvfX5OYJr++s2cR7oLcU6pU8vt4uurS2iBMu+0ITebfOB376/renSy3IrbN7XWdNvr8sw2DO+2
+        ukH1EmEQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pY517-0038Vc-1r
+        for fio@vger.kernel.org; Fri, 03 Mar 2023 13:00:09 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 7AAF61BC0118; Fri,  3 Mar 2023 06:00:02 -0700 (MST)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230303130002.7AAF61BC0118@kernel.dk>
+Date:   Fri,  3 Mar 2023 06:00:02 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hello,
+The following changes since commit 5a37211238f995657c50e5d0ea6e5e22ff3ca69e:
 
-I want to benchmark different storage devices with an I/O workload 
-generated by the "real" application: DB.
+  examples: add fiograph diagram for uring-cmd-fdp.fio (2023-02-28 13:58:58 -0500)
 
-A typcial command could be:
-fio --name=random-writers --ioengine=libaio --iodepth=4 --rw=randwrite 
---bs=1024 --direct=1 --size=64m --numjobs=2 runtime=120s
+are available in the Git repository at:
 
-The question is regarding parameters size and runtime:
-- What value should be used for size? Should this be the same as 
-allocated disk space by DB data files? Or just a (reasonable) portion of 
-this? DB data files could be up to n TB.
-- Is it advisable to use runtime? If yes, would this somehow contradict 
-to size, means if I use a larger size, then runtime is obviously longer.
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 5f81856714671287e93e087af8943d3d1779dd5f:
 
-Regards
-Thomas
+  Merge branch 'fiologparser-fix' of https://github.com/patrakov/fio (2023-03-02 19:57:17 -0500)
 
+----------------------------------------------------------------
+Alexander Patrakov (1):
+      fix fiologparser.py to work with new logging format
+
+Vincent Fu (1):
+      Merge branch 'fiologparser-fix' of https://github.com/patrakov/fio
+
+ tools/fiologparser.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/tools/fiologparser.py b/tools/fiologparser.py
+index 054f1f60..708c5d49 100755
+--- a/tools/fiologparser.py
++++ b/tools/fiologparser.py
+@@ -166,7 +166,7 @@ class TimeSeries(object):
+         f = open(fn, 'r')
+         p_time = 0
+         for line in f:
+-            (time, value, foo, bar) = line.rstrip('\r\n').rsplit(', ')
++            (time, value) = line.rstrip('\r\n').rsplit(', ')[:2]
+             self.add_sample(p_time, int(time), int(value))
+             p_time = int(time)
+  
