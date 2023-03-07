@@ -2,60 +2,60 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08A87C678D4
-	for <fio@archiver.kernel.org>; Tue,  7 Mar 2023 14:35:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7CECC678D5
+	for <fio@archiver.kernel.org>; Tue,  7 Mar 2023 14:35:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230252AbjCGOfS (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 7 Mar 2023 09:35:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39478 "EHLO
+        id S229717AbjCGOfs (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 7 Mar 2023 09:35:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231468AbjCGOeZ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 Mar 2023 09:34:25 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64495867F0
-        for <fio@vger.kernel.org>; Tue,  7 Mar 2023 06:30:09 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id x3so52921023edb.10
-        for <fio@vger.kernel.org>; Tue, 07 Mar 2023 06:30:09 -0800 (PST)
+        with ESMTP id S229676AbjCGOfV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Mar 2023 09:35:21 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C29698534B
+        for <fio@vger.kernel.org>; Tue,  7 Mar 2023 06:30:59 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id x3so52932825edb.10
+        for <fio@vger.kernel.org>; Tue, 07 Mar 2023 06:30:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678199408;
+        d=gmail.com; s=20210112; t=1678199458;
         h=content-transfer-encoding:to:subject:from:user-agent:mime-version
          :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=Pa/NwKCXxovubeRD9IVdlRzX5uCly/I/imCjNRFa8Dk=;
-        b=j15PUNFLzlP82NIEgFl+nTncVcVRe/QZyWEc9ufSOZstlbHCviTpN1BTSNmhf0o3vy
-         N7+1vN2n1cLvNGfkyhL/jUN6i9JGL1sgenNyoO77ipbSiGOEVjV1wnbgyodzpBitXLW3
-         P86x4ANr+oM0/ifVDRaXLwmubwznLwAuNjW5kmL+i8rEMk+BnwuJow05pIgYJeqZEtMN
-         V1nupIcDv4a+MVeKOdaNCWYkS+MVR8J4RBXPbgyWUKWl6uP4b4GHbIsV1oO1b02d6YbL
-         NP+tDEIE0n0Q5TSTYvGOxq2cUQtKx6BaOw18bd9oVOXYZVoGyQomlJlmXoReIx5LmsH9
-         cLHg==
+        bh=EPzAebbDQvjZWl4vlK4PUP6fglPOz1QhDWQBmMA7Hbk=;
+        b=WUcyqWjSy4pdzQjdMjQxrRkSus8z9IyfPpUGTA3S6VRwktxxZ0uhBZ/RTSXxBhNPNP
+         jXhkpWcNmk2ubQrzPcgfpn/PZ9vFmjF1oc3Bkr06jht006L8HE0EJrFcLqxa/5LCK3Zt
+         9gxuDg4KOPlVJwQ9QLyqGThwWAaY4Mi6Q9WK+0zWXVrzGqeyk6Gk672Czp1/d7TbQ5Sy
+         b4eMj23g1SxlUXRfPbudcE8/MhcG2ZY0X1ErEPOtgFPT2aEAb37ajuXX5PfYcYUh8GK1
+         ZcLNoRr2p1LBsQiXESmFRZRYw6uibb73pRtf0QNElWHtQ2hAALnXe2W0lwpVM9W8a+3N
+         RKwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678199408;
+        d=1e100.net; s=20210112; t=1678199458;
         h=content-transfer-encoding:to:subject:from:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Pa/NwKCXxovubeRD9IVdlRzX5uCly/I/imCjNRFa8Dk=;
-        b=5UQTeQqC2Z3xkqDIeli8FPus2YU4oGHCzyXmguokj0aXQT3rRJwmhFYr7TVkK/tDeI
-         T48K8VJOGPP0rTpSY05zarcIuZ0O6YCHJcNfxVe9LTwfVm1/tdfJWUv3/a8YR+rxsY7F
-         h3FCJxQnqK4KVaPCCuVBWNRuAh6hVoQgxiqfT5cZJ+ldtYukuNsXvbVt/ibDiHHN7iFC
-         eC5TBg2l61Po14Aus7ETBOvpOWc2H4ZmAQ9Oy6bo9fKZQVSBq/1kVrvQQksJMHTBjyuH
-         2vdtYTG9+hm2Scg3zLQ7OMhoA/aMEF+bsVmY60V7nRywwhu5l0yeCJrYt4y5fcOPHyPA
-         e0yw==
-X-Gm-Message-State: AO0yUKVl6K92k3xLQdcWCcI3cb/1t0NnkqHz3a3NUdmydnCopU4ls4TC
-        jSvIhg7dVpS8HYHiGi4u5YIxIOeQQ/4=
-X-Google-Smtp-Source: AK7set9lHLnVSYxxnmWGPG0vIiO7jrPYfmCVQumUEp1TGvUvtvsjOJYze1PcgCTIu5ZkNGEOPdy5qw==
-X-Received: by 2002:aa7:cd55:0:b0:4bd:11d3:e86f with SMTP id v21-20020aa7cd55000000b004bd11d3e86fmr13763265edw.6.1678199407762;
-        Tue, 07 Mar 2023 06:30:07 -0800 (PST)
+        bh=EPzAebbDQvjZWl4vlK4PUP6fglPOz1QhDWQBmMA7Hbk=;
+        b=fWr3m2tthy1EaMUu/tz28mSlflnkHGnIAUoSSNJHKdKn4KdOsfT99H8h8Qy15h6uxv
+         zZ93fmYVdqvrphP56PuFZNtYWiOoZahLqQhtCOnzV1f9LR8KfEuS2fCnadsJnAGmKlDf
+         HUs+IkpbbthwTzTSG4AG05ETXJUPaerCoTmAf7E0IIZ819cXsDkzFRMtZNU5UaEUDlGP
+         r8AV71uz96dYrB85TphxfuXVT/l95Gd0mud83mMtjojBbHU2KqbPxMnmuFEOHJ7pGEre
+         GI6Dwkeryo63gblcfskj5UgNqZVdJQgcOFVdk0fBvI6aZ6zXfV9H2yya9KRcN1vX5UvM
+         qQrw==
+X-Gm-Message-State: AO0yUKV+Ur7ETR1Zastqpvq9ptwiqc7dydegzPPk1446/DDw9Z2Ew1zM
+        LhbKHJYR70xAQa2VPz+Zg4vdEM1l42w=
+X-Google-Smtp-Source: AK7set+iG71/+xkZogsJqByAlJU4qFUySAjOKbAV+ElTRjUg6vCVefCBBWoZFIncvzkhCJYD9Vd3GA==
+X-Received: by 2002:aa7:d044:0:b0:4af:6227:3866 with SMTP id n4-20020aa7d044000000b004af62273866mr12689004edo.19.1678199458233;
+        Tue, 07 Mar 2023 06:30:58 -0800 (PST)
 Received: from [10.88.133.44] ([193.16.224.12])
-        by smtp.gmail.com with ESMTPSA id a25-20020a509b59000000b004c0eac41829sm6767876edj.63.2023.03.07.06.30.06
+        by smtp.gmail.com with ESMTPSA id m26-20020a50999a000000b004af73333d6esm6898064edb.53.2023.03.07.06.30.57
         for <fio@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Mar 2023 06:30:07 -0800 (PST)
-Message-ID: <7158878c-c788-a75d-00dc-30900eeb2f1f@gmail.com>
-Date:   Tue, 7 Mar 2023 15:30:06 +0100
+        Tue, 07 Mar 2023 06:30:57 -0800 (PST)
+Message-ID: <1e123883-b2c0-ed9f-7242-49f6c3d5bc44@gmail.com>
+Date:   Tue, 7 Mar 2023 15:30:57 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.8.0
 From:   Thomas Schneider <74cmonty@gmail.com>
-Subject: Using fio with adjusted parameters for use case "Hana DB"
+Subject: Using fio with adjusted parameters for use case "DB"
 To:     fio@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -65,26 +65,22 @@ X-Mailing-List: fio@vger.kernel.org
 
 Hello,
 
-I'm starting evaluating usage of fio <https://github.com/axboe/fio>.
+I want to benchmark different storage devices with an I/O workload 
+generated by the "real" application: DB.
 
-My goal is to benchmark different storage device types, e.g. SSD and 
-shared storage, that is close to the I/O workload generated by the 
-"real" application: Hana DB.
+A typcial command could be:
+fio --name=random-writers --ioengine=libaio --iodepth=4 --rw=randwrite 
+--bs=1024 --direct=1 --size=64m --numjobs=2 runtime=120s
 
-But before defining this "application related benchmark" I would run a 
-generic benchmark first that gives an idea of the IO performance of the 
-relevant storage device; this generic benchmark is using options that 
-are well known to deliver meaningful results with an acceptable (short) 
-runtime.
-
-The idea behind this strategy is:
-If the generic benchmark already indicates poor IO performance, there's 
-no need to execute another benchmark that simulates the "real" application.
-
-Could you please share some information of this generic benchmark(s) for 
-devices SSD, RAID and NFS share (e.g. NetApp, EMC)?
+The question is regarding parameters size and runtime:
+- What value should be used for size? Should this be the same as 
+allocated disk space by DB data files? Or just a (reasonable) portion of 
+this? DB data files could be up to xTB.
+- Is it advisable to use runtime? If yes, would this somehow contradict 
+to size, means if I use a larger size, then runtime is obviously longer.
 
 
 Regards
 Thomas
+
 
