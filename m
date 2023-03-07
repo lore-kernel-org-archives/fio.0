@@ -2,82 +2,89 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4650EC6FA9E
-	for <fio@archiver.kernel.org>; Mon,  6 Mar 2023 05:58:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08A87C678D4
+	for <fio@archiver.kernel.org>; Tue,  7 Mar 2023 14:35:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229457AbjCFF6r (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 6 Mar 2023 00:58:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53092 "EHLO
+        id S230252AbjCGOfS (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 7 Mar 2023 09:35:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229450AbjCFF6p (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 6 Mar 2023 00:58:45 -0500
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9FB159F1
-        for <fio@vger.kernel.org>; Sun,  5 Mar 2023 21:58:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1678082322; x=1709618322;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=KOoByybyBgGZlsSDk4Cgw86YuVdKJyfY1Jr5zIoLH4Q=;
-  b=J4hGcqHbKiyBeX6pl8DX9Atv1hU3iFvUhNsyn2EruIL7GjOv/NqibZiw
-   STgHssmue3S5rWUP7Dv8P7U319MCaE4JD9VrhrLiVyt+Uf441sxmCVe0k
-   dfWItn1c0nKBIwxkP9pykcY0MvQ4cd+kuYW0ZsD4SSAeOTlokmoOJm2jp
-   gijjQgH3V5sA8hp5vADAixXPAYZN2KV8OpIotYy0kboLh+Tj2fAVx5Rj8
-   lukYLnqNR+teE+6uRsjmcco8KIdkAjgHeaHKrnnYaD/yjnNEZ1Enzfa6z
-   GtKaaAAhzwHzSKpiF+5yVOHaPczaDWzN8n6BBcEB3yImCUmc9nOHB7C+g
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.98,236,1673884800"; 
-   d="scan'208";a="223161441"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 06 Mar 2023 13:58:41 +0800
-IronPort-SDR: vt/jSCxmFGlNTINgPNU4fmCqbiYIybUNxM+rFpGD61PjBVu1fbkiNSYG6wAXoJ8lFcmC2Uam9F
- 487mBTUDh9JaC6fr28pUg7plV+8UY4VgSUmYBIB2vL+qRNSCERDl2jxN7nzX/y8Aa/cYnxtOQV
- fzymgKYU8XxLFKZmrOhFmTm5zJZAtuYQyDgg6/sSgkZznikl06jPTmEVbKr8ptwLgEDzT+sTpF
- gsDBbm6Z8zFQd7ATP13PlrKYdCFljcabNondSCXoHvHF8deiXFubxDvj9axSu+X5WQUf3AGhXO
- Fo0=
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 05 Mar 2023 21:15:23 -0800
-IronPort-SDR: lDb1ScaxHvxynrC+jrU7vhQZnw2n6QOh2palPFZaGoV0kc7C8girVr8CBPYDG8CwTRD5WYSv17
- MaL6e9hN2eBj51I53Uz06N0Mhiy94OaGpCCOPOg1meYryWTVW9PVgYsq7YCfn0wehJuCVPS5S4
- KV95pISP/etgtzk8epGLg2Xr6zI4nQK6nZNS8efmbSURrZscj4WbIuAARor2uoF+05OvNknVOI
- a1qBiHN1eZoBaP3vf0IHybF7c30qrD/3fHGdpfEiEVa4P9z9bNv6D+d6m1/rPBrbCxh9OPXgk+
- eWA=
-WDCIronportException: Internal
-Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.52.207])
-  by uls-op-cesaip01.wdc.com with ESMTP; 05 Mar 2023 21:58:42 -0800
-From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Vincent Fu <vincentfu@gmail.com>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 0/2] t/zbd: fix minimum write size to sequential write required zones
-Date:   Mon,  6 Mar 2023 14:58:38 +0900
-Message-Id: <20230306055840.3375830-1-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.38.1
+        with ESMTP id S231468AbjCGOeZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 7 Mar 2023 09:34:25 -0500
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64495867F0
+        for <fio@vger.kernel.org>; Tue,  7 Mar 2023 06:30:09 -0800 (PST)
+Received: by mail-ed1-x532.google.com with SMTP id x3so52921023edb.10
+        for <fio@vger.kernel.org>; Tue, 07 Mar 2023 06:30:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1678199408;
+        h=content-transfer-encoding:to:subject:from:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=Pa/NwKCXxovubeRD9IVdlRzX5uCly/I/imCjNRFa8Dk=;
+        b=j15PUNFLzlP82NIEgFl+nTncVcVRe/QZyWEc9ufSOZstlbHCviTpN1BTSNmhf0o3vy
+         N7+1vN2n1cLvNGfkyhL/jUN6i9JGL1sgenNyoO77ipbSiGOEVjV1wnbgyodzpBitXLW3
+         P86x4ANr+oM0/ifVDRaXLwmubwznLwAuNjW5kmL+i8rEMk+BnwuJow05pIgYJeqZEtMN
+         V1nupIcDv4a+MVeKOdaNCWYkS+MVR8J4RBXPbgyWUKWl6uP4b4GHbIsV1oO1b02d6YbL
+         NP+tDEIE0n0Q5TSTYvGOxq2cUQtKx6BaOw18bd9oVOXYZVoGyQomlJlmXoReIx5LmsH9
+         cLHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1678199408;
+        h=content-transfer-encoding:to:subject:from:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Pa/NwKCXxovubeRD9IVdlRzX5uCly/I/imCjNRFa8Dk=;
+        b=5UQTeQqC2Z3xkqDIeli8FPus2YU4oGHCzyXmguokj0aXQT3rRJwmhFYr7TVkK/tDeI
+         T48K8VJOGPP0rTpSY05zarcIuZ0O6YCHJcNfxVe9LTwfVm1/tdfJWUv3/a8YR+rxsY7F
+         h3FCJxQnqK4KVaPCCuVBWNRuAh6hVoQgxiqfT5cZJ+ldtYukuNsXvbVt/ibDiHHN7iFC
+         eC5TBg2l61Po14Aus7ETBOvpOWc2H4ZmAQ9Oy6bo9fKZQVSBq/1kVrvQQksJMHTBjyuH
+         2vdtYTG9+hm2Scg3zLQ7OMhoA/aMEF+bsVmY60V7nRywwhu5l0yeCJrYt4y5fcOPHyPA
+         e0yw==
+X-Gm-Message-State: AO0yUKVl6K92k3xLQdcWCcI3cb/1t0NnkqHz3a3NUdmydnCopU4ls4TC
+        jSvIhg7dVpS8HYHiGi4u5YIxIOeQQ/4=
+X-Google-Smtp-Source: AK7set9lHLnVSYxxnmWGPG0vIiO7jrPYfmCVQumUEp1TGvUvtvsjOJYze1PcgCTIu5ZkNGEOPdy5qw==
+X-Received: by 2002:aa7:cd55:0:b0:4bd:11d3:e86f with SMTP id v21-20020aa7cd55000000b004bd11d3e86fmr13763265edw.6.1678199407762;
+        Tue, 07 Mar 2023 06:30:07 -0800 (PST)
+Received: from [10.88.133.44] ([193.16.224.12])
+        by smtp.gmail.com with ESMTPSA id a25-20020a509b59000000b004c0eac41829sm6767876edj.63.2023.03.07.06.30.06
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Mar 2023 06:30:07 -0800 (PST)
+Message-ID: <7158878c-c788-a75d-00dc-30900eeb2f1f@gmail.com>
+Date:   Tue, 7 Mar 2023 15:30:06 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+From:   Thomas Schneider <74cmonty@gmail.com>
+Subject: Using fio with adjusted parameters for use case "Hana DB"
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-ZBC and ZAC require that writes to sequential write required zones shall
-be aligned to physical block size. However, the t/zbd/test-zbd-support
-script uses logical block size as the minimum write unit, then some test
-cases fail due to unaligned write command errors. This series fix the
-failures. The first patch is a preparation. The second patch fixes the test
-script to refer the correct size as the minimum write size.
+Hello,
 
-Shin'ichiro Kawasaki (2):
-  t/zbd: rename logical_block_size to min_seq_write_size
-  t/zbd: fix minimum write size to sequential write required zones
+I'm starting evaluating usage of fio <https://github.com/axboe/fio>.
 
- t/zbd/functions        | 28 +++++++++++++++++++++++++---
- t/zbd/test-zbd-support | 42 +++++++++++++++++++++---------------------
- 2 files changed, 46 insertions(+), 24 deletions(-)
+My goal is to benchmark different storage device types, e.g. SSD and 
+shared storage, that is close to the I/O workload generated by the 
+"real" application: Hana DB.
 
--- 
-2.38.1
+But before defining this "application related benchmark" I would run a 
+generic benchmark first that gives an idea of the IO performance of the 
+relevant storage device; this generic benchmark is using options that 
+are well known to deliver meaningful results with an acceptable (short) 
+runtime.
+
+The idea behind this strategy is:
+If the generic benchmark already indicates poor IO performance, there's 
+no need to execute another benchmark that simulates the "real" application.
+
+Could you please share some information of this generic benchmark(s) for 
+devices SSD, RAID and NFS share (e.g. NetApp, EMC)?
+
+
+Regards
+Thomas
 
