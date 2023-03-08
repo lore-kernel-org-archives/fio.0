@@ -2,92 +2,278 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D1EAC6FD1A
-	for <fio@archiver.kernel.org>; Tue,  7 Mar 2023 17:50:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F6AAC678D5
+	for <fio@archiver.kernel.org>; Wed,  8 Mar 2023 13:02:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232295AbjCGRut (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 7 Mar 2023 12:50:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42398 "EHLO
+        id S231522AbjCHNCX (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 8 Mar 2023 08:02:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232066AbjCGRu3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 7 Mar 2023 12:50:29 -0500
-Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939A3A2C33
-        for <fio@vger.kernel.org>; Tue,  7 Mar 2023 09:45:27 -0800 (PST)
-Received: by mail-qv1-xf2d.google.com with SMTP id nf5so9423971qvb.5
-        for <fio@vger.kernel.org>; Tue, 07 Mar 2023 09:45:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1678211126;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=GCamnLZ0d4586v4F2uLGl9v0b7s8KdxWRzoInTK7zuk=;
-        b=JqSo0BZjp7U+kIh9KWf5b2UesVA94OcyCbmpZTiEGVA10wkcxFnN5cEE+ruP9Gb0LV
-         JKanFe+8oxfUTVV5l0uMRbGVTGofUwwo/zZ/4BgSfUizilJMkQgq/wF1QBifu3LASRAT
-         3eebAyMjDEPFiOVS2Nx4CIV7fdFBqEzwq655Q2On8f4PIZdCI+srTdDRhwAvZClGcJB0
-         Hohd67eIalsIGFn3dyLC+uMzu0BRXsHZArVS6YV75T5yDPSgKFu3qGbtgxJOuKXZQ4Hd
-         5dg0rIvi/5RA/8qKnvU5Kg2J6BzwkpbeTeqHvSzKsxBOwt5ifohAxj9WV3LRAlC0sH/N
-         OCZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678211126;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GCamnLZ0d4586v4F2uLGl9v0b7s8KdxWRzoInTK7zuk=;
-        b=YAMNIJNUKvtN5uVYwnLny/zSpj0KCeGw5qJkK14Rbh7TmBwN1Mwql+wkkNVbT/V7W/
-         KfjDtB08EluiVclx8g6UzW9gENR+kEAhVRM8+2ZJ1Ij6+V+x8af0snpMPbS6rPx79o35
-         ao4W47sw/BkOuaT+i/8b4LH6ugVt2NDkzmbo13pXWruabr8GBu5IWvteTAImQl6if93u
-         KkyJMHIFxNb0vF1klyFsnMc1ZXKNfkxSLadtvw+akfyNiFEbM9AFzlSROuUTV6s1f9vD
-         I/ep+M2UrpeAi+IKaeMeF+5ZrMoLzV0WClrOPHTyHvMWFC8JFshoBP5gbvS1idLA4Nnz
-         U+aw==
-X-Gm-Message-State: AO0yUKW+NCKvRGKjIcq8qUFlubVkQDMkG2GnVk2t4+mlkeYXdX5oZ+cO
-        Dpn8cvVeMF395O4hovupbRm+iT6f1KRu7Q==
-X-Google-Smtp-Source: AK7set9/K+EO4cVKf8j5Sl3GzDtNR/hZys7xkujGpZTP8XCDevFpjVajTbmcJ+5zVQdi1g29Qc2J+g==
-X-Received: by 2002:a05:6214:dae:b0:56e:af49:7a1d with SMTP id h14-20020a0562140dae00b0056eaf497a1dmr28006773qvh.24.1678211126491;
-        Tue, 07 Mar 2023 09:45:26 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id v3-20020a379303000000b0073917fae4f8sm9933477qkd.25.2023.03.07.09.45.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Mar 2023 09:45:26 -0800 (PST)
-Message-ID: <44db83ca-a943-77f5-2802-3872e6bf095b@gmail.com>
-Date:   Tue, 7 Mar 2023 12:45:25 -0500
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH 0/2] t/zbd: fix minimum write size to sequential write
- required zones
-Content-Language: en-US
-To:     Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc:     Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>
-References: <20230306055840.3375830-1-shinichiro.kawasaki@wdc.com>
-From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20230306055840.3375830-1-shinichiro.kawasaki@wdc.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S231382AbjCHNBF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 8 Mar 2023 08:01:05 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A389C560D
+        for <fio@vger.kernel.org>; Wed,  8 Mar 2023 05:00:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=iV4mfTYLcXTWh7VS1wDRyJDXXcycpkbZAF8Iatblh10=; b=f9Inxq6JsUNiXc3dZMkzjN+xQo
+        yhuSMYw3mH6dDm0xGJ1eGhVIspuCo04sBvBm2SRC5MG3ZhFT8H5QRZ2uGvZyEOC+YOCKoQe9a3w5o
+        SgGNjIFVFqTB/CXUJ5kuuoCnrAoZsfUsCInb5qgiy4IDEAPt6EbqU+XToxs3DLzHIqv7TbQZGr1Yu
+        wUng7hPMfawMIK9ggJmzdJpOwiSIL4BUjmojQT5KE0n+/ZSmRCcS8KXZFy5gbI1xKrUvYIMdhV4Ro
+        bn8IQgSR4NvZcIyL/0AXxORx85O9KPnB+ogKLmES3slr/MZb24vOvXCEfYb7d82vIUNB0ulnLiuT+
+        Es1aycow==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pZtOp-007PCr-7F
+        for fio@vger.kernel.org; Wed, 08 Mar 2023 13:00:08 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 6A1E01BC0183; Wed,  8 Mar 2023 06:00:02 -0700 (MST)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230308130002.6A1E01BC0183@kernel.dk>
+Date:   Wed,  8 Mar 2023 06:00:02 -0700 (MST)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 3/6/23 00:58, Shin'ichiro Kawasaki wrote:
-> ZBC and ZAC require that writes to sequential write required zones shall
-> be aligned to physical block size. However, the t/zbd/test-zbd-support
-> script uses logical block size as the minimum write unit, then some test
-> cases fail due to unaligned write command errors. This series fix the
-> failures. The first patch is a preparation. The second patch fixes the test
-> script to refer the correct size as the minimum write size.
-> 
-> Shin'ichiro Kawasaki (2):
->    t/zbd: rename logical_block_size to min_seq_write_size
->    t/zbd: fix minimum write size to sequential write required zones
-> 
->   t/zbd/functions        | 28 +++++++++++++++++++++++++---
->   t/zbd/test-zbd-support | 42 +++++++++++++++++++++---------------------
->   2 files changed, 46 insertions(+), 24 deletions(-)
-> 
+The following changes since commit 051b5785bc47ab216fa3db9dceb6184073dcc88a:
 
-Applied. Thanks.
+  Merge branch 'For_Each_Td_Private_Scope' of https://github.com/horshack-dpreview/fio (2023-03-03 10:46:26 -0700)
 
-Vincent
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 557cfc51068921766e8cd6b242feb4c929cb45ea:
+
+  t/zbd: fix minimum write size to sequential write required zones (2023-03-07 12:45:41 -0500)
+
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (2):
+      t/zbd: rename logical_block_size to min_seq_write_size
+      t/zbd: fix minimum write size to sequential write required zones
+
+ t/zbd/functions        | 28 +++++++++++++++++++++++++---
+ t/zbd/test-zbd-support | 42 +++++++++++++++++++++---------------------
+ 2 files changed, 46 insertions(+), 24 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/t/zbd/functions b/t/zbd/functions
+index 812320f5..9a6d6999 100644
+--- a/t/zbd/functions
++++ b/t/zbd/functions
+@@ -238,18 +238,40 @@ max_open_zones() {
+     fi
+ }
+ 
++# Get minimum block size to write to seq zones. Refer the sysfs attribute
++# zone_write_granularity which shows the valid minimum size regardless of zoned
++# block device type. If the sysfs attribute is not available, refer physical
++# block size for rotational SMR drives. For non-rotational devices such as ZNS
++# devices, refer logical block size.
++min_seq_write_size() {
++	local sys_path="/sys/block/$1/queue"
++	local -i size=0
++
++	if [[ -r "$sys_path/zone_write_granularity" ]]; then
++		size=$(<"$sys_path/zone_write_granularity")
++	fi
++
++	if ((size)); then
++		echo "$size"
++	elif (($(<"$sys_path/rotational"))); then
++		cat "$sys_path/physical_block_size"
++	else
++		cat "$sys_path/logical_block_size"
++	fi
++}
++
+ is_zbc() {
+ 	local dev=$1
+ 
+ 	[[ -z "$(${zbc_info} "$dev" | grep "is not a zoned block device")" ]]
+ }
+ 
+-zbc_logical_block_size() {
++zbc_physical_block_size() {
+ 	local dev=$1
+ 
+ 	${zbc_info} "$dev" |
+-		grep "logical blocks" |
+-		sed -n 's/^[[:blank:]]*[0-9]* logical blocks of[[:blank:]]*//p' |
++		grep "physical blocks" |
++		sed -n 's/^[[:blank:]]*[0-9]* physical blocks of[[:blank:]]*//p' |
+ 		sed 's/ B//'
+ }
+ 
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 893aff3c..996160e7 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -166,7 +166,7 @@ write_and_run_one_fio_job() {
+     shift 2
+     r=$(((RANDOM << 16) | RANDOM))
+     write_opts=(--name="write_job" --rw=write "$(ioengine "psync")" \
+-		      --bs="${logical_block_size}" --zonemode=zbd \
++		      --bs="${min_seq_write_size}" --zonemode=zbd \
+ 		      --zonesize="${zone_size}" --thread=1 --direct=1 \
+ 		      --offset="${write_offset}" --size="${write_size}")
+     write_opts+=("${job_var_opts[@]}")
+@@ -335,7 +335,7 @@ test4() {
+     size=$((zone_size))
+     [ -n "$is_zbd" ] && reset_zone "$dev" $((off / 512))
+     opts+=("--name=$dev" "--filename=$dev" "--offset=$off")
+-    opts+=(--bs="$(min $((logical_block_size * 256)) $size)")
++    opts+=(--bs="$(min $((min_seq_write_size * 256)) $size)")
+     opts+=("--size=$size" "--thread=1" "--read_beyond_wp=1")
+     opts+=("$(ioengine "psync")" "--rw=read" "--direct=1" "--disable_lat=1")
+     opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
+@@ -351,7 +351,7 @@ test5() {
+     off=$((first_sequential_zone_sector * 512))
+     capacity=$(total_zone_capacity 4 $off $dev)
+     size=$((4 * zone_size))
+-    bs=$(min "$(max $((zone_size / 64)) "$logical_block_size")" "$zone_cap_bs")
++    bs=$(min "$(max $((zone_size / 64)) "$min_seq_write_size")" "$zone_cap_bs")
+     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
+ 		   --bs="$bs" --do_verify=1 --verify=md5 \
+ 		   >>"${logfile}.${test_number}" 2>&1 || return $?
+@@ -367,7 +367,7 @@ test6() {
+     off=$((first_sequential_zone_sector * 512))
+     capacity=$(total_zone_capacity 4 $off $dev)
+     size=$((4 * zone_size))
+-    bs=$(min "$(max $((zone_size / 64)) "$logical_block_size")" "$zone_cap_bs")
++    bs=$(min "$(max $((zone_size / 64)) "$min_seq_write_size")" "$zone_cap_bs")
+     write_and_run_one_fio_job \
+ 	    $((first_sequential_zone_sector * 512)) "${size}" \
+ 	    --offset="${off}" \
+@@ -748,7 +748,7 @@ test30() {
+     prep_write
+     off=$((first_sequential_zone_sector * 512))
+     run_one_fio_job "$(ioengine "libaio")" --iodepth=8 --rw=randrw	\
+-		    --bs="$(max $((zone_size / 128)) "$logical_block_size")"\
++		    --bs="$(max $((zone_size / 128)) "$min_seq_write_size")"\
+ 		    --zonemode=zbd --zonesize="${zone_size}" --offset=$off\
+ 		    --loops=2 --time_based --runtime=30s --norandommap=1\
+ 		    >>"${logfile}.${test_number}" 2>&1
+@@ -904,9 +904,9 @@ test38() {
+     local bs off size
+ 
+     prep_write
+-    size=$((logical_block_size))
+-    off=$((disk_size - logical_block_size))
+-    bs=$((logical_block_size))
++    size=$((min_seq_write_size))
++    off=$((disk_size - min_seq_write_size))
++    bs=$((min_seq_write_size))
+     run_one_fio_job --offset=$off --size=$size "$(ioengine "psync")"	\
+ 		    --iodepth=1 --rw=write --do_verify=1 --verify=md5	\
+ 		    --bs=$bs --zonemode=zbd --zonesize="${zone_size}"	\
+@@ -924,7 +924,7 @@ read_one_block() {
+ 	exit 1
+     fi
+     off=${result[0]}
+-    bs=$((logical_block_size))
++    bs=$((min_seq_write_size))
+     run_one_fio_job --rw=read "$(ioengine "psync")" --offset=$off --bs=$bs \
+ 		    --size=$bs "$@" 2>&1 |
+ 	tee -a "${logfile}.${test_number}"
+@@ -934,14 +934,14 @@ read_one_block() {
+ test39() {
+     require_zbd || return $SKIP_TESTCASE
+     read_one_block --zonemode=none >/dev/null || return $?
+-    check_read $((logical_block_size)) || return $?
++    check_read $((min_seq_write_size)) || return $?
+ }
+ 
+ # Check whether fio accepts --zonemode=strided for zoned block devices.
+ test40() {
+     local bs
+ 
+-    bs=$((logical_block_size))
++    bs=$((min_seq_write_size))
+     require_zbd || return $SKIP_TESTCASE
+     read_one_block --zonemode=strided |
+ 	grep -q 'fio: --zonesize must be specified when using --zonemode=strided' ||
+@@ -982,7 +982,7 @@ test45() {
+ 
+     require_zbd || return $SKIP_TESTCASE
+     prep_write
+-    bs=$((logical_block_size))
++    bs=$((min_seq_write_size))
+     run_one_fio_job "$(ioengine "psync")" --iodepth=1 --rw=randwrite --bs=$bs\
+ 		    --offset=$((first_sequential_zone_sector * 512)) \
+ 		    --size="$zone_size" --do_verify=1 --verify=md5 2>&1 |
+@@ -1007,7 +1007,7 @@ test47() {
+     local bs
+ 
+     prep_write
+-    bs=$((logical_block_size))
++    bs=$((min_seq_write_size))
+     run_fio_on_seq "$(ioengine "psync")" --rw=write --bs=$bs --zoneskip=1 \
+ 		    >> "${logfile}.${test_number}" 2>&1 && return 1
+     grep -q 'zoneskip 1 is not a multiple of the device zone size' "${logfile}.${test_number}"
+@@ -1190,7 +1190,7 @@ test54() {
+ # test 'z' suffix parsing only
+ test55() {
+ 	local bs
+-	bs=$((logical_block_size))
++	bs=$((min_seq_write_size))
+ 
+ 	require_zbd || return $SKIP_TESTCASE
+ 	# offset=1z + offset_increment=10z + size=2z
+@@ -1216,7 +1216,7 @@ test55() {
+ # test 'z' suffix parsing only
+ test56() {
+ 	local bs
+-	bs=$((logical_block_size))
++	bs=$((min_seq_write_size))
+ 
+ 	require_regular_block_dev || return $SKIP_TESTCASE
+ 	require_seq_zones 10 || return $SKIP_TESTCASE
+@@ -1260,7 +1260,7 @@ test58() {
+     require_seq_zones 128 || return $SKIP_TESTCASE
+ 
+     size=$((zone_size * 128))
+-    bs="$(max $((zone_size / 128)) "$logical_block_size")"
++    bs="$(max $((zone_size / 128)) "$min_seq_write_size")"
+     prep_write
+     off=$((first_sequential_zone_sector * 512))
+     run_fio --zonemode=zbd --direct=1 --zonesize="${zone_size}" --thread=1 \
+@@ -1427,7 +1427,7 @@ if [[ -b "$realdev" ]]; then
+ 		realsysfs=$(readlink "/sys/dev/block/$major:$minor")
+ 		basename=$(basename "${realsysfs%/*}")
+ 	fi
+-	logical_block_size=$(<"/sys/block/$basename/queue/logical_block_size")
++	min_seq_write_size=$(min_seq_write_size "$basename")
+ 	case "$(<"/sys/class/block/$basename/queue/zoned")" in
+ 	host-managed|host-aware)
+ 		is_zbd=true
+@@ -1452,8 +1452,8 @@ if [[ -b "$realdev" ]]; then
+ 		;;
+ 	*)
+ 		first_sequential_zone_sector=$(((disk_size / 2) &
+-						(logical_block_size - 1)))
+-		zone_size=$(max 65536 "$logical_block_size")
++						(min_seq_write_size - 1)))
++		zone_size=$(max 65536 "$min_seq_write_size")
+ 		sectors_per_zone=$((zone_size / 512))
+ 		max_open_zones=128
+ 		set_io_scheduler "$basename" none || exit $?
+@@ -1476,8 +1476,8 @@ elif [[ -c "$realdev" ]]; then
+ 		echo "Failed to determine disk size"
+ 		exit 1
+ 	fi
+-	if ! logical_block_size=($(zbc_logical_block_size "$dev")); then
+-		echo "Failed to determine logical block size"
++	if ! min_seq_write_size=($(zbc_physical_block_size "$dev")); then
++		echo "Failed to determine physical block size"
+ 		exit 1
+ 	fi
+ 	if ! result=($(first_sequential_zone "$dev")); then
