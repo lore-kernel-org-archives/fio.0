@@ -2,89 +2,83 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23F21C6FD1D
-	for <fio@archiver.kernel.org>; Thu, 30 Mar 2023 21:28:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7703DC761AF
+	for <fio@archiver.kernel.org>; Thu, 30 Mar 2023 22:02:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230061AbjC3V2B (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 30 Mar 2023 17:28:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54888 "EHLO
+        id S230289AbjC3WCl (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 30 Mar 2023 18:02:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229921AbjC3V2A (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 30 Mar 2023 17:28:00 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E794C179
-        for <fio@vger.kernel.org>; Thu, 30 Mar 2023 14:28:00 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id 3-20020a250b03000000b00b5f1fab9897so20157291ybl.19
-        for <fio@vger.kernel.org>; Thu, 30 Mar 2023 14:28:00 -0700 (PDT)
+        with ESMTP id S230141AbjC3WCk (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 30 Mar 2023 18:02:40 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B5BB5B88
+        for <fio@vger.kernel.org>; Thu, 30 Mar 2023 15:02:39 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id h12-20020a17090aea8c00b0023d1311fab3so21307394pjz.1
+        for <fio@vger.kernel.org>; Thu, 30 Mar 2023 15:02:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112; t=1680211679;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=h0vL0OPMdPPeT4R5mVlNLbO51OYqmlftJRRVqL7/120=;
-        b=PxRO1jMs997fdaBAijUoxsIL5zQ1A+EJ2bbo1DFVbLrvaBCCT7sjLHWy5qU1mELiAn
-         MBtquIQsrZWFyjlPtXRA6eeJimrD5KX87LhST6ZXuerF8U9O8nue9LGPurSTyXnq9nRn
-         TioKjMxmhkbbtFrkWwMRrMXdHfjR23EnEuTEH/70YwhAjQS+a18G6M+tpuyOF92IH9eS
-         WfBiiEC3OZ5UWBSEkFQ2AgtYB/MqHZS69CAAQ1Ksru3bc6f7kZle6TRIDPfj+YlS4sj6
-         SFliq35/upOSeloMxmozqAeNQPUbvdbdQp6LLe3ydGEruYB14KakMbYE37fb2Csmond/
-         aa0w==
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112; t=1680213759;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=nzDvtiXFMv/Op4xE1370C3qAUQfjBr0eePkxVLs3mx0=;
+        b=kw6/827XPAcnr+XJ48Ib3KtG+o9h+XvRM6r1MpvQ9OyZcJ4nuXoqzzDo/vwkS6axGM
+         1bcuxZP5tAg/cQRPkW+Bb1Jiy20MBhcmyGG7hFRe+uUC8ej8oneUh6dfPvPB/AacE2ir
+         BF0xS2B/f7/+G1ans2SqbGOhnK7a44yQb8lB4UIDM6T/u1WDGhnAde3bjFBYFHkLLhmI
+         NclkfqEqGtEDzQRi9JPcoxNG3D+Z+KHCSZMK+FYtN5i60gtXFOW+UDBOm1F9QmCRXrVA
+         Fi1+6+IVW2+vy9/k6vqsSKO5x7E+FHfQUJ1oPXSBRLxFrROZDfQ4eiofUCTXYkNLVR+x
+         aEFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680211679;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=h0vL0OPMdPPeT4R5mVlNLbO51OYqmlftJRRVqL7/120=;
-        b=XCP9MTxP/bkB265tD6Buli+ZalKkx11CzcjXHZmi2z017V0SK9ifMlN6ovDn2XCfhw
-         p65gP9PS0TnkCEZW72r8jfEtXJG8mCrJTa9K9e2JblkoamwpVvZ6sjZ1Wt3NRpVn34EX
-         hoEO0XkbyQBUvVw+jHsZkPC7+Nv538dRsIq82UsJRJtdl0tk9V5SGTB/vnDQF0IhCum2
-         aXPReZf3StP8zNOEitHlTUzLrOJmCKAYGaquo0VmKgJMJypYoFTXw8fmcbq2tuWp4qdU
-         H7SqbtbheyZJXu3/4YAl0olw7OUNI+VsKqXAXxXFc7CcLn7IZ9Z7KOtolyqn04nlhpae
-         qr1Q==
-X-Gm-Message-State: AAQBX9esf+nEa0/leRlxtIuL+u6Ms03fVxihcmt41UYPPpKrljK4HnfD
-        mlIy85iX6QY2LkfYqtL1ZWrox6W+n+rI
-X-Google-Smtp-Source: AKy350ba9+r4jyB7YngiC0ouJLTLNkLO3AQbv4ilDFD44g7OYSvBm/d9LvvTjlhtXtFOrTA1bm8lSPzYKfQq
-X-Received: from yuanchu.svl.corp.google.com ([2620:15c:2d4:203:38bc:7140:ab63:2a52])
- (user=yuanchu job=sendgmr) by 2002:a81:b647:0:b0:545:5e70:3237 with SMTP id
- h7-20020a81b647000000b005455e703237mr11990232ywk.2.1680211679379; Thu, 30 Mar
- 2023 14:27:59 -0700 (PDT)
-Date:   Thu, 30 Mar 2023 14:27:05 -0700
-In-Reply-To: <20230330212705.2992931-1-yuanchu@google.com>
-Mime-Version: 1.0
-References: <20230330212705.2992931-1-yuanchu@google.com>
-X-Mailer: git-send-email 2.40.0.348.gf938b09366-goog
-Message-ID: <20230330212705.2992931-2-yuanchu@google.com>
-Subject: [PATCH 2/2] docs: add noreuse fadvise_hint option
-From:   Yuanchu Xie <yuanchu@google.com>
-To:     Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>,
+        d=1e100.net; s=20210112; t=1680213759;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=nzDvtiXFMv/Op4xE1370C3qAUQfjBr0eePkxVLs3mx0=;
+        b=RSp6it7A5Ipq+elPUTU9ZrVFkctrQBHewJY6apVQ+EGOh7FMyHrFmZn8wCE2H6DcZD
+         0nZTMu4geo1UVQ4riheyfnI1PrFbes5UnQ5mBf8XMpE7paCY1hWvG2rzWenOvQ0nCTlX
+         qUfuOuXhBEFj7Ke6FvVPiEqz6kNAXacry5N3qHGcpPco/5IlQrHhCWMgWEA0r5NNw/pP
+         BOI/D2fxSF15JgCkG0TJgvapKk9KFce8gTNhi3y5WmGnTgVgPLm3xHhKBKla5TY1OxiX
+         APz+QG9fVTYzUtwg6CgUs7C2l1cXS2sLcLrMxLNEZCFG6CZDFGVTZPjsh4xhr8HNDpeD
+         h6NQ==
+X-Gm-Message-State: AAQBX9eYvWQv9V7rPONBimuPuU0T+RZFPDzoQ0t4i02S1J+fc/3QIMFK
+        CMLIot2h7SuPkk7duBpGFkeltA==
+X-Google-Smtp-Source: AKy350bzwgsjXy+Wj8QC4b5qcaT/Umv6AlBM6848J4CGmTBr6b3j7iNc8PPqfQiSoHjRKBYKvC9bgg==
+X-Received: by 2002:a17:902:e54c:b0:1a2:1a52:14b3 with SMTP id n12-20020a170902e54c00b001a21a5214b3mr3858903plf.4.1680213758685;
+        Thu, 30 Mar 2023 15:02:38 -0700 (PDT)
+Received: from [192.168.1.136] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id jn22-20020a170903051600b0019a95baaaa6sm174252plb.222.2023.03.30.15.02.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Mar 2023 15:02:38 -0700 (PDT)
+Message-ID: <e8619808-d831-2618-e0ee-84d24100e823@kernel.dk>
+Date:   Thu, 30 Mar 2023 16:02:36 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 2/2] docs: add noreuse fadvise_hint option
+Content-Language: en-US
+To:     Yuanchu Xie <yuanchu@google.com>, Vincent Fu <vincentfu@gmail.com>,
         fio@vger.kernel.org
 Cc:     Yu Zhao <yuzhao@google.com>,
-        "T . J . Alumbaugh" <talumbau@google.com>,
-        Yuanchu Xie <yuanchu@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        "T . J . Alumbaugh" <talumbau@google.com>
+References: <20230330212705.2992931-1-yuanchu@google.com>
+ <20230330212705.2992931-2-yuanchu@google.com>
+From:   Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20230330212705.2992931-2-yuanchu@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-noreuse was added as an fadvise_hint option to apply POSIX_FADV_NOREUSE,
-so we add it to the docs as well.
+On 3/30/23 3:27 PM, Yuanchu Xie wrote:
+> noreuse was added as an fadvise_hint option to apply POSIX_FADV_NOREUSE,
+> so we add it to the docs as well.
 
-Signed-off-by: Yuanchu Xie <yuanchu@google.com>
----
- fio.1 | 3 +++
- 1 file changed, 3 insertions(+)
+Can you do the HOWTO as well?
 
-diff --git a/fio.1 b/fio.1
-index e2db3a3f..4fa033f3 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1098,6 +1098,9 @@ Advise using FADV_SEQUENTIAL.
- .TP
- .B random
- Advise using FADV_RANDOM.
-+.TP
-+.B noreuse
-+Advise using FADV_NOREUSE.
- .RE
- .RE
- .TP
+Apart from that oversight, looks fine to me.
+
 -- 
-2.40.0.348.gf938b09366-goog
+Jens Axboe
+
 
