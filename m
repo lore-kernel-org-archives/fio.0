@@ -2,92 +2,87 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 793E2C761A6
-	for <fio@archiver.kernel.org>; Fri, 31 Mar 2023 18:54:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89367C761A6
+	for <fio@archiver.kernel.org>; Sat,  1 Apr 2023 01:57:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231253AbjCaSyu (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 31 Mar 2023 14:54:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57914 "EHLO
+        id S233950AbjDAB51 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 31 Mar 2023 21:57:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229983AbjCaSyt (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 31 Mar 2023 14:54:49 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A8F2220C
-        for <fio@vger.kernel.org>; Fri, 31 Mar 2023 11:54:48 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id mp3-20020a17090b190300b0023fcc8ce113so26388547pjb.4
-        for <fio@vger.kernel.org>; Fri, 31 Mar 2023 11:54:48 -0700 (PDT)
+        with ESMTP id S233956AbjDAB5M (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 31 Mar 2023 21:57:12 -0400
+Received: from mail-oa1-x43.google.com (mail-oa1-x43.google.com [IPv6:2001:4860:4864:20::43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8E93A87
+        for <fio@vger.kernel.org>; Fri, 31 Mar 2023 18:55:00 -0700 (PDT)
+Received: by mail-oa1-x43.google.com with SMTP id 586e51a60fabf-17ebba88c60so25049440fac.3
+        for <fio@vger.kernel.org>; Fri, 31 Mar 2023 18:55:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112; t=1680288888; x=1682880888;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8byzbraNvS5O9MFVnNaen0b+ljoj02K5Rux/weyMeWo=;
-        b=OT/MUrfJ/iALLy3VYBsoBeZJLsw7QL5wMpcyWTgR9C8wVmp6t+7tcWt5PIZEa/LJPA
-         p1XozJG9VhxyzPQMyav2y+ilO/NxWELAQuBWmbQWX8gTXTgjISn+urjA4XJ53n9qeka4
-         CEiwHSmReCo793ct3DrVvwZ8bKBa9pvGbNqbNPTEYeOooH8OU0/994Sp7JZHkp4dYYpJ
-         r1CyqLD2PyqFhq6eQjyYurLMc1oFu+/cjt8FkCc9Y9aEXVJJx3yr3ofnUmOqDzCNtTch
-         j9PB/Q0wDDCiZ6Jusx8CVpaccN1KRMVHZ059qb5rAdsgM2EPvi0EeB/f9p1rqQSs7tQu
-         BBfg==
+        d=gmail.com; s=20210112; t=1680314051;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=KmuJBCjiUQ5C4Hc32JcE+4DU+2BZW3jrm9h1Ab+hgmU=;
+        b=IIXBJ9+pl+MMk1JhIAORUCsmbWzlAvLDjdIIUnBkOt+Iao5YbJCXMvymM5CVDDkAPY
+         IuLsk8baWkNrJ+VOLDMUbd9DM9dX0xpHiRN7ifnJr1MaVtQ12uDTzs0Ec98SZi7x44RJ
+         MFqgJh0tAULSVLPH8M0kX3josxG7VAvk4Eu/0FG1wW32phe+EBMc7otalQjBtpvrOBzS
+         ndDDkw9L/FwdxzflltT+3sbpW7xo/681x1ObBvkJszAeikToG5F2r8VJzkF8JcdcOvhG
+         2S4FYLbHm0yhrwbzdULDAKtHewMPibOwOHdb7KS9Ko2vUxvCvB7cfYpuKuphUKRb6Gjz
+         y51Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680288888; x=1682880888;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8byzbraNvS5O9MFVnNaen0b+ljoj02K5Rux/weyMeWo=;
-        b=Bu0FjCUnpf3IcW2VT8kfTKmLYVrGwQLyX9rh7XVU64b60S+2k3n7uxE3OVvknKG4Wf
-         fiTa5KvdIGTpsV4aS17jnDBYlJmeOmxOumUEZ3dlonIKzjxDy3kd+Dpf9arF9M9qjNGT
-         Z0LXwqfpNqGX4DiXtj7krBkfdFsIgBhvxHke+LP/cNpAHvLZuoVrshbjI369VMJi2UWJ
-         jx9wYoHAfW29N+EVt31G17AdA5BWiFHyK0b3a4QoXY+d3CZVt4wQgFTF1wqpULHyY5Ks
-         Yt46Enkl8PMztovddiBSclbm/Tkr3ANF983r6nmAVfPsz2KDv+eub1gh3e19oZh96Pf5
-         70JQ==
-X-Gm-Message-State: AAQBX9dcFatT4dWFZNmxjf2u/5M+47EGSpRlPSAWm2vLBLvlgI3R1lcc
-        5GfRlnvqIk6Vl1KbQE05ri7dPg==
-X-Google-Smtp-Source: AKy350YObMBxVuSL3nFzfIHZdbAtMD5doUs00ZzrY2RnArrFqoynf/ZgNdPG1YOjfWHMqCPdep9Adw==
-X-Received: by 2002:a17:902:c94d:b0:1a2:74bc:31d8 with SMTP id i13-20020a170902c94d00b001a274bc31d8mr9654720pla.4.1680288888169;
-        Fri, 31 Mar 2023 11:54:48 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id z7-20020a170902ccc700b0019e30e3068bsm1914322ple.168.2023.03.31.11.54.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Mar 2023 11:54:47 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org,
-        Yuanchu Xie <yuanchu@google.com>
-Cc:     Yu Zhao <yuzhao@google.com>,
-        "T . J . Alumbaugh" <talumbau@google.com>
-In-Reply-To: <20230331183703.3145788-1-yuanchu@google.com>
-References: <20230331183703.3145788-1-yuanchu@google.com>
-Subject: Re: [PATCH v2 1/2] fio: add support for POSIX_FADV_NOREUSE
-Message-Id: <168028888732.124837.14963863099152501384.b4-ty@kernel.dk>
-Date:   Fri, 31 Mar 2023 12:54:47 -0600
+        d=1e100.net; s=20210112; t=1680314051;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=KmuJBCjiUQ5C4Hc32JcE+4DU+2BZW3jrm9h1Ab+hgmU=;
+        b=LQiZf3kJ5ZVu7rYTJgetaLdK8u9ughFV9SD4kaB8TfAuH7PdsdrsDAnFSgMnHRw6pT
+         g6QcTNtZyE3I+eK579VlBiEr4iBOyvTpRJ/ay2+/njkzPh7l3WOYBa7uApCCYlbS+9qu
+         zLAv9vvCOJGy59PXR9EEIahTD6rn2m4eBq1biYejX2MTFxlGOqAXfjRPxfS/+/wF8slJ
+         kUjgOSR5G9aPPzUYHrz9svf5VHSM8w/YhN8nxMFqzr7Dt7z0T5GtVtcA+urmqc1pjHJa
+         K8yBisD+hL6Lcf2xW3ZQP3Uyl+OuCj2GT6b+eBke8g2PRqLg5G86WJWi7g2JwczO0gxC
+         j7Lg==
+X-Gm-Message-State: AAQBX9dkfvtfOslnwPMpOgvOuZM29vTMi6XaaCr1zjfbpc77tn+7iJw6
+        oj9pfPVEVOxouOQNKMQh1WVYgeU5ObA0kfk50N3TBvLkjn1TGCi8
+X-Google-Smtp-Source: AK7set9JK2s1zqcbcaY1upFQnuuSWHMU3JATbbeXrukbdXuh4+z5mBumN6+BsmSvEgjt1fZzjuEj56nRtDt74ZBfnn0=
+X-Received: by 2002:a05:622a:88:b0:3e1:934d:ba1a with SMTP id
+ o8-20020a05622a008800b003e1934dba1amr11433136qtw.3.1680313482877; Fri, 31 Mar
+ 2023 18:44:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-20972
+From:   Sadman Sakib <sadmankiba@gmail.com>
+Date:   Fri, 31 Mar 2023 20:44:32 -0500
+Message-ID: <CALy08mb+6uq=ds2fVZ2B8YF5P4FvZgMsD0qx3ZTEY6EuFJ2ADw@mail.gmail.com>
+Subject: Does fio support running workload with NVMe-oF on top of SPDK?
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
+Hi,
 
-On Fri, 31 Mar 2023 11:37:02 -0700, Yuanchu Xie wrote:
-> As of Linux kernel commit 17e810229cb3 ("mm: support
-> POSIX_FADV_NOREUSE"), POSIX_FADV_NOREUSE hints at the LRU algorithm to
-> ignore accesses to mapped files with this flag. Previously, it was a
-> no-op.
-> 
-> Add it in fio as an fadvise_hint option to test the new behavior.
-> 
-> [...]
+I was wondering if Fio supports running workload on remote SSD with
+NVMe-oF on top of SPDK. I was able to run fio on local SSD with
+"xnvme" engine on top of xNVMe driver, which builts on SPDK driver. I
+followed the "xNVMe ioengine Part 2" guide in fio-blog repository. The
+job file I used is as below:
 
-Applied, thanks!
+[job1]
+ioengine=xnvme
+xnvme_dev_nsid=1
+thread=1
+rw=randread
+bs=4k
+filename=0000\:22\:00.0
+direct=1
+iodepth=1
+size=1G
 
-[1/2] fio: add support for POSIX_FADV_NOREUSE
-      commit: 109aad505302d2924396774f267eca7451f8fb14
-[2/2] docs: add noreuse fadvise_hint option
-      commit: 109aad505302d2924396774f267eca7451f8fb14
+I was also able to run workload on NVMe-oF with SPDK perf example that
+is shipped with SPDK using a command like below-
+spdk_nvme_perf -q 128 -o 4096 -w randread -r 'trtype:RDMA adrfam:IPv4
+traddr:192.168.100.8 trsvcid:4420' -t 300
 
-Best regards,
--- 
-Jens Axboe
+So, I think to run Fio with NVMe-oF on SPDK, I will need to set
+transport type, address and port with fio options. But, I did not find
+such options in the fio doc page. Does fio currently support NVMe-oF
+on top of SPDK which may not be documented in the doc page?
 
-
-
+Best,
+Sadman
