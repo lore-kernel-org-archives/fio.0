@@ -2,156 +2,117 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0912C76196
-	for <fio@archiver.kernel.org>; Sat,  1 Apr 2023 12:00:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CA18C7619A
+	for <fio@archiver.kernel.org>; Sun,  2 Apr 2023 18:17:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjDAMAW (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 1 Apr 2023 08:00:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33612 "EHLO
+        id S230501AbjDBSRI (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sun, 2 Apr 2023 14:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbjDAMAT (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 1 Apr 2023 08:00:19 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31A151D922
-        for <fio@vger.kernel.org>; Sat,  1 Apr 2023 05:00:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=ljICIXP70eVkb2dbscxD0AQxuRX/CsoYzZqkixIT6oc=; b=qGk9y22apFn5AOFTG78aYN2XSA
-        ns3wwuB0Z+zvZ5krjIHYGf+qU5UnsUxHYFAqsVZSwV+NUxwsOUC97QCy7eA66g/7Ohn/Kxr0sY3LB
-        6Ln737y4qfkOZomXkJVi+Rc5lepJ8pgBIgZRVMylrlysU0gX+4l4JQlUqaBqk94TPwQVA2kPB7WtB
-        8Wo7XAXzijhOP4APdIfKvpefUMxCM/0Y+nm5vZUObvksPTK/gDCrNQ75pMkOuzFCpZpdruAJ8zCTN
-        UATul+x/SZMq63Yupl08qgjBlHCfmqfJ9MHAxFyQLv8IN9YXCC8nQUAEerQQv79HiV216Je+6IbF9
-        +VbKGeVw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1piZtr-00CPWI-QN
-        for fio@vger.kernel.org; Sat, 01 Apr 2023 12:00:03 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 4E3231BC0166; Sat,  1 Apr 2023 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230401120001.4E3231BC0166@kernel.dk>
-Date:   Sat,  1 Apr 2023 06:00:01 -0600 (MDT)
+        with ESMTP id S230229AbjDBSRH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sun, 2 Apr 2023 14:17:07 -0400
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7920A61A4
+        for <fio@vger.kernel.org>; Sun,  2 Apr 2023 11:17:03 -0700 (PDT)
+Received: by mail-yb1-xb34.google.com with SMTP id f188so13918794ybb.3
+        for <fio@vger.kernel.org>; Sun, 02 Apr 2023 11:17:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112; t=1680459422;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qh7ZKSYZFrY/xE6AMEUTWP0qk1qQMY6fLeCbAAYyhXU=;
+        b=P7p2QkxiOVYXDXrS0zINedm5er4YXVsBhNg+SLt/1m2kITngnaWqSB9j73T+VG+hr3
+         VO11MSLadfIMnG7WVQQE6D77gmwlX5ZVGhc6EvSS39pIgNNqe94NgfJ/MJ4dtbsM6nYA
+         bcWiSf33MIoreg1WRfI1A5px1R19KL7nXvg7dprANwr+W9wAh9+MTG0VLczTlzlVSth+
+         609Yh8iX2pu2CrY89xECGMCB+k9x7sNOzA/XQHdBRE4bltIgxwXoduxSr/A4An9LFpbf
+         zyfeowCJHfdFnnP4wqVnDAgYNz4FyOXbtCyLGpVoOQ0CrMuMTjljMEuIkXeGInniuJhh
+         Jc2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1680459422;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qh7ZKSYZFrY/xE6AMEUTWP0qk1qQMY6fLeCbAAYyhXU=;
+        b=7XibGNrc2Qn/OYNb9PZSW2rY9jbJ0HLPPcQ/kc3tyVxymr9n4pXGieo7krRYL4a/Kp
+         vmdGfGpGl0p3MyAEQoCNcZ/kUb3cQItvkwIsa+Xi09a7/ptZQHBtjesTIzmlPc5b/bhm
+         tIdrjSXbcyKJs+yem1qx9eXlDpF95+gE9PVGq5rl5p+tQYr1111glcrJM/GuM5s/CjCl
+         6MT9iPXEQIn+TawnU57/7hnkgKEherbE+8HK3FtSIcGQ6EiMp/5XhqiKBtNcXjasqFgY
+         oLRwirZl+2dSoQ1PDA6LU24+SoGz20I6I6peJN4Wxf3Oi8Yt8KwotWPpW4l+LWv2EOxG
+         UISw==
+X-Gm-Message-State: AAQBX9fCBGe6fwWXIgcSUcZsQoKNjs604Jd5mJf8xdiT+zpVMU6G8H05
+        ZXFpuwyZkzmitMUFR+IcH0+qXvgiYlNQgTbXREOOd0RzhN0=
+X-Google-Smtp-Source: AKy350YWTFfJst7dKdvd/QQg+FkPCRl2QAzzdXcTfyafqdZiiF68VJyzEVlIMbBlm1jg8lLVe4JPsvMSNl39JQLSrHw=
+X-Received: by 2002:a25:2f84:0:b0:b6e:d788:eba0 with SMTP id
+ v126-20020a252f84000000b00b6ed788eba0mr21658366ybv.11.1680459422499; Sun, 02
+ Apr 2023 11:17:02 -0700 (PDT)
+MIME-Version: 1.0
+References: <CALy08mb+6uq=ds2fVZ2B8YF5P4FvZgMsD0qx3ZTEY6EuFJ2ADw@mail.gmail.com>
+In-Reply-To: <CALy08mb+6uq=ds2fVZ2B8YF5P4FvZgMsD0qx3ZTEY6EuFJ2ADw@mail.gmail.com>
+From:   Ankit Kumar <ankit1455@gmail.com>
+Date:   Sun, 2 Apr 2023 23:45:12 +0530
+Message-ID: <CAKi7+wdhri-BAD8UzzS6oG3uCZMW17RoRfa5HX9ShFLNnu6QHA@mail.gmail.com>
+Subject: Re: Does fio support running workload with NVMe-oF on top of SPDK?
+To:     Sadman Sakib <sadmankiba@gmail.com>
+Cc:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit d86ac3e9f4c703b7d7c9add96e69f2d02affdc65:
+Hi Sadman,
 
-  Merge branch 'trim-support' of https://github.com/ankit-sam/fio (2023-03-27 13:21:25 -0600)
+Yes you can run fio on NVMe-oF fabrics setup with xnvme ioengine,
+using the SPDK driver.
+Configuring subsystem can be done via:
+https://github.com/spdk/spdk/blob/master/scripts/rpc.py
 
-are available in the Git repository at:
+To run fio you just need to specify the backend as SPDK, namespace id
+and filename which will contain address and port. Something like this:
+--xnvme_be=3D"spdk"
+--xnvme_dev_nsid=3D"1"
+--filename=3D"192.168.100.8\:4420"
 
-  git://git.kernel.dk/fio.git master
+There is also a spdk ioengine, but not part of the fio source code and
+it's maintained in the spdk repository.
+If you want to run spdk ioengine directly without xnvme, please check:
+https://github.com/spdk/spdk/tree/master/examples/nvme/fio_plugin
 
-for you to fetch changes up to 638689b15af35bd746f9114a3e8895e7a983ed83:
+Regards
+Ankit
 
-  Only expose fadvise_hint=noreuse if supported (2023-03-31 12:52:01 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Only expose fadvise_hint=noreuse if supported
-
-Yuanchu Xie (2):
-      fio: add support for POSIX_FADV_NOREUSE
-      docs: add noreuse fadvise_hint option
-
- HOWTO.rst   | 5 +++++
- fio.1       | 5 +++++
- fio.h       | 1 +
- ioengines.c | 4 ++++
- options.c   | 7 +++++++
- 5 files changed, 22 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 5240f9da..cb0f9834 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -1308,6 +1308,11 @@ I/O type
- 		**random**
- 			Advise using **FADV_RANDOM**.
- 
-+		**noreuse**
-+			Advise using **FADV_NOREUSE**. This may be a no-op on older Linux
-+			kernels. Since Linux 6.3, it provides a hint to the LRU algorithm.
-+			See the :manpage:`posix_fadvise(2)` man page.
-+
- .. option:: write_hint=str
- 
- 	Use :manpage:`fcntl(2)` to advise the kernel what life time to expect
-diff --git a/fio.1 b/fio.1
-index e2db3a3f..311b16d8 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1098,6 +1098,11 @@ Advise using FADV_SEQUENTIAL.
- .TP
- .B random
- Advise using FADV_RANDOM.
-+.TP
-+.B noreuse
-+Advise using FADV_NOREUSE. This may be a no-op on older Linux
-+kernels. Since Linux 6.3, it provides a hint to the LRU algorithm.
-+See the \fBposix_fadvise\fR\|(2) man page.
- .RE
- .RE
- .TP
-diff --git a/fio.h b/fio.h
-index 32535517..f2acd430 100644
---- a/fio.h
-+++ b/fio.h
-@@ -163,6 +163,7 @@ enum {
- 	F_ADV_TYPE,
- 	F_ADV_RANDOM,
- 	F_ADV_SEQUENTIAL,
-+	F_ADV_NOREUSE,
- };
- 
- /*
-diff --git a/ioengines.c b/ioengines.c
-index e2316ee4..742f97dd 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -565,6 +565,10 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
- 			flags = POSIX_FADV_RANDOM;
- 		else if (td->o.fadvise_hint == F_ADV_SEQUENTIAL)
- 			flags = POSIX_FADV_SEQUENTIAL;
-+#ifdef POSIX_FADV_NOREUSE
-+		else if (td->o.fadvise_hint == F_ADV_NOREUSE)
-+			flags = POSIX_FADV_NOREUSE;
-+#endif
- 		else {
- 			log_err("fio: unknown fadvise type %d\n",
- 							td->o.fadvise_hint);
-diff --git a/options.c b/options.c
-index 18857795..440bff37 100644
---- a/options.c
-+++ b/options.c
-@@ -4,6 +4,7 @@
- #include <ctype.h>
- #include <string.h>
- #include <assert.h>
-+#include <fcntl.h>
- #include <sys/stat.h>
- #include <netinet/in.h>
- 
-@@ -2740,6 +2741,12 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 			    .oval = F_ADV_SEQUENTIAL,
- 			    .help = "Advise using FADV_SEQUENTIAL",
- 			  },
-+#ifdef POSIX_FADV_NOREUSE
-+			  { .ival = "noreuse",
-+			    .oval = F_ADV_NOREUSE,
-+			    .help = "Advise using FADV_NOREUSE",
-+			  },
-+#endif
- 		},
- 		.help	= "Use fadvise() to advise the kernel on IO pattern",
- 		.def	= "1",
+On Sat, Apr 1, 2023 at 7:30=E2=80=AFAM Sadman Sakib <sadmankiba@gmail.com> =
+wrote:
+>
+> Hi,
+>
+> I was wondering if Fio supports running workload on remote SSD with
+> NVMe-oF on top of SPDK. I was able to run fio on local SSD with
+> "xnvme" engine on top of xNVMe driver, which builts on SPDK driver. I
+> followed the "xNVMe ioengine Part 2" guide in fio-blog repository. The
+> job file I used is as below:
+>
+> [job1]
+> ioengine=3Dxnvme
+> xnvme_dev_nsid=3D1
+> thread=3D1
+> rw=3Drandread
+> bs=3D4k
+> filename=3D0000\:22\:00.0
+> direct=3D1
+> iodepth=3D1
+> size=3D1G
+>
+> I was also able to run workload on NVMe-oF with SPDK perf example that
+> is shipped with SPDK using a command like below-
+> spdk_nvme_perf -q 128 -o 4096 -w randread -r 'trtype:RDMA adrfam:IPv4
+> traddr:192.168.100.8 trsvcid:4420' -t 300
+>
+> So, I think to run Fio with NVMe-oF on SPDK, I will need to set
+> transport type, address and port with fio options. But, I did not find
+> such options in the fio doc page. Does fio currently support NVMe-oF
+> on top of SPDK which may not be documented in the doc page?
+>
+> Best,
+> Sadman
