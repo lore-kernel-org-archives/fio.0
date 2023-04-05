@@ -2,117 +2,463 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CA18C7619A
-	for <fio@archiver.kernel.org>; Sun,  2 Apr 2023 18:17:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A631AC7619A
+	for <fio@archiver.kernel.org>; Wed,  5 Apr 2023 12:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230501AbjDBSRI (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sun, 2 Apr 2023 14:17:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
+        id S237725AbjDEMAN (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 5 Apr 2023 08:00:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbjDBSRH (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sun, 2 Apr 2023 14:17:07 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7920A61A4
-        for <fio@vger.kernel.org>; Sun,  2 Apr 2023 11:17:03 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id f188so13918794ybb.3
-        for <fio@vger.kernel.org>; Sun, 02 Apr 2023 11:17:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1680459422;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qh7ZKSYZFrY/xE6AMEUTWP0qk1qQMY6fLeCbAAYyhXU=;
-        b=P7p2QkxiOVYXDXrS0zINedm5er4YXVsBhNg+SLt/1m2kITngnaWqSB9j73T+VG+hr3
-         VO11MSLadfIMnG7WVQQE6D77gmwlX5ZVGhc6EvSS39pIgNNqe94NgfJ/MJ4dtbsM6nYA
-         bcWiSf33MIoreg1WRfI1A5px1R19KL7nXvg7dprANwr+W9wAh9+MTG0VLczTlzlVSth+
-         609Yh8iX2pu2CrY89xECGMCB+k9x7sNOzA/XQHdBRE4bltIgxwXoduxSr/A4An9LFpbf
-         zyfeowCJHfdFnnP4wqVnDAgYNz4FyOXbtCyLGpVoOQ0CrMuMTjljMEuIkXeGInniuJhh
-         Jc2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680459422;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=qh7ZKSYZFrY/xE6AMEUTWP0qk1qQMY6fLeCbAAYyhXU=;
-        b=7XibGNrc2Qn/OYNb9PZSW2rY9jbJ0HLPPcQ/kc3tyVxymr9n4pXGieo7krRYL4a/Kp
-         vmdGfGpGl0p3MyAEQoCNcZ/kUb3cQItvkwIsa+Xi09a7/ptZQHBtjesTIzmlPc5b/bhm
-         tIdrjSXbcyKJs+yem1qx9eXlDpF95+gE9PVGq5rl5p+tQYr1111glcrJM/GuM5s/CjCl
-         6MT9iPXEQIn+TawnU57/7hnkgKEherbE+8HK3FtSIcGQ6EiMp/5XhqiKBtNcXjasqFgY
-         oLRwirZl+2dSoQ1PDA6LU24+SoGz20I6I6peJN4Wxf3Oi8Yt8KwotWPpW4l+LWv2EOxG
-         UISw==
-X-Gm-Message-State: AAQBX9fCBGe6fwWXIgcSUcZsQoKNjs604Jd5mJf8xdiT+zpVMU6G8H05
-        ZXFpuwyZkzmitMUFR+IcH0+qXvgiYlNQgTbXREOOd0RzhN0=
-X-Google-Smtp-Source: AKy350YWTFfJst7dKdvd/QQg+FkPCRl2QAzzdXcTfyafqdZiiF68VJyzEVlIMbBlm1jg8lLVe4JPsvMSNl39JQLSrHw=
-X-Received: by 2002:a25:2f84:0:b0:b6e:d788:eba0 with SMTP id
- v126-20020a252f84000000b00b6ed788eba0mr21658366ybv.11.1680459422499; Sun, 02
- Apr 2023 11:17:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <CALy08mb+6uq=ds2fVZ2B8YF5P4FvZgMsD0qx3ZTEY6EuFJ2ADw@mail.gmail.com>
-In-Reply-To: <CALy08mb+6uq=ds2fVZ2B8YF5P4FvZgMsD0qx3ZTEY6EuFJ2ADw@mail.gmail.com>
-From:   Ankit Kumar <ankit1455@gmail.com>
-Date:   Sun, 2 Apr 2023 23:45:12 +0530
-Message-ID: <CAKi7+wdhri-BAD8UzzS6oG3uCZMW17RoRfa5HX9ShFLNnu6QHA@mail.gmail.com>
-Subject: Re: Does fio support running workload with NVMe-oF on top of SPDK?
-To:     Sadman Sakib <sadmankiba@gmail.com>
-Cc:     fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        with ESMTP id S237597AbjDEMAM (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 5 Apr 2023 08:00:12 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E7219B2
+        for <fio@vger.kernel.org>; Wed,  5 Apr 2023 05:00:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=YZEgQpNh1gyFQD3tZb6s+Uqh0fnvJyikQZIsYo5901c=; b=YrCdU3fJ7skehvbo9YgX/GT3XZ
+        pMe87bse0XKRyww3Cyu4H1eJcDj8/CeWhtynyhw6uvZNkXEqF5+DA9UYtA2vHG1Y5M4pKQGwx6XAv
+        N7YfWzUmOPiIixYcRdrJreMvDshio+/b+sWsdbXN+kKhIBdPcT33LrrVCv4PH2JyH3iZmX8RDBLVC
+        PUxTTmax+Pn5uR87Vg2j8cuHH2kxCicpwFPTXq/r7OUv2gl+TSfunmG/ExwJKhIbVPU5woN65jlTy
+        3oPQP9xvVZGCUB4W6Oa4kNTBCQjp/9dY6d+PpAM1Rt2LpaqPAAPranejxAluOlznluO5kzI3q95tu
+        AMQUGxAQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1pk1o3-009u8c-34
+        for fio@vger.kernel.org;
+        Wed, 05 Apr 2023 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 751121BC012D; Wed,  5 Apr 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230405120001.751121BC012D@kernel.dk>
+Date:   Wed,  5 Apr 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hi Sadman,
+The following changes since commit 638689b15af35bd746f9114a3e8895e7a983ed83:
 
-Yes you can run fio on NVMe-oF fabrics setup with xnvme ioengine,
-using the SPDK driver.
-Configuring subsystem can be done via:
-https://github.com/spdk/spdk/blob/master/scripts/rpc.py
+  Only expose fadvise_hint=noreuse if supported (2023-03-31 12:52:01 -0600)
 
-To run fio you just need to specify the backend as SPDK, namespace id
-and filename which will contain address and port. Something like this:
---xnvme_be=3D"spdk"
---xnvme_dev_nsid=3D"1"
---filename=3D"192.168.100.8\:4420"
+are available in the Git repository at:
 
-There is also a spdk ioengine, but not part of the fio source code and
-it's maintained in the spdk repository.
-If you want to run spdk ioengine directly without xnvme, please check:
-https://github.com/spdk/spdk/tree/master/examples/nvme/fio_plugin
+  git://git.kernel.dk/fio.git master
 
-Regards
-Ankit
+for you to fetch changes up to 2d8c2709dc067aabdeab8bc1eea1992d9d802375:
 
-On Sat, Apr 1, 2023 at 7:30=E2=80=AFAM Sadman Sakib <sadmankiba@gmail.com> =
-wrote:
->
-> Hi,
->
-> I was wondering if Fio supports running workload on remote SSD with
-> NVMe-oF on top of SPDK. I was able to run fio on local SSD with
-> "xnvme" engine on top of xNVMe driver, which builts on SPDK driver. I
-> followed the "xNVMe ioengine Part 2" guide in fio-blog repository. The
-> job file I used is as below:
->
-> [job1]
-> ioengine=3Dxnvme
-> xnvme_dev_nsid=3D1
-> thread=3D1
-> rw=3Drandread
-> bs=3D4k
-> filename=3D0000\:22\:00.0
-> direct=3D1
-> iodepth=3D1
-> size=3D1G
->
-> I was also able to run workload on NVMe-oF with SPDK perf example that
-> is shipped with SPDK using a command like below-
-> spdk_nvme_perf -q 128 -o 4096 -w randread -r 'trtype:RDMA adrfam:IPv4
-> traddr:192.168.100.8 trsvcid:4420' -t 300
->
-> So, I think to run Fio with NVMe-oF on SPDK, I will need to set
-> transport type, address and port with fio options. But, I did not find
-> such options in the fio doc page. Does fio currently support NVMe-oF
-> on top of SPDK which may not be documented in the doc page?
->
-> Best,
-> Sadman
+  io_u: fix bad style (2023-04-04 09:49:19 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (4):
+      Merge branch 'master' of https://github.com/SuhoSon/fio
+      engines/nvme: cache errno value
+      engines/nfs: fix the most egregious style violations
+      io_u: fix bad style
+
+suho.son (1):
+      thinktime: Fix missing re-init thinktime when using ramptime
+
+ engines/nfs.c  | 147 ++++++++++++++++++++++++++++++++++-----------------------
+ engines/nvme.c |   6 ++-
+ fio.h          |   2 +-
+ io_u.c         |   4 +-
+ libfio.c       |   6 +++
+ 5 files changed, 102 insertions(+), 63 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/nfs.c b/engines/nfs.c
+index 7031769d..336e670b 100644
+--- a/engines/nfs.c
++++ b/engines/nfs.c
+@@ -16,10 +16,17 @@ enum nfs_op_type {
+ struct fio_libnfs_options {
+ 	struct nfs_context *context;
+ 	char *nfs_url;
+-	unsigned int queue_depth; /* nfs_callback needs this info, but doesn't have fio td structure to pull it from */
++	/* nfs_callback needs this info, but doesn't have fio td structure to
++	 * pull it from
++	 */
++	unsigned int queue_depth;
++
+ 	/* the following implement a circular queue of outstanding IOs */
+-	int outstanding_events; /* IOs issued to libnfs, that have not returned yet */
+-	int prev_requested_event_index; /* event last returned via fio_libnfs_event */
++
++	/* IOs issued to libnfs, that have not returned yet */
++	int outstanding_events;
++	/* event last returned via fio_libnfs_event */
++	int prev_requested_event_index;
+ 	int next_buffered_event; /* round robin-pointer within events[] */
+ 	int buffered_event_count; /* IOs completed by libnfs, waiting for FIO */
+ 	int free_event_buffer_index; /* next free buffer */
+@@ -33,11 +40,12 @@ struct nfs_data {
+ 
+ static struct fio_option options[] = {
+ 	{
+-		.name     = "nfs_url",
+-		.lname    = "nfs_url",
+-		.type     = FIO_OPT_STR_STORE,
+-		.help	= "URL in libnfs format, eg nfs://<server|ipv4|ipv6>/path[?arg=val[&arg=val]*]",
+-		.off1     = offsetof(struct fio_libnfs_options, nfs_url),
++		.name	= "nfs_url",
++		.lname	= "nfs_url",
++		.type	= FIO_OPT_STR_STORE,
++		.help	= "URL in libnfs format, eg nfs://<server|ipv4|"
++			  "ipv6>/path[?arg=val[&arg=val]*]",
++		.off1	= offsetof(struct fio_libnfs_options, nfs_url),
+ 		.category = FIO_OPT_C_ENGINE,
+ 		.group	= __FIO_OPT_G_NFS,
+ 	},
+@@ -50,44 +58,53 @@ static struct io_u *fio_libnfs_event(struct thread_data *td, int event)
+ {
+ 	struct fio_libnfs_options *o = td->eo;
+ 	struct io_u *io_u = o->events[o->next_buffered_event];
++
+ 	assert(o->events[o->next_buffered_event]);
+ 	o->events[o->next_buffered_event] = NULL;
+ 	o->next_buffered_event = (o->next_buffered_event + 1) % td->o.iodepth;
++
+ 	/* validate our state machine */
+ 	assert(o->buffered_event_count);
+ 	o->buffered_event_count--;
+ 	assert(io_u);
++
+ 	/* assert that fio_libnfs_event is being called in sequential fashion */
+ 	assert(event == 0 || o->prev_requested_event_index + 1 == event);
+-	if (o->buffered_event_count == 0) {
++	if (o->buffered_event_count == 0)
+ 		o->prev_requested_event_index = -1;
+-	} else {
++	else
+ 		o->prev_requested_event_index = event;
+-	}
+ 	return io_u;
+ }
+ 
+-static int nfs_event_loop(struct thread_data *td, bool flush) {
++/*
++ * fio core logic seems to stop calling this event-loop if we ever return with
++ * 0 events
++ */
++#define SHOULD_WAIT(td, o, flush)			\
++ 	((o)->outstanding_events == (td)->o.iodepth ||	\
++		(flush && (o)->outstanding_events))
++
++static int nfs_event_loop(struct thread_data *td, bool flush)
++{
+ 	struct fio_libnfs_options *o = td->eo;
+ 	struct pollfd pfds[1]; /* nfs:0 */
++
+ 	/* we already have stuff queued for fio, no need to waste cpu on poll() */
+ 	if (o->buffered_event_count)
+ 		return o->buffered_event_count;
+-	/* fio core logic seems to stop calling this event-loop if we ever return with 0 events */
+-	#define SHOULD_WAIT() (o->outstanding_events == td->o.iodepth || (flush && o->outstanding_events))
+ 
+ 	do {
+-		int timeout = SHOULD_WAIT() ? -1 : 0;
++		int timeout = SHOULD_WAIT(td, o, flush) ? -1 : 0;
+ 		int ret = 0;
++
+ 		pfds[0].fd = nfs_get_fd(o->context);
+ 		pfds[0].events = nfs_which_events(o->context);
+ 		ret = poll(&pfds[0], 1, timeout);
+ 		if (ret < 0) {
+-			if (errno == EINTR || errno == EAGAIN) {
++			if (errno == EINTR || errno == EAGAIN)
+ 				continue;
+-			}
+-			log_err("nfs: failed to poll events: %s.\n",
+-				strerror(errno));
++			log_err("nfs: failed to poll events: %s\n", strerror(errno));
+ 			break;
+ 		}
+ 
+@@ -96,27 +113,30 @@ static int nfs_event_loop(struct thread_data *td, bool flush) {
+ 			log_err("nfs: socket is in an unrecoverable error state.\n");
+ 			break;
+ 		}
+-	} while (SHOULD_WAIT());
++	} while (SHOULD_WAIT(td, o, flush));
++
+ 	return o->buffered_event_count;
+-#undef SHOULD_WAIT
+ }
+ 
+ static int fio_libnfs_getevents(struct thread_data *td, unsigned int min,
+-				  unsigned int max, const struct timespec *t)
++				unsigned int max, const struct timespec *t)
+ {
+ 	return nfs_event_loop(td, false);
+ }
+ 
+ static void nfs_callback(int res, struct nfs_context *nfs, void *data,
+-                       void *private_data)
++			 void *private_data)
+ {
+ 	struct io_u *io_u = private_data;
+ 	struct nfs_data *nfs_data = io_u->file->engine_data;
+ 	struct fio_libnfs_options *o = nfs_data->options;
+ 	if (res < 0) {
+-		log_err("Failed NFS operation(code:%d): %s\n", res, nfs_get_error(o->context));
++		log_err("Failed NFS operation(code:%d): %s\n", res,
++						nfs_get_error(o->context));
+ 		io_u->error = -res;
+-		/* res is used for read math below, don't wanna pass negative there */
++		/* res is used for read math below, don't want to pass negative
++		 * there
++		 */
+ 		res = 0;
+ 	} else if (io_u->ddir == DDIR_READ) {
+ 		memcpy(io_u->buf, data, res);
+@@ -133,42 +153,46 @@ static void nfs_callback(int res, struct nfs_context *nfs, void *data,
+ 	o->buffered_event_count++;
+ }
+ 
+-static int queue_write(struct fio_libnfs_options *o, struct io_u *io_u) {
++static int queue_write(struct fio_libnfs_options *o, struct io_u *io_u)
++{
+ 	struct nfs_data *nfs_data = io_u->engine_data;
+-	return nfs_pwrite_async(o->context, nfs_data->nfsfh,
+-                           io_u->offset, io_u->buflen, io_u->buf, nfs_callback,
+-                           io_u);
++
++	return nfs_pwrite_async(o->context, nfs_data->nfsfh, io_u->offset,
++				io_u->buflen, io_u->buf, nfs_callback, io_u);
+ }
+ 
+-static int queue_read(struct fio_libnfs_options *o, struct io_u *io_u) {
++static int queue_read(struct fio_libnfs_options *o, struct io_u *io_u)
++{
+ 	struct nfs_data *nfs_data = io_u->engine_data;
+-	return nfs_pread_async(o->context,  nfs_data->nfsfh, io_u->offset, io_u->buflen, nfs_callback,  io_u);
++
++	return nfs_pread_async(o->context, nfs_data->nfsfh, io_u->offset,
++				io_u->buflen, nfs_callback, io_u);
+ }
+ 
+ static enum fio_q_status fio_libnfs_queue(struct thread_data *td,
+-					    struct io_u *io_u)
++					  struct io_u *io_u)
+ {
+ 	struct nfs_data *nfs_data = io_u->file->engine_data;
+ 	struct fio_libnfs_options *o = nfs_data->options;
+ 	struct nfs_context *nfs = o->context;
+-	int err;
+ 	enum fio_q_status ret = FIO_Q_QUEUED;
++	int err;
+ 
+ 	io_u->engine_data = nfs_data;
+-	switch(io_u->ddir) {
+-		case DDIR_WRITE:
+-			err = queue_write(o, io_u);
+-			break;
+-		case DDIR_READ:
+-			err = queue_read(o, io_u);
+-			break;
+-		case DDIR_TRIM:
+-			log_err("nfs: trim is not supported");
+-			err = -1;
+-			break;
+-		default:
+-			log_err("nfs: unhandled io %d\n", io_u->ddir);
+-			err = -1;
++	switch (io_u->ddir) {
++	case DDIR_WRITE:
++		err = queue_write(o, io_u);
++		break;
++	case DDIR_READ:
++		err = queue_read(o, io_u);
++		break;
++	case DDIR_TRIM:
++		log_err("nfs: trim is not supported");
++		err = -1;
++		break;
++	default:
++		log_err("nfs: unhandled io %d\n", io_u->ddir);
++		err = -1;
+ 	}
+ 	if (err) {
+ 		log_err("nfs: Failed to queue nfs op: %s\n", nfs_get_error(nfs));
+@@ -195,7 +219,7 @@ static int do_mount(struct thread_data *td, const char *url)
+ 		return 0;
+ 
+ 	options->context = nfs_init_context();
+-	if (options->context == NULL) {
++	if (!options->context) {
+ 		log_err("nfs: failed to init nfs context\n");
+ 		return -1;
+ 	}
+@@ -219,7 +243,9 @@ static int do_mount(struct thread_data *td, const char *url)
+ 
+ static int fio_libnfs_setup(struct thread_data *td)
+ {
+-	/* Using threads with libnfs causes fio to hang on exit, lower performance */
++	/* Using threads with libnfs causes fio to hang on exit, lower
++	 * performance
++	 */
+ 	td->o.use_thread = 0;
+ 	return 0;
+ }
+@@ -227,6 +253,7 @@ static int fio_libnfs_setup(struct thread_data *td)
+ static void fio_libnfs_cleanup(struct thread_data *td)
+ {
+ 	struct fio_libnfs_options *o = td->eo;
++
+ 	nfs_umount(o->context);
+ 	nfs_destroy_context(o->context);
+ 	free(o->events);
+@@ -234,10 +261,10 @@ static void fio_libnfs_cleanup(struct thread_data *td)
+ 
+ static int fio_libnfs_open(struct thread_data *td, struct fio_file *f)
+ {
+-	int ret;
+ 	struct fio_libnfs_options *options = td->eo;
+ 	struct nfs_data *nfs_data = NULL;
+ 	int flags = 0;
++	int ret;
+ 
+ 	if (!options->nfs_url) {
+ 		log_err("nfs: nfs_url is a required parameter\n");
+@@ -246,23 +273,25 @@ static int fio_libnfs_open(struct thread_data *td, struct fio_file *f)
+ 
+ 	ret = do_mount(td, options->nfs_url);
+ 
+-	if (ret != 0) {
+-		log_err("nfs: Failed to mount %s with code %d: %s\n", options->nfs_url, ret, nfs_get_error(options->context));
++	if (ret) {
++		log_err("nfs: Failed to mount %s with code %d: %s\n",
++			options->nfs_url, ret, nfs_get_error(options->context));
+ 		return ret;
+ 	}
+ 	nfs_data = malloc(sizeof(struct nfs_data));
+ 	memset(nfs_data, 0, sizeof(struct nfs_data));
+ 	nfs_data->options = options;
+ 
+-	if (td->o.td_ddir == TD_DDIR_WRITE) {
++	if (td->o.td_ddir == TD_DDIR_WRITE)
+ 		flags |= O_CREAT | O_RDWR;
+-	} else {
++	else
+ 		flags |= O_RDWR;
+-	}
++
+ 	ret = nfs_open(options->context, f->file_name, flags, &nfs_data->nfsfh);
+ 
+-	if (ret != 0)
+-		log_err("Failed to open %s: %s\n", f->file_name, nfs_get_error(options->context));
++	if (ret)
++		log_err("Failed to open %s: %s\n", f->file_name,
++					nfs_get_error(options->context));
+ 	f->engine_data = nfs_data;
+ 	return ret;
+ }
+@@ -272,8 +301,10 @@ static int fio_libnfs_close(struct thread_data *td, struct fio_file *f)
+ 	struct nfs_data *nfs_data = f->engine_data;
+ 	struct fio_libnfs_options *o = nfs_data->options;
+ 	int ret = 0;
++
+ 	if (nfs_data->nfsfh)
+ 		ret = nfs_close(o->context, nfs_data->nfsfh);
++
+ 	free(nfs_data);
+ 	f->engine_data = NULL;
+ 	return ret;
+@@ -289,7 +320,7 @@ struct ioengine_ops ioengine = {
+ 	.cleanup	= fio_libnfs_cleanup,
+ 	.open_file	= fio_libnfs_open,
+ 	.close_file	= fio_libnfs_close,
+-	.flags      = FIO_DISKLESSIO | FIO_NOEXTEND | FIO_NODISKUTIL,
++	.flags		= FIO_DISKLESSIO | FIO_NOEXTEND | FIO_NODISKUTIL,
+ 	.options	= options,
+ 	.option_struct_size	= sizeof(struct fio_libnfs_options),
+ };
+diff --git a/engines/nvme.c b/engines/nvme.c
+index ac908687..fd2161f3 100644
+--- a/engines/nvme.c
++++ b/engines/nvme.c
+@@ -112,9 +112,10 @@ int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
+ 
+ 	namespace_id = ioctl(fd, NVME_IOCTL_ID);
+ 	if (namespace_id < 0) {
++		err = -errno;
+ 		log_err("failed to fetch namespace-id");
+ 		close(fd);
+-		return -errno;
++		return err;
+ 	}
+ 
+ 	/*
+@@ -414,6 +415,7 @@ int fio_nvme_iomgmt_ruhs(struct thread_data *td, struct fio_file *f,
+ 	} else
+ 		errno = 0;
+ 
++	ret = -errno;
+ 	close(fd);
+-	return -errno;
++	return ret;
+ }
+diff --git a/fio.h b/fio.h
+index f2acd430..6b841e9c 100644
+--- a/fio.h
++++ b/fio.h
+@@ -377,7 +377,7 @@ struct thread_data {
+ 
+ 	uint64_t *thinktime_blocks_counter;
+ 	struct timespec last_thinktime;
+-	uint64_t last_thinktime_blocks;
++	int64_t last_thinktime_blocks;
+ 
+ 	/*
+ 	 * State for random io, a bitmap of blocks done vs not done
+diff --git a/io_u.c b/io_u.c
+index ca7ee68f..30265cfb 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1370,8 +1370,8 @@ static struct fio_file *__get_next_file(struct thread_data *td)
+ 		if (td->o.file_service_type == FIO_FSERVICE_SEQ)
+ 			goto out;
+ 		if (td->file_service_left) {
+-		  td->file_service_left--;
+-		  goto out;
++			td->file_service_left--;
++			goto out;
+ 		}
+ 	}
+ 
+diff --git a/libfio.c b/libfio.c
+index a52014ce..ddd49cd7 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -131,10 +131,14 @@ void clear_io_state(struct thread_data *td, int all)
+ 
+ void reset_all_stats(struct thread_data *td)
+ {
++	unsigned long long b;
+ 	int i;
+ 
+ 	reset_io_counters(td, 1);
+ 
++	b = ddir_rw_sum(td->thinktime_blocks_counter);
++	td->last_thinktime_blocks -= b;
++
+ 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
+ 		td->io_bytes[i] = 0;
+ 		td->io_blocks[i] = 0;
+@@ -149,6 +153,8 @@ void reset_all_stats(struct thread_data *td)
+ 	memcpy(&td->bw_sample_time, &td->epoch, sizeof(td->epoch));
+ 	memcpy(&td->ss.prev_time, &td->epoch, sizeof(td->epoch));
+ 
++	td->last_thinktime = td->epoch;
++
+ 	lat_target_reset(td);
+ 	clear_rusage_stat(td);
+ 	helper_reset();
