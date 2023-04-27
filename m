@@ -2,197 +2,134 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A36D2C77B73
-	for <fio@archiver.kernel.org>; Thu, 27 Apr 2023 13:22:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC932C77B73
+	for <fio@archiver.kernel.org>; Thu, 27 Apr 2023 18:36:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242993AbjD0NWc (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 27 Apr 2023 09:22:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40552 "EHLO
+        id S244554AbjD0SgM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 27 Apr 2023 14:36:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbjD0NWb (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Apr 2023 09:22:31 -0400
-Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFFA24489
-        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 06:22:30 -0700 (PDT)
-Received: by mail-io1-xd2a.google.com with SMTP id ca18e2360f4ac-763af6790a3so38698939f.0
-        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 06:22:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1682601750; x=1685193750;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HPdB22/P2BR02l9mvM11YUjo8+/FA3Wiino5XhDpGKI=;
-        b=NSJZcbwqBoa0slV686UTsardFWpTfZQ43tUsU7mv9V5g3wxyQISkGG9Kf8Z5YWNEOQ
-         gUg/bdQRE83iCwbeTOw33Ae1h+ZC1zY0IWdS4OFfmBTrAVHOHIxHXaXE8/+rNM8vg087
-         D7uTcMjS4+2KlT9JX2VKKkmDj7XVi9L2GnJfjVIGLPJQf+AR7DRK2dq42QdyHqCPtgLj
-         ntFZJPenz+QCl9rv1LgWxZgeQLZ0Eu5seEBGXw9Cse3gvoFyWAbKviqgxVA+WvQ1FdTk
-         d0Rif7J3TUbE7eBu+chMHCtrjvj/6iyL5B1Bd4Yj6Cjj6zIfxph4t+wWgV43EUAsXrQ/
-         d02w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682601750; x=1685193750;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=HPdB22/P2BR02l9mvM11YUjo8+/FA3Wiino5XhDpGKI=;
-        b=OjfT7zOZrHTc59d861ooRII4Qujq/uzESBpxu3DO5fStV9cCrev6T9DqhLRP5ZMtqd
-         ZyTnoQs9tkcZEuMQiSJAMsFfin/JYqBf6eCOl8m9kNOi2d7OEb2MAmuekdFS6BIWD20C
-         ji+/xkr3yuLps2TB+rh3YTw4FL6M1kUwHikiZJyp9SBBoXEVulaGfZZ1XjO0k2SoqKhN
-         G8xas0f17Cgt75k6ZLD0zdb4cbfaSkYL+gY2g/y3iVtvLB2UDDiTUeCULLztyOzx6AMD
-         kOjwNXbDOUzhV5HxE5+WjcCRLVllSAEd+d007pEwqume2ORw2N7idaOrD3prmaBNx0id
-         IYQg==
-X-Gm-Message-State: AC+VfDx1wQ7dZKsG5K5gykMfVcVRq9skymbuy240PvAnRp3NZ8+GbYhm
-        ewj1XBkInC5gOor7m9oI6UV8UdnpeH3IKxBYlG4=
-X-Google-Smtp-Source: ACHHUZ6hUGSK0CVkXLGlTVX6AUWomCXiVP4NqfQ4mjzxEq/eZEeuoWaViZTGSpvAV9iLsCmJMKmSIw==
-X-Received: by 2002:a05:6e02:1c0a:b0:32a:a8d7:f099 with SMTP id l10-20020a056e021c0a00b0032aa8d7f099mr1192151ilh.3.1682601750011;
-        Thu, 27 Apr 2023 06:22:30 -0700 (PDT)
-Received: from [192.168.1.94] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id s17-20020a92cb11000000b0032a8e1ba829sm4878052ilo.16.2023.04.27.06.22.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Apr 2023 06:22:29 -0700 (PDT)
-Message-ID: <ece9613d-ffeb-7fd7-942a-0902259e5a65@kernel.dk>
-Date:   Thu, 27 Apr 2023 07:22:28 -0600
+        with ESMTP id S243558AbjD0SgL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Apr 2023 14:36:11 -0400
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0C4E2
+        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 11:36:06 -0700 (PDT)
+Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20230427183604epoutp04318004c35ec394c107f9291398e7d19e~Z3nz1PFp73113731137epoutp04D
+        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 18:36:04 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20230427183604epoutp04318004c35ec394c107f9291398e7d19e~Z3nz1PFp73113731137epoutp04D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1682620564;
+        bh=QPBrJeJvx7+3uhK+DutobynSoqSJhImoc/EsUdHGa+I=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=GJzq1RAS/yXREcm618e/wvRU70KEdYZe7Pq9NwwS/Tyk2tFOVHXG0AVZS5ao61Pun
+         ikosli0xszOY8EXkGInuqf5Tq834eGAFbU8zmMtEfzw1THefRwqaITX+rpwCrl1PpV
+         hRSsQnscswDqJISvyeFBlxywzd/o07KDHkJ8yjaM=
+Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20230427183603epcas5p25d6b17fa4ac118381bb3828481801278~Z3nzaWMB-1610016100epcas5p2P;
+        Thu, 27 Apr 2023 18:36:03 +0000 (GMT)
+Received: from epsmges5p3new.samsung.com (unknown [182.195.38.176]) by
+        epsnrtp2.localdomain (Postfix) with ESMTP id 4Q6kvk30Dwz4x9Pt; Thu, 27 Apr
+        2023 18:36:02 +0000 (GMT)
+Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
+        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        1F.D7.55646.290CA446; Fri, 28 Apr 2023 03:36:02 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20230427142401epcas5p1613b998c03d8f635c6942d92c7ae7ee0~Z0LvriOBA0996309963epcas5p1t;
+        Thu, 27 Apr 2023 14:24:01 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20230427142401epsmtrp2af93f4823ef6a4027f01a56f19a86fb6~Z0Lvp7rbl0417204172epsmtrp2r;
+        Thu, 27 Apr 2023 14:24:01 +0000 (GMT)
+X-AuditID: b6c32a4b-913ff7000001d95e-84-644ac092acdb
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        53.0C.27706.1858A446; Thu, 27 Apr 2023 23:24:01 +0900 (KST)
+Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
+        [107.99.41.39]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20230427142400epsmtip29452faab6b8d6b18f8bf3e3e1eecc570~Z0LutKBMr1427414274epsmtip22;
+        Thu, 27 Apr 2023 14:24:00 +0000 (GMT)
+From:   Anuj Gupta <anuj20.g@samsung.com>
+To:     axboe@kernel.dk
+Cc:     vincent.fu@samsung.com, fio@vger.kernel.org,
+        ankit.kumar@samsung.com, anuj1072538@gmail.com,
+        Anuj Gupta <anuj20.g@samsung.com>
+Subject: [PATCH] t/io_uring: avoid null-ptr dereference incase setup_ring
+ fails
+Date:   Fri, 28 Apr 2023 01:14:15 +0530
+Message-Id: <20230427194415.1160701-1-anuj20.g@samsung.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH] t/io_uring: fix error handling for setup_ring
-Content-Language: en-US
-To:     Anuj gupta <anuj1072538@gmail.com>
-Cc:     Anuj Gupta <anuj20.g@samsung.com>, vincent.fu@samsung.com,
-        fio@vger.kernel.org, ankit.kumar@samsung.com
-References: <CGME20230427094952epcas5p32967ed548e18e60ea3134a03aa046bb8@epcas5p3.samsung.com>
- <20230427151004.1146679-1-anuj20.g@samsung.com>
- <4e368610-30aa-4f2a-202b-d93050ea1f02@kernel.dk>
- <cdbabe77-9b1d-c020-e7fe-528e453af002@kernel.dk>
- <CACzX3AvLdk8rLH-3DOe1Ono9xabi2NMsoXBnvpmMj6rFPVfM-A@mail.gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <CACzX3AvLdk8rLH-3DOe1Ono9xabi2NMsoXBnvpmMj6rFPVfM-A@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrOKsWRmVeSWpSXmKPExsWy7bCmpu6kA14pBtcPC1qsufKb3eLj198s
+        Fk0T/jJbrL7bz2bxcdYLZovH3R2MDmweO2fdZfe4fLbUo2/LKkaPz5vkAliism0yUhNTUosU
+        UvOS81My89JtlbyD453jTc0MDHUNLS3MlRTyEnNTbZVcfAJ03TJzgHYrKZQl5pQChQISi4uV
+        9O1sivJLS1IVMvKLS2yVUgtScgpMCvSKE3OLS/PS9fJSS6wMDQyMTIEKE7IzThwSLPjMVrF/
+        bV0D433WLkZODgkBE4lPZ1+ydzFycQgJ7GaUOLn8LwuE84lR4vG5m2wgVUIC3xglXu0Ugel4
+        +28BM0TRXkaJmzdmQ7V3MklMWHWJBaSKTUBd4sjzVkYQW0RAWGJ/RyvYWGaBFkaJZT/3gY0V
+        FgiUWNyxBqyIRUBV4v+pB2A2r4C1ROuuFSwQ6+QlZl76zg4RF5Q4OfMJWJwZKN68dTbYGRIC
+        u9glDs58wQ7R4CLRvekhlC0s8er4FihbSuLzu71sEHa6xI/LT5kg7AKJ5mP7GCFse4nWU/1A
+        QzmAFmhKrN+lDxGWlZh6ah0TxF4+id7fT6BaeSV2zIOxlSTaV86BsiUk9p5rgLI9JH5/vssC
+        CcZYiQfnTrBNYJSfheSdWUjemYWweQEj8ypGydSC4tz01GLTAuO81HJ4vCbn525iBKdALe8d
+        jI8efNA7xMjEwXiIUYKDWUmEl7fSPUWINyWxsiq1KD++qDQntfgQoykwjCcyS4km5wOTcF5J
+        vKGJpYGJmZmZiaWxmaGSOK+67clkIYH0xJLU7NTUgtQimD4mDk6pBiYdj5nMAd5lcycJ7jzD
+        ulHk83fXN5W/HO5M+t+rU/PZzSxX5FvhntnuvgpNf2Q1rnntlg57UuzQExCob81Y/IVhZt6U
+        ALVlP/4IPdo84eu0KUcvu8/a80Dw+7KZ86Y+k3j+ZWqU3+EQy4+KfCK7pn/ifO3UbWPYbz5v
+        cuzmHqGQ25s0y6+ZvbqiYWp6sdDy/Pup+74dc2p+ay+buqf/VWQZ14EAc/dGRbdNbdvSFs5u
+        3+M313DaMvd9//seL7u+PODNgkT5CoOLHNcK5///zznRer7ucxHFo5uOnVUq6lGcxVmZ9JZT
+        1Vkx6rFurJtl09br6eda+We90znCfFt7tiG35kcTi0sPUtJN/hRf23xUiaU4I9FQi7moOBEA
+        kgjkXQoEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrMLMWRmVeSWpSXmKPExsWy7bCSvG5jq1eKwdHfPBZrrvxmt/j49TeL
+        RdOEv8wWq+/2s1l8nPWC2eJxdwejA5vHzll32T0uny316NuyitHj8ya5AJYoLpuU1JzMstQi
+        fbsErowThwQLPrNV7F9b18B4n7WLkZNDQsBE4u2/BcxdjFwcQgK7GSXa2l6zQyQkJE69XMYI
+        YQtLrPz3nB2iqJ1JYuOD32BFbALqEkeet4IViQAV7e9oZQEpYhboYpTY/fUv2AphAX+Jt01r
+        mEFsFgFVif+nHoA18ApYS7TuWsECsUFeYual7+wQcUGJkzOfgMWZgeLNW2czT2Dkm4UkNQtJ
+        agEj0ypGydSC4tz03GLDAsO81HK94sTc4tK8dL3k/NxNjOBw1NLcwbh91Qe9Q4xMHIyHGCU4
+        mJVEeHkr3VOEeFMSK6tSi/Lji0pzUosPMUpzsCiJ817oOhkvJJCeWJKanZpakFoEk2Xi4JRq
+        YNLRLFz06nLhjbkJvN8LJWy4/kjxWEyJC3/IfPSINYN15EOpLwYz1XmWBTQZayvFrzt0pfJR
+        4NXp0/ZkK0V1epnnnknR9Oyf+fXI9cU9h97smG25+5Ox4OOt0nuthfeab4m4ciMjYSWT1qa1
+        Z5bsu/qVZ2eD4dlF1zmezshwELl48e7RHjZtJ56EjiWTZlf5LHlTbt6VcDLj7uoeh6ha7e0L
+        +UJ25vTt3y1ZclDokt5qA5mdL09tPLA5TSLO8Vp9WoO27sJWhpTJd57Z7zhmwqDUsGPFrikX
+        Xuf7B+/+/HrpHTvBDVa/Vl43mSB/9/LVZyrTvn3bNf9Ockmd/e8Apd6CWUoXbeom8gUlCkrk
+        fNNVYinOSDTUYi4qTgQA6kpHL7YCAAA=
+X-CMS-MailID: 20230427142401epcas5p1613b998c03d8f635c6942d92c7ae7ee0
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20230427142401epcas5p1613b998c03d8f635c6942d92c7ae7ee0
+References: <CGME20230427142401epcas5p1613b998c03d8f635c6942d92c7ae7ee0@epcas5p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 4/27/23 6:26?AM, Anuj gupta wrote:
-> On Thu, Apr 27, 2023 at 5:23?PM Jens Axboe <axboe@kernel.dk> wrote:
->>
->> On 4/27/23 5:48?AM, Jens Axboe wrote:
->>> On 4/27/23 9:10?AM, Anuj Gupta wrote:
->>>> s->sq_ring.ring_entries and s->cq_ring.ring_entries will be NULL,
->>>> incase setup_ring fails. This will cause a segmentation fault.
->>>>
->>>> In case setup_ring fails, bail out by setting finish.
->>>
->>> Any reason why we don't just use the return code of submitter_init()
->>> on whether to abort or not?
->>
->> Something like this as a prep patch, then do the trivial version
->> of your patch after that.
->>
->> Totally untested...
->>
->>
->> diff --git a/t/io_uring.c b/t/io_uring.c
->> index 6b0efef85cb7..2f8d63fbe67e 100644
->> --- a/t/io_uring.c
->> +++ b/t/io_uring.c
->> @@ -1049,7 +1049,7 @@ static int submitter_init(struct submitter *s)
->>
->>                 buf = allocate_mem(s, bs);
->>                 if (!buf)
->> -                       return 1;
->> +                       return -1;
->>                 s->iovecs[i].iov_base = buf;
->>                 s->iovecs[i].iov_len = bs;
->>         }
->> @@ -1066,7 +1066,7 @@ static int submitter_init(struct submitter *s)
->>         }
->>         if (err) {
->>                 printf("queue setup failed: %s, %d\n", strerror(errno), err);
->> -               return 1;
->> +               return -1;
->>         }
->>
->>         if (!init_printed) {
->> @@ -1172,9 +1172,15 @@ static void *submitter_aio_fn(void *data)
->>         struct iocb *iocbs;
->>         struct io_event *events;
->>  #ifdef ARCH_HAVE_CPU_CLOCK
->> -       int nr_batch = submitter_init(s);
->> -#else
->> -       submitter_init(s);
->> +       int nr_batch;
->> +#endif
->> +
->> +       ret = submitter_init(s);
->> +       if (ret < 0)
->> +               goto done;
->> +
->> +#ifdef ARCH_HAVE_CPU_CLOCK
->> +       nr_batch = ret;
->>  #endif
->>
->>         iocbsptr = calloc(depth, sizeof(struct iocb *));
->> @@ -1238,6 +1244,7 @@ static void *submitter_aio_fn(void *data)
->>         free(iocbsptr);
->>         free(iocbs);
->>         free(events);
->> +done:
->>         finish = 1;
->>         return NULL;
->>  }
->> @@ -1277,9 +1284,15 @@ static void *submitter_uring_fn(void *data)
->>         struct io_sq_ring *ring = &s->sq_ring;
->>         int ret, prepped;
->>  #ifdef ARCH_HAVE_CPU_CLOCK
->> -       int nr_batch = submitter_init(s);
->> -#else
->> -       submitter_init(s);
->> +       int nr_batch;
->> +#endif
->> +
->> +       ret = submitter_init(s);
->> +       if (ret < 0)
->> +               goto done;
->> +
->> +#ifdef ARCH_HAVE_CPU_CLOCK
->> +       nr_batch = ret;
->>  #endif
->>
->>         if (register_ring)
->> @@ -1383,6 +1396,7 @@ submit:
->>         if (register_ring)
->>                 io_uring_unregister_ring(s);
->>
->> +done:
->>         finish = 1;
->>         return NULL;
->>  }
->> @@ -1393,7 +1407,8 @@ static void *submitter_sync_fn(void *data)
->>         struct submitter *s = data;
->>         int ret;
->>
->> -       submitter_init(s);
->> +       if (submitter_init(s) < 0)
->> +               goto done;
->>
->>         do {
->>                 uint64_t offset;
->> @@ -1429,6 +1444,7 @@ static void *submitter_sync_fn(void *data)
->>                         add_stat(s, s->clock_index, 1);
->>         } while (!s->finish);
->>
->> +done:
->>         finish = 1;
->>         return NULL;
->>  }
->>
-> 
-> Tested this and the patch works out fine. This can go on top of this
-> to avoid access to NULL pointer -
+s->sq_ring.ring_entries and s->cq_ring.ring_entries will be NULL,
+incase setup_ring fails. This will cause a segmentation fault. Avoid
+dereferencing them in such a scenario.
 
-Thanks! Can you send this one as a real patch to make my life just a
-tiny bit easier?
+Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
+---
+ t/io_uring.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 2f8d63fb..bf0aa26e 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -1059,7 +1059,8 @@ static int submitter_init(struct submitter *s)
+ 		err = 0;
+ 	} else if (!aio) {
+ 		err = setup_ring(s);
+-		sprintf(buf, "Engine=io_uring, sq_ring=%d, cq_ring=%d\n", *s->sq_ring.ring_entries, *s->cq_ring.ring_entries);
++		if (!err)
++			sprintf(buf, "Engine=io_uring, sq_ring=%d, cq_ring=%d\n", *s->sq_ring.ring_entries, *s->cq_ring.ring_entries);
+ 	} else {
+ 		sprintf(buf, "Engine=aio\n");
+ 		err = setup_aio(s);
 -- 
-Jens Axboe
+2.25.1
 
