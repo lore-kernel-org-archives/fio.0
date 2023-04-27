@@ -2,112 +2,150 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42314C77B61
-	for <fio@archiver.kernel.org>; Thu, 27 Apr 2023 09:25:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09E79C77B73
+	for <fio@archiver.kernel.org>; Thu, 27 Apr 2023 09:50:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243136AbjD0JZR (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 27 Apr 2023 05:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48258 "EHLO
+        id S243339AbjD0JuW (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 27 Apr 2023 05:50:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243157AbjD0JZQ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 27 Apr 2023 05:25:16 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3528810D
-        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 02:25:14 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id 38308e7fff4ca-2aa39ce5d26so72827511fa.1
-        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 02:25:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682587512; x=1685179512;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:dkim-signature:dkim-signature:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ewEi+zntYKpcyY4I0y6UWxecgYtd3o5u/l4HyUGYbKw=;
-        b=G40xIZilxyLTvPWc7B5TWRd9kci6/n1BBiCEPkjBeZV/NQspp9BPJQ+C+px6ieW21t
-         rAglQTdI9Bgt4shC+xpN7Yv2AAIQOEquSQo/T9Gchdy/M+74mOpyk/eRdyT1lJLPdWrw
-         jjuVAgDSIFEb2/NpgFOw8+jw4kugvgZs2KIjzIKnpVXyWlGAr+roPFDUlF4c2thsLyFT
-         OpqN+hph8xhQBeDDhFOwjLdSCM2bEkZqrBOYOp86ubHizcDhcm05AAsNx2pfkf5zH6GY
-         gSRjng5c4jjbgFflbOqk9PAwLJaQp1LZ/gWonaFPAi2cluE+9aWspyiog+Tn+PeSrHz4
-         BHVQ==
-X-Gm-Message-State: AC+VfDz9GjeCpV7Hq8TF9O8euTMWBe8eSCbVknrOlFCO9EoElhWb38jn
-        1BzFYJQkYZZZ5MxCJ0jKdV2PY0GtWsiDy2SW
-X-Google-Smtp-Source: ACHHUZ4tNidRqLaO8TGZXtqD2Gz/QHrAfW5y85B2wftzbeZizq9VhrE2T8HuLWxBvRQTU9TDOeCXVg==
-X-Received: by 2002:a2e:7e0c:0:b0:293:2c65:20c8 with SMTP id z12-20020a2e7e0c000000b002932c6520c8mr432551ljc.1.1682587512275;
-        Thu, 27 Apr 2023 02:25:12 -0700 (PDT)
-Received: from flawful.org (c-fcf6e255.011-101-6d6c6d3.bbcust.telenor.se. [85.226.246.252])
-        by smtp.gmail.com with ESMTPSA id w21-20020a2e8215000000b002a9f1b23604sm2860637ljg.93.2023.04.27.02.25.11
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Apr 2023 02:25:12 -0700 (PDT)
-Received: by flawful.org (Postfix, from userid 112)
-        id 549354EB; Thu, 27 Apr 2023 11:25:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=flawful.org; s=mail;
-        t=1682587511; bh=QyHAuux6rxOzDaj/rEvSxWnmxq9RKL9+j+jGcZkM9AM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=G4gifgVGVyc71W+d0RkU/8UNqPPf9rMJ30sznIezMk3IZXO8Zh/rlMiQ8Zir2jMOE
-         tOp8NUQOhSJSs7TLZFUD4hQbLAH6QOMO0PGGH28RmIxY0GjdHwqdMF48a91Dwndsr9
-         oLZrMoKdDn+961Sdz6drOuWYI7bg6IwIKUgJLfp0=
-Received: from x1-carbon.wireless.wdc (unknown [87.116.37.42])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by flawful.org (Postfix) with ESMTPSA id 611303C7;
-        Thu, 27 Apr 2023 11:24:55 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=flawful.org; s=mail;
-        t=1682587501; bh=QyHAuux6rxOzDaj/rEvSxWnmxq9RKL9+j+jGcZkM9AM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NTVpIfE7G5hoXZpqDXGVbXvJZLQsPhaFSYdjTLLKX6Ut60V6zdwrWhvvnOuzSPPLP
-         NvPZUDw51Fd1iHxLRPE2h1jb7OGUa7J7z61qsAQ6EqhLqp4Aj2WfwrORPde4uKCaKX
-         PgTma6LYs3Slz+DS4rFwb+DSb8quyXGrCD/ki0AA=
-From:   Niklas Cassel <nks@flawful.org>
+        with ESMTP id S243269AbjD0JuV (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 27 Apr 2023 05:50:21 -0400
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E0A92
+        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 02:50:19 -0700 (PDT)
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20230427095017epoutp0246b13e87351ce4ab9f13ef7bb030d899~ZwcwMWgIz0691706917epoutp02s
+        for <fio@vger.kernel.org>; Thu, 27 Apr 2023 09:50:17 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20230427095017epoutp0246b13e87351ce4ab9f13ef7bb030d899~ZwcwMWgIz0691706917epoutp02s
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1682589017;
+        bh=MmRCbhW5lI+P4nHUFosWHgFAR6iiijK3ucNB0a9w6+I=;
+        h=From:To:Cc:Subject:Date:References:From;
+        b=MnfFQyuWA9G+zQ6dL+6BxfMI8sbKwnVeC2TAy2cBSYRb9vODicU23Py446fHs66eA
+         ZXPSpZpXiSSdubVUTLC4vFeSHjeCx8aj7q2Ogev9kW/hWQmPcjOLsJ7ztaZFOR3mao
+         zYQOcRHmKFY4xomGTSHkvoFhjtqn7dECgBLSp15k=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20230427095017epcas5p254e6faf430a39356ba3487a53f4236f9~Zwcv1foa00182001820epcas5p2h;
+        Thu, 27 Apr 2023 09:50:17 +0000 (GMT)
+Received: from epsmges5p3new.samsung.com (unknown [182.195.38.182]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4Q6WF40QLnz4x9Pr; Thu, 27 Apr
+        2023 09:50:16 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+        epsmges5p3new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        A6.BB.55646.7554A446; Thu, 27 Apr 2023 18:50:15 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+        20230427094952epcas5p32967ed548e18e60ea3134a03aa046bb8~ZwcYe7X0w0123101231epcas5p3W;
+        Thu, 27 Apr 2023 09:49:52 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20230427094952epsmtrp1d6e592dc4c810ec85662904554890d92~ZwcYeNqYe2373623736epsmtrp1N;
+        Thu, 27 Apr 2023 09:49:52 +0000 (GMT)
+X-AuditID: b6c32a4b-b71fa7000001d95e-d4-644a4557fcb7
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        2F.1D.28392.0454A446; Thu, 27 Apr 2023 18:49:52 +0900 (KST)
+Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
+        [107.99.41.39]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+        20230427094951epsmtip26029ec84cc92f7fcb44702ff09af7ef6~ZwcXfvo6-1492714927epsmtip2K;
+        Thu, 27 Apr 2023 09:49:51 +0000 (GMT)
+From:   Anuj Gupta <anuj20.g@samsung.com>
 To:     axboe@kernel.dk
-Cc:     fio@vger.kernel.org, dlemoal@kernel.org,
-        "Shin'ichiro Kawasaki" <shinichiro.kawasaki@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>
-Subject: [PATCH] Revert "zbd: Report the zone capacity"
-Date:   Thu, 27 Apr 2023 11:24:23 +0200
-Message-Id: <20230427092423.605250-1-nks@flawful.org>
-X-Mailer: git-send-email 2.40.0
+Cc:     vincent.fu@samsung.com, fio@vger.kernel.org,
+        ankit.kumar@samsung.com, anuj1072538@gmail.com,
+        Anuj Gupta <anuj20.g@samsung.com>
+Subject: [PATCH] t/io_uring: fix error handling for setup_ring
+Date:   Thu, 27 Apr 2023 20:40:04 +0530
+Message-Id: <20230427151004.1146679-1-anuj20.g@samsung.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrJKsWRmVeSWpSXmKPExsWy7bCmhm64q1eKwc67qhZrrvxmt/j49TeL
+        RdOEv8wWq+/2s1l8nPWC2eJxdwejA5vHzll32T0uny316NuyitHj8ya5AJaobJuM1MSU1CKF
+        1Lzk/JTMvHRbJe/geOd4UzMDQ11DSwtzJYW8xNxUWyUXnwBdt8wcoN1KCmWJOaVAoYDE4mIl
+        fTubovzSklSFjPziElul1IKUnAKTAr3ixNzi0rx0vbzUEitDAwMjU6DChOyMqQs72Av2cFa8
+        vfaFqYHxCnsXIyeHhICJxILjt1m7GLk4hAR2M0rs2zkPyvnEKLHg7w9mCOczo0Tni2+sMC1v
+        J31ggUjsYpT40/wUyulkkngweS5YFZuAusSR562MILaIgLDE/o5WsCJmgRZGiWU/97GBJIQF
+        7CQuNnaBNbAIqEr8PvAYLM4rYC0x7e8DqAvlJWZe+s4OEReUODnzCQuIzQwUb946G+w+CYFd
+        7BKfn58CSnAAOS4SKy/bQvQKS7w6vgVqjpTEy/42KDtd4sflp0wQdoFE87F9jBC2vUTrqX5m
+        kDHMApoS63fpQ4RlJaaeWscEsZZPovf3E6hWXokd82BsJYn2lXOgbAmJvecaoGwPiQc72phB
+        bCGBWImL3/rZJjDKz0LyzSwk38xC2LyAkXkVo2RqQXFuemqxaYFxXmo5PGaT83M3MYLToJb3
+        DsZHDz7oHWJk4mA8xCjBwawkwstb6Z4ixJuSWFmVWpQfX1Sak1p8iNEUGMQTmaVEk/OBiTiv
+        JN7QxNLAxMzMzMTS2MxQSZxX3fZkspBAemJJanZqakFqEUwfEwenVAPT0utmeiyWO9SWf9h1
+        6/eu5fpRV2/oZhzY/THKrWDLoVXydvKGrOdTRaMeH+6vFbgirxVb+OfXxM6cdcw1LWqHHhle
+        vxS1v7Y67Pr3jC3rdh24d9o4Rior9NvncN6iiP9iv8/m6Un4rLq5cemhqN/vmhLLlHc+yfJL
+        t97mcsP+rs6a/L6OLJatTpnVy8R3funMjXfS8mP85pLquL4s+EVB7Ic1PlH8RcaVr7c2WN/2
+        2iR5KIBHb4pOf6/8ybmZn38dZpo+79TJX/tCgv9cu/1AfpVCV2PYuuQ/pdfmCT+sFvp2+D2f
+        s7tddFxRQNC6v4fubjKXW7DL2HOlMFOSePW7T82HgpVjlqUrqx3x1FmqxFKckWioxVxUnAgA
+        SGvdawwEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrKLMWRmVeSWpSXmKPExsWy7bCSvK6Dq1eKwfKPEhZrrvxmt/j49TeL
+        RdOEv8wWq+/2s1l8nPWC2eJxdwejA5vHzll32T0uny316NuyitHj8ya5AJYoLpuU1JzMstQi
+        fbsEroypCzvYC/ZwVry99oWpgfEKexcjJ4eEgInE20kfWLoYuTiEBHYwSnR09EIlJCROvVzG
+        CGELS6z895wdoqidSWLL+WtsIAk2AXWJI89bwYpEgIr2d7SCTWIW6GKU2P31LytIQljATuJi
+        YxeYzSKgKvH7wGOwZl4Ba4lpfx9AbZOXmHnpOztEXFDi5MwnLCA2M1C8eets5gmMfLOQpGYh
+        SS1gZFrFKJlaUJybnltsWGCUl1quV5yYW1yal66XnJ+7iREcklpaOxj3rPqgd4iRiYPxEKME
+        B7OSCC9vpXuKEG9KYmVValF+fFFpTmrxIUZpDhYlcd4LXSfjhQTSE0tSs1NTC1KLYLJMHJxS
+        DUwKb/tsF+roqyh8bmU+NMHwhO1UEfnemPdMblFzcv4nyp1P5zz1f/1an3SZJbvvmnmWrk39
+        elq61TYnWtgg6/Gh0hP9c5Mzd7744T8t8O7hhccmqEw2vi49/e3LylJ7rj7laVFaEx1ybrxX
+        f1jUmbf8RuZUbrHb27p2P4x+/4Ft2v6tYaetFt96HCTzL1jvyUHDVwtYpi6/81I5me3HTH6B
+        SGfGFA7V0yaN0+xNV3W5NiyTWtl3r/r9IquMjPs7ErxXXo5VqOAOl3HOqjhWsmj69BvOhRMj
+        tKfIBYqKXJtmEpaW5VZUI9139vWvwxOXHLpzycZFuMAgYI3P43d382ay6/zO+37R4/NPsxmK
+        ubuVWIozEg21mIuKEwF2QRaPuAIAAA==
+X-CMS-MailID: 20230427094952epcas5p32967ed548e18e60ea3134a03aa046bb8
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20230427094952epcas5p32967ed548e18e60ea3134a03aa046bb8
+References: <CGME20230427094952epcas5p32967ed548e18e60ea3134a03aa046bb8@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-From: Niklas Cassel <niklas.cassel@wdc.com>
+s->sq_ring.ring_entries and s->cq_ring.ring_entries will be NULL,
+incase setup_ring fails. This will cause a segmentation fault.
 
-This reverts commit 067c18eb3700373d029a9f2795d662453fc09cf4.
+In case setup_ring fails, bail out by setting finish.
 
-In the Linux zoned block devices API (blkzoned.h) (and in the NVMe Zoned
-Namespace Command Set Specification), the zone capacity can be different
-for each zone (unlike zone size, which has to be the same for all zones).
-
-In order to not mislead the user to think that the zone capacity has to
-be the same for all zones, remove the zone capacity for zone0 from the
-per device print.
-
-The zone capacity can be printed in prints that are related to a specific
-zone, e.g. when encountering an error when performing I/O to a zone.
-
-Signed-off-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
 ---
- zbd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ t/io_uring.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/zbd.c b/zbd.c
-index f5fb923a..351b3971 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -804,8 +804,8 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 		goto out;
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 6b0efef8..e00f278d 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -1059,12 +1059,14 @@ static int submitter_init(struct submitter *s)
+ 		err = 0;
+ 	} else if (!aio) {
+ 		err = setup_ring(s);
+-		sprintf(buf, "Engine=io_uring, sq_ring=%d, cq_ring=%d\n", *s->sq_ring.ring_entries, *s->cq_ring.ring_entries);
++		if (!err)
++			sprintf(buf, "Engine=io_uring, sq_ring=%d, cq_ring=%d\n", *s->sq_ring.ring_entries, *s->cq_ring.ring_entries);
+ 	} else {
+ 		sprintf(buf, "Engine=aio\n");
+ 		err = setup_aio(s);
  	}
+ 	if (err) {
++		finish = 1;
+ 		printf("queue setup failed: %s, %d\n", strerror(errno), err);
+ 		return 1;
+ 	}
+@@ -1282,6 +1284,9 @@ static void *submitter_uring_fn(void *data)
+ 	submitter_init(s);
+ #endif
  
--	dprint(FD_ZBD, "Device %s has %d zones of size %"PRIu64" KB and capacity %"PRIu64" KB\n",
--	       f->file_name, nr_zones, zone_size / 1024, zones[0].capacity / 1024);
-+	dprint(FD_ZBD, "Device %s has %d zones of size %"PRIu64" KB\n",
-+	       f->file_name, nr_zones, zone_size / 1024);
++	if (finish)
++		return NULL;
++
+ 	if (register_ring)
+ 		io_uring_register_ring(s);
  
- 	zbd_info = scalloc(1, sizeof(*zbd_info) +
- 			   (nr_zones + 1) * sizeof(zbd_info->zone_info[0]));
 -- 
-2.40.0
+2.25.1
 
