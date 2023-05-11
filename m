@@ -2,77 +2,119 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0704C77B78
-	for <fio@archiver.kernel.org>; Thu,  4 May 2023 15:44:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2527C77B7C
+	for <fio@archiver.kernel.org>; Thu, 11 May 2023 12:01:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231484AbjEDPog (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 4 May 2023 11:44:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54570 "EHLO
+        id S238016AbjEKMBb (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 11 May 2023 08:01:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231475AbjEDPoc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 4 May 2023 11:44:32 -0400
-Received: from mail-qk1-x72d.google.com (mail-qk1-x72d.google.com [IPv6:2607:f8b0:4864:20::72d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBFC44A1
-        for <fio@vger.kernel.org>; Thu,  4 May 2023 08:44:31 -0700 (PDT)
-Received: by mail-qk1-x72d.google.com with SMTP id af79cd13be357-74d0dbd7c58so28672485a.3
-        for <fio@vger.kernel.org>; Thu, 04 May 2023 08:44:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683215070; x=1685807070;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YviBRXl3+eQqVMfwPLgk7UPVN1I6Ohnk3oX+Chw63y4=;
-        b=fnKtqYuwjw5VefLSb4adNqNBhqbBaiKrfKumVJ2/VT/tbB1fZzqEiWGaMAbQf5fDOc
-         0xQu+yMcb6CJ433eeHzNs+MnXXIPZpJSsuiEl1o9+l/jm+IAHwcyTcgcfkhXRtsc3W9P
-         bzByl9EtK+8XXPrnmq4o5XUmZSiqZsfmFYN3yWElrpQQm6hh6ghHRSuR+r2sRuX7LuYR
-         kU1uprCqQm52Rx/qjAGj7uBuQRPN95URvYeHjgGiKVc4D+X2ciU0YY43qO0fyrWKuRAx
-         Yl+WKg4QY6qos3+O9B7L85XZDTQSudaUpaygDh/FJVWCjUXTXZVyF8hkO7Jnso+t5CQu
-         mEyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683215070; x=1685807070;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=YviBRXl3+eQqVMfwPLgk7UPVN1I6Ohnk3oX+Chw63y4=;
-        b=ZlhmSpfiPqEmLRnWW6cWdCEGDhpJX13CGtoS+LNtpbQF7hv8shbIG6eI4zWjJrEhRH
-         D6Pc5pa/KF+7q2WYVLK4yhGIFkpO85hFkMt9iICnoSmtECATa5BO55oW7wXuj6Wn3UVq
-         HMVhyYdkRZCJ5un6w8X4EhYKrHVlvp/XK9wpOTVlb90+FBVpt7T17kLST9LD6WdMGoLk
-         5pu52UyvIdqtMWQnlm7hTbSg5OyNS6wLpVBOlzcUu1APCVDujHSk+sZlLHLwL+Wkeq5u
-         kb7n/quXbq8IlpEQEB7gIM6Ofk/YSDGbiiLuYZYlcaFbC1ulpnT0M33m7HIn8POakskI
-         bCTQ==
-X-Gm-Message-State: AC+VfDyELzROzcCC2w0DrXew/1liKNz31mMmuXGmRuL2GRDtrjA7yKdy
-        9kbPN1NgjM2JFstjbNro8YAN+ZZkw4c=
-X-Google-Smtp-Source: ACHHUZ6SIePPnvy2E4/rATXatNbe8i+0eW0OAbZ41ZHOZem5i93aMxFtcaYjpuwW0S0KHNFglDc2vQ==
-X-Received: by 2002:a05:6214:21aa:b0:5df:4d3e:b8e0 with SMTP id t10-20020a05621421aa00b005df4d3eb8e0mr16724201qvc.4.1683215069947;
-        Thu, 04 May 2023 08:44:29 -0700 (PDT)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id b5-20020a0cf045000000b0061b5d3a61aesm3115278qvl.9.2023.05.04.08.44.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 04 May 2023 08:44:29 -0700 (PDT)
-Message-ID: <3a41f856-ecbf-ae80-9222-5260d05a0010@gmail.com>
-Date:   Thu, 4 May 2023 11:44:28 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-From:   Vincent Fu <vincentfu@gmail.com>
-Subject: Fio blog post on periodic performance measurements
-To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc:     gost.dev@samsung.com, a.manzanares@samsung.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S237947AbjEKMAp (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 11 May 2023 08:00:45 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870FF9EF6
+        for <fio@vger.kernel.org>; Thu, 11 May 2023 05:00:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=pOl4WxVIDpQ1BMpxlWMok5y8khXRtyaqDwZygm28N3Y=; b=asAf1YF4TpSlwO/2RwQkTNQb5y
+        U/z8kAP0mAAnh7LRsMH7VFXzFCej2QabsBhMHuIBfYaP5hqjAjQ2baivx5c4W7Kbj76IetcIrLQ3j
+        HsM+lPCJnHyRRvwDgJ3+j0qG+79IhYGOEnzMPd5Av6jkI0iYoFpVOEnmzzJgX0D+YW8zi1weIfhXw
+        z+l6sQNYKobJqJmR4E7o11QmHG1kgdWx+0bDwKx5i/iGSIb7l6beM6bVwfqXzhe+saqB6N0kXWjJJ
+        sw5SyxILlHhgsyDWlBr/hP3r1Cc9XjcjW/GMDP1RsoDXzKbaAN0pSvnLqJaBMoLr9Uxgj8MXQwr5q
+        VLlJplhw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1px4xo-00HBYr-Qj
+        for fio@vger.kernel.org; Thu, 11 May 2023 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 83EE11BC0136; Thu, 11 May 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230511120001.83EE11BC0136@kernel.dk>
+Date:   Thu, 11 May 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-I am happy to announce that the fio blog has a new post. I describe 
-fio's periodic performance measurements and how they can be used to 
-understand how performance levels vary during a job run.
+The following changes since commit 0771592f81fcb032e261b18212477ceffc6cdac5:
 
-Take a look:
+  Merge branch 'master' of https://github.com/bvanassche/fio (2023-04-27 17:08:41 -0600)
 
-https://github.com/vincentkfu/fio-blog/wiki/Periodic-performance-measurements
+are available in the Git repository at:
 
-Feedback is welcome!
+  git://git.kernel.dk/fio.git master
 
-Vincent
+for you to fetch changes up to 37946bed31b688fe55e2003b6d59ff0c964165bb:
+
+  engines/rdma: remove dead code (2023-05-10 09:16:55 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      README: remove reference to the bsdio installer
+      t/read-to-pipe-async: remove dead code
+      engines/rdma: remove dead code
+
+ README.rst             | 11 +++++------
+ engines/rdma.c         |  2 --
+ t/read-to-pipe-async.c |  4 +---
+ 3 files changed, 6 insertions(+), 11 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/README.rst b/README.rst
+index bcd08ec9..8f6208e3 100644
+--- a/README.rst
++++ b/README.rst
+@@ -123,12 +123,11 @@ Solaris:
+ 	``pkgutil -i fio``.
+ 
+ Windows:
+-        Beginning with fio 3.31 Windows installers are available on GitHub at
+-        https://github.com/axboe/fio/releases.  Rebecca Cran
+-        <rebecca@bsdio.com> has fio packages for Windows at
+-        https://bsdio.com/fio/ . The latest builds for Windows can also be
+-        grabbed from https://ci.appveyor.com/project/axboe/fio by clicking the
+-        latest x86 or x64 build and then selecting the Artifacts tab.
++	Beginning with fio 3.31 Windows installers are available on GitHub at
++        https://github.com/axboe/fio/releases. The latest builds for Windows
++	can also be grabbed from https://ci.appveyor.com/project/axboe/fio by
++	clicking the latest x86 or x64 build and then selecting the Artifacts
++	tab.
+ 
+ BSDs:
+ 	Packages for BSDs may be available from their binary package repositories.
+diff --git a/engines/rdma.c b/engines/rdma.c
+index ee2844d3..ebdbcb1c 100644
+--- a/engines/rdma.c
++++ b/engines/rdma.c
+@@ -856,8 +856,6 @@ static int fio_rdmaio_commit(struct thread_data *td)
+ 			ret = fio_rdmaio_send(td, io_us, rd->io_u_queued_nr);
+ 		else if (!rd->is_client)
+ 			ret = fio_rdmaio_recv(td, io_us, rd->io_u_queued_nr);
+-		else
+-			ret = 0;	/* must be a SYNC */
+ 
+ 		if (ret > 0) {
+ 			fio_rdmaio_queued(td, io_us, ret);
+diff --git a/t/read-to-pipe-async.c b/t/read-to-pipe-async.c
+index 586e3c95..569fc62a 100644
+--- a/t/read-to-pipe-async.c
++++ b/t/read-to-pipe-async.c
+@@ -247,10 +247,8 @@ static void *writer_fn(void *data)
+ 	while (!wt->thread.exit || !flist_empty(&wt->list)) {
+ 		pthread_mutex_lock(&wt->thread.lock);
+ 
+-		if (work) {
++		if (work)
+ 			flist_add_tail(&work->list, &wt->done_list);
+-			work = NULL;
+-		}
+ 	
+ 		work = find_seq(wt, seq);
+ 		if (work)
