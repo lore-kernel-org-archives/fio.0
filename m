@@ -2,323 +2,99 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62AAAC7EE24
-	for <fio@archiver.kernel.org>; Mon, 15 May 2023 05:50:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 554FFC77B75
+	for <fio@archiver.kernel.org>; Mon, 15 May 2023 12:50:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238441AbjEOFuZ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 15 May 2023 01:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S241970AbjEOMt6 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 15 May 2023 08:49:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238303AbjEOFuL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 15 May 2023 01:50:11 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5148D271F
-        for <fio@vger.kernel.org>; Sun, 14 May 2023 22:49:53 -0700 (PDT)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20230515054951epoutp019f121aee4b3e5ca5fc904becd2ad7e82~fOx9V27Yy0726307263epoutp01E
-        for <fio@vger.kernel.org>; Mon, 15 May 2023 05:49:51 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20230515054951epoutp019f121aee4b3e5ca5fc904becd2ad7e82~fOx9V27Yy0726307263epoutp01E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1684129791;
-        bh=miFNNYs6Ug1rZO+Psc+Yg81lz91lweVS6v9UWJEUQHo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fAseDD8VGRFVPUVj49O9qxXcsFkOMf6Cb+DNG8JN8qMY05BO4In9+bzo58yMAJe+S
-         OYdfD65PT4TyaAoT3x7gNXxxWCWJagToIc7bS6FoP7vep8mXgXm+ntBHU4pb25e9bi
-         K5SxnlAsjH+b5oCXUzuFTQLmod5gJAhDn00uSeLo=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20230515054951epcas5p4a90929990502ad1596700d5d489a8444~fOx9E_1Ko1784017840epcas5p4S;
-        Mon, 15 May 2023 05:49:51 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.182]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 4QKT3K2nnCz4x9QC; Mon, 15 May
-        2023 05:49:49 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        33.B8.57769.DF7C1646; Mon, 15 May 2023 14:49:49 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-        20230515054352epcas5p15ceded12f770df07d842f324f1ef7857~fOsveCJL11957319573epcas5p1O;
-        Mon, 15 May 2023 05:43:52 +0000 (GMT)
-Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20230515054352epsmtrp18e0ee5f0df91e90ace8c2a6b4b7c6571~fOsvWq2Cc1628916289epsmtrp1h;
-        Mon, 15 May 2023 05:43:52 +0000 (GMT)
-X-AuditID: b6c32a4a-ccfff7000001e1a9-3a-6461c7fd011f
-Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
-        43.0B.28392.896C1646; Mon, 15 May 2023 14:43:52 +0900 (KST)
-Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
-        [107.99.41.39]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20230515054351epsmtip27a4b14a670079d405101551b54b1e7ee~fOsub7_mH0628906289epsmtip2d;
-        Mon, 15 May 2023 05:43:51 +0000 (GMT)
-From:   Ankit Kumar <ankit.kumar@samsung.com>
-To:     axboe@kernel.dk
-Cc:     fio@vger.kernel.org, vincentfu@gmail.com, joshi.k@samsung.com,
-        Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH v2 2/2] engines/io_uring: io_uring_cmd engine fixes
-Date:   Mon, 15 May 2023 16:33:40 +0530
-Message-Id: <20230515110340.21984-3-ankit.kumar@samsung.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230515110340.21984-1-ankit.kumar@samsung.com>
+        with ESMTP id S241439AbjEOMt5 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 15 May 2023 08:49:57 -0400
+Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C748A6
+        for <fio@vger.kernel.org>; Mon, 15 May 2023 05:49:57 -0700 (PDT)
+Received: by mail-qt1-x82b.google.com with SMTP id d75a77b69052e-3f52d303bcdso9368911cf.0
+        for <fio@vger.kernel.org>; Mon, 15 May 2023 05:49:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684154996; x=1686746996;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=iN0tKMkXrKxNk+ShdguMlHv/G20NMbbkQbmsGf6aUss=;
+        b=WtK23k3Ieq52pMmLfPLIMmQn9ANyEvbSpGC6xA2uzy/8Gesxo8NoPZcIsd7iHRkp8J
+         64bVaNxAzsSVGJfWQnM7hGcdU70/4nuwqt2DiEFh0QDVBc9shjriDvrfsM33QcLH0FST
+         Jt0uRf8NWjsUcpsU1XZNgNfoermLH5uyaRADl8NQqquyvIcR0r3RnIpG4kOq8gN972IA
+         3F2V9lUFm1gQ+/8Mi9NhUQR8rzO1lVdekaiYZkEpl3wLRDojFC9Hi7sL0Csm6uP5Pmvt
+         e01VLVCAMXZCfqVAUPnnd1YXrsMB0Z4+LF3iUdyKnfQ3wWEPaE6rEKwwlSVfK/pMI9Zw
+         CFMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684154996; x=1686746996;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iN0tKMkXrKxNk+ShdguMlHv/G20NMbbkQbmsGf6aUss=;
+        b=ShYNSD//8LWuwsuZqd7sTRwXFCYzG/7T5sF3mwR0ZiOmuphRLx66AXIL2lV2Qs7kbJ
+         TMFZvI4VsgCnLmC7IIrol2tKev3Xms+VwhypxA9A6ZWxdxYTNnBokSW22Yq+Z8+HXVHU
+         DFmUP6C+peNhZnXEm2pHOcqxaNgIVENEZ4al66gLoMgvNE5ezea4ydH6YBGPwtHLxEwh
+         IT0bySUXqKEvGCo85jNAmHBWkGNmLSxpU61uKKrokjteAJH5LNNDgc+DFvAAZmefE+vx
+         byTyzziKfDKN2rMoz2xtj5LJKgkfQiz4viTrhX7N3jLuRrNK2kM+m0ON8tWe0S+iD9KY
+         iEag==
+X-Gm-Message-State: AC+VfDzHhBFQUKp8IzJkE3wQM+Gvm2cJgjRqrb7Ge0RV5UzK73lUUk86
+        NAMxSHLK1ax8U6tvdcBOqA8=
+X-Google-Smtp-Source: ACHHUZ4JYR+D9l8jOF4vVqZQNK9OB2cQQb9dD/agxscQSZYj2q50GAElFOaO5MMCW5eoHsmA78TmyA==
+X-Received: by 2002:ac8:7c4d:0:b0:3f2:384:9292 with SMTP id o13-20020ac87c4d000000b003f203849292mr51349502qtv.34.1684154995959;
+        Mon, 15 May 2023 05:49:55 -0700 (PDT)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id t1-20020a05620a034100b0075954005b46sm333296qkm.48.2023.05.15.05.49.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 15 May 2023 05:49:55 -0700 (PDT)
+Message-ID: <b2cb9f09-0475-6722-ea89-6b7fa12a4bf2@gmail.com>
+Date:   Mon, 15 May 2023 08:49:54 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrPKsWRmVeSWpSXmKPExsWy7bCmlu7f44kpBof2s1qsufKb3WL13X42
-        i4+zXjBbHP3/ls1iQ5ugA6vHzll32T0uny316NuyitHj8ya5AJaobJuM1MSU1CKF1Lzk/JTM
-        vHRbJe/geOd4UzMDQ11DSwtzJYW8xNxUWyUXnwBdt8wcoK1KCmWJOaVAoYDE4mIlfTubovzS
-        klSFjPziElul1IKUnAKTAr3ixNzi0rx0vbzUEitDAwMjU6DChOyM898WsBUsMq14cTO6gfGM
-        ZhcjJ4eEgInEslcL2bsYuTiEBHYzSlz/0MgE4XxilFi1cSorhPOZUeLftp/sMC3LX69hhkjs
-        YpS4uH8dVFUnk0T/if2MIFVsAtoSr97eYAaxRQSEJfZ3tLKA2MwCWRInVrSB2cICzhKXOmaA
-        TWURUJXY9eciWJxXwEbi5NdZTBDb5CVmXvoOVsMpYCvRsP03VI2gxMmZT6Bmyks0b50NdpGE
-        wDl2iYeHvzFCNLtIPN73iQXCFpZ4dXwL1AtSEi/726DsbIlND39CLSuQOPKilxnCtpdoPdUP
-        ZHMALdCUWL9LHyIsKzH11DomiL18Er2/n0C18krsmAdjq0r8vXcbaq20xM13V6FsD4lvU9dD
-        A3sCMLDXXWGawKgwC8k/s5D8Mwth9QJG5lWMkqkFxbnpqcWmBUZ5qeXwWE7Oz93ECE6JWl47
-        GB8++KB3iJGJg/EQowQHs5IIb/vM+BQh3pTEyqrUovz4otKc1OJDjKbAAJ/ILCWanA9Mynkl
-        8YYmlgYmZmZmJpbGZoZK4rzqtieThQTSE0tSs1NTC1KLYPqYODilGpg6Fi6aNs1wrsXswibO
-        bVO27beznMu9w6fz8D09xycNn+M97xiXRU2p9rQ2+J3hUHlWujrc0yM0+m/KHfbdj+/El7Cu
-        LPn24Nw3gbvai1Kmv37xctO8eU1Wvx6vCpy2wr3xd+DxtXnucWd1DOur9leL/VrGkP+9Yr38
-        jw3V3x7kJNaedb1nNeW1LEfKZHO95VGXpU7N2H/hwu5ZBo4Waybm+ppJdc77GSW584d1qZTW
-        shVTPz1SSVa68KhztW3y/luzH710/u2YP9OzjWfzhJtSB0v/Ne9+axgaHvLU8pqv28TDb+bP
-        Xhi4OapDcqvjjGkV/4RTf8x8o71D+rj8tYzlKpZFJ7S+u187MZPneVTLOSWW4oxEQy3mouJE
-        AO21rDESBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrMLMWRmVeSWpSXmKPExsWy7bCSvO6MY4kpBhcvaFusufKb3WL13X42
-        i4+zXjBbHP3/ls1iQ5ugA6vHzll32T0uny316NuyitHj8ya5AJYoLpuU1JzMstQifbsErozz
-        3xawFSwyrXhxM7qB8YxmFyMnh4SAicTy12uYuxi5OIQEdjBKHDp4lLWLkQMoIS2xcH0iRI2w
-        xMp/z9khatqZJFYcPssOkmAT0JZ49fYGM4gtAlS0v6OVBaSXWSBP4tsqFZCwsICzxKWOGWDl
-        LAKqErv+XGQBsXkFbCROfp3FBDFfXmLmpe9gNZwCthIN23+D1QgB1Sy/togJol5Q4uTMJ2Bx
-        ZqD65q2zmScwCsxCkpqFJLWAkWkVo2RqQXFuem6xYYFRXmq5XnFibnFpXrpecn7uJkZwuGpp
-        7WDcs+qD3iFGJg7GQ4wSHMxKIrztM+NThHhTEiurUovy44tKc1KLDzFKc7AoifNe6DoZLySQ
-        nliSmp2aWpBaBJNl4uCUamBKsD3tczdNwer16i6DBa/Yex4dXLtS8c7bMCYn4U97P07x2N6S
-        oRCrE+6goTHpzPUZ0ebPVYNWJL9++aWycSKr76qKhHOnv7zzfTFhyvK1LzK5ksPeCbVKZZ72
-        kw97fKLy1o4dRQ8vvNN47DD/qUN8voWqtoW3+q3Yo3fv1n70vqxR+Yz1/MJrzAZNKml6u7bF
-        d8vr+JhxMHtqra79lOXOz3HDwYmnfcuK3b9dlP9e0lverzRjx1OWs3KbDz3R1c/YF3ryT/Wq
-        k3O/xfuYbdi3fjlb0a6uXP41hZGnu8/vu/1wj52ZjezqSeVa7OZXZ7s/LWHz8Ez4sIpJeL94
-        0ZrG+mIrLd6vN6QZXW7+sjdXYinOSDTUYi4qTgQA6y3dZMYCAAA=
-X-CMS-MailID: 20230515054352epcas5p15ceded12f770df07d842f324f1ef7857
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20230515054352epcas5p15ceded12f770df07d842f324f1ef7857
-References: <20230515110340.21984-1-ankit.kumar@samsung.com>
-        <CGME20230515054352epcas5p15ceded12f770df07d842f324f1ef7857@epcas5p1.samsung.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: [PATCH v2 0/2] io_uring_cmd cleanup and fixes
+Content-Language: en-US
+To:     Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
+Cc:     fio@vger.kernel.org, joshi.k@samsung.com
+References: <CGME20230515054350epcas5p4643d68a6f79cae867b88be678154329b@epcas5p4.samsung.com>
+ <20230515110340.21984-1-ankit.kumar@samsung.com>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20230515110340.21984-1-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The io_uring_cmd ioengine assumes that logical block size is always
-power of 2. But with namespace formats where metadata is transferred
-at the end of logical block i.e. an extended logical block this is
-not true.
-This patch calculates the correct extended logical block size and
-uses division operation for start and number of logical block
-calculation. The existing calculation for power of 2 logical block
-size will remain same.
-This also add checks to verify that block sizes are multiple of LBA size.
+On 5/15/23 07:03, Ankit Kumar wrote:
+> The NVM command set specification 1.0c supports 64 LBA formats.
+> The first patch adds support for that.
+> 
+> The io_uring_cmd ioengine assumes that logical block size is always
+> power of 2. But with namespace formats where metadata is transferred
+> at the end of logical block i.e. an extended logical block this is
+> not true.
+> This second patch adds the support for extended logical block sizes.
+> This however doesn't include support for protection info and metadata
+> transferred as separate buffer, we return error for those.
+> 
+> Changes from v1:
+> * Split the original patch into 2 as suggested by Vincent and Jens
+> * Address all review comments from Vincent
+> 
+> Ankit Kumar (2):
+>    engines/nvme: support for 64 LBA formats
+>    engines/io_uring: io_uring_cmd engine fixes
+> 
+>   engines/io_uring.c | 30 ++++++++++++++++++---
+>   engines/nvme.c     | 66 ++++++++++++++++++++++++++++++++++++++--------
+>   engines/nvme.h     |  6 ++---
+>   3 files changed, 84 insertions(+), 18 deletions(-)
+> 
 
-This current implementation however doesn't support protection info
-and metadata transferred as separate buffer. Return error for those.
+Applied with a change to the title of the second patch's commit message. 
+Thanks.
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
----
- engines/io_uring.c | 30 ++++++++++++++++++++++----
- engines/nvme.c     | 52 +++++++++++++++++++++++++++++++++++++---------
- engines/nvme.h     |  3 ++-
- 3 files changed, 70 insertions(+), 15 deletions(-)
-
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index f5ffe9f4..90e5a856 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -1177,22 +1177,40 @@ static int fio_ioring_cmd_open_file(struct thread_data *td, struct fio_file *f)
- 	if (o->cmd_type == FIO_URING_CMD_NVME) {
- 		struct nvme_data *data = NULL;
- 		unsigned int nsid, lba_size = 0;
-+		__u32 ms = 0;
- 		__u64 nlba = 0;
- 		int ret;
- 
- 		/* Store the namespace-id and lba size. */
- 		data = FILE_ENG_DATA(f);
- 		if (data == NULL) {
--			ret = fio_nvme_get_info(f, &nsid, &lba_size, &nlba);
-+			ret = fio_nvme_get_info(f, &nsid, &lba_size, &ms, &nlba);
- 			if (ret)
- 				return ret;
- 
- 			data = calloc(1, sizeof(struct nvme_data));
- 			data->nsid = nsid;
--			data->lba_shift = ilog2(lba_size);
-+			if (ms)
-+				data->lba_ext = lba_size + ms;
-+			else
-+				data->lba_shift = ilog2(lba_size);
- 
- 			FILE_SET_ENG_DATA(f, data);
- 		}
-+
-+		lba_size = data->lba_ext ? data->lba_ext : (1 << data->lba_shift);
-+
-+		for_each_rw_ddir(ddir) {
-+			if (td->o.min_bs[ddir] % lba_size ||
-+				td->o.max_bs[ddir] % lba_size) {
-+				if (data->lba_ext)
-+					log_err("block size must be a multiple of "
-+						"(LBA data size + Metadata size)\n");
-+				else
-+					log_err("block size must be a multiple of LBA data size\n");
-+				return 1;
-+			}
-+                }
- 	}
- 	if (!ld || !o->registerfiles)
- 		return generic_open_file(td, f);
-@@ -1243,16 +1261,20 @@ static int fio_ioring_cmd_get_file_size(struct thread_data *td,
- 	if (o->cmd_type == FIO_URING_CMD_NVME) {
- 		struct nvme_data *data = NULL;
- 		unsigned int nsid, lba_size = 0;
-+		__u32 ms = 0;
- 		__u64 nlba = 0;
- 		int ret;
- 
--		ret = fio_nvme_get_info(f, &nsid, &lba_size, &nlba);
-+		ret = fio_nvme_get_info(f, &nsid, &lba_size, &ms, &nlba);
- 		if (ret)
- 			return ret;
- 
- 		data = calloc(1, sizeof(struct nvme_data));
- 		data->nsid = nsid;
--		data->lba_shift = ilog2(lba_size);
-+		if (ms)
-+			data->lba_ext = lba_size + ms;
-+		else
-+			data->lba_shift = ilog2(lba_size);
- 
- 		f->real_file_size = lba_size * nlba;
- 		fio_file_set_size_known(f);
-diff --git a/engines/nvme.c b/engines/nvme.c
-index 96a5f064..1047ade2 100644
---- a/engines/nvme.c
-+++ b/engines/nvme.c
-@@ -21,8 +21,13 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 	else
- 		return -ENOTSUP;
- 
--	slba = io_u->offset >> data->lba_shift;
--	nlb = (io_u->xfer_buflen >> data->lba_shift) - 1;
-+	if (data->lba_ext) {
-+		slba = io_u->offset / data->lba_ext;
-+		nlb = (io_u->xfer_buflen / data->lba_ext) - 1;
-+	} else {
-+		slba = io_u->offset >> data->lba_shift;
-+		nlb = (io_u->xfer_buflen >> data->lba_shift) - 1;
-+	}
- 
- 	/* cdw10 and cdw11 represent starting lba */
- 	cmd->cdw10 = slba & 0xffffffff;
-@@ -65,8 +70,13 @@ int fio_nvme_trim(const struct thread_data *td, struct fio_file *f,
- 	struct nvme_dsm_range dsm;
- 	int ret;
- 
--	dsm.nlb = (len >> data->lba_shift);
--	dsm.slba = (offset >> data->lba_shift);
-+	if (data->lba_ext) {
-+		dsm.nlb = len / data->lba_ext;
-+		dsm.slba = offset / data->lba_ext;
-+	} else {
-+		dsm.nlb = len >> data->lba_shift;
-+		dsm.slba = offset >> data->lba_shift;
-+	}
- 
- 	ret = nvme_trim(f->fd, data->nsid, 1, sizeof(struct nvme_dsm_range),
- 			&dsm);
-@@ -94,7 +104,7 @@ static int nvme_identify(int fd, __u32 nsid, enum nvme_identify_cns cns,
- }
- 
- int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
--		      __u64 *nlba)
-+		      __u32 *ms, __u64 *nlba)
- {
- 	struct nvme_id_ns ns;
- 	int namespace_id;
-@@ -114,9 +124,8 @@ int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
- 	namespace_id = ioctl(fd, NVME_IOCTL_ID);
- 	if (namespace_id < 0) {
- 		err = -errno;
--		log_err("failed to fetch namespace-id");
--		close(fd);
--		return err;
-+		log_err("%s: failed to fetch namespace-id\n", f->file_name);
-+		goto out;
- 	}
- 
- 	/*
-@@ -126,7 +135,8 @@ int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
- 	err = nvme_identify(fd, namespace_id, NVME_IDENTIFY_CNS_NS,
- 				NVME_CSI_NVM, &ns);
- 	if (err) {
--		log_err("failed to fetch identify namespace\n");
-+		log_err("%s: failed to fetch identify namespace\n",
-+			f->file_name);
- 		close(fd);
- 		return err;
- 	}
-@@ -144,10 +154,32 @@ int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
- 		format_idx = (ns.flbas & 0xf) + (((ns.flbas >> 5) & 0x3) << 4);
- 
- 	*lba_sz = 1 << ns.lbaf[format_idx].ds;
-+
-+	/*
-+	 * Only extended LBA can be supported.
-+	 * Bit 4 for flbas indicates if metadata is transferred at the end of
-+	 * logical block creating an extended LBA.
-+	 */
-+	*ms = le16_to_cpu(ns.lbaf[format_idx].ms);
-+	if (*ms && !((ns.flbas >> 4) & 0x1)) {
-+		log_err("%s: only extended logical block can be supported\n",
-+			f->file_name);
-+		err = -ENOTSUP;
-+		goto out;
-+	}
-+
-+	/* Check for end to end data protection support */
-+	if (ns.dps & 0x3) {
-+		log_err("%s: end to end data protection not supported\n",
-+			f->file_name);
-+		err = -ENOTSUP;
-+		goto out;
-+	}
- 	*nlba = ns.nsze;
- 
-+out:
- 	close(fd);
--	return 0;
-+	return err;
- }
- 
- int fio_nvme_get_zoned_model(struct thread_data *td, struct fio_file *f,
-diff --git a/engines/nvme.h b/engines/nvme.h
-index 9d6288c8..f7cb820d 100644
---- a/engines/nvme.h
-+++ b/engines/nvme.h
-@@ -88,6 +88,7 @@ enum nvme_zns_zs {
- struct nvme_data {
- 	__u32 nsid;
- 	__u32 lba_shift;
-+	__u32 lba_ext;
- };
- 
- struct nvme_lbaf {
-@@ -222,7 +223,7 @@ int fio_nvme_iomgmt_ruhs(struct thread_data *td, struct fio_file *f,
- 			 struct nvme_fdp_ruh_status *ruhs, __u32 bytes);
- 
- int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
--		      __u64 *nlba);
-+		      __u32 *ms, __u64 *nlba);
- 
- int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 			    struct iovec *iov);
--- 
-2.25.1
-
+Vincent
