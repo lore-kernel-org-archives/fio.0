@@ -2,133 +2,168 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41FC4C7EE24
-	for <fio@archiver.kernel.org>; Mon, 15 May 2023 05:50:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29C45C7EE24
+	for <fio@archiver.kernel.org>; Mon, 15 May 2023 05:50:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238199AbjEOFuI (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 15 May 2023 01:50:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56526 "EHLO
+        id S232916AbjEOFuQ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 15 May 2023 01:50:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbjEOFty (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 15 May 2023 01:49:54 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D473270F
-        for <fio@vger.kernel.org>; Sun, 14 May 2023 22:49:47 -0700 (PDT)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20230515054942epoutp018356e490da3842cd2d3c1ad49c23f096~fOx1Z-dKQ0635506355epoutp01i
-        for <fio@vger.kernel.org>; Mon, 15 May 2023 05:49:42 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20230515054942epoutp018356e490da3842cd2d3c1ad49c23f096~fOx1Z-dKQ0635506355epoutp01i
+        with ESMTP id S232831AbjEOFuJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 15 May 2023 01:50:09 -0400
+Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108E82689
+        for <fio@vger.kernel.org>; Sun, 14 May 2023 22:49:50 -0700 (PDT)
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20230515054948epoutp03750ade47f324aa216786e3bff1299632~fOx6fyzVb1709417094epoutp03R
+        for <fio@vger.kernel.org>; Mon, 15 May 2023 05:49:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20230515054948epoutp03750ade47f324aa216786e3bff1299632~fOx6fyzVb1709417094epoutp03R
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1684129782;
-        bh=oUDCRyFL0PUPg3EYQPPXpPGqV+NvGZKMXwk4zac8bms=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=L+zjg5l6lRoGFF4cSbLcbE//G/J8RnOuaCKhPkCxidz5e6dm8LryX0A3YAV0KniC8
-         tZJYsY6wR5/v0wqHJC3vFUyP7Na5uZAhvC5m8L0fp/+FPrE4DJSdMV0ktii1VLJnuu
-         MuaVwch+K6nuLNYOq8vfg5g+KV7DQ1xCzALI1yYc=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+        s=mail20170921; t=1684129788;
+        bh=XK2fDVBcAhVfJt8g+lwVJz19fmN/a5+S4lzxiTvro14=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=uTXsSiiksq0fGJqLMp5nM9M4Uchf8ir6VSnA2vAM4gNqbcZRK9DyoHaEELKXR7E2q
+         pcfW1/AgUmnbwCVxVscd41j3Zf+lzl+d1uspSWmAvKibcfMXH2bIHW7bo49OrlwqKk
+         634RbLtFsjLpX+OQPPp84F6RYctBuJrya0Mjv2Jc=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
         epcas5p1.samsung.com (KnoxPortal) with ESMTP id
-        20230515054942epcas5p162f389842a0ac024f7ae722be42abe2e~fOx0sFvQD0112701127epcas5p1H;
-        Mon, 15 May 2023 05:49:42 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.182]) by
-        epsnrtp2.localdomain (Postfix) with ESMTP id 4QKT380gs8z4x9Q7; Mon, 15 May
-        2023 05:49:40 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        66.88.57769.1F7C1646; Mon, 15 May 2023 14:49:37 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-        20230515054350epcas5p4643d68a6f79cae867b88be678154329b~fOstar3Sv1342713427epcas5p43;
-        Mon, 15 May 2023 05:43:50 +0000 (GMT)
+        20230515054947epcas5p15f2e6ebb4afd0a8ff834de262acfb83f~fOx6DpYcd0373703737epcas5p1o;
+        Mon, 15 May 2023 05:49:47 +0000 (GMT)
+Received: from epsmges5p1new.samsung.com (unknown [182.195.38.176]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4QKT3G0qZ7z4x9Px; Mon, 15 May
+        2023 05:49:46 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        49.6C.54880.8F7C1646; Mon, 15 May 2023 14:49:44 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
+        20230515054351epcas5p1f2922cc8507e9e6a57bb0228914ff0bc~fOsuURxdB2439524395epcas5p1r;
+        Mon, 15 May 2023 05:43:51 +0000 (GMT)
 Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
-        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20230515054350epsmtrp23b4c526b1f78a7119a595c7dfff0d3e3~fOstZ6MnD0359303593epsmtrp2i;
-        Mon, 15 May 2023 05:43:50 +0000 (GMT)
-X-AuditID: b6c32a4a-ccfff7000001e1a9-fc-6461c7f1081a
+        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+        20230515054351epsmtrp1e172a7b7f530c3767d59481ba76fce04~fOsuTXbKO1628916289epsmtrp1a;
+        Mon, 15 May 2023 05:43:51 +0000 (GMT)
+X-AuditID: b6c32a49-8c5ff7000001d660-d6-6461c7f88551
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
         epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        BF.FC.27706.696C1646; Mon, 15 May 2023 14:43:50 +0900 (KST)
+        70.0D.27706.796C1646; Mon, 15 May 2023 14:43:51 +0900 (KST)
 Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
         [107.99.41.39]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20230515054349epsmtip2df5094abc7d86491bdf989b343dc139a~fOssf0yla0718907189epsmtip2l;
-        Mon, 15 May 2023 05:43:49 +0000 (GMT)
+        20230515054350epsmtip2dc753c4c46a65170a65aafa807136165~fOstfQAKK0682106821epsmtip2b;
+        Mon, 15 May 2023 05:43:50 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, vincentfu@gmail.com, joshi.k@samsung.com,
         Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH v2 0/2] io_uring_cmd cleanup and fixes
-Date:   Mon, 15 May 2023 16:33:38 +0530
-Message-Id: <20230515110340.21984-1-ankit.kumar@samsung.com>
+Subject: [PATCH v2 1/2] engines/nvme: support for 64 LBA formats
+Date:   Mon, 15 May 2023 16:33:39 +0530
+Message-Id: <20230515110340.21984-2-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230515110340.21984-1-ankit.kumar@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrPKsWRmVeSWpSXmKPExsWy7bCmpu7H44kpBhOmcFqsufKb3WL13X42
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrLKsWRmVeSWpSXmKPExsWy7bCmhu6P44kpBhtv8lusufKb3WL13X42
         i4+zXjBbHP3/ls1iQ5ugA6vHzll32T0uny316NuyitHj8ya5AJaobJuM1MSU1CKF1Lzk/JTM
         vHRbJe/geOd4UzMDQ11DSwtzJYW8xNxUWyUXnwBdt8wcoK1KCmWJOaVAoYDE4mIlfTubovzS
-        klSFjPziElul1IKUnAKTAr3ixNzi0rx0vbzUEitDAwMjU6DChOyM9sebmQoesVf0bONuYFzM
-        1sXIySEhYCLx4dpDpi5GLg4hgd2MEpc/zWGEcD4xSkw5NIMFwvnGKPFwySRGmJZv045Atexl
-        lHi2/yQrSEJIoJNJ4v+OCBCbTUBb4tXbG8wgtoiAsMT+jlYWEJtZIEvixIo2IJuDQ1jATOLn
-        tmyQMIuAqsTT3/vBTuIVsJHY9Ok0K8QueYmZl76zQ8QFJU7OfAI1Rl6ieetsZpAbJAS2sUsc
-        mrqDGaLBReLT0YtQtrDEq+Nb2CFsKYnP7/ZC/ZwtsenhTyYIu0DiyIteqHp7idZT/cwgtzEL
-        aEqs36UPEZaVmHpqHRPEXj6J3t9PoFp5JXbMg7FVJf7eu80CYUtL3Hx3Fcr2kPj29BrYu0IC
-        sRJvf5pMYJSfheSbWUi+mYWweAEj8ypGydSC4tz01GLTAqO81HJ4rCbn525iBKc8La8djA8f
-        fNA7xMjEwXiIUYKDWUmEt31mfIoQb0piZVVqUX58UWlOavEhRlNgEE9klhJNzgcm3bySeEMT
-        SwMTMzMzE0tjM0MlcV5125PJQgLpiSWp2ampBalFMH1MHJxSDUzWE8/tTPnr45neevfZ/4tv
-        PpvFZ92t3mC91OrXyYd3kxeGhFxaYzm5qGz5M041H5vpNVOOPNGZzvxz06Xze5wj9RlY9LtE
-        XFs22vw6lp7g95VLa93Bh0LRs+cZBscviFJY/Oz3X4ckTcVvMtc01u3Ss3JOklQ08D1xceuG
-        Rtmvxz77TlIxTJ52V6A7frvQ7RVnFH/duOLinviZOyCxk1X/R5S+Ted9cQ+2ohUyel1xGVNP
-        d8+3vyPx4oAKo5adi/ULq6wa3V3RCSkfrDr/vZ4bl7X2wd2/c9KZ+EufdNQxCTjsOHtj1/TX
-        qZNY5v585pSQleZe1rus6G3/hq1dGw+ccHT6Nmvlwf3yEdNyVlYpsRRnJBpqMRcVJwIAcIS8
-        fwIEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprFLMWRmVeSWpSXmKPExsWy7bCSvO60Y4kpBncXqVisufKb3WL13X42
-        i4+zXjBbHP3/ls1iQ5ugA6vHzll32T0uny316NuyitHj8ya5AJYoLpuU1JzMstQifbsEroz2
-        x5uZCh6xV/Rs425gXMzWxcjJISFgIvFt2hGmLkYuDiGB3YwSZ3c+Yexi5ABKSEssXJ8IUSMs
-        sfLfc3aImnYmiS19x1hBEmwC2hKv3t5gBrFFgIr2d7SygPQyC+RJfFulAmIKC5hJ/NyWDVLB
-        IqAq8fT3frC1vAI2Eps+nWaFGC8vMfPSd3aIuKDEyZlPWEBsZqB489bZzBMY+WYhSc1CklrA
-        yLSKUTK1oDg3PbfYsMAwL7Vcrzgxt7g0L10vOT93EyM4+LQ0dzBuX/VB7xAjEwfjIUYJDmYl
-        Ed72mfEpQrwpiZVVqUX58UWlOanFhxilOViUxHkvdJ2MFxJITyxJzU5NLUgtgskycXBKNTDZ
-        Tr/medXoRetr9mjh2tVh0Xu0lob+W+CrvSYyYPvSUKdQh+TiWYucKj+VPUqq+7VbwFL8+tKg
-        6Ak/lThcfP+GrP7C3Laj0mnrm/3PVnFKhd1nl1btmlx80lLt1jrtx+u2akey+N4ScxKbalTD
-        bPzo6Tvh2V9eRywoYdn6m2NR1LKYkLVmMha6sYefHnRkVF/89GrlNtlOYc5P31IXqUvJSV3J
-        +NY0t/J63d/UdZtOHT1bIMV5ImSR1cyCCUdePJJ1nTm1LXPPHxf9hHNnN0rslJhz8OAunuJ7
-        sqIiZ90k9Nr2swr8m2bGHe8e/rn7zfdjjIcif1vfm7m3I3Su24NucffVUtyu+r+adjccF9yu
-        xFKckWioxVxUnAgAhJBeZK0CAAA=
-X-CMS-MailID: 20230515054350epcas5p4643d68a6f79cae867b88be678154329b
+        klSFjPziElul1IKUnAKTAr3ixNzi0rx0vbzUEitDAwMjU6DChOyM1s74gs+8FZNnlDUw/ubq
+        YuTkkBAwkbizfylrFyMXh5DAbkaJdcePMEI4nxglLv+ZxALhfGOUOH1lKhNMy/x9n9ghEnsZ
+        JR7cboNq6WSS+Nb1mBWkik1AW+LV2xvMILaIgLDE/o5WFhCbWSBL4sSKNjBbWMBB4tWXB2D1
+        LAKqEpeOzAKr5xWwkdh/5hDUNnmJmZe+s4PYnAK2Eg3bf7NA1AhKnJz5BGqmvETz1tnMEPWn
+        2CWWzJeEsF0k7v3dzgZhC0u8Or6FHcKWknjZ3wZlZ0tsevgTaleBxJEXvVBz7CVaT/UD2RxA
+        8zUl1u/ShwjLSkw9tY4JYi2fRO/vJ1CtvBI75sHYqhJ/791mgbClJW6+uwple0j8WXwLGlYT
+        GCVW3n/MPoFRYRaSd2YheWcWwuoFjMyrGCVTC4pz01OLTQsM81LL4XGcnJ+7iRGcDrU8dzDe
+        ffBB7xAjEwfjIUYJDmYlEd72mfEpQrwpiZVVqUX58UWlOanFhxhNgeE9kVlKNDkfmJDzSuIN
+        TSwNTMzMzEwsjc0MlcR51W1PJgsJpCeWpGanphakFsH0MXFwSjUwZc76Z3DZOjdUQDL5hKDx
+        o9MRXw36JR/dK3c8GPTjWZycCaOvX+x2v9epIpGH5/KXsC/6PO2QAPOOoONfWl/te8LtsN4p
+        VufCgjn5zVf2pji9vLFftupLtcy6czGeOhYyD7MUi46eXTdl4on7kyL1n23dWBqxWvDdHSNu
+        XpsNO1xXBa1d838jf9eBwHt85eaCfQobw3Xq99k9V7cJqF/YYc2mqZmz/vuh2Q/bOBWmrNn4
+        91SjwVLZjD6lyV8i/u+M2LNqun/U1SnK8/tC1pQdaPW0WMAUfOy9cOeB9qp55lX9/2NffmSq
+        6LHbH7HovJvOO8+CQ5eqemcYHzxsLMvOzz39YeEWoRPpX+YXvrNVUGIpzkg01GIuKk4EAEK1
+        xkIQBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrELMWRmVeSWpSXmKPExsWy7bCSvO70Y4kpBjMuqlmsufKb3WL13X42
+        i4+zXjBbHP3/ls1iQ5ugA6vHzll32T0uny316NuyitHj8ya5AJYoLpuU1JzMstQifbsErozW
+        zviCz7wVk2eUNTD+5upi5OSQEDCRmL/vE3sXIxeHkMBuRonH//8DORxACWmJhesTIWqEJVb+
+        ew5V084ksffvaWaQBJuAtsSrtzfAbBGgov0drSwgvcwCeRLfVqmAhIUFHCRefXnACmKzCKhK
+        XDoyC6ycV8BGYv+ZQ0wQ8+UlZl76zg5icwrYSjRs/80CYgsB1Sy/togJol5Q4uTMJ2BxZqD6
+        5q2zmScwCsxCkpqFJLWAkWkVo2RqQXFuem6xYYFhXmq5XnFibnFpXrpecn7uJkZwsGpp7mDc
+        vuqD3iFGJg7GQ4wSHMxKIrztM+NThHhTEiurUovy44tKc1KLDzFKc7AoifNe6DoZLySQnliS
+        mp2aWpBaBJNl4uCUamBy0i58eFFrw/oTLMdSTzz62WN++lSzh6sbA9uTDacEdmRtO3G2IYY7
+        LWXDn/jMO/tkWafomBzLOsTSmjF56dut1vZ2brxMlcVlqT9tInPmCj6dy/VM6mrZp/ccs1dP
+        0TZe1yod43ndhKFls9z/yhvvf1bkLU0XWr7Y6Ywon6zzql0RX4+e+B3+7nz2S6s9nR7/N5yu
+        ctr7KsOQJe6jWODtXe80+mzM68TKbjB/7+O7/Pv5nKSAfZILzvXJ1b13uHf10jrN5ocMf85P
+        v3q72HJxY5vV4hV3nn+UkWibuON2t4yOw2zfF4LpPTP9V98X15C4f0jueNJLS7d8E5lzdWva
+        03Zm8P/zuTbXJOSbn+s1JZbijERDLeai4kQAyY4rG8UCAAA=
+X-CMS-MailID: 20230515054351epcas5p1f2922cc8507e9e6a57bb0228914ff0bc
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20230515054350epcas5p4643d68a6f79cae867b88be678154329b
-References: <CGME20230515054350epcas5p4643d68a6f79cae867b88be678154329b@epcas5p4.samsung.com>
+X-CMS-RootMailID: 20230515054351epcas5p1f2922cc8507e9e6a57bb0228914ff0bc
+References: <20230515110340.21984-1-ankit.kumar@samsung.com>
+        <CGME20230515054351epcas5p1f2922cc8507e9e6a57bb0228914ff0bc@epcas5p1.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 The NVM command set specification 1.0c supports 64 LBA formats.
-The first patch adds support for that.
+The 0-based nlbaf field specifies the number of LBA formats.
+The flbas field is used to calculate the current LBA format, in which
+bit 0-3 indicates lsb and bit 5-6 indicates msb of the format index.
 
-The io_uring_cmd ioengine assumes that logical block size is always
-power of 2. But with namespace formats where metadata is transferred
-at the end of logical block i.e. an extended logical block this is
-not true.
-This second patch adds the support for extended logical block sizes.
-This however doesn't include support for protection info and metadata
-transferred as separate buffer, we return error for those.
+Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+---
+ engines/nvme.c | 14 +++++++++++++-
+ engines/nvme.h |  3 +--
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-Changes from v1:
-* Split the original patch into 2 as suggested by Vincent and Jens
-* Address all review comments from Vincent
-
-Ankit Kumar (2):
-  engines/nvme: support for 64 LBA formats
-  engines/io_uring: io_uring_cmd engine fixes
-
- engines/io_uring.c | 30 ++++++++++++++++++---
- engines/nvme.c     | 66 ++++++++++++++++++++++++++++++++++++++--------
- engines/nvme.h     |  6 ++---
- 3 files changed, 84 insertions(+), 18 deletions(-)
-
+diff --git a/engines/nvme.c b/engines/nvme.c
+index fd2161f3..96a5f064 100644
+--- a/engines/nvme.c
++++ b/engines/nvme.c
+@@ -99,6 +99,7 @@ int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
+ 	struct nvme_id_ns ns;
+ 	int namespace_id;
+ 	int fd, err;
++	__u32 format_idx;
+ 
+ 	if (f->filetype != FIO_TYPE_CHAR) {
+ 		log_err("ioengine io_uring_cmd only works with nvme ns "
+@@ -131,7 +132,18 @@ int fio_nvme_get_info(struct fio_file *f, __u32 *nsid, __u32 *lba_sz,
+ 	}
+ 
+ 	*nsid = namespace_id;
+-	*lba_sz = 1 << ns.lbaf[(ns.flbas & 0x0f)].ds;
++
++	/*
++	 * 16 or 64 as maximum number of supported LBA formats.
++	 * From flbas bit 0-3 indicates lsb and bit 5-6 indicates msb
++	 * of the format index used to format the namespace.
++	 */
++	if (ns.nlbaf < 16)
++		format_idx = ns.flbas & 0xf;
++	else
++		format_idx = (ns.flbas & 0xf) + (((ns.flbas >> 5) & 0x3) << 4);
++
++	*lba_sz = 1 << ns.lbaf[format_idx].ds;
+ 	*nlba = ns.nsze;
+ 
+ 	close(fd);
+diff --git a/engines/nvme.h b/engines/nvme.h
+index 408594d5..9d6288c8 100644
+--- a/engines/nvme.h
++++ b/engines/nvme.h
+@@ -134,8 +134,7 @@ struct nvme_id_ns {
+ 	__le16			endgid;
+ 	__u8			nguid[16];
+ 	__u8			eui64[8];
+-	struct nvme_lbaf	lbaf[16];
+-	__u8			rsvd192[192];
++	struct nvme_lbaf	lbaf[64];
+ 	__u8			vs[3712];
+ };
+ 
 -- 
 2.25.1
 
