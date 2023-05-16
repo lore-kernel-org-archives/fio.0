@@ -2,120 +2,138 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26E55C77B7A
-	for <fio@archiver.kernel.org>; Tue, 16 May 2023 06:59:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61C09C77B75
+	for <fio@archiver.kernel.org>; Tue, 16 May 2023 06:59:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230193AbjEPG7d (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 16 May 2023 02:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37300 "EHLO
+        id S230018AbjEPG7e (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 16 May 2023 02:59:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230362AbjEPG73 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 16 May 2023 02:59:29 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3AFC198
-        for <fio@vger.kernel.org>; Mon, 15 May 2023 23:59:24 -0700 (PDT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20230516065922epoutp01ef4626b3df860802192a6805ce48d467~fjX8KOPpV1314513145epoutp01J
-        for <fio@vger.kernel.org>; Tue, 16 May 2023 06:59:22 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20230516065922epoutp01ef4626b3df860802192a6805ce48d467~fjX8KOPpV1314513145epoutp01J
+        with ESMTP id S230395AbjEPG7a (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 16 May 2023 02:59:30 -0400
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FFA335B6
+        for <fio@vger.kernel.org>; Mon, 15 May 2023 23:59:28 -0700 (PDT)
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20230516065925epoutp0452088147e64b7ae8db701224f26d37c1~fjX-U6ZR23176431764epoutp044
+        for <fio@vger.kernel.org>; Tue, 16 May 2023 06:59:25 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20230516065925epoutp0452088147e64b7ae8db701224f26d37c1~fjX-U6ZR23176431764epoutp044
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1684220362;
-        bh=zu6pkJjzURCDiqHvu2k6zfosJoBywdPcqwOiz7PTPGo=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=HPLZHFzFQTsSDzaJNtH3lha73RBuwwr3HhFzJ8LeIWNEHwQjHyZiP9P65CsNp8MXr
-         TdiEVJHZXqchTJWGoOZ4KRRPb/9q+5Kx9DY204X3H7CdceFsOGo8e0/eWxDDQWNbHX
-         B9GwR+sUhQRJfEmE3Jv7wvIUmiOFX+2XBcLrsNdA=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20230516065922epcas5p4cb171b6d852869331ccd6ba2cf422fc3~fjX732k7x0616506165epcas5p4Q;
-        Tue, 16 May 2023 06:59:22 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.180]) by
-        epsnrtp3.localdomain (Postfix) with ESMTP id 4QL6Y4650dz4x9QP; Tue, 16 May
-        2023 06:59:20 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
+        s=mail20170921; t=1684220365;
+        bh=1ucs52rd2Z160IKwRyKYQdmYSfSTup8CCWETMPX3l0M=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Rmmi1Y4fNfdxZ+/V27wjPF50XLk0z6nL111pVIPluCaTLLl6P+s13/43JtPJtTZUT
+         PNxgyktRhbOwruZSOfp+MlrbJRIrqbRXCgB3AOvr2Asg53fwhrQtYaK681yuKGaOt1
+         +4dXv9A4VmV+9AUdxpsgwx8GFmxQsR5wE23q7LsU=
+Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
+        epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+        20230516065925epcas5p10bf8ee0a993b8cb87aae5fe258633644~fjX-JwdIF1458514585epcas5p1x;
+        Tue, 16 May 2023 06:59:25 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.179]) by
+        epsnrtp4.localdomain (Postfix) with ESMTP id 4QL6Y82VWxz4x9QJ; Tue, 16 May
+        2023 06:59:24 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
         epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        E3.CA.57769.5C923646; Tue, 16 May 2023 15:59:17 +0900 (KST)
+        27.CA.57769.AC923646; Tue, 16 May 2023 15:59:22 +0900 (KST)
 Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20230516065713epcas5p213f17bd22ff9c5256940dc420e6c07c9~fjWDy7bhE1389813898epcas5p2R;
-        Tue, 16 May 2023 06:57:13 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+        20230516065714epcas5p356762595641f6e8c102c8346a1681747~fjWErrnts1785617856epcas5p3t;
+        Tue, 16 May 2023 06:57:14 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
         epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-        20230516065713epsmtrp2b4071845c297de52b3fc6213f4aea3cd~fjWDyQdC52195421954epsmtrp2_;
-        Tue, 16 May 2023 06:57:13 +0000 (GMT)
-X-AuditID: b6c32a4a-f3bfd7000001e1a9-e9-646329c5cdc4
+        20230516065714epsmtrp2151ee64adf5a2814456fa63d79bff6e8~fjWErAkZX2199921999epsmtrp2l;
+        Tue, 16 May 2023 06:57:14 +0000 (GMT)
+X-AuditID: b6c32a4a-f3bfd7000001e1a9-fb-646329ca0f0b
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        77.C5.27706.94923646; Tue, 16 May 2023 15:57:13 +0900 (KST)
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        06.B4.28392.94923646; Tue, 16 May 2023 15:57:13 +0900 (KST)
 Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
         [107.99.41.39]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20230516065712epsmtip230bcb078aa7efb53a21518929275fae5~fjWDF38xI1271912719epsmtip2Y;
-        Tue, 16 May 2023 06:57:12 +0000 (GMT)
+        20230516065713epsmtip21e8cb33c32db4460e8b4b3b122981ef3~fjWD6b4-P1553015530epsmtip2e;
+        Tue, 16 May 2023 06:57:13 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk
 Cc:     fio@vger.kernel.org, vincentfu@gmail.com,
         Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 0/1] fix  coverity issue
-Date:   Tue, 16 May 2023 17:47:16 +0530
-Message-Id: <20230516121717.28508-1-ankit.kumar@samsung.com>
+Subject: [PATCH 1/1] engines/io_uring: fix coverity issue
+Date:   Tue, 16 May 2023 17:47:17 +0530
+Message-Id: <20230516121717.28508-2-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230516121717.28508-1-ankit.kumar@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrNKsWRmVeSWpSXmKPExsWy7bCmlu5RzeQUg+kHLC3WXPnNbrH6bj+b
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBKsWRmVeSWpSXmKPExsWy7bCmhu4pzeQUg4tvWCzWXPnNbrH6bj+b
         xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJyrbJSE1MSS1SSM1Lzk/JzEu3VfIO
         jneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvMAVqopFCWmFMKFApILC5W0rezKcovLUlVyMgv
-        LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOWPvnMmtBM3NF68qHrA2Mu5m6GDk5
-        JARMJPZcn88CYgsJ7GaUuNeV2sXIBWR/YpS4vPszK4TzjVHi84teZpiOp0u7WCE69gJ1nMyD
-        KOpkkpjZdxBsFJuAtsSrtzfAGkQEhCX2d7SCxZkFQiVOXvvCDmILC2hInFr3iK2LkYODRUBV
-        4uZyMZAwr4CNxLwv71ghdslLzLz0nR0iLihxcuYTqDHyEs1bZzOD7JUQWMcucXvvQajjXCTO
-        nvoD9ZqwxKvjW9ghbCmJz+/2skHY2RKbHv6EqimQOAL3mL1E66l+ZpB7mAU0Jdbv0ocIy0pM
-        PbWOCWIvn0Tv7ydQrbwSO+bB2KoSf+/dZoGwpSVuvrsKZXtIHNx1jA0SVrESRzfPYp3AKD8L
-        yTuzkLwzC2HzAkbmVYySqQXFuempxaYFRnmp5fBoTc7P3cQITnVaXjsYHz74oHeIkYmD8RCj
-        BAezkghv+8z4FCHelMTKqtSi/Pii0pzU4kOMpsAgnsgsJZqcD0y2eSXxhiaWBiZmZmYmlsZm
-        hkrivOq2J5OFBNITS1KzU1MLUotg+pg4OKUamGSbN2jdeCu4YEpJQPn68Lkn19Z9nrdie8Rh
-        kSW9655tffPU0J0nftLKjYHvOzbGPX+rufNHYPcfJh4/Xf3UxUujVvG6/5ZLrWR0MpD2/f69
-        /+T8m09F1Wy+WHiaxZa0nVT1XdQ04YT8mr4Eoz79be3nFrae414Wu29lUZ3891D5xJh3ynIH
-        2LOqZ4g+FS5Yon75sn73q2X/ZzmzMG8//2mz5sZdmya3HOnvl468zOrW+IRbqjx4p7Ko/LHy
-        fcpF1UfqrW1/hj2cHph/afLSc3+D8j8mBUwyOm148E+p5csb03VkklOP158xUp6U/fzXk2Nu
-        2bMTjgkbBqZ6qnD9maH84EmD0IHFrE4ffy691q3EUpyRaKjFXFScCAC0q4A3/gMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprOLMWRmVeSWpSXmKPExsWy7bCSvK6nZnKKwb3V7BZrrvxmt1h9t5/N
-        4uOsF8wWG9oEHVg8ds66y+5x+WypR9+WVYwenzfJBbBEcdmkpOZklqUW6dslcGWs/XOZtaCZ
-        uaJ15UPWBsbdTF2MnBwSAiYST5d2sXYxcnEICexmlNh0pputi5EDKCEtsXB9IkSNsMTKf8/Z
-        IWramSSe/FjJDJJgE9CWePX2BpgtAlS0v6OVBcRmFgiXmH5gMiOILSygIXFq3SOwmSwCqhI3
-        l4uBhHkFbCTmfXnHCjFfXmLmpe/sEHFBiZMzn0CNkZdo3jqbeQIj3ywkqVlIUgsYmVYxSqYW
-        FOem5xYbFhjmpZbrFSfmFpfmpesl5+duYgSHnZbmDsbtqz7oHWJk4mA8xCjBwawkwts+Mz5F
-        iDclsbIqtSg/vqg0J7X4EKM0B4uSOO+FrpPxQgLpiSWp2ampBalFMFkmDk6pBiajTYIFqmft
-        5zdff/0wdYt33vUJrxatfmK6Skp93nz/590zHsT6NMzV7ZZhvaz9rGhy+2n/4jPJT75NnrDX
-        6PoPXm+x1sk7NE0b5taoVTheM9SOF3YvXnAgzY0/iO8Od4nmm6LsCbFPz84uO3svVCLYdk7t
-        2bpDPB9b/rwpf5N84kmgqj3/jWflP2OPqJ67LCZxL+hPMa8H/9/j5v/D+qfPL9uUHu2g+UbE
-        suX44zn5Kdxxfns6k5iuffx13cRpysl7F7ds2/w7zdtbrXoqz+q0BwUmr5OMr6i3uIvdW1T1
-        f5qlqtPWTRFbtuUnxLlHJRqsrnmgVpsezCjeLFIXmx7vfOKZlsQ2W5nZ00/rL1RiKc5INNRi
-        LipOBABaG/7kqgIAAA==
-X-CMS-MailID: 20230516065713epcas5p213f17bd22ff9c5256940dc420e6c07c9
+        LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOONcoWdDIUfH+5zvmBsaLbF2MnBwS
+        AiYSvyc8Y+1i5OIQEtjNKPFgxRc2COcTo8SFt0vZIZzPjBL3dv9igWm5+vciVGIXo0RT3y9m
+        CKeTSWLuoenMIFVsAtoSr97eALNFBIQl9ne0gnUzC4RKnLz2Baibg0NYwFLi8HNGkDCLgKrE
+        jmszwWxeARuJWYfesEMsk5eYeek7mM0pYCsx99Q0JogaQYmTM59AjZSXaN46G+wGCYF97BKv
+        Zk+Hes5FomP5Y2YIW1ji1fEtUEOlJD6/2wtVky2x6eFPJgi7QOLIi16oenuJ1lP9zCB3Mgto
+        SqzfpQ8RlpWYemodE8RePone30+gWnkldsyDsVUl/t67DQ0saYmb766ygIyREPCQuP8lDxJU
+        ExglTm+cyjKBUWEWkndmIXlnFsLmBYzMqxglUwuKc9NTi00LjPJSy+FxnJyfu4kRnAS1vHYw
+        PnzwQe8QIxMH4yFGCQ5mJRHe9pnxKUK8KYmVValF+fFFpTmpxYcYTYHhPZFZSjQ5H5iG80ri
+        DU0sDUzMzMxMLI3NDJXEedVtTyYLCaQnlqRmp6YWpBbB9DFxcEo1MK2zU3M9tuTnxS+Ptnps
+        t7kaG+0QmXDz6NQMH/+wkDdvPssZPF0Zdt1C5tWMA9IpqnvWsHwN0n3Xf7MkyObG3tNO7y4G
+        3F/Oen9yRGRycKSCZmzV5LVZ8+oWCj4P1Xosf9l33b5ID90tHWwikzVswyvm7tvWLB2cP/PT
+        18nO+3Xfc/yM/mE7p3tl6STJnvUdn6RTjY6be9pFiszyud26P4PJzex859TDxTkC9efzWpzu
+        /fEwFxSI1/Hd77tP75bbHHcbpyWuy5sV9nZ8O+Py8YPRg6BvdRu5Ew59vBcUcqw1w8r0eG39
+        wwuL7nGp8fDZ8n5WP2cgXGFy4+DrHxe7dzKcybu5gdVDXmxd9f9uaSWW4oxEQy3mouJEABVA
+        bEYLBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrDLMWRmVeSWpSXmKPExsWy7bCSvK6XZnKKwVpnizVXfrNbrL7bz2bx
+        cdYLZosNbYIOLB47Z91l97h8ttSjb8sqRo/Pm+QCWKK4bFJSczLLUov07RK4Ms41ShY0clS8
+        //mOuYHxIlsXIyeHhICJxNW/F9lBbCGBHYwSJ/bzdDFyAMWlJRauT4QoEZZY+e85UAkXUEk7
+        k0T/g9tgvWwC2hKv3t5gBrFFgIr2d7SygNjMAuES0w9MZgSZIyxgKXH4OSNImEVAVWLHtZlg
+        Nq+AjcSsQ2/YIebLS8y89B3M5hSwlZh7ahoTxDk2Eh375rBC1AtKnJz5BGq8vETz1tnMExgF
+        ZiFJzUKSWsDItIpRMrWgODc9t9iwwCgvtVyvODG3uDQvXS85P3cTIzhAtbR2MO5Z9UHvECMT
+        B+MhRgkOZiUR3vaZ8SlCvCmJlVWpRfnxRaU5qcWHGKU5WJTEeS90nYwXEkhPLEnNTk0tSC2C
+        yTJxcEo1MCXyRKw+tT64Mpc30rh7dcPRq26Z8s2mDzzKW+19mOzlP/Ftiyu0WJp9aOoHW8Vb
+        ZrKXBEtM+HgX6RzYs9Xht+7WCpuUtROdG4NUW6auYha1eXrzyMdldZxPC42b7RdtP7TXYP8Z
+        3rlpvNYvcr03vNyh9Kxuur991702EftlFk98U3ccF1WPSo5K+6pw+Ibl69t3F0bbOjEvWjh9
+        3hP3s7+te6p3njpmUrH5ZKkUu3JT+oOnn3WmOizuNcrZX3vQsfyYq9XDx1VKkb9bzuclXde4
+        3rxm7a2M14GiC0JnLc/cPvmoYPxvKcMky7OfP996xBk71bY69FRuYxnTjci6v7L8qXIMH/xv
+        cU3yqZvZpcRSnJFoqMVcVJwIAGegHjG/AgAA
+X-CMS-MailID: 20230516065714epcas5p356762595641f6e8c102c8346a1681747
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20230516065713epcas5p213f17bd22ff9c5256940dc420e6c07c9
-References: <CGME20230516065713epcas5p213f17bd22ff9c5256940dc420e6c07c9@epcas5p2.samsung.com>
+X-CMS-RootMailID: 20230516065714epcas5p356762595641f6e8c102c8346a1681747
+References: <20230516121717.28508-1-ankit.kumar@samsung.com>
+        <CGME20230516065714epcas5p356762595641f6e8c102c8346a1681747@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-This patch fixes the below mentioned coverity issue
-CID 455020:  Integer handling issues  (BAD_SHIFT)
+*** CID 455020:  Integer handling issues  (BAD_SHIFT)
 /engines/io_uring.c: 1201 in fio_ioring_cmd_open_file()
+
+In expression "1 << data->lba_shift", left shifting by more than 31 bits
+has undefined behavior.  The shift amount, "data->lba_shift", is 4294967295
 
 Fixes: 345fa8f ("engines/io_uring_cmd: add extended LBA support")
 
-Ankit Kumar (1):
-  engines/io_uring: fix coverity issue
-
+Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+---
  engines/io_uring.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 90e5a856..ff64fc9f 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -1198,7 +1198,8 @@ static int fio_ioring_cmd_open_file(struct thread_data *td, struct fio_file *f)
+ 			FILE_SET_ENG_DATA(f, data);
+ 		}
+ 
+-		lba_size = data->lba_ext ? data->lba_ext : (1 << data->lba_shift);
++		assert(data->lba_shift < 32);
++		lba_size = data->lba_ext ? data->lba_ext : (1U << data->lba_shift);
+ 
+ 		for_each_rw_ddir(ddir) {
+ 			if (td->o.min_bs[ddir] % lba_size ||
 -- 
 2.25.1
 
