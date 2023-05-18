@@ -2,109 +2,194 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19C88C77B7A
-	for <fio@archiver.kernel.org>; Thu, 18 May 2023 02:39:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB393C7EE22
+	for <fio@archiver.kernel.org>; Thu, 18 May 2023 12:00:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbjERCj5 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 17 May 2023 22:39:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35642 "EHLO
+        id S230500AbjERMAJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 18 May 2023 08:00:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229576AbjERCj4 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 17 May 2023 22:39:56 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1838A4
-        for <fio@vger.kernel.org>; Wed, 17 May 2023 19:39:55 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id d9443c01a7336-1aaebed5bd6so11889615ad.1
-        for <fio@vger.kernel.org>; Wed, 17 May 2023 19:39:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1684377595; x=1686969595;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=kjTElF21c1uHI7Q/sZ5nRQ5cjMl3EXBT2MTVjKc4zvU=;
-        b=cehKV+xf7QC17Jk6oQ2eYLjvO0hvZ+2JjFIMokM+258HdyZYCuk3979JIBmVXtfnup
-         ++YtXznuYhwokdnmmgnNYGr/UBRxPeJGsi28aLA+PCIMP2Tqj8LrTBJNZlo4PVFOLieL
-         a8Gbep07d50NGGNVX0ad/k2VtMD+Wp32utbt/Ef77vtcG3X0rI4nhsldnYK7LyRRHv8E
-         g8GTOucdV1nWzyhFL+XOLxC2EMZz18LlHAvOfcT1QqESZM0s+V1U5GnuUi2Bg4q5maAX
-         6nK+Q+AuytckhAjyeBSUyBg0MSqgtjc7QXzTuqCquw6xA57nSoX4sEDQ+iPK4IkkMrGV
-         TwFw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684377595; x=1686969595;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=kjTElF21c1uHI7Q/sZ5nRQ5cjMl3EXBT2MTVjKc4zvU=;
-        b=NJICyp24lrXeEj8mrjXvwQFMX28A7tC5vVuI9QPITClvJFQzIUMe55eX/FAtiYkR4n
-         VgD4nZEsQUR77m1ztHvZ3+QzupMjHEWS4QDscvVUQbO8N0FByVZ5R0BJQg0JMdE/BOst
-         Z7C5wB6/Vnr2KV0rzZAIPaiAeu4zZ+FkaG6wFkoX7KRme7gB1bay6Bda8PHfrnVie5hs
-         55xxgeMw+rhOoKSHfuJ38B+C94RT5ZZktxpRPXj3R/a6lYlDQzoZDXwWiQs7jHhpeNmM
-         4OihFkUuPAtshwpQ/fZ3ddIW6zfU1h5TEqZ6qMFCnCOpjovLG09mTIA9OhYup2qa+KwX
-         qN1g==
-X-Gm-Message-State: AC+VfDyEStoQYOZtXVNwTmvIKYialYVDGroSw4DhMBbZMFBvsQqRlZqY
-        Gj+odhSwGkack1kgpXqlRAD4ieRhepDrRhTssQd8IrXbeAA=
-X-Google-Smtp-Source: ACHHUZ5Yy+yoMWZhzDICvJmzmwxmD664sf3e7TiAAsDVV2ir/iqtJFtmND/Kw2OnWOwUyONRxqeERoIFiglwz+GU0iQ=
-X-Received: by 2002:a17:902:ce8d:b0:1a9:a672:12b8 with SMTP id
- f13-20020a170902ce8d00b001a9a67212b8mr980160plg.68.1684377594911; Wed, 17 May
- 2023 19:39:54 -0700 (PDT)
-MIME-Version: 1.0
-From:   Peter Veentjer <alarmnummer@gmail.com>
-Date:   Thu, 18 May 2023 05:39:44 +0300
-Message-ID: <CAGuAWdAyy2yaM4mJ-CprFgg1JEOriom5Dv_xE8jH1qURdce9xA@mail.gmail.com>
-Subject: Fio sequential I/O request generation
-To:     fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S230036AbjERMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 18 May 2023 08:00:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 427CEAC
+        for <fio@vger.kernel.org>; Thu, 18 May 2023 05:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=JfiT7entJdtSDFQ2DUF9CsKF1yfUQVlvMFlV5oVSOuU=; b=N52p9+Dhiv9fPdpGPTejkY+RBh
+        SsYWN6DCzCls0CA4Hh4hVl2Ljp81r/uV5/PIfPsUXEzZnm79Z1HArZh5Jxml1emMt/VkQrV64H9cA
+        nfxcYSpj1HQg7SZPDjnnQodh4H/5akR73eAComJiI2cU/yxNzdRWWgigPASbU6LLvZqPowTnde+TS
+        COKpl7C+U8lp75oSW0cd4IKHVZIf90pQQa4756R/Xckk/e7huDh6d4aD6Akl7SCsYCgGZDAWsu2RA
+        54fjpVmf37zD3AItbXvRXsQTYCsl3BFPTZsFR6aYpxRapfXmK8bFvQEmG+9EbXamWgZz17or4mZvv
+        WVsVSF1g==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pzcIe-005kvp-Fw
+        for fio@vger.kernel.org; Thu, 18 May 2023 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id F15291BC017B; Thu, 18 May 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230518120001.F15291BC017B@kernel.dk>
+Date:   Thu, 18 May 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hi,
+The following changes since commit be42eadd18fad2569dfc6517940db8bbe2469f6d:
 
-I'm working on io_uring integration for Java and using Fio to get a
-performance baseline. The problem is that Fio is slower than my
-benchmark and hence I do not have a proper baseline.
+  engines/io_uring: fix coverity issue (2023-05-16 09:01:57 -0600)
 
-Part of my problem is that I don't understand how sequential I/O
-generating works when the io_depth is larger than 1 (I'm testing with
-64).
+are available in the Git repository at:
 
-In the first version, I was iterating over the blocks in the file and
-sequentially issuing the requests, and keeping the required number of
-requests in flight. The problem is that this will lead to many
-concurrent and consecutive blocks being scheduled and the Linux I/O
-scheduler will merge many. iostat Confirmed that a huge percentage of
-requests were merged.
+  git://git.kernel.dk/fio.git master
 
-Using iostat I have verified that Fio is not suffering from merged
-read-request or write-requests, so I guess Fio is not using the above
-approach.
+for you to fetch changes up to a64fd9c7994b51039b2fde851579c2453ddb35c0:
 
-Some other approaches I have tried.
+  docs: document no_completion_thread (2023-05-17 14:44:49 +0000)
 
-1) Split the file into smaller sections and let each stride access a
-portion of the file. E.g. io_level = 64 and a 64 MB file, each stride
-gets a 1MB section of the file.
+----------------------------------------------------------------
+Vincent Fu (3):
+      docs: move rate_cycle description
+      docs: move experimental_verify description
+      docs: document no_completion_thread
 
-2) Each stride goes over the whole file but starts from a different
-position. With 64 io_level, there are 64 different start offsets.
+ HOWTO.rst | 28 ++++++++++++++++------------
+ fio.1     | 21 ++++++++++++---------
+ 2 files changed, 28 insertions(+), 21 deletions(-)
 
-The performance I'm getting is still significantly higher than what
-Fio measures so I'm sure that I'm doing something wrong (no apples vs
-apples comparison). But the numbers my benchmark measures are
-consistent with what iostat is reporting: the bandwidth and IOPS do
-match.
+---
 
-I have included the Fio configuration for completeness:
+Diff of recent changes:
 
-fio --name=sometest --numjobs=1 --filesize=4M --time_based
---runtime=60s --ramp_time=2s --ioengine=io_uring  --direct=1
---verify=0 --bs=4k --iodepth=64 --rw=read --group_reporting=1
---cpus_allowed=1
-
-I'm testing with Direct I/O and using a single thread that is pinned
-to core 1 which does sequential reads and I want to keep 64 requests
-in flight.
-
-If someone could shine a light on how Fio generates requests for
-sequential reads/writes.
-
-Regards,
-
-Peter.
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 80c08f7e..32fff5ec 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -3011,6 +3011,10 @@ with the caveat that when used on the command line, they must come after the
+ 	performance. The default is to enable it only if
+ 	:option:`libblkio_wait_mode=eventfd <libblkio_wait_mode>`.
+ 
++.. option:: no_completion_thread : [windowsaio]
++
++	Avoid using a separate thread for completion polling.
++
+ I/O depth
+ ~~~~~~~~~
+ 
+@@ -3203,6 +3207,11 @@ I/O rate
+ 	fio will ignore the thinktime and continue doing IO at the specified
+ 	rate, instead of entering a catch-up mode after thinktime is done.
+ 
++.. option:: rate_cycle=int
++
++	Average bandwidth for :option:`rate` and :option:`rate_min` over this number
++	of milliseconds. Defaults to 1000.
++
+ 
+ I/O latency
+ ~~~~~~~~~~~
+@@ -3241,11 +3250,6 @@ I/O latency
+ 	microseconds. Comma-separated values may be specified for reads, writes,
+ 	and trims as described in :option:`blocksize`.
+ 
+-.. option:: rate_cycle=int
+-
+-	Average bandwidth for :option:`rate` and :option:`rate_min` over this number
+-	of milliseconds. Defaults to 1000.
+-
+ 
+ I/O replay
+ ~~~~~~~~~~
+@@ -3761,6 +3765,13 @@ Verification
+ 	verification pass, according to the settings in the job file used.  Default
+ 	false.
+ 
++.. option:: experimental_verify=bool
++
++        Enable experimental verification. Standard verify records I/O metadata
++        for later use during the verification phase. Experimental verify
++        instead resets the file after the write phase and then replays I/Os for
++        the verification phase.
++
+ .. option:: trim_percentage=int
+ 
+ 	Number of verify blocks to discard/trim.
+@@ -3777,13 +3788,6 @@ Verification
+ 
+ 	Trim this number of I/O blocks.
+ 
+-.. option:: experimental_verify=bool
+-
+-        Enable experimental verification. Standard verify records I/O metadata
+-        for later use during the verification phase. Experimental verify
+-        instead resets the file after the write phase and then replays I/Os for
+-        the verification phase.
+-
+ Steady state
+ ~~~~~~~~~~~~
+ 
+diff --git a/fio.1 b/fio.1
+index e577e2e0..80bf3371 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2765,6 +2765,9 @@ Use a busy loop with a non-blocking call to \fBblkioq_do_io()\fR.
+ Enable the queue's completion eventfd even when unused. This may impact
+ performance. The default is to enable it only if
+ \fBlibblkio_wait_mode=eventfd\fR.
++.TP
++.BI (windowsaio)no_completion_thread
++Avoid using a separate thread for completion polling.
+ .SS "I/O depth"
+ .TP
+ .BI iodepth \fR=\fPint
+@@ -2946,6 +2949,10 @@ By default, fio will attempt to catch up to the specified rate setting, if any
+ kind of thinktime setting was used. If this option is set, then fio will
+ ignore the thinktime and continue doing IO at the specified rate, instead of
+ entering a catch-up mode after thinktime is done.
++.TP
++.BI rate_cycle \fR=\fPint
++Average bandwidth for \fBrate\fR and \fBrate_min\fR over this number
++of milliseconds. Defaults to 1000.
+ .SS "I/O latency"
+ .TP
+ .BI latency_target \fR=\fPtime
+@@ -2975,10 +2982,6 @@ If set, fio will exit the job with an ETIMEDOUT error if it exceeds this
+ maximum latency. When the unit is omitted, the value is interpreted in
+ microseconds. Comma-separated values may be specified for reads, writes,
+ and trims as described in \fBblocksize\fR.
+-.TP
+-.BI rate_cycle \fR=\fPint
+-Average bandwidth for \fBrate\fR and \fBrate_min\fR over this number
+-of milliseconds. Defaults to 1000.
+ .SS "I/O replay"
+ .TP
+ .BI write_iolog \fR=\fPstr
+@@ -3475,6 +3478,11 @@ far it should verify. Without this information, fio will run a full
+ verification pass, according to the settings in the job file used. Default
+ false.
+ .TP
++.BI experimental_verify \fR=\fPbool
++Enable experimental verification. Standard verify records I/O metadata for
++later use during the verification phase. Experimental verify instead resets the
++file after the write phase and then replays I/Os for the verification phase.
++.TP
+ .BI trim_percentage \fR=\fPint
+ Number of verify blocks to discard/trim.
+ .TP
+@@ -3486,11 +3494,6 @@ Verify that trim/discarded blocks are returned as zeros.
+ .TP
+ .BI trim_backlog_batch \fR=\fPint
+ Trim this number of I/O blocks.
+-.TP
+-.BI experimental_verify \fR=\fPbool
+-Enable experimental verification. Standard verify records I/O metadata for
+-later use during the verification phase. Experimental verify instead resets the
+-file after the write phase and then replays I/Os for the verification phase.
+ .SS "Steady state"
+ .TP
+ .BI steadystate \fR=\fPstr:float "\fR,\fP ss" \fR=\fPstr:float
