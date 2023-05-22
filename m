@@ -2,193 +2,73 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBA6AC77B7F
-	for <fio@archiver.kernel.org>; Sat, 20 May 2023 12:00:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF96DC7EE26
+	for <fio@archiver.kernel.org>; Mon, 22 May 2023 06:41:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229609AbjETMAV (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 20 May 2023 08:00:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
+        id S229634AbjEVGl0 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 22 May 2023 02:41:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229563AbjETMAV (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 20 May 2023 08:00:21 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF45693
-        for <fio@vger.kernel.org>; Sat, 20 May 2023 05:00:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=XkSWZblaI/KmT8qp17/g6m7GPPNqGJZ+z1NdhGXfmOU=; b=KeVaxTjaIW87LTkbeoSEMFQEO6
-        mbMRrNzoo5AeQht/6mGH687oJIE+MV29WGSR67CO966gnFsUE0DOyc8yGuaOlA6Ap36hufwsHanm5
-        rHpqge8TVlvXSfb9rkCAP/cKQrj4F4edKiVD4plCOHcn3ieap+LwPSSRTzJVwILKn2UT/+sW17hND
-        pj7CFr8P4/yn4FHj6HfKK5SCPGAo2wag5ZrJh+jDh6LlycqAk5dPRdDAJBR0fTWhegs+6737AYvwl
-        ntI1Q75v1tuUMtoFtRpTxgEe5ulzncWV7DuTeAHiHYRZzlep2IMuSHP7P8PIatXtSDLHv2Q2rzsDY
-        0BC3UOKg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1q0LFo-00Gebs-2K
-        for fio@vger.kernel.org;
-        Sat, 20 May 2023 12:00:13 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 6F6DD1BC0155; Sat, 20 May 2023 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230520120001.6F6DD1BC0155@kernel.dk>
-Date:   Sat, 20 May 2023 06:00:01 -0600 (MDT)
+        with ESMTP id S229678AbjEVGlZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 22 May 2023 02:41:25 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C21DDB
+        for <fio@vger.kernel.org>; Sun, 21 May 2023 23:41:24 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id 41be03b00d2f7-530638a60e1so5140300a12.2
+        for <fio@vger.kernel.org>; Sun, 21 May 2023 23:41:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1684737683; x=1687329683;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=YTVTaBCE7QeK/5CtKc0PJVcY5F2Of01RIK92YbOardQ=;
+        b=KYd4oEZR1QglHIzezzBott0rwE5SgZefT1JxHJ87x67lr1Tp7g0//HCANJr6em2Djs
+         X2nP0Yg6NCte+V8fsoo565jBAUTZ0qmEbmNOgj9DhgeSYO999Wwdl8yucmtAYIhEyuhS
+         gwdyMAsn0smgLAr6i4ZCJVKDXMbnNOnWSGwE2f3zOeuIPOVR/zLR49WnBrd/clyJxYLE
+         1/ES3rdCdnv4vviw6LXAWp4JTg/IobbK3nwxMJD6B9A4ioS6/77GrhOtIiATfWqZ9ggs
+         NruMltreSLndONo5hmYPndsQiMKZ7lIF6tA1zj+3ntTpSt3a3RMH3UDo8cW/TEsMmIuk
+         93Iw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1684737683; x=1687329683;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YTVTaBCE7QeK/5CtKc0PJVcY5F2Of01RIK92YbOardQ=;
+        b=TTUJIjlcec1zJos7HQRnUsLQ7Kiuzn1hGA2Gv+OAHmKOaWHA7Gf5+pXNWOKhUgD/mq
+         rhkT+vJMkYZkYbfTjrqqIjAu0WYkdaExhaxf9+uBl8rVFffxMon2N6aL5dueJNvaShtA
+         8q3E9o2qBBlRd9qv3S1ByT+o18Rq41fXmGj32O4XNSSvYXCk84RmKOVrsc1NmPlB5B6N
+         qWd22IE/gP2j+E8H5v9MipaGH7Mbj6PmU3HJ+GSKpJyWTKzHHbz26mNmur3WPKPa61Ag
+         J2MlMf9rOSC08TwwvpFjZb9E0AIrQgN7z4sDgpjUMvGbM8eChdMLZXWw1Zk/zXH/d9wA
+         7P3g==
+X-Gm-Message-State: AC+VfDxWeFKon9UyZLo95Fe4ES5zWdl+Yw3zcMt7Qqmjo4Kv8KPIXLiU
+        iJsGOQDY+9g5L2zaKCwrWad7PCMIQ5mcZ8w1XdA5kZBBjWM=
+X-Google-Smtp-Source: ACHHUZ5x6GeKvo2qFY1SH4HYmg8y8ghhETxNCuewCymUruiDK4/ZI+XdkxoLo51bD/rojeMSt6fgyGY/2AS5x4Icg4s=
+X-Received: by 2002:a17:903:2444:b0:1ae:3a5d:f9e0 with SMTP id
+ l4-20020a170903244400b001ae3a5df9e0mr14318977pls.55.1684737683260; Sun, 21
+ May 2023 23:41:23 -0700 (PDT)
+MIME-Version: 1.0
+From:   Peter Veentjer <alarmnummer@gmail.com>
+Date:   Mon, 22 May 2023 09:41:12 +0300
+Message-ID: <CAGuAWdASfWpjti8sX4ncbEVGe_EnV+SPBQebhrHBcpcXMynomw@mail.gmail.com>
+Subject: IORING_OP_WRITEV fails with EAGAIN
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 5cedafafeeb9dde862455342cd24c860d84f4f07:
+I'm working on an io_uring binding for Java and one of my integration
+tests is failing. In this integration test, I'm writing large payloads
+(up to 10x1MB) to the same non-blocking socket using IORING_OP_WRITEV.
+The purpose of this test is to see if io_uring is going to
+asynchronously complete the request when the socket needs to send more
+data than it can send in 1 go.
 
-  ci: fix ups for 32-bit GitHub Actions Linux builds (2023-05-18 14:29:10 -0400)
+The strange thing is that the CQE indicates the request failed with an
+EAGAIN on Fedora 38 (Linux 5.16.12-200.fc35.x86_64). But on On Arch
+Linux (linux 6.3.2.arch1-1) the test runs perfectly fine.
 
-are available in the Git repository at:
+My question is under which condition an IORING_OP_WRITEV can fail with
+an EAGAIN.
 
-  git://git.kernel.dk/fio.git master
+Regards,
 
-for you to fetch changes up to 870ea00243b1290541334bec2a56428c9f68dba6:
-
-  io_ur: make sure that sync errors are noticed upfront (2023-05-19 19:30:38 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      Merge branch 'master' of https://github.com/huajingyun01/fio
-      io_ur: make sure that sync errors are noticed upfront
-
-Jingyun Hua (1):
-      Add LoongArch64 support
-
- arch/arch-loongarch64.h | 10 ++++++++++
- arch/arch.h             |  3 +++
- configure               |  4 +++-
- io_u.c                  |  3 +++
- libfio.c                |  1 +
- os/os-linux-syscall.h   | 16 ++++++++++++++++
- 6 files changed, 36 insertions(+), 1 deletion(-)
- create mode 100644 arch/arch-loongarch64.h
-
----
-
-Diff of recent changes:
-
-diff --git a/arch/arch-loongarch64.h b/arch/arch-loongarch64.h
-new file mode 100644
-index 00000000..43ea83b4
---- /dev/null
-+++ b/arch/arch-loongarch64.h
-@@ -0,0 +1,10 @@
-+#ifndef ARCH_LOONGARCH64_H
-+#define ARCH_LOONGARCH64_H
-+
-+#define FIO_ARCH	(arch_loongarch64)
-+
-+#define read_barrier()		__asm__ __volatile__("dbar 0": : :"memory")
-+#define write_barrier()		__asm__ __volatile__("dbar 0": : :"memory")
-+#define nop			__asm__ __volatile__("dbar 0": : :"memory")
-+
-+#endif
-diff --git a/arch/arch.h b/arch/arch.h
-index fca003be..6e476701 100644
---- a/arch/arch.h
-+++ b/arch/arch.h
-@@ -23,6 +23,7 @@ enum {
- 	arch_hppa,
- 	arch_mips,
- 	arch_aarch64,
-+	arch_loongarch64,
- 
- 	arch_generic,
- 
-@@ -97,6 +98,8 @@ extern unsigned long arch_flags;
- #include "arch-hppa.h"
- #elif defined(__aarch64__)
- #include "arch-aarch64.h"
-+#elif defined(__loongarch64)
-+#include "arch-loongarch64.h"
- #else
- #warning "Unknown architecture, attempting to use generic model."
- #include "arch-generic.h"
-diff --git a/configure b/configure
-index ca03350b..74416fd4 100755
---- a/configure
-+++ b/configure
-@@ -499,13 +499,15 @@ elif check_define __aarch64__ ; then
-   cpu="aarch64"
- elif check_define __hppa__ ; then
-   cpu="hppa"
-+elif check_define __loongarch64 ; then
-+  cpu="loongarch64"
- else
-   cpu=`uname -m`
- fi
- 
- # Normalise host CPU name and set ARCH.
- case "$cpu" in
--  ia64|ppc|ppc64|s390|s390x|sparc64)
-+  ia64|ppc|ppc64|s390|s390x|sparc64|loongarch64)
-     cpu="$cpu"
-   ;;
-   i386|i486|i586|i686|i86pc|BePC)
-diff --git a/io_u.c b/io_u.c
-index 30265cfb..6f5fc94d 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2027,6 +2027,8 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
- 	}
- 
- 	if (ddir_sync(ddir)) {
-+		if (io_u->error)
-+			goto error;
- 		td->last_was_sync = true;
- 		if (f) {
- 			f->first_write = -1ULL;
-@@ -2082,6 +2084,7 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
- 				icd->error = ret;
- 		}
- 	} else if (io_u->error) {
-+error:
- 		icd->error = io_u->error;
- 		io_u_log_error(td, io_u);
- 	}
-diff --git a/libfio.c b/libfio.c
-index ddd49cd7..5e3fd30b 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -74,6 +74,7 @@ static const char *fio_arch_strings[arch_nr] = {
- 	"hppa",
- 	"mips",
- 	"aarch64",
-+	"loongarch64",
- 	"generic"
- };
- 
-diff --git a/os/os-linux-syscall.h b/os/os-linux-syscall.h
-index c399b2fa..67ee4d91 100644
---- a/os/os-linux-syscall.h
-+++ b/os/os-linux-syscall.h
-@@ -270,6 +270,22 @@
- #define __NR_ioprio_get		31
- #endif
- 
-+/* Linux syscalls for loongarch64 */
-+#elif defined(ARCH_LOONGARCH64_H)
-+#ifndef __NR_ioprio_set
-+#define __NR_ioprio_set         30
-+#define __NR_ioprio_get         31
-+#endif
-+
-+#ifndef __NR_fadvise64
-+#define __NR_fadvise64          223
-+#endif
-+
-+#ifndef __NR_sys_splice
-+#define __NR_sys_splice         76
-+#define __NR_sys_tee          	77
-+#define __NR_sys_vmsplice       75
-+#endif
- #else
- #warning "Unknown architecture"
- #endif
+Peter
