@@ -2,140 +2,238 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D5B3C77B7A
-	for <fio@archiver.kernel.org>; Wed, 24 May 2023 12:00:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AA6DC77B7A
+	for <fio@archiver.kernel.org>; Thu, 25 May 2023 12:00:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230006AbjEXMAJ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 24 May 2023 08:00:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
+        id S239689AbjEYMAK (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 25 May 2023 08:00:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbjEXMAI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 24 May 2023 08:00:08 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B6FB135
-        for <fio@vger.kernel.org>; Wed, 24 May 2023 05:00:06 -0700 (PDT)
+        with ESMTP id S240300AbjEYMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 25 May 2023 08:00:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5208699
+        for <fio@vger.kernel.org>; Thu, 25 May 2023 05:00:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=YawILr8en0Mu3Z0DstKTbdMP6s06NVJprOixcS+OxHE=; b=DmFva4Xd2zg9HPzXCNFh9tchyD
-        6AJwBFgxwKj04to95YQpyQwkeAVPJUW2KeYqpJMYzGImpjSWgzSvgoC45gVLFpt76qOiBDygkMhVL
-        PaQofbKqtEqK2F8I1lopNHeNV3F6DajYODwE0Nrf9OhfOpljlKGLKbUoehVNTdS9MGnbvg9D+JiOv
-        FKywskEBsT2nOyv1NvTLHo2pBeKhvezjNUzQ+7HuIOulf7haqpd2RQKvStntHZsk3g6fKYGKobTxx
-        YxL6Z5ZluD09LYDEX3o33Xt+57M/3bOYe7Yxupn4REvbPlHMZo3xN1SWshJdffJOGR8ccO4JRb/gz
-        Xgpy4PbA==;
+        bh=wkVWMkLQPJ5sibmdE4IjAzNF6kuXNIhHj1RCIku/lK8=; b=qYYC3tbHGHYCNb9DKh1J5GkSEM
+        OfUbP7h9lwW2cpTlPVgnDSNih9tRmUOy3lvqd5lgA1+ENvANl56y8KGP1Je8wXSh+KWujRRPZEszN
+        7Cio9Q9LluXNWoGIGiefzemsoxpgmm4GI/dDtRZkBgAMROj7Jk2DreXT2upLmWjoyGSS+tkQUXK0m
+        40Vjj1FGqPklnHmee8oSccS9XXsDPcP5bETvC6CPqA9AKw3THnQzcQuJq6kuEOkxt+waaP03sFN6w
+        o4u/v9S/kjSUQcpd09dzPFikN7ZY8hJWIWG7a7IWT9accPfdVtJHKJAMA9O6F1oHXC6U48GYRTlFb
+        35D3dWEA==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1q1n9w-004ymk-2e
-        for fio@vger.kernel.org;
-        Wed, 24 May 2023 12:00:05 +0000
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1q29dU-00CALk-C3
+        for fio@vger.kernel.org; Thu, 25 May 2023 12:00:04 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id 558971BC017F; Wed, 24 May 2023 06:00:01 -0600 (MDT)
+        id 52F101BC015D; Thu, 25 May 2023 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230524120001.558971BC017F@kernel.dk>
-Date:   Wed, 24 May 2023 06:00:01 -0600 (MDT)
+Message-Id: <20230525120001.52F101BC015D@kernel.dk>
+Date:   Thu, 25 May 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 870ea00243b1290541334bec2a56428c9f68dba6:
+The following changes since commit 5a649e2dddc4d8ad163b0cf57f7cea00a2e94a33:
 
-  io_ur: make sure that sync errors are noticed upfront (2023-05-19 19:30:38 -0600)
+  Fio 3.35 (2023-05-23 12:33:03 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 5a649e2dddc4d8ad163b0cf57f7cea00a2e94a33:
+for you to fetch changes up to 954b86f71b0718943796192be1a89ffb0da5a97c:
 
-  Fio 3.35 (2023-05-23 12:33:03 -0600)
+  ci: upload tagged GitHub Actions Windows installers as releases (2023-05-24 09:58:11 -0400)
 
 ----------------------------------------------------------------
-Bart Van Assche (2):
-      zbd: Make an error message more detailed
-      zbd: Report the zone capacity
+Vincent Fu (2):
+      ci: stop using AppVeyor for Windows builds
+      ci: upload tagged GitHub Actions Windows installers as releases
 
-Jens Axboe (1):
-      Fio 3.35
-
-Vincent Fu (1):
-      Merge branch 'master' of https://github.com/bvanassche/fio
-
- FIO-VERSION-GEN |  2 +-
- zbd.c           | 15 ++++++++++++---
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ .appveyor.yml            | 68 ------------------------------------------------
+ .github/workflows/ci.yml |  7 ++++-
+ README.rst               | 11 ++++----
+ ci/appveyor-install.sh   | 43 ------------------------------
+ 4 files changed, 12 insertions(+), 117 deletions(-)
+ delete mode 100644 .appveyor.yml
+ delete mode 100755 ci/appveyor-install.sh
 
 ---
 
 Diff of recent changes:
 
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index f1585d34..4b0d56d0 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
+diff --git a/.appveyor.yml b/.appveyor.yml
+deleted file mode 100644
+index a63cf24f..00000000
+--- a/.appveyor.yml
++++ /dev/null
+@@ -1,68 +0,0 @@
+-clone_depth: 1 # NB: this stops FIO-VERSION-GEN making tag based versions
+-
+-image:
+-  - Visual Studio 2019
+-
+-environment:
+-  CYG_MIRROR: http://cygwin.mirror.constant.com
+-  matrix:
+-# --disable-tls for the msys2 build to work around
+-# breakage with clang/lld 16.0.0-1
+-    - ARCHITECTURE: x64
+-      CC: clang
+-      CONFIGURE_OPTIONS: --enable-pdb --disable-tls
+-      DISTRO: msys2
+-# Skip 32 bit clang build
+-#    - ARCHITECTURE: x86
+-#      CC: clang
+-#      CONFIGURE_OPTIONS: --enable-pdb
+-#      DISTRO: msys2
+-    - ARCHITECTURE: x64
+-      CONFIGURE_OPTIONS:
+-      DISTRO: cygwin
+-    - ARCHITECTURE: x86
+-      CONFIGURE_OPTIONS: --build-32bit-win
+-      DISTRO: cygwin
+-
+-install:
+-  - if %DISTRO%==cygwin (
+-      SET "PATH=C:\cygwin64\bin;C:\cygwin64;%PATH%"
+-    )
+-  - if %DISTRO%==msys2 if %ARCHITECTURE%==x86 (
+-      SET "PATH=C:\msys64\mingw32\bin;C:\msys64\usr\bin;%PATH%"
+-    )
+-  - if %DISTRO%==msys2 if %ARCHITECTURE%==x64 (
+-      SET "PATH=C:\msys64\mingw64\bin;C:\msys64\usr\bin;%PATH%"
+-    )
+-  - SET PATH=C:\Python38-x64;%PATH% # NB: Changed env variables persist to later sections
+-  - SET PYTHONUNBUFFERED=TRUE
+-  - bash.exe ci\appveyor-install.sh
+-
+-build_script:
+-  - bash.exe configure --extra-cflags=-Werror --disable-native %CONFIGURE_OPTIONS%
+-  - make.exe -j2
+-
+-after_build:
+-  - file.exe fio.exe
+-  - make.exe test
+-  - 'cd os\windows && dobuild.cmd %ARCHITECTURE% && cd ..'
+-  - ls.exe ./os/windows/*.msi
+-  - ps: Get-ChildItem .\os\windows\*.msi | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name -DeploymentName fio.msi }
+-
+-test_script:
+-  - python.exe t/run-fio-tests.py --artifact-root test-artifacts --debug
+-
+-deploy:
+-  - provider: GitHub
+-    description: fio Windows installer
+-    auth_token:                      # encrypted token from GitHub
+-      secure: Tjj+xRQEV25P6dQgboUblTCKx/LtUOUav2bvzSCtwMhHMAxrrn2adod6nlTf0ItV
+-    artifact: fio.msi                # upload installer to release assets
+-    draft: false
+-    prerelease: false
+-    on:
+-      APPVEYOR_REPO_TAG: true        # deploy on tag push only
+-      DISTRO: cygwin
+-
+-on_finish:
+-  - 'bash.exe -lc "cd \"${APPVEYOR_BUILD_FOLDER}\" && [ -d test-artifacts ] && 7z a -t7z test-artifacts.7z test-artifacts -xr!foo.0.0 -xr!latency.?.0 -xr!fio_jsonplus_clat2csv.test && appveyor PushArtifact test-artifacts.7z'
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index dd2997f0..69fedf77 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -108,12 +108,17 @@ jobs:
+         dobuild.cmd ${{ matrix.installer_arch }}
+         cd ..\..
  
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.34
-+DEF_VER=fio-3.35
+-    - name: Upload installer (Windows)
++    - name: Upload installer as artifact (Windows)
+       if: ${{ contains( matrix.build, 'windows' ) }}
+       uses: actions/upload-artifact@v3
+       with:
+         name: ${{ matrix.build }}-installer
+         path: os\windows\*.msi
++    - name: Upload installer as release for tagged builds (Windows)
++      uses: softprops/action-gh-release@v1
++      if: ${{ startsWith(github.ref, 'refs/tags/') && startsWith(matrix.build, 'windows-cygwin') }}
++      with:
++        files: os/windows/*.msi
+     - name: Remove dependency files to resolve Makefile Cygwin sed issue (Windows)
+       if: ${{ startsWith(matrix.build, 'windows-cygwin') }}
+       run: rm *.d */*.d */*/*.d
+diff --git a/README.rst b/README.rst
+index 8f6208e3..dd521daf 100644
+--- a/README.rst
++++ b/README.rst
+@@ -123,11 +123,12 @@ Solaris:
+ 	``pkgutil -i fio``.
  
- LF='
- '
-diff --git a/zbd.c b/zbd.c
-index 351b3971..5f1a7d7f 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -213,8 +213,8 @@ static int zbd_report_zones(struct thread_data *td, struct fio_file *f,
- 		ret = blkzoned_report_zones(td, f, offset, zones, nr_zones);
- 	if (ret < 0) {
- 		td_verror(td, errno, "report zones failed");
--		log_err("%s: report zones from sector %"PRIu64" failed (%d).\n",
--			f->file_name, offset >> 9, errno);
-+		log_err("%s: report zones from sector %"PRIu64" failed (nr_zones=%d; errno=%d).\n",
-+			f->file_name, offset >> 9, nr_zones, errno);
- 	} else if (ret == 0) {
- 		td_verror(td, errno, "Empty zone report");
- 		log_err("%s: report zones from sector %"PRIu64" is empty.\n",
-@@ -776,7 +776,8 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	int nr_zones, nrz;
- 	struct zbd_zone *zones, *z;
- 	struct fio_zone_info *p;
--	uint64_t zone_size, offset;
-+	uint64_t zone_size, offset, capacity;
-+	bool same_zone_cap = true;
- 	struct zoned_block_device_info *zbd_info = NULL;
- 	int i, j, ret = -ENOMEM;
+ Windows:
+-	Beginning with fio 3.31 Windows installers are available on GitHub at
+-        https://github.com/axboe/fio/releases. The latest builds for Windows
+-	can also be grabbed from https://ci.appveyor.com/project/axboe/fio by
+-	clicking the latest x86 or x64 build and then selecting the Artifacts
+-	tab.
++        Beginning with fio 3.31 Windows installers for tagged releases are
++        available on GitHub at https://github.com/axboe/fio/releases. The
++        latest installers for Windows can also be obtained as GitHub Actions
++        artifacts by selecting a build from
++        https://github.com/axboe/fio/actions. These require logging in to a
++        GitHub account.
  
-@@ -793,6 +794,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	}
- 
- 	zone_size = zones[0].len;
-+	capacity = zones[0].capacity;
- 	nr_zones = (f->real_file_size + zone_size - 1) / zone_size;
- 
- 	if (td->o.zone_size == 0) {
-@@ -821,6 +823,8 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 						     PTHREAD_MUTEX_RECURSIVE);
- 			p->start = z->start;
- 			p->capacity = z->capacity;
-+			if (capacity != z->capacity)
-+				same_zone_cap = false;
- 
- 			switch (z->cond) {
- 			case ZBD_ZONE_COND_NOT_WP:
-@@ -876,6 +880,11 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
- 	f->zbd_info->zone_size_log2 = is_power_of_2(zone_size) ?
- 		ilog2(zone_size) : 0;
- 	f->zbd_info->nr_zones = nr_zones;
-+
-+	if (same_zone_cap)
-+		dprint(FD_ZBD, "Zone capacity = %"PRIu64" KB\n",
-+		       capacity / 1024);
-+
- 	zbd_info = NULL;
- 	ret = 0;
- 
+ BSDs:
+ 	Packages for BSDs may be available from their binary package repositories.
+diff --git a/ci/appveyor-install.sh b/ci/appveyor-install.sh
+deleted file mode 100755
+index 1e28c454..00000000
+--- a/ci/appveyor-install.sh
++++ /dev/null
+@@ -1,43 +0,0 @@
+-#!/bin/bash
+-# The PATH to appropriate distro commands must already be set before invoking
+-# this script
+-# The following environment variables must be set:
+-# PLATFORM={i686,x64}
+-# DISTRO={cygwin,msys2}
+-# The following environment can optionally be set:
+-# CYG_MIRROR=<URL>
+-set -eu
+-
+-case "${ARCHITECTURE}" in
+-    "x64")
+-        PACKAGE_ARCH="x86_64"
+-        ;;
+-    "x86")
+-        PACKAGE_ARCH="i686"
+-        ;;
+-esac
+-
+-echo "Installing packages..."
+-case "${DISTRO}" in
+-    "cygwin")
+-        CYG_MIRROR=${CYG_MIRROR:-"http://cygwin.mirror.constant.com"}
+-        setup-x86_64.exe --quiet-mode --no-shortcuts --only-site \
+-            --site "${CYG_MIRROR}" --packages \
+-            "mingw64-${PACKAGE_ARCH}-CUnit,mingw64-${PACKAGE_ARCH}-zlib"
+-        ;;
+-    "msys2")
+-        #pacman --noconfirm -Syuu # MSYS2 core update
+-        #pacman --noconfirm -Syuu # MSYS2 normal update
+-        pacman.exe --noconfirm -S \
+-            mingw-w64-${PACKAGE_ARCH}-clang \
+-            mingw-w64-${PACKAGE_ARCH}-cunit \
+-            mingw-w64-${PACKAGE_ARCH}-toolchain \
+-            mingw-w64-${PACKAGE_ARCH}-lld
+-        pacman.exe -Q # List installed packages
+-        ;;
+-esac
+-
+-python.exe -m pip install scipy six statsmodels
+-
+-echo "Python3 path: $(type -p python3 2>&1)"
+-echo "Python3 version: $(python3 -V 2>&1)"
