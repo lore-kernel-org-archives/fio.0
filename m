@@ -2,100 +2,81 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC1B1C77B7A
-	for <fio@archiver.kernel.org>; Fri, 26 May 2023 17:28:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 901BFC77B7A
+	for <fio@archiver.kernel.org>; Fri, 26 May 2023 21:15:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229923AbjEZR2d (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 26 May 2023 13:28:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44778 "EHLO
+        id S243688AbjEZVPa (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 26 May 2023 17:15:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230226AbjEZR2c (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 26 May 2023 13:28:32 -0400
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7115FF7
-        for <fio@vger.kernel.org>; Fri, 26 May 2023 10:28:31 -0700 (PDT)
-Received: by mail-qt1-x82a.google.com with SMTP id d75a77b69052e-3f8115ca685so488581cf.1
-        for <fio@vger.kernel.org>; Fri, 26 May 2023 10:28:31 -0700 (PDT)
+        with ESMTP id S243467AbjEZVP3 (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 26 May 2023 17:15:29 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 150B6BD
+        for <fio@vger.kernel.org>; Fri, 26 May 2023 14:15:27 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-96f6e83e12fso188746366b.1
+        for <fio@vger.kernel.org>; Fri, 26 May 2023 14:15:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1685122110; x=1687714110;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=g3MK05Rh6NKtOKRvoFmboUEhucO/pIYHUdthsiCOjeg=;
-        b=H/8qf730EobDNmqoDPNDQBSCJ/Grt0IM0heoL6brq/9mheN0oHYnJy0zqyEyGUZA+D
-         EwpTM43No6oXZ8UXW61TtXRj5sG8YieHB4uCpNlJ9lNZKkgPjkdWOM4T6RK65IqjcPuc
-         aiB8BMbyHgd7xDodyWeL7PDfOpbWoVhtW1xfKd2Jm6Be99EMI/oLX9zKvd4nVS3OgVlN
-         CJY+GZ0MtrCzo+5DZd4YGLgpHlm8l5IhJQi0MWCJv9AgMMBIWpLTDri56RRPahqwY1ga
-         c5YWhNBwvcgSNxNB5EncAj04MwkmxA6PyonokgF7fZLHR3YTizPmXGqSGgyLVRhH/Jq9
-         rlIg==
+        d=gmail.com; s=20221208; t=1685135725; x=1687727725;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=71T1LzSOoHkP2U6o87u66UxA8Q7wvOJRfA90k4GXVGY=;
+        b=mU1hKT5KB/xktSjoCXqRnYmslP3qVsqNVUQ7dp4Jrlt9WEhVGUwsmBefVQrlJ8SzlF
+         /Q2ELIJzAvNTxmWWL74AApWyK1JCKl72Si6Zw/7kJgqYdgfTBCc0ccVbKI6CEjOP/Ll1
+         s1BM/Yf2H2Un90rn1F28hNheIRyLsJNlObVszHDNbBRUDsqs1C8Ou7+QJTnffW0Kgw7s
+         j76m0+VVKZjfVZvx+7BSR2yQcx26LBZ/SMplfvD/dY02NaoML7L5uv49uIBoGhMkzANW
+         T16WFliKAe2sBW7KjMTzoXHk3eHcs4tYeRTphvPr9eSAexrlxJX4CQLN2yIv5w87chDW
+         YusA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685122110; x=1687714110;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g3MK05Rh6NKtOKRvoFmboUEhucO/pIYHUdthsiCOjeg=;
-        b=CzQYlD84omI6NQ+DfpH0FOkRpLw6S9FQCGuJE17vCAx/ERC/ETK47BoVyQnJuj/v7m
-         +jySpVufQl1vDauulvtQIidVMZ5+84ra2QLKNiBoMYxUWNSDJDrREH+Pg1nqvbIEHu9s
-         2SlI+kvHWBIkEiR6ZxMDjKl3ArOcP5QGDe7DpqhphWGNhcuIWQ0ex85AmJJFa3OMZXYh
-         Ua5JdSjeQFlnz0rTfejHuaCciRqtPo3DW1qWRxinDwRJ9VMEqqrQvKYJEss4Ahbefao1
-         0ZZbfGli2r+d7Mn3mHP8B9To0TjVYJvfTbGc+LcEFzZZKTuYjixxXHFVs76hCxRIYaKP
-         lDWg==
-X-Gm-Message-State: AC+VfDyCJ9cNx7kdUnzy7/Ap/jtyT/5IaZ5P4DpnBbOUMZXYZHbbggus
-        2aZj8FOmKhoSAuAqXS2jCOAMkI3pkeI=
-X-Google-Smtp-Source: ACHHUZ4slUk9o3bpf/wlBzMrebOZcTwO+h5z+p9pnhMPLD4nmztyKuvb39YuMhbQ+o5cEAngUulZJQ==
-X-Received: by 2002:ac8:5c88:0:b0:3f6:b918:2351 with SMTP id r8-20020ac85c88000000b003f6b9182351mr2040272qta.0.1685122110250;
-        Fri, 26 May 2023 10:28:30 -0700 (PDT)
-Received: from [192.168.1.241] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id bb40-20020a05622a1b2800b003e6a1bf26a4sm1400344qtb.64.2023.05.26.10.28.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 26 May 2023 10:28:29 -0700 (PDT)
-Message-ID: <09fe872b-37ac-48f3-44cc-5c17b48a7884@gmail.com>
-Date:   Fri, 26 May 2023 13:28:28 -0400
+        d=1e100.net; s=20221208; t=1685135725; x=1687727725;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=71T1LzSOoHkP2U6o87u66UxA8Q7wvOJRfA90k4GXVGY=;
+        b=N5DW0omm+xljNmgdhugimIJ4U6i0jzz+YCM4arCfHn97lmB0NUSQKV34+lD9Wy+3Rd
+         3+sGNlVZS9xP/O1iKLZ9mjDj8AX5pTPr9B8PWvWMcfRlAENAQiMk+YKUen63lOi2b4ZT
+         JdtlK3RPBWVQGeEQRRapDJA0UFYOoD9tUo99Q0G8tkktI2lnxioWD678vZQpx09TNlj2
+         ECAmeKXKjwulUWVlWMsQ4OLMtNTo5WrsIu3YulfVpU/ELN87LuO44uiZnD5jYjv/3Imu
+         koWvzfsckWL0JUeq5pQ3gmjP+Sj9il/ozy6GfmXV2cMaaJM7OqQza7zaipjNrDhLWL6O
+         KOcg==
+X-Gm-Message-State: AC+VfDxk7dTtuYyGzF6JQx7hETs+f0c2wdCdOqUbmyRet01bcNx34HkE
+        iGeJWKQJRLAp7FYKSyQO2+fWCATF1KQjIRUXH4MAL1XdHj5njw==
+X-Google-Smtp-Source: ACHHUZ5y8/HoioM9p3KTbdZEStyWCirsAhSV/PTOvuZYHt/EII9650ci2wpCd9ZXAUHoliJlfEJtU7+pQ8mv1FhAdiw=
+X-Received: by 2002:a17:907:c26:b0:968:892b:1903 with SMTP id
+ ga38-20020a1709070c2600b00968892b1903mr3462958ejc.5.1685135725098; Fri, 26
+ May 2023 14:15:25 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: Ending condition for non-rr file service
-Content-Language: en-US
-To:     Travis Downs <travis.downs@gmail.com>, fio@vger.kernel.org
-References: <CAOBGo4wFOxyXXhjeqk6MJ-QkjsaypQYOBaL8wCVkMpk6H-khsw@mail.gmail.com>
-From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <CAOBGo4wFOxyXXhjeqk6MJ-QkjsaypQYOBaL8wCVkMpk6H-khsw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From:   "jashax64@gmail.com" <jashax64@gmail.com>
+Date:   Fri, 26 May 2023 23:15:13 +0200
+Message-ID: <CANvHRkAN5_rMb0gZbo+EXQVbNxPrSDWTnFGsSHCb3+o5AZd2VA@mail.gmail.com>
+Subject: fio reports "io_u error: Value too large for defined data type"
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 5/26/23 11:38, Travis Downs wrote:
- > I guess I understand when fio "stops" when using 1 file per job: after
- > `io_size` IOs,
- > which is usually the same as `size` if `io_size` has not been
- > specified explicitly.
- >
- > When size == io_size, this means that all blocks of the files are
- > written exactly once
- > with linear or random writes, except if norandmap=1, in which case
- > some blocks will
- > likely be written 0 times and others 2 or more times.
- >
- > How does this work for nrfiles > 1 and linear writes (rw=write) and
- > file_service_type
- > set to one of the random ones? For the non-uniform distributions some
- > files will be
- > written at a higher rate than others: does the write pointer just loop
- > when it gets to
- > the end of the file? So io_size writes will still be done, but some
- > files will not be
- > completely written while others may be written more than once?
- >
- > Travis
-Fio's behavior in this situation is not explicitly spelled out in the 
-documentation.
+Dear sir or madam,
 
-For a job with a single file, fio will just start over again and write 
-the file multiple times when io_size > filesize. I would expect the same 
-to happen when nrfiles > 1.
+fio reports an error "io_u error on file /dev/nvme0n2: Value too large for
+defined data type: write offset=51539607552, buflen=65536" on my computer.
+I am using Western Digital ZN540 1TB. Do you have any idea on this? More
+importantly, **when I ran the same command a few days ago there were no
+errors**.
 
-Try a run with --debug=io,file and let us know!
+Thank you!
+-Yijun Ma
 
-Vincent
+P.S. The command and original output are as follows:
+
+$ sudo fio --ioengine=psync --direct=1 --filename=/dev/nvme0n2 --rw=write
+    --group_reporting --zonemode=zbd       --bs=64k --offset_increment=8z
+--size=8z --numjobs=14 --job_max_open_zones=1 --name=seqwrite1
+seqwrite1: (g=0): rw=write, bs=(R) 64.0KiB-64.0KiB, (W) 64.0KiB-64.0KiB,
+(T) 64.0KiB-64.0KiB, ioengine=psync, iodepth=1
+...
+fio-3.28
+Starting 14 processes
+fio: io_u error on file /dev/nvme0n2: Value too large for defined data
+type: write offset=51539607552, buflen=65536
+fio: pid=76338, err=75/file:io_u.c:1845, func=io_u error, error=Value too
+large for defined data type
