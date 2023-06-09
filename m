@@ -2,167 +2,145 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 274DCC7EE23
-	for <fio@archiver.kernel.org>; Thu,  8 Jun 2023 19:10:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1812C7EE29
+	for <fio@archiver.kernel.org>; Fri,  9 Jun 2023 01:12:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235390AbjFHTKS (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 8 Jun 2023 15:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57470 "EHLO
+        id S237308AbjFIBMK (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 8 Jun 2023 21:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229667AbjFHTKR (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 8 Jun 2023 15:10:17 -0400
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8A32D4B
-        for <fio@vger.kernel.org>; Thu,  8 Jun 2023 12:10:13 -0700 (PDT)
-Received: by mail-il1-x134.google.com with SMTP id e9e14a558f8ab-33db1ad228aso451675ab.1
-        for <fio@vger.kernel.org>; Thu, 08 Jun 2023 12:10:13 -0700 (PDT)
+        with ESMTP id S235563AbjFIBMK (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 8 Jun 2023 21:12:10 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9FC2D5F
+        for <fio@vger.kernel.org>; Thu,  8 Jun 2023 18:12:06 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-5162d2373cdso2223290a12.3
+        for <fio@vger.kernel.org>; Thu, 08 Jun 2023 18:12:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1686251413; x=1688843413;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=+FAXLHcGbhcUBG90bhwgeomTCKxiFYFbgaIsVxE1RZw=;
-        b=3TO9punOCw4b2EV6ICrjHWJUze4Ie4VPvOa45vl9R//tzHhEgsgEcPDDxZmNslxzAC
-         pUEGbsZhmckF2PODsW+T0cePeWTX34coG4kc6NC2uTktCKdvKZU480n3UPZ9woqYCY02
-         4IpEt1xv2aCGboFb2vmZuZ/SQ37QGQC5c+R9fPpn2UzeqausyQcnPrt0o70PzW9c+I7b
-         ntoiFLzQfz6a1I/JjAQ1pLxWuZoh3ymnltluVS5NiL0/MaMtUWfRMPQ4uKERLQLnMrA2
-         RpHW55iUKLSi+QJxXoY0gaMB36RP386OHRGCtVc93adEQ+h31K2Vt0/MoL+TkEWXCMBo
-         3DMQ==
+        d=gmail.com; s=20221208; t=1686273125; x=1688865125;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=0xGLBWkIhf2AGqnCvAm1w1UxdHQZBT0Evs78jvmKln0=;
+        b=ruMv2T0ty13Z/Th6iYiAfwS9SjQ6ZpW6oAC8yxZNN2X6ZDf8zIXBt2VoWFkLBcaSG1
+         zFgrKdCl0OBjHQnYIfV6bOxQQRx9PA7Orxia9HfPwuSzHhHQWOwc/+7FPJWnLxmaCT2P
+         9W9xDPcf2ryFrFfRQbCBirot/IB8Yv1j/tUFdghWM7J7+J05FfaRTyBCzikTHJeKD3MJ
+         G7BS3/xyKDZApwZj0RTx5eug6f6ghExyFSlTpm2we5tglBXvDffu+y0jdHf8uzU/RB1i
+         WUdA6e1nmjIRRga25bU3h8vYg0bl3AwSfTd8ainHfDVELrZWtBlEDFNHt8I7Y+SrjeT7
+         MRdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686251413; x=1688843413;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=+FAXLHcGbhcUBG90bhwgeomTCKxiFYFbgaIsVxE1RZw=;
-        b=CffWUS8yPu/7Y06F5qOrvUywCSY//3rKTBFWYUQPxdj6DgjmSGTDOGUyF5LYIhlcDo
-         XClgOWi8KhgOaJL34ynvM0hXo6eqXiGmSWORLOjYcPZhpKRy8cUjzsuSY0Z+a+NNk99h
-         NdobQ+T4jYZkVXfdLTTSLXyB9+lgGTAr/voKK1yEDJherQYYv3ui19umFYQ/r56BIG+k
-         ZKXebzjqIkPbssX/C8UoLdK2xuLasYGx/jSZJBkBnc2N+Y+p470qhel4ldLBUzVvA8oO
-         KKmzQHeI35Jz03LNEJyf8WF+eydwzf49In1+FcfeuJccGuriJwHA5r+uFr1sz4z+aP/k
-         DzDw==
-X-Gm-Message-State: AC+VfDwf6465WJuWboAEio803r3P+xyX8b779eWATARuVDs0aWVFF2G1
-        0F/je+e7kgejOOyXjD0tMsMIew==
-X-Google-Smtp-Source: ACHHUZ58vQr5MjZVT24b4uQ0hLo9fQkCcOdqWgSfMrvCZQeH6ERL6HMXInCJKmK3ZtCRmrCxkvPdrQ==
-X-Received: by 2002:a92:d8c1:0:b0:33b:e24b:ca46 with SMTP id l1-20020a92d8c1000000b0033be24bca46mr3304724ilo.3.1686251412962;
-        Thu, 08 Jun 2023 12:10:12 -0700 (PDT)
-Received: from [192.168.1.94] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id n17-20020a92d9d1000000b00325e56c1cdcsm580723ilq.49.2023.06.08.12.10.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Jun 2023 12:10:12 -0700 (PDT)
-Message-ID: <c89d540c-cfb6-2830-6e3f-d16d2d577bd1@kernel.dk>
-Date:   Thu, 8 Jun 2023 13:10:10 -0600
+        d=1e100.net; s=20221208; t=1686273125; x=1688865125;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=0xGLBWkIhf2AGqnCvAm1w1UxdHQZBT0Evs78jvmKln0=;
+        b=eXLzXz/A+FwNOph/Q1Atjv2HZmDF5A5dmgLPpH8VSorGCLusiD/seOxXB+kwchlstC
+         lUiC4v8trQY1v3hl/ejxXDlSF8OHSDUSg0m57aY8bgq3S8LuiTE9bbne4I/7ms3o+zgW
+         D5VM5pTjDtfHKjIy8NiyqQbh0jHPtS4RwDY5WcOZtciZIgUnnDqdxvVZLVhcQHTi46JN
+         vore4x9W54JfkXK9sQOgnWUHAj11y4kwKwghMxSreHXIwJrBwa8tRzxQzaHEP9xoDsCI
+         FUk1eON+7NFlIlM76FY4GIbvGq3lJs+ANWOwQ58EJzf9tRk5rXx8YsjDHhBRuefGmB3f
+         vGeg==
+X-Gm-Message-State: AC+VfDy1DDLIDxskuOKh5Dpcqa7/PXBlj+G0DxyqTmIPQHjGSV+2Fxaz
+        PSTyme0pYbZq/ttPwU5pqhCrfhIHyvv0WU8LZqxV5eOG0xw=
+X-Google-Smtp-Source: ACHHUZ5PleVK63XnyY2fDgF5FSUTQxho90DZ1GXE9s2YBZWX0AVS7DLeRDths8zIGE/p5hr7/N9ORiEGBW1vrGXZKb8=
+X-Received: by 2002:a17:907:25ca:b0:94e:4489:f24d with SMTP id
+ ae10-20020a17090725ca00b0094e4489f24dmr191837ejc.61.1686273124987; Thu, 08
+ Jun 2023 18:12:04 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v2 0/7] zbd: clean up code and fix bugs for open zones
- accounting
-Content-Language: en-US
-To:     Vincent Fu <vincentfu@gmail.com>,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        fio@vger.kernel.org
-Cc:     Damien Le Moal <dlemoal@kernel.org>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>
-References: <20230608070608.1256970-1-shinichiro.kawasaki@wdc.com>
- <be2ca491-c88d-0db9-f7d4-ecf71d485845@gmail.com>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <be2ca491-c88d-0db9-f7d4-ecf71d485845@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From:   Surbhi Palande <csurbhi@gmail.com>
+Date:   Thu, 8 Jun 2023 18:11:54 -0700
+Message-ID: <CAMBkX3dN8d5kSNUDpPBBmx34+Ov7JzgK=dmgwAfeAaecLX+-7A@mail.gmail.com>
+Subject: Requesting help with random I/O distribution
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 6/8/23 12:45 PM, Vincent Fu wrote:
-> On 6/8/23 03:06, Shin'ichiro Kawasaki wrote:
->> Fio with zonemode=zbd does accounting of 'open zones'. However, the meaning of
->> 'open zone' is confusing because its definition is similar but different
->> between fio and zoned block devices. The first patch in this series avoids the
->> confusion by renaming the word 'open zone' to 'write zone'.
->>
->> Also, recently three bugs were found related to the open zones accounting.
->> Following three patches fix the bugs. The last three patches improve test cases
->> corresponding to the fixes.
->>
->> Changes from v1:
->> * Reflected review comments on the 4th patch
->> * Added Reviewed-by tags
->>
->> Shin'ichiro Kawasaki (7):
->>    zbd: rename 'open zones' to 'write zones'
->>    zbd: do not reset extra zones in open conditions
->>    zbd: fix write zone accounting of almost full zones
->>    zbd: fix write zone accounting of trim workload
->>    t/zbd: reset zones before tests with max_open_zones option
->>    t/zbd: test write zone accounting of almost full zones
->>    t/zbd: test write zone accounting of trim workload
->>
->>   engines/io_uring.c     |   2 +-
->>   fio.h                  |   2 +-
->>   io_u.c                 |   2 +-
->>   io_u.h                 |   2 +-
->>   options.c              |   4 +-
->>   t/zbd/test-zbd-support |  64 ++++++++-
->>   zbd.c                  | 292 ++++++++++++++++++++++++-----------------
->>   zbd.h                  |  25 ++--
->>   zbd_types.h            |   2 +-
->>   9 files changed, 248 insertions(+), 147 deletions(-)
->>
-> 
-> Applied. Thanks.
-> 
-> Vincent
+Hi All,
 
-Vincent gets these too, but pasting it here for Shin'ichiro:
+I am trying to performance test my device mapper for zoned devices; I
+am trying to repliate the 80 - 20 principle for I/O. I understand that
+this can be done in the following three ways using fio.
 
-Please find the latest report on new defect(s) introduced to axboe/fio found with Coverity Scan.
+a) zoned - simplest of the three :
+zoned:80/20:20/80
+However, this restricts the first 20% space to get 80% of the I/O and
+vice versa. The good thing though is that zoned distribution can be
+used to achieve a russian doll effect.
 
-1 new defect(s) introduced to axboe/fio found with Coverity Scan.
-1 defect(s), reported by Coverity Scan earlier, were marked fixed in the recent build analyzed by Coverity Scan.
+b) zipf:1.2
 
-New defect(s) Reported-by: Coverity Scan
-Showing 1 of 1 defect(s)
+I used fio-genzipf to visualize the random I/O pattern:
+fio-genzipf -t zipf -i 1.2 -b 4096 -g 100GiB
+Generating Zipf distribution with 1.200000 input and 100 GiB size and
+4096 block_size.
 
+   Rows           Hits %         Sum %           # Hits          Size
+-----------------------------------------------------------------------
+Top   5.00% 93.31% 93.31% 24459924 93.31G
+|->  10.00%  1.34% 94.65%  352314  1.34G
+|->  15.00%  0.77% 95.42%  201010 785.20M
+|->  20.00%  0.51% 95.92%  132667 518.23M
+|->  25.00%  0.47% 96.39%  122386 478.07M
+|->  30.00%  0.34% 96.73%   89402 349.23M
+|->  35.00%  0.23% 96.97%   61193 239.04M
+|->  40.00%  0.23% 97.20%   61193 239.04M
+|->  45.00%  0.23% 97.43%   61193 239.04M
+|->  50.00%  0.23% 97.67%   61193 239.04M
+|->  55.00%  0.23% 97.90%   61193 239.04M
+|->  60.00%  0.23% 98.13%   61193 239.04M
+|->  65.00%  0.23% 98.37%   61193 239.04M
+|->  70.00%  0.23% 98.60%   61193 239.04M
+|->  75.00%  0.23% 98.83%   61193 239.04M
+|->  80.00%  0.23% 99.07%   61193 239.04M
+|->  85.00%  0.23% 99.30%   61193 239.04M
+|->  90.00%  0.23% 99.53%   61193 239.04M
+|->  95.00%  0.23% 99.77%   61193 239.04M
+|-> 100.00%  0.23% 100.00%   61188 239.02M
+-----------------------------------------------------------------------
+Total 26214400
 
-** CID 462265:    (ATOMICITY)
-/zbd.c: 1554 in zbd_convert_to_write_zone()
-/zbd.c: 1554 in zbd_convert_to_write_zone()
+I need help with this interpretation. Does this mean that 5% of the
+LBAs get 93.31% hits, the next 5% gets 1.34% etc. It seems that way to
+me.
+However, this does not have the Russian doll effect  - ie the 5% of
+the rest of 95% does not get the rest of ~93% I/O.
 
+Is the 5% range - scattered over the disk or is this similar to zoned
+distribution, in that a contiguous
+space gets the 93% I/O. In that case, this is similar to zoned
+distribution, right?
 
-________________________________________________________________________________________________________
-*** CID 462265:    (ATOMICITY)
-/zbd.c: 1554 in zbd_convert_to_write_zone()
-1548     		       "%s(%s): wait zone write and retry write target zone selection\n",
-1549     		       __func__, f->file_name);
-1550     		pthread_mutex_unlock(&zbdi->mutex);
-1551     		zone_unlock(z);
-1552     		io_u_quiesce(td);
-1553     		zone_lock(td, f, z);
->>>     CID 462265:    (ATOMICITY)
->>>     Using an unreliable value of "in_flight" inside the second locked section. If the data that "in_flight" depends on was changed by another thread, this use might be incorrect.
-1554     		should_retry = in_flight;
-1555     		goto retry;
-1556     	}
-1557     
-1558     	pthread_mutex_unlock(&zbdi->mutex);
-1559     
-/zbd.c: 1554 in zbd_convert_to_write_zone()
-1548     		       "%s(%s): wait zone write and retry write target zone selection\n",
-1549     		       __func__, f->file_name);
-1550     		pthread_mutex_unlock(&zbdi->mutex);
-1551     		zone_unlock(z);
-1552     		io_u_quiesce(td);
-1553     		zone_lock(td, f, z);
->>>     CID 462265:    (ATOMICITY)
->>>     Using an unreliable value of "in_flight" inside the second locked section. If the data that "in_flight" depends on was changed by another thread, this use might be incorrect.
-1554     		should_retry = in_flight;
-1555     		goto retry;
-1556     	}
-1557     
-1558     	pthread_mutex_unlock(&zbdi->mutex);
-1559     
+c)  pareto -
+fio-genzipf -t pareto -i 0.04 -b 4096 -g 100GiB
+Generating Pareto distribution with 0.040000 input and 100 GiB size
+and 4096 block_size.
 
--- 
-Jens Axboe
+   Rows           Hits %         Sum %           # Hits          Size
+-----------------------------------------------------------------------
+Top   5.00% 93.04% 93.04% 24388831 93.04G
+|->  10.00%  0.99% 94.02%  259143 1012.28M
+|->  15.00%  0.60% 94.63%  158285 618.30M
+|->  20.00%  0.59% 95.22%  154826 604.79M
+|->  25.00%  0.35% 95.57%   92138 359.91M
+|->  30.00%  0.30% 95.87%   77413 302.39M
+|->  35.00%  0.30% 96.16%   77413 302.39M
+|->  40.00%  0.30% 96.46%   77413 302.39M
+|->  45.00%  0.30% 96.75%   77413 302.39M
+|->  50.00%  0.30% 97.05%   77413 302.39M
+|->  55.00%  0.30% 97.34%   77413 302.39M
+|->  60.00%  0.30% 97.64%   77413 302.39M
+|->  65.00%  0.30% 97.93%   77413 302.39M
+|->  70.00%  0.30% 98.23%   77413 302.39M
+|->  75.00%  0.30% 98.52%   77413 302.39M
+|->  80.00%  0.30% 98.82%   77413 302.39M
+|->  85.00%  0.30% 99.11%   77413 302.39M
+|->  90.00%  0.30% 99.41%   77413 302.39M
+|->  95.00%  0.30% 99.70%   77413 302.39M
+|-> 100.00%  0.30% 100.00%   77395 302.32M
+-----------------------------------------------------------------------
+Total 26214400
 
+This to me looks pretty much similar to the zipf distribution above.
 
+Is this understanding correct ? Or am I missing something here?
+Thanks a lot for your help!
