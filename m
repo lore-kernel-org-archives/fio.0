@@ -2,81 +2,77 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61A42C7EE2E
-	for <fio@archiver.kernel.org>; Sat, 10 Jun 2023 12:00:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BEBFEB64D9
+	for <fio@archiver.kernel.org>; Thu, 15 Jun 2023 17:45:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230188AbjFJMAK (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 10 Jun 2023 08:00:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
+        id S230516AbjFORpT (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 15 Jun 2023 13:45:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229746AbjFJMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 10 Jun 2023 08:00:09 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3909826B2
-        for <fio@vger.kernel.org>; Sat, 10 Jun 2023 05:00:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=RfEHlgTtlnmhlbFU2Mpwcg34XuNqS/VznM8LNOFVNJc=; b=BH8bErdwaW9qngJqGjNk1ZSFeq
-        y7ho/7Smgn+cn6taQvoPcL6xP/bnyZTiQn4AxeX2+SAffb/BxxJwvqVxgh9xVQF+juuvNJsYKGJ9U
-        zQNrtESaWM8JeZgpqIOeSIuIYjEtHi6iQ/3zgMlmXHX8bVo9XoHDUwECAMTYvGvl6naVF4C2hMD20
-        EXNBjoCQoBsJDtZKv4LFF5f28PFr6H9C2oNaYRrEq0MYf10DAjnIuZu2EQZ9NWRR2Dypl258n17uL
-        m1G8utM7bTi2TJasvKFbxc7CReGXqxkukqt0rJr/2ehM2Pi8xZobYdmZSo7aBmkrFrR4Wswijb5ln
-        Qmjhk4bQ==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1q7xGG-000Dvb-Bl
-        for fio@vger.kernel.org; Sat, 10 Jun 2023 12:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id D826A1BC0155; Sat, 10 Jun 2023 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230610120001.D826A1BC0155@kernel.dk>
-Date:   Sat, 10 Jun 2023 06:00:01 -0600 (MDT)
+        with ESMTP id S231906AbjFORpR (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 15 Jun 2023 13:45:17 -0400
+Received: from mail-qv1-xf29.google.com (mail-qv1-xf29.google.com [IPv6:2607:f8b0:4864:20::f29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A80032724
+        for <fio@vger.kernel.org>; Thu, 15 Jun 2023 10:45:15 -0700 (PDT)
+Received: by mail-qv1-xf29.google.com with SMTP id 6a1803df08f44-62de3360ce8so26824946d6.3
+        for <fio@vger.kernel.org>; Thu, 15 Jun 2023 10:45:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1686851114; x=1689443114;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EMpPuwqK4vSV+AlXI8gbAgXFkczUa0ze4X2DGEUuMNY=;
+        b=ruWcAu+8zqLznQTUapw95sKtEr0n3QKWkRlPI76PtruGfw7rRZi6tCJOceUIcKH3NP
+         w0jVnAxRplctN1/LAR7aVg582csiroCQLKlgl3+52L1s0bvVThlRH69NhikUvShdOVlH
+         Fox+KtBF3xvJMppbIRRSPVz1e4jyd5c0s/jqTm6L5NCPLinMqLtKuckt1jyJno/V/UAS
+         qyBUZh4lN4U7TBN+P0rRpQimTfYPSkP8QMd0lq1VNX8anVJmnUPySeFgL2iffZHEaGQs
+         C910HpVD+FeqHsOkNFunnFcJUkcl74iKlFtUCwN1LV6/OCvfI+JWHfuOBZlC0JRGfvOk
+         QJLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686851114; x=1689443114;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=EMpPuwqK4vSV+AlXI8gbAgXFkczUa0ze4X2DGEUuMNY=;
+        b=EibsvRJsmis1nTLsazC1o8Wp/XQS3jBDLF2NSmWzZxkGTQFmOXsoo4AqV+Ss9Bu2ce
+         uAk5yeu85+qxf3teCBeQNoreoMx5DppqsBCV/FRl3g7a/GEtKbFoKp/wL0AU2t648NWv
+         BWdsjJyA71N1JkeeyjpHFEMwm/hSQOtjk+n4FhcAnu70a5wPMrLbZSjDHjQZYJYF2oB3
+         gWSiQqZmfxfsr4e9LqOOy2KkeHmZtEPJJ4kpWtjMsQTZ4v7dQibZlukJawSl8LjsRjj6
+         vqoKwVUZLaZsbDH4uK5ZTvpZF6khfORNC7MNxNCyPlVslV9OE5zRVwEW6yxNtBzUVkwC
+         jC8g==
+X-Gm-Message-State: AC+VfDxIM6uQ/RR6MyqLHevO9tPmaSE0s2c/nOVH5lIopEw2WAoyrM11
+        mHN3y0rOLTx7NqqF8wV15cDs2mER55c=
+X-Google-Smtp-Source: ACHHUZ6X8HqEgQOVJKjFwE+4tzA6CRW7Y36jAttzAXvEqNNUXn7sreIa7802Nkh+9lZqNSsptwjtjQ==
+X-Received: by 2002:ad4:5ba9:0:b0:621:83d:3a47 with SMTP id 9-20020ad45ba9000000b00621083d3a47mr21723869qvq.39.1686851114271;
+        Thu, 15 Jun 2023 10:45:14 -0700 (PDT)
+Received: from [192.168.1.241] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id v18-20020a0cdd92000000b0062fe4391d87sm1687021qvk.27.2023.06.15.10.45.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Jun 2023 10:45:13 -0700 (PDT)
+Message-ID: <38ec17db-fb46-f7ca-0b13-ec5ca8dbf14b@gmail.com>
+Date:   Thu, 15 Jun 2023 13:45:12 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+From:   Vincent Fu <vincentfu@gmail.com>
+Subject: Fio blog post on test coverage
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc:     gost.dev@samsung.com, a.manzanares@samsung.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit edaee5b96fd87c3c5fe7f64ec917a175cd9237fc:
+I am happy to announce that the fio blog has a new post. I surveyed 
+fio's options and summarize test coverage in our automated tests. How 
+many of fio's options are protected by automated regression testing?
 
-  t/zbd: test write zone accounting of trim workload (2023-06-08 14:39:07 -0400)
+Take a look:
 
-are available in the Git repository at:
+https://github.com/vincentkfu/fio-blog/wiki/fio-test-coverage
 
-  git://git.kernel.dk/fio.git master
+Feedback is welcome!
 
-for you to fetch changes up to 62ac66490f5077e5fca1bd5b49165147cafc5a0d:
-
-  zbd: avoid Coverity defect report (2023-06-09 18:04:45 -0600)
-
-----------------------------------------------------------------
-Shin'ichiro Kawasaki (1):
-      zbd: avoid Coverity defect report
-
- zbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/zbd.c b/zbd.c
-index 9455140a..7fcf1ec4 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1547,11 +1547,11 @@ retry:
- 		dprint(FD_ZBD,
- 		       "%s(%s): wait zone write and retry write target zone selection\n",
- 		       __func__, f->file_name);
-+		should_retry = in_flight;
- 		pthread_mutex_unlock(&zbdi->mutex);
- 		zone_unlock(z);
- 		io_u_quiesce(td);
- 		zone_lock(td, f, z);
--		should_retry = in_flight;
- 		goto retry;
- 	}
- 
+Vincent
