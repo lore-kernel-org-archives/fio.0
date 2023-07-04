@@ -2,174 +2,436 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA001EB64DA
-	for <fio@archiver.kernel.org>; Mon, 26 Jun 2023 08:39:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99BB8EB64D9
+	for <fio@archiver.kernel.org>; Tue,  4 Jul 2023 12:00:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbjFZIjZ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 26 Jun 2023 04:39:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38122 "EHLO
+        id S231137AbjGDMAL (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 4 Jul 2023 08:00:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjFZIjY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 26 Jun 2023 04:39:24 -0400
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11olkn2098.outbound.protection.outlook.com [40.92.19.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14FEDE5B
-        for <fio@vger.kernel.org>; Mon, 26 Jun 2023 01:39:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hMpEoUSXdQG39ZirgNzrbvfX3aSmw44SLq6ccE4m60CbtI/TjzRuhfRhbBvBAhhwq2+Plt9XQQXsyzkhs3QeZMQet+K4IaSWclynYOCRG3SDs+5m38yNG/TBkN4oX0R3/K0ucw1VjnTEUmzJ6watgh99eejidRu9eb/smdP6bBBSMWqSX95lauhDLTTgn1Cf7fCoVunjmGyGrvwzpvmbm7DWthPRQhVz7YO2tZjkNFlRLDhPUst26I+iQwibzURlQIySXKKx/qQ1A3xJNf17Ii8rXfK1lboYbV84QyWcp3A1Qop7E3oOR6a57wY3tpPaxCf7xBYcZlsp/K2lvyV5CQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iRbsxYXfrQpuhPQJuez1uWf5Nw5MEdRWokSZiOZI0hE=;
- b=QG/qHJtWdgRMzQyazR6Kc1+PlVRp/aEkiDC8XPIhZBVDN5MgNfSwaqrLUvTujbLSiROmGa+a4DU2++5IZ1fXIEXPAoeJC7Mb9EOTWs7S3JhBYkDQcTPiyBJnaMMBqlk1ZvM7jp0q3thlRwOryiw+SFbgTFjM6+p+vPeePdFlXKxhpUz4c+r64tJgwZCRBqpIjp5YoNS9YqjZRpTQb1ss1IUjvqgnp0TVZszB4QzlUc6COnEcW/7ZjRM2R8y39Pz4a8j6iF+n1Qrbi8k6HLj+7O4C/t7fulcQYUCNmhW7DB3WFLc4pCJjXCv8tCjuB2i6swlvqu27XXCsZanLXyn0pA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iRbsxYXfrQpuhPQJuez1uWf5Nw5MEdRWokSZiOZI0hE=;
- b=uYVp6dgipmnLelI3reXheqjTmYDjAnkgHHSZ1UCKxoDedIL845+rkmAXBJcnHmJhSm5eXMjIvgvjPNF87AcqwinFRsEy92MfeEHlTmVxT7/XnMrLO0S8CjUKpgV41bg1X6M7A+exxZd+v9CWBYRqe8tKHbAOI/tYhnWA1qs+VrjUuoasy7fCoNVwbI5EPBZGYi1AE+Vj3UcU+jn13ykzWt29HI5YCMc6Bdk39cdfOYAz1hA9awVZtZmj9XDycXkQIXu2+bgp4DxsL3t1vVb91v7cOXP2HG76v5JklqgCTyYXuUr0if/P5G+QL1CmWmXzuapzZGEqqZOKfT5924QbdA==
-Received: from IA0PR17MB6275.namprd17.prod.outlook.com (2603:10b6:208:43b::7)
- by CH2PR17MB3783.namprd17.prod.outlook.com (2603:10b6:610:88::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Mon, 26 Jun
- 2023 08:39:19 +0000
-Received: from IA0PR17MB6275.namprd17.prod.outlook.com
- ([fe80::bb49:31da:ddf9:1b64]) by IA0PR17MB6275.namprd17.prod.outlook.com
- ([fe80::bb49:31da:ddf9:1b64%6]) with mapi id 15.20.6521.024; Mon, 26 Jun 2023
- 08:39:19 +0000
-From:   Adam Horshack <horshack@live.com>
-To:     richard clark <richard.xnu.clark@gmail.com>
-CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-Subject: Re: Question about the internals of the file IO latency
-Thread-Topic: Question about the internals of the file IO latency
-Thread-Index: AQHZp7AcpPTFPQG9vUSi7aR96J17HK+cxAWe
-Date:   Mon, 26 Jun 2023 08:39:19 +0000
-Message-ID: <IA0PR17MB6275DCF5B223588AB129A697A426A@IA0PR17MB6275.namprd17.prod.outlook.com>
-References: <CAJNi4rNuudfMQEQqGN4SbLB72CwpyoAZ05EkmdLAKAY9d2f7vg@mail.gmail.com>
-In-Reply-To: <CAJNi4rNuudfMQEQqGN4SbLB72CwpyoAZ05EkmdLAKAY9d2f7vg@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [Ujq9J5lXGrQgTrzHS0rCrBRfTiKJkR7F]
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA0PR17MB6275:EE_|CH2PR17MB3783:EE_
-x-ms-office365-filtering-correlation-id: ce2c64ef-2b6b-41b5-504d-08db7620d578
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Vt5b8qK4zK7DE2nfM+w3plAzYAzxsbd3CV9YbEAYxyY5Ee+YqactRVbT2awVnj+ZlKQJlwMxTrleGcZuxWu2ZJd2MQMWj0ERRvFYRHvaDpaEo77OYAt4+7CKDytNQ+/ff8Djtm4CwppkkqvQ2j/Hne89dGPG1gKoXzDF0VPKoiMonmwko2sbm75JDqWOb6uglel6bxBMZyf/AycPQPVmohjStm9nrfXDbqjKmhJZoA+wxy3IPzWeezwNLIhOIkqgdCvpbhKo077wVku/3PEDJNCIuFwbrIoIF0Yv1KfZq5tj25ScdZ0CQH3FZ6iUktA7UPrzzOSLKjIC6OkPZklkQfPbDNcXQ8xX2xa4UlJVRxTECYF4aehzYCjE3vA52ysJ1aFZziCoEgaKXFiKuASwePoovOjLZuqleQjnTB6HWNrAus/AzzZmXpdIjV8qND9ic3sDj19N/1OcNM2pnVVY01FKYG58omW8gXPlAz3mV/Xruxkw5w0fmzFfn+0QQ+R2Al1ozY2QW6Kd9ZNm9hPW3BaYQi+p80YHo/uz6Z/WUf1bw9WMx7ExmNNTo9D3G/G8
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?QjFIcnhqSFk3Z0NCaVUwY0lSLzhCbGhQeDhHVE1udVRUVW9sMmQ0Ym1XNndn?=
- =?utf-8?B?VUhHYmRUNVVQdFFHdDBoZzVPU3pIWml1UnA1eitzR1Y5dHI0dXNoSDVuaUpk?=
- =?utf-8?B?V0k3UlNTS0xVZHM4R1FTSnRZL2gyV1BKSjZTY0U1Zmc0V3kxNTJ0UDRHQW9l?=
- =?utf-8?B?S3g0ZVhYZWltdlVCb3VWSTZaeGxHRnJCSFhCMFZ6Y1NEU25zQzhRSlVrTnpQ?=
- =?utf-8?B?YVNCNHFQbndySGxON0c2ZWduVUVsb3hpOTdBK05PKytEMjRTaW9lSVc3eHlK?=
- =?utf-8?B?RExxMy94dnhlcWpXRlU2OE4zZmd4VGVmSXF4b1RieDhVVFQ1bkQrdnQ5Uk4y?=
- =?utf-8?B?Y0liT1h5U0Z4RjUrMVdZTjF0MWx3cldMY3c3ZE5Pc0ZWdVRFNDRvNU5RK29C?=
- =?utf-8?B?QU9CYlFqZmZCbVQ2ZTFXZ1BxVWlHYnpObXdWSDhKcEI0NkRDbllCME5EODJ3?=
- =?utf-8?B?MlNFbHhUZGkydXQyMGxTTGpCSVgzK3pMOWtBalFxa3BoelpmeGViSU1YaEZJ?=
- =?utf-8?B?b1hSNWRMeWF6N0ZReElDbDZzNThVNGh2NkpDd1ZuOTVqR1JHT3VsclVaZU9j?=
- =?utf-8?B?YkFEYTFuNTZSUUlhc0g4R2IyekR4dXArYWZhZVJJcnZDMTNpVmwrdEhrTXk1?=
- =?utf-8?B?VHpDS2FQb2szN0JkMTBVcnJWbUJVQ0Y3YnowcDVXUm1wZklVc2N4eGlMZjRz?=
- =?utf-8?B?VXlwQnMrMHh4THBUWWhWVEV5dVEzRW0xZEtsZ25rYXVTTHlGSHJxZW9TQ0xK?=
- =?utf-8?B?NlRHRFVKYkZ2VDQrb0JxOFdUc3JwMEZPZnJhSHhqaWdhU2RnWURQcDNmVndG?=
- =?utf-8?B?MWFZSzlNZTlIdjZxcE9aaHlycXE2SU5aeXlrTXU4UEpGTnNJemlnWlh3OG45?=
- =?utf-8?B?OG8xYk9pM25nbE1nRnl1K3lZUUVTakE2Z29xRzFmSkNoWUJ0MGV0MUFxNFdX?=
- =?utf-8?B?YUo3bHowL0w5UmRGVWhjRk51VkNYeGR3QmxKKzdKWFVHMTYrY25zTHRieWRi?=
- =?utf-8?B?NDlhK1k2bjNVbWd1V0JFa1JLdDRNQzdKT2ExTnQ5RGVjKzRENS90dndXbWxE?=
- =?utf-8?B?UGFNSVdTQU5nSzNnZFpwL3pVaUdFQlVvSXZmYkxTUFhXS0JyV0hkWVppcjAz?=
- =?utf-8?B?QTZMbjNBclZrTGxmUmRmUzVlWkplQVJRWi8wRUJaS3dlczdNZ3FsVndGOE9y?=
- =?utf-8?B?MWhYZzRaSmh6azRNL3l4ZGNjU1FvTWZ2ZSsxMTVUL3VJeTBIWlVXTE1SQkJ1?=
- =?utf-8?B?ZDVmcThoWVVBbElpd2pmSEk2bW8wdjFTaGNsMXlCSHduZjRTMUZMbXRxb09H?=
- =?utf-8?B?TnJDaG8xMW9IbG9tWjE5eGN2MjZDa0RCQ0ZXYVgvbllmQWV6Nm5PV3ErNmNn?=
- =?utf-8?B?cVNjMzJicE8vdHMxcHVjdXhtbDAybDNPRTRhaXlnL01CTXR2c0V1Y09IY2o3?=
- =?utf-8?B?UWdpRXlUZFZaUVl5MWlhQjYrdHVEUFpqMFRFMHVhWDNVZzFwWE1mdm54VFg2?=
- =?utf-8?B?L0FOaUcyaFhzSEVuREJ6UTFqZ0h3WTBLampNNHQrY3RvZzAxY1JvVFhLRW0w?=
- =?utf-8?B?SHlxT2N1N1FHdEl4TVlERVBDWjZnSjBZOHpTQkIxM1ZkN290U1lsVkI1dmor?=
- =?utf-8?B?L3Z1RHhXWnJNZDhHMXJvR2NnYTJvQnc9PQ==?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-c704e.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA0PR17MB6275.namprd17.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: ce2c64ef-2b6b-41b5-504d-08db7620d578
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jun 2023 08:39:19.5159
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR17MB3783
+        with ESMTP id S231448AbjGDMAJ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 4 Jul 2023 08:00:09 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1FE10A
+        for <fio@vger.kernel.org>; Tue,  4 Jul 2023 05:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=P4dcwE0qbZEOZaYsFX+4gNCJpV/6aozHltdW9OhZhaM=; b=GyahK+R2zSGGejHHLLI4gNUEyQ
+        u6k5k6HycCIzkGPngwAnrLJn2SVSHLjWUoI3Ih8HZaZPlGT3dXwuFPlowehkmyFy1hLhleGUBroZy
+        1jnQvj51xCjwahIxt+eojQAJhfLwA6hehXkIou4egwqEvjJIndxQaQN39quIBASQbKSRQrFPx7IVb
+        47mz+WpdHOiImWZG9qw0uK9qJN3X1IEutBiWDBNUDcaYbBAyBros3H9qV7okwVpRrccKTsXldDgwc
+        AfdNuOhllFGyML+Jwj7tFTHKh69aORPUbGs4/qCUT6D326y831kBZRsIse5ydBPJwJlOAdJg5W3mr
+        PYlN8QxQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1qGehR-0097Zq-3D
+        for fio@vger.kernel.org; Tue, 04 Jul 2023 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id A35E61BC0167; Tue,  4 Jul 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230704120001.A35E61BC0167@kernel.dk>
+Date:   Tue,  4 Jul 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-SGkgUmljaGFyZCwNCg0KUGVyaGFwcyB0aGUgcmVhZHMgYXJlIGNvbXBldGluZyB3aXRoIGRlbGF5
-ZWQgd3JpdGVzIGZyb20gdGhlIGZpbGUgY3JlYXRpb24gcGhhc2UsIGlmIHlvdXIgc2V0dXAgaXMg
-bm90IGhvbm9yaW5nIGZzeW5jcyBpc3N1ZWQgYnkgdGhlIGNyZWF0ZV9mc3luYyBvcHRpb24uIFlv
-dSBhbHNvIGNhbiB0cnkgYSByYW1wX3RpbWUgdG8gdHJvdWJsZXNob290IGFueSBjcmVhdGUtdG8t
-cnVuIHBoYXNlIHRyYW5zaXRpb24gcmVsYXRlZCBsYXRlbmNpZXMuICANCg0KQWRhbQ0KDQo+IE9u
-IEp1biAyNSwgMjAyMywgYXQgNTo1OCBQTSwgcmljaGFyZCBjbGFyayA8cmljaGFyZC54bnUuY2xh
-cmtAZ21haWwuY29tPiB3cm90ZToNCj4gDQo+IO+7v0hpLA0KPiANCj4gSSBmb3VuZCB0aGF0IHRo
-ZSBsYXRlbmN5IG91dHB1dCBmcm9tIGZpbyAocnVubmluZyBpbiBteSBvd24gZW1iZWRkZWQNCj4g
-Ym9hcmQpIGluY3JlYXNlcyB3aGVuIHRoZSBzaXplIGlzIGFsc28gaW5jcmVhc2VkLCB0aGUgb3V0
-cHV0IGlzOg0KPiANCj4gZmlvIC0tZGlyZWN0PTAgLS1pb2RlcHRoPTEgIC0tdGhyZWFkIC0tcnc9
-cmVhZCAtLWlvZW5naW5lPXN5bmMgLS1icz00aw0KPiAtLXNpemU9MTZNIC0tbnVtam9icz0xIC0t
-cnVudGltZT0zMCAtLWdyb3VwX3JlcG9ydGluZw0KPiAtLWZpbGVuYW1lPS90bXAvZjAgLS1uYW1l
-PWR1bW15DQo+IA0KPiBmMDogTGF5aW5nIG91dCBJTyBmaWxlICgxIGZpbGUgLyAxNk1pQikNCj4g
-DQo+IA0KPiBmMDogKGdyb3VwaWQ9MCwgam9icz0xKTogZXJyPSAwOiBwaWQ9MzogTW9uIEp1biAy
-NiAwNTo0MTo0NyAyMDIzDQo+IA0KPiAgcmVhZDogSU9QUz0xNS42aywgQlc9NjEuMU1pQi9zICg2
-NC4wTUIvcykoMTYuME1pQi8yNjJtc2VjKQ0KPiANCj4gICAgY2xhdCAodXNlYyk6IG1pbj01MSwg
-bWF4PTE4MSwgYXZnPTU1Ljc1LCBzdGRldj0gNS42Mw0KPiANCj4gICAgIGxhdCAodXNlYyk6IG1p
-bj01MiwgbWF4PTE4MiwgYXZnPTU2LjYyLCBzdGRldj0gNS42Nw0KPiANCj4gICAgY2xhdCBwZXJj
-ZW50aWxlcyAodXNlYyk6DQo+IA0KPiAgICAgfCAgMS4wMHRoPVsgICA1Ml0sICA1LjAwdGg9WyAg
-IDUzXSwgMTAuMDB0aD1bICAgNTNdLCAyMC4wMHRoPVsgICA1NF0sDQo+IA0KPiAgICAgfCAzMC4w
-MHRoPVsgICA1NV0sIDQwLjAwdGg9WyAgIDU1XSwgNTAuMDB0aD1bICAgNTZdLCA2MC4wMHRoPVsg
-ICA1Nl0sDQo+IA0KPiAgICAgfCA3MC4wMHRoPVsgICA1N10sIDgwLjAwdGg9WyAgIDU3XSwgOTAu
-MDB0aD1bICAgNThdLCA5NS4wMHRoPVsgICA2MF0sDQo+IA0KPiAgICAgfCA5OS4wMHRoPVsgICA4
-NV0sIDk5LjUwdGg9WyAgIDkyXSwgOTkuOTB0aD1bICAxMDhdLCA5OS45NXRoPVsgIDEyN10sDQo+
-IA0KPiAgICAgfCA5OS45OXRoPVsgIDE4Ml0NCj4gDQo+ICBsYXQgKHVzZWMpICAgOiAxMDA9OTku
-NzMlLCAyNTA9MC4yNyUNCj4gDQo+ICBjcHUgICAgICAgICAgOiB1c3I9MzUuMjUlLCBzeXM9MC4w
-MCUsIGN0eD0wLCBtYWpmPTAsIG1pbmY9MA0KPiANCj4gIElPIGRlcHRocyAgICA6IDE9MTAwLjAl
-LCAyPTAuMCUsIDQ9MC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAzMj0wLjAlLCA+PTY0PTAuMCUNCj4g
-DQo+ICAgICBzdWJtaXQgICAgOiAwPTAuMCUsIDQ9MTAwLjAlLCA4PTAuMCUsIDE2PTAuMCUsIDMy
-PTAuMCUsIDY0PTAuMCUsID49NjQ9MC4wJQ0KPiANCj4gICAgIGNvbXBsZXRlICA6IDA9MC4wJSwg
-ND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlDQo+
-IA0KPiAgICAgaXNzdWVkIHJ3dHM6IHRvdGFsPTQwOTYsMCwwLDAgc2hvcnQ9MCwwLDAsMCBkcm9w
-cGVkPTAsMCwwLDANCj4gDQo+ICAgICBsYXRlbmN5ICAgOiB0YXJnZXQ9MCwgd2luZG93PTAsIHBl
-cmNlbnRpbGU9MTAwLjAwJSwgZGVwdGg9MQ0KPiANCj4gDQo+IFJ1biBzdGF0dXMgZ3JvdXAgMCAo
-YWxsIGpvYnMpOg0KPiANCj4gICBSRUFEOiBidz02MS4xTWlCL3MgKDY0LjBNQi9zKSwgNjEuMU1p
-Qi9zLTYxLjFNaUIvcw0KPiAoNjQuME1CL3MtNjQuME1CL3MpLCBpbz0xNi4wTWlCICgxNi44TUIp
-LCBydW49MjYyLTI2Mm1zZWMNCj4gDQo+IGZpbyAtLWRpcmVjdD0wIC0taW9kZXB0aD0xICAtLXRo
-cmVhZCAtLXJ3PXJlYWQgLS1pb2VuZ2luZT1zeW5jIC0tYnM9NGsNCj4gLS1zaXplPTMyTSAtLW51
-bWpvYnM9MSAtLXJ1bnRpbWU9MzAgLS1ncm91cF9yZXBvcnRpbmcNCj4gLS1maWxlbmFtZT0vdG1w
-L2YwIC0tbmFtZT1kdW1teQ0KPiANCj4gZjA6IExheWluZyBvdXQgSU8gZmlsZSAoMSBmaWxlIC8g
-MzJNaUIpDQo+IA0KPiANCj4gZjA6IChncm91cGlkPTAsIGpvYnM9MSk6IGVycj0gMDogcGlkPTM6
-IE1vbiBKdW4gMjYgMDU6NDM6NDcgMjAyMw0KPiANCj4gIHJlYWQ6IElPUFM9MTIuNGssIEJXPTQ4
-LjRNaUIvcyAoNTAuOE1CL3MpKDMyLjBNaUIvNjYxbXNlYykNCj4gDQo+ICAgIGNsYXQgKHVzZWMp
-OiBtaW49NjQsIG1heD00MjAsIGF2Zz03Mi4zOSwgc3RkZXY9IDguODUNCj4gDQo+ICAgICBsYXQg
-KHVzZWMpOiBtaW49NjUsIG1heD00MjEsIGF2Zz03My4yNywgc3RkZXY9IDguODcNCj4gDQo+ICAg
-IGNsYXQgcGVyY2VudGlsZXMgKHVzZWMpOg0KPiANCj4gICAgIHwgIDEuMDB0aD1bICAgNjddLCAg
-NS4wMHRoPVsgICA2OF0sIDEwLjAwdGg9WyAgIDY4XSwgMjAuMDB0aD1bICAgNjldLA0KPiANCj4g
-ICAgIHwgMzAuMDB0aD1bICAgNzBdLCA0MC4wMHRoPVsgICA3MV0sIDUwLjAwdGg9WyAgIDcyXSwg
-NjAuMDB0aD1bICAgNzNdLA0KPiANCj4gICAgIHwgNzAuMDB0aD1bICAgNzRdLCA4MC4wMHRoPVsg
-ICA3NV0sIDkwLjAwdGg9WyAgIDc2XSwgOTUuMDB0aD1bICAgNzhdLA0KPiANCj4gICAgIHwgOTku
-MDB0aD1bICAxMTVdLCA5OS41MHRoPVsgIDEzMV0sIDk5LjkwdGg9WyAgMTYzXSwgOTkuOTV0aD1b
-ICAxNjldLA0KPiANCj4gICAgIHwgOTkuOTl0aD1bICA0MjBdDQo+IA0KPiAgIGJ3ICggIEtpQi9z
-KTogbWluPTQ4ODQwLCBtYXg9NDg4NDAsIHBlcj05OC41MiUsIGF2Zz00ODg0MC4wMCwNCj4gc3Rk
-ZXY9IDAuMDAsIHNhbXBsZXM9MQ0KPiANCj4gICBpb3BzICAgICAgICA6IG1pbj0xMjIxMCwgbWF4
-PTEyMjEwLCBhdmc9MTIyMTAuMDAsIHN0ZGV2PSAwLjAwLCBzYW1wbGVzPTENCj4gDQo+ICBsYXQg
-KHVzZWMpICAgOiAxMDA9OTguNTclLCAyNTA9MS40MiUsIDUwMD0wLjAxJQ0KPiANCj4gIGNwdSAg
-ICAgICAgICA6IHVzcj0yMy4wMyUsIHN5cz0wLjAwJSwgY3R4PTAsIG1hamY9MCwgbWluZj0wDQo+
-IA0KPiAgSU8gZGVwdGhzICAgIDogMT0xMDAuMCUsIDI9MC4wJSwgND0wLjAlLCA4PTAuMCUsIDE2
-PTAuMCUsIDMyPTAuMCUsID49NjQ9MC4wJQ0KPiANCj4gICAgIHN1Ym1pdCAgICA6IDA9MC4wJSwg
-ND0xMDAuMCUsIDg9MC4wJSwgMTY9MC4wJSwgMzI9MC4wJSwgNjQ9MC4wJSwgPj02ND0wLjAlDQo+
-IA0KPiAgICAgY29tcGxldGUgIDogMD0wLjAlLCA0PTEwMC4wJSwgOD0wLjAlLCAxNj0wLjAlLCAz
-Mj0wLjAlLCA2ND0wLjAlLCA+PTY0PTAuMCUNCj4gDQo+ICAgICBpc3N1ZWQgcnd0czogdG90YWw9
-ODE5MiwwLDAsMCBzaG9ydD0wLDAsMCwwIGRyb3BwZWQ9MCwwLDAsMA0KPiANCj4gICAgIGxhdGVu
-Y3kgICA6IHRhcmdldD0wLCB3aW5kb3c9MCwgcGVyY2VudGlsZT0xMDAuMDAlLCBkZXB0aD0xDQo+
-IA0KPiANCj4gUnVuIHN0YXR1cyBncm91cCAwIChhbGwgam9icyk6DQo+IA0KPiAgIFJFQUQ6IGJ3
-PTQ4LjRNaUIvcyAoNTAuOE1CL3MpLCA0OC40TWlCL3MtNDguNE1pQi9zDQo+ICg1MC44TUIvcy01
-MC44TUIvcyksIGlvPTMyLjBNaUIgKDMzLjZNQiksIHJ1bj02NjEtNjYxbXNlYw0KPiANCj4gRG9l
-cyBhbnlvbmUgaGVscCBleHBsYWluIHdoeSB0aGUgbGF0ZW5jeSBpbmNyZWFzZXMgd2hlbiB0aGUg
-c2l6ZQ0KPiBjaGFuZ2VzIGZyb20gMTZNIHRvIDMyTT8gVGhhbmtzIQ0K
+The following changes since commit 5087502fb05b2b4d756045c594a2e09c2ffc97dc:
+
+  init: don't adjust time units again for subjobs (2023-06-20 14:11:36 -0400)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 41508de67c06661ff1d473d108a8a01912ade114:
+
+  fio/server: fix confusing sk_out check (2023-07-03 09:16:45 -0600)
+
+----------------------------------------------------------------
+Denis Pronin (3):
+      fixed compiler warnings if NDEBUG enabled in core code
+      fixed compiler warnings if NDEBUG enabled in test code
+      use 'min' macro to find out next value of actual_min in libaio
+
+Jens Axboe (3):
+      Merge branch 'libaio/actual_min_algo_update' of https://github.com/dpronin/fio
+      Merge branch 'improvement/fix-warnings-if-NDEBUG-enabled' of https://github.com/dpronin/fio
+      fio/server: fix confusing sk_out check
+
+ backend.c              | 18 ++++++++++++++----
+ engines/libaio.c       |  2 +-
+ helper_thread.c        |  8 +++++++-
+ io_u.c                 |  7 ++++---
+ ioengines.c            | 10 ++++++++--
+ rate-submit.c          | 18 +++++++++++++++---
+ server.c               |  7 ++++++-
+ t/read-to-pipe-async.c | 30 +++++++++++++++++++++++-------
+ zbd.c                  | 18 ++++++++----------
+ 9 files changed, 86 insertions(+), 32 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index f541676c..d67a4a07 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1633,7 +1633,7 @@ static void *thread_main(void *data)
+ 	uint64_t bytes_done[DDIR_RWDIR_CNT];
+ 	int deadlock_loop_cnt;
+ 	bool clear_state;
+-	int res, ret;
++	int ret;
+ 
+ 	sk_out_assign(sk_out);
+ 	free(fd);
+@@ -1974,13 +1974,23 @@ static void *thread_main(void *data)
+ 	 * another thread is checking its io_u's for overlap
+ 	 */
+ 	if (td_offload_overlap(td)) {
+-		int res = pthread_mutex_lock(&overlap_check);
+-		assert(res == 0);
++		int res;
++
++		res = pthread_mutex_lock(&overlap_check);
++		if (res) {
++			td->error = errno;
++			goto err;
++		}
+ 	}
+ 	td_set_runstate(td, TD_FINISHING);
+ 	if (td_offload_overlap(td)) {
++		int res;
++
+ 		res = pthread_mutex_unlock(&overlap_check);
+-		assert(res == 0);
++		if (res) {
++			td->error = errno;
++			goto err;
++		}
+ 	}
+ 
+ 	update_rusage_stat(td);
+diff --git a/engines/libaio.c b/engines/libaio.c
+index 1b82c90b..6a0745aa 100644
+--- a/engines/libaio.c
++++ b/engines/libaio.c
+@@ -296,7 +296,7 @@ static int fio_libaio_getevents(struct thread_data *td, unsigned int min,
+ 		}
+ 		if (r > 0) {
+ 			events += r;
+-			actual_min = actual_min > events ? actual_min - events : 0;
++			actual_min -= min((unsigned int)events, actual_min);
+ 		}
+ 		else if ((min && r == 0) || r == -EAGAIN) {
+ 			fio_libaio_commit(td);
+diff --git a/helper_thread.c b/helper_thread.c
+index 77016638..53dea44b 100644
+--- a/helper_thread.c
++++ b/helper_thread.c
+@@ -1,4 +1,7 @@
++#include <errno.h>
+ #include <signal.h>
++#include <stdio.h>
++#include <string.h>
+ #include <unistd.h>
+ #ifdef CONFIG_HAVE_TIMERFD_CREATE
+ #include <sys/timerfd.h>
+@@ -122,7 +125,10 @@ static void submit_action(enum action a)
+ 		return;
+ 
+ 	ret = write_to_pipe(helper_data->pipe[1], &data, sizeof(data));
+-	assert(ret == 1);
++	if (ret != 1) {
++		log_err("failed to write action into pipe, err %i:%s", errno, strerror(errno));
++		assert(0);
++	}
+ }
+ 
+ void helper_reset(void)
+diff --git a/io_u.c b/io_u.c
+index faf512e5..27b6c92a 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1613,7 +1613,6 @@ struct io_u *__get_io_u(struct thread_data *td)
+ {
+ 	const bool needs_lock = td_async_processing(td);
+ 	struct io_u *io_u = NULL;
+-	int ret;
+ 
+ 	if (td->stop_io)
+ 		return NULL;
+@@ -1647,14 +1646,16 @@ again:
+ 		io_u_set(td, io_u, IO_U_F_IN_CUR_DEPTH);
+ 		io_u->ipo = NULL;
+ 	} else if (td_async_processing(td)) {
++		int ret;
+ 		/*
+ 		 * We ran out, wait for async verify threads to finish and
+ 		 * return one
+ 		 */
+ 		assert(!(td->flags & TD_F_CHILD));
+ 		ret = pthread_cond_wait(&td->free_cond, &td->io_u_lock);
+-		assert(ret == 0);
+-		if (!td->error)
++		if (fio_unlikely(ret != 0)) {
++			td->error = errno;
++		} else if (!td->error)
+ 			goto again;
+ 	}
+ 
+diff --git a/ioengines.c b/ioengines.c
+index 742f97dd..36172725 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -17,6 +17,7 @@
+ #include <assert.h>
+ #include <sys/types.h>
+ #include <dirent.h>
++#include <errno.h>
+ 
+ #include "fio.h"
+ #include "diskutil.h"
+@@ -342,8 +343,13 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 	 * flag is now set
+ 	 */
+ 	if (td_offload_overlap(td)) {
+-		int res = pthread_mutex_unlock(&overlap_check);
+-		assert(res == 0);
++		int res;
++
++		res = pthread_mutex_unlock(&overlap_check);
++		if (fio_unlikely(res != 0)) {
++			log_err("failed to unlock overlap check mutex, err: %i:%s", errno, strerror(errno));
++			abort();
++		}
+ 	}
+ 
+ 	assert(fio_file_open(io_u->file));
+diff --git a/rate-submit.c b/rate-submit.c
+index 103a80aa..6f6d15bd 100644
+--- a/rate-submit.c
++++ b/rate-submit.c
+@@ -5,6 +5,9 @@
+  *
+  */
+ #include <assert.h>
++#include <errno.h>
++#include <pthread.h>
++
+ #include "fio.h"
+ #include "ioengines.h"
+ #include "lib/getrusage.h"
+@@ -27,7 +30,10 @@ static void check_overlap(struct io_u *io_u)
+ 	 * threads as they assess overlap.
+ 	 */
+ 	res = pthread_mutex_lock(&overlap_check);
+-	assert(res == 0);
++	if (fio_unlikely(res != 0)) {
++		log_err("failed to lock overlap check mutex, err: %i:%s", errno, strerror(errno));
++		abort();
++	}
+ 
+ retry:
+ 	for_each_td(td) {
+@@ -41,9 +47,15 @@ retry:
+ 			continue;
+ 
+ 		res = pthread_mutex_unlock(&overlap_check);
+-		assert(res == 0);
++		if (fio_unlikely(res != 0)) {
++			log_err("failed to unlock overlap check mutex, err: %i:%s", errno, strerror(errno));
++			abort();
++		}
+ 		res = pthread_mutex_lock(&overlap_check);
+-		assert(res == 0);
++		if (fio_unlikely(res != 0)) {
++			log_err("failed to lock overlap check mutex, err: %i:%s", errno, strerror(errno));
++			abort();
++		}
+ 		goto retry;
+ 	} end_for_each();
+ }
+diff --git a/server.c b/server.c
+index a6347efd..bb423702 100644
+--- a/server.c
++++ b/server.c
+@@ -1,5 +1,6 @@
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include <unistd.h>
+ #include <errno.h>
+ #include <poll.h>
+@@ -2343,7 +2344,11 @@ void fio_server_send_start(struct thread_data *td)
+ {
+ 	struct sk_out *sk_out = pthread_getspecific(sk_out_key);
+ 
+-	assert(sk_out->sk != -1);
++	if (sk_out->sk == -1) {
++		log_err("pthread getting specific for key failed, sk_out %p, sk %i, err: %i:%s",
++			sk_out, sk_out->sk, errno, strerror(errno));
++		abort();
++	}
+ 
+ 	fio_net_queue_cmd(FIO_NET_CMD_SERVER_START, NULL, 0, NULL, SK_F_SIMPLE);
+ }
+diff --git a/t/read-to-pipe-async.c b/t/read-to-pipe-async.c
+index 569fc62a..de98d032 100644
+--- a/t/read-to-pipe-async.c
++++ b/t/read-to-pipe-async.c
+@@ -36,6 +36,8 @@
+ 
+ #include "../flist.h"
+ 
++#include "compiler/compiler.h"
++
+ static int bs = 4096;
+ static int max_us = 10000;
+ static char *file;
+@@ -47,6 +49,18 @@ static int separate_writer = 1;
+ #define PLAT_NR		(PLAT_GROUP_NR * PLAT_VAL)
+ #define PLAT_LIST_MAX	20
+ 
++#ifndef NDEBUG
++#define CHECK_ZERO_OR_ABORT(code) assert(code)
++#else
++#define CHECK_ZERO_OR_ABORT(code) 										\
++	do { 																\
++		if (fio_unlikely((code) != 0)) { 								\
++			log_err("failed checking code %i != 0", (code)); 	\
++			abort();													\
++		} 																\
++	} while (0)
++#endif
++
+ struct stats {
+ 	unsigned int plat[PLAT_NR];
+ 	unsigned int nr_samples;
+@@ -121,7 +135,7 @@ uint64_t utime_since(const struct timespec *s, const struct timespec *e)
+ 	return ret;
+ }
+ 
+-static struct work_item *find_seq(struct writer_thread *w, unsigned int seq)
++static struct work_item *find_seq(struct writer_thread *w, int seq)
+ {
+ 	struct work_item *work;
+ 	struct flist_head *entry;
+@@ -224,6 +238,8 @@ static int write_work(struct work_item *work)
+ 
+ 	clock_gettime(CLOCK_MONOTONIC, &s);
+ 	ret = write(STDOUT_FILENO, work->buf, work->buf_size);
++	if (ret < 0)
++		return (int)ret;
+ 	clock_gettime(CLOCK_MONOTONIC, &e);
+ 	assert(ret == work->buf_size);
+ 
+@@ -241,10 +257,10 @@ static void *writer_fn(void *data)
+ {
+ 	struct writer_thread *wt = data;
+ 	struct work_item *work;
+-	unsigned int seq = 1;
++	int seq = 1;
+ 
+ 	work = NULL;
+-	while (!wt->thread.exit || !flist_empty(&wt->list)) {
++	while (!(seq < 0) && (!wt->thread.exit || !flist_empty(&wt->list))) {
+ 		pthread_mutex_lock(&wt->thread.lock);
+ 
+ 		if (work)
+@@ -467,10 +483,10 @@ static void init_thread(struct thread_data *thread)
+ 	int ret;
+ 
+ 	ret = pthread_condattr_init(&cattr);
+-	assert(ret == 0);
++	CHECK_ZERO_OR_ABORT(ret);
+ #ifdef CONFIG_PTHREAD_CONDATTR_SETCLOCK
+ 	ret = pthread_condattr_setclock(&cattr, CLOCK_MONOTONIC);
+-	assert(ret == 0);
++	CHECK_ZERO_OR_ABORT(ret);
+ #endif
+ 	pthread_cond_init(&thread->cond, &cattr);
+ 	pthread_cond_init(&thread->done_cond, &cattr);
+@@ -624,10 +640,10 @@ int main(int argc, char *argv[])
+ 	bytes = 0;
+ 
+ 	ret = pthread_condattr_init(&cattr);
+-	assert(ret == 0);
++	CHECK_ZERO_OR_ABORT(ret);
+ #ifdef CONFIG_PTHREAD_CONDATTR_SETCLOCK
+ 	ret = pthread_condattr_setclock(&cattr, CLOCK_MONOTONIC);
+-	assert(ret == 0);
++	CHECK_ZERO_OR_ABORT(ret);
+ #endif
+ 
+ 	clock_gettime(CLOCK_MONOTONIC, &s);
+diff --git a/zbd.c b/zbd.c
+index 7fcf1ec4..d4565215 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -11,6 +11,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
++#include "compiler/compiler.h"
+ #include "os/os.h"
+ #include "file.h"
+ #include "fio.h"
+@@ -102,13 +103,13 @@ static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
+ static void zone_lock(struct thread_data *td, const struct fio_file *f,
+ 		      struct fio_zone_info *z)
+ {
++#ifndef NDEBUG
+ 	struct zoned_block_device_info *zbd = f->zbd_info;
+-	uint32_t nz = z - zbd->zone_info;
+-
++	uint32_t const nz = z - zbd->zone_info;
+ 	/* A thread should never lock zones outside its working area. */
+ 	assert(f->min_zone <= nz && nz < f->max_zone);
+-
+ 	assert(z->has_wp);
++#endif
+ 
+ 	/*
+ 	 * Lock the io_u target zone. The zone will be unlocked if io_u offset
+@@ -128,11 +129,8 @@ static void zone_lock(struct thread_data *td, const struct fio_file *f,
+ 
+ static inline void zone_unlock(struct fio_zone_info *z)
+ {
+-	int ret;
+-
+ 	assert(z->has_wp);
+-	ret = pthread_mutex_unlock(&z->mutex);
+-	assert(!ret);
++	pthread_mutex_unlock(&z->mutex);
+ }
+ 
+ static inline struct fio_zone_info *zbd_get_zone(const struct fio_file *f,
+@@ -420,7 +418,8 @@ static int zbd_reset_zones(struct thread_data *td, struct fio_file *f,
+ 	const uint64_t min_bs = td->o.min_bs[DDIR_WRITE];
+ 	int res = 0;
+ 
+-	assert(min_bs);
++	if (fio_unlikely(0 == min_bs))
++		return 1;
+ 
+ 	dprint(FD_ZBD, "%s: examining zones %u .. %u\n",
+ 	       f->file_name, zbd_zone_idx(f, zb), zbd_zone_idx(f, ze));
+@@ -1714,10 +1713,9 @@ unlock:
+ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
+ {
+ 	const struct fio_file *f = io_u->file;
+-	struct zoned_block_device_info *zbd_info = f->zbd_info;
+ 	struct fio_zone_info *z;
+ 
+-	assert(zbd_info);
++	assert(f->zbd_info);
+ 
+ 	z = zbd_offset_to_zone(f, io_u->offset);
+ 	assert(z->has_wp);
