@@ -2,86 +2,128 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83AF8C001DF
-	for <fio@archiver.kernel.org>; Wed,  5 Jul 2023 21:49:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CB9EEB64DD
+	for <fio@archiver.kernel.org>; Wed,  5 Jul 2023 21:58:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229634AbjGEVte (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 5 Jul 2023 17:49:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42182 "EHLO
+        id S230049AbjGEV6M (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 5 Jul 2023 17:58:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232315AbjGEVso (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 5 Jul 2023 17:48:44 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 178CF1BCB
-        for <fio@vger.kernel.org>; Wed,  5 Jul 2023 14:48:26 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id ca18e2360f4ac-7748ca56133so62610839f.0
-        for <fio@vger.kernel.org>; Wed, 05 Jul 2023 14:48:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1688593706; x=1691185706;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=n3YlyKDs4JKXuOqsxMn/IlDTc7W/Mhzc7COGLMf59lQ=;
-        b=AnQNhVgV6RIyrxD/0izvqiMXDM7vR3dH7eHYBkQM8vRjb8n1IOANwE3nA58xwx4b2a
-         sW0git7XLBWQrg28ggHnhoyFVsVWftwKI+lJFgDumA74+X9v+dryhTFbxB4MwNDxYmwj
-         TlJznFxQNIr46XX5v3l/2HbrZE+CxzR9ybb7pRfVn44S4aqdNlotkXRVYBDF770YtahP
-         gXSMWj9g4zjel4nT1s5KnVmY+a0MOVZWAfb5ZScaFYk18fTNZaaAa2QXRH9h90nJmJ13
-         IT7ln04ewSc95fGZScYegxS4599P/aNWl+3tJkoEqSvLqcng7qfeHs51B3GEXdWyp1JE
-         hbYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688593706; x=1691185706;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n3YlyKDs4JKXuOqsxMn/IlDTc7W/Mhzc7COGLMf59lQ=;
-        b=dV65gbsrTbIOLL3+sBU/yg7eybWkOPKvXzvh6tVNro7fRYxK5tZQ8ui1EK3Gv7IFaf
-         rZddcrUmHrOUBnd1ArbIk0l5I/6VeqmkxDHQL1YuGzQXm9D1IJ0pg+d8b13ohpKHHewd
-         lRmZ4IXoDPZ9EgKxUTZ3ZMyK61pm+xLeo5uUsDmrAGs+nuedB8jFpWbQhCKP7L8RjJuO
-         8U09dI3BS4LI8liy42DZeEISzvC3ErM3RvJYAoDyz6Cvs6mZk4mH/uZcQAikxepfew7U
-         Azrx5V7KEozTfp7YA5HCH79hhBg/zTHYd4jz9MPpgj0ib7PPFhLGvhEA/LfFNl4OoKr/
-         m/GA==
-X-Gm-Message-State: ABy/qLbqtmZe+ockjN6ZpOOiuQlYZTfngfa9FMAkyq6iJFxTnurVM0nW
-        lYcj6l58a5IAgPl70rqfjYwUkQ==
-X-Google-Smtp-Source: APBJJlH0qPRLsomXic+ncUZTR7vjs1wke+Pwz6Tx0/qDfDf6mzQtPoWzXDK3/HfITs2HNh1LxUFWUw==
-X-Received: by 2002:a05:6602:474e:b0:77a:ee79:652 with SMTP id dy14-20020a056602474e00b0077aee790652mr508319iob.1.1688593705994;
-        Wed, 05 Jul 2023 14:48:25 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id p7-20020a637407000000b0050be8e0b94csm10115pgc.90.2023.07.05.14.48.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Jul 2023 14:48:25 -0700 (PDT)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     fio@vger.kernel.org, Damien Le Moal <dlemoal@kernel.org>,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20230705212915.3373438-1-bvanassche@acm.org>
-References: <20230705212915.3373438-1-bvanassche@acm.org>
-Subject: Re: [PATCH] zbd: Support finishing zones on Android
-Message-Id: <168859370491.821197.17184142887920905060.b4-ty@kernel.dk>
-Date:   Wed, 05 Jul 2023 15:48:24 -0600
+        with ESMTP id S232733AbjGEV6H (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 5 Jul 2023 17:58:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 118879F
+        for <fio@vger.kernel.org>; Wed,  5 Jul 2023 14:58:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3E7D6176B
+        for <fio@vger.kernel.org>; Wed,  5 Jul 2023 21:58:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94EEBC433C8;
+        Wed,  5 Jul 2023 21:58:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1688594285;
+        bh=VxO8iIwm8m74NbH5G3WHEtM38djPLhjZMkI9Zb0PtxU=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=GqGtYeulSVQQCc5Y0nNRbzvUbUTpITWp9zyhoorO/qRZ+z6QSHz5jlmFWEjX4HPWu
+         ZrSWpS0KFqAjM4dQD87nEDTOLYIm5QF/XBn9vyxcgsD1SOCSZIj+QJbSe1sNx9ZGh3
+         PjJmzA8L9i/KzF/swfj6bdXtW8HoyskWJPgJ6vHbK0wUGJSZrw+39hqbG++Bis0rN5
+         d3saS7oF/psQzcyH1MzR0MjiJ4M4hNwS9X/f6UI3MlojH0uesjuF2i7R/oE7+ZXwB5
+         qXExuZGwyMPKM4DsM3zQZiH0QSPbCci1RT63iEiq211ZanAMZUDYdVClRnR6+MQDVn
+         s9LcG1tYaNPMw==
+Message-ID: <34a1a73d-9edf-b3db-e9d5-e912febdb869@kernel.org>
+Date:   Thu, 6 Jul 2023 06:58:03 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH] zbd: Support finishing zones on Android
+Content-Language: en-US
+To:     Bart Van Assche <bvanassche@acm.org>, Jens Axboe <axboe@kernel.dk>
+Cc:     fio@vger.kernel.org,
+        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+References: <20230705212915.3373438-1-bvanassche@acm.org>
+From:   Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <20230705212915.3373438-1-bvanassche@acm.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13-dev-099c9
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-
-On Wed, 05 Jul 2023 14:29:15 -0700, Bart Van Assche wrote:
+On 7/6/23 06:29, Bart Van Assche wrote:
 > BLKFINISHZONE is missing from older versions of the Android NDK header
 > files. Hence, define BLKFINISHZONE if it has not been defined and detect
 > at runtime whether or not the kernel supports finishing zones.
 > 
+> Cc: Damien Le Moal <dlemoal@kernel.org>
+> Cc: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+
+Late as Jens already applied the patch, but anyway, looks good to me.
+
+Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
+
+> ---
+>  oslib/linux-blkzoned.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
 > 
+> diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
+> index c3130d0e2a1b..722e09925b3d 100644
+> --- a/oslib/linux-blkzoned.c
+> +++ b/oslib/linux-blkzoned.c
+> @@ -22,6 +22,9 @@
+>  #include "zbd_types.h"
+>  
+>  #include <linux/blkzoned.h>
+> +#ifndef BLKFINISHZONE
+> +#define BLKFINISHZONE _IOW(0x12, 136, struct blk_zone_range)
+> +#endif
+>  
+>  /*
+>   * If the uapi headers installed on the system lacks zone capacity support,
+> @@ -312,7 +315,6 @@ int blkzoned_reset_wp(struct thread_data *td, struct fio_file *f,
+>  int blkzoned_finish_zone(struct thread_data *td, struct fio_file *f,
+>  			 uint64_t offset, uint64_t length)
+>  {
+> -#ifdef BLKFINISHZONE
+>  	struct blk_zone_range zr = {
+>  		.sector         = offset >> 9,
+>  		.nr_sectors     = length >> 9,
+> @@ -327,21 +329,19 @@ int blkzoned_finish_zone(struct thread_data *td, struct fio_file *f,
+>  			return -errno;
+>  	}
+>  
+> -	if (ioctl(fd, BLKFINISHZONE, &zr) < 0)
+> +	if (ioctl(fd, BLKFINISHZONE, &zr) < 0) {
+>  		ret = -errno;
+> +		/*
+> +		 * Kernel versions older than 5.5 do not support BLKFINISHZONE
+> +		 * and return the ENOTTY error code. These old kernels only
+> +		 * support block devices that close zones automatically.
+> +		 */
+> +		if (ret == ENOTTY)
+> +			ret = 0;
+> +	}
+>  
+>  	if (f->fd < 0)
+>  		close(fd);
+>  
+>  	return ret;
+> -#else
+> -	/*
+> -	 * Kernel versions older than 5.5 does not support BLKFINISHZONE. These
+> -	 * old kernels assumed zones are closed automatically at max_open_zones
+> -	 * limit. Also they did not support max_active_zones limit. Then there
+> -	 * was no need to finish zones to avoid errors caused by max_open_zones
+> -	 * or max_active_zones. For those old versions, just do nothing.
+> -	 */
+> -	return 0;
+> -#endif
+>  }
 
-Applied, thanks!
-
-[1/1] zbd: Support finishing zones on Android
-      commit: 8e2b81b854286f32eae7951a434dddebd968f9d5
-
-Best regards,
 -- 
-Jens Axboe
-
-
+Damien Le Moal
+Western Digital Research
 
