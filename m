@@ -2,92 +2,207 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B54EFEB64DA
-	for <fio@archiver.kernel.org>; Wed,  5 Jul 2023 22:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BFADC001B0
+	for <fio@archiver.kernel.org>; Wed,  5 Jul 2023 22:13:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbjGEWAL (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 5 Jul 2023 18:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49204 "EHLO
+        id S231391AbjGEWNI (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 5 Jul 2023 18:13:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbjGEWAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 5 Jul 2023 18:00:11 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2AFC9F
-        for <fio@vger.kernel.org>; Wed,  5 Jul 2023 15:00:09 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id 98e67ed59e1d1-25e847bb482so27234a91.1
-        for <fio@vger.kernel.org>; Wed, 05 Jul 2023 15:00:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1688594409; x=1691186409;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=cXTPZiy65c3sANxRWbBVd8J6Cp5H/RHynv2wrAVkrLA=;
-        b=KHyU0w8DvEMXwmP96qHM6pSUvJoMK9DWPlMKe2T8gOPbtug7oY1V7C+trjsYlPefEP
-         8x0YQ/BJ39vdDGkpj1q/JCzdgIoKF85dfsQdklPbxKVt1hZbz5WNqJ3VMY4IFRcn19Wq
-         hC6fm1YJXshGCdRJXII8Lv2CIPRggZIPQV43QW11uPcglwZhYmz/JVCfSsCCDgWgpDJG
-         HEqwjNkXmt7w/CLjP59mGwJI+EoCCfeYKdsrWtbAW8Zg3E3XmtZ0DfyV2MEmLj1Uf+Yk
-         LLPKOaHfOGFo/OSwe+KUpFUPRG4k8z/PpLHKWZ08aTyo3HGOOaeKxlHtFv/aYpjD7wUI
-         CAjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1688594409; x=1691186409;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cXTPZiy65c3sANxRWbBVd8J6Cp5H/RHynv2wrAVkrLA=;
-        b=FXWzNlviA9pzdPr7oOq6V2irdhD49JHm+TkBQVV1vgnPuCwp9SZeRsZRluH06msV0w
-         GzysoG/ynfWViu0Tz2Yk0zeFBWMWKfUKzRUmZgJdmUt1y56cz/tx2jVeOJ0pncSaVrkc
-         vPoiMqklmrrOYyybQ7XIDLkCpaQxRiiDfkSFEEkb3qBoKe9H6cApNkhGiwiPY7SUqXqb
-         ofaRf5FsY9atKgJDeFGqkPdwuxv7WQ5bzcUa80Ox4twVXLC+pnkMPstYPCK8slsPCg3k
-         MUZzuvs/Tay+jcaZxO9860i2/G9KklkoUKa4LzUfUrLWK8swXsngm73WcS8L12wZta8X
-         kA+w==
-X-Gm-Message-State: ABy/qLbxekrfr6wrReh2A3daz4D6AXt4Hfw+ZV/1poDc17BO7JCXB0dx
-        0npzPPR/JhrYAE499SzrQQLtkCoye2f4XeYUXzo=
-X-Google-Smtp-Source: APBJJlFkGybOF0qtX/2m4jEdom3ZVX9UDA7yBRbAGYNE6hwjR3yRhNF5yUoD2c2oNK2xPN1/BMKC8Q==
-X-Received: by 2002:a17:90b:4c50:b0:263:204c:3c80 with SMTP id np16-20020a17090b4c5000b00263204c3c80mr48759pjb.4.1688594409113;
-        Wed, 05 Jul 2023 15:00:09 -0700 (PDT)
-Received: from [192.168.1.136] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id u9-20020a17090ae00900b0025ec54be16asm2162139pjy.2.2023.07.05.15.00.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Jul 2023 15:00:08 -0700 (PDT)
-Message-ID: <c82a1e63-aaf7-ef38-cbfd-5a8d29c877bd@kernel.dk>
-Date:   Wed, 5 Jul 2023 16:00:07 -0600
+        with ESMTP id S230015AbjGEWNH (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 5 Jul 2023 18:13:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9C431722
+        for <fio@vger.kernel.org>; Wed,  5 Jul 2023 15:13:06 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 875926177F
+        for <fio@vger.kernel.org>; Wed,  5 Jul 2023 22:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E115C433C7;
+        Wed,  5 Jul 2023 22:13:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1688595186;
+        bh=Q2tntWmI90VjL6j/3WV+brqHn728r25y69SJ6i4u37Q=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DwmusRkv5gMmq1i0MtzmGbAesD2DV+ozTu58hYrYo1MJW7fGmGPZGVKANsylz/d9r
+         /xhlt4VZ+JqM5L2o5/x4L7QfXQHJeO3yHSqlO8z3gjOlK0o/+3hj4kSN8K3JZDVALm
+         h/9FxbrnWT3Xf1vLwrmXmRtjMZY9BjTiVCSEb7Iod17nEL5Pc6G2lHBPgw6DjWIqWV
+         sFkF/v2Zr91mB3n+Um2wVGvNc9sHZjvjrV2hpK6mk9yHoU1St8NmpYNo8VKwHLwEJr
+         D6Y14niULWw/2dSrMn6GK73yTNB5FrYp8ZeVqfQzvthEVRqiq4mqJ9Z34B8ONjzFM/
+         OsIj/1v7kQVjg==
+From:   Damien Le Moal <dlemoal@kernel.org>
+To:     fio@vger.kernel.org, Vincent Fu <vincentfu@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Cc:     Niklas Cassel <niklas.cassel@wdc.com>
+Subject: [PATCH 1/4] os-linux: add initial support for IO priority hints
+Date:   Thu,  6 Jul 2023 07:12:59 +0900
+Message-ID: <20230705221302.430678-2-dlemoal@kernel.org>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230705221302.430678-1-dlemoal@kernel.org>
+References: <20230705221302.430678-1-dlemoal@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [PATCH] zbd: Support finishing zones on Android
-Content-Language: en-US
-To:     Damien Le Moal <dlemoal@kernel.org>,
-        Bart Van Assche <bvanassche@acm.org>
-Cc:     fio@vger.kernel.org,
-        Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-References: <20230705212915.3373438-1-bvanassche@acm.org>
- <34a1a73d-9edf-b3db-e9d5-e912febdb869@kernel.org>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <34a1a73d-9edf-b3db-e9d5-e912febdb869@kernel.org>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 7/5/23 3:58 PM, Damien Le Moal wrote:
-> On 7/6/23 06:29, Bart Van Assche wrote:
->> BLKFINISHZONE is missing from older versions of the Android NDK header
->> files. Hence, define BLKFINISHZONE if it has not been defined and detect
->> at runtime whether or not the kernel supports finishing zones.
->>
->> Cc: Damien Le Moal <dlemoal@kernel.org>
->> Cc: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
->> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-> 
-> Late as Jens already applied the patch, but anyway, looks good to me.
-> 
-> Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-Thanks, I think these replies are still useful even if it's already
-applied, as it's still documented on lore.
+Add initial support for Linux to allow specifying a hint for any
+priority value. With this change, a priority value becomes the
+combination of a priority class, a priority level and a hint.
+The generic os.h ioprio manipulation macros, as well as the
+os-dragonfly.h ioprio manipulation macros  are modified to ignore this
+hint.
 
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+---
+ backend.c         |  5 +++--
+ engines/cmdprio.c |  4 ++--
+ options.c         |  2 +-
+ os/os-dragonfly.h |  4 ++--
+ os/os-linux.h     | 17 +++++++++++++----
+ os/os.h           |  4 ++--
+ 6 files changed, 23 insertions(+), 13 deletions(-)
+
+diff --git a/backend.c b/backend.c
+index d67a4a07..6641441c 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1791,12 +1791,13 @@ static void *thread_main(void *data)
+ 	/* ioprio_set() has to be done before td_io_init() */
+ 	if (fio_option_is_set(o, ioprio) ||
+ 	    fio_option_is_set(o, ioprio_class)) {
+-		ret = ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class, o->ioprio);
++		ret = ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class,
++				 o->ioprio, 0);
+ 		if (ret == -1) {
+ 			td_verror(td, errno, "ioprio_set");
+ 			goto err;
+ 		}
+-		td->ioprio = ioprio_value(o->ioprio_class, o->ioprio);
++		td->ioprio = ioprio_value(o->ioprio_class, o->ioprio, 0);
+ 		td->ts.ioprio = td->ioprio;
+ 	}
+ 
+diff --git a/engines/cmdprio.c b/engines/cmdprio.c
+index 979a81b6..e6ff1fc2 100644
+--- a/engines/cmdprio.c
++++ b/engines/cmdprio.c
+@@ -342,7 +342,7 @@ static int fio_cmdprio_gen_perc(struct thread_data *td, struct cmdprio *cmdprio)
+ 		prio = &cmdprio->perc_entry[ddir];
+ 		prio->perc = options->percentage[ddir];
+ 		prio->prio = ioprio_value(options->class[ddir],
+-					  options->level[ddir]);
++					  options->level[ddir], 0);
+ 		assign_clat_prio_index(prio, &values[ddir]);
+ 
+ 		ret = init_ts_clat_prio(ts, ddir, &values[ddir]);
+@@ -400,7 +400,7 @@ static int fio_cmdprio_parse_and_gen_bssplit(struct thread_data *td,
+ 			goto err;
+ 
+ 		implicit_cmdprio = ioprio_value(options->class[ddir],
+-						options->level[ddir]);
++						options->level[ddir], 0);
+ 
+ 		ret = fio_cmdprio_generate_bsprio_desc(&cmdprio->bsprio_desc[ddir],
+ 						       &parse_res[ddir],
+diff --git a/options.c b/options.c
+index a7c4ef6e..c5343d4b 100644
+--- a/options.c
++++ b/options.c
+@@ -344,7 +344,7 @@ static int parse_cmdprio_bssplit_entry(struct thread_options *o,
+ 	case 4: /* bs/perc/class/level case */
+ 		class = min(class, (unsigned int) IOPRIO_MAX_PRIO_CLASS);
+ 		level = min(level, (unsigned int) IOPRIO_MAX_PRIO);
+-		entry->prio = ioprio_value(class, level);
++		entry->prio = ioprio_value(class, level, 0);
+ 		break;
+ 	default:
+ 		log_err("fio: invalid cmdprio_bssplit format\n");
+diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+index bde39101..4ce72539 100644
+--- a/os/os-dragonfly.h
++++ b/os/os-dragonfly.h
+@@ -171,8 +171,8 @@ static inline int fio_getaffinity(int pid, os_cpu_mask_t *mask)
+  * ioprio_set() with 4 arguments, so define fio's ioprio_set() as a macro.
+  * Note that there is no idea of class within ioprio_set(2) unlike Linux.
+  */
+-#define ioprio_value(ioprio_class, ioprio)	(ioprio)
+-#define ioprio_set(which, who, ioprio_class, ioprio)	\
++#define ioprio_value(ioprio_class, ioprio, ioprio_hint)	(ioprio)
++#define ioprio_set(which, who, ioprio_class, ioprio, ioprio_hint)	\
+ 	ioprio_set(which, who, ioprio)
+ 
+ #define ioprio(ioprio)		(ioprio)
+diff --git a/os/os-linux.h b/os/os-linux.h
+index 2f9f7e79..6f241d09 100644
+--- a/os/os-linux.h
++++ b/os/os-linux.h
+@@ -125,13 +125,19 @@ enum {
+ #define IOPRIO_BITS		16
+ #define IOPRIO_CLASS_SHIFT	13
+ 
++#define IOPRIO_HINT_BITS	10
++#define IOPRIO_HINT_SHIFT	3
++
+ #define IOPRIO_MIN_PRIO		0	/* highest priority */
+ #define IOPRIO_MAX_PRIO		7	/* lowest priority */
+ 
+ #define IOPRIO_MIN_PRIO_CLASS	0
+ #define IOPRIO_MAX_PRIO_CLASS	3
+ 
+-static inline int ioprio_value(int ioprio_class, int ioprio)
++#define IOPRIO_MIN_PRIO_HINT	0
++#define IOPRIO_MAX_PRIO_HINT	((1 << IOPRIO_HINT_BITS) - 1)
++
++static inline int ioprio_value(int ioprio_class, int ioprio, int ioprio_hint)
+ {
+ 	/*
+ 	 * If no class is set, assume BE
+@@ -139,7 +145,9 @@ static inline int ioprio_value(int ioprio_class, int ioprio)
+         if (!ioprio_class)
+                 ioprio_class = IOPRIO_CLASS_BE;
+ 
+-	return (ioprio_class << IOPRIO_CLASS_SHIFT) | ioprio;
++	return (ioprio_class << IOPRIO_CLASS_SHIFT) |
++		(ioprio_hint << IOPRIO_HINT_SHIFT) |
++		ioprio;
+ }
+ 
+ static inline bool ioprio_value_is_class_rt(unsigned int priority)
+@@ -147,10 +155,11 @@ static inline bool ioprio_value_is_class_rt(unsigned int priority)
+ 	return (priority >> IOPRIO_CLASS_SHIFT) == IOPRIO_CLASS_RT;
+ }
+ 
+-static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio)
++static inline int ioprio_set(int which, int who, int ioprio_class, int ioprio,
++			     int ioprio_hint)
+ {
+ 	return syscall(__NR_ioprio_set, which, who,
+-		       ioprio_value(ioprio_class, ioprio));
++		       ioprio_value(ioprio_class, ioprio, ioprio_hint));
+ }
+ 
+ #define ioprio_class(ioprio)	((ioprio) >> IOPRIO_CLASS_SHIFT)
+diff --git a/os/os.h b/os/os.h
+index 036fc233..2217d5f8 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -122,9 +122,9 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsigned int cpu);
+ #define IOPRIO_MAX_PRIO_CLASS		0
+ #endif
+ #ifndef FIO_HAVE_IOPRIO
+-#define ioprio_value(prioclass, prio)	(0)
++#define ioprio_value(prioclass, prio, priohint)	(0)
+ #define ioprio(ioprio)			0
+-#define ioprio_set(which, who, prioclass, prio)	(0)
++#define ioprio_set(which, who, prioclass, prio, priohint) (0)
+ #define IOPRIO_MIN_PRIO			0
+ #define IOPRIO_MAX_PRIO			0
+ #endif
 -- 
-Jens Axboe
-
+2.41.0
 
