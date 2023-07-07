@@ -2,50 +2,50 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05F56EB64DA
-	for <fio@archiver.kernel.org>; Fri,  7 Jul 2023 03:15:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00D8BEB64D9
+	for <fio@archiver.kernel.org>; Fri,  7 Jul 2023 03:15:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231866AbjGGDPW (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 6 Jul 2023 23:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40256 "EHLO
+        id S231630AbjGGDPc (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 6 Jul 2023 23:15:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231465AbjGGDPT (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 6 Jul 2023 23:15:19 -0400
+        with ESMTP id S229880AbjGGDPW (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 6 Jul 2023 23:15:22 -0400
 Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64AFC1BDB
-        for <fio@vger.kernel.org>; Thu,  6 Jul 2023 20:15:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34111FD2
+        for <fio@vger.kernel.org>; Thu,  6 Jul 2023 20:15:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1688699718; x=1720235718;
+  t=1688699719; x=1720235719;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=8XgfxfaqWhLJcYyIzJWXBtpoSTnAYkAP2xf6I/nRgno=;
-  b=MqyDJCQY3JCAKUWGb191oECRbWqFuJcWJ4eqcuykKDbcUlMUYw8stHSU
-   Xt9qzBAlz32FpGQ0TAJl9BRGOK7iCAaESgm1E0USJsUO3h3U5fnqz13uI
-   0BU02BgpK1Pk2C8vg6oqKNriBx1KPDWhQRQFfgbzm7AF/uRUwvxyXrDHp
-   j4ZYbWZxNLgwO/EUOrRh9qYhS3oD9wHmCoBn1nE1YrlCrdpJWMsGM2OkO
-   79KA/4VUHmkjx9XpukmJT4CoS2sba54FAvtE1HpQGI2GbDJRLwV/R8asW
-   iUfldFKVTMG0P8esnVLLFm9pQdJQbYjRFWYkxR5Zdw0x0PeNGFQ+GK6FO
+  bh=lFsH9BdFpieg0WbjMmI5MEqKdlakyTU+ZuF0VOrOLsY=;
+  b=iNgbrTDvoh5mcPb5aBy6AsvlFaPypi+9zfwnrQJVEvAV0Jj93Iro8mmu
+   o0oCZ+Ldf7dOU8+JdNX2Y4str20/GyBVYmQUTqwMb46b5cpHm3lIMXSsf
+   T6T2NC7phKFh0KLdNwe1RUV0JLyGiuflwUKGhysIGvx+cWL5z4XEkvluk
+   lZG3ftH6d7/mzuVea5v20rFdSCvnIfz5u6cSlTlaB4sEbGw5sXWO+xmUb
+   XWOTdFbNUYwAHedWCC8tCC3MARo1/t12OgcvoI8QMbK4nmvaFPmfS8ceX
+   w4AxWmMFuGkVpNpNZVKrGUJXKb4dpK6xTRQkOFQr2KmY5cIpjll062p1l
    Q==;
 X-IronPort-AV: E=Sophos;i="6.01,187,1684771200"; 
-   d="scan'208";a="342468816"
+   d="scan'208";a="342468817"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 07 Jul 2023 11:15:17 +0800
-IronPort-SDR: o+uHC2dP2UU2Aue51roxc2LYrC/lbwayadVmob91bzChgipXhsdstlFjRG1l0e/caVCkw3XMTh
- 6wYn6I3yIsyrvGGG9Mp7gC30cdih01v2kXYcfiy5Uk1YBQ9HOe3GGNiMj1V5Tc+lk4iDda/gXI
- sX+u8Y+b074Cu+cys0aRqoDQWotSTf++bC8GX2wyhR8nYeM7KAi/W+bNtrQTXLaAioO4Flqcek
- C0mnIhkkyY85GlM4B0nRN5ezRAZ2lVtoZf/r5tkxXFm2cjMeCTrLKo6Nm6lGK+cAMxbhhTYf3p
- 634=
+  by ob1.hgst.iphmx.com with ESMTP; 07 Jul 2023 11:15:19 +0800
+IronPort-SDR: 7uSjncc1yaJpnAJPISvL3KB5jAvp69rqgkoBbpFsBZYiiShC/ESEwQGy53QF+5ZQamsfaBNc/1
+ 3UEKisiNfPP1hr2Ea5Azegdl026jbOfe8kLd1qdy3YvIedhZasIUMZ8wpShTlbrwaNNQ4wTr0n
+ kzddY3kV7s3sD4lqOE84Lur7S0eIKURAaxLH2AVlgaleZykrCEDkoXfKxDxK8Pm+0DmA+1Sup9
+ wNWkNJbwiEozgC0xGL8Wb9yOsR9OFzdslpUwwwfaXLSq1AvX4akID6nldkTlqMrpbdNYsF5r4u
+ QS0=
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Jul 2023 19:29:25 -0700
-IronPort-SDR: Q+bUx1umuONnhv/IMiCXh1NkVpmRomY9T3udh0MEosMYA3qE1e8zST4+v1nos7kCAMpjivTBKD
- cQQKKFbvAurtdG3jRqwlT5P/kYiagre9WEm813ThNamuzCTroFvj0n/JrQaDmyYeNkq/0CFQCI
- SCNMW9NvYKVQCTzTu5Kmyv1bs/+VZgXfoEFoit0l95RozNJFk4YBhnuB3uHKh9zbHE67ZIQfYs
- 9BMc8AuW4phYnsAlJZ6QLCP/zuMqTZEI119vGezSylWwz+/+bwF39Ot9t6zcPk/RC94lFUSF6j
- CUQ=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Jul 2023 19:29:26 -0700
+IronPort-SDR: YjW35uDCD6JotntfqOZf+4ytACeSOk1gBbrA/9wg5YzUj/VrhRQV72T2DCRXf8Y4UjWwjEVmTg
+ qrVoKYTm0IHO6q4KqX5yr6EGfM5yQoSwjnUk4xMne7sWoXf6tBAHe+RKt7lGDwx7qkionjhkNk
+ kRmDYEHNhTYbKEORYVmRz4mswG6OV4mqOmK2AUJitPjzNGS0puQwBsdj6cd5GzgXxcPOIM24tC
+ PX+gyWS8J1nPwK7jYr2ySEeoUJA5dfOUbl5YLIdkuc4bXs211ncKJtVjgjLP99Gbpn5GsqluF6
+ aPo=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.53.55])
-  by uls-op-cesaip01.wdc.com with ESMTP; 06 Jul 2023 20:15:17 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 06 Jul 2023 20:15:18 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <dlemoal@kernel.org>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 09/13] t/zbd: get max_open_zones from sysfs
-Date:   Fri,  7 Jul 2023 12:15:01 +0900
-Message-Id: <20230707031505.3468915-10-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 10/13] t/zbd: fix fio failure check and SG node failure in test case 31
+Date:   Fri,  7 Jul 2023 12:15:02 +0900
+Message-Id: <20230707031505.3468915-11-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230707031505.3468915-1-shinichiro.kawasaki@wdc.com>
 References: <20230707031505.3468915-1-shinichiro.kawasaki@wdc.com>
@@ -65,37 +65,36 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The helper bash function gets max_open_zones limit of the test target
-device using sg_inq and libzbc tools. This works for SAS/SATA devices
-but does not work for ZNS or null_blk devices. This results is running
-the test case 31 with wrong max_open_zones value. Fix this by referring
-max_open_zones sysfs attribute.
+The test case 31 runs fio twice but the failure of the first fio run was
+not checked. This allowed the test case pass even with wrong
+max_open_zones value. To fix this, check exit code of the fio run.
+
+Also, the first fio run fails when the test target devices are SG nodes,
+since libzbc I/O engine is not used. To fix this, call the ioengine()
+helper function which adjusts I/O engine for each device.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/functions | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ t/zbd/test-zbd-support | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/t/zbd/functions b/t/zbd/functions
-index 529e7944..4faa45a9 100644
---- a/t/zbd/functions
-+++ b/t/zbd/functions
-@@ -212,8 +212,14 @@ last_online_zone() {
- # max_open_zones in sysfs, or which lacks zoned block device support completely.
- max_open_zones() {
-     local dev=$1
-+    local realdev syspath
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 1d1d389b..71cb18bb 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -794,9 +794,10 @@ test31() {
+     opts=("--name=$dev" "--filename=$dev" "--rw=write" "--bs=${bs}")
+     opts+=("--offset=$off" "--size=$((inc * nz))" "--io_size=$((bs * nz))")
+     opts+=("--zonemode=strided" "--zonesize=${bs}" "--zonerange=${inc}")
+-    opts+=("--direct=1")
++    opts+=("--direct=1" "$(ioengine "psync")")
+     echo "fio ${opts[@]}" >> "${logfile}.${test_number}"
+-    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" 2>&1
++    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" \
++				2>&1 || return $?
  
--    if [ -n "${sg_inq}" ] && [ ! -n "${use_libzbc}" ]; then
-+    realdev=$(readlink -f "$dev")
-+    syspath=/sys/block/${realdev##*/}/queue/max_open_zones
-+
-+    if [ -b "${realdev}" ] && [ -r "${syspath}" ]; then
-+	cat ${syspath}
-+    elif [ -n "${sg_inq}" ] && [ ! -n "${use_libzbc}" ]; then
- 	if ! ${sg_inq} -e --page=0xB6 --len=20 --hex "$dev" \
- 		 > /dev/null 2>&1; then
- 	    # When sg_inq can not get max open zones, specify 0 which indicates
+     # Next, run the test.
+     opts=("--name=$dev" "--filename=$dev" "--offset=$off" "--size=$size")
 -- 
 2.40.1
 
