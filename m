@@ -2,308 +2,360 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E209EB64DC
-	for <fio@archiver.kernel.org>; Tue, 11 Jul 2023 07:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC30BEB64DC
+	for <fio@archiver.kernel.org>; Tue, 11 Jul 2023 07:45:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231528AbjGKHpi (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 11 Jul 2023 03:45:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55736 "EHLO
+        id S231486AbjGKHpp (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 11 Jul 2023 03:45:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231503AbjGKHp3 (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 11 Jul 2023 03:45:29 -0400
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F021724
-        for <fio@vger.kernel.org>; Tue, 11 Jul 2023 00:45:19 -0700 (PDT)
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20230711074517epoutp01271754121d73e6975683aef12f9f84ee~wwIBhBJv22178521785epoutp01d
-        for <fio@vger.kernel.org>; Tue, 11 Jul 2023 07:45:17 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20230711074517epoutp01271754121d73e6975683aef12f9f84ee~wwIBhBJv22178521785epoutp01d
+        with ESMTP id S231569AbjGKHpf (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 11 Jul 2023 03:45:35 -0400
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5452C1989
+        for <fio@vger.kernel.org>; Tue, 11 Jul 2023 00:45:27 -0700 (PDT)
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+        by mailout4.samsung.com (KnoxPortal) with ESMTP id 20230711074525epoutp04b94847399dbf48abe1841f338375fefe~wwIIUwuuS1481314813epoutp043
+        for <fio@vger.kernel.org>; Tue, 11 Jul 2023 07:45:25 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20230711074525epoutp04b94847399dbf48abe1841f338375fefe~wwIIUwuuS1481314813epoutp043
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1689061517;
-        bh=o51OPJFxDCYKKtm4vBiht5YKFHZxNHj7+lA5+O5xWr0=;
+        s=mail20170921; t=1689061525;
+        bh=xhhICK5mie6QAN3skcrFiuvzbC1deZbMW77Hf+twctg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTFGPWTcRImHExNQdj2QfDng66yhOA6bjAGUh9ujqXCKum1pmWQuyWWjvaRfexVad
-         2o62uk4okbVmEGUh9pf/j2MRBlYjxR9gvvCpdnz+/FZpfx6Cs6aK6mLPZw6FNrudlS
-         qjd+MEnf0+tYppHrqkz3bITAjoRhRhq94EW/CIz0=
-Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+        b=hFsmueG8kcGYAW1YAqcjxlbY+CXOYEz/flfDDAjnmygXLOX4j8JwzuSIsNeOzuyGL
+         QKBQgWRxQ8drBZ0ecjDH8PB3wCXdmUEZ71VH4ZhIR3EPpINAIaPOoEQylSxhp+4QHh
+         3z/U+boJXmQ36qOrdTtu1OZceumMSF3vya/DUNCM=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
         epcas5p2.samsung.com (KnoxPortal) with ESMTP id
-        20230711074517epcas5p26079ce7b3dd93e91a75970f30d0af723~wwIA2ppOu2219522195epcas5p2N;
-        Tue, 11 Jul 2023 07:45:17 +0000 (GMT)
-Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.174]) by
-        epsnrtp2.localdomain (Postfix) with ESMTP id 4R0XwD0qGzz4x9Q0; Tue, 11 Jul
-        2023 07:45:16 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
+        20230711074524epcas5p25600e4bac8e503c1576d81f7923524f7~wwIIEnWDy1340513405epcas5p2w;
+        Tue, 11 Jul 2023 07:45:24 +0000 (GMT)
+Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.176]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4R0XwM33CGz4x9Pp; Tue, 11 Jul
+        2023 07:45:23 +0000 (GMT)
+Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
         epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        00.90.57354.B880DA46; Tue, 11 Jul 2023 16:45:15 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20230711073513epcas5p21fedfdc9eb92267970c74ea3df92fe15~wv-OahTZk0873308733epcas5p2H;
-        Tue, 11 Jul 2023 07:35:13 +0000 (GMT)
-Received: from epsmgmcp1.samsung.com (unknown [182.195.42.82]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20230711073513epsmtrp1ec02ce37ad8b5a6bf7cdec717808e3ab~wv-OZ3AqZ0951509515epsmtrp1T;
-        Tue, 11 Jul 2023 07:35:13 +0000 (GMT)
-X-AuditID: b6c32a44-007ff7000001e00a-8c-64ad088b1676
+        45.90.57354.F880DA46; Tue, 11 Jul 2023 16:45:19 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+        20230711073514epcas5p31993ba169c4bde8169dc31a5528289a3~wv-Pns7mz1707517075epcas5p3X;
+        Tue, 11 Jul 2023 07:35:14 +0000 (GMT)
+Received: from epsmgmc1p1new.samsung.com (unknown [182.195.42.40]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20230711073514epsmtrp2be59672aa167c8da7390467270ac251b~wv-PhBFxz2722327223epsmtrp2B;
+        Tue, 11 Jul 2023 07:35:14 +0000 (GMT)
+X-AuditID: b6c32a44-269fb7000001e00a-a1-64ad088f3147
 Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgmcp1.samsung.com (Symantec Messaging Gateway) with SMTP id
-        35.7A.64355.1360DA46; Tue, 11 Jul 2023 16:35:13 +0900 (KST)
+        epsmgmc1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        00.B5.14748.2360DA46; Tue, 11 Jul 2023 16:35:14 +0900 (KST)
 Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
         [107.99.41.39]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20230711073512epsmtip1b69d04a7c7004e5c34172e8c0843492e~wv-NfE32D0062900629epsmtip1Z;
-        Tue, 11 Jul 2023 07:35:12 +0000 (GMT)
+        20230711073513epsmtip1fd702e34c81ae6240706ca8f4d1ad5d7~wv-OjJIMU0243002430epsmtip1R;
+        Tue, 11 Jul 2023 07:35:13 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk, vincentfu@gmail.com
 Cc:     fio@vger.kernel.org, kbusch@kernel.org, simon.lund@samsung.com,
         Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 2/3] fdp: support random placement id selection
-Date:   Tue, 11 Jul 2023 18:24:33 +0530
-Message-Id: <20230711125434.14691-3-ankit.kumar@samsung.com>
+Subject: [PATCH 3/3] engines/xnvme: add support for fdp
+Date:   Tue, 11 Jul 2023 18:24:34 +0530
+Message-Id: <20230711125434.14691-4-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230711125434.14691-1-ankit.kumar@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgk+LIzCtJLcpLzFFi42LZdlhTU7eHY22KwUUdizVXfrNbrL7bz2bx
-        cdYLZotJh64xWtztnsFusaFN0IHNY+esu+wel8+Wemxa1cnm0bdlFaPH501yAaxR2TYZqYkp
-        qUUKqXnJ+SmZeem2St7B8c7xpmYGhrqGlhbmSgp5ibmptkouPgG6bpk5QOuVFMoSc0qBQgGJ
-        xcVK+nY2RfmlJakKGfnFJbZKqQUpOQUmBXrFibnFpXnpenmpJVaGBgZGpkCFCdkZPbsvsBVc
-        1K44trqZpYFxq1IXIyeHhICJRN+ULuYuRi4OIYHdjBLvj61ng3A+MUp8X7eDBc65vuEfK0zL
-        yecHWCESOxklPp/ZCtXSySSx/PUCJpAqNgFtiVdvbwAN5uAQEdCQWHM3FSTMLJAtsejUMmYQ
-        W1jAXmLz6ZWMIDaLgKrE1q57LCA2r4CNRF/vchaIZfISMy99ZwexOQVsJZZ1LmOCqBGUODnz
-        CQvETHmJ5q2zwX6QELjFLnHpcTdUs4vEkU1dUFcLS7w6voUdwpaSeNnfBmVnS2x6+JMJwi6Q
-        OPKilxnCtpdoPdUPdj+zgKbE+l36EGFZiamn1jFB7OWT6P39BKqVV2LHPBhbVeLvvdtQJ0hL
-        3Hx3Fcr2kNh1uI0RElYTGCVe77jKNoFRYRaSf2Yh+WcWwuoFjMyrGCVTC4pz01OTTQsM81LL
-        4bGcnJ+7iRGcJLVcdjDemP9P7xAjEwfjIUYJDmYlEd6Cg6tShHhTEiurUovy44tKc1KLDzGa
-        AgN8IrOUaHI+ME3nlcQbmlgamJiZmZlYGpsZKonzvm6dmyIkkJ5YkpqdmlqQWgTTx8TBKdXA
-        5Ov4XjJ+HdNl05WW9/3+rg9si5Za6avwmXNXzvl96pdDji9N0ZJ+UWRk+ahARtbOfeYiwf+7
-        l67kUZd+n//tHOdNDoVFfz0Zv7G/tPSTMXpsKXZNU6qFuXXTmt2n3l7M3/BN5KtDdCDb7CjO
-        v/Wsx/mPK7iJmltbLDrN2vm07X8WI8+S/b0cwtF/2nMLV5QoFHItsI2+4+Ztyr9r1U9esRVr
-        /Nznt01/Me/hmZYLNqn2P1huLzRJaee38i+M+Wi0fuPen6pe9ScdCqoc+y/Our/yXZXTS7X8
-        iq9ds++VPGe4aHb3UbztMqnAugaVf9PfZ3IFf+xW8k1ced1EI8K+eWuDk7IB19vkrpsSf/Yr
-        sRRnJBpqMRcVJwIAQbkEUhsEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrFLMWRmVeSWpSXmKPExsWy7bCSnK4h29oUgyvzeSzWXPnNbrH6bj+b
-        xcdZL5gtJh26xmhxt3sGu8WGNkEHNo+ds+6ye1w+W+qxaVUnm0ffllWMHp83yQWwRnHZpKTm
-        ZJalFunbJXBl9Oy+wFZwUbvi2OpmlgbGrUpdjJwcEgImEiefH2DtYuTiEBLYzijxc/tE5i5G
-        DqCEtMTC9YkQNcISK/89Z4eoaWeSePT0MyNIgk1AW+LV2xvMILaIgJbEsXVNbCC9zAL5Etfv
-        5YKEhQXsJTafXglWziKgKrG16x4LiM0rYCPR17ucBWK+vMTMS9/ZQWxOAVuJZZ3LmEBsIaCa
-        hWffM0LUC0qcnPkErJ4ZqL5562zmCYwCs5CkZiFJLWBkWsUomlpQnJuem1xgqFecmFtcmpeu
-        l5yfu4kRHLxaQTsYl63/q3eIkYmD8RCjBAezkghvwcFVKUK8KYmVValF+fFFpTmpxYcYpTlY
-        lMR5lXM6U4QE0hNLUrNTUwtSi2CyTBycUg1MHJV/j9060HgwnnWjjdDiN8yvRAzqrBNOvHiQ
-        sqOvZUaLH7/uUcd1XanGzfs++k/i2b5ml11RIkPWhw9FR0/bctbuMD7UPIPz4Qu/D89OJt/6
-        z7p33wbfpgu9YXsi2N/fu3TcTF3cY4NjWG3rHeVJzWo7L83+x3GsI7X38O8FW165ndZnXLrV
-        zIzvTdp2PqYO+St8W2xD3TwnFohqB/5yWrB2qmvuwgc/mrw1/9ydeDZlg/i6PSKM/oIRCk1y
-        dm6iLe9TE82Wz1kfbWHU0bk7qlryvJFheJxwybRNsdyhJgE7zE4VGLclJyyf3Wjtovt/yaU5
-        Wmtqfrv4anK4x3a7sjbM2c1mz1od4n+s/JwSS3FGoqEWc1FxIgAcDnJ2zQIAAA==
-X-CMS-MailID: 20230711073513epcas5p21fedfdc9eb92267970c74ea3df92fe15
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupgk+LIzCtJLcpLzFFi42LZdlhTS7efY22Kwd+HYhZrrvxmt1h9t5/N
+        4uOsF8wWkw5dY7S42z2D3WJDm6ADm8fOWXfZPS6fLfXYtKqTzaNvyypGj8+b5AJYo7JtMlIT
+        U1KLFFLzkvNTMvPSbZW8g+Od403NDAx1DS0tzJUU8hJzU22VXHwCdN0yc4D2KymUJeaUAoUC
+        EouLlfTtbIryS0tSFTLyi0tslVILUnIKTAr0ihNzi0vz0vXyUkusDA0MjEyBChOyMy4tW81a
+        sN2+4s6PJ0wNjL+Nuxg5OSQETCRenJjN2MXIxSEksJtRYvmGXywQzidGiWlHfzBBON8YJU4+
+        2MIG0zJxzjWolr2MEgsX3YZq6WSSeHTsOQtIFZuAtsSrtzeYuxg5OEQENCTW3E0FCTMLZEss
+        OrUMLCwsYC5xZ647SJhFQFViw95jjCA2r4CNRPvysywQu+QlZl76zg5icwrYSizrXMYEUSMo
+        cXLmExaIkfISzVtnM4OcICFwj11i8bdbUIe6SMzcdg9qkLDEq+Nb2CFsKYnP7/ZC1WRLbHr4
+        kwnCLpA48qKXGcK2l2g91Q92J7OApsT6XfoQYVmJqafWMUHs5ZPo/f0EqpVXYsc8GFtV4u+9
+        21BrpSVuvrsKZXtI7Nr1HBqgExglZh6byziBUWEWkn9mIflnFsLqBYzMqxglUwuKc9NTk00L
+        DPNSy+GRnJyfu4kRnCS1XHYw3pj/T+8QIxMH4yFGCQ5mJRHegoOrUoR4UxIrq1KL8uOLSnNS
+        iw8xmgIDfCKzlGhyPjBN55XEG5pYGpiYmZmZWBqbGSqJ875unZsiJJCeWJKanZpakFoE08fE
+        wSnVwKSW9Det5uGHwLffmh3vJu1rWXbq4vbvPbyG0wRLPJz1X6/L1jCzU+Q+YbBSzfy+i2CR
+        7qsrIZueM199oHZj3vLO0zoSpdpJvj7vVBMbt8nyHLL9LFCrmSjx2vDm9LkPPk9+cODoeeO1
+        qiZmUT8fPEueKv1PWX3Pipd8PyvEkhLu/prXnXRtqY9iSueHQt+KszZOTd7fvFzSNB8oT7vC
+        JPuzKvHtg9pf7kGSTomv+QN3Nj4TTN60xUM/ykCBbcnKy7e5a2dO8DRpPjAlb+efJZfCWVsz
+        U9WfM5jeL55sl2BqeGmlukSlY9/M5OOzcsRbkvqWnX/Jvl2rq/zPkePXlm7UuPz52b5GzZsG
+        77OK+5RYijMSDbWYi4oTAZLMrMQbBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrLLMWRmVeSWpSXmKPExsWy7bCSnK4R29oUg3/9ohZrrvxmt1h9t5/N
+        4uOsF8wWkw5dY7S42z2D3WJDm6ADm8fOWXfZPS6fLfXYtKqTzaNvyypGj8+b5AJYo7hsUlJz
+        MstSi/TtErgyLi1bzVqw3b7izo8nTA2Mv427GDk5JARMJCbOucbYxcjFISSwm1GiZ8l89i5G
+        DqCEtMTC9YkQNcISK/89Z4eoaWeSmDdtBiNIgk1AW+LV2xvMILaIgJbEsXVNbCC9zAL5Etfv
+        5YKYwgLmEnfmuoNUsAioSmzYewysk1fARqJ9+VkWiPHyEjMvfWcHsTkFbCWWdS5jArGFgGoW
+        nn0PVS8ocXLmE7B6ZqD65q2zmScwCsxCkpqFJLWAkWkVo2RqQXFuem6yYYFhXmq5XnFibnFp
+        Xrpecn7uJkZwCGtp7GC8N/+f3iFGJg7GQ4wSHMxKIrwFB1elCPGmJFZWpRblxxeV5qQWH2KU
+        5mBREuc1nDE7RUggPbEkNTs1tSC1CCbLxMEp1cC0ljfWakKQzxx5Ex4ZH5fu2RPO3Nz/xKF+
+        /UErlWi1XZsdhF9w2ifvXrv72sFapRef2UoTVbbsbjjtaZw/Z+KbNUVLyjon+7z6V/vxq2vL
+        1FbGRw/UbpxrsrMMWMP0XtJ5nYnsXdk/tet/3PHkS5SsMvprKbX+/cWpukY2h/hZ7s6w6te8
+        G5m64kKhiRrLgjWG187bzYthNdl5xfAgT3SNfPCtp947Dc5efP97YeJpRpFMf4fkDI4qs1N2
+        Pea1s/u+ii9a9kLy6UL7bSnz2Su4/TSC5bdWS/yzDXfhLlqbv/rdS8ndyTnri9dsvrWF3bG4
+        MkMrMXJ+eG8zq0tEzsfaJXr3qg/Pu/4uesvsLe5KLMUZiYZazEXFiQABXMKW0AIAAA==
+X-CMS-MailID: 20230711073514epcas5p31993ba169c4bde8169dc31a5528289a3
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20230711073513epcas5p21fedfdc9eb92267970c74ea3df92fe15
+X-CMS-RootMailID: 20230711073514epcas5p31993ba169c4bde8169dc31a5528289a3
 References: <20230711125434.14691-1-ankit.kumar@samsung.com>
-        <CGME20230711073513epcas5p21fedfdc9eb92267970c74ea3df92fe15@epcas5p2.samsung.com>
+        <CGME20230711073514epcas5p31993ba169c4bde8169dc31a5528289a3@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Allow user to either roundrobin or select random placement ID from
-the available placement IDs.
+Added FDP support to xnvme I/O engine. This support can be used only with
+nvme-ns generic character device (/dev/ngXnY). The available backends are
+--xnvme_async=io_uring_cmd and --xnvme_sync=nvme.
+Added a xnvme-fdp config example file.
+
+Updated the minimum required xnvme version to 0.7.0
 
 Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
- HOWTO.rst        | 15 +++++++++++++++
- fdp.c            | 12 +++++++++---
- fdp.h            | 10 ++++++++++
- fio.1            | 16 ++++++++++++++++
- fio.h            |  2 ++
- init.c           |  2 ++
- options.c        | 20 ++++++++++++++++++++
- thread_options.h |  2 ++
- 8 files changed, 76 insertions(+), 3 deletions(-)
+ HOWTO.rst              |  6 ++--
+ configure              |  2 +-
+ engines/xnvme.c        | 78 +++++++++++++++++++++++++++++++++++++++++-
+ examples/xnvme-fdp.fio | 36 +++++++++++++++++++
+ fio.1                  |  6 ++--
+ 5 files changed, 120 insertions(+), 8 deletions(-)
+ create mode 100644 examples/xnvme-fdp.fio
 
 diff --git a/HOWTO.rst b/HOWTO.rst
-index 2e1e55c2..24789f41 100644
+index 24789f41..b047877e 100644
 --- a/HOWTO.rst
 +++ b/HOWTO.rst
-@@ -2435,6 +2435,21 @@ with the caveat that when used on the command line, they must come after the
+@@ -2431,11 +2431,11 @@ with the caveat that when used on the command line, they must come after the
+ 	For direct I/O, requests will only succeed if cache invalidation isn't required,
+ 	file blocks are fully allocated and the disk request could be issued immediately.
+ 
+-.. option:: fdp=bool : [io_uring_cmd]
++.. option:: fdp=bool : [io_uring_cmd] [xnvme]
  
  	Enable Flexible Data Placement mode for write commands.
  
-+.. option:: fdp_pli_select=str : [io_uring_cmd]
-+
-+	Defines how fio decides which placement ID to use next. The following
-+	types are defined:
-+
-+		**random**
-+			Choose a placement ID at random (uniform).
-+
-+		**roundrobin**
-+			Round robin over available placement IDs. This is the
-+			default.
-+
-+	The available placement ID index/indices is defined by the option
-+	:option:`fdp_pli`.
-+
- .. option:: fdp_pli=str : [io_uring_cmd]
+-.. option:: fdp_pli_select=str : [io_uring_cmd]
++.. option:: fdp_pli_select=str : [io_uring_cmd] [xnvme]
+ 
+ 	Defines how fio decides which placement ID to use next. The following
+ 	types are defined:
+@@ -2450,7 +2450,7 @@ with the caveat that when used on the command line, they must come after the
+ 	The available placement ID index/indices is defined by the option
+ 	:option:`fdp_pli`.
+ 
+-.. option:: fdp_pli=str : [io_uring_cmd]
++.. option:: fdp_pli=str : [io_uring_cmd] [xnvme]
  
  	Select which Placement ID Index/Indicies this job is allowed to use for
-diff --git a/fdp.c b/fdp.c
-index 72afca01..7ac0ab55 100644
---- a/fdp.c
-+++ b/fdp.c
-@@ -119,10 +119,16 @@ void fdp_fill_dspec_data(struct thread_data *td, struct io_u *io_u)
- 		return;
- 	}
+ 	writes. By default, the job will cycle through all available Placement
+diff --git a/configure b/configure
+index 74416fd4..6c938251 100755
+--- a/configure
++++ b/configure
+@@ -2651,7 +2651,7 @@ fi
+ ##########################################
+ # Check if we have xnvme
+ if test "$xnvme" != "no" ; then
+-  if check_min_lib_version xnvme 0.2.0; then
++  if check_min_lib_version xnvme 0.7.0; then
+     xnvme="yes"
+     xnvme_cflags=$(pkg-config --cflags xnvme)
+     xnvme_libs=$(pkg-config --libs xnvme)
+diff --git a/engines/xnvme.c b/engines/xnvme.c
+index bb92a121..ce7b2bdd 100644
+--- a/engines/xnvme.c
++++ b/engines/xnvme.c
+@@ -16,6 +16,7 @@
+ #include <libxnvme_spec_fs.h>
+ #include "fio.h"
+ #include "zbd_types.h"
++#include "fdp.h"
+ #include "optgroup.h"
  
--	if (ruhs->pli_loc >= ruhs->nr_ruhs)
--		ruhs->pli_loc = 0;
-+	if (td->o.fdp_pli_select == FIO_FDP_RR) {
-+		if (ruhs->pli_loc >= ruhs->nr_ruhs)
-+			ruhs->pli_loc = 0;
-+
-+		dspec = ruhs->plis[ruhs->pli_loc++];
-+	} else {
-+		ruhs->pli_loc = rand_between(&td->fdp_state, 0, ruhs->nr_ruhs - 1);
-+		dspec = ruhs->plis[ruhs->pli_loc];
+ static pthread_mutex_t g_serialize = PTHREAD_MUTEX_INITIALIZER;
+@@ -509,6 +510,7 @@ static enum fio_q_status xnvme_fioe_queue(struct thread_data *td, struct io_u *i
+ 	uint16_t nlb;
+ 	int err;
+ 	bool vectored_io = ((struct xnvme_fioe_options *)td->eo)->xnvme_iovec;
++	uint32_t dir = io_u->dtype;
+ 
+ 	fio_ro_check(td, io_u);
+ 
+@@ -524,6 +526,10 @@ static enum fio_q_status xnvme_fioe_queue(struct thread_data *td, struct io_u *i
+ 	ctx->cmd.common.nsid = nsid;
+ 	ctx->cmd.nvm.slba = slba;
+ 	ctx->cmd.nvm.nlb = nlb;
++	if (dir) {
++		ctx->cmd.nvm.dtype = io_u->dtype;
++		ctx->cmd.nvm.cdw13.dspec = io_u->dspec;
 +	}
  
--	dspec = ruhs->plis[ruhs->pli_loc++];
- 	io_u->dtype = 2;
- 	io_u->dspec = dspec;
+ 	switch (io_u->ddir) {
+ 	case DDIR_READ:
+@@ -947,6 +953,72 @@ exit:
+ 	return err;
  }
-diff --git a/fdp.h b/fdp.h
-index 4a5e0e54..86d8d9e6 100644
---- a/fdp.h
-+++ b/fdp.h
-@@ -5,6 +5,16 @@
  
- #define FDP_MAX_RUHS	128
++static int xnvme_fioe_fetch_ruhs(struct thread_data *td, struct fio_file *f,
++				 struct fio_ruhs_info *fruhs_info)
++{
++	struct xnvme_opts opts = xnvme_opts_from_fioe(td);
++	struct xnvme_dev *dev;
++	struct xnvme_spec_ruhs *ruhs;
++	struct xnvme_cmd_ctx ctx;
++	uint32_t ruhs_nbytes;
++	uint32_t nsid;
++	int err = 0, err_lock;
++
++	if (f->filetype != FIO_TYPE_CHAR) {
++		log_err("ioeng->fdp_ruhs(): ignoring filetype: %d\n", f->filetype);
++		return -EINVAL;
++	}
++
++	err = pthread_mutex_lock(&g_serialize);
++	if (err) {
++		log_err("ioeng->fdp_ruhs(): pthread_mutex_lock(), err(%d)\n", err);
++		return -err;
++	}
++
++	dev = xnvme_dev_open(f->file_name, &opts);
++	if (!dev) {
++		log_err("ioeng->fdp_ruhs(): xnvme_dev_open(%s) failed, errno: %d\n",
++			f->file_name, errno);
++		err = -errno;
++		goto exit;
++	}
++
++	ruhs_nbytes = sizeof(*ruhs) + (FDP_MAX_RUHS * sizeof(struct xnvme_spec_ruhs_desc));
++	ruhs = xnvme_buf_alloc(dev, ruhs_nbytes);
++	if (!ruhs) {
++		err = -errno;
++		goto exit;
++	}
++	memset(ruhs, 0, ruhs_nbytes);
++
++	ctx = xnvme_cmd_ctx_from_dev(dev);
++	nsid = xnvme_dev_get_nsid(dev);
++
++	err = xnvme_nvm_mgmt_recv(&ctx, nsid, XNVME_SPEC_IO_MGMT_RECV_RUHS, 0, ruhs, ruhs_nbytes);
++
++	if (err || xnvme_cmd_ctx_cpl_status(&ctx)) {
++		err = err ? err : -EIO;
++		log_err("ioeng->fdp_ruhs(): err(%d), sc(%d)", err, ctx.cpl.status.sc);
++		goto free_buffer;
++	}
++
++	fruhs_info->nr_ruhs = ruhs->nruhsd;
++	for (uint32_t idx = 0; idx < fruhs_info->nr_ruhs; ++idx) {
++		fruhs_info->plis[idx] = le16_to_cpu(ruhs->desc[idx].pi);
++	}
++
++free_buffer:
++	xnvme_buf_free(dev, ruhs);
++exit:
++	xnvme_dev_close(dev);
++
++	err_lock = pthread_mutex_unlock(&g_serialize);
++	if (err_lock)
++		log_err("ioeng->fdp_ruhs(): pthread_mutex_unlock(), err(%d)\n", err_lock);
++
++	return err;
++}
++
+ static int xnvme_fioe_get_file_size(struct thread_data *td, struct fio_file *f)
+ {
+ 	struct xnvme_opts opts = xnvme_opts_from_fioe(td);
+@@ -971,7 +1043,9 @@ static int xnvme_fioe_get_file_size(struct thread_data *td, struct fio_file *f)
  
-+/*
-+ * How fio chooses what placement identifier to use next. Choice of
-+ * uniformly random, or roundrobin.
-+ */
+ 	f->real_file_size = xnvme_dev_get_geo(dev)->tbytes;
+ 	fio_file_set_size_known(f);
+-	f->filetype = FIO_TYPE_BLOCK;
 +
-+enum {
-+	FIO_FDP_RANDOM	= 0x1,
-+	FIO_FDP_RR	= 0x2,
-+};
++	if (td->o.zone_mode == ZONE_MODE_ZBD)
++		f->filetype = FIO_TYPE_BLOCK;
+ 
+ exit:
+ 	xnvme_dev_close(dev);
+@@ -1011,6 +1085,8 @@ FIO_STATIC struct ioengine_ops ioengine = {
+ 	.get_zoned_model = xnvme_fioe_get_zoned_model,
+ 	.report_zones = xnvme_fioe_report_zones,
+ 	.reset_wp = xnvme_fioe_reset_wp,
 +
- struct fio_ruhs_info {
- 	uint32_t nr_ruhs;
- 	uint32_t pli_loc;
-diff --git a/fio.1 b/fio.1
-index 73b7e8c9..0257513b 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2195,6 +2195,22 @@ file blocks are fully allocated and the disk request could be issued immediately
- .BI (io_uring_cmd)fdp \fR=\fPbool
- Enable Flexible Data Placement mode for write commands.
- .TP
-+.BI (io_uring_cmd)fdp_pli_select \fR=\fPstr
-+Defines how fio decides which placement ID to use next. The following types
-+are defined:
-+.RS
-+.RS
-+.TP
-+.B random
-+Choose a placement ID at random (uniform).
-+.TP
-+.B roundrobin
-+Round robin over available placement IDs. This is the default.
-+.RE
-+.P
-+The available placement ID index/indices is defined by \fBfdp_pli\fR option.
-+.RE
-+.TP
- .BI (io_uring_cmd)fdp_pli \fR=\fPstr
- Select which Placement ID Index/Indicies this job is allowed to use for writes.
- By default, the job will cycle through all available Placement IDs, so use this
-diff --git a/fio.h b/fio.h
-index c5453d13..a54f57c9 100644
---- a/fio.h
-+++ b/fio.h
-@@ -144,6 +144,7 @@ enum {
- 	FIO_RAND_POISSON3_OFF,
- 	FIO_RAND_PRIO_CMDS,
- 	FIO_RAND_DEDUPE_WORKING_SET_IX,
-+	FIO_RAND_FDP_OFF,
- 	FIO_RAND_NR_OFFS,
++	.fdp_fetch_ruhs = xnvme_fioe_fetch_ruhs,
  };
  
-@@ -262,6 +263,7 @@ struct thread_data {
- 	struct frand_state verify_state_last_do_io;
- 	struct frand_state trim_state;
- 	struct frand_state delay_state;
-+	struct frand_state fdp_state;
- 
- 	struct frand_state buf_state;
- 	struct frand_state buf_state_prev;
-diff --git a/init.c b/init.c
-index 10e63cca..105339fa 100644
---- a/init.c
-+++ b/init.c
-@@ -1082,6 +1082,8 @@ void td_fill_rand_seeds(struct thread_data *td)
- 
- 	init_rand_seed(&td->buf_state, td->rand_seeds[FIO_RAND_BUF_OFF], use64);
- 	frand_copy(&td->buf_state_prev, &td->buf_state);
+ static void fio_init fio_xnvme_register(void)
+diff --git a/examples/xnvme-fdp.fio b/examples/xnvme-fdp.fio
+new file mode 100644
+index 00000000..86fbe0d3
+--- /dev/null
++++ b/examples/xnvme-fdp.fio
+@@ -0,0 +1,36 @@
++; README
++;
++; This job-file is intended to be used either as:
++;
++; # Use the xNVMe io-engine engine io_uring_cmd async. impl.
++; fio examples/xnvme-fdp.fio \
++;   --section=default \
++;   --ioengine=xnvme \
++;   --xnvme_async=io_uring_cmd \
++;   --filename=/dev/ng0n1
++;
++; # Use the xNVMe io-engine engine with nvme sync. impl.
++; fio examples/xnvme-fdp.fio \
++;   --section=default \
++;   --ioengine=xnvme \
++;   --xnvme_sync=nvme \
++;   --filename=/dev/ng0n1
++;
++; FIO_BS="512" FIO_RW="read" FIO_IODEPTH=16 fio examples/xnvme-fdp.fio \
++;   --section=override --ioengine=xnvme --xnvme_sync=nvme --filename=/dev/ng0n1
++;
++[global]
++rw=randwrite
++size=2M
++iodepth=1
++bs=4K
++thread=1
++fdp=1
++fdp_pli=4,5
 +
-+	init_rand_seed(&td->fdp_state, td->rand_seeds[FIO_RAND_FDP_OFF], use64);
- }
- 
- static int setup_random_seeds(struct thread_data *td)
-diff --git a/options.c b/options.c
-index a7c4ef6e..0f739317 100644
---- a/options.c
-+++ b/options.c
-@@ -3679,6 +3679,26 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group  = FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	= "fdp_pli_select",
-+		.lname	= "FDP Placement ID select",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct thread_options, fdp_pli_select),
-+		.help	= "Select which FDP placement ID to use next",
-+		.def	= "roundrobin",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_INVALID,
-+		.posval	= {
-+			  { .ival = "random",
-+			    .oval = FIO_FDP_RANDOM,
-+			    .help = "Choose a Placement ID at random (uniform)",
-+			  },
-+			  { .ival = "roundrobin",
-+			    .oval = FIO_FDP_RR,
-+			    .help = "Round robin select Placement IDs",
-+			  },
-+		},
-+	},
- 	{
- 		.name	= "fdp_pli",
- 		.lname	= "FDP Placement ID indicies",
-diff --git a/thread_options.h b/thread_options.h
-index a24ebee6..1715b36c 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -388,6 +388,7 @@ struct thread_options {
- 
- #define FIO_MAX_PLIS 16
- 	unsigned int fdp;
-+	unsigned int fdp_pli_select;
- 	unsigned int fdp_plis[FIO_MAX_PLIS];
- 	unsigned int fdp_nrpli;
- 
-@@ -703,6 +704,7 @@ struct thread_options_pack {
- 	uint32_t log_prio;
- 
- 	uint32_t fdp;
-+	uint32_t fdp_pli_select;
- 	uint32_t fdp_plis[FIO_MAX_PLIS];
- 	uint32_t fdp_nrpli;
- 
++[default]
++
++[override]
++rw=${FIO_RW}
++iodepth=${FIO_IODEPTH}
++bs=${FIO_BS}
+diff --git a/fio.1 b/fio.1
+index 0257513b..86cb2af6 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2192,10 +2192,10 @@ cached data. Currently the RWF_NOWAIT flag does not supported for cached write.
+ For direct I/O, requests will only succeed if cache invalidation isn't required,
+ file blocks are fully allocated and the disk request could be issued immediately.
+ .TP
+-.BI (io_uring_cmd)fdp \fR=\fPbool
++.BI (io_uring_cmd,xnvme)fdp \fR=\fPbool
+ Enable Flexible Data Placement mode for write commands.
+ .TP
+-.BI (io_uring_cmd)fdp_pli_select \fR=\fPstr
++.BI (io_uring_cmd,xnvme)fdp_pli_select \fR=\fPstr
+ Defines how fio decides which placement ID to use next. The following types
+ are defined:
+ .RS
+@@ -2211,7 +2211,7 @@ Round robin over available placement IDs. This is the default.
+ The available placement ID index/indices is defined by \fBfdp_pli\fR option.
+ .RE
+ .TP
+-.BI (io_uring_cmd)fdp_pli \fR=\fPstr
++.BI (io_uring_cmd,xnvme)fdp_pli \fR=\fPstr
+ Select which Placement ID Index/Indicies this job is allowed to use for writes.
+ By default, the job will cycle through all available Placement IDs, so use this
+ to isolate these identifiers to specific jobs. If you want fio to use placement
 -- 
 2.25.1
 
