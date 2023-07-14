@@ -2,666 +2,162 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCCF8EB64DA
-	for <fio@archiver.kernel.org>; Fri, 14 Jul 2023 12:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D66FEB64DC
+	for <fio@archiver.kernel.org>; Fri, 14 Jul 2023 17:06:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234066AbjGNMAL (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 14 Jul 2023 08:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54222 "EHLO
+        id S235640AbjGNRGG (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 14 Jul 2023 13:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230101AbjGNMAL (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 14 Jul 2023 08:00:11 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12AF9211C
-        for <fio@vger.kernel.org>; Fri, 14 Jul 2023 05:00:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=YRfgMOOmAGdMxXWekB19KAyfXcXjf2tFdXcR2UbIcr0=; b=q8vIgfBxkRmlYOK+USbAAyzosy
-        gBvTPXm+bVy3P8zQQx8CyRRWrNsL8f8lKCO9IV4ZYsSmgxOjh1nO3HdYliFPLXa+A3uTlx5lFsObt
-        Sv9ymm8txYjZjDWoUywfm5MU6DxZwisF6ZHdO788cdzyxcNT0yTQcadycqXuWOELT9iIDa0wkPFJb
-        hIE9WUIsBU/vrFhi9DZWwJ74MkddhaBkjd7Ec6LVYznE5ncyh9drKEx56qadhslQiKR8CtS81Ungj
-        WO/vVHOZNlvEIA7FxE6cuYnVyNLFC2ZcHkk/BXxfnDrCvimC3kvIvK6jJKhbeeUD5lZfwUNIy8yJB
-        5sc67Yyg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1qKHSv-006HSS-2G
-        for fio@vger.kernel.org;
-        Fri, 14 Jul 2023 12:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 25D511BC0165; Fri, 14 Jul 2023 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230714120002.25D511BC0165@kernel.dk>
-Date:   Fri, 14 Jul 2023 06:00:02 -0600 (MDT)
+        with ESMTP id S235470AbjGNRGF (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 14 Jul 2023 13:06:05 -0400
+Received: from DM6FTOPR00CU001.outbound.protection.outlook.com (mail-centralusazon11020023.outbound.protection.outlook.com [52.101.61.23])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B340E10EA
+        for <fio@vger.kernel.org>; Fri, 14 Jul 2023 10:06:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WHvNmWpIYcOsvm/cpaYK6vKvpoLx9SP1apTlfTFobk6BiTmvmuyZOtRN6NC9D5R2ETCUfU0caeMwkL2cNwJAhryftRZHE2WCB3Du5RtwTAtFryMNxIx5lNmsRp610yNVqWDKfG5GgibE5ccvvP/S4LQrUWI1rA1EpzRrt/uIF0VrRtPYAH0yBP07oYbsTuyG+5T/NekGvN3R/IzEeXVtKfoMUfX48+euyv+n9+bN9rXp5gY9LH6gcqFWd50JGKqEHlICYTqo6jbTnCc5mgNwNQOkEnC+ecJONy/YN9kBk6TurjmF3HqsQY3bCBnlxZXD3KyMFmkDnNxuyFa0DtYvcQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=E/fxs00KmD2iNYflYeiXQPwya3jVrGTIYeIIGSYJfxk=;
+ b=Qn/aGpt3PL3imQ+k3EHN1Inmp/0vT0VhF1V5CpYsYtuLFN0COQV+Z7mPvUxSESEz7TsaZcwvTukqn2Dn0EPVwKHUVXx5nfmd0WP+rLWwkh6dSa3WBqDjiRVFJ8AMYFywUjs2NHw6N2YSTHZxLRjiVRwHkB+dIFAZ9gBvIifyF1Ko2QatWw3PNtK3/fhmcgvW6811fI0sfG0NSFJ0Ds5Iw5yRGOjaFT3GBaHb5ihAxS/8YP7G2cuNn2jFloTiGOY3wdQd2VA2uTpxJtDrYyR1ZCG+uS77cFdU5gy1UVKYwh1AIg/97ZD0jy5aA5FX2BMWTV2eHcCsa5td2xsecBmVMw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=E/fxs00KmD2iNYflYeiXQPwya3jVrGTIYeIIGSYJfxk=;
+ b=KMaJQv7+LykS2BC7zARz+zAURQnyEi/qde+aVmhe8KJiWMOEliiWAacSL6pa5QVTYPxwTxgEkmqjv9zFJ5zHwkbDEeubHBqTncOfol1/sxhC8r6BTJx8mPAHB9PyPRsSvluUC1nSVN2uyIyYLfn4oqR/VdnWbYqrwrC/NaT7+Yw=
+Received: from DM6PR21MB1370.namprd21.prod.outlook.com (2603:10b6:5:16b::28)
+ by DM6PR21MB1452.namprd21.prod.outlook.com (2603:10b6:5:259::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6609.15; Fri, 14 Jul
+ 2023 17:06:02 +0000
+Received: from DM6PR21MB1370.namprd21.prod.outlook.com
+ ([fe80::332a:4b2d:9972:caad]) by DM6PR21MB1370.namprd21.prod.outlook.com
+ ([fe80::332a:4b2d:9972:caad%4]) with mapi id 15.20.6609.016; Fri, 14 Jul 2023
+ 17:06:02 +0000
+From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        "ankit.kumar@samsung.com" <ankit.kumar@samsung.com>
+CC:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>
+Subject: [PATCH 1/1] thinktime: Avoid calculating a negative time left to wait
+Thread-Topic: [PATCH 1/1] thinktime: Avoid calculating a negative time left to
+ wait
+Thread-Index: Adm2dXer84ESeCLrZ0KGNaMKgM7Lzw==
+Date:   Fri, 14 Jul 2023 17:06:01 +0000
+Message-ID: <1689354334-131024-1-git-send-email-mikelley@microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: CY5PR17CA0016.namprd17.prod.outlook.com
+ (2603:10b6:930:17::15) To DM6PR21MB1370.namprd21.prod.outlook.com
+ (2603:10b6:5:16b::28)
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR21MB1370:EE_|DM6PR21MB1452:EE_
+x-ms-office365-filtering-correlation-id: 9eac7dbc-7f72-466c-db0b-08db848c9a2c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: cowUygHkRd3F1wMlkk0ugJGdcP1OfEihzurcn2Tz8xnXpmnNU+58Z50AlD4sbiklHsaqphbLCgIiUJ65sJ1vQecjsjJX6mOCLSC0ORRkEKlNnX0D461eht/JWJjKJSibSGnSaBK092YjvMVzH9JdpzKgQ2mtVApkifyvnoOE4y8zr+9IvA4+Xuw2YCjcjRNBMCEuJCYMGbWFo3EROwUP9BcKfIG6CF6nTtatr8wVYnv9ZSMgXZJMLzV8HJ0QvvTUKxFyw9jXOxmjNPtGQOdPz2onp/d5jz4sGVzEQFFuUtQmQfL8iazuIP/HUnVyjD+3S0W35aM1qytPPa3GDg/JAKYrFEzubWXIjDpd8Wnv/UvtiSYCM3l7uLZhBciI0YDRPXKIkp5z3Y4aUOssp2qLch7Jkc2gaXPwBsF70auK6Olm5jVZUwMXjSMrV4uQLz8BnJayC61pAMZ8vDKRmdBUzf3EDvFmpYU1ryzB4hRZcccam3DslcXIrft9xKAG0rSb0l34shZtprzqA86db7+U2Y8jAMzB97B3Bvp+ivZckE77780tu1A/rIIPH0CHpYFGj24svoC0wNBPcUKWXR8GCqLkQFgwjBJJnQ9g3uYyGtnJIzg4cUUlfEMFO/b7238NSwfSYAz1MP1gtHpqFfZvRw==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR21MB1370.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(39860400002)(376002)(136003)(396003)(346002)(366004)(451199021)(4326008)(52116002)(478600001)(10290500003)(71200400001)(110136005)(2616005)(83380400001)(36756003)(86362001)(2906002)(186003)(26005)(6506007)(107886003)(6486002)(6512007)(966005)(38350700002)(122000001)(38100700002)(82960400001)(82950400001)(64756008)(66946007)(316002)(66476007)(66556008)(8936002)(41300700001)(8676002)(5660300002)(66446008);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?UE7tt7/SlyKV8tQgR0mwZDQa+du7fLcZ3fBXTvk6NpUX0GBG1Der1UAi9O?=
+ =?iso-8859-1?Q?kKdV0JuyIGXwrYdPsSv7SYRQc2c1WrwKQhp2v8DN8pfrDJhoEplWhjSwVF?=
+ =?iso-8859-1?Q?j7eaFnPK/c/cpFwG+AZvgWb3HSLHAXoPf9T29glhEZSX3cACWQH6rz9gBJ?=
+ =?iso-8859-1?Q?BqwmcUQcrBlHCRE8e+xsa3zwfr5Je6QoAHCpqjNSXEI5kkRRSykop9grlt?=
+ =?iso-8859-1?Q?83MY5W6xFaeh1qpliz5ofdTcDqf2Z00kUgHTkwUOL1EOOsKaCWg8+/5ONN?=
+ =?iso-8859-1?Q?/A0snyDAUaq2oemnDV5EEzEYmvsQxScXb51BEr8mlXk7keGea4vpzxhw8i?=
+ =?iso-8859-1?Q?eqmoqRgQWaxVx0HBfmjJdKmXGw+rD1fy+3E2giTYpSIGDA/P4oiXECjuRN?=
+ =?iso-8859-1?Q?JNyn+lWrfJtq7SX0FMIsi8WnkLnLqTXB2qA0b1L6nURCoLfbzvNxwB1A1n?=
+ =?iso-8859-1?Q?fg+c4tQVu0LLxI+hcxX6SUvy/xCmgTt5RP9oYY5gjn4oGq3zyPIl+DDqIM?=
+ =?iso-8859-1?Q?3iHzQxGdQAtINaluon47elczVWp3f5J/X06aQB/ErPHu4wWonZUuwrT6Rr?=
+ =?iso-8859-1?Q?9UEOA3fQNlQSSyJN1O8jR9D8Svxe3iPsIfW+tXmiT3VfJPqTmNY2mkrbvx?=
+ =?iso-8859-1?Q?lgn0AuYyMPBJc+T6sAPUIlok74EO2Lp6uS1N0+dlnO4Z+nRhRvL2z2ekGj?=
+ =?iso-8859-1?Q?9PR6h7usNk9mBE5C8MiFf9S+TCXuod+T1392b/1mrGNYBR9QVBxZiU0RFm?=
+ =?iso-8859-1?Q?v4/3Vl9xDjXX+82YmSQG3FfkcnowRpjDeADjSsyrUx/DTEZvztVz0j+Arf?=
+ =?iso-8859-1?Q?OvqWIfsVXkjPNxlJ7XSPlu2DtubG9LqhUoqzu5vPQIlniEs32WyJh0+hAX?=
+ =?iso-8859-1?Q?lpq4fxnb74zLibXq/dJm2PC975t71wMv0FHLTvL9udvR14Ft/XCGjyIhAu?=
+ =?iso-8859-1?Q?hECXFawI9x8GS4xycmH1y1rF/kf8zaoDggHMNo/W4MQ2K3B/MWrdnSEN+j?=
+ =?iso-8859-1?Q?ZFrrvPPKJpk5uPWi4MJDBx9MeFJgzjbuZwMaz4b0qCvTanzEcLcZAcWoWc?=
+ =?iso-8859-1?Q?sBRN5cHhytp+ANvhmutShxDm25tW2fPMAKo/ktuf7P3ZzNRvhMkbcBe5+l?=
+ =?iso-8859-1?Q?AdcLxfhxme0xjq95puo6yIIwfLml00ESkedM9UsWFsuw+1gf75h/NXgxkC?=
+ =?iso-8859-1?Q?SU3unSuzFZNZiw6FuAAfl4T87VuJkNakyBFbQ2O9+7X0JQCWmSY95j0KCB?=
+ =?iso-8859-1?Q?7pwg3t2gxEkdidNNHXiURb226MT0m1i4CJOUU7uopUouU6DXtKG7by6t1r?=
+ =?iso-8859-1?Q?b+QlRHgu7S+WpHJ8mRjV6g5VP+71+ngx2G4JQo3D0ysBuwRi9xzw+xWQeD?=
+ =?iso-8859-1?Q?H3a3g7UXwe3F6QKRSDNHAarycmdmS3wu4syB/yuSZNNAVFyE94StVa0iXA?=
+ =?iso-8859-1?Q?yrEWV6m2MMg0l5jlYhYuhVY1XkqyIxJNvVwAt6q7no+H2uq5EMAWSPQe9t?=
+ =?iso-8859-1?Q?B+/SbsF8+qHzCDGJ8l086HNoZIQifxxN6LKvbZA+Q0Kii4wF1axhDIq2RO?=
+ =?iso-8859-1?Q?vgdMNoe1o15S/YM6gVYVl8iP3UagpUJsWIIkTofX+cYpM54MIKl4MnykI3?=
+ =?iso-8859-1?Q?G7l5HiMcIyAgAPMwQuICuSRRl2nW1xBtyC?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR21MB1370.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9eac7dbc-7f72-466c-db0b-08db848c9a2c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Jul 2023 17:06:01.9403
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: qlRlCWkGW0uGQCN3R5ZcHLrFIXgueKkUX4b0Ldmfq0nAwUv1QZnjMro7ADS6SDNSF2daZA59/EPSbPCwgf0ZSg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR21MB1452
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 8e2b81b854286f32eae7951a434dddebd968f9d5:
+When the thinktime_spin option specifies a value that is within
+a few milliseconds of the thinktime value, in handle_thinktime()
+it's possible in a VM environment for the duration of usec_spin()
+to exceed the thinktime value. While doing usec_spin(), the vCPU
+could get de-scheduled or the hypervisor could steal CPU time
+from the vCPU. When the guest vCPU runs after being scheduled
+again, it may read the clock and find that more time has elapsed
+than intended. In such a case, the time left to wait could be
+calculated as a negative value. Subsequent calculations then go
+awry because the time left is cast as unsigned.
 
-  zbd: Support finishing zones on Android (2023-07-05 15:48:11 -0600)
+Fix this by detecting when the time left would go negative and
+just set it to zero.
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 270316dd2566346a12cfdf3cbe9996a88307f87d:
-
-  Merge branch 'master' of https://github.com/bvanassche/fio (2023-07-13 15:28:20 -0600)
-
-----------------------------------------------------------------
-Ankit Kumar (4):
-      fdp: use macros
-      fdp: fix placement id check
-      fdp: support random placement id selection
-      engines/xnvme: add support for fdp
-
-Bart Van Assche (5):
-      diskutil: Improve disk utilization data structure documentation
-      diskutil: Remove casts from get_io_ticks()
-      diskutil: Simplify get_io_ticks()
-      diskutil: Fix a debug statement in get_io_ticks()
-      diskutil: Report how many sectors have been read and written
-
-Jens Axboe (1):
-      Merge branch 'master' of https://github.com/bvanassche/fio
-
-Vincent Fu (1):
-      options: add code for FDP pli selection use in client/server mode
-
- HOWTO.rst              | 23 +++++++++++++--
- cconv.c                |  2 ++
- configure              |  2 +-
- diskutil.c             | 29 +++++++------------
- diskutil.h             | 12 +++++++-
- engines/io_uring.c     |  2 +-
- engines/xnvme.c        | 78 +++++++++++++++++++++++++++++++++++++++++++++++++-
- examples/xnvme-fdp.fio | 36 +++++++++++++++++++++++
- fdp.c                  | 22 ++++++++------
- fdp.h                  | 13 +++++++++
- fio.1                  | 22 ++++++++++++--
- fio.h                  |  2 ++
- init.c                 |  2 ++
- options.c              | 20 +++++++++++++
- stat.c                 |  7 +++--
- thread_options.h       |  2 ++
- 16 files changed, 236 insertions(+), 38 deletions(-)
- create mode 100644 examples/xnvme-fdp.fio
-
+Fixes: 1a9bf8146 ("Add option to ignore thinktime for rated IO")
+Fixes: https://github.com/axboe/fio/issues/1588
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
 ---
+ backend.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Diff of recent changes:
+diff --git a/backend.c b/backend.c
+index d67a4a07..b06a11a5 100644
+--- a/backend.c
++++ b/backend.c
+@@ -897,7 +897,16 @@ static void handle_thinktime(struct thread_data *td, e=
+num fio_ddir ddir,
+ 	if (left)
+ 		total =3D usec_spin(left);
+=20
+-	left =3D td->o.thinktime - total;
++	/*
++	 * usec_spin() might run for slightly longer than intended in a VM
++	 * where the vCPU could get descheduled or the hypervisor could steal
++	 * CPU time. Ensure "left" doesn't become negative.
++	 */
++	if (total < td->o.thinktime)
++		left =3D td->o.thinktime - total;
++	else
++		left =3D 0;
++
+ 	if (td->o.timeout) {
+ 		runtime_left =3D td->o.timeout - utime_since_now(&td->epoch);
+ 		if (runtime_left < (unsigned long long)left)
+--=20
+2.25.1
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 2e1e55c2..7ae8ea7b 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2431,11 +2431,26 @@ with the caveat that when used on the command line, they must come after the
- 	For direct I/O, requests will only succeed if cache invalidation isn't required,
- 	file blocks are fully allocated and the disk request could be issued immediately.
- 
--.. option:: fdp=bool : [io_uring_cmd]
-+.. option:: fdp=bool : [io_uring_cmd] [xnvme]
- 
- 	Enable Flexible Data Placement mode for write commands.
- 
--.. option:: fdp_pli=str : [io_uring_cmd]
-+.. option:: fdp_pli_select=str : [io_uring_cmd] [xnvme]
-+
-+	Defines how fio decides which placement ID to use next. The following
-+	types are defined:
-+
-+		**random**
-+			Choose a placement ID at random (uniform).
-+
-+		**roundrobin**
-+			Round robin over available placement IDs. This is the
-+			default.
-+
-+	The available placement ID index/indices is defined by the option
-+	:option:`fdp_pli`.
-+
-+.. option:: fdp_pli=str : [io_uring_cmd] [xnvme]
- 
- 	Select which Placement ID Index/Indicies this job is allowed to use for
- 	writes. By default, the job will cycle through all available Placement
-@@ -4513,13 +4528,15 @@ For each data direction it prints:
- And finally, the disk statistics are printed. This is Linux specific. They will look like this::
- 
-   Disk stats (read/write):
--    sda: ios=16398/16511, merge=30/162, ticks=6853/819634, in_queue=826487, util=100.00%
-+    sda: ios=16398/16511, sectors=32321/65472, merge=30/162, ticks=6853/819634, in_queue=826487, util=100.00%
- 
- Each value is printed for both reads and writes, with reads first. The
- numbers denote:
- 
- **ios**
- 		Number of I/Os performed by all groups.
-+**sectors**
-+		Amount of data transferred in units of 512 bytes for all groups.
- **merge**
- 		Number of merges performed by the I/O scheduler.
- **ticks**
-diff --git a/cconv.c b/cconv.c
-index 9095d519..1bfa770f 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -351,6 +351,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 		o->merge_blktrace_iters[i].u.f = fio_uint64_to_double(le64_to_cpu(top->merge_blktrace_iters[i].u.i));
- 
- 	o->fdp = le32_to_cpu(top->fdp);
-+	o->fdp_pli_select = le32_to_cpu(top->fdp_pli_select);
- 	o->fdp_nrpli = le32_to_cpu(top->fdp_nrpli);
- 	for (i = 0; i < o->fdp_nrpli; i++)
- 		o->fdp_plis[i] = le32_to_cpu(top->fdp_plis[i]);
-@@ -645,6 +646,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 		top->merge_blktrace_iters[i].u.i = __cpu_to_le64(fio_double_to_uint64(o->merge_blktrace_iters[i].u.f));
- 
- 	top->fdp = cpu_to_le32(o->fdp);
-+	top->fdp_pli_select = cpu_to_le32(o->fdp_pli_select);
- 	top->fdp_nrpli = cpu_to_le32(o->fdp_nrpli);
- 	for (i = 0; i < o->fdp_nrpli; i++)
- 		top->fdp_plis[i] = cpu_to_le32(o->fdp_plis[i]);
-diff --git a/configure b/configure
-index 74416fd4..6c938251 100755
---- a/configure
-+++ b/configure
-@@ -2651,7 +2651,7 @@ fi
- ##########################################
- # Check if we have xnvme
- if test "$xnvme" != "no" ; then
--  if check_min_lib_version xnvme 0.2.0; then
-+  if check_min_lib_version xnvme 0.7.0; then
-     xnvme="yes"
-     xnvme_cflags=$(pkg-config --cflags xnvme)
-     xnvme_libs=$(pkg-config --libs xnvme)
-diff --git a/diskutil.c b/diskutil.c
-index ace7af3d..cf4ede85 100644
---- a/diskutil.c
-+++ b/diskutil.c
-@@ -1,3 +1,4 @@
-+#include <inttypes.h>
- #include <stdio.h>
- #include <string.h>
- #include <sys/types.h>
-@@ -44,8 +45,6 @@ static void disk_util_free(struct disk_util *du)
- 
- static int get_io_ticks(struct disk_util *du, struct disk_util_stat *dus)
- {
--	unsigned in_flight;
--	unsigned long long sectors[2];
- 	char line[256];
- 	FILE *f;
- 	char *p;
-@@ -65,23 +64,17 @@ static int get_io_ticks(struct disk_util *du, struct disk_util_stat *dus)
- 
- 	dprint(FD_DISKUTIL, "%s: %s", du->path, p);
- 
--	ret = sscanf(p, "%llu %llu %llu %llu %llu %llu %llu %llu %u %llu %llu\n",
--				(unsigned long long *) &dus->s.ios[0],
--				(unsigned long long *) &dus->s.merges[0],
--				&sectors[0],
--				(unsigned long long *) &dus->s.ticks[0],
--				(unsigned long long *) &dus->s.ios[1],
--				(unsigned long long *) &dus->s.merges[1],
--				&sectors[1],
--				(unsigned long long *) &dus->s.ticks[1],
--				&in_flight,
--				(unsigned long long *) &dus->s.io_ticks,
--				(unsigned long long *) &dus->s.time_in_queue);
-+	ret = sscanf(p, "%"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" "
-+		     "%"SCNu64" %"SCNu64" %"SCNu64" %"SCNu64" "
-+		     "%*u %"SCNu64" %"SCNu64"\n",
-+		     &dus->s.ios[0], &dus->s.merges[0], &dus->s.sectors[0],
-+		     &dus->s.ticks[0],
-+		     &dus->s.ios[1], &dus->s.merges[1], &dus->s.sectors[1],
-+		     &dus->s.ticks[1],
-+		     &dus->s.io_ticks, &dus->s.time_in_queue);
- 	fclose(f);
--	dprint(FD_DISKUTIL, "%s: stat read ok? %d\n", du->path, ret == 1);
--	dus->s.sectors[0] = sectors[0];
--	dus->s.sectors[1] = sectors[1];
--	return ret != 11;
-+	dprint(FD_DISKUTIL, "%s: stat read ok? %d\n", du->path, ret == 10);
-+	return ret != 10;
- }
- 
- static void update_io_tick_disk(struct disk_util *du)
-diff --git a/diskutil.h b/diskutil.h
-index 7d7ef802..9dca42c4 100644
---- a/diskutil.h
-+++ b/diskutil.h
-@@ -7,6 +7,16 @@
- #include "helper_thread.h"
- #include "fio_sem.h"
- 
-+/**
-+ * @ios: Number of I/O operations that have been completed successfully.
-+ * @merges: Number of I/O operations that have been merged.
-+ * @sectors: I/O size in 512-byte units.
-+ * @ticks: Time spent on I/O in milliseconds.
-+ * @io_ticks: CPU time spent on I/O in milliseconds.
-+ * @time_in_queue: Weighted time spent doing I/O in milliseconds.
-+ *
-+ * For the array members, index 0 refers to reads and index 1 refers to writes.
-+ */
- struct disk_util_stats {
- 	uint64_t ios[2];
- 	uint64_t merges[2];
-@@ -18,7 +28,7 @@ struct disk_util_stats {
- };
- 
- /*
-- * Disk utils as read in /sys/block/<dev>/stat
-+ * Disk utilization as read from /sys/block/<dev>/stat
-  */
- struct disk_util_stat {
- 	uint8_t name[FIO_DU_NAME_SZ];
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 5021239e..407d65ce 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -1310,7 +1310,7 @@ static int fio_ioring_cmd_fetch_ruhs(struct thread_data *td, struct fio_file *f,
- 	struct nvme_fdp_ruh_status *ruhs;
- 	int bytes, ret, i;
- 
--	bytes = sizeof(*ruhs) + 128 * sizeof(struct nvme_fdp_ruh_status_desc);
-+	bytes = sizeof(*ruhs) + FDP_MAX_RUHS * sizeof(struct nvme_fdp_ruh_status_desc);
- 	ruhs = scalloc(1, bytes);
- 	if (!ruhs)
- 		return -ENOMEM;
-diff --git a/engines/xnvme.c b/engines/xnvme.c
-index bb92a121..ce7b2bdd 100644
---- a/engines/xnvme.c
-+++ b/engines/xnvme.c
-@@ -16,6 +16,7 @@
- #include <libxnvme_spec_fs.h>
- #include "fio.h"
- #include "zbd_types.h"
-+#include "fdp.h"
- #include "optgroup.h"
- 
- static pthread_mutex_t g_serialize = PTHREAD_MUTEX_INITIALIZER;
-@@ -509,6 +510,7 @@ static enum fio_q_status xnvme_fioe_queue(struct thread_data *td, struct io_u *i
- 	uint16_t nlb;
- 	int err;
- 	bool vectored_io = ((struct xnvme_fioe_options *)td->eo)->xnvme_iovec;
-+	uint32_t dir = io_u->dtype;
- 
- 	fio_ro_check(td, io_u);
- 
-@@ -524,6 +526,10 @@ static enum fio_q_status xnvme_fioe_queue(struct thread_data *td, struct io_u *i
- 	ctx->cmd.common.nsid = nsid;
- 	ctx->cmd.nvm.slba = slba;
- 	ctx->cmd.nvm.nlb = nlb;
-+	if (dir) {
-+		ctx->cmd.nvm.dtype = io_u->dtype;
-+		ctx->cmd.nvm.cdw13.dspec = io_u->dspec;
-+	}
- 
- 	switch (io_u->ddir) {
- 	case DDIR_READ:
-@@ -947,6 +953,72 @@ exit:
- 	return err;
- }
- 
-+static int xnvme_fioe_fetch_ruhs(struct thread_data *td, struct fio_file *f,
-+				 struct fio_ruhs_info *fruhs_info)
-+{
-+	struct xnvme_opts opts = xnvme_opts_from_fioe(td);
-+	struct xnvme_dev *dev;
-+	struct xnvme_spec_ruhs *ruhs;
-+	struct xnvme_cmd_ctx ctx;
-+	uint32_t ruhs_nbytes;
-+	uint32_t nsid;
-+	int err = 0, err_lock;
-+
-+	if (f->filetype != FIO_TYPE_CHAR) {
-+		log_err("ioeng->fdp_ruhs(): ignoring filetype: %d\n", f->filetype);
-+		return -EINVAL;
-+	}
-+
-+	err = pthread_mutex_lock(&g_serialize);
-+	if (err) {
-+		log_err("ioeng->fdp_ruhs(): pthread_mutex_lock(), err(%d)\n", err);
-+		return -err;
-+	}
-+
-+	dev = xnvme_dev_open(f->file_name, &opts);
-+	if (!dev) {
-+		log_err("ioeng->fdp_ruhs(): xnvme_dev_open(%s) failed, errno: %d\n",
-+			f->file_name, errno);
-+		err = -errno;
-+		goto exit;
-+	}
-+
-+	ruhs_nbytes = sizeof(*ruhs) + (FDP_MAX_RUHS * sizeof(struct xnvme_spec_ruhs_desc));
-+	ruhs = xnvme_buf_alloc(dev, ruhs_nbytes);
-+	if (!ruhs) {
-+		err = -errno;
-+		goto exit;
-+	}
-+	memset(ruhs, 0, ruhs_nbytes);
-+
-+	ctx = xnvme_cmd_ctx_from_dev(dev);
-+	nsid = xnvme_dev_get_nsid(dev);
-+
-+	err = xnvme_nvm_mgmt_recv(&ctx, nsid, XNVME_SPEC_IO_MGMT_RECV_RUHS, 0, ruhs, ruhs_nbytes);
-+
-+	if (err || xnvme_cmd_ctx_cpl_status(&ctx)) {
-+		err = err ? err : -EIO;
-+		log_err("ioeng->fdp_ruhs(): err(%d), sc(%d)", err, ctx.cpl.status.sc);
-+		goto free_buffer;
-+	}
-+
-+	fruhs_info->nr_ruhs = ruhs->nruhsd;
-+	for (uint32_t idx = 0; idx < fruhs_info->nr_ruhs; ++idx) {
-+		fruhs_info->plis[idx] = le16_to_cpu(ruhs->desc[idx].pi);
-+	}
-+
-+free_buffer:
-+	xnvme_buf_free(dev, ruhs);
-+exit:
-+	xnvme_dev_close(dev);
-+
-+	err_lock = pthread_mutex_unlock(&g_serialize);
-+	if (err_lock)
-+		log_err("ioeng->fdp_ruhs(): pthread_mutex_unlock(), err(%d)\n", err_lock);
-+
-+	return err;
-+}
-+
- static int xnvme_fioe_get_file_size(struct thread_data *td, struct fio_file *f)
- {
- 	struct xnvme_opts opts = xnvme_opts_from_fioe(td);
-@@ -971,7 +1043,9 @@ static int xnvme_fioe_get_file_size(struct thread_data *td, struct fio_file *f)
- 
- 	f->real_file_size = xnvme_dev_get_geo(dev)->tbytes;
- 	fio_file_set_size_known(f);
--	f->filetype = FIO_TYPE_BLOCK;
-+
-+	if (td->o.zone_mode == ZONE_MODE_ZBD)
-+		f->filetype = FIO_TYPE_BLOCK;
- 
- exit:
- 	xnvme_dev_close(dev);
-@@ -1011,6 +1085,8 @@ FIO_STATIC struct ioengine_ops ioengine = {
- 	.get_zoned_model = xnvme_fioe_get_zoned_model,
- 	.report_zones = xnvme_fioe_report_zones,
- 	.reset_wp = xnvme_fioe_reset_wp,
-+
-+	.fdp_fetch_ruhs = xnvme_fioe_fetch_ruhs,
- };
- 
- static void fio_init fio_xnvme_register(void)
-diff --git a/examples/xnvme-fdp.fio b/examples/xnvme-fdp.fio
-new file mode 100644
-index 00000000..86fbe0d3
---- /dev/null
-+++ b/examples/xnvme-fdp.fio
-@@ -0,0 +1,36 @@
-+; README
-+;
-+; This job-file is intended to be used either as:
-+;
-+; # Use the xNVMe io-engine engine io_uring_cmd async. impl.
-+; fio examples/xnvme-fdp.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --xnvme_async=io_uring_cmd \
-+;   --filename=/dev/ng0n1
-+;
-+; # Use the xNVMe io-engine engine with nvme sync. impl.
-+; fio examples/xnvme-fdp.fio \
-+;   --section=default \
-+;   --ioengine=xnvme \
-+;   --xnvme_sync=nvme \
-+;   --filename=/dev/ng0n1
-+;
-+; FIO_BS="512" FIO_RW="read" FIO_IODEPTH=16 fio examples/xnvme-fdp.fio \
-+;   --section=override --ioengine=xnvme --xnvme_sync=nvme --filename=/dev/ng0n1
-+;
-+[global]
-+rw=randwrite
-+size=2M
-+iodepth=1
-+bs=4K
-+thread=1
-+fdp=1
-+fdp_pli=4,5
-+
-+[default]
-+
-+[override]
-+rw=${FIO_RW}
-+iodepth=${FIO_IODEPTH}
-+bs=${FIO_BS}
-diff --git a/fdp.c b/fdp.c
-index d92dbc67..49c80d2c 100644
---- a/fdp.c
-+++ b/fdp.c
-@@ -45,7 +45,7 @@ static int init_ruh_info(struct thread_data *td, struct fio_file *f)
- 	struct fio_ruhs_info *ruhs, *tmp;
- 	int i, ret;
- 
--	ruhs = scalloc(1, sizeof(*ruhs) + 128 * sizeof(*ruhs->plis));
-+	ruhs = scalloc(1, sizeof(*ruhs) + FDP_MAX_RUHS * sizeof(*ruhs->plis));
- 	if (!ruhs)
- 		return -ENOMEM;
- 
-@@ -56,8 +56,8 @@ static int init_ruh_info(struct thread_data *td, struct fio_file *f)
- 		goto out;
- 	}
- 
--	if (ruhs->nr_ruhs > 128)
--		ruhs->nr_ruhs = 128;
-+	if (ruhs->nr_ruhs > FDP_MAX_RUHS)
-+		ruhs->nr_ruhs = FDP_MAX_RUHS;
- 
- 	if (td->o.fdp_nrpli == 0) {
- 		f->ruhs_info = ruhs;
-@@ -65,7 +65,7 @@ static int init_ruh_info(struct thread_data *td, struct fio_file *f)
- 	}
- 
- 	for (i = 0; i < td->o.fdp_nrpli; i++) {
--		if (td->o.fdp_plis[i] > ruhs->nr_ruhs) {
-+		if (td->o.fdp_plis[i] >= ruhs->nr_ruhs) {
- 			ret = -EINVAL;
- 			goto out;
- 		}
-@@ -119,10 +119,16 @@ void fdp_fill_dspec_data(struct thread_data *td, struct io_u *io_u)
- 		return;
- 	}
- 
--	if (ruhs->pli_loc >= ruhs->nr_ruhs)
--		ruhs->pli_loc = 0;
-+	if (td->o.fdp_pli_select == FIO_FDP_RR) {
-+		if (ruhs->pli_loc >= ruhs->nr_ruhs)
-+			ruhs->pli_loc = 0;
- 
--	dspec = ruhs->plis[ruhs->pli_loc++];
--	io_u->dtype = 2;
-+		dspec = ruhs->plis[ruhs->pli_loc++];
-+	} else {
-+		ruhs->pli_loc = rand_between(&td->fdp_state, 0, ruhs->nr_ruhs - 1);
-+		dspec = ruhs->plis[ruhs->pli_loc];
-+	}
-+
-+	io_u->dtype = FDP_DIR_DTYPE;
- 	io_u->dspec = dspec;
- }
-diff --git a/fdp.h b/fdp.h
-index 81691f62..accbac38 100644
---- a/fdp.h
-+++ b/fdp.h
-@@ -3,6 +3,19 @@
- 
- #include "io_u.h"
- 
-+#define FDP_DIR_DTYPE	2
-+#define FDP_MAX_RUHS	128
-+
-+/*
-+ * How fio chooses what placement identifier to use next. Choice of
-+ * uniformly random, or roundrobin.
-+ */
-+
-+enum {
-+	FIO_FDP_RANDOM	= 0x1,
-+	FIO_FDP_RR	= 0x2,
-+};
-+
- struct fio_ruhs_info {
- 	uint32_t nr_ruhs;
- 	uint32_t pli_loc;
-diff --git a/fio.1 b/fio.1
-index 73b7e8c9..da875276 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2192,10 +2192,26 @@ cached data. Currently the RWF_NOWAIT flag does not supported for cached write.
- For direct I/O, requests will only succeed if cache invalidation isn't required,
- file blocks are fully allocated and the disk request could be issued immediately.
- .TP
--.BI (io_uring_cmd)fdp \fR=\fPbool
-+.BI (io_uring_cmd,xnvme)fdp \fR=\fPbool
- Enable Flexible Data Placement mode for write commands.
- .TP
--.BI (io_uring_cmd)fdp_pli \fR=\fPstr
-+.BI (io_uring_cmd,xnvme)fdp_pli_select \fR=\fPstr
-+Defines how fio decides which placement ID to use next. The following types
-+are defined:
-+.RS
-+.RS
-+.TP
-+.B random
-+Choose a placement ID at random (uniform).
-+.TP
-+.B roundrobin
-+Round robin over available placement IDs. This is the default.
-+.RE
-+.P
-+The available placement ID index/indices is defined by \fBfdp_pli\fR option.
-+.RE
-+.TP
-+.BI (io_uring_cmd,xnvme)fdp_pli \fR=\fPstr
- Select which Placement ID Index/Indicies this job is allowed to use for writes.
- By default, the job will cycle through all available Placement IDs, so use this
- to isolate these identifiers to specific jobs. If you want fio to use placement
-@@ -4168,7 +4184,7 @@ They will look like this:
- .P
- .nf
- 		  Disk stats (read/write):
--		    sda: ios=16398/16511, merge=30/162, ticks=6853/819634, in_queue=826487, util=100.00%
-+		    sda: ios=16398/16511, sectors=32321/65472, merge=30/162, ticks=6853/819634, in_queue=826487, util=100.00%
- .fi
- .P
- Each value is printed for both reads and writes, with reads first. The
-diff --git a/fio.h b/fio.h
-index c5453d13..a54f57c9 100644
---- a/fio.h
-+++ b/fio.h
-@@ -144,6 +144,7 @@ enum {
- 	FIO_RAND_POISSON3_OFF,
- 	FIO_RAND_PRIO_CMDS,
- 	FIO_RAND_DEDUPE_WORKING_SET_IX,
-+	FIO_RAND_FDP_OFF,
- 	FIO_RAND_NR_OFFS,
- };
- 
-@@ -262,6 +263,7 @@ struct thread_data {
- 	struct frand_state verify_state_last_do_io;
- 	struct frand_state trim_state;
- 	struct frand_state delay_state;
-+	struct frand_state fdp_state;
- 
- 	struct frand_state buf_state;
- 	struct frand_state buf_state_prev;
-diff --git a/init.c b/init.c
-index 10e63cca..105339fa 100644
---- a/init.c
-+++ b/init.c
-@@ -1082,6 +1082,8 @@ void td_fill_rand_seeds(struct thread_data *td)
- 
- 	init_rand_seed(&td->buf_state, td->rand_seeds[FIO_RAND_BUF_OFF], use64);
- 	frand_copy(&td->buf_state_prev, &td->buf_state);
-+
-+	init_rand_seed(&td->fdp_state, td->rand_seeds[FIO_RAND_FDP_OFF], use64);
- }
- 
- static int setup_random_seeds(struct thread_data *td)
-diff --git a/options.c b/options.c
-index a7c4ef6e..0f739317 100644
---- a/options.c
-+++ b/options.c
-@@ -3679,6 +3679,26 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group  = FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	= "fdp_pli_select",
-+		.lname	= "FDP Placement ID select",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct thread_options, fdp_pli_select),
-+		.help	= "Select which FDP placement ID to use next",
-+		.def	= "roundrobin",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_INVALID,
-+		.posval	= {
-+			  { .ival = "random",
-+			    .oval = FIO_FDP_RANDOM,
-+			    .help = "Choose a Placement ID at random (uniform)",
-+			  },
-+			  { .ival = "roundrobin",
-+			    .oval = FIO_FDP_RR,
-+			    .help = "Round robin select Placement IDs",
-+			  },
-+		},
-+	},
- 	{
- 		.name	= "fdp_pli",
- 		.lname	= "FDP Placement ID indicies",
-diff --git a/stat.c b/stat.c
-index 015b8e28..ced73645 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1030,11 +1030,14 @@ void print_disk_util(struct disk_util_stat *dus, struct disk_util_agg *agg,
- 		if (agg->slavecount)
- 			log_buf(out, "  ");
- 
--		log_buf(out, "  %s: ios=%llu/%llu, merge=%llu/%llu, "
--			 "ticks=%llu/%llu, in_queue=%llu, util=%3.2f%%",
-+		log_buf(out, "  %s: ios=%llu/%llu, sectors=%llu/%llu, "
-+			"merge=%llu/%llu, ticks=%llu/%llu, in_queue=%llu, "
-+			"util=%3.2f%%",
- 				dus->name,
- 				(unsigned long long) dus->s.ios[0],
- 				(unsigned long long) dus->s.ios[1],
-+				(unsigned long long) dus->s.sectors[0],
-+				(unsigned long long) dus->s.sectors[1],
- 				(unsigned long long) dus->s.merges[0],
- 				(unsigned long long) dus->s.merges[1],
- 				(unsigned long long) dus->s.ticks[0],
-diff --git a/thread_options.h b/thread_options.h
-index a24ebee6..1715b36c 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -388,6 +388,7 @@ struct thread_options {
- 
- #define FIO_MAX_PLIS 16
- 	unsigned int fdp;
-+	unsigned int fdp_pli_select;
- 	unsigned int fdp_plis[FIO_MAX_PLIS];
- 	unsigned int fdp_nrpli;
- 
-@@ -703,6 +704,7 @@ struct thread_options_pack {
- 	uint32_t log_prio;
- 
- 	uint32_t fdp;
-+	uint32_t fdp_pli_select;
- 	uint32_t fdp_plis[FIO_MAX_PLIS];
- 	uint32_t fdp_nrpli;
- 
