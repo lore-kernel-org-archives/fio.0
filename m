@@ -2,74 +2,72 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 275ECEB64DA
-	for <fio@archiver.kernel.org>; Tue, 18 Jul 2023 13:57:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEEE7EB64DA
+	for <fio@archiver.kernel.org>; Tue, 18 Jul 2023 15:46:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232513AbjGRN5H (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 18 Jul 2023 09:57:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55098 "EHLO
+        id S231591AbjGRPqH (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 18 Jul 2023 11:46:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233006AbjGRN5G (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 18 Jul 2023 09:57:06 -0400
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0895C170E
-        for <fio@vger.kernel.org>; Tue, 18 Jul 2023 06:56:34 -0700 (PDT)
+        with ESMTP id S232038AbjGRPqG (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 18 Jul 2023 11:46:06 -0400
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE701AC
+        for <fio@vger.kernel.org>; Tue, 18 Jul 2023 08:46:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1689688595; x=1721224595;
+  t=1689695162; x=1721231162;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-id:content-transfer-encoding:
    mime-version;
-  bh=b3lK5b9u/qJ0rDoBMNBhDY/0Mw+jxCSmPuXFRlFIMKo=;
-  b=IJroHlEIBgvHLfQcDUPib+ihrae8qTBn2TDYqe+i2SEqkA73soUYK9d2
-   iLJbb80KuF3ZiCLPfJ5Gk2KJVoxPy9Tfp32crX+1SKzMpw2dzXGkDMTQK
-   O9vajLdQVy7aeiaVrIeZxU4d1tgqgOqQerNX31qe9Y7V00xQvrbQDhfW6
-   DiAegqSzSqoekAkMr96JFjPTI1tfIk2OmbsOeHttnKUY+IscQaI8A8eiA
-   ol8RKvQ+G7AqGeSXuv36Gj5PrWB7sbnd9eILiPDZ8ETQK3CyJ0PclKn5n
-   Y7sTGlDyPqiSfbh+8bCj3IEix5NzZI3J22dQrZ2g3X76+XudE03AA+uVC
-   w==;
+  bh=lvpv9kVHbxq3x8Y9tEYibQrdEbpywoGt3mNWWXYGYFU=;
+  b=C5LFk2etSl3YGLXbBejNiQ+rimK+u2yAxEhVJy0Uo5I+ByM0bXaZ8Bzi
+   uIVWK0hdU+LHB/D01KqUDQVrUVBzscCXeDiXUysOD0qRfuV7jh86W/xYv
+   7YkEowmE73f5Vme8l3Yjwaty/K+2shf8iOFDNpNwooEZMmFI8acRtBLl/
+   VWfSebimmqeaW5eURCEZ4qyHPe7+6in8swBnKarvA3+C5GQWJtbOXej8k
+   eAQOf2VO2H/BSrKtm6bjjg1j5o8sSzY/xh7AvLxL5DPD0w+JJTgf7xg/e
+   A9cECEIeOyoydmHF89l5x8t93A0ugpVe1BT72+EF8oONdpzLGo267G5Tv
+   g==;
 X-IronPort-AV: E=Sophos;i="6.01,214,1684771200"; 
-   d="scan'208";a="238769913"
-Received: from mail-bn1nam02lp2049.outbound.protection.outlook.com (HELO NAM02-BN1-obe.outbound.protection.outlook.com) ([104.47.51.49])
-  by ob1.hgst.iphmx.com with ESMTP; 18 Jul 2023 21:56:18 +0800
+   d="scan'208";a="350390964"
+Received: from mail-dm6nam10lp2102.outbound.protection.outlook.com (HELO NAM10-DM6-obe.outbound.protection.outlook.com) ([104.47.58.102])
+  by ob1.hgst.iphmx.com with ESMTP; 18 Jul 2023 23:44:06 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JvRFGTXPzVvOKaEQrRae8rMAji0KC1yGkwWKCVrr7SKtkmpoVXFUE6BVfB2fvIQxb++n5pziF6VXp5EmdoNt8yQAy74uPxZhTuPgRDSJTBQ/1g92h7WfNwfRJ5H6/Y2rcpyDQiNLvR4bp1s6HFluHit7ghYI0T5eMfv6X2t0W/yB5wha5L9WELgzllWowrdDC9bNFG5aLmHBqqroGWAQIJVKIPUsy54GFXThObdZHAzx7Hoit33PPGay02YoY/RtT7aeXUu94t07OrYCfZtB5Mcl6BUriE+e/1cV0lRqAvuSv655HJc2na6qlxbhSrf8s3dbhoxvnoS4DtQQxa2A9w==
+ b=TTCbR/uWCPB5drKXhLxbYugGSMePPRyu1hlgfGK+eOBvPB7C2au9ZtHv9wlcFkgMSJLhd37RFEzhhXWbJOIbLWephv2dyQsFkr8P8wR09l+p5Gjbg8uXoDWckuAX8/fEIZzJ6/uJ2ugP4XqYdS+w9o/gR67nutuENG/c91753BfJ2WOCH0FeNH3uySbOG1QPcEfGEIdB0GD8DMvlONW6ujcu6bM9gA38qVgZMpii61cVaRMTJphUmwJ+LHp6wTtpBCDA1h9aT4NhOZyGkklfs+mFnW1HdUU9cvc7q/Ni7oD5m08rTCoyf6yrEK0LepOIOwMEiEf2abueCpKXICeuyg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LrlYsY2A1DV/cs90lpNa2qHfbyNedm3jYaX+twQhKqs=;
- b=c4MKTswb7sVA/9kTwks0BNoHqyHq0nj5bginF48rcMjf8FmSh84ejpbpCMN8mCMkK3/cLOrbCAEB265i48Kc3JQc0xy8H8GluTT9pOkxLdw4iTPhPy7K5DDh2IevN2EQNv98UN0PFzgHQs1jc8p4QoEEQFnTJajLz0c/cLGLFwWjPSZzhufznpV2oka2FefqJ/7+7oDxHoxtX5ytNDxOvlCCzjYKyeaR7PaHFSj2y0qIw31l2ScF1DnLNL+yCoi6WHM2OGmsU6RSJIiJoofo4bhyHcbthGfztkZTffXWEE4UwEiM3z2OOUxwpyZe+e1No597E3BjHc01csegttvbtQ==
+ bh=hGIxSN74Miv3D76dVve/ciY6Pt/K+Dpf2c9RNWAM3Wg=;
+ b=B0TQK3+qmBOT0DijZT3juZr88b1pJ0ryNw2LlCDMyFxUBIlIxHDDtPF143L7irQ7v/DmubwA0mJ9DVEOCzWTRf6Alqv4eh/9d/Sdv2R6gX7bzYKQPs5W8cyVNGiLB4emRL/IurzaxXObx5pNEPiIuY3whslzKJeTlbcAZkus5QWfoDitBdXcCmsZlf1s6QqwYrXuGfPogtiWUvTLfaTC5ItKQr2IBadBp2YMD3CfJxGdU7xKm/BGoFZmPdQVVU39SlOcWQbh7pL1+wBNfW0vFL6N8C1h+yuyPIJkh1J9i53DlG9jx5x/xF2TM/Et6496AaHAn+BWxppXYke+HRFLpQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LrlYsY2A1DV/cs90lpNa2qHfbyNedm3jYaX+twQhKqs=;
- b=oEd4GapabQFt53EIs0GF6SqTwuBViveMfrOZLzMl4Wc/RqJ3S5iazTPoANTdqyrzLEBQaqWZZGD1Kf+6yY8M1JqrnrkpZTypKcutPQqOkA5v0cspK1rHn8w2AnlynI5iqD7F/eWKz17F1USTVJGrlcC2Aj1yCtbJMDmwyJHwgOA=
+ bh=hGIxSN74Miv3D76dVve/ciY6Pt/K+Dpf2c9RNWAM3Wg=;
+ b=VJjEuZxJRhasaUEREwZBSAgnNJhxYjVVGx03OPtEgFTlPHW/uZCm1/DGzMURM+HBDlGdCs2Qd+wSYG5DSgm8aNDrIYm9SuwkY/09V5A+g/d9BqIywgVy8fGa0m4kjmW/5t01BPVZLHDqyA1kozS2C73jSZbzOhlebj4qlgCLXqk=
 Received: from MN2PR04MB6272.namprd04.prod.outlook.com (2603:10b6:208:e0::27)
- by SA3PR04MB8748.namprd04.prod.outlook.com (2603:10b6:806:2f4::14) with
+ by CH2PR04MB7125.namprd04.prod.outlook.com (2603:10b6:610:a3::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6565.32; Tue, 18 Jul
- 2023 13:56:14 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6588.33; Tue, 18 Jul
+ 2023 15:44:03 +0000
 Received: from MN2PR04MB6272.namprd04.prod.outlook.com
  ([fe80::d093:80b3:59e5:c8a9]) by MN2PR04MB6272.namprd04.prod.outlook.com
  ([fe80::d093:80b3:59e5:c8a9%6]) with mapi id 15.20.6588.031; Tue, 18 Jul 2023
- 13:56:14 +0000
+ 15:44:02 +0000
 From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To:     Damien Le Moal <dlemoal@kernel.org>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>,
-        Damien Le Moal <dlemoal@kernel.org>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
-Subject: Re: [PATCH 04/13] docs: modify max_open_zones option description
-Thread-Topic: [PATCH 04/13] docs: modify max_open_zones option description
-Thread-Index: AQHZsIFDitbM4lpl00uLnlhM7I2Jfq+/njMA
-Date:   Tue, 18 Jul 2023 13:56:14 +0000
-Message-ID: <ZLaZ+rxgwKALiHG2@x1-carbon>
-References: <20230707031505.3468915-1-shinichiro.kawasaki@wdc.com>
- <20230707031505.3468915-5-shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20230707031505.3468915-5-shinichiro.kawasaki@wdc.com>
+        Vincent Fu <vincentfu@gmail.com>, Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 1/4] os-linux: add initial support for IO priority hints
+Thread-Topic: [PATCH 1/4] os-linux: add initial support for IO priority hints
+Thread-Index: AQHZr43kUxH3GeC0/EyoWrVtd/Y9Zq+/vjkA
+Date:   Tue, 18 Jul 2023 15:44:02 +0000
+Message-ID: <ZLazPl69DRY2aKwe@x1-carbon>
+References: <20230705221302.430678-1-dlemoal@kernel.org>
+ <20230705221302.430678-2-dlemoal@kernel.org>
+In-Reply-To: <20230705221302.430678-2-dlemoal@kernel.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -77,238 +75,234 @@ X-MS-TNEF-Correlator:
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MN2PR04MB6272:EE_|SA3PR04MB8748:EE_
-x-ms-office365-filtering-correlation-id: d8238e6c-e8aa-4463-4f40-08db8796c075
+x-ms-traffictypediagnostic: MN2PR04MB6272:EE_|CH2PR04MB7125:EE_
+x-ms-office365-filtering-correlation-id: c8da6dbf-43bf-4b96-153d-08db87a5cf97
 wdcipoutbound: EOP-TRUE
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: U1eIyF4Ff1HFrc9x61PEVz+ziBe7dQWc58BTCwZ4JKJkPZvASmGhXqIimg8cvi1qIqizc1elINe1qijV9NrSi5vb1tB2cH/WA69GNvwx1E+AI1/S12EpEzdSWu9c5tgZLsGg5of2VA7z0rBD/m0Mbzzfqj9sK1uByY1M0sJgEMt4bQxnNdBAhazLNGV0UG/dMs4UCfQmU4E8Mc7LF+qVCWiZemnpRC6ZGOkH6x2oLeKsumLGTR0HXhnI2IyNjK/jxYvu+15f5Zw5zGr4Dlw/UtmcwMgP1DFwQUEX5gPceEiXzGmxI51XHogL9XaNh5w6ghb9WWjU6ELSuzRs8xEjAJQ0tGklwpZAaY+eJpjYb5eF+gVH5HF68U7EV5gl34ovZMg98Z9OCxdwJgJz+rP13bZTXRjbMDNfFVvaAnKaojojCVAAfUJ9YH36uVzX3AxMyJ75O60CRB73JUNGic7ddADLB2pjBjfMebP6fK/c3AmLfxfW7Crr7HvCTD8pXWlDBu2aTzBnC3Kc2wOIjWcwy4aaJBDuQ7GN/YveEwy/fduwi83O3Euw4tH9nZFFDdEpgci/gww0pWZUekH8zxRz2av1N/9f2M+eWKJhIw/ZZXSBsosVhKwpHNOtFqqJG2PXeKolYp4z0VmXooaJRRKJdA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(7916004)(366004)(376002)(346002)(136003)(39860400002)(396003)(451199021)(33716001)(2906002)(54906003)(6486002)(71200400001)(478600001)(76116006)(41300700001)(316002)(91956017)(66476007)(66946007)(66556008)(66446008)(64756008)(4326008)(8936002)(6636002)(6512007)(82960400001)(186003)(122000001)(83380400001)(38100700002)(86362001)(5660300002)(26005)(6862004)(38070700005)(8676002)(9686003)(6506007)(67856001);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: RmJd3SH57jqAMIPV7hB3d8QI8tsdVYyKnSdulA+GdV5VeG1OzvrRwFTqchT1/mnMmL2egi4paue1+M11DXkEK6MYden57gllMzNSrBmX9DUR24CkirGiv4t4QFc/k1paEfR1vTZLjyngdOXaEdYYV5rzIO4tmhfFTzm7/oDc/OC+8ksCUbzwrK0TsTXp+v5oVX1GAc2GX/PUHX5rIYn9Cvbn9pOZh41FhQ1B28jaeBPxmEOtCmfZ544IqFBlM1RizTbTjCnx7hw+wmErYm6ONf+P3i5zSQ7+EsfXte9LgRNbrvWp2LWPlVujJVcvwBINPxCrtT7xAZ3de2yVifXvGbdOg+gXcjef5E1+wv96SF0fNWS6KZvtMNneQ2DUYC4QgznhHNFowzq07WoAaCJZN43AiupZopO1V7bp8gV6S1N0F1Ts6fShXif4XHRFJoS24oaaH4TQLnh4jiUQJoNmTcfMJqQkDDRsVr+zDxoiEy6M+Sf8mGpYhVrczF5JhxesAGMEq+pFlNGSX15s9M7vO6LuKJb8zixhSGY2bqfg2oEiZUxWkE1HexeRPmjumWIHjq0FvOvFF7ioSXfJAVquu0g7EKom0MfeqffryvGV5nazmpxc1C3OeFfEPVlFalCR
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(7916004)(4636009)(366004)(396003)(346002)(39860400002)(136003)(376002)(451199021)(66556008)(66476007)(66446008)(54906003)(64756008)(86362001)(186003)(66946007)(76116006)(4326008)(6916009)(91956017)(478600001)(41300700001)(316002)(6512007)(9686003)(6486002)(71200400001)(38100700002)(8676002)(8936002)(38070700005)(5660300002)(6506007)(26005)(83380400001)(2906002)(82960400001)(122000001)(33716001);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?7AIie6nn6Jas6MGeSCKfVtR/nEpXs7VRhi1TE8ykfJ+mWg6fQUJHeA0qqZgj?=
- =?us-ascii?Q?Eso9hD1qFSrxn0vPYSfK4lP91PErc7nKYF8El8IgOamXUB0z/dlGVgfTeGCp?=
- =?us-ascii?Q?JoS4+nspkKeRNyWLXV3ZGiY7OcGCiMjKAwLwCMRtfZzmbVLvAChGZrz5c18Q?=
- =?us-ascii?Q?lUSYLwwwidkOsW2iFL1CKn9CiFBbcw8ebj1+rOM2HTwHGHVx03TgT3lbh1IE?=
- =?us-ascii?Q?iV+vGs+xM65ot31oLv7QECRBVtCKeAhxtcFXLOBjmgJm7BmqtKt8aTY3zqLQ?=
- =?us-ascii?Q?m49Eu9FE4oXIYtWYQa7Hr+ivC7Uomt5b6H08cwXF8iQs248K6CKXxXVD7zv8?=
- =?us-ascii?Q?oTLsfZ1+rEIhPtlqzZdPNsCOrOnj0BWY2iaqEQB7HjT8/i/I8KqfbusKSHfa?=
- =?us-ascii?Q?9AvlrALKxe99GQCw/sbTlkTG0iyTvYh0WdmuhlHbDJaX7uGGLXirpWqbhIP7?=
- =?us-ascii?Q?MSzwH4CceiJ6UaFBxWOL5tY/6QJU495H7YrYFZ6zcpF6TX1W5c7+rdl5nxYG?=
- =?us-ascii?Q?G1bHQViVrftRUxaD/N0YkuTW9tc6rK6emz4m6kP0VO2hIFcDcfyrTizPS7Ql?=
- =?us-ascii?Q?tNiysRYRmQe2qAXnLmmzWFIRVHPxp+u+qeEjYZaJoHqs6+jObRjgZtseztCm?=
- =?us-ascii?Q?FixJlRAlcoru8kiwVtLoxZOcufMUefJNsEeUnQC5XtOhrAoAMqy/R4OfFNFQ?=
- =?us-ascii?Q?tFSS7JPqmG9UbigNkmVzK14e4V0sLzBHlOdnxxbOFgOt6A4AKefJrHNnDEAK?=
- =?us-ascii?Q?SXhFdQhnBj6Dkevh4CU+olGY6nwm1czGhUoo7ehWjfr/k+T0Bcvf4j3MqLDs?=
- =?us-ascii?Q?HCb9LMfghLrUnEwKIGXWSg3V8wRtpt+vjJNevCrye+536qQru473Hx03/yu1?=
- =?us-ascii?Q?xyLELS/AM1DoENw+uIlmgeLVFnJD+kJgsPShvqdq/vxJNLJpn7iAFhePuTtG?=
- =?us-ascii?Q?0erju7rFWe5KVvCWPT7ddetmMBikJ62lyb/DToWujEdjlr2ZlKh4pVr8LQ/B?=
- =?us-ascii?Q?XgP91CeKIlY63xLD4n6DiA9hQRaDGafJcskltU/8GKpVPBz8OklTV8pW1yGv?=
- =?us-ascii?Q?C7X8q40aOqmgPAGTOV8/4aa9JGYSJZkKtQrxcuqf9J9ea84v28OX2vU9w8AH?=
- =?us-ascii?Q?gCO3hDfBTWoHQYUSwty05ulw+TY4HkFTCSUxgdMva4Sf2JfctI+4WC84bnra?=
- =?us-ascii?Q?+C/2C47JgIcXYHiRYK66+DVgShwRLvlag2J6w1Dtszg7J35fSMoXmAzQqqgj?=
- =?us-ascii?Q?9n6/5GDx4BxEqCVIlKQ2RW5gHPDLJzNEk24Dn/oTrAUMdy7EGmJy000FPj5H?=
- =?us-ascii?Q?m15VpwooCFtIqPsjk3agkJUJspetCK2Mr8MYEH6wK9B5vtodWbO/d5bQLz5Y?=
- =?us-ascii?Q?uEASltQepBU91h7QWx6/tBCIvZY+sunhOO8e3mHfb/kPoaM8dObL/zcTTEQh?=
- =?us-ascii?Q?0ZHRItOBG1LUXNveDZeGa4nC/UbKVqig/cV/VUpHQcbglnRVYV5u52+N5m2E?=
- =?us-ascii?Q?H/O6rieNdqj8UcuQPXf2mu6eDDuGgGsjRNiQe9o7AxEux3qyJwvRgpZezRBJ?=
- =?us-ascii?Q?T057mhidfpGKK4R5nqvHBjQkrYaEfbYeUpfIrQKNgQg4Y8XLZirQcHysb59+?=
- =?us-ascii?Q?uw=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?SE3M1InTNLg0BOY+3ghHhcT/bnbnUGjbmBSDMEYFQ6IE6gv0Hm6mP4y1PKni?=
+ =?us-ascii?Q?9hkkeuxg30bCBlF6/SOVx12yQcgdDDZVUORbHNn7HQ4b9WadUVpDNFliPp+O?=
+ =?us-ascii?Q?bYg+imsv4Bc2v2Q04sNMdCVdcbdhmk7K71lPyRuTEggwVzTJ1PeOvlkHNAz0?=
+ =?us-ascii?Q?vgTSLq+JNpKkFJyL2KN6rwLdv3XGsdsg+x5QgElITRYKMAZP3n+u3PWMo3y8?=
+ =?us-ascii?Q?eA35nkoAXZHNP1MeOAoTec4PAhA0HNriUc26HcWwbZN7sGLDfY7Dd2FupzQW?=
+ =?us-ascii?Q?iq5d20Ryh5M/kxgesPTe60OxtYt0NJrarC6c2fqXQ39Z/LMVi9G2qrn55+aQ?=
+ =?us-ascii?Q?R7adKWrziEuYOc5VSQR5QaOH59rZGzrQ+9sfJEYFd96WehIqVNYoJm07CpWs?=
+ =?us-ascii?Q?bTw8/WpH96tsPxMKj9MCJeInbFotg8PPJegXuXPHWgv6xLaB5zjAKzJJI9Yt?=
+ =?us-ascii?Q?mAywDtFiMFjpayBarbz1D9iHI0RlbRwx8AJ/N8jxizWdYvslqeDCuqUHpbnT?=
+ =?us-ascii?Q?0WhFSEs4XnQe0hhLwe9jaBui7i1+3ojK8io5BQFXWvcDvjR8jSaBWEYTuipP?=
+ =?us-ascii?Q?5eo3qxT8PkEqOLctMY3rgqFN78ioiOrenex1ekovS7IhmmcInKCoIFwDM+bF?=
+ =?us-ascii?Q?qAjFUDH94cssZqnU+S5g2TYDZTo3NUsFJWm5/rR1Vqagjh1fmosKjj+GOsVG?=
+ =?us-ascii?Q?1yPnH/wbWS2esIxWPAk0H7Bdn5JP+IGBuOI2BaxGND5s6EItRSqRCu7zYEum?=
+ =?us-ascii?Q?zEam06USThssbNTIQeKNgHChqofNlNNBT4Yw93fYsZz/AjwSM5AdUR6r14Fn?=
+ =?us-ascii?Q?lO+fZ6kqoh0OqjnE+9j3i1Ukjt76lXxHM4EwrqijGOc0yE/hXbU+0Rujk6Fs?=
+ =?us-ascii?Q?ec504jQPW/DQNAsOj3HwFYmRVnRJBkzWvZ7fxzuRBdbRqmnG6L9klGo0ytvv?=
+ =?us-ascii?Q?RkiqG2bDxbLAvEMUREwfnHFnyZuCC8ZR7luKSOMt2OLE042GTRKbcYgMGkY9?=
+ =?us-ascii?Q?cuxb/8/m+SEpXpmQqhWTMz+1/WVWP31UAQpwaVVW/EHU8EMLZMZO0feq64az?=
+ =?us-ascii?Q?9iYEPmPkqBS50HK+1GSRwUiVeQqAvKwGE9rw2eNPgFlTsTCmrYN53XA/UaY5?=
+ =?us-ascii?Q?68T3Z6VXfuN9bWfAAIra6fHsBy4P6W8rntqYFbiXSPz3piO2QqTX+L51K81L?=
+ =?us-ascii?Q?thv6JYpCTYk/kScuTxlmzE9LqGTB7kwgi/0tI+c8AWuWx2PDjRqE1pv828pQ?=
+ =?us-ascii?Q?vjQb9WMu/1Bc8IFoJDJFqfGBOGIdz2TYVo/fnpJsrF2NhYP68AZ/bp53moba?=
+ =?us-ascii?Q?eXHGuWltxr6WnpUkEwA92FuO+1sVde7khlgFziFQhv1rOg61qc7NhyELTR7B?=
+ =?us-ascii?Q?zvRQuuheSDhHKPXTSx9MFY+UyxkE8OjNMM5wNhFcI1jMh/kSIcafGJtcraix?=
+ =?us-ascii?Q?pbRs2bNY+H8CUXpd+P2Rc4jiylTHrUZM/EIkhZh74S6Moc2cDaYm4OVgymMx?=
+ =?us-ascii?Q?ViKw+8B6Q+rDPtGWQ8Oirzd1tdr0XppKW+r9BZ0euLPV0tTRfycxsCLRgA0q?=
+ =?us-ascii?Q?VHOcWqZywPTJWQmrBTji3R9VLsTgZayeFrUl6C8ncnSLSVy2vAMTtUd486M9?=
+ =?us-ascii?Q?8g=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <EA1AAB4A4D48B54CBFFD64144657D325@namprd04.prod.outlook.com>
+Content-ID: <1E5302BA3A761E4DBE4C1514BEEAD307@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: foyw/NGNmDDH4aaGQz88cItvkjobUN9NSSPuvpmNhrPopIIhobLv8xx5MKzH9Cza/+EFZhLtEPjPbE40DvEpVsOSPXBJ2QhwDe9xU3/u6gKypvcBKRTmLQE6cYROu+O1xNFwaarI7xe0SOzONbtLsaMKaM2tJ26nt7IcKaFS/m2DmZI/DhYuDr/Icwy+WHbaGjGOJ6QfBGroLdlRYq9ReOBplKXffPQLe0dO+YaDrP/bJCToQ5g2dLcvgg9knhfsWFpD0hHcB69UtOiWtK1voy+IlzfjWKfbmT58DSO7VLvTOBzO4+Ez2S0qB6C/4k+nfdPuZ+uMPe0gYUZBtgN/m3yVGkDbiwoX3hUGDnmRzSTOzy16vfuEkXHfxrD5dXj1II2bI/r8rxO2YFAojca4Aq736VIPdq/12TILfsCNrabzeNn4LwWi9ocj0hPLtipbyFdVr9MBrbop5y30sUAfO0AHhJ3stpl809anVSL0+jsrxRbFYJbyRLp2a1IXiHEmKG7M6YZ8QK4d2bFj/ec4ci0jeIqOIzmfj09RiiTNl+OoG/cB4fV/GzD5bb9NlSAu/cbkgUis9DPjtk+nFvLUEm/oEFtmDep4sfItU+iVWViQ6v9F+NVBYdJIzg18L/9jcei691yPmmPnueas02k7cscBx3f8/Pb7+m4P/A9O+dTXp2+B8cNFwxrqW3Xns4Y2VxTpcqFtQJV3wPS+Goawhfz0gbU0HQWYuTTXf+lkzptMTNZiwyT2qvcFew7nKmD388oOz589vYqIry1pjvE5fDjXCSlHDuAuvjx/U5BszEgUgnxY2Ls86CoVeYURgkuoRua4mLqcJxn1NZ/NaqvjUc1HR/lDqavQA0B1wDsxMz8=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: CjzesA4ke1iyUSf0f9njUL0Q78W64Var0HeRtAGnc720MOn7NRnVkB5l3Q5fYIOIpIo38MBIOSdTcnNuBlg8+I0nY0YBuEVuQrMMQP7drJeU0KYwPf0TzY3pEJs/zNOVxEFjq0rLKvgpom60lwXLRkXiUHpph8I9fioFjr9tbs+qyDcOy48SzFCvRkiJ1YG3iaei1o29x6PPHNO4/lOU6ttZR/YBxYGvHdCLCxU1RT4cgg03mqV+bTyhMa32gKGUrQFaX0t3i7YAnpjR0HxDQmx6I/Zu43PdKhg0yAx4NNQ3HaWqkMRvuBfhzk0GKoITZ4ZVhzzeAux0ChxZob6EYr+spinrbWQC+WJAsJuVkMOWAo6vIYt0P2bVhx94/0PGBlrWDUJBVxrqpT1PbqJrYKqkU3tXayS9NzuwS9Crb+X8kbymNJLEIbU/2zRzgenUOhKCcRRh48me+fIkEgioMAyuzkfh3bq2VWQtwVvXmYVhbvz5PZ7Eg778lT9ZKOi1MovDxi7QFqGWNIMcjsoKejJerhR++ar3uxOxsuQP6U4OYgJIgEfgwOgVoiXGVA9Mb92tUjEPUWKaoJNwh8UV5nfG1473nRge1ew/7B1Px+7NBL/Be0VphiTUZgmZGR2sVOJOQIMfqwnocXwWNQWf8zYdOj48dPLwZJSSJ8GQS6i1Q4D4Ecbox3zb3tOb3mxbn8RsFOKsFH/F8WegChoo8CDPDRaMSq94A0Z1MPLL3+T5sOBYD/4KaVT+rnm08at4XXN6ME9Dw233v72hS83cbwOziMcndr8hKfGdG/iceCkK+YUhLjHP1ZTr908js8+YwxwzJcpgcahz7DhRpeA8VpdwMwfEhCfh33RklqoCshk=
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR04MB6272.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d8238e6c-e8aa-4463-4f40-08db8796c075
-X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Jul 2023 13:56:14.6406
+X-MS-Exchange-CrossTenant-Network-Message-Id: c8da6dbf-43bf-4b96-153d-08db87a5cf97
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 Jul 2023 15:44:02.5160
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: W1AFDeEUzLdAhbtGCLx5rwJNTbmQcxBltSsgyrWiv5tffGx/VZ5A65Ltw1Bj82te2VzGkuKEUwYLx6tD8OSOyA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR04MB8748
+X-MS-Exchange-CrossTenant-userprincipalname: 9pZ8EL2b0RILHlDXq+//ZCPpNtxGPiHTq+6alVNuFkPFe+C8NiiLOWAwcAIaerZOmvVRS4N+puDsl+Vs+AlqOA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR04MB7125
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, Jul 07, 2023 at 12:14:56PM +0900, Shin'ichiro Kawasaki wrote:
-> A recent commit modified the max_open_zones option to improve handling
-> of zoned block devices with max_active_zones limit. Modify description
-> of the option to meet the change.
+On Thu, Jul 06, 2023 at 07:12:59AM +0900, Damien Le Moal wrote:
+> From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 >=20
-> For that purpose, explain the relation between the max_open_zones option
-> and the device side limits max_active_zones and max_open_zones. Also
-> mention about three zone conditions 'implicit open', 'explict open' and
-> 'closed'. And replace the word 'zone state' with 'zone condition'.
+> Add initial support for Linux to allow specifying a hint for any
+> priority value. With this change, a priority value becomes the
+> combination of a priority class, a priority level and a hint.
+> The generic os.h ioprio manipulation macros, as well as the
+> os-dragonfly.h ioprio manipulation macros  are modified to ignore this
+> hint.
 >=20
-> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 > ---
->  HOWTO.rst | 44 ++++++++++++++++++++++++++++----------------
->  fio.1     | 36 ++++++++++++++++++++++++------------
->  2 files changed, 52 insertions(+), 28 deletions(-)
+>  backend.c         |  5 +++--
+>  engines/cmdprio.c |  4 ++--
+>  options.c         |  2 +-
+>  os/os-dragonfly.h |  4 ++--
+>  os/os-linux.h     | 17 +++++++++++++----
+>  os/os.h           |  4 ++--
+>  6 files changed, 23 insertions(+), 13 deletions(-)
 >=20
-> diff --git a/HOWTO.rst b/HOWTO.rst
-> index 2e1e55c2..4d50ad41 100644
-> --- a/HOWTO.rst
-> +++ b/HOWTO.rst
-> @@ -1056,22 +1056,34 @@ Target file/device
+> diff --git a/backend.c b/backend.c
+> index d67a4a07..6641441c 100644
+> --- a/backend.c
+> +++ b/backend.c
+> @@ -1791,12 +1791,13 @@ static void *thread_main(void *data)
+>  	/* ioprio_set() has to be done before td_io_init() */
+>  	if (fio_option_is_set(o, ioprio) ||
+>  	    fio_option_is_set(o, ioprio_class)) {
+> -		ret =3D ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class, o->ioprio);
+> +		ret =3D ioprio_set(IOPRIO_WHO_PROCESS, 0, o->ioprio_class,
+> +				 o->ioprio, 0);
+>  		if (ret =3D=3D -1) {
+>  			td_verror(td, errno, "ioprio_set");
+>  			goto err;
+>  		}
+> -		td->ioprio =3D ioprio_value(o->ioprio_class, o->ioprio);
+> +		td->ioprio =3D ioprio_value(o->ioprio_class, o->ioprio, 0);
+>  		td->ts.ioprio =3D td->ioprio;
+>  	}
 > =20
->  .. option:: max_open_zones=3Dint
+> diff --git a/engines/cmdprio.c b/engines/cmdprio.c
+> index 979a81b6..e6ff1fc2 100644
+> --- a/engines/cmdprio.c
+> +++ b/engines/cmdprio.c
+> @@ -342,7 +342,7 @@ static int fio_cmdprio_gen_perc(struct thread_data *t=
+d, struct cmdprio *cmdprio)
+>  		prio =3D &cmdprio->perc_entry[ddir];
+>  		prio->perc =3D options->percentage[ddir];
+>  		prio->prio =3D ioprio_value(options->class[ddir],
+> -					  options->level[ddir]);
+> +					  options->level[ddir], 0);
+>  		assign_clat_prio_index(prio, &values[ddir]);
 > =20
-> -	A zone of a zoned block device is in the open state when it is partiall=
-y
-> -	written (i.e. not all sectors of the zone have been written). Zoned
-> -	block devices may have a limit on the total number of zones that can
-> -	be simultaneously in the open state, that is, the number of zones that
-> -	can be written to simultaneously. The :option:`max_open_zones` paramete=
-r
-> -	limits the number of zones to which write commands are issued by all fi=
-o
-> -	jobs, that is, limits the number of zones that will be in the open
-> -	state. This parameter is relevant only if the :option:`zonemode` =3Dzbd=
- is
-> -	used. The default value is always equal to maximum number of open zones
-> -	of the target zoned block device and a value higher than this limit
-> -	cannot be specified by users unless the option
-> -	:option:`ignore_zone_limits` is specified. When
-> -	:option:`ignore_zone_limits` is specified or the target device has no
-> -	limit on the number of zones that can be in an open state,
-> -	:option:`max_open_zones` can specify 0 to disable any limit on the
-> -	number of zones that can be simultaneously written to by all jobs.
-> +	When a zone of a zoned block device is partially written (i.e. not all
-> +	sectors of the zone have been written), the zone is in one of three
-> +	conditions: 'implicit open', 'explicit open' or 'closed'. Zoned block
-> +	devices may have a limit called 'max_open_zones' (same name as the
-> +	parameter) on the total number of zones that can simultaneously be in
-> +	the 'implicit open' or 'explicit open' conditions. Zoned block devices
-> +	may have another limit called 'max_active_zones', on the total number o=
-f
-> +	zones that can simultaneously be in the three conditions. The
-> +	:option:`max_open_zones` parameter limits the number of zones to which
-> +	write commands are issued by all fio jobs, that is, limits the number o=
-f
-> +	zones that will be in the conditions. When the device has the
-> +	max_open_zones limit and does not have the max_active_zones limit, the
-> +	:option:`max_open_zones` parameter limits the number of zones in the tw=
-o
-> +	open conditions up to the limit. In this case, fio includes zones in th=
-e
-> +	two open conditions to the write target zones at fio start. When the
-> +	device has both the max_open_zones and the max_active_zones limits, the
-> +	:option:`max_open_zones` parameter limits the number of zones in the
-> +	three conditions up to the limit. In this case, fio includes zones in
-> +	the three conditions to the write target zones at fio start.
+>  		ret =3D init_ts_clat_prio(ts, ddir, &values[ddir]);
+> @@ -400,7 +400,7 @@ static int fio_cmdprio_parse_and_gen_bssplit(struct t=
+hread_data *td,
+>  			goto err;
+> =20
+>  		implicit_cmdprio =3D ioprio_value(options->class[ddir],
+> -						options->level[ddir]);
+> +						options->level[ddir], 0);
+> =20
+>  		ret =3D fio_cmdprio_generate_bsprio_desc(&cmdprio->bsprio_desc[ddir],
+>  						       &parse_res[ddir],
+> diff --git a/options.c b/options.c
+> index a7c4ef6e..c5343d4b 100644
+> --- a/options.c
+> +++ b/options.c
+> @@ -344,7 +344,7 @@ static int parse_cmdprio_bssplit_entry(struct thread_=
+options *o,
+>  	case 4: /* bs/perc/class/level case */
+>  		class =3D min(class, (unsigned int) IOPRIO_MAX_PRIO_CLASS);
+>  		level =3D min(level, (unsigned int) IOPRIO_MAX_PRIO);
+> -		entry->prio =3D ioprio_value(class, level);
+> +		entry->prio =3D ioprio_value(class, level, 0);
+>  		break;
+>  	default:
+>  		log_err("fio: invalid cmdprio_bssplit format\n");
+> diff --git a/os/os-dragonfly.h b/os/os-dragonfly.h
+> index bde39101..4ce72539 100644
+> --- a/os/os-dragonfly.h
+> +++ b/os/os-dragonfly.h
+> @@ -171,8 +171,8 @@ static inline int fio_getaffinity(int pid, os_cpu_mas=
+k_t *mask)
+>   * ioprio_set() with 4 arguments, so define fio's ioprio_set() as a macr=
+o.
+>   * Note that there is no idea of class within ioprio_set(2) unlike Linux=
+.
+>   */
+> -#define ioprio_value(ioprio_class, ioprio)	(ioprio)
+> -#define ioprio_set(which, who, ioprio_class, ioprio)	\
+> +#define ioprio_value(ioprio_class, ioprio, ioprio_hint)	(ioprio)
+> +#define ioprio_set(which, who, ioprio_class, ioprio, ioprio_hint)	\
+>  	ioprio_set(which, who, ioprio)
+> =20
+>  #define ioprio(ioprio)		(ioprio)
+> diff --git a/os/os-linux.h b/os/os-linux.h
+> index 2f9f7e79..6f241d09 100644
+> --- a/os/os-linux.h
+> +++ b/os/os-linux.h
+> @@ -125,13 +125,19 @@ enum {
+>  #define IOPRIO_BITS		16
+>  #define IOPRIO_CLASS_SHIFT	13
+> =20
+> +#define IOPRIO_HINT_BITS	10
+> +#define IOPRIO_HINT_SHIFT	3
 > +
-> +	This parameter is relevant only if the :option:`zonemode` =3Dzbd is use=
-d.
-> +	The default value is always equal to the max_open_zones limit of the
-> +	target zoned block device and a value higher than this limit cannot be
-> +	specified by users unless the option :option:`ignore_zone_limits` is
-> +	specified. When :option:`ignore_zone_limits` is specified or the target
-> +	device does not have the max_open_zones limit, :option:`max_open_zones`
-> +	can specify 0 to disable any limit on the number of zones that can be
-> +	simultaneously written to by all jobs.
-
-While this is a wall of text, I don't really see a better way.
-
-This option really controls the maximum number of zones that fio will
-issue writes to simultaneously.
-
-For clarity, I guess we could introduce a --max_write_zones option
-and move this description there, and make --max_open_zones an alias
-for --max_write_zones... But I'm not sure if it would be worth it.
-
-Either way:
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
-
-
-Kind regards,
-Niklas
-
+>  #define IOPRIO_MIN_PRIO		0	/* highest priority */
+>  #define IOPRIO_MAX_PRIO		7	/* lowest priority */
 > =20
->  .. option:: job_max_open_zones=3Dint
+>  #define IOPRIO_MIN_PRIO_CLASS	0
+>  #define IOPRIO_MAX_PRIO_CLASS	3
 > =20
-> diff --git a/fio.1 b/fio.1
-> index 73b7e8c9..e8bc4f33 100644
-> --- a/fio.1
-> +++ b/fio.1
-> @@ -832,18 +832,30 @@ numbers fio only reads beyond the write pointer if =
-explicitly told to do
->  so. Default: false.
->  .TP
->  .BI max_open_zones \fR=3D\fPint
-> -A zone of a zoned block device is in the open state when it is partially=
- written
-> -(i.e. not all sectors of the zone have been written). Zoned block device=
-s may
-> -have limit a on the total number of zones that can be simultaneously in =
-the
-> -open state, that is, the number of zones that can be written to simultan=
-eously.
-> -The \fBmax_open_zones\fR parameter limits the number of zones to which w=
-rite
-> -commands are issued by all fio jobs, that is, limits the number of zones=
- that
-> -will be in the open state. This parameter is relevant only if the
-> -\fBzonemode=3Dzbd\fR is used. The default value is always equal to maxim=
-um number
-> -of open zones of the target zoned block device and a value higher than t=
-his
-> -limit cannot be specified by users unless the option \fBignore_zone_limi=
-ts\fR is
-> -specified. When \fBignore_zone_limits\fR is specified or the target devi=
-ce has
-> -no limit on the number of zones that can be in an open state,
-> +When a zone of a zoned block device is partially written (i.e. not all s=
-ectors
-> +of the zone have been written), the zone is in one of three
-> +conditions: 'implicit open', 'explicit open' or 'closed'. Zoned block de=
-vices
-> +may have a limit called 'max_open_zones' (same name as the parameter) on=
- the
-> +total number of zones that can simultaneously be in the 'implicit open'
-> +or 'explicit open' conditions. Zoned block devices may have another limi=
-t
-> +called 'max_active_zones', on the total number of zones that can simulta=
-neously
-> +be in the three conditions. The \fBmax_open_zones\fR parameter limits
-> +the number of zones to which write commands are issued by all fio jobs, =
-that is,
-> +limits the number of zones that will be in the conditions. When the devi=
-ce has
-> +the max_open_zones limit and does not have the max_active_zones limit, t=
-he
-> +\fBmax_open_zones\fR parameter limits the number of zones in the two ope=
-n
-> +conditions up to the limit. In this case, fio includes zones in the two =
-open
-> +conditions to the write target zones at fio start. When the device has b=
-oth the
-> +max_open_zones and the max_active_zones limits, the \fBmax_open_zones\fR
-> +parameter limits the number of zones in the three conditions up to the l=
-imit.
-> +In this case, fio includes zones in the three conditions to the write ta=
-rget
-> +zones at fio start.
+> -static inline int ioprio_value(int ioprio_class, int ioprio)
+> +#define IOPRIO_MIN_PRIO_HINT	0
+> +#define IOPRIO_MAX_PRIO_HINT	((1 << IOPRIO_HINT_BITS) - 1)
 > +
-> +This parameter is relevant only if the \fBzonemode=3Dzbd\fR is used. The=
- default
-> +value is always equal to the max_open_zones limit of the target zoned bl=
-ock
-> +device and a value higher than this limit cannot be specified by users u=
-nless
-> +the option \fBignore_zone_limits\fR is specified. When \fBignore_zone_li=
-mits\fR
-> +is specified or the target device does not have the max_open_zones limit=
-,
->  \fBmax_open_zones\fR can specify 0 to disable any limit on the number of=
- zones
->  that can be simultaneously written to by all jobs.
->  .TP
+> +static inline int ioprio_value(int ioprio_class, int ioprio, int ioprio_=
+hint)
+>  {
+>  	/*
+>  	 * If no class is set, assume BE
+> @@ -139,7 +145,9 @@ static inline int ioprio_value(int ioprio_class, int =
+ioprio)
+>          if (!ioprio_class)
+>                  ioprio_class =3D IOPRIO_CLASS_BE;
+> =20
+> -	return (ioprio_class << IOPRIO_CLASS_SHIFT) | ioprio;
+> +	return (ioprio_class << IOPRIO_CLASS_SHIFT) |
+> +		(ioprio_hint << IOPRIO_HINT_SHIFT) |
+> +		ioprio;
+>  }
+> =20
+>  static inline bool ioprio_value_is_class_rt(unsigned int priority)
+> @@ -147,10 +155,11 @@ static inline bool ioprio_value_is_class_rt(unsigne=
+d int priority)
+>  	return (priority >> IOPRIO_CLASS_SHIFT) =3D=3D IOPRIO_CLASS_RT;
+>  }
+> =20
+> -static inline int ioprio_set(int which, int who, int ioprio_class, int i=
+oprio)
+> +static inline int ioprio_set(int which, int who, int ioprio_class, int i=
+oprio,
+> +			     int ioprio_hint)
+>  {
+>  	return syscall(__NR_ioprio_set, which, who,
+> -		       ioprio_value(ioprio_class, ioprio));
+> +		       ioprio_value(ioprio_class, ioprio, ioprio_hint));
+>  }
+> =20
+>  #define ioprio_class(ioprio)	((ioprio) >> IOPRIO_CLASS_SHIFT)
+> diff --git a/os/os.h b/os/os.h
+> index 036fc233..2217d5f8 100644
+> --- a/os/os.h
+> +++ b/os/os.h
+> @@ -122,9 +122,9 @@ extern int fio_cpus_split(os_cpu_mask_t *mask, unsign=
+ed int cpu);
+>  #define IOPRIO_MAX_PRIO_CLASS		0
+>  #endif
+>  #ifndef FIO_HAVE_IOPRIO
+> -#define ioprio_value(prioclass, prio)	(0)
+> +#define ioprio_value(prioclass, prio, priohint)	(0)
+>  #define ioprio(ioprio)			0
+> -#define ioprio_set(which, who, prioclass, prio)	(0)
+> +#define ioprio_set(which, who, prioclass, prio, priohint) (0)
+>  #define IOPRIO_MIN_PRIO			0
+>  #define IOPRIO_MAX_PRIO			0
+>  #endif
 > --=20
-> 2.40.1
-> =
+> 2.41.0
+>=20
+
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
