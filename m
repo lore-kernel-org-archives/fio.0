@@ -2,50 +2,50 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39ECEC001B0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9324BC001DE
 	for <fio@archiver.kernel.org>; Wed, 19 Jul 2023 10:58:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229868AbjGSK6H (ORCPT <rfc822;fio@archiver.kernel.org>);
+        id S229530AbjGSK6H (ORCPT <rfc822;fio@archiver.kernel.org>);
         Wed, 19 Jul 2023 06:58:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37772 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbjGSK6G (ORCPT <rfc822;fio@vger.kernel.org>);
+        with ESMTP id S229674AbjGSK6G (ORCPT <rfc822;fio@vger.kernel.org>);
         Wed, 19 Jul 2023 06:58:06 -0400
 Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D52919A
-        for <fio@vger.kernel.org>; Wed, 19 Jul 2023 03:58:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4396197
+        for <fio@vger.kernel.org>; Wed, 19 Jul 2023 03:58:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1689764284; x=1721300284;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=mL3TCnx8k2I5VdSpxeBrTT3qSGNB3WqaTWPPcdCQZlk=;
-  b=gXVoVp7q+H2fFTz3eELYyimA0d+eJm32rYuK+2Tfp7nrt4XmxOv6a/h0
-   G0pe6CIfsudwbQg/bY3Z2QdoU10WLS94ExHpO7kqJHvIS7U0CAoHXy9Mn
-   yB6Us465wF+4QdGJQk6164uZB0v4p6L8JoQu889JkqZ0WYvBgU6R++K5w
-   lVH+9xCcvo4omZApSK4fdTR7faIp2aUBZ4NVc0OyVHPjdLiv+0qjeLfqx
-   jsZoibHAF3HFp45QbTDft5rBpwcx3pZJ0JDxZZA3QmfaPF8oicjiP1+ON
-   Jo88Y8eXnnINpRBskvA8gF1A3Jq5U+FkKduG92i5f1SK77UvDnNxZ8zlI
-   A==;
+  bh=zZk0bzjeX1u4dbsRpmx0ELsKSiVJsm/20JCbvwcKNRw=;
+  b=qepNC12wz5J2ly2nEfB5e+ntImlNZeivIwOi04j0omJt8rAW0u47Rs8+
+   YtmJ4KTvTW9ftMmjonxpI0tqrhcS6DJVtKw3BuouMo9ZBzTDYgAxXx4Ze
+   S8BR0gqIA/DMkkx/rBxOjYLCIIx1CiBNjSIfe4d/BnkpC96a0M4ngVBXH
+   0ikRS98/slJDBukIC6DPW0taFCMX0ZTPI/5J5jbH6X/nrnkDXdMWhMQjf
+   KgSysYmU7soOUQD+U9x/e2y+KCq1XSiEnzgOTIX9P1KB3pQN2fdBsjfvt
+   Buasb3YERqIPr11l+nogjs7Bw8gUOx6wbrrfXXQzOX9ESJI4kpfnhGTVm
+   Q==;
 X-IronPort-AV: E=Sophos;i="6.01,216,1684771200"; 
-   d="scan'208";a="236860321"
+   d="scan'208";a="236860318"
 Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 19 Jul 2023 18:58:02 +0800
-IronPort-SDR: zbz0HBA564Uy7/qXOpVAwjRA8CG0GDd5SrOQN8Edy/rpZ9HlN/M6uvqORq6qJ/9OQIwLbev2Og
- QimsdpMCc+xidZopBIdmuGnMbpVv6OmLe9Jf/dgW5BpIejdrKSTCucThgEdKLFGkIDUGMAfTyd
- BraABOOslbsKGJuUjFim69tTuR4yk0JRCLKgRaH7sFKfmEykptLIp6NcGuQlzRhOenzVhZ0jtE
- fiaigKkspw2bretU9enVtiYsjl31De16rpK+kp05+FMiiiTYONHKuKfEaLv4tqYs1ieP74UY7f
- DY8=
+  by ob1.hgst.iphmx.com with ESMTP; 19 Jul 2023 18:58:01 +0800
+IronPort-SDR: AOghWGXR6S96tHKlY+AFOdIsgtKaMXj1NNR8oEcKi2Aqli/BTVMpdmMia0m+X9bGF8tICYv4PT
+ 3itv1rtcWDf6dp85W5A+d90vaNcDKojDKaR3O8GcZFiRw5zWh+7yKM27Tbs4yaw8J67IfhIBWJ
+ Y/4ghsnhJ+azxiGSjmMJwHNAUxZh2BZ423s8QnPm+LZeMlFFYGk/rmlG61WLAlMqFD1fp4l1xM
+ HHav1l+WUQLv6mx+EpooXPmGEMDeb55Ep7P5ft4jeOQideb3/qmZa4A3imJvAAPsjHD02USbrs
+ 3dU=
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Jul 2023 03:06:13 -0700
-IronPort-SDR: JD3mJTlX33bRfkDUYoPvZ0fPjVExHTqJwHEqVbMiwqtSVzwooXoiyNuyNIiuVmnoZ7wJckxvSe
- V3Dd0tpD2WZ8W0rw9owiFZrw4H/4eIduq66sjoWE1/FBnvWRth53C2D6P2Ya3OTu1RB48ZMlMQ
- 9QDECg4WSzxM07HEtok6kFPY1zdD3/XUCgrMODCbmUR3tYEUgAe+69Rhfwy53SOSv7DHpI+vB+
- 9uJMsWd3lvvTbZjkdwo26P4HlRhoSBaUfEnZ5Fm5zwKnBGdYsi0F9g6xgPJA9/F8nlCa8sO7QQ
- CAs=
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Jul 2023 03:06:12 -0700
+IronPort-SDR: Nmh2avV68R7p21By7q5VDo3jx4R/CW53wOOvextb1lxvKrTkDPxfub+jFdmrtF2ZXClkXSiv96
+ S6gS2vh5OHwUvYn6Fnp1b+zAD1td+ygVVD5eg1BeVtAI92qti3ZzpWdQwfdVvDGRVgSA8/aukm
+ SP6WaN6gOthBKo/rVpAxKoTeNuzCbYNyu2c6kSixaLxEWbYJGqUorDxyTC6qCQ3bLKE5Juh3NB
+ 9JyH8FeraXsttbdR5DOSPVXRgHwu2bC7dpXfl36pVtx7uuyEzrjvnObUWWg/owqPCDzh0jTFCI
+ bow=
 WDCIronportException: Internal
 Received: from shindev.dhcp.fujisawa.hgst.com (HELO shindev.fujisawa.hgst.com) ([10.149.53.55])
-  by uls-op-cesaip02.wdc.com with ESMTP; 19 Jul 2023 03:58:01 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 19 Jul 2023 03:58:00 -0700
 From:   Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To:     fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Vincent Fu <vincentfu@gmail.com>
@@ -53,9 +53,9 @@ Cc:     Damien Le Moal <dlemoal@kernel.org>,
         Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
         Niklas Cassel <niklas.cassel@wdc.com>,
         Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 03/13] zbd: print max_active_zones limit error message
-Date:   Wed, 19 Jul 2023 19:57:46 +0900
-Message-Id: <20230719105756.553146-4-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 02/13] zbd: write to closed zones on the devices with max_active_zones limit
+Date:   Wed, 19 Jul 2023 19:57:45 +0900
+Message-Id: <20230719105756.553146-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230719105756.553146-1-shinichiro.kawasaki@wdc.com>
 References: <20230719105756.553146-1-shinichiro.kawasaki@wdc.com>
@@ -65,67 +65,41 @@ Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-When zoned block devices have max_active_zones limit and when write
-operations exceed that limit, Linux block sub-system reports EOVERFLOW.
-However, the strerror() string for EOVERFLOW does not mention about
-max_active_zones then it confuses users.
+Current fio implementation does not handle zones in closed condition as
+write target zones. When the device has max_active_zones limit, the
+write to other zones may cause errors by exceeding the limit, since the
+zones in closed condition consume the device resource for the
+max_active_zones limit.
 
-To avoid the confusion, print additional error message to indicate the
-max_active_zones limit. For this purpose, add a hook function
-zbd_log_err() and call it from __io_u_log_error().
+To avoid the error, handle the zones in closed condition as write target
+in same manner as the zones in open condition when the device has the
+max_active_zones limit. At the job start, check each condition of the
+zones in the IO ranges and if it has closed condition, pass the zone
+to zbd_write_zones_get() in same manner as the zones in open condition.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
 ---
- io_u.c |  2 ++
- zbd.c  | 12 ++++++++++++
- zbd.h  |  1 +
- 3 files changed, 15 insertions(+)
+ zbd.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/io_u.c b/io_u.c
-index 27b6c92a..07e5bac5 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1879,6 +1879,8 @@ static void __io_u_log_error(struct thread_data *td, struct io_u *io_u)
- 		io_ddir_name(io_u->ddir),
- 		io_u->offset, io_u->xfer_buflen);
- 
-+	zbd_log_err(td, io_u);
-+
- 	if (td->io_ops->errdetails) {
- 		char *err = td->io_ops->errdetails(io_u);
- 
 diff --git a/zbd.c b/zbd.c
-index b05d2360..caac68bb 100644
+index a5cb34d2..b05d2360 100644
 --- a/zbd.c
 +++ b/zbd.c
-@@ -2243,3 +2243,15 @@ int zbd_do_io_u_trim(struct thread_data *td, struct io_u *io_u)
- 
- 	return io_u_completed;
- }
-+
-+void zbd_log_err(const struct thread_data *td, const struct io_u *io_u)
-+{
-+	const struct fio_file *f = io_u->file;
-+
-+	if (td->o.zone_mode != ZONE_MODE_ZBD)
-+		return;
-+
-+	if (io_u->error == EOVERFLOW)
-+		log_err("%s: Exceeded max_active_zones limit. Check conditions of zones out of I/O ranges.\n",
-+			f->file_name);
-+}
-diff --git a/zbd.h b/zbd.h
-index a5cf59d1..5750a0b8 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -105,6 +105,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
- enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
- char *zbd_write_status(const struct thread_stat *ts);
- int zbd_do_io_u_trim(struct thread_data *td, struct io_u *io_u);
-+void zbd_log_err(const struct thread_data *td, const struct io_u *io_u);
- 
- static inline void zbd_close_file(struct fio_file *f)
- {
+@@ -1276,7 +1276,11 @@ int zbd_setup_files(struct thread_data *td)
+ 		for (zi = f->min_zone; zi < f->max_zone; zi++) {
+ 			z = &zbd->zone_info[zi];
+ 			if (z->cond != ZBD_ZONE_COND_IMP_OPEN &&
+-			    z->cond != ZBD_ZONE_COND_EXP_OPEN)
++			    z->cond != ZBD_ZONE_COND_EXP_OPEN &&
++			    z->cond != ZBD_ZONE_COND_CLOSED)
++				continue;
++			if (!zbd->max_active_zones &&
++			    z->cond == ZBD_ZONE_COND_CLOSED)
+ 				continue;
+ 			if (__zbd_write_zone_get(td, f, z))
+ 				continue;
 -- 
 2.40.1
 
