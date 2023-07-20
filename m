@@ -2,67 +2,67 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD9EEEB64DA
-	for <fio@archiver.kernel.org>; Thu, 20 Jul 2023 19:33:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C094EB64DD
+	for <fio@archiver.kernel.org>; Thu, 20 Jul 2023 19:36:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230472AbjGTTdi (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 20 Jul 2023 15:33:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41658 "EHLO
+        id S230417AbjGTTgU (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 20 Jul 2023 15:36:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230463AbjGTTde (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 20 Jul 2023 15:33:34 -0400
-Received: from mail-il1-x132.google.com (mail-il1-x132.google.com [IPv6:2607:f8b0:4864:20::132])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2817E1B6
-        for <fio@vger.kernel.org>; Thu, 20 Jul 2023 12:33:32 -0700 (PDT)
-Received: by mail-il1-x132.google.com with SMTP id e9e14a558f8ab-3461b58c61dso1651675ab.1
-        for <fio@vger.kernel.org>; Thu, 20 Jul 2023 12:33:32 -0700 (PDT)
+        with ESMTP id S230104AbjGTTgT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 20 Jul 2023 15:36:19 -0400
+Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 211E11995
+        for <fio@vger.kernel.org>; Thu, 20 Jul 2023 12:36:17 -0700 (PDT)
+Received: by mail-io1-xd29.google.com with SMTP id ca18e2360f4ac-785ccd731a7so15362639f.0
+        for <fio@vger.kernel.org>; Thu, 20 Jul 2023 12:36:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1689881611; x=1690486411;
+        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1689881776; x=1690486576;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=r47DU1gIFsuk+mttXaxh7RBIJ7zR9xJMGA/+/kyIwe8=;
-        b=ddyOoWXpb934OTO/MhKSzgSk9xYx/Zqf4rtAcmB8IyYbnpvKjvY2FhIQwGRPbnhDbt
-         IC2bZvmO81LisKCRrq+lSg/blxGLz9HdRSHUsJUPGoCuNYunJAlAIGl4BXUCK/OhZDH/
-         HGrGfsNJNOtjZ43Ub/Puad+z6yuVjsigjOE2kMfoyKHzPYy+rIpKD7yy8bVcyKhVuOg5
-         ou+JgMGCpeU0S0PtCkuU3x2YbipW3mmRvBdi3SZQnrG+YRJOqpMT4FyZuqo7CQC5heYB
-         SFLFtYONFuXoTIH5IlachKHYC1VoVKjxitdKJsLPbJ7Fg3vVOgxghUiS0xEtZ5tlgimM
-         uOEw==
+        bh=Fz/iMlsSqQrQQZv2byZjn13uoi8CVAUvkiOqYB5maRk=;
+        b=gP+BP7JlDO/Pyc4Spk+7d2IxAD9mW7AZphq8mfC5fdQX5JYuuWVbYO/YGoBZT6AqQ9
+         ejSVYWvj382CjidaXMmYB8tCYgrJ6L8aBMbRy4RtQ8Iz4fJF9xgF4jKjgNSmmLbPRsX9
+         pVI+E3xETVqPN49q5l8MXbX03TKHbUgRGjRBYXPyzvQgzBg26Py00PVfTm1P03wOCldh
+         mE3h6wJjmGujT5Q7WgDsMrvHRv7Awluz6z1fOut/Mi+tVoJnfShOarb6XN1NrY+N0eSA
+         RTT5SHnEBx572/GB1M+DCOaQMKsuegvWobLYa6gDncd4cmrBQzQxBwGMTLa7yNSl9Ny3
+         iwHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689881611; x=1690486411;
+        d=1e100.net; s=20221208; t=1689881776; x=1690486576;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=r47DU1gIFsuk+mttXaxh7RBIJ7zR9xJMGA/+/kyIwe8=;
-        b=KMtSb6bXYMndWbaUqaqEYO7S68u9+fCS4zMAhyJF7tRSJXwqZ74Cm1bZkzvZgFHNN6
-         7SUaoKOX+DUtOlpI9r5YdTbgkuur0dBUZyGmnO35iADNkWgRMJxE/mZ6M/J+m+Rdd2H4
-         N+21SHpa1zn1E43GtfKTgrcDTOSm3pry/uyorWEMNQKlNMu18l+oHnPmTngfqirlAp0o
-         7btUHlQKZtj1pzVV4M7URi6GZMkp489r0d4FPwOQnYc5jedVfUipbx7M8r541K7Igst1
-         M0l6/9RJps5pXyVMTIqs7LqqVazddyqaUKIS7N7IyDRpeq8wa4PntztZQwjZJD4i9F9z
-         wpZA==
-X-Gm-Message-State: ABy/qLa3LQbbBk4e2mSlqOVYZ7azjQvIgIA5aCj8dkEdpEVeWZaG/J7I
-        8ZBm+KBTci+EGw1D/rsO2ANRMQ==
-X-Google-Smtp-Source: APBJJlG22oVtf6dQKa2PQiDr6dKp6+ec/ACJhq8zBw0rf4YIMTq0SMqSvZ4SC20eI6DFdSIwg4+R2Q==
-X-Received: by 2002:a05:6602:3404:b0:77a:ee79:652 with SMTP id n4-20020a056602340400b0077aee790652mr4557901ioz.1.1689881611469;
-        Thu, 20 Jul 2023 12:33:31 -0700 (PDT)
+        bh=Fz/iMlsSqQrQQZv2byZjn13uoi8CVAUvkiOqYB5maRk=;
+        b=BP09/rhNTEsUwaEKN1hlAaKxHsJmgBeupDLf3hbIDk6wmca3FQOIeFhlO3E4BlgpXs
+         sv2FZNl1KhaB+LPSsmU6qji6M2lR/LpsUJBKiT7lhnRiy8EeY7VdEfSIAAsinkG16FmT
+         l6zGa0WdrjGEIjo8pxLF3ve02pW6zja9aJpkPv+6WTosD6aZD3xHw42lydIdxa1TitRh
+         YcbudME9qs/SVSP3CCjaXS9Lm19pQUVJ82Af3IxAk+p/DYMZwfBy44CF6WyGFoLXNRIO
+         y66GIbljBJZGAGay4FNA+zOQHBRBl31OkrOXnh5tWK7UZ4fu5UA1Qi+GL2QwiLf1dlop
+         2H0g==
+X-Gm-Message-State: ABy/qLbEjsMQQ3IoqoCfONXMqTvtydF3FFEA/6+GTODO1jkqZP7lP/lc
+        Oo8YWaktZWIoUK2Tcb7LSCvo/g==
+X-Google-Smtp-Source: APBJJlFB/Y7rxQEGSveM8B0mgQgaDOSgh16trfWIwxLGampLB41295EIaqj1dEsN9+87RXx/zUGvLA==
+X-Received: by 2002:a05:6602:3423:b0:780:d65c:d78f with SMTP id n35-20020a056602342300b00780d65cd78fmr4847221ioz.2.1689881776469;
+        Thu, 20 Jul 2023 12:36:16 -0700 (PDT)
 Received: from [192.168.1.94] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id o19-20020a02c6b3000000b0042b144abf71sm496113jan.179.2023.07.20.12.33.30
+        by smtp.gmail.com with ESMTPSA id u2-20020a02cb82000000b0042bb3e62108sm534112jap.4.2023.07.20.12.36.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Jul 2023 12:33:30 -0700 (PDT)
-Message-ID: <272fe8ef-49e4-e2b9-2763-0e11fcdbb118@kernel.dk>
-Date:   Thu, 20 Jul 2023 13:33:29 -0600
+        Thu, 20 Jul 2023 12:36:15 -0700 (PDT)
+Message-ID: <7bf0279a-0d54-03ab-15a0-84ae1b89e62e@kernel.dk>
+Date:   Thu, 20 Jul 2023 13:36:14 -0600
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
-Subject: Re: [PATCH v2 3/5] options: add priohint option
+Subject: Re: [PATCH v2 4/5] cmdprio: Add support for per I/O priority hint
 Content-Language: en-US
 To:     Damien Le Moal <dlemoal@kernel.org>, fio@vger.kernel.org,
         Vincent Fu <vincentfu@gmail.com>
 Cc:     Niklas Cassel <niklas.cassel@wdc.com>
 References: <20230720013114.28158-1-dlemoal@kernel.org>
- <20230720013114.28158-4-dlemoal@kernel.org>
+ <20230720013114.28158-5-dlemoal@kernel.org>
 From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20230720013114.28158-4-dlemoal@kernel.org>
+In-Reply-To: <20230720013114.28158-5-dlemoal@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -70,31 +70,50 @@ List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
 On 7/19/23 7:31?PM, Damien Le Moal wrote:
-> diff --git a/HOWTO.rst b/HOWTO.rst
-> index 7ae8ea7b..9b9472a8 100644
-> --- a/HOWTO.rst
-> +++ b/HOWTO.rst
-> @@ -3424,6 +3424,12 @@ Threads, processes and job synchronization
->  	priority setting, see I/O engine specific :option:`cmdprio_percentage`
->  	and :option:`cmdprio_class` options.
->  
-> +.. option:: priohint=int
-> +
-> +	Set the I/O priority hint. This has effects only for devices with
-> +	features controlled through priority hints (e.g. block devices
-> +	supporting command duration limits).
-> +
+> diff --git a/engines/io_uring.c b/engines/io_uring.c
+> index f30a3c00..d55af6bc 100644
+> --- a/engines/io_uring.c
+> +++ b/engines/io_uring.c
+> @@ -157,6 +157,21 @@ static struct fio_option options[] = {
+>  		.category = FIO_OPT_C_ENGINE,
+>  		.group	= FIO_OPT_G_IOURING,
+>  	},
+> +	{
+> +		.name	= "cmdprio_hint",
+> +		.lname	= "Asynchronous I/O priority hint",
+> +		.type	= FIO_OPT_INT,
+> +		.off1	= offsetof(struct ioring_options,
+> +				   cmdprio_options.hint[DDIR_READ]),
+> +		.off2	= offsetof(struct ioring_options,
+> +				   cmdprio_options.hint[DDIR_WRITE]),
+> +		.help	= "Set asynchronous IO priority hint",
+> +		.minval	= IOPRIO_MIN_PRIO_HINT,
+> +		.maxval	= IOPRIO_MAX_PRIO_HINT,
+> +		.interval = 1,
+> +		.category = FIO_OPT_C_ENGINE,
+> +		.group	= FIO_OPT_G_IOURING,
+> +	},
+>  	{
+>  		.name	= "cmdprio",
+>  		.lname	= "Asynchronous I/O priority level",
+> @@ -195,6 +210,12 @@ static struct fio_option options[] = {
+>  		.type	= FIO_OPT_UNSUPPORTED,
+>  		.help	= "Your platform does not support I/O priority classes",
+>  	},
+> +	{
+> +		.name	= "cmdprio_hint",
+> +		.lname	= "Asynchronous I/O priority hint",
+> +		.type	= FIO_OPT_UNSUPPORTED,
+> +		.help	= "Your platform does not support I/O priority classes",
+> +	},
+>  	{
+>  		.name	= "cmdprio",
+>  		.lname	= "Asynchronous I/O priority level",
 
-I would rephrase that as:
-
-	Set the I/O priority hint. This is only applicable to devices with
-	features controlled through priority hints (e.g. block devices
-	supporting command duration limits, or CDL). CDL is a way to XXX
-
-and finish the XXX, and apply to the man page as well.
-
-Assume people don't know what CDL is, because that will generally be
-true!
+Since neither this nor libaio actually do anything with these values,
+why isn't this just a generic option? You could flag the two engines
+where it actually works with an engine flag, and check if it's set and
+we don't have that flag and error out in the generic code.
 
 -- 
 Jens Axboe
