@@ -2,438 +2,959 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88D5FEB64DC
-	for <fio@archiver.kernel.org>; Fri, 21 Jul 2023 11:32:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97465EB64DC
+	for <fio@archiver.kernel.org>; Fri, 21 Jul 2023 12:00:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbjGULcO (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 21 Jul 2023 07:32:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41038 "EHLO
+        id S229829AbjGUMAU (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 21 Jul 2023 08:00:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229883AbjGULcN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 21 Jul 2023 07:32:13 -0400
-Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C643E0
-        for <fio@vger.kernel.org>; Fri, 21 Jul 2023 04:32:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1689939131; x=1721475131;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=gTsAMXrc7LPXK7zt/L7YDDvu6LEUrK6uOiqvSXloc00=;
-  b=P6GzbBoPXn7H/lLGrErLbk7q1xGoR+MwUGI/708+GZ8LGCaZ4epduncR
-   dsZ8/kSu2MgcT8Cj1b27RKuOMftMQ08UIXkAXIiRH5eqBr8mHGncxrSEB
-   0KwoaLPDWI0UtlKRaUjbO/mZUOTkp8QnuR+znbdZu11fS+HsmYdQrTLup
-   BAMqBIaOHSRhvaHzqMfNUqWSdR6gE9oqOlO6HrNsz8t2HI7gh6+Y1rGJL
-   +aD7VWLxMYkiRGfzhHCVvJT0tcWWxOE3odsXp1d01zbjINxiMFUC4vgDI
-   QlH9yn0s04i611Lxw3W7L3/M7DS4BXbJJXD0YhUXaulu8q8uqQtQKGDww
-   A==;
-X-IronPort-AV: E=Sophos;i="6.01,220,1684771200"; 
-   d="scan'208";a="243351824"
-Received: from mail-co1nam11lp2169.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.169])
-  by ob1.hgst.iphmx.com with ESMTP; 21 Jul 2023 19:32:10 +0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=kGlvlEsBc1EoDIe/sbHtCFaQOQpD5qYPq1P2nEc+iTz8h+5pOfc9qRXBHYlUg4sjcmW0Q7M9W4rl0Lk0XBVisLlUJ83PRp+i9w28J8GH/wAz+dIlBzT+rU3bi9ireOs48WSdMRLOwzz5dH4Zdqu0DXD87K243XjPXtje9y7ogC/3HkQrIctCIkiTYel5bWEuc3Dl/WTijQnkIOWJcTx/DNKYNbxPL2+1J6KIenk36PjnhJLnomoHQ+RHo7Msy1A2umSwXZT+dogG+Pnjyg8CqXnhjJArN0CBREa9bYooA2ZVeqYi9OPxb1nxfx9KCn/iWKAM0pL9jljJ1lzgfRj+VA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=BVVGdXgeAUagqej77pGPDutbGJeDZRLMOHcsWJjHpyY=;
- b=LGtoOY7ML2iX4XTWWNynwlH3UEMr4tyG8CO5SwMA4nqwI3dEssF3cKOzXsFpXsE1z0FVonS3amy8FdZ0AtPn4q+Hg1KLm70H6F0OzZkbEcKUD73/qbrM2N5Nm9WeQxaHbWLm7HAO2p5M40TC08VsCDiY4wIk1JraayRL0Pi7TIvnXA0a6nITbBhxoAnMkLSIzJvlfZ3gQwk3uXjlm1W24Vzr3LBpx0ein18LrnJJ8C2Po2UuHL0cVHrUtYtbDIKj2Ahg3tlVu2pA04mc0w7oHpeGExk/pFNTZ+HnmKAWhmOlUVzPLO6NxQWePLuzr/7b7fmavoHi0WHLlT54uUYPGw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
- header.d=wdc.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BVVGdXgeAUagqej77pGPDutbGJeDZRLMOHcsWJjHpyY=;
- b=vPc0DPrejuvE7IiIo8YHtPckyoR9qEqW8gT5usGwc/KOqQrYkFCfQhLCubHIahHi5fXRwnGwT0BcNSH0YMilXLd8aOFMBUaOIh2QyT0V4viKXzAiFqRv1EIPyBron7YGJTFJWSdgMfmsRV9vWTKNrdrnSJNqpdG9TzXKfyhVpZs=
-Received: from MN2PR04MB6272.namprd04.prod.outlook.com (2603:10b6:208:e0::27)
- by DS0PR04MB8741.namprd04.prod.outlook.com (2603:10b6:8:127::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6544.24; Fri, 21 Jul
- 2023 11:32:08 +0000
-Received: from MN2PR04MB6272.namprd04.prod.outlook.com
- ([fe80::d093:80b3:59e5:c8a9]) by MN2PR04MB6272.namprd04.prod.outlook.com
- ([fe80::d093:80b3:59e5:c8a9%6]) with mapi id 15.20.6609.026; Fri, 21 Jul 2023
- 11:32:08 +0000
-From:   Niklas Cassel <Niklas.Cassel@wdc.com>
-To:     Damien Le Moal <dlemoal@kernel.org>
-CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
-        Vincent Fu <vincentfu@gmail.com>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH v3 5/6] cmdprio: Add support for per I/O priority hint
-Thread-Topic: [PATCH v3 5/6] cmdprio: Add support for per I/O priority hint
-Thread-Index: AQHZu8M/RPR/UY38o0yx6yFAGmahNa/EFm+A
-Date:   Fri, 21 Jul 2023 11:32:08 +0000
-Message-ID: <ZLpst9InxlrZkRim@x1-carbon>
-References: <20230721110510.44772-1-dlemoal@kernel.org>
- <20230721110510.44772-6-dlemoal@kernel.org>
-In-Reply-To: <20230721110510.44772-6-dlemoal@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=wdc.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MN2PR04MB6272:EE_|DS0PR04MB8741:EE_
-x-ms-office365-filtering-correlation-id: 54d5d769-547c-4273-b48d-08db89de1dff
-wdcipoutbound: EOP-TRUE
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: frv8kJvYhmx+XF04kiasUgHYOIbiN8StnZt/db/8ENRF8z+mrg/e5hP4KOdgQ4MF9Ibw6C0EDbhyTEWjUhzd/X3CTSEZa+R+P16flDtzrghlKUIjGj377DiP6p2GlwV2poqhtRE2+tjMzLCNMHT6d/uwg9MwHmKG/M5H2MqsfnEWZKtczs2FfbPzUWJHN57NxABBJLwv88Uw0xKyhnO//uvvUE5YmjNNAUq5pthfBvw2MnEJJNipjAt6gZ8RiIzXCzIAKNj2KC6yeLpV58L5MUAbeWi8crrubydcOmnUhofunLTeb4Vu+6lUtcP9BKiBf7lKmJcxt08/uyyzpmgMKM9pnX4C5PADKkHE+rtEu4i665aHehwHjABG9hqqgnIvHfwjZH5wZFrIkZt53StdreJIKcrkQN920Lx2NQouGoVdyVUWHArN+WTMPCt8DO5O6QgfTONIzrCZC/BFPaHwNY4Ru62E0Gw9cixzjfvXNkX099/ZslmixlYNdQW2V6mZeCzXeDDJXbuo/7VVUxDMBNZlI3o41d+PlmENvHrQONiYebKSSFO+xx3uOH7/7zVn50+m6l5i5PPxvp3GwNLD3xDpf7s3w2EHI+sqzeXNkGSJ4lQ1u5jBu2F1VGOsVCHM
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(7916004)(366004)(376002)(346002)(136003)(396003)(39860400002)(451199021)(66946007)(6506007)(9686003)(6512007)(122000001)(66556008)(8936002)(26005)(38100700002)(5660300002)(83380400001)(82960400001)(186003)(38070700005)(64756008)(33716001)(30864003)(2906002)(8676002)(91956017)(54906003)(66476007)(86362001)(76116006)(4326008)(41300700001)(478600001)(6916009)(71200400001)(6486002)(66446008)(316002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ykuJg/n/FrJ9JOYTi1iz/uZ5wF7ISZu/0EWATsjMe5TBXFnCymUtAQfkMkfY?=
- =?us-ascii?Q?GZqikUOwuQ4WGLduC0y4Hr2IMK2/hMWnBY1CDL1EhtO6AE6ROAQsUGtXTleS?=
- =?us-ascii?Q?qg1FYV8f7PHEf4HeNyBewqvHQsYSL+QLaVcYTIf7ZPPZQa4R/nMn0DZgST9w?=
- =?us-ascii?Q?bhNuSGWovC/KMmSwtJiMaC5NZVgdU5zS54l/c7gILd+7i80I0VUSBtjCDam/?=
- =?us-ascii?Q?vNPWLBcLcHSd9lRYBdcBVuEgf5i6bRTgdApMYNRvKLnqeDQVd2ATEuDDuXSx?=
- =?us-ascii?Q?fVgAYQ8ulvSEAgKDRdvoVyWehq+2lmqQpQAue3yUze8yR1wpFcy7kVGFkPIj?=
- =?us-ascii?Q?g2mqkzQbef/sP8hwrsZAl3jtbYn97riSX358mOE4YtCT2LnSOTRsf0S9VasO?=
- =?us-ascii?Q?Wj+WTFXplVPPzZMQXeNgqjJHZiE0lkeaWZInmRJNutkbikVAQj6gq7SBDiVg?=
- =?us-ascii?Q?r2iwqrUuUY1xe95a8PtUSLh88GkvjpewRsQVsLfvmoqOxR57+gMbqxATfML4?=
- =?us-ascii?Q?hRoOIhAGq7zc5lOFNP9tlCb+MIbDmCSBZXiVRu4jm+N4aauqH14Cg2PiVkCq?=
- =?us-ascii?Q?492U+kmChQoF3R5NeHJvulNsu79E5/GlofwRrSVc8XDkMECZorRoTHNxWfmw?=
- =?us-ascii?Q?r/ZWe/HHR7dv+ahKpEPENKoIEhUs8KwKu/91ahambgutMvAS9jn33dkORWZJ?=
- =?us-ascii?Q?e23zIQQcnH/DQA9xnbuXNCYnr4RTwEVZfO0OkJR4HJg+hxK7BQbEiTuMxNFE?=
- =?us-ascii?Q?KtJyYvyw0qJpWDibrlOCe11meoMO+ujBiVBtL+UfSLwitW75c/p+olyJbXT1?=
- =?us-ascii?Q?tkxsS2+GpFNK0vx97sn78e299165nWoZnV8yAbfWAi8yMPTF/Jr+Medp9ZGH?=
- =?us-ascii?Q?HMOeI9g8mi+mNAiC+RyVVN7mFzk3d4OmHgsugqi71BGCM1JwyQViw1AxaR3b?=
- =?us-ascii?Q?Bpdo306ZTDm0PTYotr+YOcY3v+MCZwJzSDyw2AzkYeZR77Gq/3fF8F4K9meh?=
- =?us-ascii?Q?gXve2qB0b91Vz6LGrsc4YPRc8sflQeOauQkveJHuRQwy0aqAOKuRIvfwPRjl?=
- =?us-ascii?Q?na/JWTBK9GB7MGheVdodwegZ/aXhaZRNcy5+w92MnWAPo6F1fWQNjoezfK9B?=
- =?us-ascii?Q?2vRdA2bWiZl5GmONSyPsLB4pgM0s6urVtdVJNPUM5tY3LD/eEi6JyWbaxN+G?=
- =?us-ascii?Q?Fg4tfarktIubaN4Nc7XgrnNswXbR7hYVRIuoxVvWXx10phNuFvlFElGwIFnV?=
- =?us-ascii?Q?Q/WzzNrCcQj4ShaDqba+IVPpyRxBOTHSNhKabS6hy2chOfOm3C+1vm5JRBrY?=
- =?us-ascii?Q?G7/a0LHSjHC+4XTkRQQplnPoNNwjGtMhRjiqJrcP1uW+W32p4H0Yw0+SecAJ?=
- =?us-ascii?Q?IMdWpjecx3/0omyuo96bqBfTK89mEWUzhP8Z67HJ+SMN3itKQ2g+X/cX4hqH?=
- =?us-ascii?Q?3lyQ3tV99dK/iSMCaswqec/EgxXgGntk9PyWcsosFnrZONg9iOJXoLiOn6X3?=
- =?us-ascii?Q?rH+/+vYwXB2fdfrDnL2tGfVRE/Jja/J1MrSDnDShwTNQlEQo8grznnlHgEuy?=
- =?us-ascii?Q?YWclCsLa27cLJfo6WplxHDODmAdEYsRJnw6lAucVf9VEz9HaYaLKtd5G/cFQ?=
- =?us-ascii?Q?eg=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A939128361FFEE4FB1EF33225C9D222E@namprd04.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: xLF8cvEn3wQBlmXRmXJCJpvqLNr7e0nMSWoLaXDu5iezQJSY3QV5p37XdqlXpKTzZaUcjI9HGFE3/4mnDnHEo8XI4yU7+gMAaEJ5Jx6KVhFHXpYL9Dov3Li/hGKSTG4ZYDe94XxYjxgtzwt+eenAJ39pAHuwMWbvAWI8TtzFsp+5fd3YZ0xoeFnGZBZdYvYcmHfQZFbrRO7T0ebMvDMmqqXV5/3vNNGCRzhMBFaVUecnKuMh0i4xtZK9y8eElrcupDGhgTVOfajBFPnznJ34GHAo/QPTKM24ErkklSgEkj9PEt8uU2jPMKke6rQMQJ4g/dDY2iLJ2B1DBjkqvKvZBF5xLtU+jr91oOr2bNy8/ZniFPdkNisT7zkUe0IBTZPSD3twffPZpSpSGJCSPoroVml/b9t6XvwrOfNbr1pmaollJXnJSRpllPSCI2tL72F1JaEdxRhYNigl4G9I/1knbKobitdJklaeCwQ8dqvgB6FZskvdyoGFCBk31x0E+MIcXwGCttSwYcmdzkkFrb+ksqFzvL53kFEacpRkeAw1eYubP54Ei5OBDVRrhozfg6aok4ThAbZIIZacuq+4cLHPeGXnQLejaTxv5Oi92VVaBdgTnOW21r1ayipeiQVwaHXZMmtHlLft5Wxj+vZ+KmXNiUYaFhQv9zFqNWZYKU9ekZKrgWKTuFml+A61kv2I1GWQjiWNddJrSgdR6oRAGFPeiSSaKcUtOLkdbJ36AxOyNympwoF3xJZKgKviktJ8s7590mWwT0n5eVrN1DfDhybmqys+IT/U5jEVnkNthEJ7vF/CB+i9xmO6eBdssyKIJOiXY5oVT92xInepIZr5yvm53rWcBpe7p1WPjK4vzYiCWnA=
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR04MB6272.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 54d5d769-547c-4273-b48d-08db89de1dff
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jul 2023 11:32:08.2029
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: /fzBPD//ficgWnTzNbDsM9vnUdLdGrqzobWsTK9AoZDhlG6fjkOsl4jN5q78Bq+V/zuGnLjIwgt0KzToxv1uaQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR04MB8741
+        with ESMTP id S229809AbjGUMAT (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Jul 2023 08:00:19 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A80171B
+        for <fio@vger.kernel.org>; Fri, 21 Jul 2023 05:00:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=ExGmnFHdLctQfqtjbR7hX4M03vlTJfNTtqHxvkdBb+c=; b=gO7kql97QcwhFu0yQ56QQRwRbk
+        fEwfSA27C0uWmxe4iQLlWYtljtOLS8Tm2gmkl6HMiCpTK+MJvS9l/Yv5dFY01gVPu4kkOBqe0pyj3
+        gyCRJxU3zBDRr08NCVpMKFZqFtYoM5YSXcX2oKYl8lIq4CP5rp+moyUKd02KZ8WsHHc0vnvF4mm1o
+        mZ36pXxcD2i7SxRr15EeVtJMj6IwnUz4RepvzpTiSpZMjf4An00PK0CrsY7f4/I/kXjEkZQerNDvS
+        KFxT7RN7mmKIPmmiQOC2sl/DcarycPeZZeDlUt2+/1wViACTrag9FaokqWOfi6flVrkKN0bU6XdOP
+        YJPEctIQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qMonp-0002p9-21
+        for fio@vger.kernel.org;
+        Fri, 21 Jul 2023 12:00:12 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 9BE0D1BC0158; Fri, 21 Jul 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230721120001.9BE0D1BC0158@kernel.dk>
+Date:   Fri, 21 Jul 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, Jul 21, 2023 at 08:05:09PM +0900, Damien Le Moal wrote:
-> Introduce the new option cmdprio_hint to allow specifying I/O priority
-> hints per IO with the io_uring and libaio IO engines. A third acceptable
-> format for the cmdprio_bssplit option is also introduced to allow
-> specifying an I/O hint in addition to a priority class and level.
->=20
-> Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
-> ---
->  HOWTO.rst          | 28 ++++++++++++++++++++++++----
->  engines/cmdprio.c  |  9 ++++++---
->  engines/cmdprio.h  | 22 ++++++++++++++++++++++
->  engines/io_uring.c |  4 ++--
->  fio.1              | 27 +++++++++++++++++++++++----
->  options.c          | 13 ++++++++++---
->  6 files changed, 87 insertions(+), 16 deletions(-)
->=20
-> diff --git a/HOWTO.rst b/HOWTO.rst
-> index d1a476e4..ac8314f3 100644
-> --- a/HOWTO.rst
-> +++ b/HOWTO.rst
-> @@ -2287,6 +2287,16 @@ with the caveat that when used on the command line=
-, they must come after the
->  	reads and writes. See :manpage:`ionice(1)`. See also the
->  	:option:`prioclass` option.
-> =20
-> +.. option:: cmdprio_hint=3Dint[,int] : [io_uring] [libaio]
-> +
-> +	Set the I/O priority hint to use for I/Os that must be issued with
-> +	a priority when :option:`cmdprio_percentage` or
-> +	:option:`cmdprio_bssplit` is set. If not specified when
-> +	:option:`cmdprio_percentage` or :option:`cmdprio_bssplit` is set,
-> +	this defaults to 0 (no hint). A single value applies to reads and
-> +	writes. Comma-separated values may be specified for reads and writes.
-> +	See also the :option:`priohint` option.
-> +
->  .. option:: cmdprio=3Dint[,int] : [io_uring] [libaio]
-> =20
->  	Set the I/O priority value to use for I/Os that must be issued with
-> @@ -2313,9 +2323,9 @@ with the caveat that when used on the command line,=
- they must come after the
-> =20
->  		cmdprio_bssplit=3Dblocksize/percentage:blocksize/percentage
-> =20
-> -	In this case, each entry will use the priority class and priority
-> -	level defined by the options :option:`cmdprio_class` and
-> -	:option:`cmdprio` respectively.
-> +	In this case, each entry will use the priority class, priority hint
-> +	and priority level defined by the options :option:`cmdprio_class`,
-> +        :option:`cmdprio` and :option:`cmdprio_hint` respectively.
-> =20
->  	The second accepted format for this option is:
-> =20
-> @@ -2326,7 +2336,14 @@ with the caveat that when used on the command line=
-, they must come after the
->  	accepted format does not restrict all entries to have the same priority
->  	class and priority level.
-> =20
-> -	For both formats, only the read and write data directions are supported=
-,
-> +	The third accepted format for this option is:
-> +
-> +		cmdprio_bssplit=3Dblocksize/percentage/class/level/hint:...
-> +
-> +	This is an extension of the second accepted format that allows to also
-> +	specify a priority hint.
-> +
-> +	For all formats, only the read and write data directions are supported,
->  	values for trim IOs are ignored. This option is mutually exclusive with
->  	the :option:`cmdprio_percentage` option.
-> =20
-> @@ -3445,6 +3462,9 @@ Threads, processes and job synchronization
->  	of I/Os so that the device can optimize its internal command scheduling
->  	according to the latency limits indicated by the user.
-> =20
-> +	For per-I/O priority hint setting, see the I/O engine specific
-> +	:option:`cmdprio_hint` option.
-> +
->  .. option:: cpus_allowed=3Dstr
-> =20
->  	Controls the same options as :option:`cpumask`, but accepts a textual
-> diff --git a/engines/cmdprio.c b/engines/cmdprio.c
-> index e6ff1fc2..153e3691 100644
-> --- a/engines/cmdprio.c
-> +++ b/engines/cmdprio.c
-> @@ -267,7 +267,8 @@ static int fio_cmdprio_percentage(struct cmdprio *cmd=
-prio, struct io_u *io_u,
->   * to be set. If the random percentage value is within the user specifie=
-d
->   * percentage of I/Os that should use a cmdprio priority value (rather t=
-han
->   * the default priority), then this function updates the io_u with an io=
-prio
-> - * value as defined by the cmdprio/cmdprio_class or cmdprio_bssplit opti=
-ons.
-> + * value as defined by the cmdprio/cmdprio_hint/cmdprio_class or
-> + * cmdprio_bssplit options.
->   *
->   * Return true if the io_u ioprio was changed and false otherwise.
->   */
-> @@ -342,7 +343,8 @@ static int fio_cmdprio_gen_perc(struct thread_data *t=
-d, struct cmdprio *cmdprio)
->  		prio =3D &cmdprio->perc_entry[ddir];
->  		prio->perc =3D options->percentage[ddir];
->  		prio->prio =3D ioprio_value(options->class[ddir],
-> -					  options->level[ddir], 0);
-> +					  options->level[ddir],
-> +					  options->hint[ddir]);
->  		assign_clat_prio_index(prio, &values[ddir]);
-> =20
->  		ret =3D init_ts_clat_prio(ts, ddir, &values[ddir]);
-> @@ -400,7 +402,8 @@ static int fio_cmdprio_parse_and_gen_bssplit(struct t=
-hread_data *td,
->  			goto err;
-> =20
->  		implicit_cmdprio =3D ioprio_value(options->class[ddir],
-> -						options->level[ddir], 0);
-> +						options->level[ddir],
-> +						options->hint[ddir]);
-> =20
->  		ret =3D fio_cmdprio_generate_bsprio_desc(&cmdprio->bsprio_desc[ddir],
->  						       &parse_res[ddir],
-> diff --git a/engines/cmdprio.h b/engines/cmdprio.h
-> index 2c9d87bc..81e6c390 100644
-> --- a/engines/cmdprio.h
-> +++ b/engines/cmdprio.h
-> @@ -40,6 +40,7 @@ struct cmdprio_options {
->  	unsigned int percentage[CMDPRIO_RWDIR_CNT];
->  	unsigned int class[CMDPRIO_RWDIR_CNT];
->  	unsigned int level[CMDPRIO_RWDIR_CNT];
-> +	unsigned int hint[CMDPRIO_RWDIR_CNT];
->  	char *bssplit_str;
->  };
-> =20
-> @@ -74,6 +75,21 @@ struct cmdprio_options {
->  		.category =3D FIO_OPT_C_ENGINE,					\
->  		.group	=3D opt_group,						\
->  	},									\
-> +	{									\
-> +		.name	=3D "cmdprio_hint",					\
-> +		.lname	=3D "Asynchronous I/O priority hint",			\
-> +		.type	=3D FIO_OPT_INT,						\
-> +		.off1	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.hint[DDIR_READ]),		\
-> +		.off2	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.hint[DDIR_WRITE]),		\
-> +		.help	=3D "Set asynchronous IO priority hint",			\
-> +		.minval	=3D IOPRIO_MIN_PRIO_HINT,					\
-> +		.maxval	=3D IOPRIO_MAX_PRIO_HINT,					\
-> +		.interval =3D 1,							\
-> +		.category =3D FIO_OPT_C_ENGINE,					\
-> +		.group	=3D opt_group,						\
-> +	},									\
->  	{									\
->  		.name	=3D "cmdprio",						\
->  		.lname	=3D "Asynchronous I/O priority level",			\
-> @@ -112,6 +128,12 @@ struct cmdprio_options {
->  		.type	=3D FIO_OPT_UNSUPPORTED,					\
->  		.help	=3D "Platform does not support I/O priority classes",	\
->  	},									\
-> +	{									\
-> +		.name	=3D "cmdprio_hint",					\
-> +		.lname	=3D "Asynchronous I/O priority hint",			\
-> +		.type	=3D FIO_OPT_UNSUPPORTED,					\
-> +		.help	=3D "Platform does not support I/O priority classes",	\
-> +	},									\
->  	{									\
->  		.name	=3D "cmdprio",						\
->  		.lname	=3D "Asynchronous I/O priority level",			\
-> diff --git a/engines/io_uring.c b/engines/io_uring.c
-> index 5613c4c6..e1abf688 100644
-> --- a/engines/io_uring.c
-> +++ b/engines/io_uring.c
-> @@ -285,8 +285,8 @@ static int fio_ioring_prep(struct thread_data *td, st=
-ruct io_u *io_u)
->  		/*
->  		 * Since io_uring can have a submission context (sqthread_poll)
->  		 * that is different from the process context, we cannot rely on
-> -		 * the IO priority set by ioprio_set() (option prio/prioclass)
-> -		 * to be inherited.
-> +		 * the IO priority set by ioprio_set() (options prio, prioclass,
-> +		 * and priohint) to be inherited.
->  		 * td->ioprio will have the value of the "default prio", so set
->  		 * this unconditionally. This value might get overridden by
->  		 * fio_ioring_cmdprio_prep() if the option cmdprio_percentage or
-> diff --git a/fio.1 b/fio.1
-> index e2a36327..f62617e7 100644
-> --- a/fio.1
-> +++ b/fio.1
-> @@ -2084,6 +2084,14 @@ is set, this defaults to the highest priority clas=
-s. A single value applies
->  to reads and writes. Comma-separated values may be specified for reads a=
-nd
->  writes. See man \fBionice\fR\|(1). See also the \fBprioclass\fR option.
->  .TP
-> +.BI (io_uring,libaio)cmdprio_hint \fR=3D\fPint[,int]
-> +Set the I/O priority hint to use for I/Os that must be issued with a
-> +priority when \fBcmdprio_percentage\fR or \fBcmdprio_bssplit\fR is set.
-> +If not specified when \fBcmdprio_percentage\fR or \fBcmdprio_bssplit\fR
-> +is set, this defaults to 0 (no hint). A single value applies to reads an=
-d
-> +writes. Comma-separated values may be specified for reads and writes.
-> +See also the \fBpriohint\fR option.
-> +.TP
->  .BI (io_uring,libaio)cmdprio \fR=3D\fPint[,int]
->  Set the I/O priority value to use for I/Os that must be issued with a
->  priority when \fBcmdprio_percentage\fR or \fBcmdprio_bssplit\fR is set.
-> @@ -2109,8 +2117,9 @@ The first accepted format for this option is the sa=
-me as the format of the
->  cmdprio_bssplit=3Dblocksize/percentage:blocksize/percentage
->  .RE
->  .P
-> -In this case, each entry will use the priority class and priority level =
-defined
-> -by the options \fBcmdprio_class\fR and \fBcmdprio\fR respectively.
-> +In this case, each entry will use the priority class, priority hint and
-> +priority level defined by the options \fBcmdprio_class\fR, \fBcmdprio\fR
-> +and \fBcmdprio_hint\fR respectively.
->  .P
->  The second accepted format for this option is:
->  .RS
-> @@ -2123,7 +2132,16 @@ entry. In comparison with the first accepted forma=
-t, the second accepted format
->  does not restrict all entries to have the same priority class and priori=
-ty
->  level.
->  .P
-> -For both formats, only the read and write data directions are supported,=
- values
-> +The third accepted format for this option is:
-> +.RS
-> +.P
-> +cmdprio_bssplit=3Dblocksize/percentage/class/level/hint:...
-> +.RE
-> +.P
-> +This is an extension of the second accepted format that allows to also
-> +specify a priority hint.
-> +.P
-> +For all formats, only the read and write data directions are supported, =
-values
->  for trim IOs are ignored. This option is mutually exclusive with the
->  \fBcmdprio_percentage\fR option.
->  .RE
-> @@ -3150,7 +3168,8 @@ I/O priority classes and to devices with features c=
-ontrolled through priority
->  hints, e.g. block devices supporting command duration limits, or CDL. CD=
-L is a
->  way to indicate the desired maximum latency of I/Os so that the device c=
-an
->  optimize its internal command scheduling according to the latency limits
-> -indicated by the user.
-> +indicated by the user. For per-I/O priority hint setting, see the I/O en=
-gine
-> +specific \fBcmdprio_hint\fB option.
->  .TP
->  .BI cpus_allowed \fR=3D\fPstr
->  Controls the same options as \fBcpumask\fR, but accepts a textual
-> diff --git a/options.c b/options.c
-> index 56672960..48aa0d7b 100644
-> --- a/options.c
-> +++ b/options.c
-> @@ -313,15 +313,17 @@ static int parse_cmdprio_bssplit_entry(struct threa=
-d_options *o,
->  	int matches =3D 0;
->  	char *bs_str =3D NULL;
->  	long long bs_val;
-> -	unsigned int perc =3D 0, class, level;
-> +	unsigned int perc =3D 0, class, level, hint;
-> =20
->  	/*
->  	 * valid entry formats:
->  	 * bs/ - %s/ - set perc to 0, prio to -1.
->  	 * bs/perc - %s/%u - set prio to -1.
->  	 * bs/perc/class/level - %s/%u/%u/%u
-> +	 * bs/perc/class/level/hint - %s/%u/%u/%u/%u
->  	 */
-> -	matches =3D sscanf(str, "%m[^/]/%u/%u/%u", &bs_str, &perc, &class, &lev=
-el);
-> +	matches =3D sscanf(str, "%m[^/]/%u/%u/%u/%u",
-> +			 &bs_str, &perc, &class, &level, &hint);
->  	if (matches < 1) {
->  		log_err("fio: invalid cmdprio_bssplit format\n");
->  		return 1;
-> @@ -342,9 +344,14 @@ static int parse_cmdprio_bssplit_entry(struct thread=
-_options *o,
->  	case 2: /* bs/perc case */
->  		break;
->  	case 4: /* bs/perc/class/level case */
-> +	case 5: /* bs/perc/class/level/hint case */
->  		class =3D min(class, (unsigned int) IOPRIO_MAX_PRIO_CLASS);
->  		level =3D min(level, (unsigned int) IOPRIO_MAX_PRIO);
-> -		entry->prio =3D ioprio_value(class, level, 0);
-> +		if (matches =3D=3D 5)
-> +			hint =3D min(hint, (unsigned int) IOPRIO_MAX_PRIO_HINT);
-> +		else
-> +			hint =3D 0;
-> +		entry->prio =3D ioprio_value(class, level, hint);
->  		break;
->  	default:
->  		log_err("fio: invalid cmdprio_bssplit format\n");
-> --=20
-> 2.41.0
->=20
+The following changes since commit 04361e9a23d6e0448fd6fbbd4e14ecdfff60e314:
 
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
+  Merge branch 'patch-3' of https://github.com/yangjueji/fio (2023-07-15 09:57:43 -0600)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to caf7ac7ef000097765b1c56404adb5e68b227977:
+
+  t/zbd: add max_active configs to run-tests-against-nullb (2023-07-20 09:52:37 -0400)
+
+----------------------------------------------------------------
+Dmitry Fomichev (2):
+      t/zbd: fix null_blk configuration in run-tests-against-nullb
+      t/zbd: add max_active configs to run-tests-against-nullb
+
+Shin'ichiro Kawasaki (11):
+      zbd: get max_active_zones limit value from zoned devices
+      zbd: write to closed zones on the devices with max_active_zones limit
+      zbd: print max_active_zones limit error message
+      docs: modify max_open_zones option description
+      t/zbd: add close_zone helper function
+      t/zbd: add max_active_zone variable
+      t/zbd: add test case to check zones in closed condition
+      t/zbd: add test case to check max_active_zones limit error message
+      t/zbd: get max_open_zones from sysfs
+      t/zbd: fix fio failure check and SG node failure in test case 31
+      t/zbd: add missing prep_write for test cases with write workloads
+
+ HOWTO.rst                     |  44 +++++----
+ fio.1                         |  36 +++++---
+ io_u.c                        |   2 +
+ ioengines.h                   |   4 +-
+ oslib/blkzoned.h              |   9 ++
+ oslib/linux-blkzoned.c        |  23 +++++
+ t/zbd/functions               |  33 ++++++-
+ t/zbd/run-tests-against-nullb | 203 ++++++++++++++++++++++++++++++++++++++++--
+ t/zbd/test-zbd-support        |  91 ++++++++++++++++++-
+ zbd.c                         |  47 +++++++++-
+ zbd.h                         |   5 ++
+ 11 files changed, 457 insertions(+), 40 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 7ae8ea7b..7fe70fbd 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -1056,22 +1056,34 @@ Target file/device
+ 
+ .. option:: max_open_zones=int
+ 
+-	A zone of a zoned block device is in the open state when it is partially
+-	written (i.e. not all sectors of the zone have been written). Zoned
+-	block devices may have a limit on the total number of zones that can
+-	be simultaneously in the open state, that is, the number of zones that
+-	can be written to simultaneously. The :option:`max_open_zones` parameter
+-	limits the number of zones to which write commands are issued by all fio
+-	jobs, that is, limits the number of zones that will be in the open
+-	state. This parameter is relevant only if the :option:`zonemode` =zbd is
+-	used. The default value is always equal to maximum number of open zones
+-	of the target zoned block device and a value higher than this limit
+-	cannot be specified by users unless the option
+-	:option:`ignore_zone_limits` is specified. When
+-	:option:`ignore_zone_limits` is specified or the target device has no
+-	limit on the number of zones that can be in an open state,
+-	:option:`max_open_zones` can specify 0 to disable any limit on the
+-	number of zones that can be simultaneously written to by all jobs.
++	When a zone of a zoned block device is partially written (i.e. not all
++	sectors of the zone have been written), the zone is in one of three
++	conditions: 'implicit open', 'explicit open' or 'closed'. Zoned block
++	devices may have a limit called 'max_open_zones' (same name as the
++	parameter) on the total number of zones that can simultaneously be in
++	the 'implicit open' or 'explicit open' conditions. Zoned block devices
++	may have another limit called 'max_active_zones', on the total number of
++	zones that can simultaneously be in the three conditions. The
++	:option:`max_open_zones` parameter limits the number of zones to which
++	write commands are issued by all fio jobs, that is, limits the number of
++	zones that will be in the conditions. When the device has the
++	max_open_zones limit and does not have the max_active_zones limit, the
++	:option:`max_open_zones` parameter limits the number of zones in the two
++	open conditions up to the limit. In this case, fio includes zones in the
++	two open conditions to the write target zones at fio start. When the
++	device has both the max_open_zones and the max_active_zones limits, the
++	:option:`max_open_zones` parameter limits the number of zones in the
++	three conditions up to the limit. In this case, fio includes zones in
++	the three conditions to the write target zones at fio start.
++
++	This parameter is relevant only if the :option:`zonemode` =zbd is used.
++	The default value is always equal to the max_open_zones limit of the
++	target zoned block device and a value higher than this limit cannot be
++	specified by users unless the option :option:`ignore_zone_limits` is
++	specified. When :option:`ignore_zone_limits` is specified or the target
++	device does not have the max_open_zones limit, :option:`max_open_zones`
++	can specify 0 to disable any limit on the number of zones that can be
++	simultaneously written to by all jobs.
+ 
+ .. option:: job_max_open_zones=int
+ 
+diff --git a/fio.1 b/fio.1
+index da875276..20acd081 100644
+--- a/fio.1
++++ b/fio.1
+@@ -832,18 +832,30 @@ numbers fio only reads beyond the write pointer if explicitly told to do
+ so. Default: false.
+ .TP
+ .BI max_open_zones \fR=\fPint
+-A zone of a zoned block device is in the open state when it is partially written
+-(i.e. not all sectors of the zone have been written). Zoned block devices may
+-have limit a on the total number of zones that can be simultaneously in the
+-open state, that is, the number of zones that can be written to simultaneously.
+-The \fBmax_open_zones\fR parameter limits the number of zones to which write
+-commands are issued by all fio jobs, that is, limits the number of zones that
+-will be in the open state. This parameter is relevant only if the
+-\fBzonemode=zbd\fR is used. The default value is always equal to maximum number
+-of open zones of the target zoned block device and a value higher than this
+-limit cannot be specified by users unless the option \fBignore_zone_limits\fR is
+-specified. When \fBignore_zone_limits\fR is specified or the target device has
+-no limit on the number of zones that can be in an open state,
++When a zone of a zoned block device is partially written (i.e. not all sectors
++of the zone have been written), the zone is in one of three
++conditions: 'implicit open', 'explicit open' or 'closed'. Zoned block devices
++may have a limit called 'max_open_zones' (same name as the parameter) on the
++total number of zones that can simultaneously be in the 'implicit open'
++or 'explicit open' conditions. Zoned block devices may have another limit
++called 'max_active_zones', on the total number of zones that can simultaneously
++be in the three conditions. The \fBmax_open_zones\fR parameter limits
++the number of zones to which write commands are issued by all fio jobs, that is,
++limits the number of zones that will be in the conditions. When the device has
++the max_open_zones limit and does not have the max_active_zones limit, the
++\fBmax_open_zones\fR parameter limits the number of zones in the two open
++conditions up to the limit. In this case, fio includes zones in the two open
++conditions to the write target zones at fio start. When the device has both the
++max_open_zones and the max_active_zones limits, the \fBmax_open_zones\fR
++parameter limits the number of zones in the three conditions up to the limit.
++In this case, fio includes zones in the three conditions to the write target
++zones at fio start.
++
++This parameter is relevant only if the \fBzonemode=zbd\fR is used. The default
++value is always equal to the max_open_zones limit of the target zoned block
++device and a value higher than this limit cannot be specified by users unless
++the option \fBignore_zone_limits\fR is specified. When \fBignore_zone_limits\fR
++is specified or the target device does not have the max_open_zones limit,
+ \fBmax_open_zones\fR can specify 0 to disable any limit on the number of zones
+ that can be simultaneously written to by all jobs.
+ .TP
+diff --git a/io_u.c b/io_u.c
+index 27b6c92a..07e5bac5 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1879,6 +1879,8 @@ static void __io_u_log_error(struct thread_data *td, struct io_u *io_u)
+ 		io_ddir_name(io_u->ddir),
+ 		io_u->offset, io_u->xfer_buflen);
+ 
++	zbd_log_err(td, io_u);
++
+ 	if (td->io_ops->errdetails) {
+ 		char *err = td->io_ops->errdetails(io_u);
+ 
+diff --git a/ioengines.h b/ioengines.h
+index 9484265e..4391b31e 100644
+--- a/ioengines.h
++++ b/ioengines.h
+@@ -9,7 +9,7 @@
+ #include "zbd_types.h"
+ #include "fdp.h"
+ 
+-#define FIO_IOOPS_VERSION	32
++#define FIO_IOOPS_VERSION	33
+ 
+ #ifndef CONFIG_DYNAMIC_ENGINES
+ #define FIO_STATIC	static
+@@ -62,6 +62,8 @@ struct ioengine_ops {
+ 			uint64_t, uint64_t);
+ 	int (*get_max_open_zones)(struct thread_data *, struct fio_file *,
+ 				  unsigned int *);
++	int (*get_max_active_zones)(struct thread_data *, struct fio_file *,
++				    unsigned int *);
+ 	int (*finish_zone)(struct thread_data *, struct fio_file *,
+ 			   uint64_t, uint64_t);
+ 	int (*fdp_fetch_ruhs)(struct thread_data *, struct fio_file *,
+diff --git a/oslib/blkzoned.h b/oslib/blkzoned.h
+index 29fb034f..e598bd4f 100644
+--- a/oslib/blkzoned.h
++++ b/oslib/blkzoned.h
+@@ -18,6 +18,9 @@ extern int blkzoned_reset_wp(struct thread_data *td, struct fio_file *f,
+ 				uint64_t offset, uint64_t length);
+ extern int blkzoned_get_max_open_zones(struct thread_data *td, struct fio_file *f,
+ 				       unsigned int *max_open_zones);
++extern int blkzoned_get_max_active_zones(struct thread_data *td,
++					 struct fio_file *f,
++					 unsigned int *max_active_zones);
+ extern int blkzoned_finish_zone(struct thread_data *td, struct fio_file *f,
+ 				uint64_t offset, uint64_t length);
+ #else
+@@ -53,6 +56,12 @@ static inline int blkzoned_get_max_open_zones(struct thread_data *td, struct fio
+ {
+ 	return -EIO;
+ }
++static inline int blkzoned_get_max_active_zones(struct thread_data *td,
++						struct fio_file *f,
++						unsigned int *max_open_zones)
++{
++	return -EIO;
++}
+ static inline int blkzoned_finish_zone(struct thread_data *td,
+ 				       struct fio_file *f,
+ 				       uint64_t offset, uint64_t length)
+diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
+index 722e0992..2c3ecf33 100644
+--- a/oslib/linux-blkzoned.c
++++ b/oslib/linux-blkzoned.c
+@@ -186,6 +186,29 @@ int blkzoned_get_max_open_zones(struct thread_data *td, struct fio_file *f,
+ 	return 0;
+ }
+ 
++int blkzoned_get_max_active_zones(struct thread_data *td, struct fio_file *f,
++				  unsigned int *max_active_zones)
++{
++	char *max_active_str;
++
++	if (f->filetype != FIO_TYPE_BLOCK)
++		return -EIO;
++
++	max_active_str = blkzoned_get_sysfs_attr(f->file_name, "queue/max_active_zones");
++	if (!max_active_str) {
++		*max_active_zones = 0;
++		return 0;
++	}
++
++	dprint(FD_ZBD, "%s: max active zones supported by device: %s\n",
++	       f->file_name, max_active_str);
++	*max_active_zones = atoll(max_active_str);
++
++	free(max_active_str);
++
++	return 0;
++}
++
+ static uint64_t zone_capacity(struct blk_zone_report *hdr,
+ 			      struct blk_zone *blkz)
+ {
+diff --git a/t/zbd/functions b/t/zbd/functions
+index 9a6d6999..4faa45a9 100644
+--- a/t/zbd/functions
++++ b/t/zbd/functions
+@@ -4,6 +4,7 @@ blkzone=$(type -p blkzone 2>/dev/null)
+ sg_inq=$(type -p sg_inq 2>/dev/null)
+ zbc_report_zones=$(type -p zbc_report_zones 2>/dev/null)
+ zbc_reset_zone=$(type -p zbc_reset_zone 2>/dev/null)
++zbc_close_zone=$(type -p zbc_close_zone 2>/dev/null)
+ zbc_info=$(type -p zbc_info 2>/dev/null)
+ if [ -z "${blkzone}" ] &&
+        { [ -z "${zbc_report_zones}" ] || [ -z "${zbc_reset_zone}" ]; }; then
+@@ -211,8 +212,14 @@ last_online_zone() {
+ # max_open_zones in sysfs, or which lacks zoned block device support completely.
+ max_open_zones() {
+     local dev=$1
++    local realdev syspath
+ 
+-    if [ -n "${sg_inq}" ] && [ ! -n "${use_libzbc}" ]; then
++    realdev=$(readlink -f "$dev")
++    syspath=/sys/block/${realdev##*/}/queue/max_open_zones
++
++    if [ -b "${realdev}" ] && [ -r "${syspath}" ]; then
++	cat ${syspath}
++    elif [ -n "${sg_inq}" ] && [ ! -n "${use_libzbc}" ]; then
+ 	if ! ${sg_inq} -e --page=0xB6 --len=20 --hex "$dev" \
+ 		 > /dev/null 2>&1; then
+ 	    # When sg_inq can not get max open zones, specify 0 which indicates
+@@ -238,6 +245,18 @@ max_open_zones() {
+     fi
+ }
+ 
++# If sysfs provides, get max_active_zones limit of the zoned block device.
++max_active_zones() {
++	local dev=$1
++	local sys_queue="/sys/block/${dev##*/}/queue/"
++
++	if [[ -e "$sys_queue/max_active_zones" ]]; then
++		cat "$sys_queue/max_active_zones"
++		return
++	fi
++	echo 0
++}
++
+ # Get minimum block size to write to seq zones. Refer the sysfs attribute
+ # zone_write_granularity which shows the valid minimum size regardless of zoned
+ # block device type. If the sysfs attribute is not available, refer physical
+@@ -304,6 +323,18 @@ reset_zone() {
+     fi
+ }
+ 
++# Close the zone on device $1 at offset $2. The offset must be specified in
++# units of 512 byte sectors.
++close_zone() {
++	local dev=$1 offset=$2
++
++	if [ -n "${blkzone}" ] && [ -z "${use_libzbc}" ]; then
++		${blkzone} close -o "${offset}" -c 1 "$dev"
++	else
++		${zbc_close_zone} -sector "$dev" "${offset}" >/dev/null
++	fi
++}
++
+ # Extract the number of bytes that have been transferred from a line like
+ # READ: bw=6847KiB/s (7011kB/s), 6847KiB/s-6847KiB/s (7011kB/s-7011kB/s), io=257MiB (269MB), run=38406-38406msec
+ fio_io() {
+diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
+index 7d2c7fa8..97d29966 100755
+--- a/t/zbd/run-tests-against-nullb
++++ b/t/zbd/run-tests-against-nullb
+@@ -67,13 +67,27 @@ configure_nullb()
+ 			fi
+ 			echo "${zone_capacity}" > zone_capacity
+ 		fi
++
+ 		if ((conv_pcnt)); then
+ 			if ((!conv_supported)); then
+ 				echo "null_blk does not support conventional zones"
+ 				return 2
+ 			fi
+ 			nr_conv=$((dev_size/zone_size*conv_pcnt/100))
+-			echo "${nr_conv}" > zone_nr_conv
++		else
++			nr_conv=0
++		fi
++		echo "${nr_conv}" > zone_nr_conv
++
++		if ((max_open)); then
++			echo "${max_open}" > zone_max_open
++			if ((max_active)); then
++				if ((!max_act_supported)); then
++					echo "null_blk does not support active zone counts"
++					return 2
++				fi
++				echo "${max_active}" > zone_max_active
++			fi
+ 		fi
+ 	fi
+ 
+@@ -90,6 +104,11 @@ show_nullb_config()
+ 		echo "    $(printf "Zone Capacity: %d MB" ${zone_capacity})"
+ 		if ((max_open)); then
+ 			echo "    $(printf "Max Open: %d Zones" ${max_open})"
++			if ((max_active)); then
++				echo "    $(printf "Max Active: %d Zones" ${max_active})"
++			else
++				echo "    Max Active: Unlimited Zones"
++			fi
+ 		else
+ 			echo "    Max Open: Unlimited Zones"
+ 		fi
+@@ -124,6 +143,7 @@ section3()
+ 	zone_size=4
+ 	zone_capacity=3
+ 	max_open=0
++	max_active=0
+ }
+ 
+ # Zoned device with mostly sequential zones, ZCAP == ZSIZE, unlimited MaxOpen.
+@@ -133,6 +153,7 @@ section4()
+ 	zone_size=1
+ 	zone_capacity=1
+ 	max_open=0
++	max_active=0
+ }
+ 
+ # Zoned device with mostly sequential zones, ZCAP < ZSIZE, unlimited MaxOpen.
+@@ -142,6 +163,7 @@ section5()
+ 	zone_size=4
+ 	zone_capacity=3
+ 	max_open=0
++	max_active=0
+ }
+ 
+ # Zoned device with mostly conventional zones, ZCAP == ZSIZE, unlimited MaxOpen.
+@@ -151,6 +173,7 @@ section6()
+ 	zone_size=1
+ 	zone_capacity=1
+ 	max_open=0
++	max_active=0
+ }
+ 
+ # Zoned device with mostly conventional zones, ZCAP < ZSIZE, unlimited MaxOpen.
+@@ -161,9 +184,11 @@ section7()
+ 	zone_size=4
+ 	zone_capacity=3
+ 	max_open=0
++	max_active=0
+ }
+ 
+-# Zoned device with no conventional zones, ZCAP == ZSIZE, limited MaxOpen.
++# Zoned device with no conventional zones, ZCAP == ZSIZE, limited MaxOpen,
++# unlimited MaxActive.
+ section8()
+ {
+ 	dev_size=1024
+@@ -172,9 +197,11 @@ section8()
+ 	zone_capacity=1
+ 	max_open=${set_max_open}
+ 	zbd_test_opts+=("-o ${max_open}")
++	max_active=0
+ }
+ 
+-# Zoned device with no conventional zones, ZCAP < ZSIZE, limited MaxOpen.
++# Zoned device with no conventional zones, ZCAP < ZSIZE, limited MaxOpen,
++# unlimited MaxActive.
+ section9()
+ {
+ 	conv_pcnt=0
+@@ -182,9 +209,11 @@ section9()
+ 	zone_capacity=3
+ 	max_open=${set_max_open}
+ 	zbd_test_opts+=("-o ${max_open}")
++	max_active=0
+ }
+ 
+-# Zoned device with mostly sequential zones, ZCAP == ZSIZE, limited MaxOpen.
++# Zoned device with mostly sequential zones, ZCAP == ZSIZE, limited MaxOpen,
++# unlimited MaxActive.
+ section10()
+ {
+ 	conv_pcnt=10
+@@ -192,9 +221,11 @@ section10()
+ 	zone_capacity=1
+ 	max_open=${set_max_open}
+ 	zbd_test_opts+=("-o ${max_open}")
++	max_active=0
+ }
+ 
+-# Zoned device with mostly sequential zones, ZCAP < ZSIZE, limited MaxOpen.
++# Zoned device with mostly sequential zones, ZCAP < ZSIZE, limited MaxOpen,
++# unlimited MaxActive.
+ section11()
+ {
+ 	conv_pcnt=10
+@@ -202,9 +233,11 @@ section11()
+ 	zone_capacity=3
+ 	max_open=${set_max_open}
+ 	zbd_test_opts+=("-o ${max_open}")
++	max_active=0
+ }
+ 
+-# Zoned device with mostly conventional zones, ZCAP == ZSIZE, limited MaxOpen.
++# Zoned device with mostly conventional zones, ZCAP == ZSIZE, limited MaxOpen,
++# unlimited MaxActive.
+ section12()
+ {
+ 	conv_pcnt=66
+@@ -212,9 +245,11 @@ section12()
+ 	zone_capacity=1
+ 	max_open=${set_max_open}
+ 	zbd_test_opts+=("-o ${max_open}")
++	max_active=0
+ }
+ 
+-# Zoned device with mostly conventional zones, ZCAP < ZSIZE, limited MaxOpen.
++# Zoned device with mostly conventional zones, ZCAP < ZSIZE, limited MaxOpen,
++# unlimited MaxActive.
+ section13()
+ {
+ 	dev_size=2048
+@@ -223,6 +258,155 @@ section13()
+ 	zone_capacity=3
+ 	max_open=${set_max_open}
+ 	zbd_test_opts+=("-o ${max_open}")
++	max_active=0
++}
++
++# Zoned device with no conventional zones, ZCAP == ZSIZE, limited MaxOpen,
++# MaxActive == MaxOpen.
++section14()
++{
++	dev_size=1024
++	conv_pcnt=0
++	zone_size=1
++	zone_capacity=1
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=${set_max_open}
++}
++
++# Zoned device with no conventional zones, ZCAP < ZSIZE, limited MaxOpen,
++# MaxActive == MaxOpen.
++section15()
++{
++	conv_pcnt=0
++	zone_size=4
++	zone_capacity=3
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=${set_max_open}
++}
++
++# Zoned device with mostly sequential zones, ZCAP == ZSIZE, limited MaxOpen,
++# MaxActive == MaxOpen.
++section16()
++{
++	conv_pcnt=10
++	zone_size=1
++	zone_capacity=1
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=${set_max_open}
++}
++
++# Zoned device with mostly sequential zones, ZCAP < ZSIZE, limited MaxOpen,
++# MaxActive == MaxOpen.
++section17()
++{
++	conv_pcnt=10
++	zone_size=4
++	zone_capacity=3
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=${set_max_open}
++}
++
++# Zoned device with mostly conventional zones, ZCAP == ZSIZE, limited MaxOpen,
++# MaxActive == MaxOpen.
++section18()
++{
++	conv_pcnt=66
++	zone_size=1
++	zone_capacity=1
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=${set_max_open}
++}
++
++# Zoned device with mostly conventional zones, ZCAP < ZSIZE, limited MaxOpen,
++# MaxActive == MaxOpen.
++section19()
++{
++	dev_size=2048
++	conv_pcnt=66
++	zone_size=4
++	zone_capacity=3
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=${set_max_open}
++}
++
++# Zoned device with no conventional zones, ZCAP == ZSIZE, limited MaxOpen,
++# MaxActive > MaxOpen.
++section20()
++{
++	dev_size=1024
++	conv_pcnt=0
++	zone_size=1
++	zone_capacity=1
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=$((set_max_open+set_extra_max_active))
++}
++
++# Zoned device with no conventional zones, ZCAP < ZSIZE, limited MaxOpen,
++# MaxActive > MaxOpen.
++section21()
++{
++	conv_pcnt=0
++	zone_size=4
++	zone_capacity=3
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=$((set_max_open+set_extra_max_active))
++}
++
++# Zoned device with mostly sequential zones, ZCAP == ZSIZE, limited MaxOpen,
++# MaxActive > MaxOpen.
++section22()
++{
++	conv_pcnt=10
++	zone_size=1
++	zone_capacity=1
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=$((set_max_open+set_extra_max_active))
++}
++
++# Zoned device with mostly sequential zones, ZCAP < ZSIZE, limited MaxOpen,
++# MaxActive > MaxOpen.
++section23()
++{
++	conv_pcnt=10
++	zone_size=4
++	zone_capacity=3
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=$((set_max_open+set_extra_max_active))
++}
++
++# Zoned device with mostly conventional zones, ZCAP == ZSIZE, limited MaxOpen,
++# MaxActive > MaxOpen.
++section24()
++{
++	conv_pcnt=66
++	zone_size=1
++	zone_capacity=1
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=$((set_max_open+set_extra_max_active))
++}
++
++# Zoned device with mostly conventional zones, ZCAP < ZSIZE, limited MaxOpen,
++# MaxActive > MaxOpen.
++section25()
++{
++	dev_size=2048
++	conv_pcnt=66
++	zone_size=4
++	zone_capacity=3
++	max_open=${set_max_open}
++	zbd_test_opts+=("-o ${max_open}")
++	max_active=$((set_max_open+set_extra_max_active))
+ }
+ 
+ #
+@@ -233,10 +417,12 @@ scriptdir="$(cd "$(dirname "$0")" && pwd)"
+ sections=()
+ zcap_supported=1
+ conv_supported=1
++max_act_supported=1
+ list_only=0
+ dev_size=1024
+ dev_blocksize=4096
+ set_max_open=8
++set_extra_max_active=2
+ zbd_test_opts=()
+ num_of_runs=1
+ test_case=0
+@@ -276,6 +462,9 @@ fi
+ if ! cat /sys/kernel/config/nullb/features | grep -q zone_nr_conv; then
+ 	conv_supported=0
+ fi
++if ! cat /sys/kernel/config/nullb/features | grep -q zone_max_active; then
++	max_act_supported=0
++fi
+ 
+ rc=0
+ test_rc=0
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index a3d37a7d..c8f3eb61 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -272,6 +272,20 @@ require_max_open_zones() {
+ 	return 0
+ }
+ 
++require_max_active_zones() {
++	local min=${1}
++
++	if ((max_active_zones == 0)); then
++		SKIP_REASON="$dev does not have max_active_zones limit"
++		return 1
++	fi
++	if ((max_active_zones < min)); then
++		SKIP_REASON="max_active_zones of $dev is smaller than $min"
++		return 1
++	fi
++	return 0
++}
++
+ # Check whether buffered writes are refused for block devices.
+ test1() {
+     require_block_dev || return $SKIP_TESTCASE
+@@ -780,9 +794,10 @@ test31() {
+     opts=("--name=$dev" "--filename=$dev" "--rw=write" "--bs=${bs}")
+     opts+=("--offset=$off" "--size=$((inc * nz))" "--io_size=$((bs * nz))")
+     opts+=("--zonemode=strided" "--zonesize=${bs}" "--zonerange=${inc}")
+-    opts+=("--direct=1")
++    opts+=("--direct=1" "$(ioengine "psync")")
+     echo "fio ${opts[@]}" >> "${logfile}.${test_number}"
+-    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" 2>&1
++    "$(dirname "$0")/../../fio" "${opts[@]}" >> "${logfile}.${test_number}" \
++				2>&1 || return $?
+ 
+     # Next, run the test.
+     opts=("--name=$dev" "--filename=$dev" "--offset=$off" "--size=$size")
+@@ -1182,6 +1197,7 @@ test54() {
+ 	require_zbd || return $SKIP_TESTCASE
+ 	require_seq_zones 8 || return $SKIP_TESTCASE
+ 
++	prep_write
+ 	run_fio --name=job --filename=${dev} "$(ioengine "libaio")" \
+ 		--time_based=1 --runtime=30s --continue_on_error=0 \
+ 		--offset=$((first_sequential_zone_sector * 512)) \
+@@ -1203,6 +1219,7 @@ test55() {
+ 	# offset=1z + offset_increment=10z + size=2z
+ 	require_seq_zones 13 || return $SKIP_TESTCASE
+ 
++	prep_write
+ 	run_fio	--name=j		\
+ 		--filename=${dev}	\
+ 		--direct=1		\
+@@ -1228,6 +1245,7 @@ test56() {
+ 	require_regular_block_dev || return $SKIP_TESTCASE
+ 	require_seq_zones 10 || return $SKIP_TESTCASE
+ 
++	prep_write
+ 	run_fio	--name=j		\
+ 		--filename=${dev}	\
+ 		--direct=1		\
+@@ -1249,6 +1267,7 @@ test57() {
+ 
+ 	require_zbd || return $SKIP_TESTCASE
+ 
++	prep_write
+ 	bs=$((4096 * 7))
+ 	off=$((first_sequential_zone_sector * 512))
+ 
+@@ -1413,6 +1432,71 @@ test65() {
+ 	check_written $((zone_size + capacity))
+ }
+ 
++# Test closed zones are handled as open zones. This test case requires zoned
++# block devices which has same max_open_zones and max_active_zones.
++test66() {
++	local i off
++
++	require_zbd || return $SKIP_TESTCASE
++	require_max_active_zones 2 || return $SKIP_TESTCASE
++	require_max_open_zones "${max_active_zones}" || return $SKIP_TESTCASE
++	require_seq_zones $((max_active_zones * 16)) || return $SKIP_TESTCASE
++
++	reset_zone "$dev" -1
++
++	# Prepare max_active_zones in closed condition.
++	off=$((first_sequential_zone_sector * 512))
++	run_fio --name=w --filename="$dev" --zonemod=zbd --direct=1 \
++		--offset=$((off)) --zonesize="${zone_size}" --rw=randwrite \
++		--bs=4096 --size="$((zone_size * max_active_zones))" \
++		--io_size="${zone_size}" "$(ioengine "psync")" \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++	for ((i = 0; i < max_active_zones; i++)); do
++		close_zone "$dev" $((off / 512)) || return $?
++		off=$((off + zone_size))
++	done
++
++	# Run random write to the closed zones and empty zones. This confirms
++	# that fio handles closed zones as write target open zones. Otherwise,
++	# fio writes to the empty zones and hit the max_active_zones limit.
++	off=$((first_sequential_zone_sector * 512))
++	run_one_fio_job --zonemod=zbd --direct=1 \
++		       "$(ioengine "psync")" --rw=randwrite --bs=4096 \
++		       --max_open_zones="$max_active_zones" --offset=$((off)) \
++		       --size=$((max_active_zones * 16 * zone_size)) \
++		       --io_size=$((zone_size)) --zonesize="${zone_size}" \
++		       --time_based --runtime=5s \
++		       >> "${logfile}.${test_number}" 2>&1
++}
++
++# Test max_active_zones limit failure is reported with good error message.
++test67() {
++	local i off
++
++	require_zbd || return $SKIP_TESTCASE
++	require_max_active_zones 2 || return $SKIP_TESTCASE
++	require_max_open_zones "${max_active_zones}" || return $SKIP_TESTCASE
++	require_seq_zones $((max_active_zones + 1)) || return $SKIP_TESTCASE
++
++	reset_zone "$dev" -1
++
++	# Prepare max_active_zones in open condition.
++	off=$((first_sequential_zone_sector * 512))
++	run_fio --name=w --filename="$dev" --zonemod=zbd --direct=1 \
++		--offset=$((off)) --zonesize="${zone_size}" --rw=randwrite \
++		--bs=4096 --size="$((zone_size * max_active_zones))" \
++		--io_size="${zone_size}" "$(ioengine "psync")" \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++
++	# Write to antoher zone and trigger max_active_zones limit error.
++	off=$((off + zone_size * max_active_zones))
++	run_one_fio_job --zonemod=zbd --direct=1 "$(ioengine "psync")" \
++			--rw=write --bs=$min_seq_write_size --offset=$((off)) \
++			--size=$((zone_size)) --zonesize="${zone_size}" \
++			>> "${logfile}.${test_number}" 2>&1 && return $?
++	grep -q 'Exceeded max_active_zones limit' "${logfile}.${test_number}"
++}
++
+ SECONDS=0
+ tests=()
+ dynamic_analyzer=()
+@@ -1497,6 +1581,7 @@ if [[ -b "$realdev" ]]; then
+ 			echo "Failed to determine maximum number of open zones"
+ 			exit 1
+ 		fi
++		max_active_zones=$(max_active_zones "$dev")
+ 		set_io_scheduler "$basename" deadline || exit $?
+ 		if [ -n "$reset_all_zones" ]; then
+ 			reset_zone "$dev" -1
+@@ -1508,6 +1593,7 @@ if [[ -b "$realdev" ]]; then
+ 		zone_size=$(max 65536 "$min_seq_write_size")
+ 		sectors_per_zone=$((zone_size / 512))
+ 		max_open_zones=128
++		max_active_zones=0
+ 		set_io_scheduler "$basename" none || exit $?
+ 		;;
+ 	esac
+@@ -1543,6 +1629,7 @@ elif [[ -c "$realdev" ]]; then
+ 		echo "Failed to determine maximum number of open zones"
+ 		exit 1
+ 	fi
++	max_active_zones=0
+ 	if [ -n "$reset_all_zones" ]; then
+ 		reset_zone "$dev" -1
+ 	fi
+diff --git a/zbd.c b/zbd.c
+index d4565215..caac68bb 100644
+--- a/zbd.c
++++ b/zbd.c
+@@ -471,6 +471,34 @@ static int zbd_get_max_open_zones(struct thread_data *td, struct fio_file *f,
+ 	return ret;
+ }
+ 
++/**
++ * zbd_get_max_active_zones - Get the maximum number of active zones
++ * @td: FIO thread data
++ * @f: FIO file for which to get max active zones
++ *
++ * Returns max_active_zones limit value of the target file if it is available.
++ * Otherwise return zero, which means no limit.
++ */
++static unsigned int zbd_get_max_active_zones(struct thread_data *td,
++					     struct fio_file *f)
++{
++	unsigned int max_active_zones;
++	int ret;
++
++	if (td->io_ops && td->io_ops->get_max_active_zones)
++		ret = td->io_ops->get_max_active_zones(td, f,
++						       &max_active_zones);
++	else
++		ret = blkzoned_get_max_active_zones(td, f, &max_active_zones);
++	if (ret < 0) {
++		dprint(FD_ZBD, "%s: max_active_zones is not available\n",
++		       f->file_name);
++		return 0;
++	}
++
++	return max_active_zones;
++}
++
+ /**
+  * __zbd_write_zone_get - Add a zone to the array of write zones.
+  * @td: fio thread data.
+@@ -927,6 +955,7 @@ static int parse_zone_info(struct thread_data *td, struct fio_file *f)
+ 	f->zbd_info->zone_size_log2 = is_power_of_2(zone_size) ?
+ 		ilog2(zone_size) : 0;
+ 	f->zbd_info->nr_zones = nr_zones;
++	f->zbd_info->max_active_zones = zbd_get_max_active_zones(td, f);
+ 
+ 	if (same_zone_cap)
+ 		dprint(FD_ZBD, "Zone capacity = %"PRIu64" KB\n",
+@@ -1247,7 +1276,11 @@ int zbd_setup_files(struct thread_data *td)
+ 		for (zi = f->min_zone; zi < f->max_zone; zi++) {
+ 			z = &zbd->zone_info[zi];
+ 			if (z->cond != ZBD_ZONE_COND_IMP_OPEN &&
+-			    z->cond != ZBD_ZONE_COND_EXP_OPEN)
++			    z->cond != ZBD_ZONE_COND_EXP_OPEN &&
++			    z->cond != ZBD_ZONE_COND_CLOSED)
++				continue;
++			if (!zbd->max_active_zones &&
++			    z->cond == ZBD_ZONE_COND_CLOSED)
+ 				continue;
+ 			if (__zbd_write_zone_get(td, f, z))
+ 				continue;
+@@ -2210,3 +2243,15 @@ int zbd_do_io_u_trim(struct thread_data *td, struct io_u *io_u)
+ 
+ 	return io_u_completed;
+ }
++
++void zbd_log_err(const struct thread_data *td, const struct io_u *io_u)
++{
++	const struct fio_file *f = io_u->file;
++
++	if (td->o.zone_mode != ZONE_MODE_ZBD)
++		return;
++
++	if (io_u->error == EOVERFLOW)
++		log_err("%s: Exceeded max_active_zones limit. Check conditions of zones out of I/O ranges.\n",
++			f->file_name);
++}
+diff --git a/zbd.h b/zbd.h
+index f0ac9876..5750a0b8 100644
+--- a/zbd.h
++++ b/zbd.h
+@@ -52,6 +52,9 @@ struct fio_zone_info {
+  *      are simultaneously written. A zero value means unlimited zones of
+  *      simultaneous writes and that write target zones will not be tracked in
+  *      the write_zones array.
++ * @max_active_zones: device side limit on the number of sequential write zones
++ *	in open or closed conditions. A zero value means unlimited number of
++ *	zones in the conditions.
+  * @mutex: Protects the modifiable members in this structure (refcount and
+  *		num_open_zones).
+  * @zone_size: size of a single zone in bytes.
+@@ -75,6 +78,7 @@ struct fio_zone_info {
+ struct zoned_block_device_info {
+ 	enum zbd_zoned_model	model;
+ 	uint32_t		max_write_zones;
++	uint32_t		max_active_zones;
+ 	pthread_mutex_t		mutex;
+ 	uint64_t		zone_size;
+ 	uint64_t		wp_valid_data_bytes;
+@@ -101,6 +105,7 @@ enum fio_ddir zbd_adjust_ddir(struct thread_data *td, struct io_u *io_u,
+ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
+ char *zbd_write_status(const struct thread_stat *ts);
+ int zbd_do_io_u_trim(struct thread_data *td, struct io_u *io_u);
++void zbd_log_err(const struct thread_data *td, const struct io_u *io_u);
+ 
+ static inline void zbd_close_file(struct fio_file *f)
+ {
