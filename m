@@ -2,72 +2,72 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DECB8EB64DC
-	for <fio@archiver.kernel.org>; Fri, 21 Jul 2023 11:32:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88D5FEB64DC
+	for <fio@archiver.kernel.org>; Fri, 21 Jul 2023 11:32:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229684AbjGULcJ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 21 Jul 2023 07:32:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41028 "EHLO
+        id S230349AbjGULcO (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 21 Jul 2023 07:32:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230243AbjGULcI (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 21 Jul 2023 07:32:08 -0400
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E842130
-        for <fio@vger.kernel.org>; Fri, 21 Jul 2023 04:32:05 -0700 (PDT)
+        with ESMTP id S229883AbjGULcN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 21 Jul 2023 07:32:13 -0400
+Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C643E0
+        for <fio@vger.kernel.org>; Fri, 21 Jul 2023 04:32:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1689939125; x=1721475125;
+  t=1689939131; x=1721475131;
   h=from:to:cc:subject:date:message-id:references:
    in-reply-to:content-id:content-transfer-encoding:
    mime-version;
-  bh=KO8Xsbx+1RzxVyoaBrRxkTr6DQJyHY1sFjJn3abj32E=;
-  b=oWHHNn+ap7mmK2/rmNOm4nUci3pof1igux3nsxo4EocAYDs68VMjgBr5
-   m7w1sV/wCoiYScRebrs8hEuPcHdjH/UGEmop1sJqxdQMFSULpJy7SaJrN
-   gs44bXe7WClxt9mkky33/4YA8zl+bOxnRDEuuUKJXGtqwPGE5hBCph9kV
-   8+09zGZpZjh9mfvIeI8cZ1dakSkdJsv9PO/xpwgSjcOCRUZpg/ME7pW2d
-   wssGqWjAW5BWstlouvRelXeffh915MGEcUzQN/p7YHcm4PfOKx1SckSTG
-   WrTJzJaA38qFg1nHqOMc+IWAEEWvsIv3iSrnhAJG6uQUTifwEQa/o2s5P
+  bh=gTsAMXrc7LPXK7zt/L7YDDvu6LEUrK6uOiqvSXloc00=;
+  b=P6GzbBoPXn7H/lLGrErLbk7q1xGoR+MwUGI/708+GZ8LGCaZ4epduncR
+   dsZ8/kSu2MgcT8Cj1b27RKuOMftMQ08UIXkAXIiRH5eqBr8mHGncxrSEB
+   0KwoaLPDWI0UtlKRaUjbO/mZUOTkp8QnuR+znbdZu11fS+HsmYdQrTLup
+   BAMqBIaOHSRhvaHzqMfNUqWSdR6gE9oqOlO6HrNsz8t2HI7gh6+Y1rGJL
+   +aD7VWLxMYkiRGfzhHCVvJT0tcWWxOE3odsXp1d01zbjINxiMFUC4vgDI
+   QlH9yn0s04i611Lxw3W7L3/M7DS4BXbJJXD0YhUXaulu8q8uqQtQKGDww
    A==;
 X-IronPort-AV: E=Sophos;i="6.01,220,1684771200"; 
-   d="scan'208";a="239061415"
-Received: from mail-mw2nam12lp2046.outbound.protection.outlook.com (HELO NAM12-MW2-obe.outbound.protection.outlook.com) ([104.47.66.46])
-  by ob1.hgst.iphmx.com with ESMTP; 21 Jul 2023 19:32:03 +0800
+   d="scan'208";a="243351824"
+Received: from mail-co1nam11lp2169.outbound.protection.outlook.com (HELO NAM11-CO1-obe.outbound.protection.outlook.com) ([104.47.56.169])
+  by ob1.hgst.iphmx.com with ESMTP; 21 Jul 2023 19:32:10 +0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TWgPe5d7kjeByFvAlUXojTTdEBKcMWdpobaRW6BFXf7VN0rWXjsork9uIgY3NJSwRBKjAD2nmwfV00uloedjUfXcnU11vr20w2KZ7HTO1MneXdWOeSULZff+3k5SqCLEAi4k2wf+/Sed1jF0hBP7snJ7m2k532oVxA/1BAAb+5GfOavTsEIihfQvxCVKKrwem3es1yXYtTKSH7p1L0aANZp9hsmD4Hf8tOKi8WjzYG5HjjQ9QMf4vsotN4skK7Ay/YOsUKNidhhhtTuHo+E0OhSZGu7F4leD0l1RRfNBQ6aPXg2WuDVnhy90qoH4qXF7gJQGwk2N1Tb6KTXsj7eXpA==
+ b=kGlvlEsBc1EoDIe/sbHtCFaQOQpD5qYPq1P2nEc+iTz8h+5pOfc9qRXBHYlUg4sjcmW0Q7M9W4rl0Lk0XBVisLlUJ83PRp+i9w28J8GH/wAz+dIlBzT+rU3bi9ireOs48WSdMRLOwzz5dH4Zdqu0DXD87K243XjPXtje9y7ogC/3HkQrIctCIkiTYel5bWEuc3Dl/WTijQnkIOWJcTx/DNKYNbxPL2+1J6KIenk36PjnhJLnomoHQ+RHo7Msy1A2umSwXZT+dogG+Pnjyg8CqXnhjJArN0CBREa9bYooA2ZVeqYi9OPxb1nxfx9KCn/iWKAM0pL9jljJ1lzgfRj+VA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=XrVq6kU3eFiJewWjdGGVsp9lj1i301ch0viClBS6jNA=;
- b=H/hdIWgBj27tnFGSIAkTSRwxB8+odkhNK3cjtlOqUOEbzkJkFcgwRT8u6KttSLNzqWA5Zy9UwlQJdg3sv5Jm+I42lMOLHAZPVdcBEySzqWqapEJcHKGqB3ZyAcbEynVL0IgQ0IyVU4U7pEVCHc3WBbKJ44JvS6JqiSIgEfsQ1L3017U36datiE4KTQKDp5dHdg9wPLDMc3RO5CO3rlkKLpKheDC0anW45jgFS5pNQfh4TXCMRv4yYQ5vKt6WI3n2rHv5F5KOWWyOcGRl7SgH4HJn39bKs5kKdwfRRSB16Y4kJsLCdMHOGwQDamPfbj8PH9oFVe2czk4HLCF9Z41K+g==
+ bh=BVVGdXgeAUagqej77pGPDutbGJeDZRLMOHcsWJjHpyY=;
+ b=LGtoOY7ML2iX4XTWWNynwlH3UEMr4tyG8CO5SwMA4nqwI3dEssF3cKOzXsFpXsE1z0FVonS3amy8FdZ0AtPn4q+Hg1KLm70H6F0OzZkbEcKUD73/qbrM2N5Nm9WeQxaHbWLm7HAO2p5M40TC08VsCDiY4wIk1JraayRL0Pi7TIvnXA0a6nITbBhxoAnMkLSIzJvlfZ3gQwk3uXjlm1W24Vzr3LBpx0ein18LrnJJ8C2Po2UuHL0cVHrUtYtbDIKj2Ahg3tlVu2pA04mc0w7oHpeGExk/pFNTZ+HnmKAWhmOlUVzPLO6NxQWePLuzr/7b7fmavoHi0WHLlT54uUYPGw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
  header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XrVq6kU3eFiJewWjdGGVsp9lj1i301ch0viClBS6jNA=;
- b=Noy7dLgdSfUIltykTHMLoHx+0NOkuqxEl/7IUWP6rCQZ707UpA29pvX19U0yLr9IcvcljoCesVZF2g7fNx0b02xizS7VjHUYXZ734t7H1mVV2JN2/lN+cybYbAvTUL5xhRYYlEdYbnXbhDxXS2jf61XAbcC+6zx8d8KwzT0w+UE=
+ bh=BVVGdXgeAUagqej77pGPDutbGJeDZRLMOHcsWJjHpyY=;
+ b=vPc0DPrejuvE7IiIo8YHtPckyoR9qEqW8gT5usGwc/KOqQrYkFCfQhLCubHIahHi5fXRwnGwT0BcNSH0YMilXLd8aOFMBUaOIh2QyT0V4viKXzAiFqRv1EIPyBron7YGJTFJWSdgMfmsRV9vWTKNrdrnSJNqpdG9TzXKfyhVpZs=
 Received: from MN2PR04MB6272.namprd04.prod.outlook.com (2603:10b6:208:e0::27)
  by DS0PR04MB8741.namprd04.prod.outlook.com (2603:10b6:8:127::21) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6544.24; Fri, 21 Jul
- 2023 11:32:00 +0000
+ 2023 11:32:08 +0000
 Received: from MN2PR04MB6272.namprd04.prod.outlook.com
  ([fe80::d093:80b3:59e5:c8a9]) by MN2PR04MB6272.namprd04.prod.outlook.com
  ([fe80::d093:80b3:59e5:c8a9%6]) with mapi id 15.20.6609.026; Fri, 21 Jul 2023
- 11:32:00 +0000
+ 11:32:08 +0000
 From:   Niklas Cassel <Niklas.Cassel@wdc.com>
 To:     Damien Le Moal <dlemoal@kernel.org>
 CC:     "fio@vger.kernel.org" <fio@vger.kernel.org>,
         Vincent Fu <vincentfu@gmail.com>, Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH v3 2/6] cmdprio: Introduce generic option definitions
-Thread-Topic: [PATCH v3 2/6] cmdprio: Introduce generic option definitions
-Thread-Index: AQHZu8NBqIcTB1jGIUm8kIp2kgxHu6/EFmWA
-Date:   Fri, 21 Jul 2023 11:32:00 +0000
-Message-ID: <ZLpsr2wcVLvoi6ac@x1-carbon>
+Subject: Re: [PATCH v3 5/6] cmdprio: Add support for per I/O priority hint
+Thread-Topic: [PATCH v3 5/6] cmdprio: Add support for per I/O priority hint
+Thread-Index: AQHZu8M/RPR/UY38o0yx6yFAGmahNa/EFm+A
+Date:   Fri, 21 Jul 2023 11:32:08 +0000
+Message-ID: <ZLpst9InxlrZkRim@x1-carbon>
 References: <20230721110510.44772-1-dlemoal@kernel.org>
- <20230721110510.44772-3-dlemoal@kernel.org>
-In-Reply-To: <20230721110510.44772-3-dlemoal@kernel.org>
+ <20230721110510.44772-6-dlemoal@kernel.org>
+In-Reply-To: <20230721110510.44772-6-dlemoal@kernel.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -76,385 +76,364 @@ authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wdc.com;
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: MN2PR04MB6272:EE_|DS0PR04MB8741:EE_
-x-ms-office365-filtering-correlation-id: 548cd673-f8f2-48f7-4b3d-08db89de1974
+x-ms-office365-filtering-correlation-id: 54d5d769-547c-4273-b48d-08db89de1dff
 wdcipoutbound: EOP-TRUE
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: d4kqTTyE01vuexi8fTuDZo1idlnarXA4IO99h16PpafbYhC+CwGAJekyW1ih1hUOp/u+6Q6suOnFcmRyUPVK/+oz7vimJrtiXO7W5zhIFBnmLpUMd7qUMQ7YjiusJ0aGARa5mk4eQ1ysuPtGEQBu2xUz+0ZEdLs5og6EOmYU8U5AKkHQqGesMIMnX+yRLK+IFpe2VFCZkitFhfv6Nc9qPBmtdQeBl1enAWdHNm494ptKLgMhDyDTmLzYzNkkVAbKLbQIFKd1J1Vw0+nB34zBSYBNztzVTN6QC5EW8b7eym9bbd7sbzxceeQIHm+4irmCU+vVOmqvMmBQvUO8HRkZsRXwcuD/BVom9L6Shu/o9wgyHp6FCwfejMGTuYAlcrGCrsCJ0GefKbbPNQfPyvtxNircMdC8Q2Q01Uw2KYEbQ7OA6Ils/qMHHH/Z1TK4KocjmvkGbKNlXa+zjqKd2MhhH75Gv2JiF3X74Lgj0CGrMkoDX7zzItHeeT9tIXdiQZb9hO6W/zW7ZtSBEGy5KCFDtG6vPZr8ylxjMzhVGmm8ylFSjCfibWxD14+rrs/sVS/7EOL4utnDT3yl2goAtvcRlucUgGa8g05AUIwlYCAvjOWX3ZUQonXZuiFRUrCqQ3gBVDMMyrrbiD9WpaGF8kG9Pg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(7916004)(366004)(376002)(346002)(136003)(396003)(39860400002)(451199021)(66946007)(6506007)(9686003)(6512007)(122000001)(66556008)(8936002)(26005)(38100700002)(5660300002)(83380400001)(82960400001)(186003)(38070700005)(64756008)(33716001)(30864003)(2906002)(8676002)(91956017)(54906003)(66476007)(86362001)(76116006)(4326008)(41300700001)(478600001)(6916009)(71200400001)(6486002)(66446008)(316002)(41533002);DIR:OUT;SFP:1102;
+x-microsoft-antispam-message-info: frv8kJvYhmx+XF04kiasUgHYOIbiN8StnZt/db/8ENRF8z+mrg/e5hP4KOdgQ4MF9Ibw6C0EDbhyTEWjUhzd/X3CTSEZa+R+P16flDtzrghlKUIjGj377DiP6p2GlwV2poqhtRE2+tjMzLCNMHT6d/uwg9MwHmKG/M5H2MqsfnEWZKtczs2FfbPzUWJHN57NxABBJLwv88Uw0xKyhnO//uvvUE5YmjNNAUq5pthfBvw2MnEJJNipjAt6gZ8RiIzXCzIAKNj2KC6yeLpV58L5MUAbeWi8crrubydcOmnUhofunLTeb4Vu+6lUtcP9BKiBf7lKmJcxt08/uyyzpmgMKM9pnX4C5PADKkHE+rtEu4i665aHehwHjABG9hqqgnIvHfwjZH5wZFrIkZt53StdreJIKcrkQN920Lx2NQouGoVdyVUWHArN+WTMPCt8DO5O6QgfTONIzrCZC/BFPaHwNY4Ru62E0Gw9cixzjfvXNkX099/ZslmixlYNdQW2V6mZeCzXeDDJXbuo/7VVUxDMBNZlI3o41d+PlmENvHrQONiYebKSSFO+xx3uOH7/7zVn50+m6l5i5PPxvp3GwNLD3xDpf7s3w2EHI+sqzeXNkGSJ4lQ1u5jBu2F1VGOsVCHM
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR04MB6272.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(7916004)(366004)(376002)(346002)(136003)(396003)(39860400002)(451199021)(66946007)(6506007)(9686003)(6512007)(122000001)(66556008)(8936002)(26005)(38100700002)(5660300002)(83380400001)(82960400001)(186003)(38070700005)(64756008)(33716001)(30864003)(2906002)(8676002)(91956017)(54906003)(66476007)(86362001)(76116006)(4326008)(41300700001)(478600001)(6916009)(71200400001)(6486002)(66446008)(316002);DIR:OUT;SFP:1102;
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?QJA3CUMrjAqb4hgriD0H3C/n8zWkPapjQDr0jxKjq/TE6722N48FrY4iP9mY?=
- =?us-ascii?Q?IspXmvyf7SYkSCBPMizMwdtmx6liTxpa4Y3/0DTtBPZWhKCGUe5RTcNxI+Fr?=
- =?us-ascii?Q?l+s+YgNq6QnVXY+69MLSjpYxvjHuyY141sQ3/eqQVAjIuIlC6Hg8mdMHXSpX?=
- =?us-ascii?Q?3T6K9VsOsPvkgW5jT1ngei8VAsbRG4KWuYos31RGEQ43TKB30QUtRYQvjB5L?=
- =?us-ascii?Q?foRtUZ588QJ+/94aR+iTYUkLE5xeR4sWgxGOp+hkaszGlFZ2miibSUBV+5dN?=
- =?us-ascii?Q?QWsQHmBIg/NoXJpHmVdDDf/JBUbHbqj9ZB4Op8jYneR01Qn6H8CQ7TNhymmK?=
- =?us-ascii?Q?X+8OvfaTCsyxSahTgIpAtTpSfoqKmauGUd/eZeWy0R/SP4SMH7PkvwmR7GN0?=
- =?us-ascii?Q?2ggACdxaQrMvoUWITbcCPj5C6yzpoR6rv+b/9DkGWRDro+TpF7Vc6Jnc1R5B?=
- =?us-ascii?Q?uJ2NRrUxRM33KPv/Cudv5TvlJZKzy5LF8QPQGDpo/1fryCikjvG6Hr65MybI?=
- =?us-ascii?Q?7WNfHtAznwoZfQOXQpLrSAuYrI3Yt1fS5lTHTkUVvGXrzmykIhu130RZsUrT?=
- =?us-ascii?Q?qU66BU9dGI1E3wbhIV4SmfeCi5BKhdvWgvEcOj+PAxxvC7LHj1zeWbwf9flk?=
- =?us-ascii?Q?SjdVUyjXIuD1/yT5PrS3ZhWW8nsDw03jZ34Gps6f3IrSXrCOpZuVsaTJH6iK?=
- =?us-ascii?Q?vEhdBuHGKkKVlsJ1EeGkTPGm5aPRjeMLMSqxYMWlsipduW5iUYupoUTu1pXU?=
- =?us-ascii?Q?8tazAVwpaekpNzWKeKHjJU08HjoiaAKFhqqKqXL2ge9nsOshsOeOOsnY8kAp?=
- =?us-ascii?Q?vToJaExx6vZmKwnwcuJvfPto749b8kXIuBk2CYiqdaipC0R9lCAh5wyhOmcJ?=
- =?us-ascii?Q?xoIQm8d1IIGDX1jfu5mB4DCdN7hjkiyRZEaZD2YXkusS+LEgNlh3fyLCJgX3?=
- =?us-ascii?Q?lvM74LCWBTO9pyQd6rBTmn/8ywApdqAjV+stbhyLHRIa0ASrrnFJsPXHQCSP?=
- =?us-ascii?Q?8L0XF1nv1H3JOZsqTHKP9D1nwyBKNu9OASGKTELxv3jUGQbHM63E23fqGYyM?=
- =?us-ascii?Q?HRuXyZZF7SStfb6rmF1nGwBp3+w2aDrRN2dgLZet7nCxK9mnMJdK8Ab+fcmo?=
- =?us-ascii?Q?9PhHlXwpei3H7BhC6g0W0ilZjR+u2phcqRcYiCbbInl8jhGV0dczQFmjmugx?=
- =?us-ascii?Q?GASNq/yCqYUlPsi9oV8qjTvfAWMo8qzIykiQ9Zbhq7l8kZ/bmg0u4LTjzfk/?=
- =?us-ascii?Q?SuifO9mxrmur3VCUSHeIeNeC/kSZLuI9T3LRlX/AA0jqs81Lj8QwYIOTs+NR?=
- =?us-ascii?Q?DdyA0DDsPPHmd6Yi4XAw3+lp+vV2+T4Z38MHnReVN2i1h7/kILj57w7GCpy/?=
- =?us-ascii?Q?ogbm7SW5rlHO8JMYZl//cLd5mGIGYg3sBA+RGIPUflFyAU2Cib4iBw5lT6JX?=
- =?us-ascii?Q?ezkoIAJDzyau1PV7xxjcwR9aiRnljwwTG6BsDtZoDFGTyPNtB7LltjrO96wW?=
- =?us-ascii?Q?Ll4GPBOPkG9jt3Z7Yz2hUg1rEZJO0U4MPcC0+UP6LDnoyWKYQ3V8IV+b8gcG?=
- =?us-ascii?Q?2xlO7eIG39E12R/WduC+/Uhp636W7FjpEEkXl/J+iYfLybWAn5A1+HUEH5+3?=
- =?us-ascii?Q?YA=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ykuJg/n/FrJ9JOYTi1iz/uZ5wF7ISZu/0EWATsjMe5TBXFnCymUtAQfkMkfY?=
+ =?us-ascii?Q?GZqikUOwuQ4WGLduC0y4Hr2IMK2/hMWnBY1CDL1EhtO6AE6ROAQsUGtXTleS?=
+ =?us-ascii?Q?qg1FYV8f7PHEf4HeNyBewqvHQsYSL+QLaVcYTIf7ZPPZQa4R/nMn0DZgST9w?=
+ =?us-ascii?Q?bhNuSGWovC/KMmSwtJiMaC5NZVgdU5zS54l/c7gILd+7i80I0VUSBtjCDam/?=
+ =?us-ascii?Q?vNPWLBcLcHSd9lRYBdcBVuEgf5i6bRTgdApMYNRvKLnqeDQVd2ATEuDDuXSx?=
+ =?us-ascii?Q?fVgAYQ8ulvSEAgKDRdvoVyWehq+2lmqQpQAue3yUze8yR1wpFcy7kVGFkPIj?=
+ =?us-ascii?Q?g2mqkzQbef/sP8hwrsZAl3jtbYn97riSX358mOE4YtCT2LnSOTRsf0S9VasO?=
+ =?us-ascii?Q?Wj+WTFXplVPPzZMQXeNgqjJHZiE0lkeaWZInmRJNutkbikVAQj6gq7SBDiVg?=
+ =?us-ascii?Q?r2iwqrUuUY1xe95a8PtUSLh88GkvjpewRsQVsLfvmoqOxR57+gMbqxATfML4?=
+ =?us-ascii?Q?hRoOIhAGq7zc5lOFNP9tlCb+MIbDmCSBZXiVRu4jm+N4aauqH14Cg2PiVkCq?=
+ =?us-ascii?Q?492U+kmChQoF3R5NeHJvulNsu79E5/GlofwRrSVc8XDkMECZorRoTHNxWfmw?=
+ =?us-ascii?Q?r/ZWe/HHR7dv+ahKpEPENKoIEhUs8KwKu/91ahambgutMvAS9jn33dkORWZJ?=
+ =?us-ascii?Q?e23zIQQcnH/DQA9xnbuXNCYnr4RTwEVZfO0OkJR4HJg+hxK7BQbEiTuMxNFE?=
+ =?us-ascii?Q?KtJyYvyw0qJpWDibrlOCe11meoMO+ujBiVBtL+UfSLwitW75c/p+olyJbXT1?=
+ =?us-ascii?Q?tkxsS2+GpFNK0vx97sn78e299165nWoZnV8yAbfWAi8yMPTF/Jr+Medp9ZGH?=
+ =?us-ascii?Q?HMOeI9g8mi+mNAiC+RyVVN7mFzk3d4OmHgsugqi71BGCM1JwyQViw1AxaR3b?=
+ =?us-ascii?Q?Bpdo306ZTDm0PTYotr+YOcY3v+MCZwJzSDyw2AzkYeZR77Gq/3fF8F4K9meh?=
+ =?us-ascii?Q?gXve2qB0b91Vz6LGrsc4YPRc8sflQeOauQkveJHuRQwy0aqAOKuRIvfwPRjl?=
+ =?us-ascii?Q?na/JWTBK9GB7MGheVdodwegZ/aXhaZRNcy5+w92MnWAPo6F1fWQNjoezfK9B?=
+ =?us-ascii?Q?2vRdA2bWiZl5GmONSyPsLB4pgM0s6urVtdVJNPUM5tY3LD/eEi6JyWbaxN+G?=
+ =?us-ascii?Q?Fg4tfarktIubaN4Nc7XgrnNswXbR7hYVRIuoxVvWXx10phNuFvlFElGwIFnV?=
+ =?us-ascii?Q?Q/WzzNrCcQj4ShaDqba+IVPpyRxBOTHSNhKabS6hy2chOfOm3C+1vm5JRBrY?=
+ =?us-ascii?Q?G7/a0LHSjHC+4XTkRQQplnPoNNwjGtMhRjiqJrcP1uW+W32p4H0Yw0+SecAJ?=
+ =?us-ascii?Q?IMdWpjecx3/0omyuo96bqBfTK89mEWUzhP8Z67HJ+SMN3itKQ2g+X/cX4hqH?=
+ =?us-ascii?Q?3lyQ3tV99dK/iSMCaswqec/EgxXgGntk9PyWcsosFnrZONg9iOJXoLiOn6X3?=
+ =?us-ascii?Q?rH+/+vYwXB2fdfrDnL2tGfVRE/Jja/J1MrSDnDShwTNQlEQo8grznnlHgEuy?=
+ =?us-ascii?Q?YWclCsLa27cLJfo6WplxHDODmAdEYsRJnw6lAucVf9VEz9HaYaLKtd5G/cFQ?=
+ =?us-ascii?Q?eg=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <A697D1BBF2A63A4388917C342C743B61@namprd04.prod.outlook.com>
+Content-ID: <A939128361FFEE4FB1EF33225C9D222E@namprd04.prod.outlook.com>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: z/wwzLwSrtLdGv7jb/XSxx5C4ZCK2C5d3DA+zceVfswgth0J+QpfwPW3NdhAYsh7GiOpKvUKzaucACbsug6ZM2AkUwBYbQbJUCN6xxvt3f7FfdqDLc0PElGbHeE94+/ACy8uU+HRUhYFLzptDtxvcrgnhzWdSMeHZWhzM59AaY/FBCeu5PCM1CwqasOz6Ofcne3aJVl4hoBrh1gaSexT907yKPPXP93oXznfmXR1Bp24sA4qjZhLFk2md44m7hcfonYm7suVOcZpic5e0tDSpPpUfJEqf8C6yFtOgvLGHtnhR5CwevFLkpUxNwy7Ak5LIyNhJTVr7uYKQChr5QrCmenZYsoJJp9PpQJNH3i61z/Ln84QUN5ld817Q1LB4MGvvKE0+mWlq3ByXxr0gEbmK+X9tfqA5GWc1WXk0vKG8c4ktKqhuvj7TDbYoi54bsujohIYm+YGPQgHv2hv5txTDXCMWhL+Oky4e9zoqaBAP6q2OUs9lbt7tEmZhS5tKE2THCSKWHMwyieJ9wL2EMFHLtapT9vYL0tIHU/X5OF48MzCC2MWpAuoEEKwXQJX/jLCVJt+G1ndNMXsRxwflru/9bWqfY4BOs5RTvEATN2dxzBth2ll9bjXcenteUdOhkGkk2OZzkS1GNuPzeoLgDGS0Hk6uZSD4+YRqGP7rEpGruTUZrQE+IvM6lfYmX7GHI+/svOu3GUVSiiIGOSVHRn0llNskmiJ3mA/IfWJv2QepKhF9LeSES7ghOT0u+50L6sx2fRHT7mH7aPubEjarFEE4+U8/aC2QzjhduNzCH+1E0lW3+reE+ze83+9jlH1VnNMh3o4x8wNVnbONfH8w7MbiIeh997VUjrOT67oEIAn7+w=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: xLF8cvEn3wQBlmXRmXJCJpvqLNr7e0nMSWoLaXDu5iezQJSY3QV5p37XdqlXpKTzZaUcjI9HGFE3/4mnDnHEo8XI4yU7+gMAaEJ5Jx6KVhFHXpYL9Dov3Li/hGKSTG4ZYDe94XxYjxgtzwt+eenAJ39pAHuwMWbvAWI8TtzFsp+5fd3YZ0xoeFnGZBZdYvYcmHfQZFbrRO7T0ebMvDMmqqXV5/3vNNGCRzhMBFaVUecnKuMh0i4xtZK9y8eElrcupDGhgTVOfajBFPnznJ34GHAo/QPTKM24ErkklSgEkj9PEt8uU2jPMKke6rQMQJ4g/dDY2iLJ2B1DBjkqvKvZBF5xLtU+jr91oOr2bNy8/ZniFPdkNisT7zkUe0IBTZPSD3twffPZpSpSGJCSPoroVml/b9t6XvwrOfNbr1pmaollJXnJSRpllPSCI2tL72F1JaEdxRhYNigl4G9I/1knbKobitdJklaeCwQ8dqvgB6FZskvdyoGFCBk31x0E+MIcXwGCttSwYcmdzkkFrb+ksqFzvL53kFEacpRkeAw1eYubP54Ei5OBDVRrhozfg6aok4ThAbZIIZacuq+4cLHPeGXnQLejaTxv5Oi92VVaBdgTnOW21r1ayipeiQVwaHXZMmtHlLft5Wxj+vZ+KmXNiUYaFhQv9zFqNWZYKU9ekZKrgWKTuFml+A61kv2I1GWQjiWNddJrSgdR6oRAGFPeiSSaKcUtOLkdbJ36AxOyNympwoF3xJZKgKviktJ8s7590mWwT0n5eVrN1DfDhybmqys+IT/U5jEVnkNthEJ7vF/CB+i9xmO6eBdssyKIJOiXY5oVT92xInepIZr5yvm53rWcBpe7p1WPjK4vzYiCWnA=
 X-OriginatorOrg: wdc.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MN2PR04MB6272.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 548cd673-f8f2-48f7-4b3d-08db89de1974
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jul 2023 11:32:00.5393
+X-MS-Exchange-CrossTenant-Network-Message-Id: 54d5d769-547c-4273-b48d-08db89de1dff
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jul 2023 11:32:08.2029
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pJNXnBJ+HXBxIIAa/piPOCmrIYpOL005dH15lDXKm7bbEOTDCti/eOFQdbKgvaQoMq3B5zCln/hHUg6kCxDRAg==
+X-MS-Exchange-CrossTenant-userprincipalname: /fzBPD//ficgWnTzNbDsM9vnUdLdGrqzobWsTK9AoZDhlG6fjkOsl4jN5q78Bq+V/zuGnLjIwgt0KzToxv1uaQ==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR04MB8741
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On Fri, Jul 21, 2023 at 08:05:06PM +0900, Damien Le Moal wrote:
-> The definition of the per-I/O priority options for the io_uring and
-> libaio I/O engines are almost identical, differing only by the option
-> group and option data structure used.
->=20
-> Introduce the CMDPRIO_OPTIONS macro in engines/cmdprio.h to generically
-> define these options in the io_uring and libaio engines to simplify the
-> code.
+On Fri, Jul 21, 2023 at 08:05:09PM +0900, Damien Le Moal wrote:
+> Introduce the new option cmdprio_hint to allow specifying I/O priority
+> hints per IO with the io_uring and libaio IO engines. A third acceptable
+> format for the cmdprio_bssplit option is also introduced to allow
+> specifying an I/O hint in addition to a priority class and level.
 >=20
 > Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
 > ---
->  engines/cmdprio.h  | 84 ++++++++++++++++++++++++++++++++++++++++++++++
->  engines/io_uring.c | 82 +-------------------------------------------
->  engines/libaio.c   | 82 +-------------------------------------------
->  3 files changed, 86 insertions(+), 162 deletions(-)
+>  HOWTO.rst          | 28 ++++++++++++++++++++++++----
+>  engines/cmdprio.c  |  9 ++++++---
+>  engines/cmdprio.h  | 22 ++++++++++++++++++++++
+>  engines/io_uring.c |  4 ++--
+>  fio.1              | 27 +++++++++++++++++++++++----
+>  options.c          | 13 ++++++++++---
+>  6 files changed, 87 insertions(+), 16 deletions(-)
 >=20
+> diff --git a/HOWTO.rst b/HOWTO.rst
+> index d1a476e4..ac8314f3 100644
+> --- a/HOWTO.rst
+> +++ b/HOWTO.rst
+> @@ -2287,6 +2287,16 @@ with the caveat that when used on the command line=
+, they must come after the
+>  	reads and writes. See :manpage:`ionice(1)`. See also the
+>  	:option:`prioclass` option.
+> =20
+> +.. option:: cmdprio_hint=3Dint[,int] : [io_uring] [libaio]
+> +
+> +	Set the I/O priority hint to use for I/Os that must be issued with
+> +	a priority when :option:`cmdprio_percentage` or
+> +	:option:`cmdprio_bssplit` is set. If not specified when
+> +	:option:`cmdprio_percentage` or :option:`cmdprio_bssplit` is set,
+> +	this defaults to 0 (no hint). A single value applies to reads and
+> +	writes. Comma-separated values may be specified for reads and writes.
+> +	See also the :option:`priohint` option.
+> +
+>  .. option:: cmdprio=3Dint[,int] : [io_uring] [libaio]
+> =20
+>  	Set the I/O priority value to use for I/Os that must be issued with
+> @@ -2313,9 +2323,9 @@ with the caveat that when used on the command line,=
+ they must come after the
+> =20
+>  		cmdprio_bssplit=3Dblocksize/percentage:blocksize/percentage
+> =20
+> -	In this case, each entry will use the priority class and priority
+> -	level defined by the options :option:`cmdprio_class` and
+> -	:option:`cmdprio` respectively.
+> +	In this case, each entry will use the priority class, priority hint
+> +	and priority level defined by the options :option:`cmdprio_class`,
+> +        :option:`cmdprio` and :option:`cmdprio_hint` respectively.
+> =20
+>  	The second accepted format for this option is:
+> =20
+> @@ -2326,7 +2336,14 @@ with the caveat that when used on the command line=
+, they must come after the
+>  	accepted format does not restrict all entries to have the same priority
+>  	class and priority level.
+> =20
+> -	For both formats, only the read and write data directions are supported=
+,
+> +	The third accepted format for this option is:
+> +
+> +		cmdprio_bssplit=3Dblocksize/percentage/class/level/hint:...
+> +
+> +	This is an extension of the second accepted format that allows to also
+> +	specify a priority hint.
+> +
+> +	For all formats, only the read and write data directions are supported,
+>  	values for trim IOs are ignored. This option is mutually exclusive with
+>  	the :option:`cmdprio_percentage` option.
+> =20
+> @@ -3445,6 +3462,9 @@ Threads, processes and job synchronization
+>  	of I/Os so that the device can optimize its internal command scheduling
+>  	according to the latency limits indicated by the user.
+> =20
+> +	For per-I/O priority hint setting, see the I/O engine specific
+> +	:option:`cmdprio_hint` option.
+> +
+>  .. option:: cpus_allowed=3Dstr
+> =20
+>  	Controls the same options as :option:`cpumask`, but accepts a textual
+> diff --git a/engines/cmdprio.c b/engines/cmdprio.c
+> index e6ff1fc2..153e3691 100644
+> --- a/engines/cmdprio.c
+> +++ b/engines/cmdprio.c
+> @@ -267,7 +267,8 @@ static int fio_cmdprio_percentage(struct cmdprio *cmd=
+prio, struct io_u *io_u,
+>   * to be set. If the random percentage value is within the user specifie=
+d
+>   * percentage of I/Os that should use a cmdprio priority value (rather t=
+han
+>   * the default priority), then this function updates the io_u with an io=
+prio
+> - * value as defined by the cmdprio/cmdprio_class or cmdprio_bssplit opti=
+ons.
+> + * value as defined by the cmdprio/cmdprio_hint/cmdprio_class or
+> + * cmdprio_bssplit options.
+>   *
+>   * Return true if the io_u ioprio was changed and false otherwise.
+>   */
+> @@ -342,7 +343,8 @@ static int fio_cmdprio_gen_perc(struct thread_data *t=
+d, struct cmdprio *cmdprio)
+>  		prio =3D &cmdprio->perc_entry[ddir];
+>  		prio->perc =3D options->percentage[ddir];
+>  		prio->prio =3D ioprio_value(options->class[ddir],
+> -					  options->level[ddir], 0);
+> +					  options->level[ddir],
+> +					  options->hint[ddir]);
+>  		assign_clat_prio_index(prio, &values[ddir]);
+> =20
+>  		ret =3D init_ts_clat_prio(ts, ddir, &values[ddir]);
+> @@ -400,7 +402,8 @@ static int fio_cmdprio_parse_and_gen_bssplit(struct t=
+hread_data *td,
+>  			goto err;
+> =20
+>  		implicit_cmdprio =3D ioprio_value(options->class[ddir],
+> -						options->level[ddir], 0);
+> +						options->level[ddir],
+> +						options->hint[ddir]);
+> =20
+>  		ret =3D fio_cmdprio_generate_bsprio_desc(&cmdprio->bsprio_desc[ddir],
+>  						       &parse_res[ddir],
 > diff --git a/engines/cmdprio.h b/engines/cmdprio.h
-> index 755da8d0..2c9d87bc 100644
+> index 2c9d87bc..81e6c390 100644
 > --- a/engines/cmdprio.h
 > +++ b/engines/cmdprio.h
-> @@ -7,6 +7,7 @@
->  #define FIO_CMDPRIO_H
-> =20
->  #include "../fio.h"
-> +#include "../optgroup.h"
-> =20
->  /* read and writes only, no trim */
->  #define CMDPRIO_RWDIR_CNT 2
-> @@ -42,6 +43,89 @@ struct cmdprio_options {
+> @@ -40,6 +40,7 @@ struct cmdprio_options {
+>  	unsigned int percentage[CMDPRIO_RWDIR_CNT];
+>  	unsigned int class[CMDPRIO_RWDIR_CNT];
+>  	unsigned int level[CMDPRIO_RWDIR_CNT];
+> +	unsigned int hint[CMDPRIO_RWDIR_CNT];
 >  	char *bssplit_str;
 >  };
 > =20
-> +#ifdef FIO_HAVE_IOPRIO_CLASS
-> +#define CMDPRIO_OPTIONS(opt_struct, opt_group)					\
+> @@ -74,6 +75,21 @@ struct cmdprio_options {
+>  		.category =3D FIO_OPT_C_ENGINE,					\
+>  		.group	=3D opt_group,						\
+>  	},									\
 > +	{									\
-> +		.name	=3D "cmdprio_percentage",					\
-> +		.lname	=3D "high priority percentage",				\
+> +		.name	=3D "cmdprio_hint",					\
+> +		.lname	=3D "Asynchronous I/O priority hint",			\
 > +		.type	=3D FIO_OPT_INT,						\
 > +		.off1	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.percentage[DDIR_READ]),	\
+> +				   cmdprio_options.hint[DDIR_READ]),		\
 > +		.off2	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.percentage[DDIR_WRITE]),	\
-> +		.minval	=3D 0,							\
-> +		.maxval	=3D 100,							\
-> +		.help	=3D "Send high priority I/O this percentage of the time",	\
-> +		.category =3D FIO_OPT_C_ENGINE,					\
-> +		.group	=3D opt_group,						\
-> +	},									\
-> +	{									\
-> +		.name	=3D "cmdprio_class",					\
-> +		.lname	=3D "Asynchronous I/O priority class",			\
-> +		.type	=3D FIO_OPT_INT,						\
-> +		.off1	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.class[DDIR_READ]),		\
-> +		.off2	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.class[DDIR_WRITE]),		\
-> +		.help	=3D "Set asynchronous IO priority class",			\
-> +		.minval	=3D IOPRIO_MIN_PRIO_CLASS + 1,				\
-> +		.maxval	=3D IOPRIO_MAX_PRIO_CLASS,				\
+> +				   cmdprio_options.hint[DDIR_WRITE]),		\
+> +		.help	=3D "Set asynchronous IO priority hint",			\
+> +		.minval	=3D IOPRIO_MIN_PRIO_HINT,					\
+> +		.maxval	=3D IOPRIO_MAX_PRIO_HINT,					\
 > +		.interval =3D 1,							\
 > +		.category =3D FIO_OPT_C_ENGINE,					\
 > +		.group	=3D opt_group,						\
 > +	},									\
+>  	{									\
+>  		.name	=3D "cmdprio",						\
+>  		.lname	=3D "Asynchronous I/O priority level",			\
+> @@ -112,6 +128,12 @@ struct cmdprio_options {
+>  		.type	=3D FIO_OPT_UNSUPPORTED,					\
+>  		.help	=3D "Platform does not support I/O priority classes",	\
+>  	},									\
 > +	{									\
-> +		.name	=3D "cmdprio",						\
-> +		.lname	=3D "Asynchronous I/O priority level",			\
-> +		.type	=3D FIO_OPT_INT,						\
-> +		.off1	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.level[DDIR_READ]),		\
-> +		.off2	=3D offsetof(opt_struct,					\
-> +				   cmdprio_options.level[DDIR_WRITE]),		\
-> +		.help	=3D "Set asynchronous IO priority level",			\
-> +		.minval	=3D IOPRIO_MIN_PRIO,					\
-> +		.maxval	=3D IOPRIO_MAX_PRIO,					\
-> +		.interval =3D 1,							\
-> +		.category =3D FIO_OPT_C_ENGINE,					\
-> +		.group	=3D opt_group,						\
-> +	},									\
-> +	{									\
-> +		.name   =3D "cmdprio_bssplit",					\
-> +		.lname  =3D "Priority percentage block size split",		\
-> +		.type   =3D FIO_OPT_STR_STORE,					\
-> +		.off1   =3D offsetof(opt_struct, cmdprio_options.bssplit_str),	\
-> +		.help   =3D "Set priority percentages for different block sizes",	\
-> +		.category =3D FIO_OPT_C_ENGINE,					\
-> +		.group	=3D opt_group,						\
-> +	}
-> +#else
-> +#define CMDPRIO_OPTIONS(opt_struct, opt_group)					\
-> +	{									\
-> +		.name	=3D "cmdprio_percentage",					\
-> +		.lname	=3D "high priority percentage",				\
+> +		.name	=3D "cmdprio_hint",					\
+> +		.lname	=3D "Asynchronous I/O priority hint",			\
 > +		.type	=3D FIO_OPT_UNSUPPORTED,					\
 > +		.help	=3D "Platform does not support I/O priority classes",	\
 > +	},									\
-> +	{									\
-> +		.name	=3D "cmdprio_class",					\
-> +		.lname	=3D "Asynchronous I/O priority class",			\
-> +		.type	=3D FIO_OPT_UNSUPPORTED,					\
-> +		.help	=3D "Platform does not support I/O priority classes",	\
-> +	},									\
-> +	{									\
-> +		.name	=3D "cmdprio",						\
-> +		.lname	=3D "Asynchronous I/O priority level",			\
-> +		.type	=3D FIO_OPT_UNSUPPORTED,					\
-> +		.help	=3D "Platform does not support I/O priority classes",	\
-> +	},									\
-> +	{									\
-> +		.name   =3D "cmdprio_bssplit",					\
-> +		.lname  =3D "Priority percentage block size split",		\
-> +		.type	=3D FIO_OPT_UNSUPPORTED,					\
-> +		.help	=3D "Platform does not support I/O priority classes",	\
-> +	}
-> +#endif
-> +
->  struct cmdprio {
->  	struct cmdprio_options *options;
->  	struct cmdprio_prio perc_entry[CMDPRIO_RWDIR_CNT];
+>  	{									\
+>  		.name	=3D "cmdprio",						\
+>  		.lname	=3D "Asynchronous I/O priority level",			\
 > diff --git a/engines/io_uring.c b/engines/io_uring.c
-> index f30a3c00..5613c4c6 100644
+> index 5613c4c6..e1abf688 100644
 > --- a/engines/io_uring.c
 > +++ b/engines/io_uring.c
-> @@ -127,87 +127,6 @@ static struct fio_option options[] =3D {
->  		.category =3D FIO_OPT_C_ENGINE,
->  		.group	=3D FIO_OPT_G_IOURING,
->  	},
-> -#ifdef FIO_HAVE_IOPRIO_CLASS
-> -	{
-> -		.name	=3D "cmdprio_percentage",
-> -		.lname	=3D "high priority percentage",
-> -		.type	=3D FIO_OPT_INT,
-> -		.off1	=3D offsetof(struct ioring_options,
-> -				   cmdprio_options.percentage[DDIR_READ]),
-> -		.off2	=3D offsetof(struct ioring_options,
-> -				   cmdprio_options.percentage[DDIR_WRITE]),
-> -		.minval	=3D 0,
-> -		.maxval	=3D 100,
-> -		.help	=3D "Send high priority I/O this percentage of the time",
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_IOURING,
-> -	},
-> -	{
-> -		.name	=3D "cmdprio_class",
-> -		.lname	=3D "Asynchronous I/O priority class",
-> -		.type	=3D FIO_OPT_INT,
-> -		.off1	=3D offsetof(struct ioring_options,
-> -				   cmdprio_options.class[DDIR_READ]),
-> -		.off2	=3D offsetof(struct ioring_options,
-> -				   cmdprio_options.class[DDIR_WRITE]),
-> -		.help	=3D "Set asynchronous IO priority class",
-> -		.minval	=3D IOPRIO_MIN_PRIO_CLASS + 1,
-> -		.maxval	=3D IOPRIO_MAX_PRIO_CLASS,
-> -		.interval =3D 1,
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_IOURING,
-> -	},
-> -	{
-> -		.name	=3D "cmdprio",
-> -		.lname	=3D "Asynchronous I/O priority level",
-> -		.type	=3D FIO_OPT_INT,
-> -		.off1	=3D offsetof(struct ioring_options,
-> -				   cmdprio_options.level[DDIR_READ]),
-> -		.off2	=3D offsetof(struct ioring_options,
-> -				   cmdprio_options.level[DDIR_WRITE]),
-> -		.help	=3D "Set asynchronous IO priority level",
-> -		.minval	=3D IOPRIO_MIN_PRIO,
-> -		.maxval	=3D IOPRIO_MAX_PRIO,
-> -		.interval =3D 1,
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_IOURING,
-> -	},
-> -	{
-> -		.name   =3D "cmdprio_bssplit",
-> -		.lname  =3D "Priority percentage block size split",
-> -		.type   =3D FIO_OPT_STR_STORE,
-> -		.off1   =3D offsetof(struct ioring_options,
-> -				   cmdprio_options.bssplit_str),
-> -		.help   =3D "Set priority percentages for different block sizes",
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_IOURING,
-> -	},
-> -#else
-> -	{
-> -		.name	=3D "cmdprio_percentage",
-> -		.lname	=3D "high priority percentage",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -	{
-> -		.name	=3D "cmdprio_class",
-> -		.lname	=3D "Asynchronous I/O priority class",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -	{
-> -		.name	=3D "cmdprio",
-> -		.lname	=3D "Asynchronous I/O priority level",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -	{
-> -		.name   =3D "cmdprio_bssplit",
-> -		.lname  =3D "Priority percentage block size split",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -#endif
->  	{
->  		.name	=3D "fixedbufs",
->  		.lname	=3D "Fixed (pre-mapped) IO buffers",
-> @@ -297,6 +216,7 @@ static struct fio_option options[] =3D {
->  		.category =3D FIO_OPT_C_ENGINE,
->  		.group	=3D FIO_OPT_G_IOURING,
->  	},
-> +	CMDPRIO_OPTIONS(struct ioring_options, FIO_OPT_G_IOURING),
->  	{
->  		.name	=3D NULL,
->  	},
-> diff --git a/engines/libaio.c b/engines/libaio.c
-> index 6a0745aa..aaccc7ce 100644
-> --- a/engines/libaio.c
-> +++ b/engines/libaio.c
-> @@ -72,87 +72,6 @@ static struct fio_option options[] =3D {
->  		.category =3D FIO_OPT_C_ENGINE,
->  		.group	=3D FIO_OPT_G_LIBAIO,
->  	},
-> -#ifdef FIO_HAVE_IOPRIO_CLASS
-> -	{
-> -		.name	=3D "cmdprio_percentage",
-> -		.lname	=3D "high priority percentage",
-> -		.type	=3D FIO_OPT_INT,
-> -		.off1	=3D offsetof(struct libaio_options,
-> -				   cmdprio_options.percentage[DDIR_READ]),
-> -		.off2	=3D offsetof(struct libaio_options,
-> -				   cmdprio_options.percentage[DDIR_WRITE]),
-> -		.minval	=3D 0,
-> -		.maxval	=3D 100,
-> -		.help	=3D "Send high priority I/O this percentage of the time",
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_LIBAIO,
-> -	},
-> -	{
-> -		.name	=3D "cmdprio_class",
-> -		.lname	=3D "Asynchronous I/O priority class",
-> -		.type	=3D FIO_OPT_INT,
-> -		.off1	=3D offsetof(struct libaio_options,
-> -				   cmdprio_options.class[DDIR_READ]),
-> -		.off2	=3D offsetof(struct libaio_options,
-> -				   cmdprio_options.class[DDIR_WRITE]),
-> -		.help	=3D "Set asynchronous IO priority class",
-> -		.minval	=3D IOPRIO_MIN_PRIO_CLASS + 1,
-> -		.maxval	=3D IOPRIO_MAX_PRIO_CLASS,
-> -		.interval =3D 1,
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_LIBAIO,
-> -	},
-> -	{
-> -		.name	=3D "cmdprio",
-> -		.lname	=3D "Asynchronous I/O priority level",
-> -		.type	=3D FIO_OPT_INT,
-> -		.off1	=3D offsetof(struct libaio_options,
-> -				   cmdprio_options.level[DDIR_READ]),
-> -		.off2	=3D offsetof(struct libaio_options,
-> -				   cmdprio_options.level[DDIR_WRITE]),
-> -		.help	=3D "Set asynchronous IO priority level",
-> -		.minval	=3D IOPRIO_MIN_PRIO,
-> -		.maxval	=3D IOPRIO_MAX_PRIO,
-> -		.interval =3D 1,
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_LIBAIO,
-> -	},
-> -	{
-> -		.name   =3D "cmdprio_bssplit",
-> -		.lname  =3D "Priority percentage block size split",
-> -		.type   =3D FIO_OPT_STR_STORE,
-> -		.off1   =3D offsetof(struct libaio_options,
-> -				   cmdprio_options.bssplit_str),
-> -		.help   =3D "Set priority percentages for different block sizes",
-> -		.category =3D FIO_OPT_C_ENGINE,
-> -		.group	=3D FIO_OPT_G_LIBAIO,
-> -	},
-> -#else
-> -	{
-> -		.name	=3D "cmdprio_percentage",
-> -		.lname	=3D "high priority percentage",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -	{
-> -		.name	=3D "cmdprio_class",
-> -		.lname	=3D "Asynchronous I/O priority class",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -	{
-> -		.name	=3D "cmdprio",
-> -		.lname	=3D "Asynchronous I/O priority level",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -	{
-> -		.name   =3D "cmdprio_bssplit",
-> -		.lname  =3D "Priority percentage block size split",
-> -		.type	=3D FIO_OPT_UNSUPPORTED,
-> -		.help	=3D "Your platform does not support I/O priority classes",
-> -	},
-> -#endif
->  	{
->  		.name	=3D "nowait",
->  		.lname	=3D "RWF_NOWAIT",
-> @@ -162,6 +81,7 @@ static struct fio_option options[] =3D {
->  		.category =3D FIO_OPT_C_ENGINE,
->  		.group	=3D FIO_OPT_G_LIBAIO,
->  	},
-> +	CMDPRIO_OPTIONS(struct libaio_options, FIO_OPT_G_LIBAIO),
->  	{
->  		.name	=3D NULL,
->  	},
+> @@ -285,8 +285,8 @@ static int fio_ioring_prep(struct thread_data *td, st=
+ruct io_u *io_u)
+>  		/*
+>  		 * Since io_uring can have a submission context (sqthread_poll)
+>  		 * that is different from the process context, we cannot rely on
+> -		 * the IO priority set by ioprio_set() (option prio/prioclass)
+> -		 * to be inherited.
+> +		 * the IO priority set by ioprio_set() (options prio, prioclass,
+> +		 * and priohint) to be inherited.
+>  		 * td->ioprio will have the value of the "default prio", so set
+>  		 * this unconditionally. This value might get overridden by
+>  		 * fio_ioring_cmdprio_prep() if the option cmdprio_percentage or
+> diff --git a/fio.1 b/fio.1
+> index e2a36327..f62617e7 100644
+> --- a/fio.1
+> +++ b/fio.1
+> @@ -2084,6 +2084,14 @@ is set, this defaults to the highest priority clas=
+s. A single value applies
+>  to reads and writes. Comma-separated values may be specified for reads a=
+nd
+>  writes. See man \fBionice\fR\|(1). See also the \fBprioclass\fR option.
+>  .TP
+> +.BI (io_uring,libaio)cmdprio_hint \fR=3D\fPint[,int]
+> +Set the I/O priority hint to use for I/Os that must be issued with a
+> +priority when \fBcmdprio_percentage\fR or \fBcmdprio_bssplit\fR is set.
+> +If not specified when \fBcmdprio_percentage\fR or \fBcmdprio_bssplit\fR
+> +is set, this defaults to 0 (no hint). A single value applies to reads an=
+d
+> +writes. Comma-separated values may be specified for reads and writes.
+> +See also the \fBpriohint\fR option.
+> +.TP
+>  .BI (io_uring,libaio)cmdprio \fR=3D\fPint[,int]
+>  Set the I/O priority value to use for I/Os that must be issued with a
+>  priority when \fBcmdprio_percentage\fR or \fBcmdprio_bssplit\fR is set.
+> @@ -2109,8 +2117,9 @@ The first accepted format for this option is the sa=
+me as the format of the
+>  cmdprio_bssplit=3Dblocksize/percentage:blocksize/percentage
+>  .RE
+>  .P
+> -In this case, each entry will use the priority class and priority level =
+defined
+> -by the options \fBcmdprio_class\fR and \fBcmdprio\fR respectively.
+> +In this case, each entry will use the priority class, priority hint and
+> +priority level defined by the options \fBcmdprio_class\fR, \fBcmdprio\fR
+> +and \fBcmdprio_hint\fR respectively.
+>  .P
+>  The second accepted format for this option is:
+>  .RS
+> @@ -2123,7 +2132,16 @@ entry. In comparison with the first accepted forma=
+t, the second accepted format
+>  does not restrict all entries to have the same priority class and priori=
+ty
+>  level.
+>  .P
+> -For both formats, only the read and write data directions are supported,=
+ values
+> +The third accepted format for this option is:
+> +.RS
+> +.P
+> +cmdprio_bssplit=3Dblocksize/percentage/class/level/hint:...
+> +.RE
+> +.P
+> +This is an extension of the second accepted format that allows to also
+> +specify a priority hint.
+> +.P
+> +For all formats, only the read and write data directions are supported, =
+values
+>  for trim IOs are ignored. This option is mutually exclusive with the
+>  \fBcmdprio_percentage\fR option.
+>  .RE
+> @@ -3150,7 +3168,8 @@ I/O priority classes and to devices with features c=
+ontrolled through priority
+>  hints, e.g. block devices supporting command duration limits, or CDL. CD=
+L is a
+>  way to indicate the desired maximum latency of I/Os so that the device c=
+an
+>  optimize its internal command scheduling according to the latency limits
+> -indicated by the user.
+> +indicated by the user. For per-I/O priority hint setting, see the I/O en=
+gine
+> +specific \fBcmdprio_hint\fB option.
+>  .TP
+>  .BI cpus_allowed \fR=3D\fPstr
+>  Controls the same options as \fBcpumask\fR, but accepts a textual
+> diff --git a/options.c b/options.c
+> index 56672960..48aa0d7b 100644
+> --- a/options.c
+> +++ b/options.c
+> @@ -313,15 +313,17 @@ static int parse_cmdprio_bssplit_entry(struct threa=
+d_options *o,
+>  	int matches =3D 0;
+>  	char *bs_str =3D NULL;
+>  	long long bs_val;
+> -	unsigned int perc =3D 0, class, level;
+> +	unsigned int perc =3D 0, class, level, hint;
+> =20
+>  	/*
+>  	 * valid entry formats:
+>  	 * bs/ - %s/ - set perc to 0, prio to -1.
+>  	 * bs/perc - %s/%u - set prio to -1.
+>  	 * bs/perc/class/level - %s/%u/%u/%u
+> +	 * bs/perc/class/level/hint - %s/%u/%u/%u/%u
+>  	 */
+> -	matches =3D sscanf(str, "%m[^/]/%u/%u/%u", &bs_str, &perc, &class, &lev=
+el);
+> +	matches =3D sscanf(str, "%m[^/]/%u/%u/%u/%u",
+> +			 &bs_str, &perc, &class, &level, &hint);
+>  	if (matches < 1) {
+>  		log_err("fio: invalid cmdprio_bssplit format\n");
+>  		return 1;
+> @@ -342,9 +344,14 @@ static int parse_cmdprio_bssplit_entry(struct thread=
+_options *o,
+>  	case 2: /* bs/perc case */
+>  		break;
+>  	case 4: /* bs/perc/class/level case */
+> +	case 5: /* bs/perc/class/level/hint case */
+>  		class =3D min(class, (unsigned int) IOPRIO_MAX_PRIO_CLASS);
+>  		level =3D min(level, (unsigned int) IOPRIO_MAX_PRIO);
+> -		entry->prio =3D ioprio_value(class, level, 0);
+> +		if (matches =3D=3D 5)
+> +			hint =3D min(hint, (unsigned int) IOPRIO_MAX_PRIO_HINT);
+> +		else
+> +			hint =3D 0;
+> +		entry->prio =3D ioprio_value(class, level, hint);
+>  		break;
+>  	default:
+>  		log_err("fio: invalid cmdprio_bssplit format\n");
 > --=20
 > 2.41.0
 >=20
-
-Nice cleanup!
 
 Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>=
