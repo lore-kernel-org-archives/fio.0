@@ -2,105 +2,145 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D30D0C001DE
-	for <fio@archiver.kernel.org>; Fri, 28 Jul 2023 12:00:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09D59C0015E
+	for <fio@archiver.kernel.org>; Sat, 29 Jul 2023 12:00:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235572AbjG1MA6 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Fri, 28 Jul 2023 08:00:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52808 "EHLO
+        id S229502AbjG2MAM (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Sat, 29 Jul 2023 08:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236395AbjG1MAw (ORCPT <rfc822;fio@vger.kernel.org>);
-        Fri, 28 Jul 2023 08:00:52 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1B10449C
-        for <fio@vger.kernel.org>; Fri, 28 Jul 2023 05:00:10 -0700 (PDT)
+        with ESMTP id S229481AbjG2MAL (ORCPT <rfc822;fio@vger.kernel.org>);
+        Sat, 29 Jul 2023 08:00:11 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C341737
+        for <fio@vger.kernel.org>; Sat, 29 Jul 2023 05:00:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=QcqA6MkZviZJJNwLe57HIu29ZK8cKnikrPxhI0hLEDA=; b=o8RVzFyBsXGS87j7wkIRLXkdb4
-        4BcO9Wj/4jDiUr6J76XhQIsIF9BWVSn+jVekk8gt4HNRQNihQ0gEWsdNzGRwLujmj6lG4IWpr/Je1
-        +HxjM+0rMrJrOT+6KosqR5Q5CPwnCz398feLzorco4TdSEwFHdo7Dm0Mfji4WwBu4FzChGy8y32pH
-        9nqWFQ72A9F02limTnuQ0Nra3eWMu2/26S99x4g1CpfrYPB2+hQiCck/oDqgIGgsjpjX+EY6jyUZ4
-        BoEGKaSQgHHnx2Tv47Z6OqpxTaXsqdYESIlqp0NcePDvrAGBh1/kzxjpYTHNEcunK1v46ujcB03q8
-        gncgCD+g==;
+        bh=j1YDzeOoKJT51+yxGhKt13aNXE1stuzsZ6hp4E5Gip8=; b=ATkJ0YExkD9KUxFAEqPeAcThhg
+        9GVSxYPJIu70YVlNkeKvtQpRkXDMG6c/ibDD9/QZ4Qvu6TYaBTexFiXjtoi7eRoyWaVJpyi87dptx
+        O+8eVSXxaB1dZLGfyRp0SFuIWsZW8uSORCkJGXV/0pg5kmB2kRfeML52FakUubXOlF7crXPNfbqKo
+        YacEFaNYTpxGIK9gVamvcQ8aBliOkL4UkZdyK+P6OsxHvALhvLmOiIjOaV8IDu9lGK4OVkvCigdCc
+        p4T7g6rjUXIiBf1BoHK+1d3iJ+8SlzjTbQ0DaUtYDpfHwA1JXScqnIl/R5L97eJ6lB7S/ABQ7qH8F
+        I7qhyqxQ==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qPM8c-008THO-Vm
-        for fio@vger.kernel.org; Fri, 28 Jul 2023 12:00:07 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qPic9-0098Ec-2e
+        for fio@vger.kernel.org;
+        Sat, 29 Jul 2023 12:00:06 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id DCCC71BC018C; Fri, 28 Jul 2023 06:00:01 -0600 (MDT)
+        id 8832D1BC0151; Sat, 29 Jul 2023 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230728120001.DCCC71BC018C@kernel.dk>
-Date:   Fri, 28 Jul 2023 06:00:01 -0600 (MDT)
+Message-Id: <20230729120001.8832D1BC0151@kernel.dk>
+Date:   Sat, 29 Jul 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 0b47b2cf3dab1d26d72f52ed8c19f782a8277d3a:
+The following changes since commit 45eb1cf5ce883ae3b170f102db38204616c8e4b1:
 
-  Merge branch 'prio-hints' (2023-07-21 15:23:40 -0600)
+  Merge branch 'helper_thread-fix-missing-stdbool-header' of https://github.com/dpronin/fio (2023-07-27 13:48:26 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 45eb1cf5ce883ae3b170f102db38204616c8e4b1:
+for you to fetch changes up to 824912be19542f94264e485a25d37b55a9f68f0e:
 
-  Merge branch 'helper_thread-fix-missing-stdbool-header' of https://github.com/dpronin/fio (2023-07-27 13:48:26 -0600)
+  Revert "correctly free thread_data options at the topmost parent process" (2023-07-28 11:32:22 -0600)
 
 ----------------------------------------------------------------
 Denis Pronin (3):
-      diskutil.h: fix missing headers wanted by the header
-      helper_thread.h: include missing stdbool.h because 'bool' type is used
-      helper_thread.h: forwardly declare structures fio_sem and sk_out
+      fix missing headers in multiple files
+      correctly free thread_data options at the topmost parent process
+      io_uring engine: 'atomic_load_relaxed' instead of 'atomic_load_acquire'
 
-Jens Axboe (2):
-      Merge branch 'diskutil-fix-missing-headers' of https://github.com/dpronin/fio
-      Merge branch 'helper_thread-fix-missing-stdbool-header' of https://github.com/dpronin/fio
+Jens Axboe (4):
+      Merge branch 'io_uring' of https://github.com/dpronin/fio
+      Merge branch 'master' of https://github.com/dpronin/fio
+      Merge branch 'td-eo-double-free-fix' of https://github.com/dpronin/fio
+      Revert "correctly free thread_data options at the topmost parent process"
 
- diskutil.h      | 3 +++
- helper_thread.h | 5 +++++
- 2 files changed, 8 insertions(+)
+ cairo_text_helpers.c | 2 ++
+ cairo_text_helpers.h | 2 ++
+ engines/io_uring.c   | 4 ++--
+ goptions.h           | 2 ++
+ log.c                | 2 ++
+ 5 files changed, 10 insertions(+), 2 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/diskutil.h b/diskutil.h
-index 9dca42c4..9b283799 100644
---- a/diskutil.h
-+++ b/diskutil.h
-@@ -2,10 +2,13 @@
- #define FIO_DISKUTIL_H
- #define FIO_DU_NAME_SZ		64
- 
-+#include <stdint.h>
- #include <limits.h>
- 
- #include "helper_thread.h"
- #include "fio_sem.h"
-+#include "flist.h"
-+#include "lib/ieee754.h"
- 
- /**
-  * @ios: Number of I/O operations that have been completed successfully.
-diff --git a/helper_thread.h b/helper_thread.h
-index d7df6c4d..1c8167e8 100644
---- a/helper_thread.h
-+++ b/helper_thread.h
-@@ -1,6 +1,11 @@
- #ifndef FIO_HELPER_THREAD_H
- #define FIO_HELPER_THREAD_H
- 
-+#include <stdbool.h>
+diff --git a/cairo_text_helpers.c b/cairo_text_helpers.c
+index 19fb8e03..5bdd6021 100644
+--- a/cairo_text_helpers.c
++++ b/cairo_text_helpers.c
+@@ -1,3 +1,5 @@
++#include "cairo_text_helpers.h"
 +
-+struct fio_sem;
-+struct sk_out;
+ #include <cairo.h>
+ #include <gtk/gtk.h>
+ #include <math.h>
+diff --git a/cairo_text_helpers.h b/cairo_text_helpers.h
+index 014001ad..d0f52d51 100644
+--- a/cairo_text_helpers.h
++++ b/cairo_text_helpers.h
+@@ -1,6 +1,8 @@
+ #ifndef CAIRO_TEXT_HELPERS_H
+ #define CAIRO_TEXT_HELPERS_H
+ 
++#include <cairo.h>
 +
- extern void helper_reset(void);
- extern void helper_do_stat(void);
- extern bool helper_should_exit(void);
+ void draw_centered_text(cairo_t *cr, const char *font, double x, double y,
+ 			       double fontsize, const char *text);
+ 
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index e1abf688..b361e6a5 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -509,7 +509,7 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
+ 
+ 	tail = *ring->tail;
+ 	next_tail = tail + 1;
+-	if (next_tail == atomic_load_acquire(ring->head))
++	if (next_tail == atomic_load_relaxed(ring->head))
+ 		return FIO_Q_BUSY;
+ 
+ 	if (ld->cmdprio.mode != CMDPRIO_MODE_NONE)
+@@ -569,7 +569,7 @@ static int fio_ioring_commit(struct thread_data *td)
+ 		unsigned start = *ld->sq_ring.tail - ld->queued;
+ 		unsigned flags;
+ 
+-		flags = atomic_load_acquire(ring->flags);
++		flags = atomic_load_relaxed(ring->flags);
+ 		if (flags & IORING_SQ_NEED_WAKEUP)
+ 			io_uring_enter(ld, ld->queued, 0,
+ 					IORING_ENTER_SQ_WAKEUP);
+diff --git a/goptions.h b/goptions.h
+index a225a8d1..03617509 100644
+--- a/goptions.h
++++ b/goptions.h
+@@ -1,6 +1,8 @@
+ #ifndef GFIO_OPTIONS_H
+ #define GFIO_OPTIONS_H
+ 
++#include <gtk/gtk.h>
++
+ void gopt_get_options_window(GtkWidget *window, struct gfio_client *gc);
+ void gopt_init(void);
+ void gopt_exit(void);
+diff --git a/log.c b/log.c
+index 237bac28..df58ea07 100644
+--- a/log.c
++++ b/log.c
+@@ -1,3 +1,5 @@
++#include "log.h"
++
+ #include <unistd.h>
+ #include <string.h>
+ #include <stdarg.h>
