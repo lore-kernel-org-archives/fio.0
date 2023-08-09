@@ -2,449 +2,322 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A3ECEB64DD
-	for <fio@archiver.kernel.org>; Wed,  9 Aug 2023 06:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69A0CC04A6A
+	for <fio@archiver.kernel.org>; Wed,  9 Aug 2023 06:03:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbjHIGDZ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 9 Aug 2023 02:03:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
+        id S229588AbjHIGD0 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 9 Aug 2023 02:03:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230357AbjHIGDY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 9 Aug 2023 02:03:24 -0400
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9CB1FD6
-        for <fio@vger.kernel.org>; Tue,  8 Aug 2023 23:03:11 -0700 (PDT)
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20230809060309epoutp023e8c262597c8371ef0f6ab0534439200~5ocHdGxdQ2531625316epoutp02e
-        for <fio@vger.kernel.org>; Wed,  9 Aug 2023 06:03:09 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20230809060309epoutp023e8c262597c8371ef0f6ab0534439200~5ocHdGxdQ2531625316epoutp02e
+        with ESMTP id S230357AbjHIGDZ (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 9 Aug 2023 02:03:25 -0400
+Received: from mailout3.samsung.com (mailout3.samsung.com [203.254.224.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BED781FDC
+        for <fio@vger.kernel.org>; Tue,  8 Aug 2023 23:03:13 -0700 (PDT)
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+        by mailout3.samsung.com (KnoxPortal) with ESMTP id 20230809060311epoutp034d9c05d896ef9879f75320e44e5e03d6~5ocJ2a2ir2120421204epoutp03W
+        for <fio@vger.kernel.org>; Wed,  9 Aug 2023 06:03:11 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout3.samsung.com 20230809060311epoutp034d9c05d896ef9879f75320e44e5e03d6~5ocJ2a2ir2120421204epoutp03W
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1691560989;
-        bh=P0ASYpZnbq16f6eMwYjW/FmeXMiXsnngWo+kScG2csE=;
+        s=mail20170921; t=1691560991;
+        bh=Jw6wnocXNCmlZnIJjIgce7XfbwW8Umqn8ddeVuG3anw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmLc4Xe8438dNAqXCWl0klMTZr3xbTP9yaU+P/ZV0AVXIypQI9/ZB/6dgBRZvgx+I
-         6EM+HDZGz5ckT1MOnG3PPvmTHoLRpHh3T1A90/4B6yiIf6iWkdAdqieLWDGaSKi+gA
-         FjbmP5Y+b579h5mgVh3/wOx7yg1+1ox785Ojgl74=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-        20230809060308epcas5p49937eff3bdac70da33ca0422afb0a8b9~5ocHI1P4t1789317893epcas5p4M;
-        Wed,  9 Aug 2023 06:03:08 +0000 (GMT)
-Received: from epsmgec5p1-new.samsung.com (unknown [182.195.38.181]) by
-        epsnrtp1.localdomain (Postfix) with ESMTP id 4RLKGz07Hqz4x9Q1; Wed,  9 Aug
-        2023 06:03:07 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-        epsmgec5p1-new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        E0.58.55173.A1C23D46; Wed,  9 Aug 2023 15:03:06 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-        20230809055421epcas5p4ff594788202cc188c5fbed3f19763e0c~5oUcaSvQ71660116601epcas5p4-;
-        Wed,  9 Aug 2023 05:54:21 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20230809055421epsmtrp112ce13727c2239c561f92121ce470de5~5oUcZmhTy3170131701epsmtrp1s;
-        Wed,  9 Aug 2023 05:54:21 +0000 (GMT)
-X-AuditID: b6c32a50-e61c07000001d785-f1-64d32c1a9af1
+        b=TDUtBTDeMwkBXy0fRkggU0SpCNKUw4UEziN8DZKiUfDSMwI2FUhF52S4dPYIlrfXm
+         M8AgoErful8k0Jk3WkNX1lQWrFMjNIF7X2JqO0ZP+B3q3k+V9wzxtmxQiTjZpfg/KZ
+         afItt8FLx/b/3qdrJa67pTosxMyC8ZoG2CohnNO0=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        epcas5p2.samsung.com (KnoxPortal) with ESMTP id
+        20230809060311epcas5p2d51d4368b2536ddcb0c7139c5172682d~5ocJc-iE_1913319133epcas5p2L;
+        Wed,  9 Aug 2023 06:03:11 +0000 (GMT)
+Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.181]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4RLKH16cL8z4x9Pt; Wed,  9 Aug
+        2023 06:03:09 +0000 (GMT)
+Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+        epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        A8.5E.57354.D1C23D46; Wed,  9 Aug 2023 15:03:09 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+        20230809055423epcas5p3dc7782753e9e60522b4adc749edc8426~5oUdnug781080510805epcas5p3o;
+        Wed,  9 Aug 2023 05:54:23 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20230809055423epsmtrp28b02fe94f21042f6b063a5762e98db70~5oUdm_B4j0724607246epsmtrp2C;
+        Wed,  9 Aug 2023 05:54:23 +0000 (GMT)
+X-AuditID: b6c32a44-007ff7000001e00a-c3-64d32c1dfa19
 Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        64.AE.30535.D0A23D46; Wed,  9 Aug 2023 14:54:21 +0900 (KST)
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        75.BB.34491.E0A23D46; Wed,  9 Aug 2023 14:54:22 +0900 (KST)
 Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
         [107.99.41.39]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20230809055420epsmtip1f8a29b5180dc1de9d76572e2bf1eced8~5oUbPQXN80677006770epsmtip1m;
-        Wed,  9 Aug 2023 05:54:20 +0000 (GMT)
+        20230809055421epsmtip1f5ee7aaa8cd02c62aa001edfe2ef8c33~5oUcfqet10678306783epsmtip1v;
+        Wed,  9 Aug 2023 05:54:21 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk, vincentfu@gmail.com
 Cc:     fio@vger.kernel.org, kbusch@kernel.org, joshi.k@samsung.com,
         martin.petersen@oracle.com, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 07/10] engines:io_uring: generate and verify pi for 16b
- guard
-Date:   Wed,  9 Aug 2023 16:43:11 +0530
-Message-Id: <20230809111314.76947-8-ankit.kumar@samsung.com>
+Subject: [PATCH 08/10] crc: pull required rocksoft crc64 apis from linux
+ kernel
+Date:   Wed,  9 Aug 2023 16:43:12 +0530
+Message-Id: <20230809111314.76947-9-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230809111314.76947-1-ankit.kumar@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprMJsWRmVeSWpSXmKPExsWy7bCmpq6UzuUUgwdLrSzWXPnNbrH6bj+b
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprIJsWRmVeSWpSXmKPExsWy7bCmuq6szuUUg5V3jCzWXPnNbrH6bj+b
         xcdZL5gtjv5/y2Yx6dA1Rovlx/8xWWxoE3Rg99g56y67x+WzpR6bVnWyeXx8eovFo2/LKkaP
         z5vkAtiism0yUhNTUosUUvOS81My89JtlbyD453jTc0MDHUNLS3MlRTyEnNTbZVcfAJ03TJz
         gC5RUihLzCkFCgUkFhcr6dvZFOWXlqQqZOQXl9gqpRak5BSYFOgVJ+YWl+al6+WlllgZGhgY
-        mQIVJmRnfPnKXbDBv+L1zBOMDYwT7LsYOTkkBEwkHp9ZyN7FyMUhJLCHUeL2xtfMEM4nRolJ
-        s7pYIJxvjBJrNq5jg2n5MnM6VGIvo8S06edZQRJCAp1MEkdXJILYbALaEq/e3gAaxcEhIqAh
-        seZuKkg9s0ALo8Tu7tlg9cIC/hLTZ00AG8oioCqxrO8LmM0rYCMx8cwrVohl8hIzL31nB7E5
-        BWwlVq25wQJRIyhxcuYTMJsZqKZ562ywsyUEPrJLLF/exAjR7CLx/ftiFghbWOLV8S3sELaU
-        xMv+Nig7W2LTw59MEHaBxJEXvcwQtr1E66l+sAeYBTQl1u/ShwjLSkw9tY4JYi+fRO/vJ1Ct
-        vBI75sHYqhJ/792GWistcfPdVSjbQ+Lik9OskICbwCixoOEE2wRGhVlI/pmF5J9ZCKsXMDKv
-        YpRKLSjOTU9NNi0w1M1LLYfHcnJ+7iZGcOrUCtjBuHrDX71DjEwcjIcYJTiYlUR4bYMvpQjx
-        piRWVqUW5ccXleakFh9iNAWG+ERmKdHkfGDyziuJNzSxNDAxMzMzsTQ2M1QS533dOjdFSCA9
-        sSQ1OzW1ILUIpo+Jg1OqgWnJgZtzA5VPMhg8qbxvnVa5eNKM/alrJy0rYCtdGMfTXKXLXjmp
-        fLZoSv7DhY8yP716+PLwYp4Mrg72A9WqD7O2c0XURV5Jfbfm18aYQqu6TSemyIr1L9SxiVW/
-        dpvzJrsTl+mky0Yx2evfyrtOt1X2PJh7snv7e8dEln9+YqveX981MZDrwKmMOx9czBkfRqxQ
-        fsBY+Dxkm9u0mJmdH0yctz036rvJxO//97YP80u12ean3uqlVXGazHLxsFE4NlOh76lnSUPP
-        X+fNOv6h7NkFsfyZ+qZaB9o/XG/9uujOUo9ajvkXYiZUfY4IED/SXhehFzGnTuLqCm4e7TSV
-        dScXlNevC2SSWnizbtdLCSWW4oxEQy3mouJEANzjQucmBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrOLMWRmVeSWpSXmKPExsWy7bCSnC6v1uUUg7f/NS3WXPnNbrH6bj+b
-        xcdZL5gtjv5/y2Yx6dA1Rovlx/8xWWxoE3Rg99g56y67x+WzpR6bVnWyeXx8eovFo2/LKkaP
-        z5vkAtiiuGxSUnMyy1KL9O0SuDK+fOUu2OBf8XrmCcYGxgn2XYycHBICJhJfZk5nAbGFBHYz
-        Skx/at7FyAEUl5ZYuD4RokRYYuW/5+xdjFxAJe1MEvNbJrCDJNgEtCVevb3BDGKLCGhJHFvX
-        xAZSxCzQxSixd/c0NpBBwgK+EvN2OIDUsAioSizr+8IGYvMK2EhMPPOKFWKBvMTMS9/BZnIK
-        2EqsWnMD6h4biYVvJzJD1AtKnJz5BCzODFTfvHU28wRGgVlIUrOQpBYwMq1ilEwtKM5Nzy02
-        LDDKSy3XK07MLS7NS9dLzs/dxAgOay2tHYx7Vn3QO8TIxMF4iFGCg1lJhNc2+FKKEG9KYmVV
-        alF+fFFpTmrxIUZpDhYlcd5vr3tThATSE0tSs1NTC1KLYLJMHJxSDUyB/iX/PtxmEPaZrhh8
-        zmyXlYSUY9/1cyamCyfsublNR77tdjHf+SgWGZ3SOcKiZ/WvintyXldrC76x9rVeU4v6zcCv
-        bbu+CGim5DIFOS77+XY2+4wLgUsUr6q9v55xQi2pdwXDjQ47OaEn2gHn47+0fBdkaJ66kX/q
-        lamvxVdNkdwt8tHXbtYN50/zQ/SLGvz7pf3usJxyfbH7T7TCqcmfJHxW3igT+nc26++yCbv1
-        LO9cl+LP7Pgveo7x7vmV82MMQms75iwV+6Vewdh0P8fYqnu57Y7cBRy3LBO63S8tfMotbpP9
-        +7NU2SOBIwdmBT3/K9m97niImone89ILP4wK6hKFLzCdcM23PdnSuUaJpTgj0VCLuag4EQCS
-        F9Ex2gIAAA==
-X-CMS-MailID: 20230809055421epcas5p4ff594788202cc188c5fbed3f19763e0c
+        mQIVJmRnnGyYy1Jw1qViw6nvLA2Md6y7GDk5JARMJP79vMHaxcjFISSwm1Fix74zTBDOJ0aJ
+        6+3rWECqhAS+MUoc6paC6ejc840Romgvo8Sth6vZIZxOJomWvc1sIFVsAtoSr97eYO5i5OAQ
+        EdCQWHM3FaSGWaCFUWJ392xWkLiwQKDE3V8aIOUsAqoSG3d9YQKxeQVsJNbtOcwIsUxeYual
+        7+wgNqeArcSqNTdYIGoEJU7OfAJmMwPVNG+dzQwyX0LgK7vEiV3b2CCaXSTaz59hhbCFJV4d
+        38IOYUtJfH63F6omW2LTw59MEHaBxJEXvcwQtr1E66l+sPuZBTQl1u/ShwjLSkw9tY4JYi+f
+        RO/vJ1CtvBI75sHYqhJ/791mgbClJW6+uwple0jM+dvACAnQCYwSa/baTGBUmIXknVlI3pmF
+        sHkBI/MqRsnUguLc9NRk0wLDvNRyeBwn5+duYgSnTS2XHYw35v/TO8TIxMF4iFGCg1lJhNc2
+        +FKKEG9KYmVValF+fFFpTmrxIUZTYHhPZJYSTc4HJu68knhDE0sDEzMzMxNLYzNDJXHe161z
+        U4QE0hNLUrNTUwtSi2D6mDg4pRqYdmclPlvMZWoVve6+78El0cqScb8YZzSfkFzx+EQOf4Go
+        3MKjrQYFCdMjTsR+iazaonIhtUxTuqvwVfsDx5clmRnXnC4HCFQfkFKbMvOqwPad66zkxNbr
+        +Kzp4Zt8ezFH/JX8eiYzKZNy60L23dfXHJhX/LHz52Opwh0s94rtJIU/P+fxWyj5MulucvJs
+        hmKG6AlXjJf6JtTU/rBx5bhsx7N1/eTsi555x4XW75/hE5FSnnDOSl6ucGOYGreNdIFgzk/n
+        azwb5h4V2bi0MD76sNkKrqDPgfcMMhX3ZfXkiFhEcl3iZPd5tZFXUPzSnI17vv39WXREwPTi
+        O665PL16uovuT4xn8ql5u+1svJISS3FGoqEWc1FxIgCgn5z8JAQAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrFLMWRmVeSWpSXmKPExsWy7bCSnC6f1uUUg6Y11hZrrvxmt1h9t5/N
+        4uOsF8wWR/+/ZbOYdOgao8Xy4/+YLDa0CTqwe+ycdZfd4/LZUo9NqzrZPD4+vcXi0bdlFaPH
+        501yAWxRXDYpqTmZZalF+nYJXBknG+ayFJx1qdhw6jtLA+Md6y5GTg4JAROJzj3fGLsYuTiE
+        BHYzSpx9sIy9i5EDKCEtsXB9IkSNsMTKf8/ZIWramSS2bXnNDJJgE9CWePX2BpgtIqAlcWxd
+        ExtIEbNAF6PE3t3T2EASwgL+Ep+m7AazWQRUJTbu+sIEYvMK2Eis23OYEWKDvMTMS9/ZQWxO
+        AVuJVWtusIDYQkA1C99OZIaoF5Q4OfMJWJwZqL5562zmCYwCs5CkZiFJLWBkWsUomVpQnJue
+        W2xYYJiXWq5XnJhbXJqXrpecn7uJERzcWpo7GLev+qB3iJGJg/EQowQHs5IIr23wpRQh3pTE
+        yqrUovz4otKc1OJDjNIcLErivOIvelOEBNITS1KzU1MLUotgskwcnFINTLoWZte9fqY99T7Q
+        deBstbBXf15ukN3PGRJhWY5LDt44W2sx/4fQbZtuxSv5CyfoVkRPnr7rwzavKTXVy7ZvCbmq
+        eMjmKYPHmaZP3Fd9zs9OXPJ6g/KboGCftTvXXmzPm1I2MeRec/rmjhnKOtu+2ez7J8HQ1OtT
+        8GDzxX8n/qpxvtNX+eJmf6j7w6zEi71RRWVMAstuzND8HJf2ZNmm8mlTFqXvXrF945UNu9eL
+        zXHq/r3x/8KFUa86ZWYEvnx/b8W8Hz63ojzirdUf1100LIoMSotlSYwPiJRt2b5s1fWr0y49
+        YjriICzpW39xUkKvqkTn6vlzNffZsZSsfTFNxd17wpsQj+fizDsicq8azK5TYinOSDTUYi4q
+        TgQAJGYSJ90CAAA=
+X-CMS-MailID: 20230809055423epcas5p3dc7782753e9e60522b4adc749edc8426
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20230809055421epcas5p4ff594788202cc188c5fbed3f19763e0c
+X-CMS-RootMailID: 20230809055423epcas5p3dc7782753e9e60522b4adc749edc8426
 References: <20230809111314.76947-1-ankit.kumar@samsung.com>
-        <CGME20230809055421epcas5p4ff594788202cc188c5fbed3f19763e0c@epcas5p4.samsung.com>
+        <CGME20230809055423epcas5p3dc7782753e9e60522b4adc749edc8426@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Generate and verify protection information for 16 bit guard format, for
-the nvme backend of io_uring_cmd ioengine. The support is there for
-both the cases where metadata is transferred in separate buffer, or
-transferred at the end of logical block creating an extended logical
-block.
-This support also takes into consideration when protection information
-resides in last or first 8 bytes of metadata.
+Pull the required rocksoft crc64 apis from the linux kernel. This
+is required to generate and verify 64 bit guard tag for nvme backend
+of io_uring_cmd ioengine.
 
 Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
- engines/io_uring.c |  34 +++++++++
- engines/nvme.c     | 173 +++++++++++++++++++++++++++++++++++++++++++++
- engines/nvme.h     |  12 ++++
- 3 files changed, 219 insertions(+)
+ crc/crc64.c      |  31 +++++++++++
+ crc/crc64.h      |   4 ++
+ crc/crc64table.h | 132 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 167 insertions(+)
+ create mode 100644 crc/crc64table.h
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 93b864f0..e773e4af 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -456,7 +456,9 @@ static struct io_u *fio_ioring_cmd_event(struct thread_data *td, int event)
- 	struct ioring_options *o = td->eo;
- 	struct io_uring_cqe *cqe;
- 	struct io_u *io_u;
-+	struct nvme_data *data;
- 	unsigned index;
-+	int ret;
- 
- 	index = (event + ld->cq_ring_off) & ld->cq_ring_mask;
- 	if (o->cmd_type == FIO_URING_CMD_NVME)
-@@ -470,6 +472,15 @@ static struct io_u *fio_ioring_cmd_event(struct thread_data *td, int event)
- 	else
- 		io_u->error = 0;
- 
-+	if (o->cmd_type == FIO_URING_CMD_NVME) {
-+		data = FILE_ENG_DATA(io_u->file);
-+		if (data->pi_type && (io_u->ddir == DDIR_READ) && !o->pi_act) {
-+			ret = fio_nvme_pi_verify(data, io_u);
-+			if (ret)
-+				io_u->error = ret;
-+		}
-+	}
+diff --git a/crc/crc64.c b/crc/crc64.c
+index bf24a97b..8b703066 100644
+--- a/crc/crc64.c
++++ b/crc/crc64.c
+@@ -1,4 +1,16 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * crc64rocksoft[256] table is from the Rocksoft specification polynomial
++ * defined as,
++ *
++ * x^64 + x^63 + x^61 + x^59 + x^58 + x^56 + x^55 + x^52 + x^49 + x^48 + x^47 +
++ * x^46 + x^44 + x^41 + x^37 + x^36 + x^34 + x^32 + x^31 + x^28 + x^26 + x^23 +
++ * x^22 + x^19 + x^16 + x^13 + x^12 + x^10 + x^9 + x^6 + x^4 + x^3 + 1
++ *
++ */
 +
- 	return io_u;
+ #include "crc64.h"
++#include "crc64table.h"
+ 
+ /*
+  * poly 0x95AC9329AC4BC9B5ULL and init 0xFFFFFFFFFFFFFFFFULL
+@@ -102,3 +114,22 @@ unsigned long long fio_crc64(const unsigned char *buffer, unsigned long length)
+ 	return crc;
  }
  
-@@ -1190,6 +1201,7 @@ static int fio_ioring_io_u_init(struct thread_data *td, struct io_u *io_u)
- {
- 	struct ioring_data *ld = td->io_ops_data;
- 	struct ioring_options *o = td->eo;
-+	struct nvme_pi_data *pi_data;
- 	char *p;
- 
- 	ld->io_u_index[io_u->index] = io_u;
-@@ -1198,11 +1210,32 @@ static int fio_ioring_io_u_init(struct thread_data *td, struct io_u *io_u)
- 		p = PTR_ALIGN(ld->md_buf, page_mask) + td->o.mem_align;
- 		p += o->md_per_io_size * io_u->index;
- 		io_u->mmap_data = p;
-+
-+		if (!o->pi_act) {
-+			pi_data = calloc(1, sizeof(*pi_data));
-+			pi_data->io_flags |= o->prchk;
-+			pi_data->apptag_mask = o->apptag_mask;
-+			pi_data->apptag = o->apptag;
-+			io_u->engine_data = pi_data;
-+		}
- 	}
- 
- 	return 0;
- }
- 
-+static void fio_ioring_io_u_free(struct thread_data *td, struct io_u *io_u)
++/**
++ * crc64_rocksoft_generic - Calculate bitwise Rocksoft CRC64
++ * @crc: seed value for computation. 0 for a new CRC calculation, or the
++ * 	 previous crc64 value if computing incrementally.
++ * @p: pointer to buffer over which CRC64 is run
++ * @len: length of buffer @p
++ */
++__u64 fio_crc64_rocksoft_generic(__u64 crc, const void *p, unsigned int len)
 +{
-+	struct ioring_options *o = td->eo;
-+	struct nvme_pi *pi;
++	const unsigned char *_p = p;
++	unsigned int i;
 +
-+	if (!strcmp(td->io_ops->name, "io_uring_cmd") &&
-+	    (o->cmd_type == FIO_URING_CMD_NVME)) {
-+		pi = io_u->engine_data;
-+		free(pi);
-+		io_u->engine_data = NULL;
-+	}
++	crc = ~crc;
++
++	for (i = 0; i < len; i++)
++		crc = (crc >> 8) ^ crc64rocksofttable[(crc & 0xff) ^ *_p++];
++
++	return ~crc;
 +}
-+
- static int fio_ioring_open_file(struct thread_data *td, struct fio_file *f)
- {
- 	struct ioring_data *ld = td->io_ops_data;
-@@ -1408,6 +1441,7 @@ static struct ioengine_ops ioengine_uring_cmd = {
- 	.init			= fio_ioring_init,
- 	.post_init		= fio_ioring_cmd_post_init,
- 	.io_u_init		= fio_ioring_io_u_init,
-+	.io_u_free		= fio_ioring_io_u_free,
- 	.prep			= fio_ioring_cmd_prep,
- 	.queue			= fio_ioring_queue,
- 	.commit			= fio_ioring_commit,
-diff --git a/engines/nvme.c b/engines/nvme.c
-index 8793d742..e89faee5 100644
---- a/engines/nvme.c
-+++ b/engines/nvme.c
-@@ -4,6 +4,7 @@
-  */
+diff --git a/crc/crc64.h b/crc/crc64.h
+index fe9cad3e..7f39c573 100644
+--- a/crc/crc64.h
++++ b/crc/crc64.h
+@@ -1,6 +1,10 @@
+ #ifndef CRC64_H
+ #define CRC64_H
  
- #include "nvme.h"
-+#include "../crc/crc-t10dif.h"
++#include <linux/types.h>
++
+ unsigned long long fio_crc64(const unsigned char *, unsigned long);
  
- static inline __u64 get_slba(struct nvme_data *data, struct io_u *io_u)
- {
-@@ -21,6 +22,158 @@ static inline __u32 get_nlb(struct nvme_data *data, struct io_u *io_u)
- 		return (io_u->xfer_buflen >> data->lba_shift) - 1;
- }
- 
-+static void fio_nvme_generate_pi_16b_guard(struct nvme_data *data,
-+					   struct io_u *io_u,
-+					   struct nvme_cmd_ext_io_opts *opts)
-+{
-+	struct nvme_pi_data *pi_data = io_u->engine_data;
-+	struct nvme_16b_guard_pif *pi;
-+	unsigned char *buf = io_u->xfer_buf;
-+	unsigned char *md_buf = io_u->mmap_data;
-+	__u64 slba = get_slba(data, io_u);
-+	__u32 nlb = get_nlb(data, io_u) + 1;
-+	__u32 lba_num = 0;
-+	__u16 guard = 0;
++__u64 fio_crc64_rocksoft_generic(__u64 crc, const void *p, unsigned int len);
 +
-+	if (data->pi_loc) {
-+		if (data->lba_ext)
-+			pi_data->interval = data->lba_ext - data->ms;
-+		else
-+			pi_data->interval = 0;
-+	} else {
-+		if (data->lba_ext)
-+			pi_data->interval = data->lba_ext - sizeof(struct nvme_16b_guard_pif);
-+		else
-+			pi_data->interval = data->ms - sizeof(struct nvme_16b_guard_pif);
-+	}
+ #endif
+diff --git a/crc/crc64table.h b/crc/crc64table.h
+new file mode 100644
+index 00000000..e43eb70e
+--- /dev/null
++++ b/crc/crc64table.h
+@@ -0,0 +1,132 @@
++#include <linux/types.h>
 +
-+	if (io_u->ddir != DDIR_WRITE)
-+		return;
-+
-+	while (lba_num < nlb) {
-+		if (data->lba_ext)
-+			pi = (struct nvme_16b_guard_pif *)(buf + pi_data->interval);
-+		else
-+			pi = (struct nvme_16b_guard_pif *)(md_buf + pi_data->interval);
-+
-+		if (opts->io_flags & NVME_IO_PRINFO_PRCHK_GUARD) {
-+			if (data->lba_ext) {
-+				guard = fio_crc_t10dif_generic(0, buf, pi_data->interval);
-+			} else {
-+				guard = fio_crc_t10dif_generic(0, buf, data->lba_size);
-+				guard = fio_crc_t10dif_generic(guard, md_buf, pi_data->interval);
-+			}
-+			pi->guard = cpu_to_be16(guard);
-+		}
-+
-+		if (opts->io_flags & NVME_IO_PRINFO_PRCHK_APP)
-+			pi->apptag = cpu_to_be16(pi_data->apptag);
-+
-+		if (opts->io_flags & NVME_IO_PRINFO_PRCHK_REF) {
-+			switch (data->pi_type) {
-+			case NVME_NS_DPS_PI_TYPE1:
-+			case NVME_NS_DPS_PI_TYPE2:
-+				pi->srtag = cpu_to_be32((__u32)slba + lba_num);
-+				break;
-+			case NVME_NS_DPS_PI_TYPE3:
-+				break;
-+			}
-+		}
-+		if (data->lba_ext) {
-+			buf += data->lba_ext;
-+		} else {
-+			buf += data->lba_size;
-+			md_buf += data->ms;
-+		}
-+		lba_num++;
-+	}
-+}
-+
-+static int fio_nvme_verify_pi_16b_guard(struct nvme_data *data,
-+					struct io_u *io_u)
-+{
-+	struct nvme_pi_data *pi_data = io_u->engine_data;
-+	struct nvme_16b_guard_pif *pi;
-+	struct fio_file *f = io_u->file;
-+	unsigned char *buf = io_u->xfer_buf;
-+	unsigned char *md_buf = io_u->mmap_data;
-+	__u64 slba = get_slba(data, io_u);
-+	__u32 nlb = get_nlb(data, io_u) + 1;
-+	__u32 lba_num = 0;
-+	__u16 guard = 0;
-+
-+	while (lba_num < nlb) {
-+		if (data->lba_ext)
-+			pi = (struct nvme_16b_guard_pif *)(buf + pi_data->interval);
-+		else
-+			pi = (struct nvme_16b_guard_pif *)(md_buf + pi_data->interval);
-+
-+		if (data->pi_type == NVME_NS_DPS_PI_TYPE3) {
-+			if (pi->apptag == NVME_PI_APP_DISABLE &&
-+			    pi->srtag == NVME_PI_REF_DISABLE)
-+				goto next;
-+		} else if (data->pi_type == NVME_NS_DPS_PI_TYPE1 ||
-+			   data->pi_type == NVME_NS_DPS_PI_TYPE2) {
-+			if (pi->apptag == NVME_PI_APP_DISABLE)
-+				goto next;
-+		}
-+
-+		if (pi_data->io_flags & NVME_IO_PRINFO_PRCHK_GUARD) {
-+			if (data->lba_ext) {
-+				guard = fio_crc_t10dif_generic(0, buf, pi_data->interval);
-+			} else {
-+				guard = fio_crc_t10dif_generic(0, buf, data->lba_size);
-+				guard = fio_crc_t10dif_generic(guard, md_buf, pi_data->interval);
-+			}
-+			if (be16_to_cpu(pi->guard) != guard) {
-+				log_err("%s: Guard compare error: LBA: %llu Expected=%x, Actual=%x\n",
-+					f->file_name, (unsigned long long)slba,
-+					guard, be16_to_cpu(pi->guard));
-+				return -EIO;
-+			}
-+		}
-+
-+		if (pi_data->io_flags & NVME_IO_PRINFO_PRCHK_APP) {
-+			if ((be16_to_cpu(pi->apptag) & pi_data->apptag_mask) !=
-+			    (pi_data->apptag & pi_data->apptag_mask)) {
-+				log_err("%s: APPTAG compare error: LBA: %llu Expected=%x, Actual=%x\n",
-+					f->file_name, (unsigned long long)slba,
-+					(pi_data->apptag & pi_data->apptag_mask),
-+					be16_to_cpu(pi->apptag) & pi_data->apptag_mask);
-+				return -EIO;
-+			}
-+		}
-+
-+		if (pi_data->io_flags & NVME_IO_PRINFO_PRCHK_REF) {
-+			switch (data->pi_type) {
-+			case NVME_NS_DPS_PI_TYPE1:
-+			case NVME_NS_DPS_PI_TYPE2:
-+				if (be32_to_cpu(pi->srtag) !=
-+				    ((__u32)slba + lba_num)) {
-+					log_err("%s: REFTAG compare error: LBA: %llu Expected=%x, Actual=%x\n",
-+						f->file_name, (unsigned long long)slba,
-+						(__u32)slba + lba_num,
-+						be32_to_cpu(pi->srtag));
-+					return -EIO;
-+				}
-+				break;
-+			case NVME_NS_DPS_PI_TYPE3:
-+				break;
-+			}
-+		}
-+next:
-+		if (data->lba_ext) {
-+			buf += data->lba_ext;
-+		} else {
-+			buf += data->lba_size;
-+			md_buf += data->ms;
-+		}
-+		lba_num++;
-+	}
-+
-+	return 0;
-+}
-+
- void fio_nvme_uring_cmd_trim_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 				  struct nvme_dsm_range *dsm)
- {
-@@ -96,6 +249,11 @@ void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 	slba = get_slba(data, io_u);
- 	cmd->cdw12 |= opts->io_flags;
- 
-+	if (data->pi_type && !(opts->io_flags & NVME_IO_PRINFO_PRACT)) {
-+		if (data->guard_type == NVME_NVM_NS_16B_GUARD)
-+			fio_nvme_generate_pi_16b_guard(data, io_u, opts);
-+	}
-+
- 	switch (data->pi_type) {
- 	case NVME_NS_DPS_PI_TYPE1:
- 	case NVME_NS_DPS_PI_TYPE2:
-@@ -120,6 +278,21 @@ void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 	}
- }
- 
-+int fio_nvme_pi_verify(struct nvme_data *data, struct io_u *io_u)
-+{
-+	int ret = 0;
-+
-+	switch (data->guard_type) {
-+	case NVME_NVM_NS_16B_GUARD:
-+		ret = fio_nvme_verify_pi_16b_guard(data, io_u);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
- static int nvme_identify(int fd, __u32 nsid, enum nvme_identify_cns cns,
- 			 enum nvme_csi csi, void *data)
- {
-diff --git a/engines/nvme.h b/engines/nvme.h
-index f3598352..a1102dfe 100644
---- a/engines/nvme.h
-+++ b/engines/nvme.h
-@@ -44,6 +44,9 @@ struct nvme_uring_cmd {
- #define NVME_IDENTIFY_CSI_SHIFT 24
- #define NVME_NQN_LENGTH	256
- 
-+#define NVME_PI_APP_DISABLE 0xFFFF
-+#define NVME_PI_REF_DISABLE 0xFFFFFFFF
-+
- #define NVME_ZNS_ZRA_REPORT_ZONES 0
- #define NVME_ZNS_ZRAS_FEAT_ERZ (1 << 16)
- #define NVME_ZNS_ZSA_RESET 0x4
-@@ -131,6 +134,13 @@ enum nvme_io_control_flags {
- 	NVME_IO_PRINFO_PRACT		= 1U << 29,
- };
- 
-+struct nvme_pi_data {
-+	__u32 interval;
-+	__u32 io_flags;
-+	__u16 apptag;
-+	__u16 apptag_mask;
++static const __u64 crc64rocksofttable[256] = {
++	0x0000000000000000ULL, 	0x7f6ef0c830358979ULL,
++	0xfedde190606b12f2ULL, 	0x81b31158505e9b8bULL,
++	0xc962e5739841b68fULL, 	0xb60c15bba8743ff6ULL,
++	0x37bf04e3f82aa47dULL, 	0x48d1f42bc81f2d04ULL,
++	0xa61cecb46814fe75ULL, 	0xd9721c7c5821770cULL,
++	0x58c10d24087fec87ULL, 	0x27affdec384a65feULL,
++	0x6f7e09c7f05548faULL, 	0x1010f90fc060c183ULL,
++	0x91a3e857903e5a08ULL, 	0xeecd189fa00bd371ULL,
++	0x78e0ff3b88be6f81ULL, 	0x078e0ff3b88be6f8ULL,
++	0x863d1eabe8d57d73ULL, 	0xf953ee63d8e0f40aULL,
++	0xb1821a4810ffd90eULL, 	0xceecea8020ca5077ULL,
++	0x4f5ffbd87094cbfcULL, 	0x30310b1040a14285ULL,
++	0xdefc138fe0aa91f4ULL, 	0xa192e347d09f188dULL,
++	0x2021f21f80c18306ULL, 	0x5f4f02d7b0f40a7fULL,
++	0x179ef6fc78eb277bULL, 	0x68f0063448deae02ULL,
++	0xe943176c18803589ULL, 	0x962de7a428b5bcf0ULL,
++	0xf1c1fe77117cdf02ULL, 	0x8eaf0ebf2149567bULL,
++	0x0f1c1fe77117cdf0ULL, 	0x7072ef2f41224489ULL,
++	0x38a31b04893d698dULL, 	0x47cdebccb908e0f4ULL,
++	0xc67efa94e9567b7fULL, 	0xb9100a5cd963f206ULL,
++	0x57dd12c379682177ULL, 	0x28b3e20b495da80eULL,
++	0xa900f35319033385ULL, 	0xd66e039b2936bafcULL,
++	0x9ebff7b0e12997f8ULL, 	0xe1d10778d11c1e81ULL,
++	0x606216208142850aULL, 	0x1f0ce6e8b1770c73ULL,
++	0x8921014c99c2b083ULL, 	0xf64ff184a9f739faULL,
++	0x77fce0dcf9a9a271ULL, 	0x08921014c99c2b08ULL,
++	0x4043e43f0183060cULL, 	0x3f2d14f731b68f75ULL,
++	0xbe9e05af61e814feULL, 	0xc1f0f56751dd9d87ULL,
++	0x2f3dedf8f1d64ef6ULL, 	0x50531d30c1e3c78fULL,
++	0xd1e00c6891bd5c04ULL, 	0xae8efca0a188d57dULL,
++	0xe65f088b6997f879ULL, 	0x9931f84359a27100ULL,
++	0x1882e91b09fcea8bULL, 	0x67ec19d339c963f2ULL,
++	0xd75adabd7a6e2d6fULL, 	0xa8342a754a5ba416ULL,
++	0x29873b2d1a053f9dULL, 	0x56e9cbe52a30b6e4ULL,
++	0x1e383fcee22f9be0ULL, 	0x6156cf06d21a1299ULL,
++	0xe0e5de5e82448912ULL, 	0x9f8b2e96b271006bULL,
++	0x71463609127ad31aULL, 	0x0e28c6c1224f5a63ULL,
++	0x8f9bd7997211c1e8ULL, 	0xf0f5275142244891ULL,
++	0xb824d37a8a3b6595ULL, 	0xc74a23b2ba0eececULL,
++	0x46f932eaea507767ULL, 	0x3997c222da65fe1eULL,
++	0xafba2586f2d042eeULL, 	0xd0d4d54ec2e5cb97ULL,
++	0x5167c41692bb501cULL, 	0x2e0934dea28ed965ULL,
++	0x66d8c0f56a91f461ULL, 	0x19b6303d5aa47d18ULL,
++	0x980521650afae693ULL, 	0xe76bd1ad3acf6feaULL,
++	0x09a6c9329ac4bc9bULL, 	0x76c839faaaf135e2ULL,
++	0xf77b28a2faafae69ULL, 	0x8815d86aca9a2710ULL,
++	0xc0c42c4102850a14ULL, 	0xbfaadc8932b0836dULL,
++	0x3e19cdd162ee18e6ULL, 	0x41773d1952db919fULL,
++	0x269b24ca6b12f26dULL, 	0x59f5d4025b277b14ULL,
++	0xd846c55a0b79e09fULL, 	0xa72835923b4c69e6ULL,
++	0xeff9c1b9f35344e2ULL, 	0x90973171c366cd9bULL,
++	0x1124202993385610ULL, 	0x6e4ad0e1a30ddf69ULL,
++	0x8087c87e03060c18ULL, 	0xffe938b633338561ULL,
++	0x7e5a29ee636d1eeaULL, 	0x0134d92653589793ULL,
++	0x49e52d0d9b47ba97ULL, 	0x368bddc5ab7233eeULL,
++	0xb738cc9dfb2ca865ULL, 	0xc8563c55cb19211cULL,
++	0x5e7bdbf1e3ac9decULL, 	0x21152b39d3991495ULL,
++	0xa0a63a6183c78f1eULL, 	0xdfc8caa9b3f20667ULL,
++	0x97193e827bed2b63ULL, 	0xe877ce4a4bd8a21aULL,
++	0x69c4df121b863991ULL, 	0x16aa2fda2bb3b0e8ULL,
++	0xf86737458bb86399ULL, 	0x8709c78dbb8deae0ULL,
++	0x06bad6d5ebd3716bULL, 	0x79d4261ddbe6f812ULL,
++	0x3105d23613f9d516ULL, 	0x4e6b22fe23cc5c6fULL,
++	0xcfd833a67392c7e4ULL, 	0xb0b6c36e43a74e9dULL,
++	0x9a6c9329ac4bc9b5ULL, 	0xe50263e19c7e40ccULL,
++	0x64b172b9cc20db47ULL, 	0x1bdf8271fc15523eULL,
++	0x530e765a340a7f3aULL, 	0x2c608692043ff643ULL,
++	0xadd397ca54616dc8ULL, 	0xd2bd67026454e4b1ULL,
++	0x3c707f9dc45f37c0ULL, 	0x431e8f55f46abeb9ULL,
++	0xc2ad9e0da4342532ULL, 	0xbdc36ec59401ac4bULL,
++	0xf5129aee5c1e814fULL, 	0x8a7c6a266c2b0836ULL,
++	0x0bcf7b7e3c7593bdULL, 	0x74a18bb60c401ac4ULL,
++	0xe28c6c1224f5a634ULL, 	0x9de29cda14c02f4dULL,
++	0x1c518d82449eb4c6ULL, 	0x633f7d4a74ab3dbfULL,
++	0x2bee8961bcb410bbULL, 	0x548079a98c8199c2ULL,
++	0xd53368f1dcdf0249ULL, 	0xaa5d9839ecea8b30ULL,
++	0x449080a64ce15841ULL, 	0x3bfe706e7cd4d138ULL,
++	0xba4d61362c8a4ab3ULL, 	0xc52391fe1cbfc3caULL,
++	0x8df265d5d4a0eeceULL, 	0xf29c951de49567b7ULL,
++	0x732f8445b4cbfc3cULL, 	0x0c41748d84fe7545ULL,
++	0x6bad6d5ebd3716b7ULL, 	0x14c39d968d029fceULL,
++	0x95708ccedd5c0445ULL, 	0xea1e7c06ed698d3cULL,
++	0xa2cf882d2576a038ULL, 	0xdda178e515432941ULL,
++	0x5c1269bd451db2caULL, 	0x237c997575283bb3ULL,
++	0xcdb181ead523e8c2ULL, 	0xb2df7122e51661bbULL,
++	0x336c607ab548fa30ULL, 	0x4c0290b2857d7349ULL,
++	0x04d364994d625e4dULL, 	0x7bbd94517d57d734ULL,
++	0xfa0e85092d094cbfULL, 	0x856075c11d3cc5c6ULL,
++	0x134d926535897936ULL, 	0x6c2362ad05bcf04fULL,
++	0xed9073f555e26bc4ULL, 	0x92fe833d65d7e2bdULL,
++	0xda2f7716adc8cfb9ULL, 	0xa54187de9dfd46c0ULL,
++	0x24f29686cda3dd4bULL, 	0x5b9c664efd965432ULL,
++	0xb5517ed15d9d8743ULL, 	0xca3f8e196da80e3aULL,
++	0x4b8c9f413df695b1ULL, 	0x34e26f890dc31cc8ULL,
++	0x7c339ba2c5dc31ccULL, 	0x035d6b6af5e9b8b5ULL,
++	0x82ee7a32a5b7233eULL, 	0xfd808afa9582aa47ULL,
++	0x4d364994d625e4daULL, 	0x3258b95ce6106da3ULL,
++	0xb3eba804b64ef628ULL, 	0xcc8558cc867b7f51ULL,
++	0x8454ace74e645255ULL, 	0xfb3a5c2f7e51db2cULL,
++	0x7a894d772e0f40a7ULL, 	0x05e7bdbf1e3ac9deULL,
++	0xeb2aa520be311aafULL, 	0x944455e88e0493d6ULL,
++	0x15f744b0de5a085dULL, 	0x6a99b478ee6f8124ULL,
++	0x224840532670ac20ULL, 	0x5d26b09b16452559ULL,
++	0xdc95a1c3461bbed2ULL, 	0xa3fb510b762e37abULL,
++	0x35d6b6af5e9b8b5bULL, 	0x4ab846676eae0222ULL,
++	0xcb0b573f3ef099a9ULL, 	0xb465a7f70ec510d0ULL,
++	0xfcb453dcc6da3dd4ULL, 	0x83daa314f6efb4adULL,
++	0x0269b24ca6b12f26ULL, 	0x7d0742849684a65fULL,
++	0x93ca5a1b368f752eULL, 	0xeca4aad306bafc57ULL,
++	0x6d17bb8b56e467dcULL, 	0x12794b4366d1eea5ULL,
++	0x5aa8bf68aecec3a1ULL, 	0x25c64fa09efb4ad8ULL,
++	0xa4755ef8cea5d153ULL, 	0xdb1bae30fe90582aULL,
++	0xbcf7b7e3c7593bd8ULL, 	0xc399472bf76cb2a1ULL,
++	0x422a5673a732292aULL, 	0x3d44a6bb9707a053ULL,
++	0x759552905f188d57ULL, 	0x0afba2586f2d042eULL,
++	0x8b48b3003f739fa5ULL, 	0xf42643c80f4616dcULL,
++	0x1aeb5b57af4dc5adULL, 	0x6585ab9f9f784cd4ULL,
++	0xe436bac7cf26d75fULL, 	0x9b584a0fff135e26ULL,
++	0xd389be24370c7322ULL, 	0xace74eec0739fa5bULL,
++	0x2d545fb4576761d0ULL, 	0x523aaf7c6752e8a9ULL,
++	0xc41748d84fe75459ULL, 	0xbb79b8107fd2dd20ULL,
++	0x3acaa9482f8c46abULL, 	0x45a459801fb9cfd2ULL,
++	0x0d75adabd7a6e2d6ULL, 	0x721b5d63e7936bafULL,
++	0xf3a84c3bb7cdf024ULL, 	0x8cc6bcf387f8795dULL,
++	0x620ba46c27f3aa2cULL, 	0x1d6554a417c62355ULL,
++	0x9cd645fc4798b8deULL, 	0xe3b8b53477ad31a7ULL,
++	0xab69411fbfb21ca3ULL, 	0xd407b1d78f8795daULL,
++	0x55b4a08fdfd90e51ULL, 	0x2ada5047efec8728ULL,
 +};
-+
- struct nvme_lbaf {
- 	__le16			ms;
- 	__u8			ds;
-@@ -415,6 +425,8 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 		      struct nvme_cmd_ext_io_opts *opts);
- 
-+int fio_nvme_pi_verify(struct nvme_data *data, struct io_u *io_u);
-+
- int fio_nvme_get_zoned_model(struct thread_data *td, struct fio_file *f,
- 			     enum zbd_zoned_model *model);
- 
 -- 
 2.25.1
 
