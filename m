@@ -2,75 +2,74 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84BE2C41513
-	for <fio@archiver.kernel.org>; Mon, 14 Aug 2023 14:41:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A75EC04A6A
+	for <fio@archiver.kernel.org>; Mon, 14 Aug 2023 21:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbjHNOk5 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 14 Aug 2023 10:40:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60594 "EHLO
+        id S232037AbjHNVxn (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 14 Aug 2023 17:53:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232340AbjHNOke (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 14 Aug 2023 10:40:34 -0400
-Received: from mail-ua1-x92b.google.com (mail-ua1-x92b.google.com [IPv6:2607:f8b0:4864:20::92b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D7210C
-        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 07:40:33 -0700 (PDT)
-Received: by mail-ua1-x92b.google.com with SMTP id a1e0cc1a2514c-79414715edeso787095241.0
-        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 07:40:33 -0700 (PDT)
+        with ESMTP id S233109AbjHNVxk (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 14 Aug 2023 17:53:40 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AF58E7E
+        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 14:53:39 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id 98e67ed59e1d1-268663fb09cso608095a91.0
+        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 14:53:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692024032; x=1692628832;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=kernel-dk.20221208.gappssmtp.com; s=20221208; t=1692050019; x=1692654819;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=VDE/xXIll4Kx9g8PZsYNNK1Zf4e23GOUForzycEFlIs=;
-        b=iW4D+py8F+U0M7ke+X0zh9vfA24D9e0UpIxkXcjxi6t0vFhBDjbmI+i2yFAnkvg7DZ
-         GHtJF2QrG65VcZRqt3/bWquSl5rWdpBNyVa08ptbUbW/tcHYiWGWNXlWMCmMQkTDbaum
-         YL8Ws0tTrT8D8u+L95iIoCmYJj1wF4qg6+IfPrfhh+larYgNgSvC+1eLg7Sgb/1Bu+EG
-         t0xM3ELjJWHNna3Xr3soywLb7AUntb+zR8+mn/kOlLHUl3BX6Q0b1xfk61yKvlvjSp+u
-         y+7st/LmTYkjMsMS+rHI+R82bnpFu97eFXAcU8QIohb2pp9xim39hgHhglPPFYZx/3C0
-         usDA==
+        bh=HEVleOoFnF9pESZURgnzyIWnBX9qRRGsJRG5O1Zsz8o=;
+        b=r6qZtlRZjb9oSTJSeECEQTHE13Vs1B8W1NmR9henVwMSz6cPo7xhr6WUa2GNUCNv9A
+         pLpc4LsMfOH8DsvyxpUnbpnAqmPJQKd0pwhq4yK4NxjlsaPthLfRpI9VW5Hdn1nnfwCH
+         t4Xpjj0S0Of9lU/QJNksl6BfvBpboNaGVADt8r0Ct6zfK0N5fmPj1EHkI6FclZKqGET9
+         4iSFMez+UIBQeuPScH1slReVu4OfDWxaMdcWorGjTfutfPPx4Ak/8FT6rCy++mP0KS5q
+         klfeNKNl8mm7qU2Yni6tty+L6bz3mITqy1l9hugjRKSqix+tFco2iCklg+B5tLSGuvU/
+         k3IQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692024032; x=1692628832;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20221208; t=1692050019; x=1692654819;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=VDE/xXIll4Kx9g8PZsYNNK1Zf4e23GOUForzycEFlIs=;
-        b=FFNroSvuk4JRVhTQgIdcvncGXIqxWvzGXW3o2hVexD/EFRl171OSViet+nbgZ4Pogy
-         9A7GbtST5hDYhFK+UGNIt/kSreAR8iUl9/wYQtB+UIMD4L3t/q/LBMebHHEePMfOzBX+
-         3jdNR6RGN34BPZUHAaGiSFGSqY6w6tH6hWx9Vc8QhTMY6/u9ZS+nRIhEd4TSqAc10wDg
-         slD1E2syCM2eJBzLQDpF+YMFlcJvozvJ772W7WO9aBsB7HNZ2YWdm84TfYHPIbFLjPhM
-         tU818Znwc3ecirdhkKQsefI6m74/3oZLFhqCnk/eWPm9Fj3fPeT3IcmBzwHKuQEJ6hJs
-         ATdg==
-X-Gm-Message-State: AOJu0Ywr0KaFb8LVXTSlZRKLEHEgT89TRx9TOgYd5KPjo+sPaqvDosTE
-        NHtme176h8v4IadLdKKO/h4=
-X-Google-Smtp-Source: AGHT+IGx+6zXHoklvJ6trUzw9aWh5PbQceH+jgxcov3bFEV0V51d9AIdoyz1VX5OnhcnjJifLwSKog==
-X-Received: by 2002:a67:ba03:0:b0:443:c87f:ebb1 with SMTP id l3-20020a67ba03000000b00443c87febb1mr6787369vsn.29.1692024032290;
-        Mon, 14 Aug 2023 07:40:32 -0700 (PDT)
-Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id m7-20020a0cf187000000b0064723b94a23sm602041qvl.27.2023.08.14.07.40.31
+        bh=HEVleOoFnF9pESZURgnzyIWnBX9qRRGsJRG5O1Zsz8o=;
+        b=ZZFilYJnHUwkocTvHwPxEm+aoU4oTDvbHEAIxAwvquUNgqHmpSGM8Z+dK55JJHNwDb
+         9NLQqcgzo1jKAiUfjbn0qHwCf7Gg4ylVWQviPLeDLymGnNO4tzfm92cpX2cFpMHM1/et
+         8d7Byl0kWdVNSuaAUpq7VxLENKzndnCflJN7mPKzEsAFcH7/d8M8zt914GXRyQXgCEpr
+         V0wnr7z9TaMTBYLADybk809uV4HDpSJ5KLNOa7hhMonrMm8+hhKo+w9iLF0DuRj4Ybfn
+         luyHPrAvv+YCskLAo/95gbBnFZkkGMwgOK0mawAxyS88k5iDox7BKBKidPye8u0wxA4N
+         vOhQ==
+X-Gm-Message-State: AOJu0Yy5j2o1crW3weNLtvxLONtQ+DmN1IbTcQRN3qHvuv8wsm1pTqFy
+        k9bQrw3fAjIRqZmecN0ycEWcYg==
+X-Google-Smtp-Source: AGHT+IEHtP5UlkkcMwbiBhqKuEUIOLZUpVKBdxZ6LHcCf+Ycl1TmAAxSj6S1GWA0Td1iLlk1J5JAaA==
+X-Received: by 2002:a17:90a:12c5:b0:26b:25c:34a9 with SMTP id b5-20020a17090a12c500b0026b025c34a9mr8677321pjg.2.1692050018810;
+        Mon, 14 Aug 2023 14:53:38 -0700 (PDT)
+Received: from [192.168.1.136] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id y7-20020a17090a2b4700b0025dc5749b4csm10366324pjc.21.2023.08.14.14.53.37
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Aug 2023 07:40:31 -0700 (PDT)
-Message-ID: <071f3084-ce5d-8326-01a2-d9c499eb79e3@gmail.com>
-Date:   Mon, 14 Aug 2023 10:40:31 -0400
+        Mon, 14 Aug 2023 14:53:38 -0700 (PDT)
+Message-ID: <b4b031ef-d52c-4fa3-b5a0-a3175d83621d@kernel.dk>
+Date:   Mon, 14 Aug 2023 15:53:36 -0600
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v3 00/10] Protection information support for io_uring
  passthrough engine
-To:     Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
+Content-Language: en-US
+To:     Ankit Kumar <ankit.kumar@samsung.com>, vincentfu@gmail.com
 Cc:     fio@vger.kernel.org, kbusch@kernel.org, joshi.k@samsung.com,
         martin.petersen@oracle.com
 References: <CGME20230814093836epcas5p44bc762fa6e4368d532126494115aeba4@epcas5p4.samsung.com>
  <20230814145747.114725-1-ankit.kumar@samsung.com>
-Content-Language: en-US
-From:   Vincent Fu <vincentfu@gmail.com>
+From:   Jens Axboe <axboe@kernel.dk>
 In-Reply-To: <20230814145747.114725-1-ankit.kumar@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 8/14/23 10:57, Ankit Kumar wrote:
+On 8/14/23 8:57 AM, Ankit Kumar wrote:
 > This patch series enables protection information support with io_uring
 > passthrough (io_uring_cmd) ioengine. This support is added for both DIF
 > (extended logical blocks) and DIX (separate metadata buffer) cases.
@@ -94,46 +93,10 @@ On 8/14/23 10:57, Ankit Kumar wrote:
 > 
 > The NVMe CRC64 table is not generated at build time which is what kernel
 > does. This will be done in future.
-> 
-> Changes from v2:
->   - fix windows/mac build issue from crct10 files (missed during v2)
->     https://github.com/fiotestbot/fio/actions/runs/5830346708
-> 
-> Changes from v1:
->   - Fixed build issue on windows and macos.
->   - Changed name of CRC64 tables and algorithm as per NVMe command set
->     specification (Keith's suggestion).
->   - Addressed review comments from Vincent.
-> 
-> Ankit Kumar (10):
->    engines:io_uring: add missing error during open file
->    engines:io_uring: update arguments to fetch nvme data
->    engines:io_uring: enable support for separate metadata buffer
->    engines:io_uring: uring_cmd add support for protection info
->    io_u: move engine data out of union
->    crc: pull required crc16-t10 files from linux kernel
->    engines:io_uring: generate and verify pi for 16b guard
->    crc: pull required crc64 nvme apis from linux kernel
->    engines:nvme: pull required 48 bit accessors from linux kernel
->    engines:io_uring: generate and verify pi for 64b guard
-> 
->   HOWTO.rst              |  39 ++++
->   crc/crc-t10dif.h       |   9 +
->   crc/crc64.c            |  32 +++
->   crc/crc64.h            |   3 +
->   crc/crc64table.h       | 130 ++++++++++++
->   crc/crct10dif_common.c |  78 +++++++
->   engines/io_uring.c     | 225 +++++++++++++++++---
->   engines/nvme.c         | 466 +++++++++++++++++++++++++++++++++++++++--
->   engines/nvme.h         | 230 +++++++++++++++++++-
->   fio.1                  |  38 ++++
->   io_u.h                 |   2 +-
->   11 files changed, 1199 insertions(+), 53 deletions(-)
->   create mode 100644 crc/crc-t10dif.h
->   create mode 100644 crc/crc64table.h
->   create mode 100644 crc/crct10dif_common.c
-> 
 
-Applied. Thanks Ankit!
+Please add an example job file, new options like this should always come
+with one.
 
-Vincent
+-- 
+Jens Axboe
+
