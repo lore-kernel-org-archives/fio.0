@@ -2,318 +2,333 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50DBBC04E69
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5D75C04FDF
 	for <fio@archiver.kernel.org>; Mon, 14 Aug 2023 09:42:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233982AbjHNJlw (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 14 Aug 2023 05:41:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37848 "EHLO
+        id S234639AbjHNJl4 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 14 Aug 2023 05:41:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235143AbjHNJlc (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 14 Aug 2023 05:41:32 -0400
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A521701
-        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 02:41:24 -0700 (PDT)
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
-        by mailout2.samsung.com (KnoxPortal) with ESMTP id 20230814094123epoutp0227ed32f64772b13b015e5f5ac51b9f31~7NpF3Dvx32563325633epoutp02r
-        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 09:41:23 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20230814094123epoutp0227ed32f64772b13b015e5f5ac51b9f31~7NpF3Dvx32563325633epoutp02r
+        with ESMTP id S235720AbjHNJle (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 14 Aug 2023 05:41:34 -0400
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C28E11737
+        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 02:41:28 -0700 (PDT)
+Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20230814094127epoutp01a1ec860172ba214eed0952d8610b513b~7NpJh3Ux21101011010epoutp01I
+        for <fio@vger.kernel.org>; Mon, 14 Aug 2023 09:41:27 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20230814094127epoutp01a1ec860172ba214eed0952d8610b513b~7NpJh3Ux21101011010epoutp01I
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1692006083;
-        bh=eyAlKVxTVebxREjzXmsRi6NbvcPVRLsVEF8359d1Pv8=;
+        s=mail20170921; t=1692006087;
+        bh=edvXnyht5d8+RRv+qNybVp9m6wAZ1CWbcEZfEL0V7F0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAKwB4EH6Rfc6aoPx526vUUKuJYx87D86P7t5BpurFteS2a/GF0e0Q3Q/n8D7uSQ+
-         LdfNYW4ciCAefQE0kX3iM2ha6tlyKOAtVcG+9Vril5ZAGvtke/0B+nUIvgH3XQXpt9
-         Dx+PCWMcLq6uvAsMUSkrigezpYlLn8kEwEWHUrJE=
-Received: from epsnrtp4.localdomain (unknown [182.195.42.165]) by
-        epcas5p3.samsung.com (KnoxPortal) with ESMTP id
-        20230814094122epcas5p36590bc1a132379f2494a8804b1233432~7NpFbFEiu1293912939epcas5p3y;
-        Mon, 14 Aug 2023 09:41:22 +0000 (GMT)
-Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.178]) by
-        epsnrtp4.localdomain (Postfix) with ESMTP id 4RPTtS5pYNz4x9Pv; Mon, 14 Aug
-        2023 09:41:20 +0000 (GMT)
-Received: from epcas5p4.samsung.com ( [182.195.41.42]) by
-        epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-        CA.4B.57354.CB6F9D46; Mon, 14 Aug 2023 18:41:17 +0900 (KST)
-Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-        epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
-        20230814093851epcas5p28d3ff209e6f92d407d021a566946cacd~7Nm4N9dh_2236722367epcas5p2A;
-        Mon, 14 Aug 2023 09:38:51 +0000 (GMT)
-Received: from epsmgmcp1.samsung.com (unknown [182.195.42.82]) by
-        epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20230814093851epsmtrp1cf0a87b8a9b2433803a1e446e759cf61~7Nm4NVj-V2343923439epsmtrp1b;
-        Mon, 14 Aug 2023 09:38:51 +0000 (GMT)
-X-AuditID: b6c32a44-007ff7000001e00a-f8-64d9f6bced37
+        b=euT52DVuwmG8QP/GxBrWZRZ+ah2pwCCVz3bidipUNXKpg3onUftKYeJZiR0JRCSuI
+         VG3v27/Tqq25kJgVF+fNxRUeWm11xaZa4QppNB68yNLHpctcP/qcTsEa9DbKfb3t/g
+         pDuGpbe5tkt/+Fkg7JMFJYEREFt7S9BLVA0100LY=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+        epcas5p4.samsung.com (KnoxPortal) with ESMTP id
+        20230814094127epcas5p4f9452ff7b9bf737e987b3e0255d41af6~7NpJSd1d60560505605epcas5p4L;
+        Mon, 14 Aug 2023 09:41:27 +0000 (GMT)
+Received: from epsmges5p1new.samsung.com (unknown [182.195.38.177]) by
+        epsnrtp3.localdomain (Postfix) with ESMTP id 4RPTtY3mVmz4x9Px; Mon, 14 Aug
+        2023 09:41:25 +0000 (GMT)
+Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
+        epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        06.4E.55522.5C6F9D46; Mon, 14 Aug 2023 18:41:25 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+        20230814093854epcas5p3875babea8f98e2414d06ca075d0cd18e~7Nm7Rf7EE2608826088epcas5p3g;
+        Mon, 14 Aug 2023 09:38:54 +0000 (GMT)
+Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20230814093854epsmtrp253fd0f0f9c5e6dca30912e82da0d4719~7Nm7QufCW1844018440epsmtrp2Q;
+        Mon, 14 Aug 2023 09:38:54 +0000 (GMT)
+X-AuditID: b6c32a49-67ffa7000000d8e2-8c-64d9f6c51d37
 Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-        epsmgmcp1.samsung.com (Symantec Messaging Gateway) with SMTP id
-        20.41.64355.B26F9D46; Mon, 14 Aug 2023 18:38:51 +0900 (KST)
+        epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+        9F.E9.34491.E26F9D46; Mon, 14 Aug 2023 18:38:54 +0900 (KST)
 Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
         [107.99.41.39]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20230814093849epsmtip1ca098ebfbbb9b67a4f26fd346f586ba9~7Nm25dFoG1007110071epsmtip1D;
-        Mon, 14 Aug 2023 09:38:49 +0000 (GMT)
+        20230814093853epsmtip1dfc6c8510d9f3781854588efe44d2747~7Nm6HDv1Q1006110061epsmtip1G;
+        Mon, 14 Aug 2023 09:38:53 +0000 (GMT)
 From:   Ankit Kumar <ankit.kumar@samsung.com>
 To:     axboe@kernel.dk, vincentfu@gmail.com
 Cc:     fio@vger.kernel.org, kbusch@kernel.org, joshi.k@samsung.com,
         martin.petersen@oracle.com, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH v3 08/10] crc: pull required crc64 nvme apis from linux
- kernel
-Date:   Mon, 14 Aug 2023 20:27:45 +0530
-Message-Id: <20230814145747.114725-9-ankit.kumar@samsung.com>
+Subject: [PATCH v3 10/10] engines:io_uring: generate and verify pi for 64b
+ guard
+Date:   Mon, 14 Aug 2023 20:27:47 +0530
+Message-Id: <20230814145747.114725-11-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230814145747.114725-1-ankit.kumar@samsung.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprEJsWRmVeSWpSXmKPExsWy7bCmlu7ebzdTDH69ZbRYc+U3u8Xqu/1s
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprMJsWRmVeSWpSXmKPExsWy7bCmpu7RbzdTDFaflLZYc+U3u8Xqu/1s
         Fh9nvWC2OPr/LZvFpEPXGC2WH//HZLGhTdCB3WPnrLvsHpfPlnpsWtXJ5vHx6S0Wj74tqxg9
         Pm+SC2CLyrbJSE1MSS1SSM1Lzk/JzEu3VfIOjneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvM
         AbpESaEsMacUKBSQWFyspG9nU5RfWpKqkJFfXGKrlFqQklNgUqBXnJhbXJqXrpeXWmJlaGBg
-        ZApUmJCdMWWJRMEKl4pv76eyNDCutO5i5OSQEDCROLG2g7GLkYtDSGA3o0THu4ksEM4nRom9
-        H36zgVSBOZ0ntWA65v1ZzQZRtJNR4kfHTKiOTiaJ+Qs3sYBUsQloS7x6e4O5i5GDQ0RAQ2LN
-        3VSQGmaBFkaJ3d2zWUFqhAUCJHoe/GEGsVkEVCWeNh8Ci/MK2Erc2L6WEWKbvMTMS9/ZQWxO
-        ATuJ/1N+s0PUCEqcnPkEbBczUE3z1tnMIAskBN6yS3S+vATV7CLRvn4dO4QtLPHq+BYoW0ri
-        ZX8blJ0tsenhTyYIu0DiyIteZgjbXqL1VD/YA8wCmhLrd+lDhGUlpp5axwSxl0+i9/cTqFZe
-        iR3zYGxVib/3brNA2NISN99dhbI9JBq3HGKGBNZERomNE36zTGBUmIXkn1lI/pmFsHoBI/Mq
-        RsnUguLc9NRk0wLDvNRyeCQn5+duYgQnTi2XHYw35v/TO8TIxMF4iFGCg1lJhPeW+7UUId6U
-        xMqq1KL8+KLSnNTiQ4ymwACfyCwlmpwPTN15JfGGJpYGJmZmZiaWxmaGSuK8r1vnpggJpCeW
-        pGanphakFsH0MXFwSjUwMX14/MDuSqlB/82tLpGrHgSIVOj/+Cvyzvb0Eu2D+Z6W90rfJLP7
-        Rguo/Mt6wfDv9DRJg4I0Tb/Ui0udkj/4/LTwP8T3kWlucSqX1lOT1kcRGU0zpnuVCP6ZvPqe
-        /5pbX228Zyy5vqN0s2U4Bw93mnrV7zNPhTIPGt9QKCrL+fhfKDk8S8Vr0t+Hk9dqHjq0cndv
-        fbjRZzEfvjjfv+fSlZddKvtTwpWTY1vXvuXvp6LspUf4dzyTTz9yiv3abqdUVwuDrvut6e2i
-        kxsmfT602krN3HQ/rxPT6Yd90VOW3JmkmeKyMOua6s7NBqeeqcVu2bFy1rktnNNPH52VrLPE
-        Rd9w5us00fj1Z1fMF/jPqMRSnJFoqMVcVJwIAC53r5ElBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrKLMWRmVeSWpSXmKPExsWy7bCSnK72t5spBhNP8FusufKb3WL13X42
+        ZApUmJCdMe1rXkGracX0PQvZGxh7tLoYOTkkBEwkzky+ydbFyMUhJLCbUeLEtc3sEM4nRon5
+        d2+yQjjfGCUudk5lhGlp29PCBJHYyygxtWkjVH8nk8SxiQ1sIFVsAtoSr97eYO5i5OAQEdCQ
+        WHM3FaSGWaCFUWJ392xWkBphgSCJ9/+Pg9WzCKhKzNq8FyzOK2AnceZFP9Q2eYmZl76zg9ic
+        QPH/U36zQ9QISpyc+YQFxGYGqmneOpsZZIGEwFt2iTuTLrJBNLtIPGuawwxhC0u8Or6FHcKW
+        kvj8bi9UTbbEpoc/mSDsAokjL3qh6u0lWk/1gz3ALKApsX6XPkRYVmLqqXVMEHv5JHp/P4Fq
+        5ZXYMQ/GVpX4e+82C4QtLXHz3VUo20Pi+s9GaGBNZJRYeaOdeQKjwiwk/8xC8s8shNULGJlX
+        MUqmFhTnpqcWmxYY5qWWw2M5OT93EyM4dWp57mC8++CD3iFGJg7GQ4wSHMxKIry33K+lCPGm
+        JFZWpRblxxeV5qQWH2I0BQb4RGYp0eR8YPLOK4k3NLE0MDEzMzOxNDYzVBLnfd06N0VIID2x
+        JDU7NbUgtQimj4mDU6qByVZ5wbyphR8ufrNylIrUzrS8IHPR5ZzbLU+eufZFm5mfzhNWlVmk
+        XfcuP+/SgjePF2244XZKtPfm8arfP87dN9dbLOSZY+Gjlj9xzcWnbPVrPk0+v7pa/n5nQMmD
+        FRc5/539/nOmRXbk0bgg07hMtVaTDlXLoEtSxr8jZ6ut//f+reQiwentfFO4CgLnzdxzYx1n
+        pVCpatU23yynab+uuFb97F22tLJqboSC9IGdk8rE9NWm3jgb9/X5nSnLRecFKG+bvWRKQhfz
+        4Xi1srJ8w6YTs5/IT7pVvYnlU5BlRIfOkx3LNguXSj2SOMUZe8NUYS1r2KzjtYvcotolNQ5J
+        HYnekuB74k6Y5XKzVSLSf5RYijMSDbWYi4oTAR/KqcomBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFjrBLMWRmVeSWpSXmKPExsWy7bCSnK7et5spBtt2ylmsufKb3WL13X42
         i4+zXjBbHP3/ls1i0qFrjBbLj/9jstjQJujA7rFz1l12j8tnSz02repk8/j49BaLR9+WVYwe
-        nzfJBbBFcdmkpOZklqUW6dslcGVMWSJRsMKl4tv7qSwNjCutuxg5OSQETCTm/VnN1sXIxSEk
-        sJ1R4sv8G8xdjBxACWmJhesTIWqEJVb+e84OUdPOJNHx5zszSIJNQFvi1dsbYLaIgJbEsXVN
-        YIOYBboYJfbunsYGkhAW8JM4/KMHzGYRUJV42nyIFcTmFbCVuLF9LSPEBnmJmZe+s4PYnAJ2
-        Ev+n/AazhYBqVi3cC1UvKHFy5hMWEJsZqL5562zmCYwCs5CkZiFJLWBkWsUomlpQnJuem1xg
-        qFecmFtcmpeul5yfu4kRHNJaQTsYl63/q3eIkYmD8RCjBAezkgjvLfdrKUK8KYmVValF+fFF
-        pTmpxYcYpTlYlMR5lXM6U4QE0hNLUrNTUwtSi2CyTBycUg1MCbEl3ckp/9a45vy9L7557vqr
-        /Ir3F7IHrDcrufd+5nuJHz4CCbd5srhn2lautXr8vfHE9KSZWqrdK35P/CbNE/ok9eNz/4I2
-        9e7zsxisL29NmxDykENB7evq9wF3O0NkpLjL3Obv4gjLcVHyObEtxHfCwdUXmHrWxXB5v00/
-        GryP0fH9h0+iZsIc/Qtvv6oK51gg8v7Vt3ON+v3s4evf3LvI8eDkr13989Mvyd7T5J5m/uqA
-        xU2PTWfC79xpPbSy5m9L/xrOW6rakovNOaY9XF4duOJy+I0Lt7jzdlz4MPdjf6jXgsqI00lv
-        X4WfEfJbydHw3enX0VXpxf8nvzyn+X7eTOeOU9HTecTuZgnd3KnEUpyRaKjFXFScCAB8hTL2
-        2AIAAA==
-X-CMS-MailID: 20230814093851epcas5p28d3ff209e6f92d407d021a566946cacd
+        nzfJBbBFcdmkpOZklqUW6dslcGVM+5pX0GpaMX3PQvYGxh6tLkZODgkBE4m2PS1MILaQwG5G
+        icM7tLsYOYDi0hIL1ydClAhLrPz3nL2LkQuopJ1JYsG3GWwgCTYBbYlXb28wg9giAloSx9Y1
+        sYEUMQt0MUrs3T0NrEhYIEDi/ekrYAtYBFQlZm3eywpi8wrYSZx50c8IsUFeYual7+wgNidQ
+        /P+U3+wQB9lKrFoIUy8ocXLmExYQmxmovnnrbOYJjAKzkKRmIUktYGRaxSiZWlCcm55bbFhg
+        mJdarlecmFtcmpeul5yfu4kRHNhamjsYt6/6oHeIkYmD8RCjBAezkgjvLfdrKUK8KYmVValF
+        +fFFpTmpxYcYpTlYlMR5xV/0pggJpCeWpGanphakFsFkmTg4pRqYCq+8MpOZf2TZTA8vXtsa
+        4RWO0658c3K6Yb37w6tpE3VvFl0sMrhuPnd+d9pdgaLOwwqs3d5hYmF+FwTTDd9e2XVH654j
+        S+XxPcJFfEUNncr8t6docskyLV+ncVXSzkxdprftvE2Oi8zE6m2ae/xYlxcc3fdbolD0kkqQ
+        56u2K9XXanVK3z7etd+xW21nwIzM438VrY/tTtmzT+vLnucHc06dCN+eXKv/KeZR3xO1y2Fn
+        p2gt0ateo3Nfzy///MHkddsCXP3/M3BLbYizyvouLPmsryVnvcXZDaY6O3u9eB7/qJLfeKFx
+        xtPv6rMPp4g+0xZceuKHSbza0yk83fIlASvL77in+ty9lGgZ13RFiaU4I9FQi7moOBEA9WIG
+        SdsCAAA=
+X-CMS-MailID: 20230814093854epcas5p3875babea8f98e2414d06ca075d0cd18e
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20230814093851epcas5p28d3ff209e6f92d407d021a566946cacd
+X-CMS-RootMailID: 20230814093854epcas5p3875babea8f98e2414d06ca075d0cd18e
 References: <20230814145747.114725-1-ankit.kumar@samsung.com>
-        <CGME20230814093851epcas5p28d3ff209e6f92d407d021a566946cacd@epcas5p2.samsung.com>
+        <CGME20230814093854epcas5p3875babea8f98e2414d06ca075d0cd18e@epcas5p3.samsung.com>
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Pull the required nvme crc64 apis and table from the linux kernel. This
-is required to generate and verify 64 bit guard tag for nvme backend
-of io_uring_cmd ioengine.
+Generate and verify protection information for 64 bit guard format, for
+the nvme backend of io_uring_cmd ioengine. The support is there for
+both the cases where metadata is transferred in separate buffer, or
+transferred at the end of logical block creating an extended logical
+block.
+This support also takes into consideration when protection information
+resides in last or first 16 bytes of metadata.
 
 Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
- crc/crc64.c      |  32 ++++++++++++
- crc/crc64.h      |   3 ++
- crc/crc64table.h | 130 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 165 insertions(+)
- create mode 100644 crc/crc64table.h
+ engines/nvme.c | 158 +++++++++++++++++++++++++++++++++++++++++++++++++
+ engines/nvme.h |   7 +++
+ 2 files changed, 165 insertions(+)
 
-diff --git a/crc/crc64.c b/crc/crc64.c
-index bf24a97b..c910e5b8 100644
---- a/crc/crc64.c
-+++ b/crc/crc64.c
-@@ -1,4 +1,16 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * crc64nvme[256] table is from the generator polynomial specified by NVMe
-+ * 64b CRC and is defined as,
-+ *
-+ * x^64 + x^63 + x^61 + x^59 + x^58 + x^56 + x^55 + x^52 + x^49 + x^48 + x^47 +
-+ * x^46 + x^44 + x^41 + x^37 + x^36 + x^34 + x^32 + x^31 + x^28 + x^26 + x^23 +
-+ * x^22 + x^19 + x^16 + x^13 + x^12 + x^10 + x^9 + x^6 + x^4 + x^3 + 1
-+ *
-+ */
-+
- #include "crc64.h"
-+#include "crc64table.h"
+diff --git a/engines/nvme.c b/engines/nvme.c
+index 41e7d07b..08503b33 100644
+--- a/engines/nvme.c
++++ b/engines/nvme.c
+@@ -6,6 +6,7 @@
  
- /*
-  * poly 0x95AC9329AC4BC9B5ULL and init 0xFFFFFFFFFFFFFFFFULL
-@@ -102,3 +114,23 @@ unsigned long long fio_crc64(const unsigned char *buffer, unsigned long length)
- 	return crc;
+ #include "nvme.h"
+ #include "../crc/crc-t10dif.h"
++#include "../crc/crc64.h"
+ 
+ static inline __u64 get_slba(struct nvme_data *data, struct io_u *io_u)
+ {
+@@ -175,6 +176,158 @@ next:
+ 	return 0;
  }
  
-+/**
-+ * fio_crc64_nvme - Calculate bitwise NVMe CRC64
-+ * @crc: seed value for computation. 0 for a new CRC calculation, or the
-+ * 	 previous crc64 value if computing incrementally.
-+ * @p: pointer to buffer over which CRC64 is run
-+ * @len: length of buffer @p
-+ */
-+unsigned long long fio_crc64_nvme(unsigned long long crc, const void *p,
-+				  unsigned int len)
++static void fio_nvme_generate_pi_64b_guard(struct nvme_data *data,
++					   struct io_u *io_u,
++					   struct nvme_cmd_ext_io_opts *opts)
 +{
-+	const unsigned char *_p = p;
-+	unsigned int i;
++	struct nvme_pi_data *pi_data = io_u->engine_data;
++	struct nvme_64b_guard_pif *pi;
++	unsigned char *buf = io_u->xfer_buf;
++	unsigned char *md_buf = io_u->mmap_data;
++	uint64_t guard = 0;
++	__u64 slba = get_slba(data, io_u);
++	__u32 nlb = get_nlb(data, io_u) + 1;
++	__u32 lba_num = 0;
 +
-+	crc = ~crc;
++	if (data->pi_loc) {
++		if (data->lba_ext)
++			pi_data->interval = data->lba_ext - data->ms;
++		else
++			pi_data->interval = 0;
++	} else {
++		if (data->lba_ext)
++			pi_data->interval = data->lba_ext - sizeof(struct nvme_64b_guard_pif);
++		else
++			pi_data->interval = data->ms - sizeof(struct nvme_64b_guard_pif);
++	}
 +
-+	for (i = 0; i < len; i++)
-+		crc = (crc >> 8) ^ crc64nvmetable[(crc & 0xff) ^ *_p++];
++	if (io_u->ddir != DDIR_WRITE)
++		return;
 +
-+	return ~crc;
++	while (lba_num < nlb) {
++		if (data->lba_ext)
++			pi = (struct nvme_64b_guard_pif *)(buf + pi_data->interval);
++		else
++			pi = (struct nvme_64b_guard_pif *)(md_buf + pi_data->interval);
++
++		if (opts->io_flags & NVME_IO_PRINFO_PRCHK_GUARD) {
++			if (data->lba_ext) {
++				guard = fio_crc64_nvme(0, buf, pi_data->interval);
++			} else {
++				guard = fio_crc64_nvme(0, buf, data->lba_size);
++				guard = fio_crc64_nvme(guard, md_buf, pi_data->interval);
++			}
++			pi->guard = cpu_to_be64(guard);
++		}
++
++		if (opts->io_flags & NVME_IO_PRINFO_PRCHK_APP)
++			pi->apptag = cpu_to_be16(pi_data->apptag);
++
++		if (opts->io_flags & NVME_IO_PRINFO_PRCHK_REF) {
++			switch (data->pi_type) {
++			case NVME_NS_DPS_PI_TYPE1:
++			case NVME_NS_DPS_PI_TYPE2:
++				put_unaligned_be48(slba + lba_num, pi->srtag);
++				break;
++			case NVME_NS_DPS_PI_TYPE3:
++				break;
++			}
++		}
++		if (data->lba_ext) {
++			buf += data->lba_ext;
++		} else {
++			buf += data->lba_size;
++			md_buf += data->ms;
++		}
++		lba_num++;
++	}
 +}
-diff --git a/crc/crc64.h b/crc/crc64.h
-index fe9cad3e..e586edee 100644
---- a/crc/crc64.h
-+++ b/crc/crc64.h
-@@ -3,4 +3,7 @@
++
++static int fio_nvme_verify_pi_64b_guard(struct nvme_data *data,
++					struct io_u *io_u)
++{
++	struct nvme_pi_data *pi_data = io_u->engine_data;
++	struct nvme_64b_guard_pif *pi;
++	struct fio_file *f = io_u->file;
++	unsigned char *buf = io_u->xfer_buf;
++	unsigned char *md_buf = io_u->mmap_data;
++	__u64 slba = get_slba(data, io_u);
++	__u64 ref, ref_exp, guard = 0;
++	__u32 nlb = get_nlb(data, io_u) + 1;
++	__u32 lba_num = 0;
++	__u16 unmask_app, unmask_app_exp;
++
++	while (lba_num < nlb) {
++		if (data->lba_ext)
++			pi = (struct nvme_64b_guard_pif *)(buf + pi_data->interval);
++		else
++			pi = (struct nvme_64b_guard_pif *)(md_buf + pi_data->interval);
++
++		if (data->pi_type == NVME_NS_DPS_PI_TYPE3) {
++			if (pi->apptag == NVME_PI_APP_DISABLE &&
++			    fio_nvme_pi_ref_escape(pi->srtag))
++				goto next;
++		} else if (data->pi_type == NVME_NS_DPS_PI_TYPE1 ||
++			   data->pi_type == NVME_NS_DPS_PI_TYPE2) {
++			if (pi->apptag == NVME_PI_APP_DISABLE)
++				goto next;
++		}
++
++		if (pi_data->io_flags & NVME_IO_PRINFO_PRCHK_GUARD) {
++			if (data->lba_ext) {
++				guard = fio_crc64_nvme(0, buf, pi_data->interval);
++			} else {
++				guard = fio_crc64_nvme(0, buf, data->lba_size);
++				guard = fio_crc64_nvme(guard, md_buf, pi_data->interval);
++			}
++			if (be64_to_cpu((uint64_t)pi->guard) != guard) {
++				log_err("%s: Guard compare error: LBA: %llu Expected=%llx, Actual=%llx\n",
++					f->file_name, (unsigned long long)slba,
++					guard, be64_to_cpu((uint64_t)pi->guard));
++				return -EIO;
++			}
++		}
++
++		if (pi_data->io_flags & NVME_IO_PRINFO_PRCHK_APP) {
++			unmask_app = be16_to_cpu(pi->apptag) & pi_data->apptag_mask;
++			unmask_app_exp = pi_data->apptag & pi_data->apptag_mask;
++			if (unmask_app != unmask_app_exp) {
++				log_err("%s: APPTAG compare error: LBA: %llu Expected=%x, Actual=%x\n",
++					f->file_name, (unsigned long long)slba,
++					unmask_app_exp, unmask_app);
++				return -EIO;
++			}
++		}
++
++		if (pi_data->io_flags & NVME_IO_PRINFO_PRCHK_REF) {
++			switch (data->pi_type) {
++			case NVME_NS_DPS_PI_TYPE1:
++			case NVME_NS_DPS_PI_TYPE2:
++				ref = get_unaligned_be48(pi->srtag);
++				ref_exp = (slba + lba_num) & ((1ULL << 48) - 1);
++				if (ref != ref_exp) {
++					log_err("%s: REFTAG compare error: LBA: %llu Expected=%llx, Actual=%llx\n",
++						f->file_name, (unsigned long long)slba,
++						ref_exp, ref);
++					return -EIO;
++				}
++				break;
++			case NVME_NS_DPS_PI_TYPE3:
++				break;
++			}
++		}
++next:
++		if (data->lba_ext) {
++			buf += data->lba_ext;
++		} else {
++			buf += data->lba_size;
++			md_buf += data->ms;
++		}
++		lba_num++;
++	}
++
++	return 0;
++}
+ void fio_nvme_uring_cmd_trim_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+ 				  struct nvme_dsm_range *dsm)
+ {
+@@ -253,6 +406,8 @@ void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+ 	if (data->pi_type && !(opts->io_flags & NVME_IO_PRINFO_PRACT)) {
+ 		if (data->guard_type == NVME_NVM_NS_16B_GUARD)
+ 			fio_nvme_generate_pi_16b_guard(data, io_u, opts);
++		else if (data->guard_type == NVME_NVM_NS_64B_GUARD)
++			fio_nvme_generate_pi_64b_guard(data, io_u, opts);
+ 	}
  
- unsigned long long fio_crc64(const unsigned char *, unsigned long);
+ 	switch (data->pi_type) {
+@@ -287,6 +442,9 @@ int fio_nvme_pi_verify(struct nvme_data *data, struct io_u *io_u)
+ 	case NVME_NVM_NS_16B_GUARD:
+ 		ret = fio_nvme_verify_pi_16b_guard(data, io_u);
+ 		break;
++	case NVME_NVM_NS_64B_GUARD:
++		ret = fio_nvme_verify_pi_64b_guard(data, io_u);
++		break;
+ 	default:
+ 		break;
+ 	}
+diff --git a/engines/nvme.h b/engines/nvme.h
+index fb1f7760..792b35d8 100644
+--- a/engines/nvme.h
++++ b/engines/nvme.h
+@@ -457,4 +457,11 @@ static inline __u64 get_unaligned_be48(__u8 *p)
+ 		p[3] << 16 | p[4] << 8 | p[5];
+ }
  
-+unsigned long long fio_crc64_nvme(unsigned long long crc, const void *p,
-+				  unsigned int len);
++static inline bool fio_nvme_pi_ref_escape(__u8 *reftag)
++{
++	__u8 ref_esc[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
++
++	return memcmp(reftag, ref_esc, sizeof(ref_esc)) == 0;
++}
 +
  #endif
-diff --git a/crc/crc64table.h b/crc/crc64table.h
-new file mode 100644
-index 00000000..04224d4f
---- /dev/null
-+++ b/crc/crc64table.h
-@@ -0,0 +1,130 @@
-+static const unsigned long long crc64nvmetable[256] = {
-+	0x0000000000000000ULL, 	0x7f6ef0c830358979ULL,
-+	0xfedde190606b12f2ULL, 	0x81b31158505e9b8bULL,
-+	0xc962e5739841b68fULL, 	0xb60c15bba8743ff6ULL,
-+	0x37bf04e3f82aa47dULL, 	0x48d1f42bc81f2d04ULL,
-+	0xa61cecb46814fe75ULL, 	0xd9721c7c5821770cULL,
-+	0x58c10d24087fec87ULL, 	0x27affdec384a65feULL,
-+	0x6f7e09c7f05548faULL, 	0x1010f90fc060c183ULL,
-+	0x91a3e857903e5a08ULL, 	0xeecd189fa00bd371ULL,
-+	0x78e0ff3b88be6f81ULL, 	0x078e0ff3b88be6f8ULL,
-+	0x863d1eabe8d57d73ULL, 	0xf953ee63d8e0f40aULL,
-+	0xb1821a4810ffd90eULL, 	0xceecea8020ca5077ULL,
-+	0x4f5ffbd87094cbfcULL, 	0x30310b1040a14285ULL,
-+	0xdefc138fe0aa91f4ULL, 	0xa192e347d09f188dULL,
-+	0x2021f21f80c18306ULL, 	0x5f4f02d7b0f40a7fULL,
-+	0x179ef6fc78eb277bULL, 	0x68f0063448deae02ULL,
-+	0xe943176c18803589ULL, 	0x962de7a428b5bcf0ULL,
-+	0xf1c1fe77117cdf02ULL, 	0x8eaf0ebf2149567bULL,
-+	0x0f1c1fe77117cdf0ULL, 	0x7072ef2f41224489ULL,
-+	0x38a31b04893d698dULL, 	0x47cdebccb908e0f4ULL,
-+	0xc67efa94e9567b7fULL, 	0xb9100a5cd963f206ULL,
-+	0x57dd12c379682177ULL, 	0x28b3e20b495da80eULL,
-+	0xa900f35319033385ULL, 	0xd66e039b2936bafcULL,
-+	0x9ebff7b0e12997f8ULL, 	0xe1d10778d11c1e81ULL,
-+	0x606216208142850aULL, 	0x1f0ce6e8b1770c73ULL,
-+	0x8921014c99c2b083ULL, 	0xf64ff184a9f739faULL,
-+	0x77fce0dcf9a9a271ULL, 	0x08921014c99c2b08ULL,
-+	0x4043e43f0183060cULL, 	0x3f2d14f731b68f75ULL,
-+	0xbe9e05af61e814feULL, 	0xc1f0f56751dd9d87ULL,
-+	0x2f3dedf8f1d64ef6ULL, 	0x50531d30c1e3c78fULL,
-+	0xd1e00c6891bd5c04ULL, 	0xae8efca0a188d57dULL,
-+	0xe65f088b6997f879ULL, 	0x9931f84359a27100ULL,
-+	0x1882e91b09fcea8bULL, 	0x67ec19d339c963f2ULL,
-+	0xd75adabd7a6e2d6fULL, 	0xa8342a754a5ba416ULL,
-+	0x29873b2d1a053f9dULL, 	0x56e9cbe52a30b6e4ULL,
-+	0x1e383fcee22f9be0ULL, 	0x6156cf06d21a1299ULL,
-+	0xe0e5de5e82448912ULL, 	0x9f8b2e96b271006bULL,
-+	0x71463609127ad31aULL, 	0x0e28c6c1224f5a63ULL,
-+	0x8f9bd7997211c1e8ULL, 	0xf0f5275142244891ULL,
-+	0xb824d37a8a3b6595ULL, 	0xc74a23b2ba0eececULL,
-+	0x46f932eaea507767ULL, 	0x3997c222da65fe1eULL,
-+	0xafba2586f2d042eeULL, 	0xd0d4d54ec2e5cb97ULL,
-+	0x5167c41692bb501cULL, 	0x2e0934dea28ed965ULL,
-+	0x66d8c0f56a91f461ULL, 	0x19b6303d5aa47d18ULL,
-+	0x980521650afae693ULL, 	0xe76bd1ad3acf6feaULL,
-+	0x09a6c9329ac4bc9bULL, 	0x76c839faaaf135e2ULL,
-+	0xf77b28a2faafae69ULL, 	0x8815d86aca9a2710ULL,
-+	0xc0c42c4102850a14ULL, 	0xbfaadc8932b0836dULL,
-+	0x3e19cdd162ee18e6ULL, 	0x41773d1952db919fULL,
-+	0x269b24ca6b12f26dULL, 	0x59f5d4025b277b14ULL,
-+	0xd846c55a0b79e09fULL, 	0xa72835923b4c69e6ULL,
-+	0xeff9c1b9f35344e2ULL, 	0x90973171c366cd9bULL,
-+	0x1124202993385610ULL, 	0x6e4ad0e1a30ddf69ULL,
-+	0x8087c87e03060c18ULL, 	0xffe938b633338561ULL,
-+	0x7e5a29ee636d1eeaULL, 	0x0134d92653589793ULL,
-+	0x49e52d0d9b47ba97ULL, 	0x368bddc5ab7233eeULL,
-+	0xb738cc9dfb2ca865ULL, 	0xc8563c55cb19211cULL,
-+	0x5e7bdbf1e3ac9decULL, 	0x21152b39d3991495ULL,
-+	0xa0a63a6183c78f1eULL, 	0xdfc8caa9b3f20667ULL,
-+	0x97193e827bed2b63ULL, 	0xe877ce4a4bd8a21aULL,
-+	0x69c4df121b863991ULL, 	0x16aa2fda2bb3b0e8ULL,
-+	0xf86737458bb86399ULL, 	0x8709c78dbb8deae0ULL,
-+	0x06bad6d5ebd3716bULL, 	0x79d4261ddbe6f812ULL,
-+	0x3105d23613f9d516ULL, 	0x4e6b22fe23cc5c6fULL,
-+	0xcfd833a67392c7e4ULL, 	0xb0b6c36e43a74e9dULL,
-+	0x9a6c9329ac4bc9b5ULL, 	0xe50263e19c7e40ccULL,
-+	0x64b172b9cc20db47ULL, 	0x1bdf8271fc15523eULL,
-+	0x530e765a340a7f3aULL, 	0x2c608692043ff643ULL,
-+	0xadd397ca54616dc8ULL, 	0xd2bd67026454e4b1ULL,
-+	0x3c707f9dc45f37c0ULL, 	0x431e8f55f46abeb9ULL,
-+	0xc2ad9e0da4342532ULL, 	0xbdc36ec59401ac4bULL,
-+	0xf5129aee5c1e814fULL, 	0x8a7c6a266c2b0836ULL,
-+	0x0bcf7b7e3c7593bdULL, 	0x74a18bb60c401ac4ULL,
-+	0xe28c6c1224f5a634ULL, 	0x9de29cda14c02f4dULL,
-+	0x1c518d82449eb4c6ULL, 	0x633f7d4a74ab3dbfULL,
-+	0x2bee8961bcb410bbULL, 	0x548079a98c8199c2ULL,
-+	0xd53368f1dcdf0249ULL, 	0xaa5d9839ecea8b30ULL,
-+	0x449080a64ce15841ULL, 	0x3bfe706e7cd4d138ULL,
-+	0xba4d61362c8a4ab3ULL, 	0xc52391fe1cbfc3caULL,
-+	0x8df265d5d4a0eeceULL, 	0xf29c951de49567b7ULL,
-+	0x732f8445b4cbfc3cULL, 	0x0c41748d84fe7545ULL,
-+	0x6bad6d5ebd3716b7ULL, 	0x14c39d968d029fceULL,
-+	0x95708ccedd5c0445ULL, 	0xea1e7c06ed698d3cULL,
-+	0xa2cf882d2576a038ULL, 	0xdda178e515432941ULL,
-+	0x5c1269bd451db2caULL, 	0x237c997575283bb3ULL,
-+	0xcdb181ead523e8c2ULL, 	0xb2df7122e51661bbULL,
-+	0x336c607ab548fa30ULL, 	0x4c0290b2857d7349ULL,
-+	0x04d364994d625e4dULL, 	0x7bbd94517d57d734ULL,
-+	0xfa0e85092d094cbfULL, 	0x856075c11d3cc5c6ULL,
-+	0x134d926535897936ULL, 	0x6c2362ad05bcf04fULL,
-+	0xed9073f555e26bc4ULL, 	0x92fe833d65d7e2bdULL,
-+	0xda2f7716adc8cfb9ULL, 	0xa54187de9dfd46c0ULL,
-+	0x24f29686cda3dd4bULL, 	0x5b9c664efd965432ULL,
-+	0xb5517ed15d9d8743ULL, 	0xca3f8e196da80e3aULL,
-+	0x4b8c9f413df695b1ULL, 	0x34e26f890dc31cc8ULL,
-+	0x7c339ba2c5dc31ccULL, 	0x035d6b6af5e9b8b5ULL,
-+	0x82ee7a32a5b7233eULL, 	0xfd808afa9582aa47ULL,
-+	0x4d364994d625e4daULL, 	0x3258b95ce6106da3ULL,
-+	0xb3eba804b64ef628ULL, 	0xcc8558cc867b7f51ULL,
-+	0x8454ace74e645255ULL, 	0xfb3a5c2f7e51db2cULL,
-+	0x7a894d772e0f40a7ULL, 	0x05e7bdbf1e3ac9deULL,
-+	0xeb2aa520be311aafULL, 	0x944455e88e0493d6ULL,
-+	0x15f744b0de5a085dULL, 	0x6a99b478ee6f8124ULL,
-+	0x224840532670ac20ULL, 	0x5d26b09b16452559ULL,
-+	0xdc95a1c3461bbed2ULL, 	0xa3fb510b762e37abULL,
-+	0x35d6b6af5e9b8b5bULL, 	0x4ab846676eae0222ULL,
-+	0xcb0b573f3ef099a9ULL, 	0xb465a7f70ec510d0ULL,
-+	0xfcb453dcc6da3dd4ULL, 	0x83daa314f6efb4adULL,
-+	0x0269b24ca6b12f26ULL, 	0x7d0742849684a65fULL,
-+	0x93ca5a1b368f752eULL, 	0xeca4aad306bafc57ULL,
-+	0x6d17bb8b56e467dcULL, 	0x12794b4366d1eea5ULL,
-+	0x5aa8bf68aecec3a1ULL, 	0x25c64fa09efb4ad8ULL,
-+	0xa4755ef8cea5d153ULL, 	0xdb1bae30fe90582aULL,
-+	0xbcf7b7e3c7593bd8ULL, 	0xc399472bf76cb2a1ULL,
-+	0x422a5673a732292aULL, 	0x3d44a6bb9707a053ULL,
-+	0x759552905f188d57ULL, 	0x0afba2586f2d042eULL,
-+	0x8b48b3003f739fa5ULL, 	0xf42643c80f4616dcULL,
-+	0x1aeb5b57af4dc5adULL, 	0x6585ab9f9f784cd4ULL,
-+	0xe436bac7cf26d75fULL, 	0x9b584a0fff135e26ULL,
-+	0xd389be24370c7322ULL, 	0xace74eec0739fa5bULL,
-+	0x2d545fb4576761d0ULL, 	0x523aaf7c6752e8a9ULL,
-+	0xc41748d84fe75459ULL, 	0xbb79b8107fd2dd20ULL,
-+	0x3acaa9482f8c46abULL, 	0x45a459801fb9cfd2ULL,
-+	0x0d75adabd7a6e2d6ULL, 	0x721b5d63e7936bafULL,
-+	0xf3a84c3bb7cdf024ULL, 	0x8cc6bcf387f8795dULL,
-+	0x620ba46c27f3aa2cULL, 	0x1d6554a417c62355ULL,
-+	0x9cd645fc4798b8deULL, 	0xe3b8b53477ad31a7ULL,
-+	0xab69411fbfb21ca3ULL, 	0xd407b1d78f8795daULL,
-+	0x55b4a08fdfd90e51ULL, 	0x2ada5047efec8728ULL,
-+};
 -- 
 2.25.1
 
