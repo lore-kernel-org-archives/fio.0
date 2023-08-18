@@ -2,168 +2,101 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EFBBC27C7A
-	for <fio@archiver.kernel.org>; Thu, 17 Aug 2023 12:00:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A179EE498D
+	for <fio@archiver.kernel.org>; Fri, 18 Aug 2023 18:58:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350612AbjHQMAY (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Thu, 17 Aug 2023 08:00:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45642 "EHLO
+        id S1379517AbjHRS6W (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Fri, 18 Aug 2023 14:58:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350578AbjHQMAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Thu, 17 Aug 2023 08:00:13 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1302112
-        for <fio@vger.kernel.org>; Thu, 17 Aug 2023 05:00:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=6xasRojUy2koFrHZgfwyNJ4fBCXt8fYWAqstsk40trQ=; b=LD/S6AyK3mjCoOoQ4JicUUKjV0
-        aFUii4oPuJsbDT/caqMyAaca9QpkUNcuvXAUWGP+zfxHOCTZQn4WfBC+Egk3Ef51Zg7FweOcF5xEo
-        xQwux7a23Dsbo8g0nHBzQWtj7LjOHOE1R8xTHVL46TbB4W/A66VBpKfNMB6x7UnKGabAJbWf+GDHF
-        nLJIdbiGS1HAVmPiwl9aWmWrS6ctG1ydr47NgvcQEhaHPncz1pAMaKMoWiiQfdJKn1bpZ/6Q0Ym5o
-        /I3bp315OZILM2EnuJqvWsDGYx0XQ09f+UGaXw1g23wP8pIcnr+8OdsUujqyluUb+kRJaRjwM4+UL
-        WnqIyQYQ==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qWbfa-0036aC-Pa
-        for fio@vger.kernel.org; Thu, 17 Aug 2023 12:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 2C7AE1BC0183; Thu, 17 Aug 2023 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230817120002.2C7AE1BC0183@kernel.dk>
-Date:   Thu, 17 Aug 2023 06:00:02 -0600 (MDT)
+        with ESMTP id S1379532AbjHRS6P (ORCPT <rfc822;fio@vger.kernel.org>);
+        Fri, 18 Aug 2023 14:58:15 -0400
+Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1199726BB
+        for <fio@vger.kernel.org>; Fri, 18 Aug 2023 11:58:14 -0700 (PDT)
+Received: by mail-oo1-xc33.google.com with SMTP id 006d021491bc7-56c74961e0cso850102eaf.3
+        for <fio@vger.kernel.org>; Fri, 18 Aug 2023 11:58:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1692385093; x=1692989893;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=j1hY9hqxytBwIemBSdj3nSTRuQ/fGL+lLz4l23CZa1I=;
+        b=VnHY9esIWBoWN6UsoJwRTLXzAwH2CvoiwpdDDcCBhPN6mXI4UeFZGNT/kkSuKQiKr6
+         0TjPUkrIvQLWVQl2CJcmSjJS1NA7tXv7Uag2TDqOZKur2X7g5xsRlGlj0xIAnmt0fEPD
+         UBWNsbh5p03/BflPwUQ8fAGnFQ/5KAivCsyQ9ujjcyPa7a9Q83xqXJ9lbB1uscvF6Qao
+         Ft4CtSsEv+V4euwS2T4lcXlYMPkrLVM4iz9hIZZ4qH3O5QnKV3wcH396SHcy1WQHMH15
+         4c/00sH0NAab22E7vlWBG340xM3Olny8D9/1gdqipGtyzRIVs00fSGg42RE/R+nTMe33
+         wJ8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692385093; x=1692989893;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=j1hY9hqxytBwIemBSdj3nSTRuQ/fGL+lLz4l23CZa1I=;
+        b=GBeoBhOVg2+Td1GGioOF8CWECFBAj6e67vZEdJFR1V6nWJ4edo0aE6JMzrClCuX7Wv
+         lL7lfxzOk5AT4EIxf2K7sIUB0ZzhJ2kp/+XwfGHu+00gSkyOnWYB+8sw/HBGqQdld2SK
+         a+6OwreSjwq2/9UJjXMv96sEBwJWKdnkkqdOfNiilMrrYudR4XOaLhwksy7osyV8mOGM
+         CTWzZPDJZxdlbpCAMu3Md7BdQJgiiogYOZu1T692m/zyk6YWUiOmLp4r//KMmFL4Mlwy
+         cl+nYNGV+a0A2wDYkbMC7UCSRoc7jlb3uywmsalUlYpFKWpWBdyPaalwxfAflVP6wUwg
+         +xmQ==
+X-Gm-Message-State: AOJu0Yy70XAChaT+LfapHn94EkkbwLYrutC0iviXHKd368QqHw35XKxF
+        Zo6AFFFr8LNRUUQAFw57VDI=
+X-Google-Smtp-Source: AGHT+IHxjq0FhYVE5PoGFbEZVxJw2hPeX7niVE5AhrsxZQ0fOIolOEVr6Vm8uTPjX4/0sMMQdWsbqw==
+X-Received: by 2002:a05:6358:24a3:b0:139:c279:1ee7 with SMTP id m35-20020a05635824a300b00139c2791ee7mr136152rwc.18.1692385092902;
+        Fri, 18 Aug 2023 11:58:12 -0700 (PDT)
+Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id m17-20020a0cdb91000000b0063d3744c5c5sm881034qvk.5.2023.08.18.11.58.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 18 Aug 2023 11:58:12 -0700 (PDT)
+Message-ID: <4bd9b597-6221-1f07-991a-d79981d0fc0f@gmail.com>
+Date:   Fri, 18 Aug 2023 14:58:11 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: fio and epoch issues
+Content-Language: en-US
+To:     Nick Neumann <nick@pcpartpicker.com>, fio@vger.kernel.org
+References: <CADqNVTqVUra10ET=P+hPA86iimSs3oC7=eWJNdpWjo5e4p+p1g@mail.gmail.com>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <CADqNVTqVUra10ET=P+hPA86iimSs3oC7=eWJNdpWjo5e4p+p1g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 6795954bde09c8697e0accb865b4f438d62c601f:
+On 8/16/23 16:45, Nick Neumann wrote:
+> I've tried advocating for this via github issues a couple times
+> (https://github.com/axboe/fio/issues/1544,
+> https://github.com/axboe/fio/pull/1353/commits) but haven't had much
+> luck/interest. I thought I'd try here and see if I could get enough
+> interest to get some improvements to fio timekeeping committed. :-)
+> 
+> The main issue is that by default, fio log files use timestamps based
+> on an epoch that is the beginning of the job. If you have multiple
+> jobs, especially with some jobs waiting on other jobs before starting,
+> this means you have different epochs and the times in the logs for
+> each job cannot be compared/ordered.
+> 
+> Using log_alternate_epoch solves this problem since with it all logs
+> share a common epoch, but introduces a different problem of not
+> knowing the start time for each job relative to the common epoch.
+> 
+> Using the default beginning of job epoch for log files, but also
+> recording the start time of each job against a common (alternate)
+> epoch, would solve both problems and bring other minor benefits too.
+> 
+> Any thoughts? Issue 1544 has a 6-month-old PR that implements this.
+> I'm happy to update, make changes, or approach it differently if
+> desired.
+> 
+> Thanks,
+> Nick
+> 
 
-  engines/io_uring: fix leak of 'ld' in error path (2023-08-14 19:59:20 -0600)
+I've left feedback at https://github.com/axboe/fio/pull/1353. I think we 
+should be able to get something done to get this working for you.
 
-are available in the Git repository at:
+Vincent
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to b311162c37a2867873e1222ce6b5f38c88be4d80:
-
-  examples: add example and fiograph for protection information options (2023-08-16 09:34:46 -0400)
-
-----------------------------------------------------------------
-Ankit Kumar (1):
-      examples: add example and fiograph for protection information options
-
- examples/uring-cmd-pi-ext.fio |  31 +++++++++++++++++++++++++++++++
- examples/uring-cmd-pi-ext.png | Bin 0 -> 81014 bytes
- examples/uring-cmd-pi-sb.fio  |  32 ++++++++++++++++++++++++++++++++
- examples/uring-cmd-pi-sb.png  | Bin 0 -> 87357 bytes
- tools/fiograph/fiograph.conf  |   2 +-
- 5 files changed, 64 insertions(+), 1 deletion(-)
- create mode 100644 examples/uring-cmd-pi-ext.fio
- create mode 100644 examples/uring-cmd-pi-ext.png
- create mode 100644 examples/uring-cmd-pi-sb.fio
- create mode 100644 examples/uring-cmd-pi-sb.png
-
----
-
-Diff of recent changes:
-
-diff --git a/examples/uring-cmd-pi-ext.fio b/examples/uring-cmd-pi-ext.fio
-new file mode 100644
-index 00000000..e22ec062
---- /dev/null
-+++ b/examples/uring-cmd-pi-ext.fio
-@@ -0,0 +1,31 @@
-+# Protection information test with io_uring_cmd I/O engine for nvme-ns generic
-+# character device.
-+#
-+# This requires nvme device to be formatted with extended LBA data size and
-+# protection information enabled. This can be done with nvme-cli utility.
-+# Replace bs below with the correct extended LBA size.
-+#
-+# First we sequentially write to the device, without protection information
-+# action being set. FIO will generate and send necessary protection
-+# information data as per the protection information check option. Later on we
-+# sequentially read and verify the device returned protection information data.
-+#
-+[global]
-+filename=/dev/ng0n1
-+ioengine=io_uring_cmd
-+cmd_type=nvme
-+size=1G
-+iodepth=32
-+bs=4160
-+pi_act=0
-+pi_chk=GUARD,APPTAG,REFTAG
-+apptag=0x0888
-+apptag_mask=0xFFFF
-+thread=1
-+stonewall=1
-+
-+[write]
-+rw=write
-+
-+[read]
-+rw=read
-diff --git a/examples/uring-cmd-pi-ext.png b/examples/uring-cmd-pi-ext.png
-new file mode 100644
-index 00000000..a102fc1a
-Binary files /dev/null and b/examples/uring-cmd-pi-ext.png differ
-diff --git a/examples/uring-cmd-pi-sb.fio b/examples/uring-cmd-pi-sb.fio
-new file mode 100644
-index 00000000..b201a7ce
---- /dev/null
-+++ b/examples/uring-cmd-pi-sb.fio
-@@ -0,0 +1,32 @@
-+# Protection information test with io_uring_cmd I/O engine for nvme-ns generic
-+# character device.
-+#
-+# This requires nvme device to be formatted with separate metadata buffer and
-+# protection information enabled. This can be done with nvme-cli utility.
-+# Replace md_per_io_size as per the required metadata buffer size for each IO.
-+#
-+# First we sequentially write to the device, without protection information
-+# action being set. FIO will generate and send necessary protection
-+# information data as per the protection information check option. Later on we
-+# sequentially read and verify the device returned protection information data.
-+#
-+[global]
-+filename=/dev/ng0n1
-+ioengine=io_uring_cmd
-+cmd_type=nvme
-+size=1G
-+iodepth=32
-+bs=4096
-+md_per_io_size=64
-+pi_act=0
-+pi_chk=GUARD,APPTAG,REFTAG
-+apptag=0x0888
-+apptag_mask=0xFFFF
-+thread=1
-+stonewall=1
-+
-+[write]
-+rw=write
-+
-+[read]
-+rw=read
-diff --git a/examples/uring-cmd-pi-sb.png b/examples/uring-cmd-pi-sb.png
-new file mode 100644
-index 00000000..dcdda8cd
-Binary files /dev/null and b/examples/uring-cmd-pi-sb.png differ
-diff --git a/tools/fiograph/fiograph.conf b/tools/fiograph/fiograph.conf
-index 91c5fcfe..123c39ae 100644
---- a/tools/fiograph/fiograph.conf
-+++ b/tools/fiograph/fiograph.conf
-@@ -54,7 +54,7 @@ specific_options=ime_psync  ime_psyncv
- specific_options=hipri  cmdprio_percentage  cmdprio_class  cmdprio  cmdprio_bssplit  fixedbufs  registerfiles  sqthread_poll  sqthread_poll_cpu  nonvectored  uncached  nowait  force_async
- 
- [ioengine_io_uring_cmd]
--specific_options=hipri  cmdprio_percentage  cmdprio_class  cmdprio  cmdprio_bssplit  fixedbufs  registerfiles  sqthread_poll  sqthread_poll_cpu  nonvectored  uncached  nowait  force_async  cmd_type
-+specific_options=hipri  cmdprio_percentage  cmdprio_class  cmdprio  cmdprio_bssplit  fixedbufs  registerfiles  sqthread_poll  sqthread_poll_cpu  nonvectored  uncached  nowait  force_async  cmd_type  md_per_io_size  pi_act  pi_chk  apptag  apptag_mask
- 
- [ioengine_libaio]
- specific_options=userspace_reap  cmdprio_percentage  cmdprio_class  cmdprio  cmdprio_bssplit  nowait
