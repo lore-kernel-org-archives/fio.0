@@ -2,80 +2,66 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45BDBCD37BB
-	for <fio@archiver.kernel.org>; Sat, 16 Sep 2023 12:00:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 878E3CD37B0
+	for <fio@archiver.kernel.org>; Mon, 18 Sep 2023 16:54:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbjIPMAU (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 16 Sep 2023 08:00:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42156 "EHLO
+        id S230408AbjIRQy4 (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Mon, 18 Sep 2023 12:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229928AbjIPMAN (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 16 Sep 2023 08:00:13 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393B7CCB
-        for <fio@vger.kernel.org>; Sat, 16 Sep 2023 05:00:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=IYbM7wCvAd3UAwAcPcMFXcjrzUSinY0KL2FK/mSffPU=; b=CeoAMo5JvYay+FHmHD3maA+NE3
-        JP5P434wvfNcfHvsbrK5zvBn+tWgRvci2gXbRA1JSbvaFhC2fRO5aYsnxlBAssDhOVy0ydmcK40jk
-        AMPYAsan0kJAsvfseqDyTPX8s6T5awR8y0DHq9GzDSUlgsLyaR3qZTkYNVVlelWSGaFyG4vpLU3Fb
-        7LPCfF2M0uaJyvslpp8RnMiCiN8Ovpi2sUGYjFK8U4PhCxfYf3uopqQzjV6jWGj45M5R21IiiXSDp
-        Uj8y/6PSsT0M2o0nCvpTwq3LBoLEbFccQ3pMRUfstM2Z+puRA4HW6pXVMLagmPX3qnXaEmUrnBHRn
-        sBQI1stg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1qhTxz-00AL3a-2l
-        for fio@vger.kernel.org;
-        Sat, 16 Sep 2023 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 6BB6B1BC015F; Sat, 16 Sep 2023 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230916120001.6BB6B1BC015F@kernel.dk>
-Date:   Sat, 16 Sep 2023 06:00:01 -0600 (MDT)
+        with ESMTP id S230498AbjIRQyz (ORCPT <rfc822;fio@vger.kernel.org>);
+        Mon, 18 Sep 2023 12:54:55 -0400
+Received: from mail-ua1-x933.google.com (mail-ua1-x933.google.com [IPv6:2607:f8b0:4864:20::933])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405AB83
+        for <fio@vger.kernel.org>; Mon, 18 Sep 2023 09:54:49 -0700 (PDT)
+Received: by mail-ua1-x933.google.com with SMTP id a1e0cc1a2514c-7870821d9a1so2984293241.1
+        for <fio@vger.kernel.org>; Mon, 18 Sep 2023 09:54:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1695056088; x=1695660888; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=qoTIddLe8NYoucfQJEYmqim99Qxv29RyzC8D0x4Di78=;
+        b=IGDF5drNn2eqMkEVzS6T4DEzph4JYcXOQveqP9r9VnnrXtzKCxrOjbL79lgE+eeMIO
+         fi/2gL2uKCan5VHf5byPiUdKcFYA0CmCUSVnO7qzSW8LzxjI+IB7XJtSsEhkoEI3WFPL
+         SHxq3qzxav1OZ1VAlo36TZsvPQda7NT8Ou5zjD774DLRLGhZLnRWMJJgg1eZLjvOTnLM
+         0Ew9S8DL0OSSvXSUjSAnGBSLjD135wLIEiLE7wU2+iZf86vwTYXNtAlaHaTckcN1lk0Q
+         yWO+EHmcC94usbBnzbuPFwer3NPtIvKszj4VLUJz91+cMTvlg0kCQerkpxPnNq2zSWl7
+         clBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695056088; x=1695660888;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=qoTIddLe8NYoucfQJEYmqim99Qxv29RyzC8D0x4Di78=;
+        b=YE84/trn4d0sFADRexqu66W31WENaXPzq+qQO/+YwepZJPB19QwBaAp1Cp4gGzMSek
+         k4Y2DUrhG4Vrni2pmVmzEnmhxHeXAO3G+NhFKd30o72W9XvTRiKGFNYrLacQM9/lK9M6
+         +orsVDJ+3MgzfcazZFCLYsDt+XVDzDz+Ue8eLEu0xi/stnTmdUh1Uvf5IMa2qwSZ4+5a
+         rJ9lcEv4G+hLCjVGNDBqjByf5NmTfuFh4e6f1AdB5/P5C7VoMx9BukqjsEgnwVT3Hyhv
+         10OnQvbAdxKf33OCzuMAFHCxNipmWR6McwM1OFCJdMqYfbt8Ix9yehlGAvDdcZsLjUmE
+         TPGg==
+X-Gm-Message-State: AOJu0Yw4eND8XFzbAaeEcaacM7IakpR6ZJ3uicGZr8CoT9qTa40LMux4
+        rbLLO0enyf8XG6dtgjOrZwZC4UhCaAtNIrqXVNZUuSpk
+X-Google-Smtp-Source: AGHT+IEGgcc0ppczhto+abLorgcjwR3h0tQV7DDsuZ8mYagbx8F0c7EfK6GoA4p70KRuuZukvz7rlMqF0yMAvVoGKc4=
+X-Received: by 2002:a05:6102:1622:b0:44d:38d6:5cb8 with SMTP id
+ cu34-20020a056102162200b0044d38d65cb8mr180872vsb.10.1695056088127; Mon, 18
+ Sep 2023 09:54:48 -0700 (PDT)
+MIME-Version: 1.0
+From:   Jay Han <jayhan258@gmail.com>
+Date:   Mon, 18 Sep 2023 10:54:37 -0600
+Message-ID: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
+Subject: Clat calculation
+To:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit e4a9812dee084b058eca6ebde9634a3d573a0079:
+Hello,
+I am seeing a stiff delta between the fio clat vs blktrace data and
+wondering how fio clat is measured in terms of the I/O processing
+step. In blktrace, I measured the time delta between the complete(C
+action) and issued(D action) per LBA basis.
 
-  engines:nvme: fill command fields as per pi check bits (2023-09-11 10:55:56 -0600)
+Can you tell me how fio clat is calculated please?
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to e2c5f17e3559cc7c96706cd75c2609f12675c60b:
-
-  verify: open state file in binary mode on Windows (2023-09-14 18:54:25 -0400)
-
-----------------------------------------------------------------
-Vincent Fu (1):
-      verify: open state file in binary mode on Windows
-
- verify.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/verify.c b/verify.c
-index 2848b686..f7355f30 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1648,6 +1648,10 @@ static int open_state_file(const char *name, const char *prefix, int num,
- 	else
- 		flags = O_RDONLY;
- 
-+#ifdef _WIN32
-+	flags |= O_BINARY;
-+#endif
-+
- 	verify_state_gen_name(out, sizeof(out), name, prefix, num);
- 
- 	fd = open(out, flags, 0644);
+Thank you,
+Jay.
