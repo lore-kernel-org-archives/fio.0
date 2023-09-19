@@ -2,82 +2,76 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6768CD5BA7
-	for <fio@archiver.kernel.org>; Tue, 19 Sep 2023 12:38:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 505F1CD5BD1
+	for <fio@archiver.kernel.org>; Tue, 19 Sep 2023 14:59:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231784AbjISMiZ (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 19 Sep 2023 08:38:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37824 "EHLO
+        id S233034AbjISO7V (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 19 Sep 2023 10:59:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231683AbjISMiY (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 19 Sep 2023 08:38:24 -0400
-Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F79F3
-        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 05:38:16 -0700 (PDT)
-Received: by mail-qv1-xf2c.google.com with SMTP id 6a1803df08f44-6515d44b562so31472826d6.3
-        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 05:38:15 -0700 (PDT)
+        with ESMTP id S233040AbjISO7U (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 19 Sep 2023 10:59:20 -0400
+Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA126F2
+        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 07:59:09 -0700 (PDT)
+Received: by mail-vs1-xe2a.google.com with SMTP id ada2fe7eead31-452832dbb5dso730401137.0
+        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 07:59:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695127095; x=1695731895; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XdEetaQaqlgmsbQ0TzwFGNWhKv31gIgWg/qI7FecQHo=;
-        b=KNkpTFoC72ZWGKIC4Ke/7dFnvHGkfvJkcejtiFRE3Xt9L0L6bWBdBIxnNV2qtZOVlf
-         Et2N+qzcGeR9EfNKrKNcy1ZLwMSNSWoAsR4T1dlM51FDpegChMyql19yv7hpwZy1B6nu
-         l7WR3ra+M3uQsq+XJoTU4Ryc92cnWdVBpRY7NzwfETZ0BFzgiQ2KQQsld7alSJMol6Rk
-         hsPUljFZvl4vTs01GWnpGMyI3Ov5YMtSY48nlGC8dpvyQXeJXI8LVearUn9K0rYsGbxE
-         wGdrBsRsxUs1/VIKV6iuINRRmd0MV4VduPBPdTuijwnI8c2CH6I8MbPAyjwKafmvQPQQ
-         xcsA==
+        d=gmail.com; s=20230601; t=1695135548; x=1695740348; darn=vger.kernel.org;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E38tlYG4P+iaBraJpRAdSXgPe+jtH9V5mgGg9DwW/nM=;
+        b=nq/EOfenkpYgiJao47SnqD+gXCsl5hq2kTE2srbfR9d2o6SVb7yLy64bB3ENsHKML8
+         TgoJ3JNYb9kPclY7PPi3wAMIXn4EmhGNdA5RvaG5DbS7yzOJEf/yXYxgHqsaIGPdNhUt
+         bcLfrHEV9BDbjLjaGjCG2BoeKyDWRcNZa8z4Rgi9ucX4SvMV3aT8bxVipUyxWBmDEgh6
+         s5Me/KtjYLu0iUvOfvnBJzYgw9nf5bd7uup/Z2T+eV4iIzBXB0zg0KYuMgN4WhJ/Si+T
+         Yxz2oc1lB//2ItIwv8e4NZ6GCh4MvuPsSnsFpEgDnM8wLQ/e36jMtvmQgreKjg1IIio9
+         7bpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695127095; x=1695731895;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=XdEetaQaqlgmsbQ0TzwFGNWhKv31gIgWg/qI7FecQHo=;
-        b=u02hpkvqEXDWRfGZk2/4SlMlt/F3XrEBn9AS+lkpdE5oA/hfgJHwbA6FxNwZXYbwRi
-         8oomnH+x29mDGBT2ZwMlxuFRNWMrQ2vX2d50Fi68jaGe7GsC/yO2y4by65BfH2247bVi
-         LiP0cXxXSaV53Dob6/rmbSV4bOrH/Jzsy5ip1aXb7LPW9B/mtlIYxGrGT2va4kdMm1BT
-         w5vHF21ZTXG1VA43NUxpJDvlANp3tuCrW1gxPAkx64p5EJd3FlK97OrKaxPiQqbiLRmm
-         sGqCt424Z1lIHfR4M/MigjxYL0Wt3x2YWDP8nH6QhuspZHIMREE28w4CN7vH0svKFu33
-         1iwA==
-X-Gm-Message-State: AOJu0Yy9CWi2umCa3ENc204nvDCFGTU59GoHS3R4i2n2MUGMaptab1YJ
-        mLS3kpX0PGJiFeyq4JfHY9nlQOyyuno=
-X-Google-Smtp-Source: AGHT+IE8fJFhwueSrvs3XdzaOgHG7EddXAGXH7MlAXg+ZzX04pyM0t6LZgLxy9Da9fI3ZUhfnttnww==
-X-Received: by 2002:a0c:f2d2:0:b0:64b:e135:a3b0 with SMTP id c18-20020a0cf2d2000000b0064be135a3b0mr11506640qvm.19.1695127094922;
-        Tue, 19 Sep 2023 05:38:14 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1695135548; x=1695740348;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=E38tlYG4P+iaBraJpRAdSXgPe+jtH9V5mgGg9DwW/nM=;
+        b=JJiWkErbwCzvvEoguF18013V2otDCp4cWSvDMJSii+TpL7HWyybIMZUN9lq8UbRDot
+         XjO5TdfZOu4KcJ6daslEXOLdmIzkWnhOQLWipegy9bWU4GXVYI2dSZpoGXiCz7CRJ4Mf
+         asHwIEX71ZOinvHyaVaAlM7xigqhpA2UDFGlrIfWhlVNdchmqKJRAhAD9ZzW658JXNo1
+         5ySrn29WPz2yXHRZHt18rn6A00uB83NyRHfY5ee3hCpbQobptkizbV9NybbJHVxUh4mN
+         UQgck7+wDXv0M4NUtFgWjnFuF/eJaMZ17kZ0R+1XQj6B8+fxhwGFCTGBczMvBRLilP66
+         Enfw==
+X-Gm-Message-State: AOJu0YwiecY8DR0zgMoxMkPlCUiz5AUaw9vyKu/x8RqQbbFvkumajUqX
+        SMgLUExS9xMjEbJjmZpq0EeEHj25Kk5Dqw==
+X-Google-Smtp-Source: AGHT+IEJlLBW/FZ9aUUF0wIS9uTXGME37h8Y9efIvTrrpICt4/GQPJDkVUmL2sewgK2dJP+U0JhiUg==
+X-Received: by 2002:a67:fc43:0:b0:44e:e7d7:6847 with SMTP id p3-20020a67fc43000000b0044ee7d76847mr78656vsq.7.1695135548070;
+        Tue, 19 Sep 2023 07:59:08 -0700 (PDT)
 Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id o10-20020a0cf4ca000000b00656329bb3b1sm3730752qvm.10.2023.09.19.05.38.14
+        by smtp.gmail.com with ESMTPSA id t1-20020a0cde01000000b006584f570efasm755198qvk.34.2023.09.19.07.59.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Sep 2023 05:38:14 -0700 (PDT)
-Message-ID: <d210f947-6457-f46a-45bc-a167e8de330c@gmail.com>
-Date:   Tue, 19 Sep 2023 08:38:13 -0400
+        Tue, 19 Sep 2023 07:59:07 -0700 (PDT)
+Message-ID: <8447d7e3-c901-5e3b-b2a0-bb5cebaa1182@gmail.com>
+Date:   Tue, 19 Sep 2023 10:59:06 -0400
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
-Subject: Re: Clat calculation
 Content-Language: en-US
-To:     Jay Han <jayhan258@gmail.com>, fio@vger.kernel.org
-References: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc:     Ankit Kumar <ankit.kumar@samsung.com>, a.manzanares@samsung.com,
+        krish.reddy@samsung.com, Kanchan Joshi <joshi.k@samsung.com>,
+        k.jensen@samsung.com, jh.i.park@samsung.com
 From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
+Subject: Blog post on protection information for NVMe devices
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 9/18/23 12:54, Jay Han wrote:
-> Hello,
-> I am seeing a stiff delta between the fio clat vs blktrace data and
-> wondering how fio clat is measured in terms of the I/O processing
-> step. In blktrace, I measured the time delta between the complete(C
-> action) and issued(D action) per LBA basis.
-> 
-> Can you tell me how fio clat is calculated please?
-> 
-> Thank you,
-> Jay.
+Ankit Kumar and I have a new blog post describing protection information 
+for NVMe devices. Take a look:
 
-Here is an extended discussion of fio's latency calculations:
+https://github.com/vincentkfu/fio-blog/wiki/Fio-end-to-end-data-protection-part-1-background
 
-https://github.com/vincentkfu/fio-blog/wiki/How-does-fio-measure-latency
+Comments, corrections, etc are welcome!
+
+Vincent
