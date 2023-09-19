@@ -2,66 +2,82 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 878E3CD37B0
-	for <fio@archiver.kernel.org>; Mon, 18 Sep 2023 16:54:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6768CD5BA7
+	for <fio@archiver.kernel.org>; Tue, 19 Sep 2023 12:38:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230408AbjIRQy4 (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Mon, 18 Sep 2023 12:54:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38004 "EHLO
+        id S231784AbjISMiZ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 19 Sep 2023 08:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230498AbjIRQyz (ORCPT <rfc822;fio@vger.kernel.org>);
-        Mon, 18 Sep 2023 12:54:55 -0400
-Received: from mail-ua1-x933.google.com (mail-ua1-x933.google.com [IPv6:2607:f8b0:4864:20::933])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405AB83
-        for <fio@vger.kernel.org>; Mon, 18 Sep 2023 09:54:49 -0700 (PDT)
-Received: by mail-ua1-x933.google.com with SMTP id a1e0cc1a2514c-7870821d9a1so2984293241.1
-        for <fio@vger.kernel.org>; Mon, 18 Sep 2023 09:54:49 -0700 (PDT)
+        with ESMTP id S231683AbjISMiY (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 19 Sep 2023 08:38:24 -0400
+Received: from mail-qv1-xf2c.google.com (mail-qv1-xf2c.google.com [IPv6:2607:f8b0:4864:20::f2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08F79F3
+        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 05:38:16 -0700 (PDT)
+Received: by mail-qv1-xf2c.google.com with SMTP id 6a1803df08f44-6515d44b562so31472826d6.3
+        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 05:38:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695056088; x=1695660888; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=qoTIddLe8NYoucfQJEYmqim99Qxv29RyzC8D0x4Di78=;
-        b=IGDF5drNn2eqMkEVzS6T4DEzph4JYcXOQveqP9r9VnnrXtzKCxrOjbL79lgE+eeMIO
-         fi/2gL2uKCan5VHf5byPiUdKcFYA0CmCUSVnO7qzSW8LzxjI+IB7XJtSsEhkoEI3WFPL
-         SHxq3qzxav1OZ1VAlo36TZsvPQda7NT8Ou5zjD774DLRLGhZLnRWMJJgg1eZLjvOTnLM
-         0Ew9S8DL0OSSvXSUjSAnGBSLjD135wLIEiLE7wU2+iZf86vwTYXNtAlaHaTckcN1lk0Q
-         yWO+EHmcC94usbBnzbuPFwer3NPtIvKszj4VLUJz91+cMTvlg0kCQerkpxPnNq2zSWl7
-         clBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695056088; x=1695660888;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+        d=gmail.com; s=20230601; t=1695127095; x=1695731895; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=qoTIddLe8NYoucfQJEYmqim99Qxv29RyzC8D0x4Di78=;
-        b=YE84/trn4d0sFADRexqu66W31WENaXPzq+qQO/+YwepZJPB19QwBaAp1Cp4gGzMSek
-         k4Y2DUrhG4Vrni2pmVmzEnmhxHeXAO3G+NhFKd30o72W9XvTRiKGFNYrLacQM9/lK9M6
-         +orsVDJ+3MgzfcazZFCLYsDt+XVDzDz+Ue8eLEu0xi/stnTmdUh1Uvf5IMa2qwSZ4+5a
-         rJ9lcEv4G+hLCjVGNDBqjByf5NmTfuFh4e6f1AdB5/P5C7VoMx9BukqjsEgnwVT3Hyhv
-         10OnQvbAdxKf33OCzuMAFHCxNipmWR6McwM1OFCJdMqYfbt8Ix9yehlGAvDdcZsLjUmE
-         TPGg==
-X-Gm-Message-State: AOJu0Yw4eND8XFzbAaeEcaacM7IakpR6ZJ3uicGZr8CoT9qTa40LMux4
-        rbLLO0enyf8XG6dtgjOrZwZC4UhCaAtNIrqXVNZUuSpk
-X-Google-Smtp-Source: AGHT+IEGgcc0ppczhto+abLorgcjwR3h0tQV7DDsuZ8mYagbx8F0c7EfK6GoA4p70KRuuZukvz7rlMqF0yMAvVoGKc4=
-X-Received: by 2002:a05:6102:1622:b0:44d:38d6:5cb8 with SMTP id
- cu34-20020a056102162200b0044d38d65cb8mr180872vsb.10.1695056088127; Mon, 18
- Sep 2023 09:54:48 -0700 (PDT)
+        bh=XdEetaQaqlgmsbQ0TzwFGNWhKv31gIgWg/qI7FecQHo=;
+        b=KNkpTFoC72ZWGKIC4Ke/7dFnvHGkfvJkcejtiFRE3Xt9L0L6bWBdBIxnNV2qtZOVlf
+         Et2N+qzcGeR9EfNKrKNcy1ZLwMSNSWoAsR4T1dlM51FDpegChMyql19yv7hpwZy1B6nu
+         l7WR3ra+M3uQsq+XJoTU4Ryc92cnWdVBpRY7NzwfETZ0BFzgiQ2KQQsld7alSJMol6Rk
+         hsPUljFZvl4vTs01GWnpGMyI3Ov5YMtSY48nlGC8dpvyQXeJXI8LVearUn9K0rYsGbxE
+         wGdrBsRsxUs1/VIKV6iuINRRmd0MV4VduPBPdTuijwnI8c2CH6I8MbPAyjwKafmvQPQQ
+         xcsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695127095; x=1695731895;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=XdEetaQaqlgmsbQ0TzwFGNWhKv31gIgWg/qI7FecQHo=;
+        b=u02hpkvqEXDWRfGZk2/4SlMlt/F3XrEBn9AS+lkpdE5oA/hfgJHwbA6FxNwZXYbwRi
+         8oomnH+x29mDGBT2ZwMlxuFRNWMrQ2vX2d50Fi68jaGe7GsC/yO2y4by65BfH2247bVi
+         LiP0cXxXSaV53Dob6/rmbSV4bOrH/Jzsy5ip1aXb7LPW9B/mtlIYxGrGT2va4kdMm1BT
+         w5vHF21ZTXG1VA43NUxpJDvlANp3tuCrW1gxPAkx64p5EJd3FlK97OrKaxPiQqbiLRmm
+         sGqCt424Z1lIHfR4M/MigjxYL0Wt3x2YWDP8nH6QhuspZHIMREE28w4CN7vH0svKFu33
+         1iwA==
+X-Gm-Message-State: AOJu0Yy9CWi2umCa3ENc204nvDCFGTU59GoHS3R4i2n2MUGMaptab1YJ
+        mLS3kpX0PGJiFeyq4JfHY9nlQOyyuno=
+X-Google-Smtp-Source: AGHT+IE8fJFhwueSrvs3XdzaOgHG7EddXAGXH7MlAXg+ZzX04pyM0t6LZgLxy9Da9fI3ZUhfnttnww==
+X-Received: by 2002:a0c:f2d2:0:b0:64b:e135:a3b0 with SMTP id c18-20020a0cf2d2000000b0064be135a3b0mr11506640qvm.19.1695127094922;
+        Tue, 19 Sep 2023 05:38:14 -0700 (PDT)
+Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id o10-20020a0cf4ca000000b00656329bb3b1sm3730752qvm.10.2023.09.19.05.38.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Sep 2023 05:38:14 -0700 (PDT)
+Message-ID: <d210f947-6457-f46a-45bc-a167e8de330c@gmail.com>
+Date:   Tue, 19 Sep 2023 08:38:13 -0400
 MIME-Version: 1.0
-From:   Jay Han <jayhan258@gmail.com>
-Date:   Mon, 18 Sep 2023 10:54:37 -0600
-Message-ID: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
-Subject: Clat calculation
-To:     fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: Clat calculation
+Content-Language: en-US
+To:     Jay Han <jayhan258@gmail.com>, fio@vger.kernel.org
+References: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
+From:   Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Hello,
-I am seeing a stiff delta between the fio clat vs blktrace data and
-wondering how fio clat is measured in terms of the I/O processing
-step. In blktrace, I measured the time delta between the complete(C
-action) and issued(D action) per LBA basis.
+On 9/18/23 12:54, Jay Han wrote:
+> Hello,
+> I am seeing a stiff delta between the fio clat vs blktrace data and
+> wondering how fio clat is measured in terms of the I/O processing
+> step. In blktrace, I measured the time delta between the complete(C
+> action) and issued(D action) per LBA basis.
+> 
+> Can you tell me how fio clat is calculated please?
+> 
+> Thank you,
+> Jay.
 
-Can you tell me how fio clat is calculated please?
+Here is an extended discussion of fio's latency calculations:
 
-Thank you,
-Jay.
+https://github.com/vincentkfu/fio-blog/wiki/How-does-fio-measure-latency
