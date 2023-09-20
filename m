@@ -2,76 +2,97 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 505F1CD5BD1
-	for <fio@archiver.kernel.org>; Tue, 19 Sep 2023 14:59:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1529ECE79CF
+	for <fio@archiver.kernel.org>; Wed, 20 Sep 2023 12:00:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbjISO7V (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 19 Sep 2023 10:59:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55242 "EHLO
+        id S235074AbjITMAP (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:00:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233040AbjISO7U (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 19 Sep 2023 10:59:20 -0400
-Received: from mail-vs1-xe2a.google.com (mail-vs1-xe2a.google.com [IPv6:2607:f8b0:4864:20::e2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA126F2
-        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 07:59:09 -0700 (PDT)
-Received: by mail-vs1-xe2a.google.com with SMTP id ada2fe7eead31-452832dbb5dso730401137.0
-        for <fio@vger.kernel.org>; Tue, 19 Sep 2023 07:59:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695135548; x=1695740348; darn=vger.kernel.org;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=E38tlYG4P+iaBraJpRAdSXgPe+jtH9V5mgGg9DwW/nM=;
-        b=nq/EOfenkpYgiJao47SnqD+gXCsl5hq2kTE2srbfR9d2o6SVb7yLy64bB3ENsHKML8
-         TgoJ3JNYb9kPclY7PPi3wAMIXn4EmhGNdA5RvaG5DbS7yzOJEf/yXYxgHqsaIGPdNhUt
-         bcLfrHEV9BDbjLjaGjCG2BoeKyDWRcNZa8z4Rgi9ucX4SvMV3aT8bxVipUyxWBmDEgh6
-         s5Me/KtjYLu0iUvOfvnBJzYgw9nf5bd7uup/Z2T+eV4iIzBXB0zg0KYuMgN4WhJ/Si+T
-         Yxz2oc1lB//2ItIwv8e4NZ6GCh4MvuPsSnsFpEgDnM8wLQ/e36jMtvmQgreKjg1IIio9
-         7bpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695135548; x=1695740348;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=E38tlYG4P+iaBraJpRAdSXgPe+jtH9V5mgGg9DwW/nM=;
-        b=JJiWkErbwCzvvEoguF18013V2otDCp4cWSvDMJSii+TpL7HWyybIMZUN9lq8UbRDot
-         XjO5TdfZOu4KcJ6daslEXOLdmIzkWnhOQLWipegy9bWU4GXVYI2dSZpoGXiCz7CRJ4Mf
-         asHwIEX71ZOinvHyaVaAlM7xigqhpA2UDFGlrIfWhlVNdchmqKJRAhAD9ZzW658JXNo1
-         5ySrn29WPz2yXHRZHt18rn6A00uB83NyRHfY5ee3hCpbQobptkizbV9NybbJHVxUh4mN
-         UQgck7+wDXv0M4NUtFgWjnFuF/eJaMZ17kZ0R+1XQj6B8+fxhwGFCTGBczMvBRLilP66
-         Enfw==
-X-Gm-Message-State: AOJu0YwiecY8DR0zgMoxMkPlCUiz5AUaw9vyKu/x8RqQbbFvkumajUqX
-        SMgLUExS9xMjEbJjmZpq0EeEHj25Kk5Dqw==
-X-Google-Smtp-Source: AGHT+IEJlLBW/FZ9aUUF0wIS9uTXGME37h8Y9efIvTrrpICt4/GQPJDkVUmL2sewgK2dJP+U0JhiUg==
-X-Received: by 2002:a67:fc43:0:b0:44e:e7d7:6847 with SMTP id p3-20020a67fc43000000b0044ee7d76847mr78656vsq.7.1695135548070;
-        Tue, 19 Sep 2023 07:59:08 -0700 (PDT)
-Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id t1-20020a0cde01000000b006584f570efasm755198qvk.34.2023.09.19.07.59.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Sep 2023 07:59:07 -0700 (PDT)
-Message-ID: <8447d7e3-c901-5e3b-b2a0-bb5cebaa1182@gmail.com>
-Date:   Tue, 19 Sep 2023 10:59:06 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Content-Language: en-US
-To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc:     Ankit Kumar <ankit.kumar@samsung.com>, a.manzanares@samsung.com,
-        krish.reddy@samsung.com, Kanchan Joshi <joshi.k@samsung.com>,
-        k.jensen@samsung.com, jh.i.park@samsung.com
-From:   Vincent Fu <vincentfu@gmail.com>
-Subject: Blog post on protection information for NVMe devices
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S235114AbjITMAO (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 20 Sep 2023 08:00:14 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8079AAD
+        for <fio@vger.kernel.org>; Wed, 20 Sep 2023 05:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=yRi9DA2UN9s8K4GYBLOJslL6hBzHuFx77MO9EyJ4foo=; b=RHqohHZHNF6j7enJ66YBUcQbvb
+        vBhf/d5L9UmiDuleG7qkXooS7VhsGqLm0dqWXNTJlBxJFnTMGvgWyFAj7NDcvn5TNY5iNqkvCLWe9
+        YkBeP9JqLNVJJCnb9sEtKu7v17Dt0t8oST+27JpYQ6BGsWH9P9c7ihRxtFIqIQsL0jy0NrwcXKY3y
+        XwiM8DmxUKWc+o9B90AozNAdMkmTiSbGHGf5+QYRSCRDPyomszQ0f5mMBJ2Mp8Qk73tX4AHIomTl+
+        NIovW/YsvevZN+wcFtKtu+kScSoJnqpm8ab6m/sV6tMackK6fVIdUVP0iAhME2Q1yc9p/vb0QjHZe
+        ije5TpUw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qivsB-00EYjF-3C
+        for fio@vger.kernel.org;
+        Wed, 20 Sep 2023 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 6B8271BC0175; Wed, 20 Sep 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230920120001.6B8271BC0175@kernel.dk>
+Date:   Wed, 20 Sep 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-Ankit Kumar and I have a new blog post describing protection information 
-for NVMe devices. Take a look:
+The following changes since commit e2c5f17e3559cc7c96706cd75c2609f12675c60b:
 
-https://github.com/vincentkfu/fio-blog/wiki/Fio-end-to-end-data-protection-part-1-background
+  verify: open state file in binary mode on Windows (2023-09-14 18:54:25 -0400)
 
-Comments, corrections, etc are welcome!
+are available in the Git repository at:
 
-Vincent
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to a142e0df6c1483a76d92ff7f9d8c07242af9910e:
+
+  Merge branch 'fio_client_server_doc_fix' of https://github.com/pcpartpicker/fio (2023-09-20 07:41:17 -0400)
+
+----------------------------------------------------------------
+Vincent Fu (1):
+      Merge branch 'fio_client_server_doc_fix' of https://github.com/pcpartpicker/fio
+
+aggieNick02 (1):
+      Update docs to clarify how to pass job options in client mode
+
+ HOWTO.rst | 3 +++
+ fio.1     | 3 +++
+ 2 files changed, 6 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 7f26978a..cc7124b1 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -5105,6 +5105,9 @@ is the connect string, and `remote-args` and `job file(s)` are sent to the
+ server. The `server` string follows the same format as it does on the server
+ side, to allow IP/hostname/socket and port strings.
+ 
++Note that all job options must be defined in job files when running fio as a
++client. Any job options specified in `remote-args` will be ignored.
++
+ Fio can connect to multiple servers this way::
+ 
+     fio --client=<server1> <job file(s)> --client=<server2> <job file(s)>
+diff --git a/fio.1 b/fio.1
+index 8159caa4..628e278d 100644
+--- a/fio.1
++++ b/fio.1
+@@ -4838,6 +4838,9 @@ is the connect string, and `remote\-args' and `job file(s)' are sent to the
+ server. The `server' string follows the same format as it does on the server
+ side, to allow IP/hostname/socket and port strings.
+ .P
++Note that all job options must be defined in job files when running fio as a
++client. Any job options specified in `remote\-args' will be ignored.
++.P
+ Fio can connect to multiple servers this way:
+ .RS
+ .P
