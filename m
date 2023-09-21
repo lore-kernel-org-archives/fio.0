@@ -2,97 +2,89 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1529ECE79CF
-	for <fio@archiver.kernel.org>; Wed, 20 Sep 2023 12:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D1A7E7D0B1
+	for <fio@archiver.kernel.org>; Thu, 21 Sep 2023 20:36:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235074AbjITMAP (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:00:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37938 "EHLO
+        id S232008AbjIUUgJ (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Thu, 21 Sep 2023 16:36:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235114AbjITMAO (ORCPT <rfc822;fio@vger.kernel.org>);
-        Wed, 20 Sep 2023 08:00:14 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8079AAD
-        for <fio@vger.kernel.org>; Wed, 20 Sep 2023 05:00:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=yRi9DA2UN9s8K4GYBLOJslL6hBzHuFx77MO9EyJ4foo=; b=RHqohHZHNF6j7enJ66YBUcQbvb
-        vBhf/d5L9UmiDuleG7qkXooS7VhsGqLm0dqWXNTJlBxJFnTMGvgWyFAj7NDcvn5TNY5iNqkvCLWe9
-        YkBeP9JqLNVJJCnb9sEtKu7v17Dt0t8oST+27JpYQ6BGsWH9P9c7ihRxtFIqIQsL0jy0NrwcXKY3y
-        XwiM8DmxUKWc+o9B90AozNAdMkmTiSbGHGf5+QYRSCRDPyomszQ0f5mMBJ2Mp8Qk73tX4AHIomTl+
-        NIovW/YsvevZN+wcFtKtu+kScSoJnqpm8ab6m/sV6tMackK6fVIdUVP0iAhME2Q1yc9p/vb0QjHZe
-        ije5TpUw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1qivsB-00EYjF-3C
-        for fio@vger.kernel.org;
-        Wed, 20 Sep 2023 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 6B8271BC0175; Wed, 20 Sep 2023 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230920120001.6B8271BC0175@kernel.dk>
-Date:   Wed, 20 Sep 2023 06:00:01 -0600 (MDT)
+        with ESMTP id S232766AbjIUUfo (ORCPT <rfc822;fio@vger.kernel.org>);
+        Thu, 21 Sep 2023 16:35:44 -0400
+Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E6E8D9EC
+        for <fio@vger.kernel.org>; Thu, 21 Sep 2023 10:43:48 -0700 (PDT)
+Received: by mail-ua1-x932.google.com with SMTP id a1e0cc1a2514c-7a29ef55d5fso541167241.3
+        for <fio@vger.kernel.org>; Thu, 21 Sep 2023 10:43:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1695318228; x=1695923028; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bWSFgjQ0BkZu4HxX2PL6KItRwnFUqbqbsdhx5Irg240=;
+        b=AhRqp8y81SCApXEDiYPEB7agc+vUkLVX2pVJovU5+dpzSYcBJ6Cnxd1nMW1HDqajtZ
+         bqFW0pDQlv6Tyq/lsL4ZYe0+d2g8fGkHvSLRpKnbkr7JGqp7r62cQJMOOQX00eGPYQVg
+         HOLl7ijM/lich0MMvWPN9mwaF9CLMP1Lx2ZuMb0uFOe35MxY0WIe4mFwxHamig3mHH3H
+         9NySDEBcqgz1kn3EqqRbklB+IVWLDsZ5+KddDw8vkuv+v0knfELqjDqHt81N1q5YoNem
+         +mDMLYR2p/dFz1SCTazDdwBVLSfRYXFOTwVcoAz0LBZpUQfGmD4pzJzjFZmo0u6GtJwZ
+         Vr3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695318228; x=1695923028;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bWSFgjQ0BkZu4HxX2PL6KItRwnFUqbqbsdhx5Irg240=;
+        b=s+vjzIWwHYM7FwwA+BSshnQFSiC9qnqr0oJFZT33l3qRLKAZz94I1mVodDadwg+oie
+         mLQEONNDVhylgEYgq5pbYlf+AbjSutdmVyuyfv3Yj+lwlZFOtvBqiD+DBQA0zUz5gCBM
+         oHV98FL5uQxGLKEe+i/UbYodXATcRY4iAaAeiDEA0RDJGeZazlyDWh1scJ/7KwUU14hL
+         yzHAl5Deg1QJvOCLb2IYeFQaKvIGoY2v3DYAyYhoYuPfwCqpa1PhraWpqYLjI1x76Q8a
+         oRGfwVWJ0H1cy+TMTDEDoI4z4DYGjxQhruM95kD9ADEv2yawfFXmhCDRufD+2XyH9lQI
+         H+kA==
+X-Gm-Message-State: AOJu0Yz+TF9COf/6u5b9ess7+BycZaDEf3nGCnnS6kuv1BcLwYVNZK3Z
+        U7sIL52OmoXOfxpIwUyo3hg7RUfmPbg+LjLhvHWBxv0H
+X-Google-Smtp-Source: AGHT+IHjd4wGlwhZsBCuF2kjBQHitNk3zUh3zqF+aCwFT6YYsPHdAMxj6tb8viVT4At9leYbudqxto2QfT8id5FhNyU=
+X-Received: by 2002:a67:e994:0:b0:452:7767:9058 with SMTP id
+ b20-20020a67e994000000b0045277679058mr6828268vso.31.1695318227681; Thu, 21
+ Sep 2023 10:43:47 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAJ3QLKcSM6oRGuyzJ4tquzP5UUfju7KQfkuBZpHdz_eGHL0Gvw@mail.gmail.com>
+ <d210f947-6457-f46a-45bc-a167e8de330c@gmail.com>
+In-Reply-To: <d210f947-6457-f46a-45bc-a167e8de330c@gmail.com>
+From:   Jay Han <jayhan258@gmail.com>
+Date:   Thu, 21 Sep 2023 11:43:36 -0600
+Message-ID: <CAJ3QLKdBxYi0iXXHaBJ+x7uypeU8HSo3zh0ESVWQWSPD_hFrnA@mail.gmail.com>
+Subject: Re: Clat calculation
+To:     Vincent Fu <vincentfu@gmail.com>
+Cc:     fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit e2c5f17e3559cc7c96706cd75c2609f12675c60b:
+Thank you very much, Vincent!
 
-  verify: open state file in binary mode on Windows (2023-09-14 18:54:25 -0400)
+I guess the difference between FIO clat and the time delta from
+blktrace is caused by the start time for clat. What is interesting to
+me is that every action combination I tried as the time delta in
+blkparse is generally lower than what FIO clat reported.
 
-are available in the Git repository at:
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to a142e0df6c1483a76d92ff7f9d8c07242af9910e:
-
-  Merge branch 'fio_client_server_doc_fix' of https://github.com/pcpartpicker/fio (2023-09-20 07:41:17 -0400)
-
-----------------------------------------------------------------
-Vincent Fu (1):
-      Merge branch 'fio_client_server_doc_fix' of https://github.com/pcpartpicker/fio
-
-aggieNick02 (1):
-      Update docs to clarify how to pass job options in client mode
-
- HOWTO.rst | 3 +++
- fio.1     | 3 +++
- 2 files changed, 6 insertions(+)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 7f26978a..cc7124b1 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -5105,6 +5105,9 @@ is the connect string, and `remote-args` and `job file(s)` are sent to the
- server. The `server` string follows the same format as it does on the server
- side, to allow IP/hostname/socket and port strings.
- 
-+Note that all job options must be defined in job files when running fio as a
-+client. Any job options specified in `remote-args` will be ignored.
-+
- Fio can connect to multiple servers this way::
- 
-     fio --client=<server1> <job file(s)> --client=<server2> <job file(s)>
-diff --git a/fio.1 b/fio.1
-index 8159caa4..628e278d 100644
---- a/fio.1
-+++ b/fio.1
-@@ -4838,6 +4838,9 @@ is the connect string, and `remote\-args' and `job file(s)' are sent to the
- server. The `server' string follows the same format as it does on the server
- side, to allow IP/hostname/socket and port strings.
- .P
-+Note that all job options must be defined in job files when running fio as a
-+client. Any job options specified in `remote\-args' will be ignored.
-+.P
- Fio can connect to multiple servers this way:
- .RS
- .P
+On Tue, Sep 19, 2023 at 6:38=E2=80=AFAM Vincent Fu <vincentfu@gmail.com> wr=
+ote:
+>
+> On 9/18/23 12:54, Jay Han wrote:
+> > Hello,
+> > I am seeing a stiff delta between the fio clat vs blktrace data and
+> > wondering how fio clat is measured in terms of the I/O processing
+> > step. In blktrace, I measured the time delta between the complete(C
+> > action) and issued(D action) per LBA basis.
+> >
+> > Can you tell me how fio clat is calculated please?
+> >
+> > Thank you,
+> > Jay.
+>
+> Here is an extended discussion of fio's latency calculations:
+>
+> https://github.com/vincentkfu/fio-blog/wiki/How-does-fio-measure-latency
