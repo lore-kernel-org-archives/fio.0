@@ -2,96 +2,167 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76D9CE7E644
-	for <fio@archiver.kernel.org>; Tue, 26 Sep 2023 15:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF1D1E810D6
+	for <fio@archiver.kernel.org>; Wed, 27 Sep 2023 12:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235156AbjIZPrl (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 26 Sep 2023 11:47:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55014 "EHLO
+        id S230143AbjI0MAO (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Wed, 27 Sep 2023 08:00:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235153AbjIZPri (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 26 Sep 2023 11:47:38 -0400
-Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94472116
-        for <fio@vger.kernel.org>; Tue, 26 Sep 2023 08:47:31 -0700 (PDT)
-Received: by mail-vs1-xe29.google.com with SMTP id ada2fe7eead31-452b0430cc5so4134451137.3
-        for <fio@vger.kernel.org>; Tue, 26 Sep 2023 08:47:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695743250; x=1696348050; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=9gHd8+KZpgnuPcmoe5hzaLlZ0oWSdoqLd+vA6XbTIZY=;
-        b=TlLXJrCuqOGgFBu/EQL+kADohZ0cZFMQkZxA3HGkCvZVFCRE/hev5IHOy4I3Fce359
-         u+9PlbO/mA6l5ULD1VH+cauSQW0gCcB1IQ6IpYeIlcdiwLNMi8XSGQ0pIdi3pL6rKf8u
-         a4pfZs4+BTPlYjlSB32UBr9vqksyidTynbfP302AgSkALMyOr820A3THFZInafqQ1Z+R
-         ieF9A9JNVEdBafjwZPsOf1DpqR/VWHjIFTHombo0KENjruU+4fHr3LwOmkg2/LQqB8bj
-         cOUTEUMFoT5XbWGkowcgEMNRnY5BJW7QLlyJ9XntfZI2TV30Ue66Xaz548ADKlyYZEDi
-         GJMA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695743250; x=1696348050;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9gHd8+KZpgnuPcmoe5hzaLlZ0oWSdoqLd+vA6XbTIZY=;
-        b=EOlI/JBEDTznYr4ihdm/lfDinLzA8njc5r3eGalRs1E2ApGVwc7EdnYLhtMcuwBHgb
-         b6zZDQqA8QYFRdOuCE+BgmsFMJNLPUg7AF45wH2Xekrcm0KkB58YWR3XCZhh8YZ9mCyw
-         OJ3UxjHBss2JgVED5quXzwuNSWdyVGG3JJ+4NDdbYvLY2ecT/7F5Z7e2X7vnSzG70Px7
-         FysnyuLphA4pTD7wCqdKDIfzvCkVqy/A0XWfjBTMIc6c/HT3gPia8eD1HVyTd8JIdHkN
-         L8loJJBaWtdCajlrVngK7pu/L2fRCqL5G+1cJ6gqxjiuB0NZstkJt8qpVN0OUJ0zFBIz
-         pD2A==
-X-Gm-Message-State: AOJu0YzxWjk85vFs75howHl/2aOWa1EA4ktaZ0zv5ifveNrbRRDe9Xav
-        f36ZNeLD+Fhv95s38bbFT04=
-X-Google-Smtp-Source: AGHT+IGScDxuHXWRDZc1XcqVxw0wZA43FqfZy05Sstgk8+0KflN0vwrP9zMCjPHSsIoPwZxlLp+T6A==
-X-Received: by 2002:a67:fa49:0:b0:452:6451:5e16 with SMTP id j9-20020a67fa49000000b0045264515e16mr6311468vsq.31.1695743250483;
-        Tue, 26 Sep 2023 08:47:30 -0700 (PDT)
-Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id r18-20020a0cb292000000b0065b18f18709sm1429505qve.78.2023.09.26.08.47.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 26 Sep 2023 08:47:29 -0700 (PDT)
-Message-ID: <40a3c93d-686d-72d7-fba8-d87efd56c390@gmail.com>
-Date:   Tue, 26 Sep 2023 11:47:29 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH] t/zbd: set mq-deadline scheduler to device-mapper
- destination devices
-To:     Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        fio@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc:     Damien Le Moal <dlemoal@kernel.org>,
-        Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-        Niklas Cassel <niklas.cassel@wdc.com>
-References: <20230913015249.2226799-1-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-From:   Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20230913015249.2226799-1-shinichiro.kawasaki@wdc.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229901AbjI0MAN (ORCPT <rfc822;fio@vger.kernel.org>);
+        Wed, 27 Sep 2023 08:00:13 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12E9BBE
+        for <fio@vger.kernel.org>; Wed, 27 Sep 2023 05:00:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=JlhlUDjTYV0CIgkMr90Wqd+47wswH7VOJYdF2tIbUtk=; b=PENqsVGIvzTMHEdZZCXnu5k4BS
+        QZxd76VlZHWNN5s6nIxRvnKkqgpw9WOkmyBWd1JGoq5798q0JRdoAVNXFVZAf5cjFKvdzNT3/BD+3
+        MkgzDPzebX9bDWA8sLVtzLMSvxcrRM5lPGSiQnyUGmOJ9VzIT5H1HR9iGo168XriG4NyQlOrf2TB9
+        N1anXzgpt+lurIN6ZEdF5Ao1Hz1RJrQv8lFbuVCC4FELsdLvFXaSvpQpCdve6bphR7AhhTnECKzwL
+        5PLo0iXmILgMAkNtAAfssQ5Qx0mepwAFP9B3f3NK9F8D8JuFOuBRDe93wnNTckWfE5ZdUuqzdEofA
+        E7rExpbw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qlTD5-003qkO-0O
+        for fio@vger.kernel.org;
+        Wed, 27 Sep 2023 12:00:09 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+        id 9093D1BC0185; Wed, 27 Sep 2023 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From:   Jens Axboe <axboe@kernel.dk>
+To:     <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20230927120001.9093D1BC0185@kernel.dk>
+Date:   Wed, 27 Sep 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-On 9/12/23 21:52, Shin'ichiro Kawasaki wrote:
-> When write workloads run on zoned block devices, mq-deadline scheduler is
-> required to ensure write operations are sequential. To fulfill this
-> requirement, the test script t/zbd/test-zbd-support sets mq-deadline to
-> the sysfs attribute "queue/scheduler". However, this preparation does
-> not work when the write target device is a bio based device-mapper
-> device. The device is bio based then I/O scheduler does not work.
-> Setting mq-deadline to the sysfs attribute has no effect. On top of
-> that, the sysfs attribute "queue/scheduler" is no longer available for
-> bio based device-mapper devices since Linux kernel version v6.5.
-> 
-> To ensure mq-deadline scheduler for bio based device-mapper devices,
-> improve the helper function set_io_scheduler. If the sysfs attribute
-> "queue/scheduler" is available, use it. Otherwise, check if the test
-> device is a zoned device-mapper (linear, flakey or crypt). If so, set
-> mq-deadline scheduler to destination devices of the device-mapper
-> device. To implement these, add some helper functions.
-> 
-> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+The following changes since commit a142e0df6c1483a76d92ff7f9d8c07242af9910e:
 
-Applied. Thanks.
+  Merge branch 'fio_client_server_doc_fix' of https://github.com/pcpartpicker/fio (2023-09-20 07:41:17 -0400)
 
-Vincent
+are available in the Git repository at:
 
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 996ac91f54844e63ef43092472fc1f7610567b67:
+
+  t/zbd: set mq-deadline scheduler to device-mapper destination devices (2023-09-26 09:00:13 -0400)
+
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (1):
+      t/zbd: set mq-deadline scheduler to device-mapper destination devices
+
+ t/zbd/functions        | 11 +++++++++
+ t/zbd/test-zbd-support | 61 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 71 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/t/zbd/functions b/t/zbd/functions
+index 4faa45a9..028df404 100644
+--- a/t/zbd/functions
++++ b/t/zbd/functions
+@@ -27,6 +27,17 @@ blkzone_reports_capacity() {
+ 		"${blkzone}" report -c 1 -o 0 "${dev}" | grep -q 'cap '
+ }
+ 
++has_command() {
++	local cmd="${1}"
++
++	cmd_path=$(type -p "${cmd}" 2>/dev/null)
++	if [ -z "${cmd_path}" ]; then
++		echo "${cmd} is not available"
++		return 1
++	fi
++	return 0
++}
++
+ # Whether or not $1 (/dev/...) is a NVME ZNS device.
+ is_nvme_zns() {
+ 	local s
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index c8f3eb61..0436d319 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -46,6 +46,55 @@ ioengine() {
+ 	fi
+ }
+ 
++get_dev_path_by_id() {
++	for d in /sys/block/* /sys/block/*/*; do
++		if [[ ! -r "${d}/dev" ]]; then
++			continue
++		fi
++		if [[ "${1}" == "$(<"${d}/dev")" ]]; then
++			echo "/dev/${d##*/}"
++			return 0
++		fi
++	done
++	return 1
++}
++
++dm_destination_dev_set_io_scheduler() {
++	local dev=$1 sched=$2
++	local dest_dev_id dest_dev path
++
++	has_command dmsetup || return 1
++
++	while read -r dest_dev_id; do
++		if ! dest_dev=$(get_dev_path_by_id "${dest_dev_id}"); then
++			continue
++		fi
++		path=${dest_dev/dev/sys\/block}/queue/scheduler
++		if [[ ! -w ${path} ]]; then
++			echo "Can not set scheduler of device mapper destination: ${dest_dev}"
++			continue
++		fi
++		echo "${2}" > "${path}"
++	done < <(dmsetup table "$(<"/sys/block/$dev/dm/name")" |
++			 sed -n  's/.* \([0-9]*:[0-9]*\).*/\1/p')
++}
++
++dev_has_dm_map() {
++	local dev=${1} target_type=${2}
++	local dm_name
++
++	has_command dmsetup || return 1
++
++	dm_name=$(<"/sys/block/$dev/dm/name")
++	if ! dmsetup status "${dm_name}" | grep -qe "${target_type}"; then
++		return 1
++	fi
++	if dmsetup status "${dm_name}" | grep -v "${target_type}"; then
++		return 1
++	fi
++	return 0
++}
++
+ set_io_scheduler() {
+     local dev=$1 sched=$2
+ 
+@@ -62,7 +111,17 @@ set_io_scheduler() {
+ 	esac
+     fi
+ 
+-    echo "$sched" >"/sys/block/$dev/queue/scheduler"
++    if [ -w "/sys/block/$dev/queue/scheduler" ]; then
++	echo "$sched" >"/sys/block/$dev/queue/scheduler"
++    elif [ -r  "/sys/block/$dev/dm/name" ] &&
++		 ( dev_has_dm_map "$dev" linear ||
++		   dev_has_dm_map "$dev" flakey ||
++		   dev_has_dm_map "$dev" crypt ); then
++	dm_destination_dev_set_io_scheduler "$dev" "$sched"
++    else
++	echo "can not set io scheduler"
++	exit 1
++    fi
+ }
+ 
+ check_read() {
