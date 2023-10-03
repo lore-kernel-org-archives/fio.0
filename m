@@ -2,93 +2,106 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81CC7E77372
-	for <fio@archiver.kernel.org>; Sat, 30 Sep 2023 12:00:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE1ADE7544F
+	for <fio@archiver.kernel.org>; Tue,  3 Oct 2023 12:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229449AbjI3MAS (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Sat, 30 Sep 2023 08:00:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57526 "EHLO
+        id S231767AbjJCMAP (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 3 Oct 2023 08:00:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233862AbjI3MAS (ORCPT <rfc822;fio@vger.kernel.org>);
-        Sat, 30 Sep 2023 08:00:18 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFE4A136
-        for <fio@vger.kernel.org>; Sat, 30 Sep 2023 05:00:12 -0700 (PDT)
+        with ESMTP id S231819AbjJCMAP (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 3 Oct 2023 08:00:15 -0400
+Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0873CA6
+        for <fio@vger.kernel.org>; Tue,  3 Oct 2023 05:00:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-        Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
         Content-Description:In-Reply-To:References;
-        bh=o5dqPNo6HreRoje+aFirZhnB8MYvjrOl9cc3lcNl9HA=; b=Q1Vt5tFKoPnYeNywJtgnm/508c
-        MOfP6o9nljOaYWX8yrI0PxMJ53ABOHGpaRJvPOcfbYRF8Fk9v9mAMA6AGv7rhGGnO4701OgrclQjk
-        wHJtW7h3yidSCTc/0fSQyWA+enPg7GdmGrVfSjber44k9w0m4MWBBIqm2Sd5rcIN5WX1Cl/8LE4i7
-        yH6G8InnNmqVh1C4kz29ww7gghNBMFUJ4fjjj67MGVBiqJn+7Ruosoy7+uWJNSPRTRXgd3v44LYCm
-        Uf2F3VNTIExeZb2dZ4Sgn+pxx24NFWf3GU6WM+Z1FJ31YZLlUcX/SpKT/s0uYUn1vC0QynBdi3yco
-        rw7FUDAQ==;
+        bh=BA4VhUtiUEvNbo5h3Xj14ZuD4vekVMomaYPRqJ5OWsw=; b=Y4jUbpNwkeGykU6o1AnEe9TUZk
+        In4RuCBlKJl5hcgLBhLkfCL394AGzvP4e1/ihzo+oOqEIJycN1CJ6rfXi4s8ZxxuHIqS3IKZ9J0Ra
+        gMSTSNE2XqBml+jgRGvQKulRaamlzleb4zs16dwp1aYSp/sLx5iLOlM8lold0oQ5jykuSiKYTilDL
+        U8IvayuTrj0rNrHE30WW9a5FxeJtuZ/3+dFqGSz2Apc5RPxl17MZoQW5Sdd4ImZakqMZLn+IAsDGr
+        dJTPUQzXP51sm6u1rx8eHxmX1UREQ9n7dSkc1xmxAaeKt4Z+A8Wvj3kdc+ph/JF56BY82TXNranvA
+        1ryWll4A==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1qmYdm-00EiSk-RO
-        for fio@vger.kernel.org; Sat, 30 Sep 2023 12:00:11 +0000
+        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qne4O-009rkH-1w
+        for fio@vger.kernel.org;
+        Tue, 03 Oct 2023 12:00:10 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-        id 428DE1BC0151; Sat, 30 Sep 2023 06:00:01 -0600 (MDT)
+        id 674E41BC017F; Tue,  3 Oct 2023 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20230930120001.428DE1BC0151@kernel.dk>
-Date:   Sat, 30 Sep 2023 06:00:01 -0600 (MDT)
+Message-Id: <20231003120001.674E41BC017F@kernel.dk>
+Date:   Tue,  3 Oct 2023 06:00:01 -0600 (MDT)
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit 06812a4f0e4ff4847076e742557ab406a0e96848:
+The following changes since commit c95b52caacc8ef5c1235fb3754186e981b109bdb:
 
-  Merge branch 'fix_verify_block_offset' of https://github.com/ipylypiv/fio (2023-09-29 00:05:10 -0600)
+  ci: switch macos runs from macos-12 to macos-13 (2023-09-29 11:51:10 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to c95b52caacc8ef5c1235fb3754186e981b109bdb:
+for you to fetch changes up to 6f9cdcfcc7598c7d7b19c4a5120a251a80dab183:
 
-  ci: switch macos runs from macos-12 to macos-13 (2023-09-29 11:51:10 -0400)
+  iolog: don't truncate time values (2023-10-02 14:29:29 +0000)
 
 ----------------------------------------------------------------
-Vincent Fu (2):
-      workqueue: handle nice better
-      ci: switch macos runs from macos-12 to macos-13
+Vincent Fu (1):
+      iolog: don't truncate time values
 
- .github/workflows/ci.yml | 2 +-
- workqueue.c              | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ iolog.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 69fedf77..b8000024 100644
---- a/.github/workflows/ci.yml
-+++ b/.github/workflows/ci.yml
-@@ -27,7 +27,7 @@ jobs:
-           os: ubuntu-22.04
-           cc: clang
-         - build: macos
--          os: macos-12
-+          os: macos-13
-         - build: linux-i686-gcc
-           os: ubuntu-22.04
-           arch: i686
-diff --git a/workqueue.c b/workqueue.c
-index 9e6c41ff..3636bc3a 100644
---- a/workqueue.c
-+++ b/workqueue.c
-@@ -136,7 +136,8 @@ static void *worker_thread(void *data)
- 	sk_out_assign(sw->sk_out);
+diff --git a/iolog.c b/iolog.c
+index 97ba4396..5213c60f 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -1002,14 +1002,14 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
  
- 	if (wq->ops.nice) {
--		if (nice(wq->ops.nice) < 0) {
-+		errno = 0;
-+		if (nice(wq->ops.nice) == -1 && errno != 0) {
- 			log_err("workqueue: nice %s\n", strerror(errno));
- 			ret = 1;
- 		}
+ 	if (log_offset) {
+ 		if (log_prio)
+-			fmt = "%lu, %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
++			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
+ 		else
+-			fmt = "%lu, %" PRId64 ", %u, %llu, %llu, %u\n";
++			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
+ 	} else {
+ 		if (log_prio)
+-			fmt = "%lu, %" PRId64 ", %u, %llu, 0x%04x\n";
++			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
+ 		else
+-			fmt = "%lu, %" PRId64 ", %u, %llu, %u\n";
++			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %u\n";
+ 	}
+ 
+ 	nr_samples = sample_size / __log_entry_sz(log_offset);
+@@ -1024,7 +1024,7 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
+ 
+ 		if (!log_offset) {
+ 			fprintf(f, fmt,
+-				(unsigned long) s->time,
++				s->time,
+ 				s->data.val,
+ 				io_sample_ddir(s), (unsigned long long) s->bs,
+ 				prio_val);
+@@ -1032,7 +1032,7 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
+ 			struct io_sample_offset *so = (void *) s;
+ 
+ 			fprintf(f, fmt,
+-				(unsigned long) s->time,
++				s->time,
+ 				s->data.val,
+ 				io_sample_ddir(s), (unsigned long long) s->bs,
+ 				(unsigned long long) so->offset,
