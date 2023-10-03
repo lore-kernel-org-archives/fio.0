@@ -2,106 +2,76 @@ Return-Path: <fio-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE1ADE7544F
-	for <fio@archiver.kernel.org>; Tue,  3 Oct 2023 12:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 531D2E7545C
+	for <fio@archiver.kernel.org>; Tue,  3 Oct 2023 18:29:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231767AbjJCMAP (ORCPT <rfc822;fio@archiver.kernel.org>);
-        Tue, 3 Oct 2023 08:00:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43776 "EHLO
+        id S230476AbjJCS3l (ORCPT <rfc822;fio@archiver.kernel.org>);
+        Tue, 3 Oct 2023 14:29:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231819AbjJCMAP (ORCPT <rfc822;fio@vger.kernel.org>);
-        Tue, 3 Oct 2023 08:00:15 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0873CA6
-        for <fio@vger.kernel.org>; Tue,  3 Oct 2023 05:00:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-        :Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=BA4VhUtiUEvNbo5h3Xj14ZuD4vekVMomaYPRqJ5OWsw=; b=Y4jUbpNwkeGykU6o1AnEe9TUZk
-        In4RuCBlKJl5hcgLBhLkfCL394AGzvP4e1/ihzo+oOqEIJycN1CJ6rfXi4s8ZxxuHIqS3IKZ9J0Ra
-        gMSTSNE2XqBml+jgRGvQKulRaamlzleb4zs16dwp1aYSp/sLx5iLOlM8lold0oQ5jykuSiKYTilDL
-        U8IvayuTrj0rNrHE30WW9a5FxeJtuZ/3+dFqGSz2Apc5RPxl17MZoQW5Sdd4ImZakqMZLn+IAsDGr
-        dJTPUQzXP51sm6u1rx8eHxmX1UREQ9n7dSkc1xmxAaeKt4Z+A8Wvj3kdc+ph/JF56BY82TXNranvA
-        1ryWll4A==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-        by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-        id 1qne4O-009rkH-1w
-        for fio@vger.kernel.org;
-        Tue, 03 Oct 2023 12:00:10 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-        id 674E41BC017F; Tue,  3 Oct 2023 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From:   Jens Axboe <axboe@kernel.dk>
-To:     <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20231003120001.674E41BC017F@kernel.dk>
-Date:   Tue,  3 Oct 2023 06:00:01 -0600 (MDT)
+        with ESMTP id S230293AbjJCS3k (ORCPT <rfc822;fio@vger.kernel.org>);
+        Tue, 3 Oct 2023 14:29:40 -0400
+Received: from mail-vk1-xa2b.google.com (mail-vk1-xa2b.google.com [IPv6:2607:f8b0:4864:20::a2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1483083
+        for <fio@vger.kernel.org>; Tue,  3 Oct 2023 11:29:38 -0700 (PDT)
+Received: by mail-vk1-xa2b.google.com with SMTP id 71dfb90a1353d-49d8dd34f7bso551727e0c.3
+        for <fio@vger.kernel.org>; Tue, 03 Oct 2023 11:29:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1696357777; x=1696962577; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tLbFzejwjkoJLGHdFG8IRyIxaQFwHuPpvRIJGNQnOQc=;
+        b=itOyRjtIE9lFCtwoKY5SY8QfI1CQ6Nn2PWCn++i/SGc2NZwjuc5M087Oplgf1xXKCc
+         1KKgiWnNQ/mGR1wPkJjStZ+71vxoGbRirRoeCAW8xSPv8DbnctRM6Udox7Po+bkhtccl
+         G43Qh3GiqFICwSWV3QXpDK/jRY9nsEd6LXRcPfU1wpa7owL1s9N8L+y8C2AplUgLNmQ3
+         Jlv1AA6iwSixu8TWnrd41MAb3oiQKL3akIHzXeo4MkNu4hqQVWbfEZ16bGWENb/6W9wt
+         Zu1zwTtAlXlMvBtkNiFln+FPSdwwyNZRUSMY+EpoApaV39tHfyKH0PIH4V4Hvk+adtWp
+         OJCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696357777; x=1696962577;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=tLbFzejwjkoJLGHdFG8IRyIxaQFwHuPpvRIJGNQnOQc=;
+        b=aQZ79nLXta6kT3TpQ1o3+BejG3IdTPwqQsdPxeaDr1Gk6r9ARUV5tkRGshbmWmREzx
+         u4lPkV8dxh0nDYRG+3oXUFZxP5sHMxVQtQVpOcDePSULPoWc2XqOeyFHA9JVGHIl2juB
+         rezZ5wcEz4GAlTgrI8rX6+cLFpdnvQFhgqCOyuthzh16bqDlRp3Ti9GCblbYtxrvf0nV
+         l7zU+fyHz+0uiCyWeUu/pmzKmQbVldDn7brsew/8KJUxNbzI70Nub5dPAqYKCFuts09e
+         Yldve2WyGr1bLn4B8uSHjg1rk8xRmbMicEDB0hydA9ppxp0ZeENTCcuiRo3QIDtLccJe
+         ++gQ==
+X-Gm-Message-State: AOJu0YxG16UIFQtVOWbkn9Vfs0dPXP1ENLaI71i5AztlZ5JvaB7IN6cf
+        iLB7SLQ8d/0eEvLNcevcNFeeZDTROrWqIQ==
+X-Google-Smtp-Source: AGHT+IFFw6xbpQ3Gp5ddB704bplIZ1ZeIgl5JC6/3Xpc6VfbVSRHTRHss0U/YfHpHWGBPOsvlSLIzA==
+X-Received: by 2002:a1f:4843:0:b0:496:248e:43fc with SMTP id v64-20020a1f4843000000b00496248e43fcmr100973vka.8.1696357776617;
+        Tue, 03 Oct 2023 11:29:36 -0700 (PDT)
+Received: from [192.168.1.208] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id br7-20020a05622a1e0700b004181c32dcc3sm639693qtb.16.2023.10.03.11.29.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 Oct 2023 11:29:36 -0700 (PDT)
+Message-ID: <6ce6c3ad-8a95-6bd0-7083-09585646af64@gmail.com>
+Date:   Tue, 3 Oct 2023 14:29:35 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+From:   Vincent Fu <vincentfu@gmail.com>
+Subject: Blog post on protection information for NVMe devices part 2
+To:     "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc:     Ankit Kumar <ankit.kumar@samsung.com>, a.manzanares@samsung.com,
+        krish.reddy@samsung.com, k.jensen@samsung.com, rstenfort@meta.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <fio.vger.kernel.org>
 X-Mailing-List: fio@vger.kernel.org
 
-The following changes since commit c95b52caacc8ef5c1235fb3754186e981b109bdb:
+Ankit Kumar and I are back again with part 2 of our blog post series 
+describing protection information for NVMe devices. This one discusses 
+using fio to exercise these capabilities. Take a look:
 
-  ci: switch macos runs from macos-12 to macos-13 (2023-09-29 11:51:10 -0400)
+https://github.com/vincentkfu/fio-blog/wiki/Fio-end-to-end-data-protection-part-2-fio-support
 
-are available in the Git repository at:
+Comments, corrections, etc are welcome!
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 6f9cdcfcc7598c7d7b19c4a5120a251a80dab183:
-
-  iolog: don't truncate time values (2023-10-02 14:29:29 +0000)
-
-----------------------------------------------------------------
-Vincent Fu (1):
-      iolog: don't truncate time values
-
- iolog.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/iolog.c b/iolog.c
-index 97ba4396..5213c60f 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -1002,14 +1002,14 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
- 
- 	if (log_offset) {
- 		if (log_prio)
--			fmt = "%lu, %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
-+			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
- 		else
--			fmt = "%lu, %" PRId64 ", %u, %llu, %llu, %u\n";
-+			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
- 	} else {
- 		if (log_prio)
--			fmt = "%lu, %" PRId64 ", %u, %llu, 0x%04x\n";
-+			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
- 		else
--			fmt = "%lu, %" PRId64 ", %u, %llu, %u\n";
-+			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %u\n";
- 	}
- 
- 	nr_samples = sample_size / __log_entry_sz(log_offset);
-@@ -1024,7 +1024,7 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
- 
- 		if (!log_offset) {
- 			fprintf(f, fmt,
--				(unsigned long) s->time,
-+				s->time,
- 				s->data.val,
- 				io_sample_ddir(s), (unsigned long long) s->bs,
- 				prio_val);
-@@ -1032,7 +1032,7 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
- 			struct io_sample_offset *so = (void *) s;
- 
- 			fprintf(f, fmt,
--				(unsigned long) s->time,
-+				s->time,
- 				s->data.val,
- 				io_sample_ddir(s), (unsigned long long) s->bs,
- 				(unsigned long long) so->offset,
+Vincent
