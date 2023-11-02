@@ -1,193 +1,159 @@
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9009F125A0
-	for <fio@vger.kernel.org>; Wed,  1 Nov 2023 12:00:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EE1011C91
+	for <fio@vger.kernel.org>; Thu,  2 Nov 2023 08:48:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RGoqelaS"
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3301BFD
-	for <fio@vger.kernel.org>; Wed,  1 Nov 2023 05:00:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=q/F3rFieDIIQZ8TGzW3iygAUz2ufc7bbZDgPW0lEt60=; b=RGoqelaSrBFe+9pDWUd7CRU1j+
-	k/WpArqRO64GHG6Ui8yGQf8IeR/hfnIP7SvV67z2EthjnD7K52tR0FMuLdiudGXAQrS7TwG9drsNS
-	DA4NW4c6v9mC67GPYnbklqI3yDLnpGRWc7oxJ6fcsm/ZnwXMS3BXXKWXkylK2wij+x8DZky/jt7mb
-	us9tCeq2NLx1hxes9cMvaRIPY6x3Cs0cQQiUCpiDGpWQmtG5C17YX4CH36qaCfouSpKzVTr8tpJdi
-	r9D4yFGD4P7WoM+C68pIggb0VcNMfTJ3rNVgSWyOjOpasAv5Ay52dH5mFYXso7bKV7Yi8+opxdgAu
-	tK62AJhg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1qy9tK-00FvlX-Jk
-	for fio@vger.kernel.org; Wed, 01 Nov 2023 12:00:10 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 3B1FC1BC0175; Wed,  1 Nov 2023 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20231101120002.3B1FC1BC0175@kernel.dk>
-Date: Wed,  1 Nov 2023 06:00:02 -0600 (MDT)
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="pr6NTYHK"
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1768312C
+	for <fio@vger.kernel.org>; Thu,  2 Nov 2023 01:48:11 -0700 (PDT)
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20231102084808epoutp01801a29d02dcb60773dc3fdb88a0fcd80~TwhbmY0lI1060010600epoutp01U
+	for <fio@vger.kernel.org>; Thu,  2 Nov 2023 08:48:08 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20231102084808epoutp01801a29d02dcb60773dc3fdb88a0fcd80~TwhbmY0lI1060010600epoutp01U
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1698914888;
+	bh=rjX3v6n/Bwql7h5keHEuV7pT9fzvu8OXonbmctR7rKs=;
+	h=From:To:Cc:Subject:Date:References:From;
+	b=pr6NTYHKXZ1O23ZdX/ZWIqX2r1D23gnmrC1gz/lOvyisSisZVntnLfWjxX/jb1rin
+	 qi0L2HUGICz/pC3RMMK9VSHOImRWeazW+ImUwOg7CQm1eM+dvM6HZJvIx37rNLDHIy
+	 NKWsZk6MHIARwvO61u7YgtKa1OWmUONRR4Uh/3p0=
+Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+	epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+	20231102084807epcas5p1f2cbef90e80fe0bab6a043a049f54edb~TwhbUCmMT2776527765epcas5p1i;
+	Thu,  2 Nov 2023 08:48:07 +0000 (GMT)
+Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.183]) by
+	epsnrtp2.localdomain (Postfix) with ESMTP id 4SLcw630LMz4x9Q4; Thu,  2 Nov
+	2023 08:48:06 +0000 (GMT)
+Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
+	epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	68.64.08567.64263456; Thu,  2 Nov 2023 17:48:06 +0900 (KST)
+Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+	20231102084106epcas5p21fea8b9fb34faef6c9783d020e57a2f5~TwbTayC2S1532415324epcas5p2Z;
+	Thu,  2 Nov 2023 08:41:06 +0000 (GMT)
+Received: from epsmgmcp1.samsung.com (unknown [182.195.42.82]) by
+	epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20231102084106epsmtrp1d4230e5ce120f9b0fff945476d1a2471~TwbTaIMD31572615726epsmtrp1P;
+	Thu,  2 Nov 2023 08:41:06 +0000 (GMT)
+X-AuditID: b6c32a44-617fd70000002177-16-654362468b1d
+Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
+	epsmgmcp1.samsung.com (Symantec Messaging Gateway) with SMTP id
+	18.94.18939.2A063456; Thu,  2 Nov 2023 17:41:06 +0900 (KST)
+Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
+	[107.99.41.39]) by epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20231102084106epsmtip2c154177a4c1fb265104f033cc57bb0b1~TwbSq2RgU0915709157epsmtip2j;
+	Thu,  2 Nov 2023 08:41:06 +0000 (GMT)
+From: Ankit Kumar <ankit.kumar@samsung.com>
+To: axboe@kernel.dk
+Cc: fio@vger.kernel.org, vincentfu@gmail.com, Ankit Kumar
+	<ankit.kumar@samsung.com>
+Subject: [PATCH] engines/xnvme: fix fdp support for userspace drivers
+Date: Thu,  2 Nov 2023 19:29:28 +0530
+Message-Id: <20231102135928.195372-1-ankit.kumar@samsung.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrHKsWRmVeSWpSXmKPExsWy7bCmuq5bknOqway3vBZrrvxmt1h9t5/N
+	4uOsF8wWG9oEHVg8ds66y+5x+WypR9+WVYwenzfJBbBEZdtkpCampBYppOYl56dk5qXbKnkH
+	xzvHm5oZGOoaWlqYKynkJeam2iq5+AToumXmAC1UUihLzCkFCgUkFhcr6dvZFOWXlqQqZOQX
+	l9gqpRak5BSYFOgVJ+YWl+al6+WlllgZGhgYmQIVJmRnrGk5yVawhq/i7d6tbA2MD7i7GDk5
+	JARMJO5N2cPWxcjFISSwm1HizIbVrBDOJ0aJ+Q2nEJx3j/+xwLT8P/cWKrGTUaLh/UN2CKeT
+	SaKxdRYrSBWbgLbEq7c3mEFsEQFhif0drWDdzAKhEievfWEHsYUFXCVOXzwJVsMioCrR93Ma
+	WJxXwFbicvcyJoht8hIzL32HigtKnJz5BGqOvETz1tnMIIslBJaxS+zuWcwK0eAisebsF2YI
+	W1ji1fEt7BC2lMTL/jYoO1ti08OfUAsKJI686IWqt5doPdUPZHMALdCUWL9LHyIsKzH11Dom
+	iL18Er2/n0C18krsmAdjq0r8vXcbGkLSEjffXYWyPSQ+3TnGCGILCcRKXH90iHECo/wsJO/M
+	QvLOLITNCxiZVzFKphYU56anJpsWGOallsNjNjk/dxMjOOFpuexgvDH/n94hRiYOxkOMEhzM
+	SiK8h00dUoV4UxIrq1KL8uOLSnNSiw8xmgLDeCKzlGhyPjDl5pXEG5pYGpiYmZmZWBqbGSqJ
+	875unZsiJJCeWJKanZpakFoE08fEwSnVwJRTmjKN4+j3j2qX/JxN4lf3J7iaXY4PLDPz3+4e
+	9e7+xGvZMlsbLb5znepyqniy8pbTW6d5Miuj8zUl5Z1EnyUc816jeXGJ1V1X2/fVd5aqiX3v
+	E0jjXFkRH2gZ8Pm71sbS8Ncbf4We7SvYt1mmLs33+gf3LStzb389qLowIOO68NSHzjPZosxC
+	2/fnL0ud32zpXcQbWWuZmdslaaf/zrXrSwHDXYPQLayMr5mn6IX9+2d/99KETn5/JcdpYi+X
+	pB9le6p8ufkgf4ydxWIeJ7W4Mxz/fxmutJp1Q/b+qzOMB7rlFY+baIRs8Tz/UOHznn0syys9
+	mI0mFKxLXrD8X+Bmjw7PY2kM82raTlXOUGIpzkg01GIuKk4EADBuD0YBBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprCLMWRmVeSWpSXmKPExsWy7bCSvO6iBOdUg2UzTSzWXPnNbrH6bj+b
+	xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJ4rJJSc3JLEst0rdL4MpY03KSrWAN
+	X8XbvVvZGhgfcHcxcnJICJhI/D/3lrWLkYtDSGA7o8TWNdOAHA6ghLTEwvWJEDXCEiv/PWeH
+	qGlnkti7ZDETSIJNQFvi1dsbzCC2CFDR/o5WFhCbWSBcYvqByYwgtrCAq8TpiyfBalgEVCX6
+	fk5jB7F5BWwlLncvY4JYIC8x89J3qLigxMmZT6DmyEs0b53NPIGRbxaS1CwkqQWMTKsYRVML
+	inPTc5MLDPWKE3OLS/PS9ZLzczcxggNOK2gH47L1f/UOMTJxMB5ilOBgVhLhPWzqkCrEm5JY
+	WZValB9fVJqTWnyIUZqDRUmcVzmnM0VIID2xJDU7NbUgtQgmy8TBKdXApCP7W9c9yIVvcdUF
+	ibtJgSf3KwlYBH06+ebbhpA1vUflG9Y4+vtLqm1dHqEgwbGSY86djSyxLuumCIi7mGmdfm29
+	Umupq2z1s/O9urVrbTo15O982fm+ou7IlOP7HleVMF8xFcrNVqjlupqzoehKhsnvRZFbDjff
+	SkpJceGatcjTRvVISJ1c5UZtr669+tY/125JFyssedVhuNqR5c6n1C+rnfbHV2dt/aNjeP+C
+	tOnsi+55rD91v/6vF7b9f/NR32rrU/HT90WL7jJu5ZxmzcEWtLDaec+PO3v3+ezr+PjG1lr0
+	jKcy253LapO5mnxf+FTtm6a88cWpXfES0yqm/y002yewvO5cw92sM22CSizFGYmGWsxFxYkA
+	/890yqcCAAA=
+X-CMS-MailID: 20231102084106epcas5p21fea8b9fb34faef6c9783d020e57a2f5
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: REQ_APPROVE
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20231102084106epcas5p21fea8b9fb34faef6c9783d020e57a2f5
+References: <CGME20231102084106epcas5p21fea8b9fb34faef6c9783d020e57a2f5@epcas5p2.samsung.com>
 
-The following changes since commit 7a725c78547f7337dddb6fd391f80914f671e583:
+The xNVMe backend supports FDP commands for userspace drivers
+such as SPDK. Enable support in the xnvme ioengine.
+Update the xnvme fdp example file accordingly.
 
-  Merge branch 'englist' of https://github.com/vt-alt/fio (2023-10-25 17:53:40 -0400)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 95f4d3f054464e997ae1067dc7f4f8ec3f896ccc:
-
-  Merge branch 'pi-perf' of https://github.com/ankit-sam/fio (2023-10-31 09:27:15 -0600)
-
-----------------------------------------------------------------
-Ankit Kumar (1):
-      crct10: use isa-l for crc if available
-
-Jens Axboe (1):
-      Merge branch 'pi-perf' of https://github.com/ankit-sam/fio
-
- HOWTO.rst              |  4 ++++
- configure              | 29 +++++++++++++++++++++++++++++
- crc/crct10dif_common.c | 13 +++++++++++++
- fio.1                  |  4 ++++
- 4 files changed, 50 insertions(+)
-
+Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
+ engines/xnvme.c        |  2 +-
+ examples/xnvme-fdp.fio | 20 ++++++++++++++++++++
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-Diff of recent changes:
+diff --git a/engines/xnvme.c b/engines/xnvme.c
+index ce7b2bdd..b7824013 100644
+--- a/engines/xnvme.c
++++ b/engines/xnvme.c
+@@ -964,7 +964,7 @@ static int xnvme_fioe_fetch_ruhs(struct thread_data *td, struct fio_file *f,
+ 	uint32_t nsid;
+ 	int err = 0, err_lock;
+ 
+-	if (f->filetype != FIO_TYPE_CHAR) {
++	if (f->filetype != FIO_TYPE_CHAR && f->filetype != FIO_TYPE_FILE) {
+ 		log_err("ioeng->fdp_ruhs(): ignoring filetype: %d\n", f->filetype);
+ 		return -EINVAL;
+ 	}
+diff --git a/examples/xnvme-fdp.fio b/examples/xnvme-fdp.fio
+index 86fbe0d3..c50959f1 100644
+--- a/examples/xnvme-fdp.fio
++++ b/examples/xnvme-fdp.fio
+@@ -16,6 +16,26 @@
+ ;   --xnvme_sync=nvme \
+ ;   --filename=/dev/ng0n1
+ ;
++; # Use the xNVMe io-engine engine with SPDK backend, note that you have to set the Namespace-id
++; fio examples/xnvme-fdp.fio \
++;   --section=default \
++;   --ioengine=xnvme \
++;   --xnvme_dev_nsid=1 \
++;   --filename=0000\\:01\\:00.0
++;
++; NOTE: The URI encoded in the filename above, the ":" must be escaped.
++;
++; On the command-line using two "\\":
++;
++; --filename=0000\\:01\\:00.0
++;
++; Within a fio-script using a single "\":
++;
++; filename=0000\:01\:00.0
++;
++; NOTE: If you want to override the default bs, iodepth, and workload, then
++; invoke it as:
++;
+ ; FIO_BS="512" FIO_RW="read" FIO_IODEPTH=16 fio examples/xnvme-fdp.fio \
+ ;   --section=override --ioengine=xnvme --xnvme_sync=nvme --filename=/dev/ng0n1
+ ;
+-- 
+2.25.1
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 6a8fb3e3..34d6afdf 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2507,6 +2507,10 @@ with the caveat that when used on the command line, they must come after the
- 	If this is set to 0, fio generates protection information for
- 	write case and verifies for read case. Default: 1.
- 
-+	For 16 bit CRC generation fio will use isa-l if available otherwise
-+	it will use the default slower generator.
-+	(see: https://github.com/intel/isa-l)
-+
- .. option:: pi_chk=str[,str][,str] : [io_uring_cmd]
- 
- 	Controls the protection information check. This can take one or more
-diff --git a/configure b/configure
-index 3e3f8132..420d97db 100755
---- a/configure
-+++ b/configure
-@@ -189,6 +189,7 @@ libiscsi="no"
- libnbd="no"
- libnfs=""
- xnvme=""
-+isal=""
- libblkio=""
- libzbc=""
- dfs=""
-@@ -262,6 +263,8 @@ for opt do
-   ;;
-   --disable-xnvme) xnvme="no"
-   ;;
-+  --disable-isal) isal="no"
-+  ;;
-   --disable-libblkio) libblkio="no"
-   ;;
-   --disable-tcmalloc) disable_tcmalloc="yes"
-@@ -322,6 +325,7 @@ if test "$show_help" = "yes" ; then
-   echo "--enable-libiscsi       Enable iscsi support"
-   echo "--enable-libnbd         Enable libnbd (NBD engine) support"
-   echo "--disable-xnvme         Disable xnvme support even if found"
-+  echo "--disable-isal          Disable isal support even if found"
-   echo "--disable-libblkio      Disable libblkio support even if found"
-   echo "--disable-libzbc        Disable libzbc even if found"
-   echo "--disable-tcmalloc      Disable tcmalloc support"
-@@ -2684,6 +2688,28 @@ if test "$xnvme" != "no" ; then
- fi
- print_config "xnvme engine" "$xnvme"
- 
-+if test "$targetos" = "Linux" ; then
-+##########################################
-+# Check ISA-L support
-+cat > $TMPC << EOF
-+#include <isa-l/crc.h>
-+#include <stddef.h>
-+int main(void)
-+{
-+  return crc16_t10dif(0, NULL, 4096);
-+}
-+EOF
-+if test "$isal" != "no" ; then
-+  if compile_prog "" "-lisal" "ISAL"; then
-+    isal="yes"
-+    LIBS="-lisal $LIBS"
-+  else
-+    isal="no"
-+  fi
-+fi
-+print_config "isal" "$isal"
-+fi
-+
- ##########################################
- # Check if we have libblkio
- if test "$libblkio" != "no" ; then
-@@ -3334,6 +3360,9 @@ if test "$xnvme" = "yes" ; then
-   echo "LIBXNVME_CFLAGS=$xnvme_cflags" >> $config_host_mak
-   echo "LIBXNVME_LIBS=$xnvme_libs" >> $config_host_mak
- fi
-+if test "$isal" = "yes" ; then
-+  output_sym "CONFIG_LIBISAL"
-+fi
- if test "$libblkio" = "yes" ; then
-   output_sym "CONFIG_LIBBLKIO"
-   echo "LIBBLKIO_CFLAGS=$libblkio_cflags" >> $config_host_mak
-diff --git a/crc/crct10dif_common.c b/crc/crct10dif_common.c
-index cfb2a1b1..1763b1c6 100644
---- a/crc/crct10dif_common.c
-+++ b/crc/crct10dif_common.c
-@@ -24,6 +24,17 @@
-  *
-  */
- 
-+#ifdef CONFIG_LIBISAL
-+#include <isa-l/crc.h>
-+
-+extern unsigned short fio_crc_t10dif(unsigned short crc,
-+				     const unsigned char *buffer,
-+				     unsigned int len)
-+{
-+	return crc16_t10dif(crc, buffer, len);
-+}
-+
-+#else
- #include "crc-t10dif.h"
- 
- /* Table generated using the following polynomium:
-@@ -76,3 +87,5 @@ extern unsigned short fio_crc_t10dif(unsigned short crc,
- 
- 	return crc;
- }
-+
-+#endif
-diff --git a/fio.1 b/fio.1
-index a8dc8f6c..c4742aa9 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2263,6 +2263,10 @@ size greater than protection information size, fio will not generate or verify
- the protection information portion of metadata for write or read case
- respectively. If this is set to 0, fio generates protection information for
- write case and verifies for read case. Default: 1.
-+
-+For 16 bit CRC generation fio will use isa-l if available otherwise it will
-+use the default slower generator.
-+(see: https://github.com/intel/isa-l)
- .TP
- .BI (io_uring_cmd)pi_chk \fR=\fPstr[,str][,str]
- Controls the protection information check. This can take one or more of these
