@@ -1,75 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HDcbEw0O"
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5501993
-	for <fio@vger.kernel.org>; Mon, 20 Nov 2023 05:00:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=BH9RtkvE55IQvMWeqq6fFAqAn27CHtOUaAm1OhIvX8Y=; b=HDcbEw0OslXWW8x8aR2NV0ahrw
-	DkHGLsmB33gRY/OvsDy5o8vJTLSzuUchrQNS3Rgab5s7F32jVjCy0C5Erag/QlQwcAd61BCe0XgYZ
-	rn2kTim9lEQw7qSju0FmL93W1xyZZoxtCxhrDC0tFMWCZravQjApJxwxynBhhmi5nLcn5H3aGrTV8
-	eyIdU3mGx61M0g3jiEtS8FZUbW15wuD0J4fBgnM4UgqqwKbqlD3LA+qbiy46CvPAxyfgxAfdJwqc+
-	4P9RgZrV/kG4zCVXsjUe8W5bJpBDXghBcERjDLo5uNSGcgAJyHQsYmppY7DZvwlhvohaTSk2w039W
-	wXazp0Dg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-	id 1r53sl-00Ay0Y-1U
-	for fio@vger.kernel.org;
-	Mon, 20 Nov 2023 13:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 5523B1BC0149; Mon, 20 Nov 2023 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20231120130001.5523B1BC0149@kernel.dk>
-Date: Mon, 20 Nov 2023 06:00:01 -0700 (MST)
+	dkim=pass (2048-bit key) header.d=dx.net.pl header.i=@dx.net.pl header.b="ZuQc0rlx"
+X-Greylist: delayed 371 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 22 Nov 2023 00:36:04 PST
+Received: from mail.dx.net.pl (unknown [80.68.239.118])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D57FE112
+	for <fio@vger.kernel.org>; Wed, 22 Nov 2023 00:36:04 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=dx.net.pl; s=dkim;
+	t=1700641791;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=9SAljk5ws8gNEsXqUmHa6gK3/U8WP0FGANsx8px61pQ=;
+	b=ZuQc0rlxjiHsagfBuoE5g55WGRoJblmQJr51ZmVOBffQ9l/J2TcVGpkyeTiwcUV6Z5bS++
+	Da/eUTI506oNG5paqDEZf6H4XnccoYT5+RIYqrbt1139sIpfEu31RlcYWZo9kHaxBo1TQR
+	xqZwCG+R7ggnVH2snZL02mG1L8JD7eyTuEcQjQdogB36/8ivRE7/JDhR3WdBAaRJiLIEov
+	uYMwbDUtvkfg+NVgdL1kVzmbWiP+4zgeFW5E1xxOOPREvUY3GEjypvxbQotEycGPBlLgVZ
+	l9sYBk77jwJ1e9i/JBVmgUgXFi9xny/jPZtBi51GVZj1250c6iaqfS6zpcICLw==
+Authentication-Results: mail.dx.net.pl;
+	auth=pass smtp.mailfrom=bartoszek@dx.net.pl
+Date: Wed, 22 Nov 2023 09:29:51 +0100
+From: bartoszek@dx.net.pl
+To: fio@vger.kernel.org
+Subject: How to perform an random read test, with normal distribution
+Message-ID: <4c92fe6a414a472aaec12b04eae3ffba@dx.net.pl>
+X-Sender: bartoszek@dx.net.pl
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamd-Bar: /
+X-Spam-Level: *
 
-The following changes since commit afdde534004397ba1fb00ccc6f5906fa50dd667f:
+Hi!
 
-  t/jobs/t0012.fio: make this job time_based (2023-11-07 12:22:40 -0500)
+I Want to perform a test scenario
 
-are available in the Git repository at:
+I have a "huge" file in which I want to read out blocks of data randomly 
+with some distribution. For example 20% od blocks in test file will get 
+~80% od total IO from the engine.
 
-  git://git.kernel.dk/fio.git master
+Placement of blocks within the file is not important
+The only requirement is that some blocks are read out more frequently 
+then others, and the distribution of reads is defined by some parameters
 
-for you to fetch changes up to bdf99b6836d75683cba5968c40f321748482ae86:
+Test should simulate a VM image reads during VM startup (or runtime) 
+where not all files are used, and some are used more often then others.
 
-  Merge branch 'xnvme_includes' of https://github.com/safl/fio (2023-11-20 07:43:16 -0500)
+Is there a way to test such scenario using fio?
 
-----------------------------------------------------------------
-Simon A. F. Lund (1):
-      engines/xnvme: only include entry-header ('libxnvme.h')
-
-Vincent Fu (1):
-      Merge branch 'xnvme_includes' of https://github.com/safl/fio
-
- engines/xnvme.c | 4 ----
- 1 file changed, 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/xnvme.c b/engines/xnvme.c
-index b7824013..2a0b3520 100644
---- a/engines/xnvme.c
-+++ b/engines/xnvme.c
-@@ -10,10 +10,6 @@
- #include <stdlib.h>
- #include <assert.h>
- #include <libxnvme.h>
--#include <libxnvme_libconf.h>
--#include <libxnvme_nvm.h>
--#include <libxnvme_znd.h>
--#include <libxnvme_spec_fs.h>
- #include "fio.h"
- #include "zbd_types.h"
- #include "fdp.h"
+Best regards,
+Bartosz Wieczorek
