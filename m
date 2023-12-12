@@ -1,129 +1,91 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Lp9+vAcJ"
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D2A295
-	for <fio@vger.kernel.org>; Tue, 12 Dec 2023 05:00:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=T5sqqfAyBlG06tGPa8cMWWcu92HpjiKq1xhvSp87ctY=; b=Lp9+vAcJl+WRJUsNFqy+kBraiy
-	HrI28HXVHokWtaxO12N6dUsYhuH1LReIhH2s17mCDR0Rf9lDxW5fCwoG5OTvFnWDwp20m5fFIdltj
-	dbT+BmhQGcavRd5psS4xim/DqOPyTpMut5AEoEJrXmOUzZP/vbCoXxFhOhCmc5pD43HKKIes0VhhH
-	ng9H9VN+Pyktdlt3I8EcRP1s/WK/BFpL8JReJ7FQiTiBXvyMdtzS4M0MJpqJZ8kbSCe2daK3PL7Vf
-	HnoEFoxqZWtqwnx1jRjEby/Gt6GAcJ5HoVD9lE9ZDpPf6icaxG9JxVjkmYuqmBoTEFf6WZUnh1YQE
-	q2xchl4Q==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1rD2Mm-00AEMK-Sm
-	for fio@vger.kernel.org; Tue, 12 Dec 2023 13:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 5566B1BC016A; Tue, 12 Dec 2023 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20231212130001.5566B1BC016A@kernel.dk>
-Date: Tue, 12 Dec 2023 06:00:01 -0700 (MST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BWrLtBXR"
+Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824D5F2
+	for <fio@vger.kernel.org>; Tue, 12 Dec 2023 06:40:53 -0800 (PST)
+Received: by mail-qk1-x730.google.com with SMTP id af79cd13be357-77f642b9a22so224429085a.0
+        for <fio@vger.kernel.org>; Tue, 12 Dec 2023 06:40:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1702392052; x=1702996852; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=8Y2N0Rgtb/4yuE07ixlFJjg/nR50sh1ARCgHswBEB3g=;
+        b=BWrLtBXRVdcqYKgd6cioJRby1YS8CvGkG5/NiFFrjqu7uf72cF5BIeUernBQhQl4BK
+         Fxan6zhQDx7tAGk8RP2nzMH/1hTyoC2uowc/kuZqO3mdqChAtHdM7eFRZryR3sKHRhIM
+         y31bEDO6ZSHqKJ4ZbRtecheZCm+KV0EJpLOFlJ/FdrKdgO1Ko24H05mQP6vQOdyFBh23
+         qM+IHEBq9MBy/GxuIN00Pg/zJshj4i2fkFnev/HFUVgEM8D+FJJPMC+/C+FeUq58+75O
+         IjjRRtBPVWExulJc3VtLoLIJjDLES8hQ/E1Y5HEH+qLOfGHFaHwTNsg0TO6LB8AzkUS3
+         Cfww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702392052; x=1702996852;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=8Y2N0Rgtb/4yuE07ixlFJjg/nR50sh1ARCgHswBEB3g=;
+        b=BE5CHeAH2m6wDwyw0hWcgMzzSyEwED0zwVi8KlM+kkqJ+uiISXqQHHdKSzTHE5LSIS
+         wOQO1k6f8hMkKCtM2XGNJ+rO7SnbJzRJrxWLXsuhnoz3VmUnutjA4uVzrf9WfNuf/1b4
+         TddfOopTqr+DVV6jo15joiFEcyNgCFmzkD9PHjFEUGPYYXjJlz80FY74F5fjjor7PPFX
+         Lm6Zsph0s7vpW6JKYpqiduakZhLI0G8HQfh/UodD0rkl15i9MmnmsfcdnppALe4ruqIJ
+         h9gcsh4oM+QfXXJkpZ6SCU6vqhESf9/94Fqj+KamaBxAGqMusJuRCMzl1JcXpGI0ghEJ
+         H0mQ==
+X-Gm-Message-State: AOJu0YyEOxZMz5jdb6076MhY/tjd6MVz1GS+VKuOtvmkR304D1pxTvbz
+	H5U08VCax+kMxKAsL+8B30Y=
+X-Google-Smtp-Source: AGHT+IE+isg7xMRACKHanBcwOdfjmmwstyIfqPbbSSVwBodGFcFJ3IhIM9k1gZ8ZKtVNSgEZIKoARA==
+X-Received: by 2002:a05:620a:4628:b0:774:e4e:34d with SMTP id br40-20020a05620a462800b007740e4e034dmr10276372qkb.33.1702392052445;
+        Tue, 12 Dec 2023 06:40:52 -0800 (PST)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id t16-20020a05620a035000b0076cc4610d0asm3747733qkm.85.2023.12.12.06.40.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 Dec 2023 06:40:51 -0800 (PST)
+Message-ID: <1dd0e64e-029e-4689-a6c3-b2e0e5228dae@gmail.com>
+Date: Tue, 12 Dec 2023 09:40:51 -0500
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] engines/io_uring_cmd: skip pi verify checks for error
+ cases
+To: Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
+Cc: fio@vger.kernel.org
+References: <CGME20231212092942epcas5p28e0b580bf48a7d932f1d801a7d4226dd@epcas5p2.samsung.com>
+ <20231212144718.568406-1-ankit.kumar@samsung.com>
+Content-Language: en-US
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20231212144718.568406-1-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following changes since commit bdf99b6836d75683cba5968c40f321748482ae86:
+On 12/12/23 09:47, Ankit Kumar wrote:
+> If any error is observed for read requests, skip all end to end data
+> protection checks.
+> 
+> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+> ---
+>   engines/io_uring.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/engines/io_uring.c b/engines/io_uring.c
+> index 5ae3135b..c0cb5a78 100644
+> --- a/engines/io_uring.c
+> +++ b/engines/io_uring.c
+> @@ -468,10 +468,12 @@ static struct io_u *fio_ioring_cmd_event(struct thread_data *td, int event)
+>   	cqe = &ld->cq_ring.cqes[index];
+>   	io_u = (struct io_u *) (uintptr_t) cqe->user_data;
+>   
+> -	if (cqe->res != 0)
+> +	if (cqe->res != 0) {
+>   		io_u->error = -cqe->res;
+> -	else
+> +		return io_u;
+> +	} else {
+>   		io_u->error = 0;
+> +	}
+>   
+>   	if (o->cmd_type == FIO_URING_CMD_NVME) {
+>   		data = FILE_ENG_DATA(io_u->file);
 
-  Merge branch 'xnvme_includes' of https://github.com/safl/fio (2023-11-20 07:43:16 -0500)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 63e6f55a9147cf9f76376c2e7e38a623c8832f23:
-
-  Merge branch 'master' of https://github.com/bvanassche/fio (2023-12-11 16:27:21 -0500)
-
-----------------------------------------------------------------
-Bart Van Assche (1):
-      Fall back to F_SET_RW_HINT if F_SET_FILE_RW_HINT is not supported
-
-Vincent Fu (2):
-      engines/io_uring_cmd: friendlier bad bs error msg
-      Merge branch 'master' of https://github.com/bvanassche/fio
-
- engines/io_uring.c | 19 +++++++++++++------
- ioengines.c        | 22 ++++++++++++----------
- 2 files changed, 25 insertions(+), 16 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 38c36fdc..5ae3135b 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -1279,14 +1279,21 @@ static int fio_ioring_cmd_open_file(struct thread_data *td, struct fio_file *f)
- 		lba_size = data->lba_ext ? data->lba_ext : data->lba_size;
- 
- 		for_each_rw_ddir(ddir) {
--			if (td->o.min_bs[ddir] % lba_size ||
--				td->o.max_bs[ddir] % lba_size) {
--				if (data->lba_ext)
--					log_err("%s: block size must be a multiple of (LBA data size + Metadata size)\n",
--						f->file_name);
--				else
-+			if (td->o.min_bs[ddir] % lba_size || td->o.max_bs[ddir] % lba_size) {
-+				if (data->lba_ext) {
-+					log_err("%s: block size must be a multiple of %u "
-+						"(LBA data size + Metadata size)\n", f->file_name, lba_size);
-+					if (td->o.min_bs[ddir] == td->o.max_bs[ddir] &&
-+					    !(td->o.min_bs[ddir] % data->lba_size)) {
-+						/* fixed block size is actually a multiple of LBA data size */
-+						unsigned long long suggestion = lba_size *
-+							(td->o.min_bs[ddir] / data->lba_size);
-+						log_err("Did you mean to use a block size of %llu?\n", suggestion);
-+					}
-+				} else {
- 					log_err("%s: block size must be a multiple of LBA data size\n",
- 						f->file_name);
-+				}
- 				td_verror(td, EINVAL, "fio_ioring_cmd_open_file");
- 				return 1;
- 			}
-diff --git a/ioengines.c b/ioengines.c
-index 36172725..87cc2286 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -590,19 +590,21 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
- 	if (fio_option_is_set(&td->o, write_hint) &&
- 	    (f->filetype == FIO_TYPE_BLOCK || f->filetype == FIO_TYPE_FILE)) {
- 		uint64_t hint = td->o.write_hint;
--		int cmd;
-+		int res;
- 
- 		/*
--		 * For direct IO, we just need/want to set the hint on
--		 * the file descriptor. For buffered IO, we need to set
--		 * it on the inode.
-+		 * For direct IO, set the hint on the file descriptor if that is
-+		 * supported. Otherwise set it on the inode. For buffered IO, we
-+		 * need to set it on the inode.
- 		 */
--		if (td->o.odirect)
--			cmd = F_SET_FILE_RW_HINT;
--		else
--			cmd = F_SET_RW_HINT;
--
--		if (fcntl(f->fd, cmd, &hint) < 0) {
-+		if (td->o.odirect) {
-+			res = fcntl(f->fd, F_SET_FILE_RW_HINT, &hint);
-+			if (res < 0)
-+				res = fcntl(f->fd, F_SET_RW_HINT, &hint);
-+		} else {
-+			res = fcntl(f->fd, F_SET_RW_HINT, &hint);
-+		}
-+		if (res < 0) {
- 			td_verror(td, errno, "fcntl write hint");
- 			goto err;
- 		}
+Applied. Thanks.
