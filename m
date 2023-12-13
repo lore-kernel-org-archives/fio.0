@@ -1,91 +1,105 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BWrLtBXR"
-Received: from mail-qk1-x730.google.com (mail-qk1-x730.google.com [IPv6:2607:f8b0:4864:20::730])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 824D5F2
-	for <fio@vger.kernel.org>; Tue, 12 Dec 2023 06:40:53 -0800 (PST)
-Received: by mail-qk1-x730.google.com with SMTP id af79cd13be357-77f642b9a22so224429085a.0
-        for <fio@vger.kernel.org>; Tue, 12 Dec 2023 06:40:53 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OT0dv2fU"
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71907AF
+	for <fio@vger.kernel.org>; Tue, 12 Dec 2023 18:01:57 -0800 (PST)
+Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-a22f59c6aeaso45182966b.2
+        for <fio@vger.kernel.org>; Tue, 12 Dec 2023 18:01:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702392052; x=1702996852; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=8Y2N0Rgtb/4yuE07ixlFJjg/nR50sh1ARCgHswBEB3g=;
-        b=BWrLtBXRVdcqYKgd6cioJRby1YS8CvGkG5/NiFFrjqu7uf72cF5BIeUernBQhQl4BK
-         Fxan6zhQDx7tAGk8RP2nzMH/1hTyoC2uowc/kuZqO3mdqChAtHdM7eFRZryR3sKHRhIM
-         y31bEDO6ZSHqKJ4ZbRtecheZCm+KV0EJpLOFlJ/FdrKdgO1Ko24H05mQP6vQOdyFBh23
-         qM+IHEBq9MBy/GxuIN00Pg/zJshj4i2fkFnev/HFUVgEM8D+FJJPMC+/C+FeUq58+75O
-         IjjRRtBPVWExulJc3VtLoLIJjDLES8hQ/E1Y5HEH+qLOfGHFaHwTNsg0TO6LB8AzkUS3
-         Cfww==
+        d=gmail.com; s=20230601; t=1702432915; x=1703037715; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Dcx0re7itUyJwh132YsQAFyn1PIiisKdssE8TJAfRaQ=;
+        b=OT0dv2fUFEaAcn0ymINVodnU7Z5YDmpTRdDUO5/XUD/IfY+WYOLl8DJmAlrYp1rE/a
+         Srx8KmvaTwxsZP2YZnm/WcNDpvJkCQ4q6D9qqZd98KE5/xFSMiUAsTp3v7nHP7e1lvQ8
+         znT7eVSrrKb/yngyXKw2K4jmUtYJLfRJet95COi3VYSZ1vERJTMeHEve4o9K+6/Uh0v3
+         qpoDzumhgI406GD6DDk5IPwCvsJSVioLatuEhChu5CLepajc7ha3XZayHJtQ+5x+fvjl
+         /wzxxurWuDmIiuC1Ztlrsj6NIQLgifqFxElVD1VrA6p2SgCR2YRhLWeCt1g7OwnVqLE3
+         ZFiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702392052; x=1702996852;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8Y2N0Rgtb/4yuE07ixlFJjg/nR50sh1ARCgHswBEB3g=;
-        b=BE5CHeAH2m6wDwyw0hWcgMzzSyEwED0zwVi8KlM+kkqJ+uiISXqQHHdKSzTHE5LSIS
-         wOQO1k6f8hMkKCtM2XGNJ+rO7SnbJzRJrxWLXsuhnoz3VmUnutjA4uVzrf9WfNuf/1b4
-         TddfOopTqr+DVV6jo15joiFEcyNgCFmzkD9PHjFEUGPYYXjJlz80FY74F5fjjor7PPFX
-         Lm6Zsph0s7vpW6JKYpqiduakZhLI0G8HQfh/UodD0rkl15i9MmnmsfcdnppALe4ruqIJ
-         h9gcsh4oM+QfXXJkpZ6SCU6vqhESf9/94Fqj+KamaBxAGqMusJuRCMzl1JcXpGI0ghEJ
-         H0mQ==
-X-Gm-Message-State: AOJu0YyEOxZMz5jdb6076MhY/tjd6MVz1GS+VKuOtvmkR304D1pxTvbz
-	H5U08VCax+kMxKAsL+8B30Y=
-X-Google-Smtp-Source: AGHT+IE+isg7xMRACKHanBcwOdfjmmwstyIfqPbbSSVwBodGFcFJ3IhIM9k1gZ8ZKtVNSgEZIKoARA==
-X-Received: by 2002:a05:620a:4628:b0:774:e4e:34d with SMTP id br40-20020a05620a462800b007740e4e034dmr10276372qkb.33.1702392052445;
-        Tue, 12 Dec 2023 06:40:52 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id t16-20020a05620a035000b0076cc4610d0asm3747733qkm.85.2023.12.12.06.40.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 12 Dec 2023 06:40:51 -0800 (PST)
-Message-ID: <1dd0e64e-029e-4689-a6c3-b2e0e5228dae@gmail.com>
-Date: Tue, 12 Dec 2023 09:40:51 -0500
+        d=1e100.net; s=20230601; t=1702432915; x=1703037715;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Dcx0re7itUyJwh132YsQAFyn1PIiisKdssE8TJAfRaQ=;
+        b=oDb1SlrFn0FWla0RR/Si7A9ie1wnsX2EwMBV2np0RR0wYOQfPAqnMFjivzAjFB0dy9
+         vgfUqNSSaJGoM65Xj2Qs5sCvhKcagjUVTU+PtbtF4yBZ4dBIJ5k8R+RCCDYJNdcXrFkS
+         xkULJbaQRbrOGpM2f4iaxZCqOV0IQ2aUr0Fp7Lf3zEM9ezOUMbge11G2+K+qWbvlZrcK
+         /Kvc5lTpA1P8vRAqjH9J+ssvPJSNmuX1vhq42sQfq23u3fffDD0rXUBlmb1JEEJjTo9U
+         cBd66USZdxqE0NNfZ3zHJlvw7X+JPW2bIMXEkMMMY0tcerico7YjJunZzIt6aVTTECtk
+         Zfrg==
+X-Gm-Message-State: AOJu0YzvcbuAVhJYCKDhL0jxpMkUJmvx4As1ZzNZQKvNsaw3MzakvhvH
+	T3VZYt1TC/QSYpJB+Wlota8vIDJFDVrdMz2PktiVXYWvdns=
+X-Google-Smtp-Source: AGHT+IGW5YbzvWl9VYWKI7PdoENZ5DnvPE7F0E1cBop/xULBd1vWG3OXcM8OgdaT/gK/iNvGipbLsQ84lEfWTZZn+WI=
+X-Received: by 2002:a17:906:8472:b0:a19:a19b:55ff with SMTP id
+ hx18-20020a170906847200b00a19a19b55ffmr3682510ejc.143.1702432915481; Tue, 12
+ Dec 2023 18:01:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] engines/io_uring_cmd: skip pi verify checks for error
- cases
-To: Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
-Cc: fio@vger.kernel.org
-References: <CGME20231212092942epcas5p28e0b580bf48a7d932f1d801a7d4226dd@epcas5p2.samsung.com>
- <20231212144718.568406-1-ankit.kumar@samsung.com>
-Content-Language: en-US
-From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20231212144718.568406-1-ankit.kumar@samsung.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Surbhi Palande <csurbhi@gmail.com>
+Date: Tue, 12 Dec 2023 18:01:44 -0800
+Message-ID: <CAMBkX3d4d2ex+pTnS9iGL+uqbdaGKL3MYnt_HRhORAoosf07PQ@mail.gmail.com>
+Subject: fio - write benchmark help requested
+To: fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On 12/12/23 09:47, Ankit Kumar wrote:
-> If any error is observed for read requests, skip all end to end data
-> protection checks.
-> 
-> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
-> ---
->   engines/io_uring.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/engines/io_uring.c b/engines/io_uring.c
-> index 5ae3135b..c0cb5a78 100644
-> --- a/engines/io_uring.c
-> +++ b/engines/io_uring.c
-> @@ -468,10 +468,12 @@ static struct io_u *fio_ioring_cmd_event(struct thread_data *td, int event)
->   	cqe = &ld->cq_ring.cqes[index];
->   	io_u = (struct io_u *) (uintptr_t) cqe->user_data;
->   
-> -	if (cqe->res != 0)
-> +	if (cqe->res != 0) {
->   		io_u->error = -cqe->res;
-> -	else
-> +		return io_u;
-> +	} else {
->   		io_u->error = 0;
-> +	}
->   
->   	if (o->cmd_type == FIO_URING_CMD_NVME) {
->   		data = FILE_ENG_DATA(io_u->file);
+Hello All,
 
-Applied. Thanks.
+I am emailing here to understand how fio can be used to benchmark
+writes in synchronous and asynchronous mode. I have wasted some time
+in running some benchmarks the wrong way. I am sending this email in
+the hopes that someone can throw light my way.
+
+As I understand it, unless "direct = 1", synchronous write will occur
+in the page cache and thus will not show the storage device's write
+bandwidth.
+--------------------------------
+*Synchronous writes that reflect the device bandwidth/iops can be
+performed in two ways:
+
+ioengine = sync,
+direct = 1
+buffered =0
+
+OR
+
+ioengine = libaio/io_uring
+direct = 1
+iodepth = 1
+-------------------------------------
+
+Asynchronous writes that reflect the device bandwidth/iops can be
+performed in the following ways:
+
+ioengine = libaio
+direct = 1
+iodepth = "x"
+io_batch = "y" [where y < x ]
+
+or
+
+ioengine = io_uring
+direct = 1
+iodepth = "x"
+iodepth_batch = "y" [where y < x ]
+
+If I want to maximize the requests that get sent to the device, I can
+specify a huge iodepth number. The Linux kernel will then keep sending
+the device the maximum I/O requests that the device can accept (true
+queue depth of the storage device).
+
+However, I am not sure how to control the actual queue depth when that
+is not the case.
+If I want the CMR drive (my storage device) to consistently get 4
+requests at a time:
+setting iodepth = 4 will not control it. This will only control that
+the device will have at a maximum 4 requests at a time, but it cannot
+control the minimum.
+
+Is this understanding correct?
+
+Best Regards,
+Surbhi
