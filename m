@@ -1,113 +1,64 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDEEB30328
-	for <fio@vger.kernel.org>; Sat, 16 Dec 2023 13:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E67685D742
+	for <fio@vger.kernel.org>; Mon, 18 Dec 2023 17:39:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="OMcY6/mJ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=U80khMD/JQeLFLRqTnRP0nx/hacaVe5vOI9K+tJgBCs=; b=OMcY6/mJmMJ5+FAKHZNsAgKUYO
-	dQKdpxKPd4cxQkETSfyIxYQwLYOGmsjM7HJTnpDffg27t3olYUDf5t41OzEG72lvOLvqdeyiQxDdl
-	/S4SBgfYHAcri1Dsvu9s3l0lOgVv3+m2Z4VB0/iKZuDo2uNr04SrFEJ25+ZDgK6yTloWu2r0zf+Db
-	bzZBajeIpUV8sw23V+DRckMedW8CTi6NG0DpUlJCyrMvrgU73ys9hXesHp23zTdYeXSUWxeUYDlM0
-	/y1dCynS/BKB8aSWcuvbNEKIypQsPso4zLZ4dvYGEgy+CsBvjtLmZTx2N39PR5dIj+HH8x4b3Ore7
-	QVbZ58jg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1rEUGy-00A5pb-Pl
-	for fio@vger.kernel.org; Sat, 16 Dec 2023 13:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id A0E6B1BC0143; Sat, 16 Dec 2023 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20231216130001.A0E6B1BC0143@kernel.dk>
-Date: Sat, 16 Dec 2023 06:00:01 -0700 (MST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lwvQTKqx"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-50dfac6c0beso4336395e87.2
+        for <fio@vger.kernel.org>; Mon, 18 Dec 2023 09:39:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1702921180; x=1703525980; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=NANUnABI9A7L8rEJp1ZfZ9mG8tLzE5BlrW2tOuyeubA=;
+        b=lwvQTKqxLIC3h2slXVYtvSAKzjr4dQThHuYJbQpgXfjuNceDVgtvTpPQbeKF3Q082h
+         GEjDu4hJzBFL+/FXP6Ed+0GThAI7MxxyjwG/exncUnFauXyKw8n24CPH/zLEd8X9jmhB
+         gxgcFD0Gwo1o9CQphEg6Mps793d1V2PXfgDgJbzZUGunNbV0ciVGbqu4ug+OOUkab+Kh
+         ymjyt2POH9rOzBjCX2ZF/kiouW8U4QHMSNwcZz8JcHVcS8mR0oxGCroZBhMv+T4pkPS7
+         b70a3nhT3ZIE1J6ddCRex5Bk+FXVLKdM4jHXMmgcLVcT2NrQ1KL9Cle2Axeca4rpXH+4
+         B/pQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702921180; x=1703525980;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=NANUnABI9A7L8rEJp1ZfZ9mG8tLzE5BlrW2tOuyeubA=;
+        b=c2cNvcnF5uh8DfcMkAw4qpl5C5EcRJOYk92zL6jbTemYlMNiKzsNZCCOIx+luFowzN
+         LvluykFPDoS5soW9Am7fmeMW1dE5aFG8VGE+d8AP13YXBRxCGmn016AqiCZgA9KWxn+b
+         2LLhTJGLrvxl43QCLaEitjlzx8ujwIsuux9dVGBWPgrAdRXX68Pdfpb8SgiWoAfQeTLt
+         EcV/0SDQWnbE4BgUEe7iWn+cCB7tck2riVjm8jpFpnCyRvsxTcMxiuR1Ml7dNRSggovo
+         IgRZ8ERm9r3/Sh5c29Eo+6ZwTvpCB0crjalt45YmzN/7tZUs7P4Q291vDWNX4Sak6zeT
+         cMLA==
+X-Gm-Message-State: AOJu0Yz/maAY82tP1WzykxrizzP1GzirIxUzFN7SatveV1F0Irf/5k3Y
+	N1L6j7wTDMRsVcIVsftVElGnF34386bdsYlkWYpQZC1XLBFcBQ==
+X-Google-Smtp-Source: AGHT+IHAf4NffLJQelkIX9N6otNrib6pBRzlImJC/u6Auvxpqttq2isFIZc+Vcso3HkHNgjMrFFgqmVtj5iim+Yuw6U=
+X-Received: by 2002:ac2:598b:0:b0:50e:3e73:a565 with SMTP id
+ w11-20020ac2598b000000b0050e3e73a565mr586185lfn.52.1702921179524; Mon, 18 Dec
+ 2023 09:39:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Surbhi Palande <csurbhi@gmail.com>
+Date: Mon, 18 Dec 2023 09:39:28 -0800
+Message-ID: <CAMBkX3eYd_xuHA+D+LOw3RX_P-MRRexByd4L9_dzoD-grOaRWA@mail.gmail.com>
+Subject: Configuring FIO random writes
+To: fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The following changes since commit 4e472f8806571ea5799bc898e44609697ba0e140:
+Hi All,
 
-  Merge branch 'master' of https://github.com/preichl/fio (2023-12-14 14:15:34 -0700)
+I have written a small blog post (1 minute read) for configuring
+random writes with FIO.
+I hope it is helpful to others.
+Please do let me know if you think I need to add something more to it.
 
-are available in the Git repository at:
+https://csurbhi.github.io/fio-benchmark-random-writes/
 
-  git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to c77fe6859b6ef937a6ca900c1fab009175d721f8:
-
-  engines/http: use proper error value (2023-12-15 13:17:13 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      Merge branch 'master' of https://github.com/preichl/fio
-      engines/http: use proper error value
-
-Pavel Reichl (3):
-      engines/rdma: remove dead code
-      client/server: remove dead code
-      engines/http: Drop unused varible
-
- engines/http.c | 3 +--
- engines/rdma.c | 1 -
- server.c       | 1 -
- 3 files changed, 1 insertion(+), 4 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/http.c b/engines/http.c
-index 83cfe8bb..99f4e119 100644
---- a/engines/http.c
-+++ b/engines/http.c
-@@ -640,7 +640,6 @@ static enum fio_q_status fio_http_queue(struct thread_data *td,
- 	char url[1024];
- 	long status;
- 	CURLcode res;
--	int r = -1;
- 
- 	fio_ro_check(td, io_u);
- 	memset(&_curl_stream, 0, sizeof(_curl_stream));
-@@ -712,7 +711,7 @@ static enum fio_q_status fio_http_queue(struct thread_data *td,
- 	log_err("WARNING: Only DDIR_READ/DDIR_WRITE/DDIR_TRIM are supported!\n");
- 
- err:
--	io_u->error = r;
-+	io_u->error = EIO;
- 	td_verror(td, io_u->error, "transfer");
- out:
- 	curl_slist_free_all(slist);
-diff --git a/engines/rdma.c b/engines/rdma.c
-index ebdbcb1c..07336f3b 100644
---- a/engines/rdma.c
-+++ b/engines/rdma.c
-@@ -276,7 +276,6 @@ static int cq_event_handler(struct thread_data *td, enum ibv_wc_opcode opcode)
- 	int i;
- 
- 	while ((ret = ibv_poll_cq(rd->cq, 1, &wc)) == 1) {
--		ret = 0;
- 		compevnum++;
- 
- 		if (wc.status) {
-diff --git a/server.c b/server.c
-index 06eac584..b9f0e2ac 100644
---- a/server.c
-+++ b/server.c
-@@ -1883,7 +1883,6 @@ void fio_server_send_ts(struct thread_stat *ts, struct group_run_stats *rs)
- 
- 		offset = (char *)extended_buf_wp - (char *)extended_buf;
- 		ptr->ts.ss_bw_data_offset = cpu_to_le64(offset);
--		extended_buf_wp = ss_bw + (int) ts->ss_dur;
- 	}
- 
- 	fio_net_queue_cmd(FIO_NET_CMD_TS, extended_buf, extended_buf_size, NULL, SK_F_COPY);
+Best Regards,
+Surbhi.
