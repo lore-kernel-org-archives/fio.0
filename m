@@ -1,83 +1,84 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17FDA25550
-	for <fio@vger.kernel.org>; Thu, 18 Jan 2024 13:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C32E4F21F
+	for <fio@vger.kernel.org>; Fri, 19 Jan 2024 13:00:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705582812; cv=none; b=pp5BEU1ACQA+828bEJypeTMxKGTOLjk8QJ7OWylGzoy1SWX7HNuPUS/AsIFgfPa4wMH6CGs6/QXjzFPmUCtselHmgdu+Z7iW/1bIVoyszaiEHmsGEElCZM+LgQkgxN9SvSONPoIaD71IOV6yAtmE0YG9yybRKq/gucPF+hkY7F0=
+	t=1705669209; cv=none; b=KFQcsV7uL4aFAGOQ/nHNmShTWRlaXvqR+NhXLpg0wzw17+ARvN8C0uN8IAxdGIVXd7nQj0F1wBEAwzYmisDLjxTP1NIISykeuWSf+jt+BHtOf6fBY+wsa+xHg5m/jN27yKCTyke34SydwL2ksLE9+X2bqbQYjiXpW7mLDP3OSvk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705582812; c=relaxed/simple;
-	bh=3aeRjZAjs1epCY1QdOJo1JwUxo3YMF/CYQpiXXY+nW4=;
-	h=DKIM-Signature:Received:Received:Subject:From:To:X-Mailer:
-	 Message-Id:Date; b=AwYS9gQk8jWKESU/B8XtZxv86/tzluZyY7UZAnTDJpqQyf+jVjmohGCI/cbT7urh9QiDpIMJfWSYvf/6O4BzUJV03GbVuL2oJ7xRqlbbRl92cC+3Coj2Y8cXo0SMP3JJA0YJQwKExwWV98bPGDdhEBSpDmfKt+OaObXmW1N3Oz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=fPpdZJux; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1705669209; c=relaxed/simple;
+	bh=LL8VZpItsNh+Ks6B7ZaCHTCyWyg3qe5QKi8yVwl8VQY=;
+	h=Subject:From:To:Message-Id:Date; b=GyZAkWcgbwqHLKc58KEdhIGTtcFAhYiAX2ylqw5nAAHNTMlLu9Zi8yRhQGBzSqIiQB1J582nD5qcyhKLti8lMIXr1CldCOPgO3aZHAjd3S6X4UKVDfkDMOMBdMveUcUkjdnQgpjsFYcaH5YcUrQ5BenR1fZghDk7ETQS3PX4tJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=BfQiPLVP; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="fPpdZJux"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BfQiPLVP"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=aFbGy5KwV6ovrlYjm6SkjIYD2vgMWXxBMRIF6vvjVzo=; b=fPpdZJux949yA63oqxrMHs3Ocd
-	QlBjN5AvPy8wgTUzsM5yxABC4ip8+KsnAoqQpzlrWNflr8HQdGUXV9xZW0wk3V3Ziek9tUG9MbZFI
-	QuyKnLktOIIo1Mhr5hOwNKbFU1qpUAWwgDEr+K3c/ehIqrIH9Vkg5hRJ2cXjXi1cKU4CHzFBukkVQ
-	DbQ9mU/bJ55seyl+WgsST6Q7LLS6fUbyUr9Bs83whj4LtA9StbMEarygfAKv6rkr8cKCDQQ1tRUnn
-	iPst7zMyIxt6h9mkHC0IMybIkXwAcwt9VCDnYTTnjbBZkau2BuXorGXqa4HKxpXgwq8LWWOKmx4R+
-	OYK1meAA==;
+	bh=skDbO8nhjBInw9N3OPyZ2Pazb3pGNKLep5h2PDtF2Dw=; b=BfQiPLVPGy3W1jtin6xLjkC/lo
+	XZ7SY5JHG23j0J76LQeYWTRru1j9RPhwbxdmNPqE+H9qEUvAYZHtwmrftkbxAqVttT1pCcPZadDuK
+	GWgSom8e6D3qiVPszuoHN6swcpmB73XOLyjBrm5OoPUazs0HdIWM7LaOSiG59AvUzgfalNxPLY+3Q
+	qyeEhTfU3SzaJ7yj1VK7VSptj7wT3HU3gB8ZBYz8yNWCIzKAchfAVzPIFZ+r6qaGTbkVb8w+MNYCg
+	0FOXpuehQlcRJFjH51IMCRjFM3fFkYjkYOVEeSh/8LHu2fkJKfphSPQewGTAGbkWGphzWOWuefQDp
+	A2nTEhZQ==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rQS05-00000002DFT-41GO
+	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rQoTb-00000001Yup-2hlu
 	for fio@vger.kernel.org;
-	Thu, 18 Jan 2024 13:00:05 +0000
+	Fri, 19 Jan 2024 13:00:03 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 3F5FB1BC019B; Thu, 18 Jan 2024 06:00:01 -0700 (MST)
+	id 68E131BC0134; Fri, 19 Jan 2024 06:00:01 -0700 (MST)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240118130001.3F5FB1BC019B@kernel.dk>
-Date: Thu, 18 Jan 2024 06:00:01 -0700 (MST)
+Message-Id: <20240119130001.68E131BC0134@kernel.dk>
+Date: Fri, 19 Jan 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit 9f9340cc3a15bca2aa6e883bd5be3d0c9471f573:
+The following changes since commit 9eefdcc1dd820a936684168468fa9c81960ea461:
 
-  Merge branch 'group_reporting_indentation' of https://github.com/0mp/fio (2024-01-16 09:03:35 -0500)
+  configure: enable NVME_URING_CMD checking for Android (2024-01-17 09:11:15 -0700)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 9eefdcc1dd820a936684168468fa9c81960ea461:
+for you to fetch changes up to aa84b5ba581add84ce6e73b20ca0fbd04f6058c8:
 
-  configure: enable NVME_URING_CMD checking for Android (2024-01-17 09:11:15 -0700)
+  ci: stop hard coding number of jobs for make (2024-01-18 13:00:31 -0500)
 
 ----------------------------------------------------------------
-Jens Axboe (1):
-      configure: enable NVME_URING_CMD checking for Android
+Vincent Fu (1):
+      ci: stop hard coding number of jobs for make
 
- configure | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ ci/actions-build.sh | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/configure b/configure
-index 420d97db..f86fcf77 100755
---- a/configure
-+++ b/configure
-@@ -2656,7 +2656,7 @@ if test "$libzbc" != "no" ; then
- fi
- print_config "libzbc engine" "$libzbc"
+diff --git a/ci/actions-build.sh b/ci/actions-build.sh
+index 31d3446c..47d4f044 100755
+--- a/ci/actions-build.sh
++++ b/ci/actions-build.sh
+@@ -61,7 +61,9 @@ main() {
+     configure_flags+=(--extra-cflags="${extra_cflags}")
  
--if test "$targetos" = "Linux" ; then
-+if test "$targetos" = "Linux" || test "$targetos" = "Android"; then
- ##########################################
- # Check NVME_URING_CMD support
- cat > $TMPC << EOF
+     ./configure "${configure_flags[@]}"
+-    make -j 2
++    make -j "$(nproc 2>/dev/null || sysctl -n hw.logicalcpu)"
++# macOS does not have nproc, so we have to use sysctl to obtain the number of
++# logical CPUs.
+ }
+ 
+ main
