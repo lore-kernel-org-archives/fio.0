@@ -1,93 +1,85 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E67F38DF1
-	for <fio@vger.kernel.org>; Mon, 22 Jan 2024 19:55:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CE0456768
+	for <fio@vger.kernel.org>; Tue, 23 Jan 2024 13:00:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705953360; cv=none; b=YS7eeCkkmnk8tWiWW1AUysmR4M7w6WWVkS7n2zaFbVjDWo9/AWoMgAiiblNNZiWZnE5PL9JDqhH8ZCLjUbvcdmwtW0QVmVs+wIv+q1iZOKARga9NBXzgyzWzdpeEBGO7dpnnEba8FaIgCPlKrL1OmmGGHOBCe7EZmW9M2g/HQxQ=
+	t=1706014817; cv=none; b=lHvlFm7cPu8VvoF2hKNfmdnhKc7nk35D2oyjOMCbSVive8KzHNwMRQMN4EqaboBy9HutW/TPy8UvUWzcUQwUa0NLRvMrr9fGDu1ndXMx902TUGHB3U+KyKwnKuypboArKAZDodK/u5k6gwQuG9VWjuXbnfIFxl52QawCpIobW40=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705953360; c=relaxed/simple;
-	bh=qC8Ya03B42Ohc7Bk8McjVZWWItTEGyU+zCdIN2vPvPQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LfkMN1HFn0ufnQ2ft+8ORAV0UOv8z/ABOXKNaichkrKwrgD+oNYwlk2QxSsl6YRm6tC3uM+PP72t+PSqI73fbQzk4sRZIkv/Kx7DVoEb7ZYV2+a1ICZ1wUV0MsUgmw5im3iOI4XmE60lBYDhYTRHoBvdwYGVowMvCA2Uimr8spY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gFWRkYy/; arc=none smtp.client-ip=209.85.219.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1706014817; c=relaxed/simple;
+	bh=Ki9Jb0SBPh0KvvVsTZKKtRsvJBBIDOJ9rvWUNnmJGnI=;
+	h=Subject:From:To:Message-Id:Date; b=JSnUauzp+qYPQpUA3j3/NNQR9IDsj4PmYozpYpqbd5EVEty0CKJFxSwapUTadmBnddbHedmZuya81ZMBEd67dw1ss+WIkz+nrjWufwCr3qRolR2OUMrNZJ+WcsVhdorerTOSFB9Yl+Yz9xjbF1d0pjOfTL+4SqZRl38y/YyaV0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=KQSpo8Le; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gFWRkYy/"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-683cabd96ceso21440556d6.3
-        for <fio@vger.kernel.org>; Mon, 22 Jan 2024 11:55:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1705953358; x=1706558158; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=PIp1+XC60OEtvfRF5MgxvWosCiusB/H2CQaeig7zIro=;
-        b=gFWRkYy/WEjFM5LnUQ/aWEYhqmDwKu2xJA8SP1dbYEOmKnr6uo7PM+wWznlkMYn5a4
-         RPHUWuxKBao6qWjiZ4uR7wy8yoq6Nw/CFYLMzaDSgkuswUePpXd0JLIJ6cd1RdPcMPM7
-         rYGwTeyHrhfBEA/2aB7tm88/nlU47hTpWD3aRehEdhTnXKhDq3MWyMtSYNgA+o6fLGFv
-         wEXPfVIGOwx/NPvJ0ErPSgKq3hu2QB7h4ouNuRPCMpNdALGPZ9mM8qSbgAih9zgWDk5b
-         ntBiT53xlSvniG+mtBJh6zK2Z46xn6TwD/ty+JjIxUirFi31+fVJusYu30eI3AutyZCJ
-         fIUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705953358; x=1706558158;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PIp1+XC60OEtvfRF5MgxvWosCiusB/H2CQaeig7zIro=;
-        b=drZIjO5585FulGrXQNyoKKKwK9Ma40Zf084F1EQSB0mHBMj5zhvnnSYw5Kir70/Hif
-         mOA4+Bl/AvRbtjYg1xQ9fI/q+eVbKXnamOrwkynHru/m4MvVs3gnu71pzhk8nVJkryI4
-         C8StYvAU9C5spwqkPpV+8f+77hCG4G/d2jMg8zkA2xCNC7GMdpYEgz5QOtPZcqsA1CCh
-         75InLen9JtLFzRhGYVkOzjnfIDmbNEF7QLDPom+GJe3zCsYn8sGeLYlHfa7jcVrmt50X
-         JiOHe91L3vtUbBAmzArV6BzOyiaiexMGf6XOSTuLT+s5GFTk/DmItjndpU/VdWi/1dAH
-         rfUQ==
-X-Gm-Message-State: AOJu0YwDHB+tcxvxWIK3KiN+6ZcPXIMd+y0L3LNYT6kLn0iXaziE6wbj
-	/wY8ixQYIJ9Hj+1htu8FT736Ih57sp6b5jpYLIP3MibMkcH7a2t2Cdq/mwYe
-X-Google-Smtp-Source: AGHT+IFv767ECHtlbzb+frl1zuoXKOrBR50QdkM9/b1heEg8Zbf+xO5rfX3ClJyW3xFzhDHupzU5rA==
-X-Received: by 2002:ad4:4ee3:0:b0:686:9499:bacf with SMTP id dv3-20020ad44ee3000000b006869499bacfmr1276898qvb.118.1705953357936;
-        Mon, 22 Jan 2024 11:55:57 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id v14-20020a0ced4e000000b006819adbc9f1sm2685901qvq.43.2024.01.22.11.55.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 22 Jan 2024 11:55:57 -0800 (PST)
-Message-ID: <daae86e3-5b80-4990-a30d-4924d52f1e39@gmail.com>
-Date: Mon, 22 Jan 2024 14:55:57 -0500
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="KQSpo8Le"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=sGFKhbH0uW7JxaIHtcoSrX4XTi+Xxhsi9uqQIVi6B1Q=; b=KQSpo8LeOCSujTOalp2giZVblz
+	fSN1doBArvUnKztC2WG+EvbTZyuenIzY96+KTxVV7NDfnY2/vkXmJetGfTC77IGbnea4ZUuQrtJ5C
+	60Zw9UtUmBgME9Eb8yZc/hQ/kAbV3qAJVU6v4IVjP/hO7uftWG0R1BLlCzASzflr8bSvM9Sb0gdWX
+	yJbXa/AerUnpXlnXw5BRXZTow20SZ4ukgh5WiAn7iQDPVXlg8KVW82rH/YfM1ojneMtLbJ6kw3Oqe
+	B6/uDgfoDzbvBO7ZLXiSetA+IJ2jJ7g+7mGPwGU4Gl0AvCGA+zIkqRuoiT0udkK5Fv8UJPlhD1QTs
+	nzVVuh3g==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rSGNu-00000003s5J-0MXJ
+	for fio@vger.kernel.org;
+	Tue, 23 Jan 2024 13:00:10 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 91A301BC0156; Tue, 23 Jan 2024 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240123130001.91A301BC0156@kernel.dk>
+Date: Tue, 23 Jan 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] stat: log out both average and max over the window
-Content-Language: en-US
-To: Jens Axboe <axboe@kernel.dk>, Ankit Kumar <ankit.kumar@samsung.com>
-Cc: fio@vger.kernel.org
-References: <20240122112300.47805-1-ankit.kumar@samsung.com>
- <CGME20240122060525epcas5p17d417303b27a454e1db288a61e0642fc@epcas5p1.samsung.com>
- <20240122112300.47805-2-ankit.kumar@samsung.com>
- <6f3a1f7e-29cd-4e58-af00-9d1be93261b3@kernel.dk>
-From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <6f3a1f7e-29cd-4e58-af00-9d1be93261b3@kernel.dk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 1/22/24 13:17, Jens Axboe wrote:
-> On 1/22/24 4:22 AM, Ankit Kumar wrote:
->> Modify option log_max_value to report average, max or both the values, by
->> setting it to 0, 1 or 2 respectively. There is no change to existing log
->> formats while reporting only average or max values.
-> 
-> That would be much cleaner as a posval instead, where it takes a textual
-> description rather than magic 0/1/2 values.
-> 
+The following changes since commit aa84b5ba581add84ce6e73b20ca0fbd04f6058c8:
 
-You could do what was done for continue_on_error, which it seems was 
-also originally a boolean that was later expanded to have other possible 
-values.
+  ci: stop hard coding number of jobs for make (2024-01-18 13:00:31 -0500)
 
-Maybe even change the name of this option to something like 
-"log_lat_value" and retain the original name as an alias.
+are available in the Git repository at:
 
-Vincent
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 8b3190c3ea38af87778a68c576947f8797215d33:
+
+  filesetup: clear O_RDWR flag for verify_only write workloads (2024-01-22 11:51:05 -0500)
+
+----------------------------------------------------------------
+Vincent Fu (1):
+      filesetup: clear O_RDWR flag for verify_only write workloads
+
+ filesetup.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/filesetup.c b/filesetup.c
+index 816d1081..2d277a64 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -749,6 +749,11 @@ open_again:
+ 		if (!read_only)
+ 			flags |= O_RDWR;
+ 
++		if (td->o.verify_only) {
++			flags &= ~O_RDWR;
++			flags |= O_RDONLY;
++		}
++
+ 		if (f->filetype == FIO_TYPE_FILE && td->o.allow_create)
+ 			flags |= O_CREAT;
+ 
