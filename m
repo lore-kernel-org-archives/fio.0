@@ -1,64 +1,64 @@
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12F4214AB3
-	for <fio@vger.kernel.org>; Wed, 24 Jan 2024 07:13:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9B791640B
+	for <fio@vger.kernel.org>; Wed, 24 Jan 2024 07:13:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706080431; cv=none; b=pdq12VnkoYpjlHiGuweMQqDScOpLeXKVyIotvHElTcQ1AYOnThOOVajJphMKGZWjMN/h/fHyAI5nJ0gfga7TmMsq1Dd+XDmNgbee1zqOZBdNwM0WatEBdKXiU+tSriqwKjh9hO5LFjmsEHHult7vrmnc0Zr5ZArwpj46gDY3mXc=
+	t=1706080433; cv=none; b=ChrCvtcmRLRHu+gHDu0Yt8G8Y8Jx1dSPrYPYBU6TISl8TjXbpzOZpgpM2wuaINl6gTlk7Hg6yX8W0Z0yGDepqIIwMfAFtEybJ+CE7On4w9tyMQXO4x5g0tXBtUthLocNPP2xVxXFnHnQyMDdRrKv884ERv4EJay1j2xFl6vZ1xQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706080431; c=relaxed/simple;
-	bh=PpUu0rVJufznDoVV14dr4s5Yhb1IaP+re5pk22Fk9Cw=;
+	s=arc-20240116; t=1706080433; c=relaxed/simple;
+	bh=vGAaZfsstap0ZRNlbVApw8w/lw9dclGpPTFPSoctKxg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=YmtRkq5PixgcMakZDjHN0qEO3RRAvTpLgpnBf+sSRLPK/Fu828KdkTu/ng5mn0hRZ5csYeLgMXveEZAigNF0v8R8uHXI/0x0oSnCwMn2MRG3IbFkvOvtqJgq0jVtKFYflMElUwibpxiEnzSAV6wmOkdNV19ylPeIx9KkD2RhjRs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=JDAYNxn+; arc=none smtp.client-ip=203.254.224.24
+	 Content-Type:References; b=rZOM4Pl3jt0k/Tn0CL4vpTx9aSZqgXIw8Cc+fbsNOd7n3Cuav24oUuTrx6YI3S03qs8SWytAfBsckLfw5bl0eV1XpaxAps81iL1dmMd6VJVvSx2eVjEHsiQfcR/O2YKWui+RAT/GwKTlYxTaG7zY4tckiBnBQOqdm4wZQCnYjgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=p8n94vwB; arc=none smtp.client-ip=203.254.224.25
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="JDAYNxn+"
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20240124071345epoutp013358a673d40f3f8757d2700408e5ca59~tNxufvDy_1091210912epoutp01B
-	for <fio@vger.kernel.org>; Wed, 24 Jan 2024 07:13:45 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20240124071345epoutp013358a673d40f3f8757d2700408e5ca59~tNxufvDy_1091210912epoutp01B
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="p8n94vwB"
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20240124071348epoutp02096f34eee342b888f42ead41dc9d2ceb~tNxxG7fd93238932389epoutp02e
+	for <fio@vger.kernel.org>; Wed, 24 Jan 2024 07:13:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20240124071348epoutp02096f34eee342b888f42ead41dc9d2ceb~tNxxG7fd93238932389epoutp02e
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1706080425;
-	bh=xBzM39eDbaNOHommfaVNQhan1vfp9Q6U3gz7QQ5PmYU=;
+	s=mail20170921; t=1706080428;
+	bh=j06Z4lfQDRraaJ/K8xVJBbge4DSApwyFzRUkeHowbkQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=JDAYNxn+P4BklMpZ7Al//Sl9yxqYNTT89aVd8CapIv4QZhNpN4RliGr5JoDaZ97a/
-	 byI4lWQqRahc30KdTNS5VKBvPpX8wljwB/13mUj/m2zonVUJqOHaKQ5HaLArdVqw9X
-	 nolMaOOT9u8L/yxgUk3M0OOIVVB3nhJaj23BkBCE=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+	b=p8n94vwBAgWH44RX2ZYkYqXUFvGU+pt3IQwt6OaZCzrJY/Y3527xcSr/8gaSUDHMD
+	 1VRBD8E0CmE7b3gp/hEQyvjG6No4fOjgKIkiwypgTEEV8D1KIzLt/poO/hNElU19CL
+	 C0izaqxgJw9hjStzTxGw4arDSo08zJOKIj7FRDv0=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
 	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
-	20240124071345epcas5p4e38e6f375899bc05ce887f842df93824~tNxt_CYBv2519425194epcas5p4-;
-	Wed, 24 Jan 2024 07:13:45 +0000 (GMT)
-Received: from epsmges5p2new.samsung.com (unknown [182.195.38.174]) by
-	epsnrtp3.localdomain (Postfix) with ESMTP id 4TKZtv0pVHz4x9QK; Wed, 24 Jan
-	2024 07:13:43 +0000 (GMT)
-Received: from epcas5p1.samsung.com ( [182.195.41.39]) by
-	epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	40.9B.10009.6A8B0B56; Wed, 24 Jan 2024 16:13:43 +0900 (KST)
+	20240124071348epcas5p457b4a3ce96dc5916d338ef0c92305c5c~tNxw5_C_H2966129661epcas5p47;
+	Wed, 24 Jan 2024 07:13:48 +0000 (GMT)
+Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.176]) by
+	epsnrtp1.localdomain (Postfix) with ESMTP id 4TKZty31kdz4x9Pr; Wed, 24 Jan
+	2024 07:13:46 +0000 (GMT)
+Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
+	epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	07.B8.08567.AA8B0B56; Wed, 24 Jan 2024 16:13:46 +0900 (KST)
 Received: from epsmtrp1.samsung.com (unknown [182.195.40.13]) by
-	epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-	20240124061715epcas5p108a25af87c320ac6875e6353f245b58f~tNAZNoqvT2077420774epcas5p19;
-	Wed, 24 Jan 2024 06:17:15 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
+	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+	20240124061716epcas5p3c60fd0138f74a40bd020f1f31a298a07~tNAaDmNu71701817018epcas5p3e;
+	Wed, 24 Jan 2024 06:17:16 +0000 (GMT)
+Received: from epsmgmc1p1new.samsung.com (unknown [182.195.42.40]) by
 	epsmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20240124061715epsmtrp18fb481429a98b8ae5e88bd5d5cb5c1be~tNAZM_4k20248502485epsmtrp1z;
-	Wed, 24 Jan 2024 06:17:15 +0000 (GMT)
-X-AuditID: b6c32a4a-261fd70000002719-b7-65b0b8a62395
+	20240124061716epsmtrp1fbb6251c484e598310be8e43c7c49a41~tNAaC-phx0248402484epsmtrp1B;
+	Wed, 24 Jan 2024 06:17:16 +0000 (GMT)
+X-AuditID: b6c32a44-3abff70000002177-35-65b0b8aa0ceb
 Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	52.76.08817.B6BA0B56; Wed, 24 Jan 2024 15:17:15 +0900 (KST)
+	epsmgmc1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	AD.28.07368.C6BA0B56; Wed, 24 Jan 2024 15:17:16 +0900 (KST)
 Received: from unvme-desktop.sa.corp.samsungelectronics.net (unknown
 	[107.99.41.39]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20240124061714epsmtip1d699830ddeeeadf60444f206a5f669f8~tNAYVOkd31272112721epsmtip1Z;
-	Wed, 24 Jan 2024 06:17:14 +0000 (GMT)
+	20240124061715epsmtip1d863a0e1a3976fb15a8112a3a2858659~tNAZRZJRe1272112721epsmtip1a;
+	Wed, 24 Jan 2024 06:17:15 +0000 (GMT)
 From: Ankit Kumar <ankit.kumar@samsung.com>
 To: axboe@kernel.dk, vincentfu@gmail.com
 Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH v2 1/2] stat: log out both average and max over the window
-Date: Wed, 24 Jan 2024 17:04:12 +0530
-Message-Id: <20240124113413.52550-2-ankit.kumar@samsung.com>
+Subject: [PATCH v2 2/2] docs: update fio man page for log_window_value
+Date: Wed, 24 Jan 2024 17:04:13 +0530
+Message-Id: <20240124113413.52550-3-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20240124113413.52550-1-ankit.kumar@samsung.com>
 Precedence: bulk
@@ -68,386 +68,209 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrGKsWRmVeSWpSXmKPExsWy7bCmuu7yHRtSDU62MlqsufKb3WL13X42
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrBKsWRmVeSWpSXmKPExsWy7bCmpu6qHRtSDdp+C1usufKb3WL13X42
 	i4+zXjBbbGgTdGDx2DnrLrvH5bOlHn1bVjF6fN4kF8ASlW2TkZqYklqkkJqXnJ+SmZduq+Qd
 	HO8cb2pmYKhraGlhrqSQl5ibaqvk4hOg65aZA7RQSaEsMacUKBSQWFyspG9nU5RfWpKqkJFf
-	XGKrlFqQklNgUqBXnJhbXJqXrpeXWmJlaGBgZApUmJCdMffkWtaCkxEVz24+Ympg3OXaxcjJ
-	ISFgIjGx+zdrFyMXh5DAbkaJj4ems4EkhAQ+MUocnVcCkfjGKLFw4hHmLkYOsI7Dv2Mh4nsZ
-	JXq3PWKBaOhkkvj/RQ7EZhPQlnj19gZYvYiAhsSau6kgYWYBO4mrh1+CzRcW8JJYt+cXK0gJ
-	i4CqRPOrYpAwr4CNxIQd29ghbpOXmHnpO5jNKWArsWXbMUaIGkGJkzOfsECMlJdo3jqbGeQc
-	CYFT7BIzj15ghGh2kdjXC2MLS7w6vgVqqJTEy/42KDtbYtPDn0wQdoHEkRe9zBC2vUTrqX6w
-	85kFNCXW79KHCMtKTD21jgliL59E7+8nUK28EjvmwdiqEn/v3WaBsKUlbr67CmV7SEyY/5Md
-	EmwTGCUO/vvCNoFRYRaSf2Yh+WcWwuoFjMyrGCVTC4pz01OLTQuM8lLL4TGcnJ+7iRGcALW8
-	djA+fPBB7xAjEwfjIUYJDmYlEd4bkutShXhTEiurUovy44tKc1KLDzGaAsN7IrOUaHI+MAXn
-	lcQbmlgamJiZmZlYGpsZKonzvm6dmyIkkJ5YkpqdmlqQWgTTx8TBKdXAJF40X3HOu7D2Dyum
-	nw49+nv6D34zoQanz2kuySce/VgwpT7INWKX+bu6vqORlvOeqPTG8NkG33n7ov1/3pddOnZl
-	R75N+lV9VejOe52JsxRPJTBPibqzNe3WBvGExUnHLqveeRQtcCDqcdbdxhlNfwr3LYq8J2/y
-	6RtXb+CHCxumJetJzrFsaNLUPWxn4zRh9vZclhlPHtyuK+Obc9DzcO5D1bnGBktmTX4z5/Xp
-	Rku196Lz/1nkplao3Lyh+q3nqe6BRkWZuVb39oh62Fz163o+e/aXNx+NzC5/7aooOlQ35VDO
-	ZOEZ+hN3fBQrb5P2n1w4Z4rFjK4CFX1NpWC1C3LO5yM/a/81+3bMd9Fcu3glluKMREMt5qLi
-	RAC7DDT0CQQAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrLLMWRmVeSWpSXmKPExsWy7bCSnG726g2pBu+eiFusufKb3WL13X42
-	i4+zXjBbbGgTdGDx2DnrLrvH5bOlHn1bVjF6fN4kF8ASxWWTkpqTWZZapG+XwJUx9+Ra1oKT
-	ERXPbj5iamDc5drFyMEhIWAicfh3bBcjF4eQwG5GiQnTZjFBxKUlFq5P7GLkBDKFJVb+e84O
-	YgsJtDNJLNkkDWKzCWhLvHp7gxnEFhHQkji2rokNxGYWcJD4t2sLmC0s4CWxbs8vVpCRLAKq
-	Es2vikHCvAI2EhN2bGOHGC8vMfPSdzCbU8BWYsu2Y4wQq2wkDm97wgRRLyhxcuYTFojx8hLN
-	W2czT2AUmIUkNQtJagEj0ypGydSC4tz03GLDAqO81HK94sTc4tK8dL3k/NxNjOAQ1dLawbhn
-	1Qe9Q4xMHIyHGCU4mJVEeG9IrksV4k1JrKxKLcqPLyrNSS0+xCjNwaIkzvvtdW+KkEB6Yklq
-	dmpqQWoRTJaJg1OqgUlwz1OmjvXvA2/VP39+8ftFm4XHLT9VTdme9e+OJZ/B0QWCksvibkTK
-	2clsyPWbLLW74/Rynv18Gz42XYl2eDnFnU/Ka2nPZpEzc05ukFmYLCJSsWvt8yecxzg/5vwU
-	dk1oKtlrk73WcG5I5dxJPpuE5wYqz3+Vc83t8sqFYm+OPuOq9fPsX/dH1vgFf3DxX7b1eu90
-	Qg7U/yhne3A20k2z/7YRZ31HpF8H0+1zk/PPrU3qb35yRcUqxGr/c4k7asK6vRVpJ123Snel
-	HVj36MAWRsMVe13kFR5mVNSms3ZFlhx1n3HgvMLj+hCz32cu3WO4tFT0v9e7a0eZ0uOzjFyj
-	69yX5T5L2542eUGgUJwSS3FGoqEWc1FxIgCl82ihwAIAAA==
-X-CMS-MailID: 20240124061715epcas5p108a25af87c320ac6875e6353f245b58f
+	XGKrlFqQklNgUqBXnJhbXJqXrpeXWmJlaGBgZApUmJCdsWvOD6aCHeYV/1/zNzAu1O1i5OSQ
+	EDCRuP90ElMXIxeHkMBuRoln3zqhnE+MEpNb17BAON8YJZ58vwfkcIC1XHshDRHfyyjxtOkC
+	M4TTySSx5tt0FpC5bALaEq/e3mAGaRAR0JBYczcVJMwsYCdx9fBLNhBbWMBNomPfD3YQm0VA
+	VeL/q1ZWEJtXwEZi4qWdTBDnyUvMvPQdrIZTwFZiy7ZjjBA1ghInZz5hgZgpL9G8dTbYDRIC
+	x9glvu97zALR7CJxZ+1JqEHCEq+Ob2GHsKUkXva3QdnZEpse/oSqKZA48qKXGcK2l2g91Q92
+	P7OApsT6XfoQYVmJqafWMUHs5ZPo/f0EqpVXYsc8GFtV4u+921AnSEvcfHcVyvaQ+NV2BBq6
+	ExglVkxvYp3AqDALyT+zkPwzC2H1AkbmVYySqQXFuempyaYFhnmp5fA4Ts7P3cQIToJaLjsY
+	b8z/p3eIkYmD8RCjBAezkgjvDcl1qUK8KYmVValF+fFFpTmpxYcYTYEBPpFZSjQ5H5iG80ri
+	DU0sDUzMzMxMLI3NDJXEeV+3zk0REkhPLEnNTk0tSC2C6WPi4JRqYJpurLtn+rPKadMTd30+
+	uVXfo+92ydu1k6Y6qTFtdLq6VEK/+vene45Mz9W8b7Nem2N+MaJVsiUvg2FXWlP3/IbgbcYR
+	2poMrttaNh67oHXuxKIfZ5XXVt5lXaXDHXpzYej08w828L7u6/MyTHVWPnqlVHXqzdqOt7I8
+	zwy6w9Y8eSsk2Jqdyyjt8/OngVru02c+3Xnu4Ulml501wyVc2P1/uYr9O6tdwaZ0KeJ6t8Xz
+	3Tv2On5RuMRp9HSaX+riazJTZu476mN16ax6auai5adbFv45m1tnUh2qaCF6yLBivZ0EX8Ya
+	Vcm87zlb/ym5bDjXZlqU6vo7JCdb6fFc8Y9ntr1PDgtfx33K+c9bAyWW4oxEQy3mouJEAJMk
+	tq4LBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrHLMWRmVeSWpSXmKPExsWy7bCSnG7O6g2pBt0nhSzWXPnNbrH6bj+b
+	xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJ4rJJSc3JLEst0rdL4MrYNecHU8EO
+	84r/r/kbGBfqdjFycEgImEhceyHdxcjFISSwm1Hi1LypTBBxaYmF6xO7GDmBTGGJlf+es0PU
+	tDNJtEx7zgySYBPQlnj19gaYLSKgJXFsXRMbiM0s4CDxb9cWMFtYwE2iY98PdhCbRUBV4v+r
+	VlYQm1fARmLipZ1MEAvkJWZe+g5WwylgK7Fl2zFGEFsIqObwtidMEPWCEidnPmGBmC8v0bx1
+	NvMERoFZSFKzkKQWMDKtYpRMLSjOTc9NNiwwzEst1ytOzC0uzUvXS87P3cQIDlItjR2M9+b/
+	0zvEyMTBeIhRgoNZSYT3huS6VCHelMTKqtSi/Pii0pzU4kOM0hwsSuK8hjNmpwgJpCeWpGan
+	phakFsFkmTg4pRqYZDdv4qw4dLdWzspOSsTluHevkagoq61PUMXfoimytRWHn6QvFw3OnW37
+	PLnZNKBSUPLkKt6yW1Z8F3s9epcWL/twiMFqW+eSG3vabS4HOPG5XviceviUsp2Kv5je3R1X
+	3hyZ2Vq2YqaLbfN+o5lpOqEMx3mvzFojzy268NyX9cf4/DJEUkI1Hwh/fV7rb7P2rUvXb4W6
+	5hkJL0QYE1/3PVCt+3hnyRQ7p8L/sh/2X+B+dW51g+UORelV25estApav0O55Phez5S5TxZO
+	r7T4u6jjTry2m/tm/WXTb19N+uSmsG2/VfECPtWKudfUbDJ3PjQ79Crk+vQ75xkNF5kvfiU3
+	+U359VOrl306+iFNS4mlOCPRUIu5qDgRAHhmTFjBAgAA
+X-CMS-MailID: 20240124061716epcas5p3c60fd0138f74a40bd020f1f31a298a07
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20240124061715epcas5p108a25af87c320ac6875e6353f245b58f
+X-CMS-RootMailID: 20240124061716epcas5p3c60fd0138f74a40bd020f1f31a298a07
 References: <20240124113413.52550-1-ankit.kumar@samsung.com>
-	<CGME20240124061715epcas5p108a25af87c320ac6875e6353f245b58f@epcas5p1.samsung.com>
-
-Add option log_window_value alias of log_max_value which reports
-average, max or both the values. Retain backward compatibility by
-allowing =0 and =1 values to specify avg and max values respectively.
-
-There is no change to existing log formats while reporting only average
-or max values.
+	<CGME20240124061716epcas5p3c60fd0138f74a40bd020f1f31a298a07@epcas5p3.samsung.com>
 
 Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
 ---
- client.c  |  6 +++--
- iolog.c   | 74 ++++++++++++++++++++++++++++++++++++++++---------------
- iolog.h   | 21 +++++++++++++---
- options.c | 34 +++++++++++++++++++++----
- server.c  |  6 +++--
- stat.c    | 32 ++++++++++++++----------
- 6 files changed, 128 insertions(+), 45 deletions(-)
+ HOWTO.rst | 45 +++++++++++++++++++++++++++++++++++----------
+ fio.1     | 52 ++++++++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 75 insertions(+), 22 deletions(-)
 
-diff --git a/client.c b/client.c
-index 699a2e5b..4cb7dffe 100644
---- a/client.c
-+++ b/client.c
-@@ -1718,8 +1718,10 @@ static struct cmd_iolog_pdu *convert_iolog(struct fio_net_cmd *cmd,
- 			s = (struct io_sample *)((char *)s + sizeof(struct io_u_plat_entry) * i);
+diff --git a/HOWTO.rst b/HOWTO.rst
+index d0ba8021..f83a8b53 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -4067,7 +4067,7 @@ Measurements and reporting
+ 	I/O that completes. When writing to the disk log, that can quickly grow to a
+ 	very large size. Setting this option makes fio average the each log entry
+ 	over the specified period of time, reducing the resolution of the log.  See
+-	:option:`log_max_value` as well. Defaults to 0, logging all entries.
++	:option:`log_window_value` as well. Defaults to 0, logging all entries.
+ 	Also see `Log File Formats`_.
  
- 		s->time		= le64_to_cpu(s->time);
--		if (ret->log_type != IO_LOG_TYPE_HIST)
--			s->data.val	= le64_to_cpu(s->data.val);
-+		if (ret->log_type != IO_LOG_TYPE_HIST) {
-+			s->data.val.val0	= le64_to_cpu(s->data.val.val0);
-+			s->data.val.val1	= le64_to_cpu(s->data.val.val1);
-+		}
- 		s->__ddir	= __le32_to_cpu(s->__ddir);
- 		s->bs		= le64_to_cpu(s->bs);
- 		s->priority	= le16_to_cpu(s->priority);
-diff --git a/iolog.c b/iolog.c
-index 5213c60f..b4c7a8f1 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -862,6 +862,8 @@ void setup_log(struct io_log **log, struct log_params *p,
- 		l->log_ddir_mask = LOG_OFFSET_SAMPLE_BIT;
- 	if (l->log_prio)
- 		l->log_ddir_mask |= LOG_PRIO_SAMPLE_BIT;
-+	if (l->td->o.log_max == IO_LOG_SAMPLE_BOTH)
-+		l->log_ddir_mask |= LOG_AVG_MAX_SAMPLE_BIT;
+ .. option:: log_hist_msec=int
+@@ -4088,11 +4088,28 @@ Measurements and reporting
+ 	histogram logs contain 1216 latency bins. See :option:`write_hist_log`
+ 	and `Log File Formats`_.
  
- 	INIT_FLIST_HEAD(&l->chunk_list);
+-.. option:: log_max_value=bool
++.. option:: log_window_value=int, log_max_value=int
  
-@@ -988,7 +990,7 @@ static void flush_hist_samples(FILE *f, int hist_coarseness, void *samples,
- void flush_samples(FILE *f, void *samples, uint64_t sample_size)
- {
- 	struct io_sample *s;
--	int log_offset, log_prio;
-+	int log_offset, log_prio, log_avg_max;
- 	uint64_t i, nr_samples;
- 	unsigned int prio_val;
- 	const char *fmt;
-@@ -999,17 +1001,32 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
- 	s = __get_sample(samples, 0, 0);
- 	log_offset = (s->__ddir & LOG_OFFSET_SAMPLE_BIT) != 0;
- 	log_prio = (s->__ddir & LOG_PRIO_SAMPLE_BIT) != 0;
-+	log_avg_max = (s->__ddir & LOG_AVG_MAX_SAMPLE_BIT) != 0;
- 
- 	if (log_offset) {
--		if (log_prio)
--			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
--		else
--			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
-+		if (log_prio) {
-+			if (log_avg_max)
-+				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
-+			else
-+				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
-+		} else {
-+			if (log_avg_max)
-+				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
-+			else
-+				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
-+		}
- 	} else {
--		if (log_prio)
--			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
--		else
--			fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %u\n";
-+		if (log_prio) {
-+			if (log_avg_max)
-+				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
-+			else
-+				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
-+		} else {
-+			if (log_avg_max)
-+				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, %u\n";
-+			else
-+				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %u\n";
-+		}
- 	}
- 
- 	nr_samples = sample_size / __log_entry_sz(log_offset);
-@@ -1023,20 +1040,37 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
- 			prio_val = ioprio_value_is_class_rt(s->priority);
- 
- 		if (!log_offset) {
--			fprintf(f, fmt,
--				s->time,
--				s->data.val,
--				io_sample_ddir(s), (unsigned long long) s->bs,
--				prio_val);
-+			if (log_avg_max)
-+				fprintf(f, fmt,
-+					s->time,
-+					s->data.val.val0,
-+					s->data.val.val1,
-+					io_sample_ddir(s), (unsigned long long) s->bs,
-+					prio_val);
-+			else
-+				fprintf(f, fmt,
-+					s->time,
-+					s->data.val.val0,
-+					io_sample_ddir(s), (unsigned long long) s->bs,
-+					prio_val);
- 		} else {
- 			struct io_sample_offset *so = (void *) s;
- 
--			fprintf(f, fmt,
--				s->time,
--				s->data.val,
--				io_sample_ddir(s), (unsigned long long) s->bs,
--				(unsigned long long) so->offset,
--				prio_val);
-+			if (log_avg_max)
-+				fprintf(f, fmt,
-+					s->time,
-+					s->data.val.val0,
-+					s->data.val.val1,
-+					io_sample_ddir(s), (unsigned long long) s->bs,
-+					(unsigned long long) so->offset,
-+					prio_val);
-+			else
-+				fprintf(f, fmt,
-+					s->time,
-+					s->data.val.val0,
-+					io_sample_ddir(s), (unsigned long long) s->bs,
-+					(unsigned long long) so->offset,
-+					prio_val);
- 		}
- 	}
- }
-diff --git a/iolog.h b/iolog.h
-index 62cbd1b0..26dd5cca 100644
---- a/iolog.h
-+++ b/iolog.h
-@@ -26,13 +26,23 @@ struct io_hist {
- 	struct flist_head list;
- };
- 
-+enum {
-+	IO_LOG_SAMPLE_AVG = 0,
-+	IO_LOG_SAMPLE_MAX,
-+	IO_LOG_SAMPLE_BOTH,
-+};
+-	If :option:`log_avg_msec` is set, fio logs the average over that window. If
+-	you instead want to log the maximum value, set this option to 1. Defaults to
+-	0, meaning that averaged values are logged.
++	If :option:`log_avg_msec` is set, fio by default logs the average over that
++	window. This option determines whether fio logs the average, maximum or
++	both the values over the window. This only affects the latency logging,
++	as both average and maximum values for iops or bw log will be same.
++	Accepted values are:
 +
-+struct io_sample_value {
-+	uint64_t val0;
-+	uint64_t val1;
-+};
++		**avg**
++			Log average value over the window. The default.
++
++		**max**
++			Log maximum value in the window.
++
++		**both**
++			Log both average and maximum value over the window.
++
++		**0**
++			Backward-compatible alias for **avg**.
++
++		**1**
++			Backward-compatible alias for **max**.
  
- union io_sample_data {
--	uint64_t val;
-+	struct io_sample_value val;
- 	struct io_u_plat_entry *plat_entry;
- };
+ .. option:: log_offset=bool
  
--#define sample_val(value) ((union io_sample_data) { .val = value })
-+#define sample_val(value) ((union io_sample_data) { .val.val0 = value })
- #define sample_plat(plat) ((union io_sample_data) { .plat_entry = plat })
+@@ -5061,11 +5078,19 @@ toggled with :option:`log_offset`.
+ by the ioengine specific :option:`cmdprio_percentage`.
  
- /*
-@@ -154,8 +164,13 @@ struct io_log {
-  * If the bit following the upper bit is set, then we have the priority
-  */
- #define LOG_PRIO_SAMPLE_BIT	0x40000000U
-+/*
-+ * If the bit following prioity sample vit is set, we report both avg and max
-+ */
-+#define LOG_AVG_MAX_SAMPLE_BIT	0x20000000U
+ Fio defaults to logging every individual I/O but when windowed logging is set
+-through :option:`log_avg_msec`, either the average (by default) or the maximum
+-(:option:`log_max_value` is set) *value* seen over the specified period of time
+-is recorded. Each *data direction* seen within the window period will aggregate
+-its values in a separate row. Further, when using windowed logging the *block
+-size* and *offset* entries will always contain 0.
++through :option:`log_lat_msec`, either the average (by default), the maximum
++(:option:`log_window_value` is set to max) *value* seen over the specified period
++of time, or both the average *value* and maximum *value1* (:option:`log_window_value`
++set to both) is recorded. The log file format when both the values are reported
++takes this form:
++
++    *time* (`msec`), *value*, *value1*, *data direction*, *block size* (`bytes`),
++    *offset* (`bytes`), *command priority*
++
++
++Each *data direction*
++seen within the window period will aggregate its values in a separate row. Further,
++when using windowed logging the *block size* and *offset* entries will always contain 0.
  
--#define LOG_SAMPLE_BITS		(LOG_OFFSET_SAMPLE_BIT | LOG_PRIO_SAMPLE_BIT)
-+#define LOG_SAMPLE_BITS		(LOG_OFFSET_SAMPLE_BIT | LOG_PRIO_SAMPLE_BIT |\
-+					LOG_AVG_MAX_SAMPLE_BIT)
- #define io_sample_ddir(io)	((io)->__ddir & ~LOG_SAMPLE_BITS)
  
- static inline void io_sample_set_ddir(struct io_log *log,
-diff --git a/options.c b/options.c
-index 53df03de..1da4de78 100644
---- a/options.c
-+++ b/options.c
-@@ -4540,14 +4540,38 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group	= FIO_OPT_G_INVALID,
- 	},
- 	{
--		.name	= "log_max_value",
--		.lname	= "Log maximum instead of average",
--		.type	= FIO_OPT_BOOL,
-+		.name	= "log_window_value",
-+		.alias  = "log_max_value",
-+		.lname	= "Log maximum, average or both values",
-+		.type	= FIO_OPT_STR,
- 		.off1	= offsetof(struct thread_options, log_max),
--		.help	= "Log max sample in a window instead of average",
--		.def	= "0",
-+		.help	= "Log max, average or both sample in a window",
-+		.def	= "avg",
- 		.category = FIO_OPT_C_LOG,
- 		.group	= FIO_OPT_G_INVALID,
-+		.posval	= {
-+			  { .ival = "avg",
-+			    .oval = IO_LOG_SAMPLE_AVG,
-+			    .help = "Log average value over the window",
-+			  },
-+			  { .ival = "max",
-+			    .oval = IO_LOG_SAMPLE_MAX,
-+			    .help = "Log maximum value in the window",
-+			  },
-+			  { .ival = "both",
-+			    .oval = IO_LOG_SAMPLE_BOTH,
-+			    .help = "Log both average and maximum values over the window"
-+			  },
-+			  /* Compatibility with former boolean values */
-+			  { .ival = "0",
-+			    .oval = IO_LOG_SAMPLE_AVG,
-+			    .help = "Alias for 'avg'",
-+			  },
-+			  { .ival = "1",
-+			    .oval = IO_LOG_SAMPLE_MAX,
-+			    .help = "Alias for 'max'",
-+			  },
-+		},
- 	},
- 	{
- 		.name	= "log_offset",
-diff --git a/server.c b/server.c
-index b9f0e2ac..afaeb348 100644
---- a/server.c
-+++ b/server.c
-@@ -2288,8 +2288,10 @@ int fio_send_iolog(struct thread_data *td, struct io_log *log, const char *name)
- 			struct io_sample *s = get_sample(log, cur_log, i);
- 
- 			s->time		= cpu_to_le64(s->time);
--			if (log->log_type != IO_LOG_TYPE_HIST)
--				s->data.val	= cpu_to_le64(s->data.val);
-+			if (log->log_type != IO_LOG_TYPE_HIST) {
-+				s->data.val.val0	= cpu_to_le64(s->data.val.val0);
-+				s->data.val.val1	= cpu_to_le64(s->data.val.val1);
-+			}
- 			s->__ddir	= __cpu_to_le32(s->__ddir);
- 			s->bs		= cpu_to_le64(s->bs);
- 
-diff --git a/stat.c b/stat.c
-index 7cf6bee1..11b58626 100644
---- a/stat.c
-+++ b/stat.c
-@@ -3149,7 +3149,7 @@ void reset_io_stats(struct thread_data *td)
- }
- 
- static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
--			      unsigned long elapsed, bool log_max)
-+			      unsigned long elapsed, int log_max)
- {
- 	/*
- 	 * Note an entry in the log. Use the mean from the logged samples,
-@@ -3159,10 +3159,16 @@ static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
- 	if (iolog->avg_window[ddir].samples) {
- 		union io_sample_data data;
- 
--		if (log_max)
--			data.val = iolog->avg_window[ddir].max_val;
--		else
--			data.val = iolog->avg_window[ddir].mean.u.f + 0.50;
-+		if (log_max == IO_LOG_SAMPLE_AVG) {
-+			data.val.val0 = iolog->avg_window[ddir].mean.u.f + 0.50;
-+			data.val.val1 = 0;
-+		} else if (log_max == IO_LOG_SAMPLE_MAX) {
-+			data.val.val0 = iolog->avg_window[ddir].max_val;
-+			data.val.val1 = 0;
-+		} else {
-+			data.val.val0 = iolog->avg_window[ddir].mean.u.f + 0.50;
-+			data.val.val1 = iolog->avg_window[ddir].max_val;
-+		}
- 
- 		__add_log_sample(iolog, data, ddir, 0, elapsed, 0, 0);
- 	}
-@@ -3171,7 +3177,7 @@ static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
- }
- 
- static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed,
--			     bool log_max)
-+			     int log_max)
- {
- 	enum fio_ddir ddir;
- 
-@@ -3205,7 +3211,7 @@ static unsigned long add_log_sample(struct thread_data *td,
- 	 * Add the sample. If the time period has passed, then
- 	 * add that entry to the log and clear.
- 	 */
--	add_stat_sample(&iolog->avg_window[ddir], data.val);
-+	add_stat_sample(&iolog->avg_window[ddir], data.val.val0);
- 
- 	/*
- 	 * If period hasn't passed, adding the above sample is all we
-@@ -3221,7 +3227,7 @@ static unsigned long add_log_sample(struct thread_data *td,
- 			return diff;
- 	}
- 
--	__add_stat_to_log(iolog, ddir, elapsed, td->o.log_max != 0);
-+	__add_stat_to_log(iolog, ddir, elapsed, td->o.log_max);
- 
- 	iolog->avg_last[ddir] = elapsed - (elapsed % iolog->avg_msec);
- 
-@@ -3235,15 +3241,15 @@ void finalize_logs(struct thread_data *td, bool unit_logs)
- 	elapsed = mtime_since_now(&td->epoch);
- 
- 	if (td->clat_log && unit_logs)
--		_add_stat_to_log(td->clat_log, elapsed, td->o.log_max != 0);
-+		_add_stat_to_log(td->clat_log, elapsed, td->o.log_max);
- 	if (td->slat_log && unit_logs)
--		_add_stat_to_log(td->slat_log, elapsed, td->o.log_max != 0);
-+		_add_stat_to_log(td->slat_log, elapsed, td->o.log_max);
- 	if (td->lat_log && unit_logs)
--		_add_stat_to_log(td->lat_log, elapsed, td->o.log_max != 0);
-+		_add_stat_to_log(td->lat_log, elapsed, td->o.log_max);
- 	if (td->bw_log && (unit_logs == per_unit_log(td->bw_log)))
--		_add_stat_to_log(td->bw_log, elapsed, td->o.log_max != 0);
-+		_add_stat_to_log(td->bw_log, elapsed, td->o.log_max);
- 	if (td->iops_log && (unit_logs == per_unit_log(td->iops_log)))
--		_add_stat_to_log(td->iops_log, elapsed, td->o.log_max != 0);
-+		_add_stat_to_log(td->iops_log, elapsed, td->o.log_max);
- }
- 
- void add_agg_sample(union io_sample_data data, enum fio_ddir ddir,
+ Client/Server
+diff --git a/fio.1 b/fio.1
+index 8f659f1d..6f1a46fd 100644
+--- a/fio.1
++++ b/fio.1
+@@ -3764,7 +3764,7 @@ By default, fio will log an entry in the iops, latency, or bw log for every
+ I/O that completes. When writing to the disk log, that can quickly grow to a
+ very large size. Setting this option makes fio average the each log entry
+ over the specified period of time, reducing the resolution of the log. See
+-\fBlog_max_value\fR as well. Defaults to 0, logging all entries.
++\fBlog_window_value\fR as well. Defaults to 0, logging all entries.
+ Also see \fBLOG FILE FORMATS\fR section.
+ .TP
+ .BI log_hist_msec \fR=\fPint
+@@ -3782,10 +3782,28 @@ the histogram logs enabled with \fBlog_hist_msec\fR. For each increment
+ in coarseness, fio outputs half as many bins. Defaults to 0, for which
+ histogram logs contain 1216 latency bins. See \fBLOG FILE FORMATS\fR section.
+ .TP
+-.BI log_max_value \fR=\fPbool
+-If \fBlog_avg_msec\fR is set, fio logs the average over that window. If
+-you instead want to log the maximum value, set this option to 1. Defaults to
+-0, meaning that averaged values are logged.
++.BI log_window_value \fR=\fPint "\fR,\fP log_max_value" \fR=\fPint
++If \fBlog_avg_msec\fR is set, fio by default logs the average over that window.
++This option determines whether fio logs the average, maximum or both the
++values over the window. This only affects the latency logging, as both average
++and maximum values for iops or bw log will be same. Accepted values are:
++.RS
++.TP
++.B avg
++Log average value over the window. The default.
++.TP
++.B max
++Log maximum value in the window.
++.TP
++.B both
++Log both average and maximum value over the window.
++.TP
++.B 0
++Backward-compatible alias for \fBavg\fR.
++.TP
++.B 1
++Backward-compatible alias for \fBmax\fR.
++.RE
+ .TP
+ .BI log_offset \fR=\fPbool
+ If this is set, the iolog options will include the byte offset for the I/O
+@@ -4756,8 +4774,8 @@ time (msec), value, data direction, block size (bytes), offset (bytes),
+ command priority
+ .RE
+ .P
+-`Time' for the log entry is always in milliseconds. The `value' logged depends
+-on the type of log, it will be one of the following:
++`Time' for the log entry is always in milliseconds. The `value' and `value1'
++logged depends on the type of log, it will be one of the following:
+ .RS
+ .TP
+ .B Latency log
+@@ -4797,11 +4815,21 @@ number with the lowest 13 bits indicating the priority value (\fBprio\fR and
+ (\fBprioclass\fR and \fBcmdprio_class\fR options).
+ .P
+ Fio defaults to logging every individual I/O but when windowed logging is set
+-through \fBlog_avg_msec\fR, either the average (by default) or the maximum
+-(\fBlog_max_value\fR is set) `value' seen over the specified period of time
+-is recorded. Each `data direction' seen within the window period will aggregate
+-its values in a separate row. Further, when using windowed logging the `block
+-size' and `offset' entries will always contain 0.
++through \fBlog_avg_msec\fR, either the average (by default), the maximum
++(\fBlog_window_value\fR set to max) `value' seen over the specified period of
++time, or both the average `value' and maximum `value1' (\fBlog_window_value\fR set
++to both) is recorded. The log file format when both the values are reported
++takes this form:
++.RS
++.P
++time (msec), value, value1, data direction, block size (bytes), offset (bytes),
++command priority
++.RE
++.P
++Each `data direction' seen
++within the window period will aggregate its values in a separate row. Further,
++when using windowed logging the `block size' and `offset' entries will always
++contain 0.
+ .SH CLIENT / SERVER
+ Normally fio is invoked as a stand-alone application on the machine where the
+ I/O workload should be generated. However, the backend and frontend of fio can
 -- 
 2.25.1
 
