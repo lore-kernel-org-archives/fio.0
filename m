@@ -1,148 +1,90 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051D723746
-	for <fio@vger.kernel.org>; Sun, 28 Jan 2024 13:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 146DF286A2
+	for <fio@vger.kernel.org>; Sun,  4 Feb 2024 21:16:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706446814; cv=none; b=b94yNABCaOjOhjPDh5fRAkSccSDS5OSIruBFs6cQI81dBY+7AbXwtwInylkNgk4rHFXoOuAfvxneP8aCK4Eg/AQ6LQJwgSnB/ZZ5VIsNu/N9ccqHZpf7/oiEwjzDMRSaPe+Wbl7pjDw0E/h96OKbYT5lUhAcKBrp7tcKDshshu4=
+	t=1707081408; cv=none; b=tGhLvtnB+u+PiUvSwQUngPvgC4PeYLAKaf82z8J3Drzn18fE2NeSczlHDWPcl+B/a3S8hOGl0YTa3VcY/prAM7uX9gMeHvMbfRODvzRGkwbpR7A+DnCwuBAcP+DmPbkwxaBiXBUWDUqF7wxiBh7MeAtmO4eH2xEbtgkbqg53zZI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706446814; c=relaxed/simple;
-	bh=a5bJ7feYCFYVEHQdVhRKbaKmoe+oGrxd3tC4Oj9B76o=;
-	h=Subject:From:To:Message-Id:Date; b=G5xcEIQclWDhUsqldFL2T2UmioNUWSporjXXalY+MTVQpeH5KsvqF01Z3a2r/HPe7rRqR0gfoUUdHN9XiTUJ+5DV+iY+FUab5XLDngc3Zt7WLBeEZw5wA9Nclaw1VYHfKG9AWSb4Z4GxpRZEatsR3jSoybI56PcjQsKS9S5fF04=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=WWN4wbro; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1707081408; c=relaxed/simple;
+	bh=BxrKpzpqgXPpdI/u9DIW9eEI5oucBt6UGov9JFGuJvA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=caMlqsQqjlaSzmJm4dh/OKc5W2SrQ2s8waA9UgweFCPnypOPLf5Va5O8ojMTci0fMKGwJde4ynN312opWU1BXvJmFLhnIdPCtfIr37U6xV5IK9ox+x0tCkJgI9bYZFQk+sKJBhxBvylUP0ZI9LErI76QUdXBMQAfegF5ZT0DZyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=F6jMl9KG; arc=none smtp.client-ip=68.232.143.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="WWN4wbro"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=jI7b63mKJT8XHc55nhYL9jiZxZV4hNVFCYpGKpo+I6c=; b=WWN4wbrozji1WnzvRirzdkvy3I
-	qg8PVN23cKioeU/LLWnCBLwSghTOE0N4z4hWqPM1w0tQje9IQcuORjBRwM+kD9ClJxqbyoCC84yx/
-	qcwu3daZpFw18OR0g9+06E6w9uq1PTsDWUZU6MtvR+63lXJbW7gBZxIsZoIm5jqa/Bzt3aRNJW/um
-	GVjq1IMVbOhtA3OnqFGOdb04bZo5bcCGUcjNKnR+pw1Flb10jPjtTm/j56fm7A2LM7FFju5b/1q7/
-	+PpiYxM8Vozf3MaLnvVtRWcr9S6mDHSfE/Qq/0TQMeas7Oo5xlBztue/9QCtblpP+vmm3pxX8aKPt
-	31W7akhg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rU4lY-00000007CpN-0z7u
-	for fio@vger.kernel.org;
-	Sun, 28 Jan 2024 13:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 864F21BC014A; Sun, 28 Jan 2024 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240128130001.864F21BC014A@kernel.dk>
-Date: Sun, 28 Jan 2024 06:00:01 -0700 (MST)
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="F6jMl9KG"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1707081406; x=1738617406;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=BxrKpzpqgXPpdI/u9DIW9eEI5oucBt6UGov9JFGuJvA=;
+  b=F6jMl9KGG3YiF276Wk8QjtgzHckaIlkvw5xWZOrliZ941KrmEjgO5BlB
+   2W9tAYYIdMMmb9ANiexEfsC3H6zA2BDyTO7JixxrXd7EHWfETfmAppd5A
+   PtZjjNpF2KtdvDPb0WAPY2EZ4wH92KsoIn07bsRXrQxt2rjSNrwjn9wQ3
+   C9PsDFJsX+VXEcWN1qZTcqKKFQ6iRJumxZVcARTqkrMMiCs8hh+2DEdhh
+   lMW75ODAlvBwmfRNaKWWKqKxSuvzXYEz+qJAvJ22mlt539jm+4RcXpdii
+   nodvcNXvZJtqoFFnsiwU9a3Zw74uHZHK0y9deg4QuDeQsiwTJwl8kKg/R
+   Q==;
+X-CSE-ConnectionGUID: eEmCuTZUTVeHgZ5BIvwW0Q==
+X-CSE-MsgGUID: M5DVd53LQOGkMhX0kAlsGQ==
+X-IronPort-AV: E=Sophos;i="6.05,242,1701100800"; 
+   d="scan'208";a="8472755"
+Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 05 Feb 2024 05:16:39 +0800
+IronPort-SDR: XKn8A9AE4vwhUh5gNXeyRZ6HHFQv/BeySQ+Ty8BLDdD1oz4PauT1p+toYjaMsz3/XsaT+YdpB2
+ C18g57nJaayw==
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Feb 2024 12:20:45 -0800
+IronPort-SDR: FNPrQmudWa3DbLDPBR84NmOqsERh/bh9CvJgpSqlLqSR6FulYWptvsDibOrMJmBR1G4VLhHTQs
+ w2ZR22o7woSw==
+WDCIronportException: Internal
+Received: from unknown (HELO redsun50.ssa.fujisawa.hgst.com) ([10.149.66.6])
+  by uls-op-cesaip02.wdc.com with ESMTP; 04 Feb 2024 13:16:38 -0800
+From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>,
+	Vincent Fu <vincent.fu@samsung.com>,
+	fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>,
+	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+	Niklas Cassel <niklas.cassel@wdc.com>,
+	Dmitry Fomichev <dmitry.fomichev@wdc.com>
+Subject: [PATCH 0/5] zbd, t/zbd: miscellaneous fixes
+Date: Mon,  5 Feb 2024 06:16:32 +0900
+Message-Id: <20240204211637.210199-1-dmitry.fomichev@wdc.com>
+X-Mailer: git-send-email 2.37.3
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The following changes since commit 90a0fbc83c59ddfacc3e90dcb7721ff322bfe26f:
+This series contains a few patches to make improvements to fio support
+for zoned block devices (ZBDs).
 
-  Merge branch 'coverity-fix' of https://github.com/ankit-sam/fio (2024-01-25 10:20:10 -0700)
+The first patch fixes an assertion that has been reported in the field.
+The fourth patch fixes a failure that happens while running the unit
+tests against an uncommon class of ZBDs.
 
-are available in the Git repository at:
+The rest are clean ups and some minor feature additions.
 
-  git://git.kernel.dk/fio.git master
+Dmitry Fomichev (5):
+  zbd: avoid assertions during sequential read I/O
+  oslib: log BLKREPORTZONE error code
+  zbd: use a helper to calculate zone index
+  t/zbd: check device for unrestricted read support
+  t/zbd: add -s option to test-zbd-support script
 
-for you to fetch changes up to 625b155dcd3d56595ced60806e091126446c1e08:
+ oslib/linux-blkzoned.c |  2 ++
+ t/zbd/functions        | 22 ++++++++++++++++++++++
+ t/zbd/test-zbd-support | 20 ++++++++++++++++++--
+ zbd.c                  | 21 +++++++++++++++------
+ 4 files changed, 57 insertions(+), 8 deletions(-)
 
-  examples: cmdprio_bssplit: add CDL example (2024-01-27 11:18:57 -0500)
+-- 
+2.37.3
 
-----------------------------------------------------------------
-Niklas Cassel (2):
-      examples: cmdprio_bssplit: s,IO,I/O,
-      examples: cmdprio_bssplit: add CDL example
-
- examples/cmdprio-bssplit.fio | 47 ++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 41 insertions(+), 6 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/examples/cmdprio-bssplit.fio b/examples/cmdprio-bssplit.fio
-index f3b2fac0..ee202d74 100644
---- a/examples/cmdprio-bssplit.fio
-+++ b/examples/cmdprio-bssplit.fio
-@@ -12,9 +12,9 @@ iodepth=16
- ; use the same prio class and prio level defined by the cmdprio_class
- ; and cmdprio options.
- [cmdprio]
--; 40% of read IOs are 64kB and 60% are 1MB. 100% of writes are 1MB.
-+; 40% of read I/Os are 64kB and 60% are 1MB. 100% of writes are 1MB.
- ; 100% of the 64kB reads are executed with prio class 1 and prio level 0.
--; All other IOs are executed without a priority set.
-+; All other I/Os are executed without a priority set.
- bssplit=64k/40:1024k/60,1024k/100
- cmdprio_bssplit=64k/100:1024k/0,1024k/0
- cmdprio_class=1
-@@ -23,22 +23,57 @@ cmdprio=0
- ; Advanced cmdprio_bssplit format. Each non-zero percentage entry can
- ; use a different prio class and prio level (appended to each entry).
- [cmdprio-adv]
--; 40% of read IOs are 64kB and 60% are 1MB. 100% of writes are 1MB.
-+; 40% of read I/Os are 64kB and 60% are 1MB. 100% of writes are 1MB.
- ; 25% of the 64kB reads are executed with prio class 1 and prio level 1,
- ; 75% of the 64kB reads are executed with prio class 3 and prio level 2.
--; All other IOs are executed without a priority set.
-+; All other I/Os are executed without a priority set.
- stonewall
- bssplit=64k/40:1024k/60,1024k/100
- cmdprio_bssplit=64k/25/1/1:64k/75/3/2:1024k/0,1024k/0
- 
- ; Identical to the previous example, but with a default priority defined.
- [cmdprio-adv-def]
--; 40% of read IOs are 64kB and 60% are 1MB. 100% of writes are 1MB.
-+; 40% of read I/Os are 64kB and 60% are 1MB. 100% of writes are 1MB.
- ; 25% of the 64kB reads are executed with prio class 1 and prio level 1,
- ; 75% of the 64kB reads are executed with prio class 3 and prio level 2.
--; All other IOs are executed with prio class 2 and prio level 7.
-+; All other I/Os are executed with prio class 2 and prio level 7.
- stonewall
- prioclass=2
- prio=7
- bssplit=64k/40:1024k/60,1024k/100
- cmdprio_bssplit=64k/25/1/1:64k/75/3/2:1024k/0,1024k/0
-+
-+; Example of how to use cmdprio_bssplit with Command Duration Limits (CDL)
-+; using I/O priority hints. The drive has to support CDL, and CDL has to be
-+; enabled in sysfs, otherwise the hints will not be sent down to the drive.
-+[cmdprio-hints]
-+; 40% of the I/Os are 1MB reads and 60% of the I/Os are 2MB reads.
-+;
-+; 10% of the 1MB reads are executed with prio class 2 (Best Effort),
-+; prio level 0, and prio hint 1. Prio hint 1 means CDL descriptor 1.
-+; Since 40% of read I/Os are 1MB, and 10% of the 1MB I/Os use CDL desc 1,
-+; this means that 4% of all the issued I/O will use this configuration.
-+;
-+; 30% of the 1MB reads are executed with prio class 2 (Best Effort),
-+; prio level 0, and prio hint 2. Prio hint 2 means CDL descriptor 2.
-+; Since 40% of read I/Os are 1MB, and 30% of the 1MB I/Os use CDL desc 2,
-+; this means that 12% of all the issued I/O will use this configuration.
-+;
-+; 60% of the 1MB reads are executed with prio class 2 (Best Effort),
-+; prio level 0, and prio hint 0. Prio hint 0 means no hint.
-+; Since 40% of read I/Os are 1MB, and 60% of the 1MB I/Os use no hint,
-+; this means that 24% of all the issued I/O will use this configuration.
-+;
-+; 10% of the 2MB reads are executed with prio class 2 (Best Effort),
-+; prio level 0, and prio hint 3. Prio hint 3 means CDL descriptor 3.
-+; Since 60% of read I/Os are 2MB, and 10% of the 2MB I/Os use CDL desc 3,
-+; this means that 6% of all the issued I/O will use this configuration.
-+;
-+; 90% of the 2MB reads are executed with prio class 2 (Best Effort),
-+; prio level 0, and prio hint 0. Prio hint 0 means no hint.
-+; Since 60% of read I/Os are 2MB, and 90% of the 2MB I/Os use no hint,
-+; this means that 54% of all the issued I/O will use this configuration.
-+stonewall
-+rw=randread
-+bssplit=1M/40:2M/60
-+cmdprio_bssplit=1M/10/2/0/1:1M/30/2/0/2:1M/60/2/0/0:2M/10/2/0/3:2M/90/2/0/0
