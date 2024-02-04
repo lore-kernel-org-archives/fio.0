@@ -1,49 +1,49 @@
 Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6E8D286BF
-	for <fio@vger.kernel.org>; Sun,  4 Feb 2024 21:16:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A44A2556E
+	for <fio@vger.kernel.org>; Sun,  4 Feb 2024 21:16:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707081409; cv=none; b=gcDlQkSaRnyuel6UY8TVhMlF5XZjLsgmfUDBgU3vnFlewHbXR4piq5OC1WEhZhCQsF4VEmZ0esAq9tjxLvQ8WMfwKO6q9+//4yiz+UNQ/Csj4VVhLWbInBWJ7FXi37Mhet5zCJxaJ6Wk1kZm2VGiJ29KTEQ8e0WMTzRJDDa7Lpw=
+	t=1707081409; cv=none; b=Rv/CeSLQF1QiiqSb6vw6CZ9zvMaX9FitaECrGUeLFk8UShQsglYsyZmcbUsycs0Z9NOaxvj9yfsP8+gyHZWr6WypxgxwbbjC6I+6jTRp6DYdFUGEGAeEemmvC2NR4hHs1iWtA0XYWzdiV7CIC4i499fTvyK1qHQdtP83KfDpwNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1707081409; c=relaxed/simple;
-	bh=uS6YT0OiSAkcTNxiTyWeffINlvoJuYax+B56ID9Is4M=;
+	bh=SjuInYqIacOKFt/CrBY5t+FnOGAmqLgPXywQLRBOC+g=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LjRa9O3hv4636btVVY7fEFQj9Bq5AqOLKuItGDyJcdy968XPHC2UigFUfJTKDi+oUCobkc8albaQJwYi3+6RBwTPPex3Jn/Pwkf3lqRMLt9T7izxvGykEyUwhfRXGPFSeWBKk3cSRU+KVErwx+z9QurgWfw3SwXXYfYcn/6a+AA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=AhSCwI5m; arc=none smtp.client-ip=68.232.143.124
+	 MIME-Version; b=ZFIJstOYnriO+GNeMuGhwduZcd3NDqlGqyH23LBhhrUGfImuwefDlQHpdHlI2oxHO59Ml2JJ6pmoDRyxIc52/oXCmLpgvJ70B8Rr+B1KmPGdGBfHP+lOi/PyxhAlBYFEQZqrzCdHrwPdhdlFLgr/Z68z5eYCilbPnExmkoeiGco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=GmjIbNah; arc=none smtp.client-ip=68.232.143.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="AhSCwI5m"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="GmjIbNah"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1707081406; x=1738617406;
+  t=1707081408; x=1738617408;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=uS6YT0OiSAkcTNxiTyWeffINlvoJuYax+B56ID9Is4M=;
-  b=AhSCwI5m6m7746Am313bhn1MFyZWZUQSjRN1esq7/xVLjyRsX2aUpFXK
-   K4MEBA6I83G29MDUZJG/mDSwGp5TT6PomN4D8T7La/AxCc6n02tChfeoY
-   OiV691L9yradSwe90cvWe5CO0nNN2nx5wLq0YvHIs6KSq8V5LXyRs5236
-   ZN2I3wGEXBiYvYaA3PXkaIRlWhcQt1sNfqeThUp+1CBwBjRNbPzHwCfZU
-   h13x7U8Eov7sraCc5rG8Jjjem6k6/HBa2ckXi4W69Nu1gulO6tWU9kjZy
-   8gagXvAIeQ8ZwQjpsOhpott1NsrdABS/nsnLgHIyKkEZ4yypWAapIjlsv
-   w==;
-X-CSE-ConnectionGUID: K9AzlfZKSD2FIZT5UFX+MA==
-X-CSE-MsgGUID: +bw4NcFiSCeNFC1xHxW+Ew==
+  bh=SjuInYqIacOKFt/CrBY5t+FnOGAmqLgPXywQLRBOC+g=;
+  b=GmjIbNahPx3PVbFcGHj0dpS47U/0kOIYwgEc76+f9h9NSjJOK11mPrwX
+   kv5TgLxNY1gLGE4hGXQbSOH5qn21K6IyyCo8YZUoJug/O4ZY/8N5i1lOe
+   zVHWp0i+e1c6ak4h7QonkziiFLeXLDJjXjncSXhTk+DMT/LdrQZA0jDxW
+   FiIlvwjyuLcWMfYB/cM3Vmlfga3Y8lsLGgDKdlB4bHl0XfssHMJ+ZByR0
+   06iBeMkil9YCs8Ws0p6/uvGJXHxYqUMgIDm3HFwGHmz4/mWfQLCe2GsxB
+   8vyRwDxcZ7wuha+arO9p5an5MIHBL77t+OciL7szF1iTcZ6yttFdMzdgM
+   g==;
+X-CSE-ConnectionGUID: fZ8OKJsAS3G3aaLZkfuO2g==
+X-CSE-MsgGUID: pvgSQgttROuOAduivENs0A==
 X-IronPort-AV: E=Sophos;i="6.05,242,1701100800"; 
-   d="scan'208";a="8472760"
+   d="scan'208";a="8472762"
 Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 05 Feb 2024 05:16:40 +0800
-IronPort-SDR: P6/ptPK2f+M2+dXc95jBh7suxtvEXvClNvWk0BGi1ZQo0Pzgw17PL2Fkd2pWa7CUOBNFpTiXSv
- T7OIN3YdFfnA==
+  by ob1.hgst.iphmx.com with ESMTP; 05 Feb 2024 05:16:42 +0800
+IronPort-SDR: gkklwyQZWkjDlL7BAYeDhA+4GlqioWoK4Y5owdDIuaPJglvvYkZhvo8m+qtb90sn0u8CMxUkjK
+ RT5Heh+8INnQ==
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Feb 2024 12:20:47 -0800
-IronPort-SDR: SsKaEK0wBKxqpkYssGXIIx/eiqYuMVoWARrIQMOJnGlQ6ky4ul6ONVo49uredmsSPY7xKUylhc
- GLuUFksJarIQ==
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 04 Feb 2024 12:20:48 -0800
+IronPort-SDR: qQKIYwi4tBlW7qQmHwiFXGjfy8C1lGgyoS47p5Ex4GVeR7G3MyHZi0KuoZ4AbABMZcWejjt8QN
+ brNfM1c/jHAA==
 WDCIronportException: Internal
 Received: from unknown (HELO redsun50.ssa.fujisawa.hgst.com) ([10.149.66.6])
-  by uls-op-cesaip02.wdc.com with ESMTP; 04 Feb 2024 13:16:40 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 04 Feb 2024 13:16:41 -0800
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 To: Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincent.fu@samsung.com>,
@@ -52,9 +52,9 @@ Cc: Damien Le Moal <damien.lemoal@wdc.com>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
 	Niklas Cassel <niklas.cassel@wdc.com>,
 	Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH 1/5] zbd: avoid assertions during sequential read I/O
-Date: Mon,  5 Feb 2024 06:16:33 +0900
-Message-Id: <20240204211637.210199-2-dmitry.fomichev@wdc.com>
+Subject: [PATCH 2/5] oslib: log BLKREPORTZONE error code
+Date: Mon,  5 Feb 2024 06:16:34 +0900
+Message-Id: <20240204211637.210199-3-dmitry.fomichev@wdc.com>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20240204211637.210199-1-dmitry.fomichev@wdc.com>
 References: <20240204211637.210199-1-dmitry.fomichev@wdc.com>
@@ -64,61 +64,29 @@ List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-“zbd.c:110: zone_lock: Assertion `f->min_zone <= nz && nz < f->max_zone' failed.”
+BLKREPORTZONE may fail because of a variety of reasons.
+Log both the return code and errno when this ioctl fails.
 
-The code in zbd_zone_align_file_sizes() rounds down the I/O size to
-avoid these situations, but it is bypassed
-if td->o.td_ddir == TD_DDIR_READ.
-
-Avoid this issue by modifying zbd_zone_align_file_sizes() to round down
-the I/O size for read I/Os and leave the I/O offset untouched.
-
-Fixes: 0bf93a1a7ed7 ("zbd: introduce zbd_zone_align_file_sizes() helper")
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- zbd.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ oslib/linux-blkzoned.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index 61b5b688..7577472e 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -674,9 +674,20 @@ static bool zbd_zone_align_file_sizes(struct thread_data *td,
- 		return false;
+diff --git a/oslib/linux-blkzoned.c b/oslib/linux-blkzoned.c
+index 2c3ecf33..1cc8d288 100644
+--- a/oslib/linux-blkzoned.c
++++ b/oslib/linux-blkzoned.c
+@@ -242,6 +242,8 @@ int blkzoned_report_zones(struct thread_data *td, struct fio_file *f,
+ 	hdr->sector = offset >> 9;
+ 	ret = ioctl(fd, BLKREPORTZONE, hdr);
+ 	if (ret) {
++		log_err("%s: BLKREPORTZONE ioctl failed, ret=%d, err=%d.\n",
++			f->file_name, ret, -errno);
+ 		ret = -errno;
+ 		goto out;
  	}
- 
-+	if (td->o.td_ddir == TD_DDIR_READ) {
-+		z = zbd_offset_to_zone(f, f->file_offset + f->io_size);
-+		new_end = z->start;
-+		if (f->file_offset + f->io_size > new_end) {
-+			log_info("%s: rounded io_size from %"PRIu64" to %"PRIu64"\n",
-+				 f->file_name, f->io_size,
-+				 new_end - f->file_offset);
-+			f->io_size = new_end - f->file_offset;
-+		}
-+		return true;
-+	}
-+
- 	z = zbd_offset_to_zone(f, f->file_offset);
--	if ((f->file_offset != z->start) &&
--	    (td->o.td_ddir != TD_DDIR_READ)) {
-+	if (f->file_offset != z->start) {
- 		new_offset = zbd_zone_end(z);
- 		if (new_offset >= f->file_offset + f->io_size) {
- 			log_info("%s: io_size must be at least one zone\n",
-@@ -692,8 +703,7 @@ static bool zbd_zone_align_file_sizes(struct thread_data *td,
- 
- 	z = zbd_offset_to_zone(f, f->file_offset + f->io_size);
- 	new_end = z->start;
--	if ((td->o.td_ddir != TD_DDIR_READ) &&
--	    (f->file_offset + f->io_size != new_end)) {
-+	if (f->file_offset + f->io_size != new_end) {
- 		if (new_end <= f->file_offset) {
- 			log_info("%s: io_size must be at least one zone\n",
- 				 f->file_name);
 -- 
 2.37.3
 
