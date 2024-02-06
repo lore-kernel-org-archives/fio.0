@@ -1,49 +1,49 @@
 Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14A412E1FB
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 655E512EBE3
 	for <fio@vger.kernel.org>; Tue,  6 Feb 2024 10:59:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707217156; cv=none; b=jmKw9w/bRKLcvQgYCBgi3WcP8JrPubAYiEfHd3yoXRIAaJHXVCVhJriK7uad/QSyteoT/v7XE2iq+tish9zov94+VrUQixrDidwUrT9A0viDiBQEPmA4dGKPlAdkSr8uEvNEklvrMUQ5uc5toN+BqNG4nqKC7KMTnKdYaK6Rpfc=
+	t=1707217156; cv=none; b=jVudzPCpf96u5BwUWSPH/sm4zHaLMHqyDjiNnjBRUqI4sriCwiLxfj4BgqzV6C6SC4RR+4tP/Dfvy/PxeWncExBCAQ4oFzlCgfH0AbqehH2VGY9Z08AXq2leM6Fk+rD1UZTM9tI3taNmzY/a3fLajGld34Oo1PcXPWPWcpWvzAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1707217156; c=relaxed/simple;
-	bh=JxXXNehHJX92IOopJUJf35Xi5OUsJB0iPZXkhIKWlsI=;
+	bh=xRl+1WN1reI1SWBLTBm47B+fzmx4G/kdM/mjLkRm9II=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=qA8bRa21ITGLy19LqpOgeqltcY2ymHUhHvW9XPzL1nzSoD1Xf177tpo4+H4T590Ir6HRnW5f2WtrUVqtxg2ZduFrs4JrqWZ0mdRaqUtq7ZqiYn9YV/eBIVaOHXpjJgEZ3HGlhspZiAKmcB8hHLjntdj67ByJW4lWDXFN5Iq/6xY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=oUOmOiHa; arc=none smtp.client-ip=216.71.154.45
+	 MIME-Version; b=TWok8GLtqq9IT7QCp8K1vv2YfJeVhuFrc8wMvKbojzGmRO/uH/P1Obdqi9MRQcAzQ8ow88CjkIVIuXSkPF+lPhkQBUOa5xB/tSX9YR13F/1QVVbgin6bEf1PG9x0wJJ01+Sh5ARMcKbFr+D4QeEtpCySx6LaxIEYh4tlLhYpsLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=PUxAKtcD; arc=none smtp.client-ip=216.71.154.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="oUOmOiHa"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="PUxAKtcD"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1707217154; x=1738753154;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=JxXXNehHJX92IOopJUJf35Xi5OUsJB0iPZXkhIKWlsI=;
-  b=oUOmOiHa8k4kFKW6WyGxQNK6+ZGr2hTJDfLIEm2fN+am3M2Ezl28isQ4
-   gb3SO9bIw/nKm5ocVLMpF56BCy8gO2aK9D5V9Zld5KuXmfesLDwVFvSeo
-   r53Kwt3BlqrKsS6UitopynqFwPg8gRRy9zsa6PRL5Kc1uTXQKYZc7opnL
-   kmJX2iKwuHfJkKarDIk3gs4827xmuFhj+WF/gUhXOZmi4LVzjBZeOMe/B
-   WhUje0b+zzJutnMkbC19kvwGxsiINSTlfY5tXApyrGK7bt67UbebceeJP
-   YX2ctFtOVLuLnsch41Hazr8nyCOJZVILqsgSWFrPPhxo7M4GEvhzDKMd4
+  bh=xRl+1WN1reI1SWBLTBm47B+fzmx4G/kdM/mjLkRm9II=;
+  b=PUxAKtcDxjYZIvct/Zx4OC8WQicpe3Ywd2EcedDzF+8fnHwBOgniqf5+
+   SnKfmE9pJu005hIlX4f84S2NX2wFrIN2DcQqQb63WzKtjEBPLvU6Q9hNi
+   pmxJGGlvPM83pse/JId0wbT7WCXjmcll5D5HsYpCfWDQYsFHJyWUSLDKm
+   Ny27zpCNogctUqhC+ZDGOAWiclxaeDLuZClbiEdlY/Q/xEdoKqwsl7Nvh
+   xmCSAJYTm/CEuI4f3orzPRfrb4MHUb6tUbHVmaxlOB60/vFlGmf6QTaW+
+   sNEvArZ8CZxs1OYZhbBemS36jljHq0WqIVoiwvQ9tD2gul8KA6I9i1a/U
    Q==;
-X-CSE-ConnectionGUID: 4WDQNvWnTzGcPBWJvwWsGA==
-X-CSE-MsgGUID: YbaKcnkMTEm/An81mgX4/w==
+X-CSE-ConnectionGUID: wNL9biy7QJWnNvvzlrJR4w==
+X-CSE-MsgGUID: wR5TyUZDT0GYwWU5MsyMGA==
 X-IronPort-AV: E=Sophos;i="6.05,247,1701100800"; 
-   d="scan'208";a="8663354"
+   d="scan'208";a="8663352"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 06 Feb 2024 18:58:04 +0800
-IronPort-SDR: orwXt17c7p14oSlyeSh42dXY1mQpVXuqT/5VI7a4LQ77xrNWMEPDa+S2+NucET4p9wmSUgF/ka
- YUtSHI+lK+Xw==
+  by ob1.hgst.iphmx.com with ESMTP; 06 Feb 2024 18:58:02 +0800
+IronPort-SDR: w2fctcgmFuLY/gcTvDT/EhPsST5eittlJNKb9G/TESx20OSpu/aP+0znzdAYwGcuzYkpvQXaof
+ QI2jPybsnk+Q==
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Feb 2024 02:02:09 -0800
-IronPort-SDR: MtHUKDTGDSY0FL7x+bOrECABRxpL0Q73DN4IyIPq+012ExzoRFNaofQEu3JH1i72ahBryg3W/f
- PHPS7UDFVr6A==
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 06 Feb 2024 02:02:08 -0800
+IronPort-SDR: n4jpX80C4LD1izFSiQ7dtUFT1C+FpvlpslwSz/GGvhldChxn8BqHy3XFOBUDG435HBS8j8ku34
+ f9a0GuBp2qow==
 WDCIronportException: Internal
 Received: from unknown (HELO redsun50.ssa.fujisawa.hgst.com) ([10.149.66.6])
-  by uls-op-cesaip02.wdc.com with ESMTP; 06 Feb 2024 02:58:03 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 06 Feb 2024 02:58:01 -0800
 From: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 To: Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincent.fu@samsung.com>,
@@ -52,9 +52,9 @@ Cc: Damien Le Moal <damien.lemoal@wdc.com>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
 	Niklas Cassel <niklas.cassel@wdc.com>,
 	Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: [PATCH v2 5/5] t/zbd: add -s option to test-zbd-support script
-Date: Tue,  6 Feb 2024 19:57:55 +0900
-Message-Id: <20240206105755.214891-6-dmitry.fomichev@wdc.com>
+Subject: [PATCH v2 4/5] t/zbd: check device for unrestricted read support
+Date: Tue,  6 Feb 2024 19:57:54 +0900
+Message-Id: <20240206105755.214891-5-dmitry.fomichev@wdc.com>
 X-Mailer: git-send-email 2.37.3
 In-Reply-To: <20240206105755.214891-1-dmitry.fomichev@wdc.com>
 References: <20240206105755.214891-1-dmitry.fomichev@wdc.com>
@@ -66,65 +66,114 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The total number of ZBD tests in test-zbd-support script has grown
-considerably over the years and zoned drive capacity has significantly
-increased as well. Today, the test run duration may reach one hour for
-large drives. If a terminal session failure happens during a run, it
-is more efficient to restart the tests from the point where the last
-run stopped rather than from the beginning.
+ZBD unit tests in t/zbd/test-zbd-support currently assume that the
+drive that is being tested supports unrestricted reads, i.e. reads
+that (partially or entirely) occur above the write pointer. This is
+always the case with ZBD core code because Linux kernel rejects zoned
+devices with restricted reads. However, libzbc ioengine does support
+such devices.
 
-Add -s option to the script command line to specify the starting
-test number.
+The restricted/unrestricted reads feature is controlled by URSWRZ
+device bit ("Unrestricted Reads of Sequential Write Required Zones")
+which, depending on the device design, can be hard-coded to be reported
+as 1 or 0 or it can be made configurable via MODE SET or SET FEATURES
+commands. The unit tests need to behave correctly with any URSWRZ bit
+value reported by the device if libzbc ioengine is used for testing.
+
+Test #4 in the test script currently expects the device to have
+unrestricted SWR zone reads. This test is guaranteed to fail if
+the script is run against a drive that reports URSWRZ=0 with libzbc
+ioengine.
+
+Check if the drive has unrestricted read support disabled and process
+the outcome of test #4 accordingly.
 
 Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 ---
- t/zbd/test-zbd-support | 5 +++++
- 1 file changed, 5 insertions(+)
+ t/zbd/functions        | 22 ++++++++++++++++++++++
+ t/zbd/test-zbd-support | 15 +++++++++++++--
+ 2 files changed, 35 insertions(+), 2 deletions(-)
 
+diff --git a/t/zbd/functions b/t/zbd/functions
+index 028df404..7734371e 100644
+--- a/t/zbd/functions
++++ b/t/zbd/functions
+@@ -290,6 +290,28 @@ min_seq_write_size() {
+ 	fi
+ }
+ 
++urswrz() {
++    local dev=$1
++
++    if [ -n "${sg_inq}" ] && [ ! -n "${use_libzbc}" ]; then
++	if ! ${sg_inq} -e --page=0xB6 --len=10 --hex "$dev" \
++		 > /dev/null 2>&1; then
++	    # Couldn't get URSWRZ bit. Assume the reads are unrestricted
++	    # because this configuration is more common.
++	    echo 1
++	else
++	    ${sg_inq} -e --page=0xB6 --len=10 --hex "$dev" | tail -1 |
++		{
++		    read -r offset b0 b1 b2 b3 b4 trailer && \
++			echo $(( $b4 & 0x01 )) || echo 0
++		}
++	fi
++    else
++	${zbc_info} "$dev" |
++	    sed -n 's/^[[:blank:]].*Read commands are \(un\)restricted*/\1/p' | grep -q ^ && echo 1 || echo 0
++    fi
++}
++
+ is_zbc() {
+ 	local dev=$1
+ 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index defb3652..c27d2ad6 100755
+index 532860eb..defb3652 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -15,6 +15,7 @@ usage() {
- 	echo -e "\t-w Reset all zones before executing each write test case"
- 	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
- 	echo -e "\t-t <test #> Run only a single test case with specified number"
-+	echo -e "\t-s <test #> Start testing from the case with the specified number"
- 	echo -e "\t-q Quit the test run after any failed test"
- 	echo -e "\t-z Run fio with debug=zbd option"
- 	echo -e "\t-u Use io_uring ioengine in place of libaio"
-@@ -1602,6 +1603,7 @@ zbd_debug=
- max_open_zones_opt=
- quit_on_err=
- force_io_uring=
-+start_test=1
+@@ -412,8 +412,16 @@ test4() {
+     opts+=("--size=$size" "--thread=1" "--read_beyond_wp=1")
+     opts+=("$(ioengine "psync")" "--rw=read" "--direct=1" "--disable_lat=1")
+     opts+=("--zonemode=zbd" "--zonesize=${zone_size}")
+-    run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1 || return $?
+-    check_read $size || return $?
++    run_fio "${opts[@]}" >> "${logfile}.${test_number}" 2>&1
++    fio_rc=$?
++    if [[ $unrestricted_reads != 0 ]]; then
++	if [[ $fio_rc != 0 ]]; then
++		return "$fio_rc"
++	fi
++	check_read $size || return $?
++    else
++        [ $fio_rc == 0 ] && return 1 || return 0
++    fi
+ }
  
- while [ "${1#-}" != "$1" ]; do
-   case "$1" in
-@@ -1615,6 +1617,7 @@ while [ "${1#-}" != "$1" ]; do
-     -w) reset_before_write=1; shift;;
-     -t) tests+=("$2"); shift; shift;;
-     -o) max_open_zones_opt="${2}"; shift; shift;;
-+    -s) start_test=$2; shift; shift;;
-     -v) dynamic_analyzer=(valgrind "--read-var-info=yes");
- 	shift;;
-     -q) quit_on_err=1; shift;;
-@@ -1694,6 +1697,7 @@ if [[ -b "$realdev" ]]; then
+ # Sequential write to sequential zones.
+@@ -1664,6 +1672,7 @@ if [[ -b "$realdev" ]]; then
+ 		first_sequential_zone_sector=${result[0]}
+ 		sectors_per_zone=${result[1]}
+ 		zone_size=$((sectors_per_zone * 512))
++		unrestricted_reads=$(urswrz "$dev")
+ 		if ! max_open_zones=$(max_open_zones "$dev"); then
+ 			echo "Failed to determine maximum number of open zones"
+ 			exit 1
+@@ -1681,6 +1690,7 @@ if [[ -b "$realdev" ]]; then
+ 		sectors_per_zone=$((zone_size / 512))
+ 		max_open_zones=128
+ 		max_active_zones=0
++		unrestricted_reads=1
  		set_io_scheduler "$basename" none || exit $?
  		;;
  	esac
-+
- elif [[ -c "$realdev" ]]; then
- 	# For an SG node, we must have libzbc option specified
- 	if [[ ! -n "$use_libzbc" ]]; then
-@@ -1772,6 +1776,7 @@ trap 'intr=1' SIGINT
- ret=0
- 
- for test_number in "${tests[@]}"; do
-+    [ "${test_number}" -lt "${start_test}" ] && continue
-     rm -f "${logfile}.${test_number}"
-     unset SKIP_REASON
-     echo -n "Running test $(printf "%02d" $test_number) ... "
+@@ -1712,6 +1722,7 @@ elif [[ -c "$realdev" ]]; then
+ 	first_sequential_zone_sector=${result[0]}
+ 	sectors_per_zone=${result[1]}
+ 	zone_size=$((sectors_per_zone * 512))
++	unrestricted_reads=$(urswrz "$dev")
+ 	if ! max_open_zones=$(max_open_zones "$dev"); then
+ 		echo "Failed to determine maximum number of open zones"
+ 		exit 1
 -- 
 2.37.3
 
