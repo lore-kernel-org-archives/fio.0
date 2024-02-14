@@ -1,59 +1,60 @@
-Received: from mail-io1-f43.google.com (mail-io1-f43.google.com [209.85.166.43])
+Received: from mail-il1-f175.google.com (mail-il1-f175.google.com [209.85.166.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E9B15B666
-	for <fio@vger.kernel.org>; Wed, 14 Feb 2024 14:43:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B149C5A0F8
+	for <fio@vger.kernel.org>; Wed, 14 Feb 2024 14:44:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707921835; cv=none; b=fCwmtaC1jAAZW92B7Cgid/IP1apQtWmTsU8X5qgdz7QDtKyhGrmx/jyKQKaR1x7WwSxta7BPgatMcK0eXymBuVlHxE5xYJNo2jLULx5wl54R34h7N+6al7ceFbzCHrw/o2vOrEj5+aOPbEFrIpE3DAoTO0qrpnnLswNKIZcOC2Y=
+	t=1707921879; cv=none; b=UwpHzTx9937HdnUD0eWI1gNQsq22O46WNSOOQVWqUUQxLFAkDsuEbuewmuz4yDIdx2EMGlLyKhTN0iwFC7GxwDBUge/FfU02hX3mMBX28tV0uvVI6xVUIReFS8SoaplJeqWs8HoAnWCQjXNLZj1ijDwKT6gmtz8JbSeqqbpAD0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707921835; c=relaxed/simple;
-	bh=UCl8iFVcQgAl4TT8JreJgu+gG26Mz5veORnbYZz95T4=;
+	s=arc-20240116; t=1707921879; c=relaxed/simple;
+	bh=u/N7jXkwX+/YPiM5P4kvWCURhdo7v1R8ahj9J/rjT4I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uD5TYT8r2XRdDmZIAf1NgqeXPgZ+UuXxtKOOvUWERbzfZg8n4cTfI7ajYSsji+7WB79wF8ggkhMys6pgbvln8YPuinymdAeSoQJ+PaRW078ixlAgVDHt6/LkKZr2dBJFeBLVg2HizeV+3gAkhyXU5Nu1+nAL69IMSAkjFlyOva4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=etW1+a1J; arc=none smtp.client-ip=209.85.166.43
+	 In-Reply-To:Content-Type; b=qllMfOE9UO6+VO2VSP7nyyJIsOfJvs33i0X+OfId1B2oqOMMOyJeMaYMaoz7aOMUQUhqj35rrCjR+RY/5OUVkZ8lq6eQFlEwpzxou9bjiDWylFXK3GDkrsUojbDF2K6eT370aQHY9nQtvjn/8l0r/8XGb4ZQdebuyermUNEs9k0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=gPzJY7uO; arc=none smtp.client-ip=209.85.166.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="etW1+a1J"
-Received: by mail-io1-f43.google.com with SMTP id ca18e2360f4ac-7bff8f21b74so57410739f.0
-        for <fio@vger.kernel.org>; Wed, 14 Feb 2024 06:43:51 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="gPzJY7uO"
+Received: by mail-il1-f175.google.com with SMTP id e9e14a558f8ab-36464eebedbso182065ab.0
+        for <fio@vger.kernel.org>; Wed, 14 Feb 2024 06:44:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707921831; x=1708526631; darn=vger.kernel.org;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1707921876; x=1708526676; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=DTTzkSKnjdkUbq+fxZGNQhH+iNq35Utw5g0Mi9WNeDY=;
-        b=etW1+a1J6Fxf2r41YltddTelKX9JYyt0gT8ChQn+/nuznZzTRAwXk5lShCdjZTFixQ
-         71P2+pfCsFWfaJRgEkiFNXz9nfm2dTK1wOPVN/HWKLZe2lzWut/NtGwTDUX9GzmvYShR
-         yEIoKgH5OiIsXFA/txVGMGzvD3Ho4ltUwm/pprZI5lWGkmBR9vmiJH/F5tLW3GQ0gHi3
-         cb41fHUdGWREoKYJ3IfHd1NRtQYEzT1cyrUiIJUdzpxwvxwX4Y5YvekT6LzWxjjHkQ5I
-         IYEUmbL/SJ7WxLL6ULTHycwiF1mdsnZa6i0ZL9UmInHUcrxCrA5WT9ZZWylTk+rziaoW
-         lJXQ==
+        bh=RVg4FFlOpSNhmuzeCMsVA53joc80Jp88JvcPymABhUc=;
+        b=gPzJY7uOEfGr/C9swUZSgKwihK6UEcLBh9pV/3evSonobzgR/E1SKe84XdFM9iRvLn
+         JFsGDZfoiEucfYbcr6xPZgndQ9Oau09SAsMcZViOxmWy2G9P5JVDD8vwhGGfDlT24pxf
+         MtR9mbyYP2SmO1tuGEu3h7/6yB/aWI8dldYeQhnTcHzSpgSNjTqSGDxnEk3Zjc4Iu0z3
+         N1uJf8riPw+o9OOyZaUJjKOzS0Ygh/n0JPceKWSxvN/KiS2/AVhGCwThP/GzmIxS+Fn2
+         6mnd/nevK91pXih2qZtoJ89hXn98ztOgPRwJZGLXPb6sBfQLYFOqxOR3JW6jhdpQfR5h
+         2ppw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707921831; x=1708526631;
+        d=1e100.net; s=20230601; t=1707921876; x=1708526676;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DTTzkSKnjdkUbq+fxZGNQhH+iNq35Utw5g0Mi9WNeDY=;
-        b=lkk/6FUb7ZmTzxOLUNMCCLOZkhYNrIByOLQfMgAumwsOqDs41IxWXbaZ1zc5vbTU+L
-         NHiM0b1zL3FISFCHO1XohZbsNEMlwXuTHuDfJtHtBpODs68Oco4H616jH7p3tI/oTBr/
-         D+zuV0RbrARetoZ6J3FRPUmeG6Ay8QaLPuMwBUvG81yYF5JbPvX/EUmCxHDwHVR2D9lZ
-         wJTbqC1/TBcGQow0iXCvF2Ko2bHxIzwNT0JsmfTnL4kD/1V/uhzhyF3KJFETBDU1yE1T
-         SL7WedO2QQeLuw90c9OWBj83pbrz4OfZGWq/kGOAgFA0hC6VcvvsEyLTJHcF/3iKcIFe
-         C0mA==
-X-Gm-Message-State: AOJu0YxyC9rdi7yDT6Oa0haG/QPmXJ99f5NfkaekIeh9MdGf/7TyI3Nw
-	N+0Hei34N49HvK4sSvGfV6cJs7rj+4va28V3XjC3yLf4Kxa7M9rdSPWJ/26BHQE=
-X-Google-Smtp-Source: AGHT+IGCcY1B5TiZCI6U7V1XnhmCNmHbCY1mt/9b+uPPA0VXFX2WMHnpl+EU2yVmOTRPTey4RW9sWw==
-X-Received: by 2002:a92:c544:0:b0:363:e55d:77e8 with SMTP id a4-20020a92c544000000b00363e55d77e8mr3119600ilj.3.1707921831073;
-        Wed, 14 Feb 2024 06:43:51 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCVUjuMjdqbOnzfJTpbZTCEQMxH2wZiifyQIdNJbbRgub6v7mzcVapKdpEsOz9ADay70tEDIBhnkXsAwipr8ayKJocHB+lXVVeI7zs27DEijILFXH7Q60TBX
+        bh=RVg4FFlOpSNhmuzeCMsVA53joc80Jp88JvcPymABhUc=;
+        b=dEydEzO2QeK7pP9VqgP3zwcLPpXUaBznSsHdhGV1O049LMuWDMmAg4nY+B6NW/vZoQ
+         eEEFYNdb1kbHXsvT3kS1oOF4WTy6EQz0jwvCTz7OH71ddZGPY2EpbZ/ZtAYztXIA95Fn
+         k/8z/M43JoJvoIr+zWLblRZUh87gz6LVHwfBVums4uejjJjuXsTSRKXsieJZqM+Svg2j
+         nbhZ+qYXFmN4QWeEXI7Ru/wDgiFCjASjKUOXhARve/4vXwiwZvmaywfzdup6FZgns7He
+         38K+LE3LrOL2NLeGxYkcd+5k9V/VjU2dxA+8atqf0qydN6I8p3zda9IiHjN7sfcgjLgl
+         5Rnw==
+X-Gm-Message-State: AOJu0Yz6tblv1uU6Zg0VAQwfNU8dnzlnSIILK1eGSRTAzXtjkJa2jvp7
+	4raxLTIo1QkNVkzIexyXJ7W53No3vzOQ2YnvEojXXAoRGjb/7lRqRtq9y3RqUuAljALD7Wv4PH7
+	F
+X-Google-Smtp-Source: AGHT+IHTFhwpM1ZhGsRin7jodYGH1gTUodWMdt2kJ9NhMpmn3B1iY0Zra07HMxhwJev/hoG1cKLGmw==
+X-Received: by 2002:a92:c26b:0:b0:363:c919:eee3 with SMTP id h11-20020a92c26b000000b00363c919eee3mr3544675ild.0.1707921876525;
+        Wed, 14 Feb 2024 06:44:36 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXvp2w4jGc15ITYIMbLqMmSd84guw2y6rRYJy9FZjBchuLJAcja3OM+xb3FCs4KRn2vAMTfPjIRrGIT4PprFXqtEZEmKNR2Xex1Tvd/9H26HN1jnBbYus3w
 Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id t9-20020a92cc49000000b003642c859d28sm480617ilq.79.2024.02.14.06.43.50
+        by smtp.gmail.com with ESMTPSA id t9-20020a92cc49000000b003642c859d28sm480617ilq.79.2024.02.14.06.44.35
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Feb 2024 06:43:50 -0800 (PST)
-Message-ID: <47983128-751a-42b0-86be-cf112adc3c32@kernel.dk>
-Date: Wed, 14 Feb 2024 07:43:49 -0700
+        Wed, 14 Feb 2024 06:44:36 -0800 (PST)
+Message-ID: <76a9b278-f660-494d-9408-71c90e4b9bcd@kernel.dk>
+Date: Wed, 14 Feb 2024 07:44:35 -0700
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -61,117 +62,64 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] trim: add support for multiple ranges
+Subject: Re: [PATCH 2/3] engines/nvme: pass offset and len instead of io_u
 Content-Language: en-US
 To: Ankit Kumar <ankit.kumar@samsung.com>, vincentfu@gmail.com
 Cc: fio@vger.kernel.org, joshi.k@samsung.com
 References: <20240214120624.135416-1-ankit.kumar@samsung.com>
- <CGME20240214064925epcas5p4167aa60ecee87f3a15bb2a57a4409685@epcas5p4.samsung.com>
- <20240214120624.135416-2-ankit.kumar@samsung.com>
+ <CGME20240214064926epcas5p29dcccdd0abe0e0ffb75c64835ec6a01a@epcas5p2.samsung.com>
+ <20240214120624.135416-3-ankit.kumar@samsung.com>
 From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20240214120624.135416-2-ankit.kumar@samsung.com>
+In-Reply-To: <20240214120624.135416-3-ankit.kumar@samsung.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 2/14/24 5:06 AM, Ankit Kumar wrote:
-> @@ -609,6 +619,14 @@ static inline void fio_ro_check(const struct thread_data *td, struct io_u *io_u)
->  	       !(io_u->ddir == DDIR_TRIM && !td_trim(td)));
+> Remove io_u dependency while calculating start and number of lba.
+> This is a prep patch for multi-range trim support where an io_u entry
+> will contain multiple start offset and buffer len.
+> 
+> Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
+> ---
+>  engines/nvme.c | 34 +++++++++++++++++-----------------
+>  1 file changed, 17 insertions(+), 17 deletions(-)
+> 
+> diff --git a/engines/nvme.c b/engines/nvme.c
+> index 75a5e0c1..e5f17fc7 100644
+> --- a/engines/nvme.c
+> +++ b/engines/nvme.c
+> @@ -8,20 +8,20 @@
+>  #include "../crc/crc-t10dif.h"
+>  #include "../crc/crc64.h"
+>  
+> -static inline __u64 get_slba(struct nvme_data *data, struct io_u *io_u)
+> +static inline __u64 get_slba(struct nvme_data *data, __u64 offset)
+>  {
+>  	if (data->lba_ext)
+> -		return io_u->offset / data->lba_ext;
+> +		return offset / data->lba_ext;
+>  	else
+> -		return io_u->offset >> data->lba_shift;
+> +		return offset >> data->lba_shift;
 >  }
->  
-> +static inline bool multi_range_trim(struct thread_data *td, struct io_u *io_u)
-> +{
-> +	if (io_u->ddir == DDIR_TRIM && td->o.num_range > 1)
-> +		return true;
-> +	else
-> +		return false;
-> +}
-> +
 
-Nit: unnecessary else, just get rid of it.
+Same here on redundant else.
 
-> @@ -966,22 +969,68 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
->  	else if (td->o.zone_mode == ZONE_MODE_ZBD)
->  		setup_zbd_zone_mode(td, io_u);
->  
-> -	/*
-> -	 * No log, let the seq/rand engine retrieve the next buflen and
-> -	 * position.
-> -	 */
-> -	if (get_next_offset(td, io_u, &is_random)) {
-> -		dprint(FD_IO, "io_u %p, failed getting offset\n", io_u);
-> -		return 1;
-> -	}
-> +	if (multi_range_trim(td, io_u)) {
-> +		buf = io_u->buf;
-> +		buflen = 0;
->  
-> -	io_u->buflen = get_next_buflen(td, io_u, is_random);
-> -	if (!io_u->buflen) {
-> -		dprint(FD_IO, "io_u %p, failed getting buflen\n", io_u);
-> -		return 1;
-> -	}
-> +		while (i < td->o.num_range) {
-> +			range = (struct trim_range *)buf;
-> +			if (get_next_offset(td, io_u, &is_random)) {
-> +				dprint(FD_IO, "io_u %p, failed getting offset\n",
-> +				       io_u);
-> +				break;
-> +			}
-> +
-> +			io_u->buflen = get_next_buflen(td, io_u, is_random);
-> +			if (!io_u->buflen) {
-> +				dprint(FD_IO, "io_u %p, failed getting buflen\n", io_u);
-> +				break;
-> +			}
-> +
-> +			if (io_u->offset + io_u->buflen > io_u->file->real_file_size) {
-> +				dprint(FD_IO, "io_u %p, off=0x%llx + len=0x%llx exceeds file size=0x%llx\n",
-> +					io_u,
-> +					(unsigned long long) io_u->offset, io_u->buflen,
-> +					(unsigned long long) io_u->file->real_file_size);
-> +				break;
-> +			}
-> +
-> +			range->start = io_u->offset;
-> +			range->len = io_u->buflen;
-> +			buflen += io_u->buflen;
-> +			f->last_start[io_u->ddir] = io_u->offset;
-> +			f->last_pos[io_u->ddir] = io_u->offset + range->len;
-> +
-> +			buf += sizeof(struct trim_range);
-> +			i++;
->  
-> +			if (td_random(td) && file_randommap(td, io_u->file))
-> +				mark_random_map(td, io_u, io_u->offset, io_u->buflen);
-> +		}
-> +		if (buflen) {
-> +			io_u->buflen = buflen;
-> +			io_u->number_trim = i;
-> +		} else {
-> +			return 1;
-> +		}
-> +	} else {
-> +		/*
-> +		 * No log, let the seq/rand engine retrieve the next buflen and
-> +		 * position.
-> +		 */
-> +		if (get_next_offset(td, io_u, &is_random)) {
-> +			dprint(FD_IO, "io_u %p, failed getting offset\n", io_u);
-> +			return 1;
-> +		}
-> +
-> +		io_u->buflen = get_next_buflen(td, io_u, is_random);
-> +		if (!io_u->buflen) {
-> +			dprint(FD_IO, "io_u %p, failed getting buflen\n", io_u);
-> +			return 1;
-> +		}
-> +	}
+> -static inline __u32 get_nlb(struct nvme_data *data, struct io_u *io_u)
+> +static inline __u32 get_nlb(struct nvme_data *data, __u64 len)
+>  {
+>  	if (data->lba_ext)
+> -		return io_u->xfer_buflen / data->lba_ext - 1;
+> +		return len / data->lba_ext - 1;
+>  	else
+> -		return (io_u->xfer_buflen >> data->lba_shift) - 1;
+> +		return (len >> data->lba_shift) - 1;
+>  }
 
-This is a huge block and a bit of a mess because of it - since this is
-highly unlikely for anything but special workloads, please move it into
-a function so we can hopefully get it out-of-line in the hot path.
+Ditto. I know these exist before, but let's please clean them up while
+at it.
 
-Also looks like you forgot to bump the server version?
+Apart from that, this one looks fine.
 
 -- 
 Jens Axboe
