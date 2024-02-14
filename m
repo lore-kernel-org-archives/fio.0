@@ -1,136 +1,83 @@
-Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9E501119E
-	for <fio@vger.kernel.org>; Wed, 14 Feb 2024 07:01:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090FB1BDCE
+	for <fio@vger.kernel.org>; Wed, 14 Feb 2024 12:20:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.141.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707894070; cv=none; b=Z6ULEg9Kb2Z8GgCiYYt8zSd06stfgOeQBynpPqPzP2LfIuh5BHU6pxL6RHWI1KK+IAFaMb3qop2632wk2Rjw+gjqJGp6Rjmjbwr0+Lfj8zeB/B1EeWjJBRXJK9bPx0zBKvyR2M0WJIccIf8qnWth/Zt+/k2u7/xvpiJDtRKYogs=
+	t=1707913213; cv=none; b=G6Y1P38j2bAL2z/umaQTyTXKJ7BxQx1nrulcvm45ACVt1vKJ8kJJv6q6ji5HYJ6i2O+hom2/BL+eNUm4JNZXD5TmrxVdzEMrCTJFa0MhJ9OA0qbHE7D9+Hu03aitqjNsQQXuqvlbnd9ScPW89qH2tU4Gx62hltKwV41CfObwGnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707894070; c=relaxed/simple;
-	bh=OawGq7rx0ThZxk62S1qwu/MrXCR7fQepBpy5iHXnyQo=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:In-Reply-To:
-	 Content-Type:References; b=tQ84c8jrOyR6Ha9drJXKbCOgWhIChq8PaODmZCgN326sGfmYFI/mG15IUA0DZTnJGC0EuOP6+hSl8TmoyCzzi3oX2zykBrgnGov/ofYAQlPcAalJxcDTkP9cS8zZec5pKs9h+ehJAT7IC2VK4uhu3imq48lR2pG9GX8STOuXBKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=UzJAseqQ; arc=none smtp.client-ip=203.254.224.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1707913213; c=relaxed/simple;
+	bh=tHHysqNrYLz+wtpaSSz8CBKpmN0I63phMJYHUjRILIU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I0Hau2fZtfRZv2jEXYi5jBVr7P3EROTlijZC9PBgsofmadcoi4fWDMk/joJdd0sECGekZ37vgxvpXJ0Ms9gRYghRAAVUtFfRHk3ECF17914WQpunyxgwUaHO/wbE8s6krxkk0hGKQw7vE6sH0sABY+zM2lp8ZviwDmJjp81TUQ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=LYXNhsTi; arc=none smtp.client-ip=68.232.141.245
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="UzJAseqQ"
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20240214070106epoutp040cea4e7e8c737935371e7c55bd63d4d5~zqJrEMrKN2917529175epoutp04y
-	for <fio@vger.kernel.org>; Wed, 14 Feb 2024 07:01:06 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20240214070106epoutp040cea4e7e8c737935371e7c55bd63d4d5~zqJrEMrKN2917529175epoutp04y
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1707894066;
-	bh=460LWuJjcpqAYIEyRQhgPK3zlrAWkvK5NlEgRG4j/Yo=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=UzJAseqQmtqR/1KFrsi5y+luBrUrE7VZDNnQ2yHbHMwwa0XRauBcrdUMBHYsKlGBq
-	 pB5ZmzCw0bN3QOptznYPHZexIBIw4WdW9MTCSgDVmBRAWJRcerJegWcJSZ+c+wiS5W
-	 XcwGmi6YQJL8oIESJEKijObuuQFuaK0hBSOvTiU0=
-Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
-	epcas5p1.samsung.com (KnoxPortal) with ESMTP id
-	20240214070106epcas5p14cf09395f9c261652af348bfdb271d09~zqJq0d2OV0169701697epcas5p10;
-	Wed, 14 Feb 2024 07:01:06 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.181]) by
-	epsnrtp3.localdomain (Postfix) with ESMTP id 4TZTcc1GFRz4x9QB; Wed, 14 Feb
-	2024 07:01:04 +0000 (GMT)
-Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
-	epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	CE.A1.09634.0356CC56; Wed, 14 Feb 2024 16:01:04 +0900 (KST)
-Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-	20240214070029epcas5p3e34d6ccbff484755ef10224621c3cac8~zqJIgFKJn2318723187epcas5p3D;
-	Wed, 14 Feb 2024 07:00:29 +0000 (GMT)
-Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
-	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20240214070029epsmtrp284f4ed51a78322c5f30251c382311da4~zqJIfeGP40307903079epsmtrp2X;
-	Wed, 14 Feb 2024 07:00:29 +0000 (GMT)
-X-AuditID: b6c32a49-eebff700000025a2-6a-65cc653098a3
-Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
-	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	10.20.08817.D056CC56; Wed, 14 Feb 2024 16:00:29 +0900 (KST)
-Received: from unvme-desktop (unknown [107.99.41.39]) by
-	epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20240214070028epsmtip1d7e17357fe89491d7d8d53a09721ed94~zqJH9RkVl1083910839epsmtip1V;
-	Wed, 14 Feb 2024 07:00:28 +0000 (GMT)
-Date: Wed, 14 Feb 2024 17:47:38 +0530
-From: Ankit Kumar <ankit.kumar@samsung.com>
-To: Vincent Fu <vincentfu@gmail.com>
-Cc: fio@vger.kernel.org
-Subject: Re: [PATCH 4/5] engines/xnvme: add checks for verify, block size
- and metadata size
-Message-ID: <20240214121738.GA135471@unvme-desktop>
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="LYXNhsTi"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1707913211; x=1739449211;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=tHHysqNrYLz+wtpaSSz8CBKpmN0I63phMJYHUjRILIU=;
+  b=LYXNhsTiR8VP9cRUx4KJFQ9Lyosc2/HBC6doXuzUxsjLiCjxz71cg5Yp
+   iwryHYLtMdRoUcEvmay1H8abW5dzf5lBhf+dDPwRJ5ZrNHtu9kMDWv5+z
+   opteeid0F3tMBHX+Juzh3YOuEQhf6CB6GOWLoe+PIVg8Cjf5aDv/MVKft
+   xEuNj49cU0tXzSnsmKl73cfsn+Tou8XL4gb6X/h/Uk6uvxP+IpuuE9KZh
+   Rqe3v4UaKj0zc6RRLIGvjJTX5pTsq6Jg+5cDpmFkTXE+588N/jnWW5/lE
+   uqymr32Akbi8kvGJZgJTyJD87XN9rY3CZW0SPIe48yL+6kq+lUQneYgxF
+   g==;
+X-CSE-ConnectionGUID: ZHni9YKYShut7jSQ6Edvpw==
+X-CSE-MsgGUID: UOs8qVAUSPqy12J1Cjhx7w==
+X-IronPort-AV: E=Sophos;i="6.06,159,1705334400"; 
+   d="scan'208";a="9479622"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 14 Feb 2024 20:20:10 +0800
+IronPort-SDR: Fs0lqt/DDPxTe6kZQMlzz8NQGyQsAcSnK+S3udH+nLt+3DC/s/Z4asx6K9Vbedj9e+7UzhOp/v
+ TVXYur8065yA==
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Feb 2024 03:29:46 -0800
+IronPort-SDR: D6X+mmzmyZvFFk6JXS/rh3qiRUba3XKXsdDPd3K3U4VGjTy4MalLCi4nBVpMW0zQLGvbx32LcO
+ YIfbECsCnpnQ==
+WDCIronportException: Internal
+Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
+  by uls-op-cesaip01.wdc.com with ESMTP; 14 Feb 2024 04:20:08 -0800
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: fio@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>,
+	Vincent Fu <vincentfu@gmail.com>
+Cc: Damien Le Moal <dlemoal@kernel.org>,
+	Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
+	Niklas Cassel <niklas.cassel@wdc.com>,
+	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 0/2] fix loops option behavior of read-very workloads
+Date: Wed, 14 Feb 2024 21:20:06 +0900
+Message-ID: <20240214122008.4123286-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <ad292863-b1d3-41d1-8c47-4eaadfda3591@gmail.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrKKsWRmVeSWpSXmKPExsWy7bCmhq5B6plUgxXTOCw+znrBbLGhTdCB
-	yWPnrLvsHp83yQUwRWXbZKQmpqQWKaTmJeenZOal2yp5B8c7x5uaGRjqGlpamCsp5CXmptoq
-	ufgE6Lpl5gBNV1IoS8wpBQoFJBYXK+nb2RTll5akKmTkF5fYKqUWpOQUmBToFSfmFpfmpevl
-	pZZYGRoYGJkCFSZkZyw7uZG94BxbxdQ7cg2Mh1i7GDk4JARMJI5dje1i5OQQEtjNKPGsI6aL
-	kQvI/sQosfZYBzOE841R4uaiBmaQKpCGH08b2CESexkljjw6xQLhvGKUuLCjgQWkikVAVWLK
-	2SdgNpuAtsSrtzfAukUEVCQOHpgKFmcWEJe4umAbmC0sECtxft5kRhCbV8BY4sKSqawQtqDE
-	yZkQczgFbCWm3ulmBFkmIbCJXWLa71vsECe5SLw4upEVwhaWeHV8C1RcSuLzu71sEHa2xKaH
-	P5kg7AKJIy96od6xl2g91c8McVCGxPO7j6DqZSWmnlrHBBHnk+j9/QSql1dixzwYW1Xi773b
-	LBC2tMTNd1ehbA+JuQuvQEPlB6PE74cHmCcwys1C8tAsJPsgbB2JBbs/AdkcQLa0xPJ/HBCm
-	psT6XfoLGFlXMUqmFhTnpqcWmxYY5qWWw+M4OT93EyM4vWl57mC8++CD3iFGJg7GQ4wSHMxK
-	IryXZpxIFeJNSaysSi3Kjy8qzUktPsRoCoygicxSosn5wASbVxJvaGJpYGJmZmZiaWxmqCTO
-	+7p1boqQQHpiSWp2ampBahFMHxMHp1QDkwVb9uQ5T0UrXmrfX6Q2u7rxP+dr15Ye793iTbM2
-	HfKRVM92nvw6XJApiPGTv/DUdXU3/nzrvOE9pf4R28kVt5i9J998YL2bw956gYLhc57LhZbN
-	J7qqlNTrbZY/O9D74IzhB6lJppXLn1v57mQ/c1Yrm8vPVLfrzbvKKXInrGIDVgnwOm5Ku2HX
-	Os1j0xKGfZKaCyKiWrKviM47m1n+Olb9sGDKS78jWtvZX27+1CFZcXLXw+uTts9P2qp5zjor
-	1+2bUTz7+3/KuR1XFGKkY93v/V5x4e/JCa3c5RLSb581rgjc+yzuWUfG7HAHp92nLwjcX6Tg
-	qe5+6j7ntIZZ0Ruk/t5utfMI1/kdu2aPhRJLcUaioRZzUXEiAHEZezX4AwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrBLMWRmVeSWpSXmKPExsWy7bCSnC5v6plUg1kr2C0+znrBbLGhTdCB
-	yWPnrLvsHp83yQUwRXHZpKTmZJalFunbJXBlNHfPZy7oY6m407+UtYFxNnMXIyeHhICJxI+n
-	DexdjFwcQgK7GSWuXfnF2MXIAZSQlli4PhGiRlhi5b/nUDUvGCVe37zCCJJgEVCVmHL2CQuI
-	zSagLfHq7Q2woSICKhIHD0wFizMLiEtcXbANzBYWiJXYumw2G4jNK2AscWHJVFaIoT8YJe49
-	X8oOkRCUODnzCVSzlsSNfy+ZQA5iBjpo+T8OkDCngK3E1DvdjBMYBWYh6ZiFpGMWQscCRuZV
-	jJKpBcW56bnFhgVGeanlesWJucWleel6yfm5mxjBgamltYNxz6oPeocYmTgYDzFKcDArifBe
-	mnEiVYg3JbGyKrUoP76oNCe1+BCjNAeLkjjvt9e9KUIC6YklqdmpqQWpRTBZJg5OqQYmD/5D
-	Rx0+/vu2a/cDw9CpAXc9O3U9cq/enl22MCtEo6+1s4Q39kXoDx454YunDRdpfN++9nx9l32m
-	7om5Z9dxsmja3Kxc+CYhZXEuq93lrHNLpp2cvbOk3bfgwmr2tzO/MbFENNhvcJqwo6/3T2cE
-	s8jKBb/c4u5Mi591/cvGCrEF+6trVkS8OTApPjS51//8+/jmRZNsp51zO7fXMFhmf7Bf0bPf
-	Lo4iOf+DsiYaL3gsPnVSspJJ9JVz7689mPht0g++W6dn3V29IVO5R931bfL/p25q3RdWphr5
-	NPQKXysIKpI53KjZ9eFE4YP9b7o3qt4T7jkuyRbzPeW6K/MpIS/vWmtdmwCvhdZLVJeYK7EU
-	ZyQaajEXFScCAAU3Y1m7AgAA
-X-CMS-MailID: 20240214070029epcas5p3e34d6ccbff484755ef10224621c3cac8
-X-Msg-Generator: CA
-Content-Type: multipart/mixed;
-	boundary="----O_pYLLZqQaQzAUO0kznoQ8X86FPiJ6Lw49rSWpfKB5g8Z3ah=_53c69_"
-X-Sendblock-Type: REQ_APPROVE
-CMS-TYPE: 105P
-DLP-Filter: Pass
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20240213101606epcas5p34f9948ca837dcb8a2413ede602a7e39c
-References: <20240213153315.134202-1-ankit.kumar@samsung.com>
-	<CGME20240213101606epcas5p34f9948ca837dcb8a2413ede602a7e39c@epcas5p3.samsung.com>
-	<20240213153315.134202-5-ankit.kumar@samsung.com>
-	<ad292863-b1d3-41d1-8c47-4eaadfda3591@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-------O_pYLLZqQaQzAUO0kznoQ8X86FPiJ6Lw49rSWpfKB5g8Z3ah=_53c69_
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
+After the commit 191d6634e8a6 ("verify: fix bytes_done accounting of
+experimental verify") in fio version 3.33, loops option does not work
+good with verify-read workloads. The first patch in this series fixes
+it. The second patch adds a test case to confirm the fix.
 
-On Tue, Feb 13, 2024 at 02:20:32PM -0500, Vincent Fu wrote:
-> 
-> I thought this was wrong at first but I tried it on a device formatted in
-> extended LBA mode (4096+64) and indeed lba_nbytes was 4160. I also checked
-> the xNVMe source code and found where this can be set to be the sum of the
-> LBA data and metadata sizes. It would be helpful to improve the xNVMe
-> documentaion to make explicit what this value is.
-> 
-> Vincent
->
+Shin'ichiro Kawasaki (2):
+  verify: fix loops option behavior of read-verify workloads
+  test: add the test for loops option and read-verify workloads
 
-Thanks for pointing it out, we will update the xNVMe documentation
-accordingly.
+ io_u.c             |  3 ++-
+ t/jobs/t0029.fio   | 14 ++++++++++++++
+ t/run-fio-tests.py | 21 +++++++++++++++++++++
+ 3 files changed, 37 insertions(+), 1 deletion(-)
+ create mode 100644 t/jobs/t0029.fio
 
-------O_pYLLZqQaQzAUO0kznoQ8X86FPiJ6Lw49rSWpfKB5g8Z3ah=_53c69_
-Content-Type: text/plain; charset="utf-8"
+-- 
+2.43.0
 
-
-------O_pYLLZqQaQzAUO0kznoQ8X86FPiJ6Lw49rSWpfKB5g8Z3ah=_53c69_--
