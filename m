@@ -1,76 +1,174 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F3E6AFA9
-	for <fio@vger.kernel.org>; Thu, 22 Feb 2024 20:16:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A02C07AE50
+	for <fio@vger.kernel.org>; Fri, 23 Feb 2024 13:00:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708632968; cv=none; b=ZH0Pdi/0o5IoNlV+rgVSPTlRcymaXKX45G5PVHY6hQa9NvhBBmw26PdB5qT0jf2WUcxgeclWYQkyYthkt39FzuQPI9ewIb+whC7feXf/ZtHrl7iDkiV4cAfYH2ldep7TW8c7sAN/t3jyip2BuAEJesnsRl7lQasZRIPNVhGAn9M=
+	t=1708693218; cv=none; b=ZS50O2EwGJmnbddth9PC7GmcVsy4qnip4QJmkYJZJpmSSFMtWtM6s0s7dQb+IEc7tcpDmjAutsDA2jqYP+wCX8BGSLtEwgFJB3es4cbfRq4KPR6eW/x7bbV2L4kklU6xJK8097KQPDluinOUa+vlzURTd4qqv8LjetvRvfDzJZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708632968; c=relaxed/simple;
-	bh=ymxrq8EjZbWZRi6WecWgx4VBLRujzki4Dsp2nyv0OxA=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=YaBSaBr2qu3KgbfgwLhuePEkh6U5X1/4bhsIc/gd0FsvF7+Yk8IaTJm4L0U+6gIVWHCyWGj9Anfcu8JpoTMpXc0wyczIRGXxM/UfFvHkfvWIruDzo8HuQQn8NNOeSkWgADU2+3Nd1hPQyfiw/L6o9aWN0yjLba12FBVJjnv0FBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eNubSaaF; arc=none smtp.client-ip=209.85.218.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1708693218; c=relaxed/simple;
+	bh=ElT9aEypPiA8zcKkbjPR26WryEbHViZ9jTJO6mFUMy4=;
+	h=Subject:From:To:Message-Id:Date; b=jMKd68HxM5yqmQb1dLUKDcuFfZOlAnXcZMcDI6VYsjbP8Xj16C66TRwqhm7YFwiq6B6IR25psDsmK/Yb98PJMLcLnszvflFXp0rsxyRPdrrH9adI019HdlRRtLmx92lvL1EvyvI6D+bdMte7ZQ/Oqja3jYSc4K9k7jODsYJuBL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=SGIBZslm; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eNubSaaF"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a3e5d82ad86so15506266b.2
-        for <fio@vger.kernel.org>; Thu, 22 Feb 2024 12:16:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1708632964; x=1709237764; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=Pj7v0mE0W2g5YpneHkkfxZ4zMvFLKHSe0qvEzt0NijM=;
-        b=eNubSaaFZeDbKQkLkZIwWof4hUxAGTeZ/w6O0d7GasbBapWlEl2DeEs0Q3S+jDDQyz
-         rzjj7ezNt8bUGaTPJRO21vLLNeZbilhvefio1CEYj4huH8NqrqMWZbaevaE8iZO+jmpr
-         L08F2cufAHosHLGTI8T6ucThFDp3517S9dxkuL9bGOsbfacaKPWUPyF5oFk046yqtZgZ
-         uzvoi1NFspm5/C9sdqoAF0KlnoUrDzrFAOFg38czOetwWAHcdbfGDG+5jdGbpw/KpVAr
-         x83YfoGn2hm77iZVv0FKH+mj2IILSeP6Q5joMw6o7YpFFVzOUI9ZOn7Vgxmpj4E059w2
-         rfXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708632964; x=1709237764;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Pj7v0mE0W2g5YpneHkkfxZ4zMvFLKHSe0qvEzt0NijM=;
-        b=QH9/N3RJcvFrlyWAp9Dz2MQaByNA9GT5/06XjZ4sSiF1delaaGC7a6D+aK0eIeXgSs
-         8EjVM1ipeGWcqlfnCgvGSt2iF/sCTK1GNcIQQqTGqQvqpqi4qHc0yTrlaUfl7tNg516E
-         cvTG5hQabUeFR8yZBkciTkEwjiWRRdnFaMrT5moMK2FYShAIbax4yOtunwx/7vnKTCiF
-         rl3yUYKnWsw0ater1nqusL2D1/8DUqVjPmqVMS+fZOd/EW4Jtf3rbYaIu+WQmcS9sC1Z
-         vSjFBDO1oIcjoXFVWG3EW295ZSZibxVhCKOv3CdSaHoxQztGfsmXMrIoqKrMakiQK/nu
-         WEVQ==
-X-Gm-Message-State: AOJu0YzmfcQdb2bSweBCYlmeXGe5jljqu3oSux/b9jfeyyXYo4uyeOw3
-	NCddy27IuOA47rdRkd/9LLPgUpcN4jz1IwBBBX/U8D4iAUdxKYcWjA/rIsAdmDGgF6I1vukrW6z
-	h9I9+O+iZQn7hwEiIo5LU0eLtmzWbZXqWUhg=
-X-Google-Smtp-Source: AGHT+IHEFqEOv4QnSXEnLjgdGR4GYKcKrocLAYgiBQsY8V4HJvnVq8xvoEV9n6H4in0CsZOl21jdqJWPQr8v8owtrlI=
-X-Received: by 2002:a17:906:e2d0:b0:a3f:f92:ebea with SMTP id
- gr16-20020a170906e2d000b00a3f0f92ebeamr7094648ejb.5.1708632964200; Thu, 22
- Feb 2024 12:16:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="SGIBZslm"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=t8/lWzYGqo2+V1618HYCR5gV/QS3iQ4yZHhBphKfy2E=; b=SGIBZslmF4FGw0Zo9uUYCjkAUx
+	xg+edJaHmz/xFIOjDVCV3Wc1h7yMSZh1dgP7VzspLUo1bhQTAo+NBycJkXbkApa/NImeqD6HOes5a
+	zzK9rvXpK3WwlhesqilxxLgol/ygYT3qhqRqJyxfJ3tbQUqgmfVPA5PPZWVAZmnKrL3HoX34IuqnY
+	zBdYeWRYlJHTGId4GJxQnjf8Gjo+7G5fiOVzsKStQpC5KaE8V1QFxpjWXxP7j39AlycXhjc+G2LvW
+	I0vxhN3sTaU2YBCqXkfmmCmkA6059nfCG8q1xdKuJxs31xwLU14a4YV+LRYqQLIs7eJKpHPrudrp7
+	VXQgwqNQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rdV9v-000000075ll-2YAM
+	for fio@vger.kernel.org;
+	Fri, 23 Feb 2024 13:00:11 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 5A44C1BC0129; Fri, 23 Feb 2024 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240223130001.5A44C1BC0129@kernel.dk>
+Date: Fri, 23 Feb 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: Matthew Eaton <m.eaton82@gmail.com>
-Date: Thu, 22 Feb 2024 12:15:52 -0800
-Message-ID: <CAF+0mvmpbx+tcfrH7gz0paXhwg9WVGtD96NS68_2_WsXNKgC3w@mail.gmail.com>
-Subject: high cpu usage when replaying iolog
-To: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-Using fio 3.36 and the latest fio from git I noticed high cpu usage
-when replaying iolog:
+The following changes since commit 38d01cc56366aa2fd3af42dbab522888b6359dec:
 
-fio --name=replay --ioengine=io_uring --direct=1 --iodepth=1
---read_iolog=test.iolog --replay_redirect=/dev/nvme0n1
+  verify: fix integer sizes in verify state file (2024-02-16 09:25:35 -0500)
 
-cpu          : usr=50.27%, sys=33.79%, ctx=45686, majf=0, minf=11
+are available in the Git repository at:
 
-When I revert this commit the cpu usage goes back to normal:
+  git://git.kernel.dk/fio.git master
 
-https://git.kernel.dk/cgit/fio/commit/?id=b85c01f7e9dfc468eb78faf86692433e6105178d
+for you to fetch changes up to 9af4af7ab40c4e505033d0e077cc42ac84996b09:
 
-cpu          : usr=0.23%, sys=0.56%, ctx=219444, majf=0, minf=11
+  ci: fix macOS sphinx install issues (2024-02-22 20:01:27 -0500)
 
-Is this a bug or expected?
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'fix-tests-cfi' of https://github.com/mikoxyz/fio
+
+Miko Larsson (3):
+      t/io_uring: include libgen.h
+      t/io_uring: use char * for name arg in detect_node
+      options: declare *__val as long long
+
+Vincent Fu (1):
+      ci: fix macOS sphinx install issues
+
+ ci/actions-install.sh |  5 ++---
+ options.c             | 12 ++++++------
+ t/io_uring.c          |  3 ++-
+ 3 files changed, 10 insertions(+), 10 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/ci/actions-install.sh b/ci/actions-install.sh
+index 76335fbc..6eb2d795 100755
+--- a/ci/actions-install.sh
++++ b/ci/actions-install.sh
+@@ -86,9 +86,8 @@ install_macos() {
+     #echo "Updating homebrew..."
+     #brew update >/dev/null 2>&1
+     echo "Installing packages..."
+-    HOMEBREW_NO_AUTO_UPDATE=1 brew install cunit libnfs sphinx-doc pygments python-certifi
+-    brew link sphinx-doc --force
+-    pip3 install scipy six statsmodels
++    HOMEBREW_NO_AUTO_UPDATE=1 brew install cunit libnfs
++    pip3 install scipy six statsmodels sphinx
+ }
+ 
+ install_windows() {
+diff --git a/options.c b/options.c
+index 25e042d0..de935efc 100644
+--- a/options.c
++++ b/options.c
+@@ -647,7 +647,7 @@ static int fio_clock_source_cb(void *data, const char *str)
+ 	return 0;
+ }
+ 
+-static int str_rwmix_read_cb(void *data, unsigned long long *val)
++static int str_rwmix_read_cb(void *data, long long *val)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+ 
+@@ -656,7 +656,7 @@ static int str_rwmix_read_cb(void *data, unsigned long long *val)
+ 	return 0;
+ }
+ 
+-static int str_rwmix_write_cb(void *data, unsigned long long *val)
++static int str_rwmix_write_cb(void *data, long long *val)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+ 
+@@ -1625,7 +1625,7 @@ static int str_gtod_reduce_cb(void *data, int *il)
+ 	return 0;
+ }
+ 
+-static int str_offset_cb(void *data, unsigned long long *__val)
++static int str_offset_cb(void *data, long long *__val)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+ 	unsigned long long v = *__val;
+@@ -1646,7 +1646,7 @@ static int str_offset_cb(void *data, unsigned long long *__val)
+ 	return 0;
+ }
+ 
+-static int str_offset_increment_cb(void *data, unsigned long long *__val)
++static int str_offset_increment_cb(void *data, long long *__val)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+ 	unsigned long long v = *__val;
+@@ -1667,7 +1667,7 @@ static int str_offset_increment_cb(void *data, unsigned long long *__val)
+ 	return 0;
+ }
+ 
+-static int str_size_cb(void *data, unsigned long long *__val)
++static int str_size_cb(void *data, long long *__val)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+ 	unsigned long long v = *__val;
+@@ -1711,7 +1711,7 @@ static int str_io_size_cb(void *data, unsigned long long *__val)
+ 	return 0;
+ }
+ 
+-static int str_zoneskip_cb(void *data, unsigned long long *__val)
++static int str_zoneskip_cb(void *data, long long *__val)
+ {
+ 	struct thread_data *td = cb_data_to_td(data);
+ 	unsigned long long v = *__val;
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 46b153dc..18e8b38e 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -28,6 +28,7 @@
+ #include <string.h>
+ #include <pthread.h>
+ #include <sched.h>
++#include <libgen.h>
+ 
+ #include "../arch/arch.h"
+ #include "../os/os.h"
+@@ -819,7 +820,7 @@ static void set_affinity(struct submitter *s)
+ #endif
+ }
+ 
+-static int detect_node(struct submitter *s, const char *name)
++static int detect_node(struct submitter *s, char *name)
+ {
+ #ifdef CONFIG_LIBNUMA
+ 	const char *base = basename(name);
