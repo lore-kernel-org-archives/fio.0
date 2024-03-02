@@ -1,57 +1,57 @@
 Received: from esa3.hgst.iphmx.com (esa3.hgst.iphmx.com [216.71.153.141])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8891411712
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29D9C11724
 	for <fio@vger.kernel.org>; Sat,  2 Mar 2024 08:36:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.153.141
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709368614; cv=none; b=JSFP+A9cNia1ijcZbktRRXoGIVz/NmxuR4jPx1ZNiGt+vABbjFIX6Tqz8T3vMDMwaiiDEMtO7BMkFNCX/iJ+nzDLnR6Pa94sztPRb7Utb9LB+1kEFCYf0fOjHjDTS6swGaALP54/aiu2jrwnexCaDc36pyjX6+w995AH/MjWORE=
+	t=1709368614; cv=none; b=UrCZki/ZTJC4lJTJEpb02ZrolOBnMXuyZKlkM/wUYtKVVRJzXQlsRddMjIT60sPNxBhJ/ex3Pk/6VRzMMMs5C+xvhgPN5cZsK5lCtujcLZYPnSlKgQr7pyUlZlPTi+96gsTRbSG8pBn/iKWA08dz1ZuIFWe7mNAi8H/N2/fn/uM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1709368614; c=relaxed/simple;
-	bh=HsYGw6hB8qk4b8Zk8VvDWhklJxD/7W1cqr5UbajWhJg=;
+	bh=wcgPg802Bug2m09ImALM4kEWNZ1pt9SJ3yEAivELcLc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OiQcJ5DI0CNzUIaIKBzlJXoyRAR5R5qlCjeI/yM9f2ZoKvPTjtEOfZvXDmwNFZjAByBlo4Eq1AAiLFFXFYpzKeed4zV78q+LZpUj8y/peDaKFtALBtRdg+FB8Y0vmuHIz1Hq9ohopRpSK8ePTp1xUPunlPvpCXvBFH5aZBmAhsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=j7ELjR4i; arc=none smtp.client-ip=216.71.153.141
+	 MIME-Version; b=LNeu9e1s+i9iE4yN+iSdECf3ObgqTue/YrMvdHXCSc+zTwY1wGArBOl3BY6zmDzgOMmlBdvDabSnCiVhmgno9ZNNy1fz90ukdM5F2y3zSemZNfOfAgA7jCniWIGvW+t8RdCMEAeuLIP/V1jvcSKvYxSXv4b1XCPDiJfxdR0WfxI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=UpcUr5+m; arc=none smtp.client-ip=216.71.153.141
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="j7ELjR4i"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="UpcUr5+m"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1709368613; x=1740904613;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=HsYGw6hB8qk4b8Zk8VvDWhklJxD/7W1cqr5UbajWhJg=;
-  b=j7ELjR4iFgqLVya1xDAk/CcW4x/1SYCNEoXiPSPCsivfktSQuh150cYN
-   V2DkRljKblSjKDOUOiBqRoSWBLPQvOHVnNeCVdf21xfXSSYTwaas60DjC
-   Z81OPP9Uk+SjdkWvbg7Zh48dRMw9nvXI6pHvGxbC2Pp0qMlyj0rhn5vim
-   JxXwWuPFjPp6Sc+gWxIOiyShKmfgkh/cT/WUmgi2C0eNkOiVvMSFUTEYq
-   uk4JWI4himOkf5Mh2xM1UsilDL16f+CfwULMzQw70fiYCwLHfafjk54Oq
-   aWHlPp9g+4B+LzFzb6l6cCzXAZPlMtyaUNd4rwX3dLWt9CMkDSIhItvj8
-   w==;
-X-CSE-ConnectionGUID: 4db03BqYTcC9QaDYXdCspQ==
-X-CSE-MsgGUID: hN24tq3WSWKstx52JA5NQg==
+  bh=wcgPg802Bug2m09ImALM4kEWNZ1pt9SJ3yEAivELcLc=;
+  b=UpcUr5+msngyjmhNlSLflJqy84gFB7OVY75l8FJkwBbBAVAq5p70VoX3
+   7bh5Ey0jvcxyzF0UmfOvDgQLO5KVt7BvDMT2lUNGMLnrR0Fl8UQM7/zdY
+   FkCGI50PWfpfalXZ1HbFyJ+uHpwJfkUJ0X27wNFT1/3S1kSDC0eJjRiHz
+   SYfQ7RVtK3iFSkCaf1jozEEEKMe3xmSQQeYVI7Vz0GGKzhbbfbxcqmhQR
+   JO89UJV7KlBKXfNysZxHmeIa3Gh/JCfW+dNCN6UZi/cKyZnGfzeB3ynjC
+   PVchQohShd9g2UijH1nTYpufFMXYt7udnieSPX31Wkm1p8a3jWh1Xg32u
+   Q==;
+X-CSE-ConnectionGUID: oXLA8UrvSk2vJHRvMzYUKg==
+X-CSE-MsgGUID: WuSJXWTbRgeh/85u9LUZcQ==
 X-IronPort-AV: E=Sophos;i="6.06,199,1705334400"; 
-   d="scan'208";a="10496837"
+   d="scan'208";a="10496840"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 02 Mar 2024 16:36:46 +0800
-IronPort-SDR: VoTppPGAYLr8OkQLsFu9ucJa3fzi4skWVeSpnYcMug95Gu1+hD0YTw8CiLYNUSpMvnor83Wedp
- oQUMJ5ZpCcJw==
+  by ob1.hgst.iphmx.com with ESMTP; 02 Mar 2024 16:36:53 +0800
+IronPort-SDR: 7w+Ix+Ba/KCRJda+9sxJ7aP5cx5/1KKdoFkrLt16gDnTjcC3Fxk4r4cRnpihAIkEeumGA4T1+B
+ nTsVtrBensSQ==
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 01 Mar 2024 23:40:19 -0800
-IronPort-SDR: WZLPeMAoaETQ+XNiEtYjaVbfEA7olG47J2DnOZGq7AF6xzpE1mpIWoYqcH179umWuMmMPvB3Zq
- lxDzyKzM1VVw==
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 01 Mar 2024 23:40:26 -0800
+IronPort-SDR: zS6iC1Zts5dAdJfDYB/miPNebvcJrCHFySXpWuKEC9U2EV1t2kFnL9N/02MFiN52tFTtGEuoWI
+ oaWknR5atb7g==
 WDCIronportException: Internal
 Received: from 87h6l33.ad.shared (HELO BXYGM33.ad.shared) ([10.225.32.8])
-  by uls-op-cesaip02.wdc.com with ESMTP; 02 Mar 2024 00:36:42 -0800
+  by uls-op-cesaip02.wdc.com with ESMTP; 02 Mar 2024 00:36:49 -0800
 From: Avri Altman <avri.altman@wdc.com>
 To: Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincent.fu@samsung.com>
 Cc: fio@vger.kernel.org,
 	Avri Altman <avri.altman@wdc.com>
-Subject: [PATCH 1/6] fio: Some minor code cleanups
-Date: Sat,  2 Mar 2024 10:36:08 +0200
-Message-ID: <20240302083613.602-2-avri.altman@wdc.com>
+Subject: [PATCH 2/6] t/jobs: Further clarify regression test 7
+Date: Sat,  2 Mar 2024 10:36:09 +0200
+Message-ID: <20240302083613.602-3-avri.altman@wdc.com>
 X-Mailer: git-send-email 2.42.0
 In-Reply-To: <20240302083613.602-1-avri.altman@wdc.com>
 References: <20240302083613.602-1-avri.altman@wdc.com>
@@ -63,127 +63,27 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-limit the scope of variables when possible, fix style isses etc.
+Add some more details explaining why the the successful result should be
+87,040KB data.
 
 Signed-off-by: Avri Altman <avri.altman@wdc.com>
 ---
- HOWTO.rst | 2 +-
- backend.c | 4 ++--
- eta.c     | 8 +++++---
- io_u.c    | 3 ++-
- parse.h   | 2 +-
- stat.h    | 1 -
- 6 files changed, 11 insertions(+), 9 deletions(-)
+ t/jobs/t0007-37cf9e3c.fio | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 169cdc2a..c404d724 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2786,7 +2786,7 @@ with the caveat that when used on the command line, they must come after the
- 
- .. option:: sg_write_mode=str : [sg]
- 
--	Specify the type of write commands to issue. This option can take three values:
-+	Specify the type of write commands to issue. This option can take ten values:
- 
- 	**write**
- 		This is the default where write opcodes are issued as usual.
-diff --git a/backend.c b/backend.c
-index 2f2221bf..fb7dc68a 100644
---- a/backend.c
-+++ b/backend.c
-@@ -2094,14 +2094,14 @@ static void reap_threads(unsigned int *nr_running, uint64_t *t_rate,
- 			 uint64_t *m_rate)
- {
- 	unsigned int cputhreads, realthreads, pending;
--	int status, ret;
-+	int ret;
- 
- 	/*
- 	 * reap exited threads (TD_EXITED -> TD_REAPED)
- 	 */
- 	realthreads = pending = cputhreads = 0;
- 	for_each_td(td) {
--		int flags = 0;
-+		int flags = 0, status;
- 
- 		if (!strcmp(td->o.ioengine, "cpuio"))
- 			cputhreads++;
-diff --git a/eta.c b/eta.c
-index cc342461..7d07708f 100644
---- a/eta.c
-+++ b/eta.c
-@@ -215,8 +215,9 @@ static unsigned long thread_eta(struct thread_data *td)
- 				perc = td->o.rwmix[DDIR_WRITE];
- 
- 			bytes_total += (bytes_total * perc) / 100;
--		} else
-+		} else {
- 			bytes_total <<= 1;
-+		}
- 	}
- 
- 	if (td->runstate == TD_RUNNING || td->runstate == TD_VERIFYING) {
-@@ -228,8 +229,9 @@ static unsigned long thread_eta(struct thread_data *td)
- 			perc = (double) bytes_done / (double) bytes_total;
- 			if (perc > 1.0)
- 				perc = 1.0;
--		} else
-+		} else {
- 			perc = 0.0;
-+		}
- 
- 		if (td->o.time_based) {
- 			if (timeout) {
-@@ -395,7 +397,7 @@ static bool skip_eta()
-  * Print status of the jobs we know about. This includes rate estimates,
-  * ETA, thread state, etc.
-  */
--bool calc_thread_status(struct jobs_eta *je, int force)
-+static bool calc_thread_status(struct jobs_eta *je, int force)
- {
- 	int unified_rw_rep;
- 	bool any_td_in_ramp;
-diff --git a/io_u.c b/io_u.c
-index 2b8e17f8..09e5f15a 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1895,8 +1895,9 @@ struct io_u *get_io_u(struct thread_data *td)
- 					io_u->buflen);
- 			} else if ((td->flags & TD_F_SCRAMBLE_BUFFERS) &&
- 				   !(td->flags & TD_F_COMPRESS) &&
--				   !(td->flags & TD_F_DO_VERIFY))
-+				   !(td->flags & TD_F_DO_VERIFY)) {
- 				do_scramble = 1;
-+			}
- 		} else if (io_u->ddir == DDIR_READ) {
- 			/*
- 			 * Reset the buf_filled parameters so next time if the
-diff --git a/parse.h b/parse.h
-index d68484ea..806a76ee 100644
---- a/parse.h
-+++ b/parse.h
-@@ -32,7 +32,7 @@ enum fio_opt_type {
-  */
- struct value_pair {
- 	const char *ival;		/* string option */
--	unsigned long long oval;/* output value */
-+	unsigned long long oval;	/* output value */
- 	const char *help;		/* help text for sub option */
- 	int orval;			/* OR value */
- 	void *cb;			/* sub-option callback */
-diff --git a/stat.h b/stat.h
-index bd986d4e..0d57cceb 100644
---- a/stat.h
-+++ b/stat.h
-@@ -345,7 +345,6 @@ extern void stat_exit(void);
- 
- extern struct json_object * show_thread_status(struct thread_stat *ts, struct group_run_stats *rs, struct flist_head *, struct buf_output *);
- extern void show_group_stats(struct group_run_stats *rs, struct buf_output *);
--extern bool calc_thread_status(struct jobs_eta *je, int force);
- extern void display_thread_status(struct jobs_eta *je);
- extern void __show_run_stats(void);
- extern int __show_running_run_stats(void);
+diff --git a/t/jobs/t0007-37cf9e3c.fio b/t/jobs/t0007-37cf9e3c.fio
+index d3c98751..a5971759 100644
+--- a/t/jobs/t0007-37cf9e3c.fio
++++ b/t/jobs/t0007-37cf9e3c.fio
+@@ -1,4 +1,7 @@
+-# Expected result: fio reads 87040KB of data
++# Expected result: fio reads 87040KB of data:
++# first read is at offset 0, then 2nd read is at offset 1.5m, then the 3rd
++# read is at offset 3m, and after the last read at offset 127 - we have only
++# read 87,040K data.
+ # Buggy result: fio reads the full 128MB of data
+ [foo]
+ size=128mb
 -- 
 2.42.0
 
