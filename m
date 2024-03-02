@@ -1,136 +1,90 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C362D208C5
-	for <fio@vger.kernel.org>; Wed, 28 Feb 2024 13:00:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 191B179F0
+	for <fio@vger.kernel.org>; Sat,  2 Mar 2024 08:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709125222; cv=none; b=dYaDnFkxMqEJlwfJT3TPVR5Mfvi+cTGActG5f69C8nd9nS3WAyjRljoYZzeyC8R9Um6Rf+SCKZbngzslgLucRAc05u2idCb4weQwrBWGw/5dGW1z5fAmJL1QF8Dp6IUOfYGev3IUNC7s8iAsqT+Vz+aAS0+QnrMPTuklwCvCRqQ=
+	t=1709368592; cv=none; b=tl5srWG91jA9WIICzmgrK6SQay1XPK/KZ/i4/PFjiAeuhVH37K/dUscY76JH7Lkx7QaAoDLIBjq3iLTt7iMCKfgfwtV9sYVIjxCw3cMcLWwgCxg08TvC3hCTblWii1l2hKCBOshrynKrEerPNtI9xb/+6OGKvy3DKdnasDDoiow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709125222; c=relaxed/simple;
-	bh=ibYnyfdXFFmNdjl0TyqJYfz9ttPuGSkz7JKRpqsxUs0=;
-	h=Subject:From:To:Message-Id:Date; b=fLkvDvBJXeGHU0Lo5k7X6WbUppA+MZ3CPlZ0TFUBSzT3XY8UgkUWUObn0lo9DHvsiA8+Z+QNYzW5/lkTB/BK8o74s0gLDEXNnMMQXoxNkqLjAK0qJxzFXPDPgKbZL8SP7pBw4X4jLf8iRzPwOi4ZC4u+wFMDgdx9GCOqxmG8Tdo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=TUpaymV7; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1709368592; c=relaxed/simple;
+	bh=6b7gWtKOam7v3i7vgoE/k1vVZ6Gm1zXxfIZuFInRYm8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NXTDnLefZigzqBLnqk+0Ff95A+zpO7q46EGN/nfxcNryHIQYSN/hWgWMlT+DBZ1Y2p2vASiM2ODIlexcVDhKw8o8AKqZcgDGuZy0NqOMr9NIWY7mJM2pLcnKqEWUZIu/vJ/Bv+Ah+ThEqiq4nb0SH26Il3GNybPFgx3w3qOphuk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=evAnMag2; arc=none smtp.client-ip=216.71.154.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="TUpaymV7"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=FFtMOfTEPYDbnbeeksajPD9PBe5oD32hX4FeLwxAfsQ=; b=TUpaymV7Bj6al9Y05OKJA8uy3M
-	sZ5N8gPzcXF911afLQRQGSzftQL7EtaJSKlipcYXaMNtjvST2XJzMPCbPwlzPIwfF67VCl7j+eUT4
-	acg/gk0zO9l7wofyZb47q0fBMDYgD2lrXVe7zuxSyiHwwATlGNdj2HbHa6J1v/Oq27aUFGDSzxOZQ
-	jc5MoYW1fb4bKHcz1w/F70sL7UpKHWpHNdgUhFrBOrRYqk+OyahJrU2MZ4/h0NNTc+RUpxiD5z2K6
-	/15WZWp1lxlkF+Krwb/XmnYE51e0v/inWYvwxS7dYQ8uQUB7zs+dLaXEbG/juEjLUhmLS/c7tIq6u
-	SYQKXr8g==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rfJXg-00000005F32-2DCd
-	for fio@vger.kernel.org;
-	Wed, 28 Feb 2024 13:00:12 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 1DC6F1BC0190; Wed, 28 Feb 2024 06:00:02 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240228130002.1DC6F1BC0190@kernel.dk>
-Date: Wed, 28 Feb 2024 06:00:02 -0700 (MST)
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="evAnMag2"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1709368590; x=1740904590;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=6b7gWtKOam7v3i7vgoE/k1vVZ6Gm1zXxfIZuFInRYm8=;
+  b=evAnMag2di96WrTRRPO3e9N9G6IFH0MmIXi1dvfP/WVT46sEoXiB8ZRs
+   QQg7CQIPCPE0FzczlPsQWSx+1rNYve6Ug3p2nXoq6szjpOGRalt9rkvcF
+   WQX6cTpFG4vi8SOHZM54L1IfSDQOEEGXVdh6nW81liKDk2yvECiFb6SLu
+   KTwNmLY94ETe2NxYhr3lZ2WenctCbFbhV9V9Z2Yq6XS8r7/Cuplad39/8
+   g7UdsdWNGa3G6FZwloVacDa5+enfiVvEOex2fw0ez2rIEN70C0JYjBcm7
+   rIro90vwmSa6ELIVJk4Sr1yREqmSrw+PKppev4NvtfXayureWvcA8FLMa
+   g==;
+X-CSE-ConnectionGUID: DiG/jYOnTgyMvL75H+GdJQ==
+X-CSE-MsgGUID: Bj/x5k2dSCqQBtU4QliDPw==
+X-IronPort-AV: E=Sophos;i="6.06,199,1705334400"; 
+   d="scan'208";a="10641720"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 02 Mar 2024 16:36:28 +0800
+IronPort-SDR: Ac3XxP3hovSDrN7awcmbv9D+2m5h0QwKPsrZm6+p4iomVF8zdeaFNqXtoblx0CzFkeQNcc1Pa8
+ Z4B9txblgL2w==
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 01 Mar 2024 23:45:43 -0800
+IronPort-SDR: 4/QrvF9OF+3e0OLBio4Hvf30SSU4PXlk1MFpSQ9Z1m4i++ljImns7WQYv9lg9iI/H6uVG1/8ne
+ Ge8uqzERVppA==
+WDCIronportException: Internal
+Received: from 87h6l33.ad.shared (HELO BXYGM33.ad.shared) ([10.225.32.8])
+  by uls-op-cesaip02.wdc.com with ESMTP; 02 Mar 2024 00:36:26 -0800
+From: Avri Altman <avri.altman@wdc.com>
+To: Jens Axboe <axboe@kernel.dk>,
+	Vincent Fu <vincent.fu@samsung.com>
+Cc: fio@vger.kernel.org,
+	Avri Altman <avri.altman@wdc.com>
+Subject: [PATCH 0/6] Some minor cleanups
+Date: Sat,  2 Mar 2024 10:36:07 +0200
+Message-ID: <20240302083613.602-1-avri.altman@wdc.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The following changes since commit 9af4af7ab40c4e505033d0e077cc42ac84996b09:
+Mainly fixing typos, style issues, etc.
 
-  ci: fix macOS sphinx install issues (2024-02-22 20:01:27 -0500)
+Avri Altman (6):
+  fio: Some minor code cleanups
+  t/jobs: Further clarify regression test 7
+  t/jobs: Further clarify regression test 8
+  t/jobs: Rename test job 15
+  t/jobs: Fix a typo in jobs 23 & 24
+  Doc: Make note of using bsrange with ':'
 
-are available in the Git repository at:
+ HOWTO.rst                                         | 4 ++--
+ backend.c                                         | 4 ++--
+ eta.c                                             | 8 +++++---
+ io_u.c                                            | 3 ++-
+ parse.h                                           | 2 +-
+ stat.h                                            | 1 -
+ t/jobs/t0007-37cf9e3c.fio                         | 5 ++++-
+ t/jobs/t0008-ae2fafc8.fio                         | 3 ++-
+ t/jobs/{t0015-e78980ff.fio => t0015-4e7e7898.fio} | 0
+ t/jobs/t0023.fio                                  | 4 ++--
+ t/jobs/t0024.fio                                  | 2 +-
+ t/run-fio-tests.py                                | 2 +-
+ 12 files changed, 22 insertions(+), 16 deletions(-)
+ rename t/jobs/{t0015-e78980ff.fio => t0015-4e7e7898.fio} (100%)
 
-  git://git.kernel.dk/fio.git master
+-- 
+2.42.0
 
-for you to fetch changes up to 5ae4f4220a48dddddc84c8b839ef9d8a1ed4edb1:
-
-  gettime: fix cpuclock-test on AMD platforms (2024-02-27 12:36:45 -0500)
-
-----------------------------------------------------------------
-Vincent Fu (2):
-      howto: fix job_start_clock_id formatting
-      gettime: fix cpuclock-test on AMD platforms
-
- HOWTO.rst          | 5 +++--
- arch/arch-x86_64.h | 5 +++++
- arch/arch.h        | 7 +++++++
- gettime.c          | 2 +-
- 4 files changed, 16 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 4b02100c..169cdc2a 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -756,8 +756,9 @@ Time related parameters
- 	CPU mask of other jobs.
- 
- .. option:: job_start_clock_id=int
--   The clock_id passed to the call to `clock_gettime` used to record job_start
--   in the `json` output format. Default is 0, or CLOCK_REALTIME.
-+
-+        The clock_id passed to the call to `clock_gettime` used to record
-+        job_start in the `json` output format. Default is 0, or CLOCK_REALTIME.
- 
- 
- Target file/device
-diff --git a/arch/arch-x86_64.h b/arch/arch-x86_64.h
-index 86ce1b7e..b402dc6d 100644
---- a/arch/arch-x86_64.h
-+++ b/arch/arch-x86_64.h
-@@ -26,6 +26,11 @@ static inline unsigned long arch_ffz(unsigned long bitmask)
- 	return bitmask;
- }
- 
-+static inline void tsc_barrier(void)
-+{
-+	__asm__ __volatile__("mfence":::"memory");
-+}
-+
- static inline unsigned long long get_cpu_clock(void)
- {
- 	unsigned int lo, hi;
-diff --git a/arch/arch.h b/arch/arch.h
-index 3ee9b053..7e294ddf 100644
---- a/arch/arch.h
-+++ b/arch/arch.h
-@@ -108,6 +108,13 @@ extern unsigned long arch_flags;
- #include "arch-generic.h"
- #endif
- 
-+#if !defined(__x86_64__) && defined(CONFIG_SYNC_SYNC)
-+static inline void tsc_barrier(void)
-+{
-+	__sync_synchronize();
-+}
-+#endif
-+
- #include "../lib/ffz.h"
- /* IWYU pragma: end_exports */
- 
-diff --git a/gettime.c b/gettime.c
-index bc66a3ac..5ca31206 100644
---- a/gettime.c
-+++ b/gettime.c
-@@ -623,7 +623,7 @@ static void *clock_thread_fn(void *data)
- 			seq = *t->seq;
- 			if (seq == UINT_MAX)
- 				break;
--			__sync_synchronize();
-+			tsc_barrier();
- 			tsc = get_cpu_clock();
- 		} while (seq != atomic32_compare_and_swap(t->seq, seq, seq + 1));
- 
