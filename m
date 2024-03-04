@@ -1,58 +1,58 @@
-Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
+Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32BB178B77
-	for <fio@vger.kernel.org>; Mon,  4 Mar 2024 19:17:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B9779924
+	for <fio@vger.kernel.org>; Mon,  4 Mar 2024 19:21:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709579832; cv=none; b=iM+UrPoR6SlVdDETumSwRlHwkTDA8w6HwufYvLAKw8zMbhpkPIM/oMSUXp15+KPTdjn70e5huHvhferZTVjjUBygi0x3tkylBoUo+zq4hzca0CuqCchCG29O2hFyHwkbj5uH+JP+lZzsM7krWAvi5ZKRZdk6iY9GPZFqWAxp8dg=
+	t=1709580069; cv=none; b=NxW2iTp9j84s7fDes+drR9bLOGFwUMrbzY00Dfv+toQosF7eNj9H7jbTUxSAK3Kln+6c299Xll5daBYm3ugAOaFBIWwRR/Qq+Udc/qV9rQNKXYhSQEE49uVGjWiGjj/Mad+I57qUgp2eQyI+K7p7BJguxTmvUFDv7I0IxcZKYqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709579832; c=relaxed/simple;
-	bh=yNiisA3g5Ws0rv1e9gWlp8KL4pe+1+9l61ywNAfuwWc=;
+	s=arc-20240116; t=1709580069; c=relaxed/simple;
+	bh=8dVdw78kb4hupT5doKe7KtNhg2njN+pGpIqTNW0Ma+E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=F7W/FTxS5ZDSYSxYEdDQJIamPLWD3jgWDrnK7nHcq/6Sz06kikEoRS3mCeO/mlN7Y5r6Fqk0AJizSU0+YZDMz5L09wewKjxE5zOuKJXtpgoH/c+CfqNkuClHOQM+TX4jcfIxWpCedIKPuMPVjcqBfSo4HDQKm4951pIOCtaxa20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SVoKSzr0; arc=none smtp.client-ip=209.85.160.46
+	 In-Reply-To:Content-Type; b=YNxNNgX4Zxu0PlKrdK8pbOTZlPt3PCUYKC7hV/CioDmLqJ6TMx4pUv6wY+DEDc2EwCsH6PW9kSGa7qP2pSV5ZJVJqxv1/7SnqG5pnuoOblB1fnYAq/Stz/R5PG2RQlJAn5R38hHeTx3i/BRfaUUvnkVneJvcMRQJJIc4l6QLvWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U7l60cK5; arc=none smtp.client-ip=209.85.161.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SVoKSzr0"
-Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-21f70f72fb5so3623907fac.1
-        for <fio@vger.kernel.org>; Mon, 04 Mar 2024 11:17:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U7l60cK5"
+Received: by mail-oo1-f51.google.com with SMTP id 006d021491bc7-5a143047a4aso350695eaf.0
+        for <fio@vger.kernel.org>; Mon, 04 Mar 2024 11:21:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1709579830; x=1710184630; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1709580067; x=1710184867; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=M/1aqttCFnboPRP8cnKptXjE5NcDuoTfFGBLX4putQI=;
-        b=SVoKSzr0lvDi/nscbQUg2GmxMs7k9h57U3weXAq0LsXYf7rSAPPMJZCLPWSphYiwUK
-         DPLesr6nlDsTFUlG2Bjyjx1D8NNB7YCT1zrmG464xUpZQySi+5fT5xAS8q6FuxAdjVte
-         WFCUILIH/rOlZwQF5kHc812K/GyK9smz6FktOdvMhvISf9WIfAzTiQWn8i06pvPjUFGg
-         tQp3+0KKV50Z/voqY7sxloxys5iASrxGb5WOw3p0PLPPvnAyGwme5tARNzKHOtDmwA0/
-         RrgkVg9+nfPHj5A6+PwWTnYogr5bfExmCyknhz8ERGsugXGxYhjwxznpQbhaz6wO71aC
-         WYPQ==
+        bh=S6zxDLW9Pnb27MJY9k1uoBWaIDek04EHOTX3Lw3f2fY=;
+        b=U7l60cK5i3leba0jTOSWNOtq4tdAsNntKY19NIWbUyGEcmXmhYEhvpm8M5hcrn+f86
+         nSAQTYt5o5Uegz7Ynb/CAkv/bNymTyg+czMQQ2l5NssB0VwTMCR5fJenytYILPl44V94
+         gfaIQ0UKFjSta9t6qxt//V5jScbXQKphpG/tpg2hhp80p5hlLIjKM+fS4IXc9VoDIhU6
+         z8tpzSt291nflxuKg+656xD/QqVusclZATodHh4s9p7Gshq/lS0D4igCtV5LYxIOPbQ+
+         5aitz0nbay8ahAIL64jPN3EP6ff34j3mz6q+c+PGhrBUjmVXXMWFeNSXsLX4GHIdPuDY
+         bwuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709579830; x=1710184630;
+        d=1e100.net; s=20230601; t=1709580067; x=1710184867;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=M/1aqttCFnboPRP8cnKptXjE5NcDuoTfFGBLX4putQI=;
-        b=XQhiPi1yrhbwIjfRrkjb/ucAsvYI/1h+sn8GSM8HcwedRn+GiAXiedsXakOX8QkRDq
-         WfMYZQEsO6nqq3gJov3aLRWkO9zucVP6a4GIHvW+Fevd0fiawx5IogO03RI2fulhhek6
-         t4+CXCGTOLLJjFuQBVsA/bGfFyn7Ieo6+5nMiRYiwKQSDRLn5FIiV0JnxVUDld+xzT/f
-         +8F/4weKsCDlMayCI3UoMzEbNREJNY0C7DOyue0VX/areJkizNl564PiCnEPG9hOtIiU
-         0ZvvlSm9svwSc988eLsqR0qyu85i+Tk5CQjBjoniaQ9qbxAtCKJioA26cBjHCg3StVr8
-         8zhQ==
-X-Gm-Message-State: AOJu0YxMXul33gUYNFuQ+wq3YkG3LXVdMJMlCgzlJTotwNXz85cxGH4q
-	DqURlhbjJADgMnZgu6S7kbasrP5Bn8kEtOU2MHOnc2/XpKWYgSfG
-X-Google-Smtp-Source: AGHT+IFY9sxMjn1wxE3rhckQ8p2PSpNPfGZ7u1vxkBs1wMJNkllMUWPu0k87X2Mmo6On/7CW2Ilfnw==
-X-Received: by 2002:a05:6871:588:b0:220:dc43:f9f2 with SMTP id u8-20020a056871058800b00220dc43f9f2mr8620647oan.38.1709579830208;
-        Mon, 04 Mar 2024 11:17:10 -0800 (PST)
+        bh=S6zxDLW9Pnb27MJY9k1uoBWaIDek04EHOTX3Lw3f2fY=;
+        b=e4smH/Ca8rjBUnonvzeaNKWWM43JgEkQ/h6Yp9sMxDzE3nlfp1nxIUp+ZiNA5qSacT
+         zqozBEmyFMi72FZ9giA1YM8oW9f0rw6OaJgyQlW1taBMNFXAI7opJxMN+ZYeRmh3GavD
+         bSflT6t/v4gl77D+qEjWaKC9zb5t2UoitGBGfnozBE6d1Nej8K8UunhEtwCGqka62tpt
+         KHHHgIAZ7owgyrBMeCQJ5S1PXPuL+0nLt3i1mqRYcjDKiA30SCLXkRk0YitnqKEJJvsd
+         JmDQjPkAKlkTd0OXeD9tw8Ulrq/XGztDRIsIhVfy61mhiUJ5cgMSZaAgFwmuCTDMretU
+         WH9w==
+X-Gm-Message-State: AOJu0YwXxveVzbvCjXMmiSUkTfg/Vej5PejkrlVuwrok/zec2/XEusCV
+	nPTAGIVKoX2TUEIox9IUP//RL0/foLyts6C8EcFoLzrCMh/DZGRJ
+X-Google-Smtp-Source: AGHT+IFa158lcycgQ9vCfawD3010xKHU3FBUL1fzqnJqBi+dNT+MsVnkw1xCaflUKMPkZG7uTikDIQ==
+X-Received: by 2002:a05:6358:7e53:b0:17b:c9cc:f60b with SMTP id p19-20020a0563587e5300b0017bc9ccf60bmr13063116rwm.28.1709580066726;
+        Mon, 04 Mar 2024 11:21:06 -0800 (PST)
 Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id k5-20020a05620a07e500b007882915ca34sm1168517qkk.40.2024.03.04.11.17.09
+        by smtp.gmail.com with ESMTPSA id qm14-20020a056214568e00b0068f92234e2fsm5318984qvb.109.2024.03.04.11.21.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Mar 2024 11:17:09 -0800 (PST)
-Message-ID: <f517659f-0b86-4eb0-aaba-666010976666@gmail.com>
-Date: Mon, 4 Mar 2024 14:17:09 -0500
+        Mon, 04 Mar 2024 11:21:06 -0800 (PST)
+Message-ID: <f651bf8f-dd6a-4eef-b5aa-4f37489c3e53@gmail.com>
+Date: Mon, 4 Mar 2024 14:21:05 -0500
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -60,38 +60,41 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 3/6] t/jobs: Further clarify regression test 8
+Subject: Re: [PATCH v2 2/6] t/jobs: Further clarify regression test 7
 Content-Language: en-US
 To: Avri Altman <avri.altman@wdc.com>, Jens Axboe <axboe@kernel.dk>,
  Vincent Fu <vincent.fu@samsung.com>
 Cc: fio@vger.kernel.org
 References: <20240304071851.982-1-avri.altman@wdc.com>
- <20240304071851.982-4-avri.altman@wdc.com>
+ <20240304071851.982-3-avri.altman@wdc.com>
 From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20240304071851.982-4-avri.altman@wdc.com>
+In-Reply-To: <20240304071851.982-3-avri.altman@wdc.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 3/4/24 02:18, Avri Altman wrote:
-> Add some more details explaining the expected result
+> Add some more details explaining why the the successful result should be
+> 87,040KB data.
 > 
-> Signe -off-by: Avri Altman <avri.altman@wdc.com>
+> Signed-off-by: Avri Altman <avri.altman@wdc.com>
 > ---
->   t/jobs/t0008-ae2fafc8.fio | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
+>   t/jobs/t0007-37cf9e3c.fio | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> diff --git a/t/jobs/t0008-ae2fafc8.fio b/t/jobs/t0008-ae2fafc8.fio
-> index 4b364850..f4e8a06e 100644
-> --- a/t/jobs/t0008-ae2fafc8.fio
-> +++ b/t/jobs/t0008-ae2fafc8.fio
-> @@ -1,4 +1,5 @@
-> -# Expected result: fio writes 16MB, reads 16+16MB
-> +# Expected result: fio writes 16MB, reads 16MB+16Kb of metadata:
-> +# 16mb writes of 4K blocks are 4k IOs, each creates a 4 bytes of crc data = 16K
->   # Buggy result: fio writes 16MB, reads ~21MB
->   [global]
->   bs=4k
+> diff --git a/t/jobs/t0007-37cf9e3c.fio b/t/jobs/t0007-37cf9e3c.fio
+> index d3c98751..a5971759 100644
+> --- a/t/jobs/t0007-37cf9e3c.fio
+> +++ b/t/jobs/t0007-37cf9e3c.fio
+> @@ -1,4 +1,7 @@
+> -# Expected result: fio reads 87040KB of data
+> +# Expected result: fio reads 87040KB of data:
+> +# first read is at offset 0, then 2nd read is at offset 1.5m, then the 3rd
+> +# read is at offset 3m, and after the last read at offset 127 - we have only
 
-The explanation added here is not right. For details see
+This is a nit, but please send again with 127 changed to 127m
 
-https://github.com/axboe/fio/blob/5ae4f4220a48dddddc84c8b839ef9d8a1ed4edb1/t/run-fio-tests.py#L107
+> +# read 87,040K data.
+>   # Buggy result: fio reads the full 128MB of data
+>   [foo]
+>   size=128mb
+
