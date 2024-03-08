@@ -1,122 +1,193 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 174B6139561
-	for <fio@vger.kernel.org>; Wed,  6 Mar 2024 16:51:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF53C367
+	for <fio@vger.kernel.org>; Fri,  8 Mar 2024 13:00:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709743914; cv=none; b=JyQD4ub7wd0sFE7xGJA0OeT3BmMjkrGd3qUgZWuZ603bc2pu6SFpNRwDtmVRuxAZmyyqW/xFifV0SJr8N5C4sUZIs/nXAUcASAsFo1LWV0EBNg+sz92AKwplNQOuRjTa+Ulwo1L4v9iStIqP7BYCWRp94hg3MZXAIzpO0aZitOc=
+	t=1709902819; cv=none; b=DM1cuwzD0eXufET+hJ8VYLJYTvHx6hNX8yXkc4X5uIDGhwEz/mg7fW1w9E3uzmJv/6tKiqjdhRXOnW8VPfM0GrnekpMkyLCEXBqF2qwOSZ97jAlpiyQuc5/AGceWTBgtPrYjel94nKOaog98CdiyYG1uF14CU15kYu9tmIAhwH4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709743914; c=relaxed/simple;
-	bh=XhiaKMaKXHWIH2rYvipqJgjBQVp2JfzNx/aMVcFiEbM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=TTrc8qthVk3lAtca/aRzIOZpzCUOk5chrDRkDZZkgbywVc5bhe51+KTqefwojYWyAuuGxAt8yQb3MhvDl7oIioWbHClpA4TfAQZj3mf7RR6E1lOwfK0CwfwZXJQV1DPIo9MeXeGTwKgDEQSvy8XoI8KGjiZbODfyHTjHN9mu2us=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e35pEJFM; arc=none smtp.client-ip=209.85.222.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1709902819; c=relaxed/simple;
+	bh=iUYj98K6ouKSiyq/hhaskuQ+iGsB15yNTRhqMPWrNAQ=;
+	h=Subject:From:To:Message-Id:Date; b=eigSyJOAXTIKMN6LeoPbFLvLR1mHG2kWFGdUycWFPQl8BH74+uittV42my7LCuWWzrioIgY2qTeQXmX2j1xPWIcgwU4w9FT1W7X3OKxLqfPhRfTqqtPuPfiBxqB5zuokKUnUlCALEUIPIaF+M+I/pAkhb6ImiEwv4lE99NcOpZo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=jTBfeHjb; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e35pEJFM"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-7882b1e87c4so1399485a.1
-        for <fio@vger.kernel.org>; Wed, 06 Mar 2024 08:51:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1709743912; x=1710348712; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Rv7W6FcBil2pP/opMj9x5D9I0oMK0msqNPFNf36ImFs=;
-        b=e35pEJFMuhWBdF7VFbW/DSIZ44pJ69oqeZatIv/dKRkAKyYWvV54lLwORs9ssufstO
-         M4qx4uKef0fiBuoO2IS3AHOMTDaL6qdLZpNR9eGPY2tnVUjMryQFNTaiPC5mVulzaenr
-         B5mETcuJEHh9tnB6LvCuKhO0UIUFhhp35TT5XYi19OhAL/f5lcWQAgJY6MP+J+f3Yr20
-         WxcNtc0xcW7Z+Br3PLs1tsva3ywfYbw1b8qZK3h7nw3WoNYwjXkk6Zbk4scGH8Rw1gly
-         ysqIkYHiq7rQRPuLOg3JZlVTIjnN4PzZf7Ozn83gedNYC1UpJyoswTwFHN54Q0FFbeZ6
-         04kQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709743912; x=1710348712;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rv7W6FcBil2pP/opMj9x5D9I0oMK0msqNPFNf36ImFs=;
-        b=Xc3KedBI+BsFTai632LIsdrfsu9WD38pZSNTmOYmTWD531lIDSB06zvS3kqsgAt8x1
-         jjcZGC8+9QPoLOBGY/UcnztyyAJ1CE/BGxxmEdtcgfvm2GUnzeq8O/GAfg2bFnoUNqSW
-         mNgPcWFkZTTdLsJucZyBE993KFEapHFSey3f484yXSU+zVvStViV1YPH3Jv9y0Km3nlT
-         LSPB+83aDB577SvWmqpz6H3PG3y/0hFAL60hS6DgLjJigjrG2mcb7hqzA/pCkCPLAFkb
-         GQSmL5D3JlLIpHF6PPdd9hVC3u2Z5j9qZS28xj08IoFK19uwgEDzgecVbohlFsUroNbU
-         l2cw==
-X-Forwarded-Encrypted: i=1; AJvYcCXsEHmAB/KDzO6SKCilHVH5GKaprMxBHj4kPz25k+zAXhWzm2SAD5CmQji2q7PbnpMFYy9ASms66d5YVY7Qrc/2n/Dw
-X-Gm-Message-State: AOJu0Yx0kS/7QQIt4bdFhzfoWdrlX6IgDnecBytK0xtb5Sb5Q/W1X/78
-	UgbfZ6rSFoFoR10C4MQJBckoLJAepVA80Gye90FetulPR0Zpr6ZQ
-X-Google-Smtp-Source: AGHT+IF0OFWwEZ7hPqzZRLta+bCbdM3cEJ9tOYtH+aP9iP+I4aBxe0kNd1RByx+AwYP/uM7uUPiQzw==
-X-Received: by 2002:a0c:f883:0:b0:690:986b:dc93 with SMTP id u3-20020a0cf883000000b00690986bdc93mr1865710qvn.41.1709743911674;
-        Wed, 06 Mar 2024 08:51:51 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id ow1-20020a0562143f8100b0068c8be959a0sm7687874qvb.111.2024.03.06.08.51.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Mar 2024 08:51:51 -0800 (PST)
-Message-ID: <bf389657-7c37-4fe0-8ca7-17aecebfef3d@gmail.com>
-Date: Wed, 6 Mar 2024 11:51:50 -0500
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="jTBfeHjb"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=ImGerN4m9ZVUPTiPD5JEFTIXdi42UO5eukQuKsGRkyk=; b=jTBfeHjbawDVHdyS9SUZPvmWCC
+	nSM8fUuoKEMDHX0gTK48D63TuAwkI2N9s4DwY6b4DFzi3jAMu65iBAa86F9GQeOBMmVJLtKLyvuIn
+	CCEju4Vb+762gSnpPSkRQ0coBu+8vnAMWTOU2qvqFpeRxjjzvKgvP/IIc2eZD/zqczx2/KOFl5h6P
+	EASI5u45uCpIT0iEjX/a4tAJljFKcL+5FDKy4jXpc8rWceSHvSOPohDgwOFYU2cBZ5agPkwk2h7rE
+	GEJ+fw7PJ2K+FNlmhWDl+aym0ewb1waQEdgmfSRDOIPPY9/NdKRUtleXRancoAdXPty0b/ugncGPm
+	MEEqNSdg==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1riZpb-0000000BXTz-45SV
+	for fio@vger.kernel.org;
+	Fri, 08 Mar 2024 13:00:12 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id C225B1BC012F; Fri,  8 Mar 2024 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240308130001.C225B1BC012F@kernel.dk>
+Date: Fri,  8 Mar 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: fio version change gives different throughput results
-To: Thomas Weber <thomas.weber@de.ibm.com>,
- "fio@vger.kernel.org" <fio@vger.kernel.org>
-References: <3309778342f6bfdefe0b7a1de1fcddab10902c37.camel@de.ibm.com>
- <706651ae-3f53-4cc6-aa06-43a49f8e2078@gmail.com>
- <064bbd4dc5db416092090ce568ef8759744f46f0.camel@de.ibm.com>
-Content-Language: en-US
-From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <064bbd4dc5db416092090ce568ef8759744f46f0.camel@de.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 3/6/24 04:44, Thomas Weber wrote:
+The following changes since commit 9b699fb150bbed56939d317ffc004b3bf19f098f:
 
-<snip>
+  Doc: Make note of using bsrange with ':' (2024-03-05 10:54:36 -0500)
 
-> 
-> Thank you. I noticed that fix as well in the fio changelog.
->  From the description it seems to affect only non-sequential IO.
-> However I saw huge throughput degradations for both rw=rw and
-> rw=randrw.
-> 
-> Do you think this is related to that bug fix too?
-> 
-> [smallstuff-seq-slow]
-> rw=rw
-> nrfiles=1000
-> openfiles=25
-> filesize=1k-1m
-> bssplit=4k/20:128k/80
-> rwmixread=60
-> 
-> [smallstuff-rand-slow]
-> rw=randrw
-> nrfiles=1000
-> openfiles=25
-> filesize=1k-1m
-> bssplit=4k/50:8k/25:64k/25
-> rwmixread=75
-> 
+are available in the Git repository at:
 
-The patch description mentions file_service_type != sequential but makes 
-no comment about whether offsets are chosen randomly or sequentially. In 
-fact the example job in the patch description chooses offsets randomly.
+  git://git.kernel.dk/fio.git master
 
-I tried your smallstuff-seq-slow job and found the following:
+for you to fetch changes up to b140fc5e484638a467480e369485b91290288d58:
 
-fio-3.25+ [1]:----- 424 MiB/s read, 384 MiB/s write
-fio-3.36:---------- 384 MiB/s read, 347 MiB/s write
-fio-3.36-97-g9b699: 517 MiB/s read, 467 MiB/s write
+  t/nvmept_pi: add support for xNVMe ioengine (2024-03-07 19:36:30 +0000)
 
-[1] fio-3.25 needs 382975557e632efb506836bc1709789e615c9094 to build 
-with recent kernels
+----------------------------------------------------------------
+Vincent Fu (6):
+      examples: update plot for cmdprio-bssplit
+      examples: add plots for xNVMe examples
+      examples: add fiograph plot for uring-cmd-trim-multi-range
+      examples: add fiograph plots for netio_vsock examples
+      t/nvmept_pi: drop JSON output for error cases
+      t/nvmept_pi: add support for xNVMe ioengine
 
-If you are able to reliably reproduce the problem I suggest that you run 
-git bisect to identify the commit responsible for the difference you 
-have observed.
+ examples/cmdprio-bssplit.png            | Bin 45606 -> 134359 bytes
+ examples/netio_vsock.png                | Bin 0 -> 46920 bytes
+ examples/netio_vsock_receiver.png       | Bin 0 -> 34879 bytes
+ examples/netio_vsock_sender.png         | Bin 0 -> 35539 bytes
+ examples/uring-cmd-trim-multi-range.png | Bin 0 -> 67853 bytes
+ examples/xnvme-fdp.png                  | Bin 0 -> 53284 bytes
+ examples/xnvme-pi.png                   | Bin 0 -> 76492 bytes
+ t/nvmept_pi.py                          |  18 +++++++++++-------
+ 8 files changed, 11 insertions(+), 7 deletions(-)
+ create mode 100644 examples/netio_vsock.png
+ create mode 100644 examples/netio_vsock_receiver.png
+ create mode 100644 examples/netio_vsock_sender.png
+ create mode 100644 examples/uring-cmd-trim-multi-range.png
+ create mode 100644 examples/xnvme-fdp.png
+ create mode 100644 examples/xnvme-pi.png
 
-Vincent
+---
+
+Diff of recent changes:
+
+diff --git a/examples/cmdprio-bssplit.png b/examples/cmdprio-bssplit.png
+index a0bb3ff4..83a5570b 100644
+Binary files a/examples/cmdprio-bssplit.png and b/examples/cmdprio-bssplit.png differ
+diff --git a/examples/netio_vsock.png b/examples/netio_vsock.png
+new file mode 100644
+index 00000000..01aadde5
+Binary files /dev/null and b/examples/netio_vsock.png differ
+diff --git a/examples/netio_vsock_receiver.png b/examples/netio_vsock_receiver.png
+new file mode 100644
+index 00000000..524a7a1c
+Binary files /dev/null and b/examples/netio_vsock_receiver.png differ
+diff --git a/examples/netio_vsock_sender.png b/examples/netio_vsock_sender.png
+new file mode 100644
+index 00000000..75802aaf
+Binary files /dev/null and b/examples/netio_vsock_sender.png differ
+diff --git a/examples/uring-cmd-trim-multi-range.png b/examples/uring-cmd-trim-multi-range.png
+new file mode 100644
+index 00000000..c3ffd546
+Binary files /dev/null and b/examples/uring-cmd-trim-multi-range.png differ
+diff --git a/examples/xnvme-fdp.png b/examples/xnvme-fdp.png
+new file mode 100644
+index 00000000..7f802741
+Binary files /dev/null and b/examples/xnvme-fdp.png differ
+diff --git a/examples/xnvme-pi.png b/examples/xnvme-pi.png
+new file mode 100644
+index 00000000..def7e680
+Binary files /dev/null and b/examples/xnvme-pi.png differ
+diff --git a/t/nvmept_pi.py b/t/nvmept_pi.py
+index 5de77c9d..df7c0b9f 100755
+--- a/t/nvmept_pi.py
++++ b/t/nvmept_pi.py
+@@ -43,13 +43,11 @@ class DifDixTest(FioJobCmdTest):
+ 
+         fio_args = [
+             "--name=nvmept_pi",
+-            "--ioengine=io_uring_cmd",
+-            "--cmd_type=nvme",
++            f"--ioengine={self.fio_opts['ioengine']}",
+             f"--filename={self.fio_opts['filename']}",
+             f"--rw={self.fio_opts['rw']}",
+             f"--bsrange={self.fio_opts['bsrange']}",
+             f"--output={self.filenames['output']}",
+-            f"--output-format={self.fio_opts['output-format']}",
+             f"--md_per_io_size={self.fio_opts['md_per_io_size']}",
+             f"--pi_act={self.fio_opts['pi_act']}",
+             f"--pi_chk={self.fio_opts['pi_chk']}",
+@@ -58,11 +56,18 @@ class DifDixTest(FioJobCmdTest):
+         ]
+         for opt in ['fixedbufs', 'nonvectored', 'force_async', 'registerfiles',
+                     'sqthread_poll', 'sqthread_poll_cpu', 'hipri', 'nowait',
+-                    'time_based', 'runtime', 'verify', 'io_size', 'offset', 'number_ios']:
++                    'time_based', 'runtime', 'verify', 'io_size', 'offset', 'number_ios',
++                    'output-format']:
+             if opt in self.fio_opts:
+                 option = f"--{opt}={self.fio_opts[opt]}"
+                 fio_args.append(option)
+ 
++        if self.fio_opts['ioengine'] == 'io_uring_cmd':
++            fio_args.append('--cmd_type=nvme')
++        elif self.fio_opts['ioengine'] == 'xnvme':
++            fio_args.append('--thread=1')
++            fio_args.append('--xnvme_async=io_uring_cmd')
++
+         super().setup(fio_args)
+ 
+ 
+@@ -622,7 +627,6 @@ TEST_LIST = [
+         "fio_opts": {
+             "rw": 'read',
+             "number_ios": NUMBER_IOS,
+-            "output-format": "json",
+             "pi_act": 0,
+             "apptag": "0x8888",
+             "apptag_mask": "0x0FFF",
+@@ -639,7 +643,6 @@ TEST_LIST = [
+         "fio_opts": {
+             "rw": 'read',
+             "number_ios": NUMBER_IOS,
+-            "output-format": "json",
+             "pi_act": 0,
+             "apptag": "0x8888",
+             "apptag_mask": "0x0FFF",
+@@ -660,7 +663,6 @@ TEST_LIST = [
+         "fio_opts": {
+             "rw": 'read',
+             "number_ios": NUMBER_IOS,
+-            "output-format": "json",
+             "pi_act": 0,
+             "apptag": "0x8888",
+             "apptag_mask": "0x0FFF",
+@@ -689,6 +691,7 @@ def parse_args():
+                         '(e.g., /dev/ng0n1). WARNING: THIS IS A DESTRUCTIVE TEST', required=True)
+     parser.add_argument('-l', '--lbaf', nargs='+', type=int,
+                         help='list of lba formats to test')
++    parser.add_argument('-i', '--ioengine', default='io_uring_cmd')
+     args = parser.parse_args()
+ 
+     return args
+@@ -909,6 +912,7 @@ def main():
+ 
+     for test in TEST_LIST:
+         test['fio_opts']['filename'] = args.dut
++        test['fio_opts']['ioengine'] = args.ioengine
+ 
+     test_env = {
+               'fio_path': fio_path,
