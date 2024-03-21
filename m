@@ -1,49 +1,49 @@
 Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085BD7482
-	for <fio@vger.kernel.org>; Thu, 21 Mar 2024 03:10:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E396579C2
+	for <fio@vger.kernel.org>; Thu, 21 Mar 2024 03:10:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.153.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710990623; cv=none; b=Veb/+N6t1HaeveyLawfoOerQ9RoxdxZqCCKnLTMF+wc+AkKCuJReiYAYeDYOoi6+Wcx8MdAuG7o+GdPIGwiGuBa7Ly8pMUnP6RzI60Q/g3mOw/+uC8tZkD+zAjHGVDk0XAZeSTaeZCX++JewZtkIB0zdZg3x/vNOGzYCocqsp5I=
+	t=1710990627; cv=none; b=N+36aZs1s6waNMfg2njfTXPBE0PX1wngm65oaadMJCjB6RDFbkIDjcul84kVTnFW4UM/wvTDPtArHooAv/MeIS1PBAIuPqi1w5qE5LTS94Jxj7fKPoCmhpML57fwbgJWDqeRg7+CN4rAr3uKha5TcNuGPHeQuUVVPxZHQDs6oY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710990623; c=relaxed/simple;
-	bh=rcXctql6W59+rax2SUbIhFrlZuzVkb/zuWulieEjG5w=;
+	s=arc-20240116; t=1710990627; c=relaxed/simple;
+	bh=Bbafph+lLtIF7MzGv4ACZcHBQP/gU5GO3K0FwjqyJmY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=C7zUqAeZT4tml4k57i2afK+v6n+ngcME3UD3D4uxpZLEvQvBBnHVp3HAPD6bIuDdoLO5k1q8oM37pp+uq/BH+JdL69YRNNu8Ery/1AONota+69k6wamp++kL0nnM6f14AFtRdTI0kPosFjwZyOQptEDaOc88BAEUXHgKwti6HV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=QqugXKrl; arc=none smtp.client-ip=216.71.153.144
+	 MIME-Version; b=PpKMAJqyb/52vETJKwPFZ24FKWP+RaJdHS3nEdmyK7lkDnfBbOZgv47Ii9KOS0wIV9JUjfFu5oYgLPqyYpdZp+6F5QfHyBjnvdQR7MVCQeym4ALSKVh1Ouu3EFEbiUr0WlINUJ8Stk5kvXMyvgYhNJUD0xVcXSR87PjaaszNa7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=mrtOvnTa; arc=none smtp.client-ip=216.71.153.144
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="QqugXKrl"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="mrtOvnTa"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1710990621; x=1742526621;
+  t=1710990622; x=1742526622;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=rcXctql6W59+rax2SUbIhFrlZuzVkb/zuWulieEjG5w=;
-  b=QqugXKrlfW9G2W/HFBKPm+AfYA4IPVSuZyKvklTDtRbDih03IBLlxVCa
-   tp3m7H2K69b/U5mFPjysu4OlFdnZlIMdxmIEeVGVjIdhRqGIA1SgS/goi
-   NU2rDp3BRDx86CCLvrWrTDYLWFoMEM77uQYmEXNCseiZh0lgf8IBHUH8r
-   pPaQAfx99f1tLae5s4z9iCh11kP+ZNcHgLwFSy0dTCr91z/c1EheFQT9N
-   ZudTn9lk3xd2fs2y8DMNpJWOnG5Fy29Ud6mEoZBJ+5mSrWmKo8j9NM6+2
-   3lFpl7vmMFd5H4Vnq3nzW+FObHVPn8DzVzqG6OWMnNJKWwsVhBJqSfZpf
-   g==;
-X-CSE-ConnectionGUID: 4wvTNY7jQw2mscPaCkMYdA==
-X-CSE-MsgGUID: VSzdm2dASpW4IC1CSHh2Vg==
+  bh=Bbafph+lLtIF7MzGv4ACZcHBQP/gU5GO3K0FwjqyJmY=;
+  b=mrtOvnTaXOblxH+9pELqq6IFf8M80rivI4J/9LtLhluySEFctIPyN9lA
+   5tmmrnQc3rv5bajzteVfyILCjTkCppATbZrntd2vvE9RHuSPxntc25VcE
+   PzGpWsC82py/x72KrKyO7aUWyLs6Mnrg4gXAa+9UvDnzq1Rg2tDAMaM+7
+   w6dL5L+soIa6rMBmGA4h6dxe/gXeti6mTqSeezAccqIwet569ZYq0y847
+   sW3E5lbpK9IYOBqs7dV88PaokrDY6q8diGxDuyg2Cij1cADcLlRYIqPEH
+   bbabu2IFvT0DUhCJXRjJC4Mh5sm8OU/1q+ZdTV+yC28RBhx1HXkwdTaQb
+   A==;
+X-CSE-ConnectionGUID: 2Q9rPluETO6WzLJh8VrQEQ==
+X-CSE-MsgGUID: BX9oc+bqQvq2vIj5W/UXQg==
 X-IronPort-AV: E=Sophos;i="6.07,141,1708358400"; 
-   d="scan'208";a="12730329"
+   d="scan'208";a="12730330"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 21 Mar 2024 11:10:14 +0800
-IronPort-SDR: Xg7Ko20Phz+ANSIA6SvDcNUzy2fzzwyRBx0dEWIJ8NA6SB0UGQCjE8ZXb9zPZ+nA99I+sf3EnD
- mmaDDTpOEPLw==
+  by ob1.hgst.iphmx.com with ESMTP; 21 Mar 2024 11:10:15 +0800
+IronPort-SDR: 7L863OuUs/Ryyxo0Pe6xlJMGvD+ZJg5+yVhaAX+qZmi1XxUBvGLK4G+wGsUVoDKuIZY5ztgf6T
+ m2aBzDkzbxVA==
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Mar 2024 19:19:06 -0700
-IronPort-SDR: xzXeRIAaZqeMYmbrppADNiEIGPYEdXQgAF5R7VrgW/q20ZrO+tsvjrXNAkAiMJfODaGKGo/Wsq
- gXz0O+HgnhYA==
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 20 Mar 2024 19:19:07 -0700
+IronPort-SDR: z37Q8YcEXkX+WxcJNl+XLUlwMJ1fr0RTUtasgJhS3tpQNfKkoTVsFreBty78NMu5tcbPOI0BO8
+ lX9ebTnjsYuA==
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 20 Mar 2024 20:10:14 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 20 Mar 2024 20:10:15 -0700
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
@@ -52,9 +52,9 @@ Cc: Kookoo Gu <Zhimin.Gu@solidigm.com>,
 	Damien Le Moal <dlemoal@kernel.org>,
 	Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 1/2] iolog: regrow logs in iolog_delay()
-Date: Thu, 21 Mar 2024 12:10:10 +0900
-Message-ID: <20240321031011.4140040-2-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/2] test: add the test for regrow logs with asynchronous I/O replay
+Date: Thu, 21 Mar 2024 12:10:11 +0900
+Message-ID: <20240321031011.4140040-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240321031011.4140040-1-shinichiro.kawasaki@wdc.com>
 References: <20240321031011.4140040-1-shinichiro.kawasaki@wdc.com>
@@ -66,50 +66,67 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The commit b85c01f7e9df ("iolog.c: fix inaccurate clat when replay
-trace") triggered the assertion failure below for the workload which
-does I/O replay as asynchronous I/O together with log recording options
-such as write_lat_log.
+Add t/jobs/t0031-pre.fio and t/jobs/t0031.fio to test that the log
+space is regrown for the asynchronous I/O replay jobs. This test case
+confirms the fix by the previous commit titled "iolog: regrow logs in
+iolog_delay()".
 
-  fio: stat.c:3030: get_cur_log: Assertion `iolog->pending->nr_samples < iolog->pending->max_samples' failed.
-  fio: pid=40120, got signal=6
-
-The assertion means that too many logs are recorded in the pending log
-space which keeps the logs until next log space regrow by reglow_logs()
-call. However, reglow_logs() is not called, and the pending log space
-runs out.
-
-The trigger commit modified iolog_delay() to call io_u_queued_complete()
-so that the asynchronous I/Os can be completed during delays between
-replayed I/Os. Before this commit, replayed I/Os were not completed
-until all I/O units are consumed. So the free I/O unit list gets empty
-periodically, then wait_for_completion() and regrow_logs() were called
-periodically. After this commit, all I/O units are not consumed, so
-wait_for_completion() and regrow_logs() are no longer called for long
-duration. Hence the assertion failure.
-
-To avoid the assertion, add the check for log regrow and reglow_logs()
-call in iolog_delay().
-
-Fixes: b85c01f7e9df ("iolog.c: fix inaccurate clat when replay trace")
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- iolog.c | 2 ++
- 1 file changed, 2 insertions(+)
+ t/jobs/t0031-pre.fio | 8 ++++++++
+ t/jobs/t0031.fio     | 7 +++++++
+ t/run-fio-tests.py   | 9 +++++++++
+ 3 files changed, 24 insertions(+)
+ create mode 100644 t/jobs/t0031-pre.fio
+ create mode 100644 t/jobs/t0031.fio
 
-diff --git a/iolog.c b/iolog.c
-index f52a9a80..251e9d7f 100644
---- a/iolog.c
-+++ b/iolog.c
-@@ -102,6 +102,8 @@ static void iolog_delay(struct thread_data *td, unsigned long delay)
- 		ret = io_u_queued_complete(td, 0);
- 		if (ret < 0)
- 			td_verror(td, -ret, "io_u_queued_complete");
-+		if (td->flags & TD_F_REGROW_LOGS)
-+			regrow_logs(td);
- 		if (utime_since_now(&ts) > delay)
- 			break;
- 	}
+diff --git a/t/jobs/t0031-pre.fio b/t/jobs/t0031-pre.fio
+new file mode 100644
+index 00000000..ce4ee3b6
+--- /dev/null
++++ b/t/jobs/t0031-pre.fio
+@@ -0,0 +1,8 @@
++[job]
++rw=write
++ioengine=libaio
++size=1mb
++time_based=1
++runtime=1
++filename=t0030file
++write_iolog=iolog
+diff --git a/t/jobs/t0031.fio b/t/jobs/t0031.fio
+new file mode 100644
+index 00000000..ae8f7442
+--- /dev/null
++++ b/t/jobs/t0031.fio
+@@ -0,0 +1,7 @@
++[job]
++rw=read
++ioengine=libaio
++iodepth=128
++filename=t0030file
++read_iolog=iolog
++write_lat_log=lat_log
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index acdbbf88..1b884d87 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -869,6 +869,15 @@ TEST_LIST = [
+         'parameters':       ['--bandwidth-log'],
+         'requirements':     [],
+     },
++    {
++        'test_id':          31,
++        'test_class':       FioJobFileTest,
++        'job':              't0031.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          't0031-pre.fio',
++        'pre_success':      SUCCESS_DEFAULT,
++        'requirements':     [],
++    },
+     {
+         'test_id':          1000,
+         'test_class':       FioExeTest,
 -- 
 2.44.0
 
