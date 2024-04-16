@@ -1,101 +1,91 @@
-Received: from TWHMLLG3.macronix.com (twhmllg3.macronix.com [122.147.135.201])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2462085272
-	for <fio@vger.kernel.org>; Tue, 16 Apr 2024 08:56:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=122.147.135.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F23129A67
+	for <fio@vger.kernel.org>; Tue, 16 Apr 2024 12:00:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713257770; cv=none; b=Di2m9rKqRbCQUD4/iZ6q+rSPx4eTjSVEts7RGblMFZaZ76+AcM9zWNAyHDPJQnLJe1+/EvU1QdG28iYg6p/7mYizKl6na0i/CdJv4++UuLd6pJlEdljKK1yRS2LFcsUnMAJzcAVCOauuW7WvcnIEJ9osdTTWsX+g2E9iBbaEaVg=
+	t=1713268819; cv=none; b=WQtdeCFCS2wEqYoNueSTCKFG6GOQudrSw20y9uXzotEJlM5xq5AVb8eTx0myW4MGkxB2OuA6K1Fas37XKW2v9sr96Xi0nwnSNBMXyPL9iIbxiPahdH15Q/q6LQ+SocaewxNJ2aF8AnOI5rMg37m1GMSSdI9WYFV3RNPrmYZevY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713257770; c=relaxed/simple;
-	bh=E5ktKbtWR1rb32Tk3pEdphYCBDdiUliAl9VbqJag+BY=;
-	h=To:Subject:MIME-Version:Message-ID:From:Date:Content-Type; b=mryHyg4rqcLXxaktNqAKChM7EiwWT6n6gmtBEAyPih/Nua9nTranVBbLOu5DV8fKkCEj44KHehoasdkBTtxcKMAL6+1sZzPMF205h0PyGeuvYWeZ4HRi7FL8XZXuDnnxTb3r17oKYzrAsQj/UwU34GtybWmZ7x/2oaZk+fbKHeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mxic.com.tw; spf=pass smtp.mailfrom=mxic.com.tw; dkim=pass (2048-bit key) header.d=mxic.com.tw header.i=@mxic.com.tw header.b=AmlK7v6M; arc=none smtp.client-ip=122.147.135.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mxic.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mxic.com.tw
+	s=arc-20240116; t=1713268819; c=relaxed/simple;
+	bh=GSUSwCMKVkrGzdUjYkgXYikHYkOKpnZKZewaCFc+Sr0=;
+	h=Subject:From:To:Message-Id:Date; b=ji+7gXp+WveM7qnNKsX9R8D7A2LDmJoJBG/OYPh7oEElp7T+dh+ePyCEYYZ9hIzM3bLJvAbu8Trt7NWNQEPMjztpqHABJrLinK+8nlz1h8/s8Y8eZOzQuqwHijKfwk8wZ2W4/7IJcrqinKOPq9QTgO6sFVlIC8WFw1bfQ0bsScY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=IReqG2YO; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mxic.com.tw header.i=@mxic.com.tw header.b="AmlK7v6M"
-Received: from twhfmlp1.macronix.com (twhfmlp1.macronix.com [172.17.20.91])
-	by TWHMLLG3.macronix.com with ESMTP id 43G8ttUN061704
-	for <fio@vger.kernel.org>; Tue, 16 Apr 2024 16:55:55 +0800 (GMT-8)
-	(envelope-from ylhsieh@mxic.com.tw)
-Received: from MXML06C.mxic.com.tw (mxml06c.mxic.com.tw [172.17.14.55])
-	by Forcepoint Email with ESMTP id 31D32A137A018327F14E
-	for <fio@vger.kernel.org>; Tue, 16 Apr 2024 16:55:56 +0800 (CST)
-To: fio@vger.kernel.org
-Subject: fio output percentile latency seems upper bounded
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="IReqG2YO"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=4WOUzzHUh5sbJcXh0cV+5zqPg9FsQ7BNmTT7DQgPjSg=; b=IReqG2YOoEBKPQ0DkF+m1C3i6l
+	H0AAjNvxsAfNNYziN+8L9gVZYNxSlxZCgvn4I9lBSVfHC5S5khcOIiEHRVS0Oqj0dGt2pyhHNi/CV
+	DpyqzoNb6eEpdHXqi6HDkA7cwF03LwLXd+KhotduHCmVYdYF7G5bR0mYN+8N34jrPC9BC7VteU/ou
+	a7YjVxXZ0Bi97FKcwrtZi+svfPuSeC/ZYjvDZUYWTKTHmSnoYswx2AdUbDH/U8wLuQd4SoYIT8Yie
+	6Dii3zZf3zpnR67qPdc/cEv/KG57nP19DSoQ5qQ/78nxrdKCWxMMr6e9chqA15l0f3nh5rEQbi5tv
+	AtnSIzZw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1rwhTp-0000000B3AM-27On
+	for fio@vger.kernel.org;
+	Tue, 16 Apr 2024 12:00:10 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 225841BC0151; Tue, 16 Apr 2024 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240416120002.225841BC0151@kernel.dk>
+Date: Tue, 16 Apr 2024 06:00:02 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-KeepSent: A9096527:7152DEBE-48258B01:0030FF36;
- type=4; name=$KeepSent
-X-Mailer: Lotus Notes Release 8.5.3FP6 SHF907 April 26, 2018
-Message-ID: <OFA9096527.7152DEBE-ON48258B01.0030FF36-48258B01.003110F5@mxic.com.tw>
-From: ylhsieh@mxic.com.tw
-Date: Tue, 16 Apr 2024 16:55:56 +0800
-X-MIMETrack: Serialize by Router on MXML06C/TAIWAN/MXIC(Release 9.0.1FP10 HF265|July 25, 2018) at
- 2024/04/16 PM 04:55:56,
-	Serialize complete at 2024/04/16 PM 04:55:56
-Content-Type: text/plain; charset="US-ASCII"
-X-MAIL:TWHMLLG3.macronix.com 43G8ttUN061704
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mxic.com.tw;
-	s=mxictw; t=1713257757;
-	bh=f/hsKleZgRW8NlQ8YD0vlmCgStbQJs0tGk5S0miNttM=;
-	h=To:Subject:From:Date;
-	b=AmlK7v6MNxTjCpWXvSD3gGPQrPmSnj9S6AGa9y2/MmI3v9EgZZZIOAHbQHgxWeNI7
-	 Rpe+DMie24WjXiwIYKzL08gx8CbUckdXHyzIVqiT49xHE+VkLtRbl9MsYaVSlqf1ph
-	 n0DfOSHtO0cTW7/UxPL9AZfgO+m1r01jHasPFzcmlwZlJ8U+iNamEb/7IhENLYFPtx
-	 IUijFMeXYJszLtjZt2AH3fBLRK/pQh3GLaimV3L1E6C0xlY/ds0bl77gQSY3dTaclL
-	 uw7TGenksTo+ob/rQ9F2ST6urRRxurE10oed5VACwcpDcPhm6IC9uDnwj5ivhru+wC
-	 70pp/cef14C2Q==
 
-Hi, there
+The following changes since commit 4eef23f627d103d7092b4141bd6b0c8f95309ee9:
 
-In fio output, sometimes I see tail percentile latency to be 17112760320, 
-and it remains this value to 99.99%, why? Also, the mean latency is larger 
-than this value? (intuitively, tail latency should be larger than mean 
-latency...?) What's the reason and how to make it reasonable?
+  howto: fix zonemode formatting (2024-04-02 11:10:58 -0400)
 
-"clat_ns" : {
-  ...
-  "mean" : 41081227631.728256,
-  ...
-  "percentile" : {
-    "1.000000" : 1669332992,
-    "5.000000" : 10536091648,
-    "10.000000" : 17112760320,
-    "20.000000" : 17112760320,
-    ...
-    "99.950000" : 17112760320,
-    "99.990000" : 17112760320
-  }
-},
-"lat_ns" : {
-  ...
-  "mean" : 41087031313.177292,
-  ...
-}
+are available in the Git repository at:
 
-Thank you
-YL
+  git://git.kernel.dk/fio.git master
 
+for you to fetch changes up to 8bcd4cb42931996575cb4430f3d630810f213434:
 
-CONFIDENTIALITY NOTE:
+  Revert "ioengines: Make td_io_queue print log_err when got error " (2024-04-15 12:26:56 -0600)
 
-This e-mail and any attachments may contain confidential information 
-and/or personal data, which is protected by applicable laws. Please be 
-reminded that duplication, disclosure, distribution, or use of this e-mail 
-(and/or its attachments) or any part thereof is prohibited. If you receive 
-this e-mail in error, please notify us immediately and delete this mail as 
-well as its attachment(s) from your system. In addition, please be 
-informed that collection, processing, and/or use of personal data is 
-prohibited unless expressly permitted by personal data protection laws. 
-Thank you for your attention and cooperation.
+----------------------------------------------------------------
+Jens Axboe (1):
+      Revert "ioengines: Make td_io_queue print log_err when got error "
 
-Macronix International Co., Ltd.
+ ioengines.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-=====================================================================
+---
 
+Diff of recent changes:
+
+diff --git a/ioengines.c b/ioengines.c
+index 5dd4355d..87cc2286 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -413,7 +413,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 	if (io_u->error == EINVAL && td->io_issues[io_u->ddir & 1] == 1 &&
+ 	    td->o.odirect) {
+ 
+-		log_err("fio: first direct IO errored. File system may not "
++		log_info("fio: first direct IO errored. File system may not "
+ 			 "support direct IO, or iomem_align= is bad, or "
+ 			 "invalid block size. Try setting direct=0.\n");
+ 	}
+@@ -421,7 +421,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 	if (zbd_unaligned_write(io_u->error) &&
+ 	    td->io_issues[io_u->ddir & 1] == 1 &&
+ 	    td->o.zone_mode != ZONE_MODE_ZBD) {
+-		log_err("fio: first I/O failed. If %s is a zoned block device, consider --zonemode=zbd\n",
++		log_info("fio: first I/O failed. If %s is a zoned block device, consider --zonemode=zbd\n",
+ 			 io_u->file->file_name);
+ 	}
+ 
