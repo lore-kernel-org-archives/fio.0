@@ -1,91 +1,136 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F23129A67
-	for <fio@vger.kernel.org>; Tue, 16 Apr 2024 12:00:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8444312C7FB
+	for <fio@vger.kernel.org>; Tue, 16 Apr 2024 15:25:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713268819; cv=none; b=WQtdeCFCS2wEqYoNueSTCKFG6GOQudrSw20y9uXzotEJlM5xq5AVb8eTx0myW4MGkxB2OuA6K1Fas37XKW2v9sr96Xi0nwnSNBMXyPL9iIbxiPahdH15Q/q6LQ+SocaewxNJ2aF8AnOI5rMg37m1GMSSdI9WYFV3RNPrmYZevY4=
+	t=1713281107; cv=none; b=VvZmPLdEcxaq9whPrSckG0S5LYs9rAGMT2fDNDAz52O9xRRrn6lTCrifssrJF4atR4wPBbu9ULDUx5R6v66qYF26evUUU3DnqzN4ykq2EwxGcO6DThBS2Xn7Bpc2xK3BksFaOt+mso0FEhTAbe0nBJ66ixAbO0WT5jKGSDXhCXI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713268819; c=relaxed/simple;
-	bh=GSUSwCMKVkrGzdUjYkgXYikHYkOKpnZKZewaCFc+Sr0=;
-	h=Subject:From:To:Message-Id:Date; b=ji+7gXp+WveM7qnNKsX9R8D7A2LDmJoJBG/OYPh7oEElp7T+dh+ePyCEYYZ9hIzM3bLJvAbu8Trt7NWNQEPMjztpqHABJrLinK+8nlz1h8/s8Y8eZOzQuqwHijKfwk8wZ2W4/7IJcrqinKOPq9QTgO6sFVlIC8WFw1bfQ0bsScY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=IReqG2YO; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1713281107; c=relaxed/simple;
+	bh=ns7isBsgdUv5w31hoKBHKEwsT1vwS8+9vMZdO/eyalE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=XVBMrrClYPUubbyab79m3Ec7hDIeCw+AExrA0OkD21oVVmXyQhOPq/TwIy28Rqeq+MiCySQWQmMWf1kR4gOAtzoUtd0XG3VdXld/gSZTMy73q/G7agaqRt/UFkvRjerLQZFCR7Tpb5CsY8r3J+D4+e1xXajPd3DpYYVB0rhschU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y39EbG8m; arc=none smtp.client-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="IReqG2YO"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=4WOUzzHUh5sbJcXh0cV+5zqPg9FsQ7BNmTT7DQgPjSg=; b=IReqG2YOoEBKPQ0DkF+m1C3i6l
-	H0AAjNvxsAfNNYziN+8L9gVZYNxSlxZCgvn4I9lBSVfHC5S5khcOIiEHRVS0Oqj0dGt2pyhHNi/CV
-	DpyqzoNb6eEpdHXqi6HDkA7cwF03LwLXd+KhotduHCmVYdYF7G5bR0mYN+8N34jrPC9BC7VteU/ou
-	a7YjVxXZ0Bi97FKcwrtZi+svfPuSeC/ZYjvDZUYWTKTHmSnoYswx2AdUbDH/U8wLuQd4SoYIT8Yie
-	6Dii3zZf3zpnR67qPdc/cEv/KG57nP19DSoQ5qQ/78nxrdKCWxMMr6e9chqA15l0f3nh5rEQbi5tv
-	AtnSIzZw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rwhTp-0000000B3AM-27On
-	for fio@vger.kernel.org;
-	Tue, 16 Apr 2024 12:00:10 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 225841BC0151; Tue, 16 Apr 2024 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240416120002.225841BC0151@kernel.dk>
-Date: Tue, 16 Apr 2024 06:00:02 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y39EbG8m"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-43716ff5494so16062061cf.0
+        for <fio@vger.kernel.org>; Tue, 16 Apr 2024 08:25:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713281104; x=1713885904; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=aSwLQsNm7MyfzRVpbwPEDG9pMqN6Gmke7Oei5Itf2Dc=;
+        b=Y39EbG8mYENqfoNq4LmhbwekNBJYYciCl/dlAzmtFxyYOykz9aJEK8oIbY65AZxPcA
+         RIElbYNg255gogcHswlKdOdGSACouiBvi+58wJQYx2judBcYosY3kGGRkEopcqpwi1Gc
+         t2Jp0F0F7sZfUD6Xhj/mwARQyGSuNSGm2DPldceP2sGPPHjor06vYOwfxfP6vpsGDYyJ
+         FIalSMGlYLlbuvxqMf40I9sRksEy3GFb1J3a0SDuKtPsqVVHroEajkyXoKDCbyLuNBF4
+         LNjl3dW1QlK5YHZF70oT4zULN7e2KU7DTxVXTUlK3ap801HFSZNhnkbl9J7/n+sAb+Zl
+         mszQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713281104; x=1713885904;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=aSwLQsNm7MyfzRVpbwPEDG9pMqN6Gmke7Oei5Itf2Dc=;
+        b=iAvuo3aCZPBamti+avAORBxni1upucx7/qEn6V3faDtQYujXKf3kQGiry1VuG9gAL6
+         Gu15pHfqO/u+6BHt1mkRrgY8HF63UiV6z3Oni7/mbAfMnjIGfaR91qGNbre7zfOmHF/h
+         Hjxbsxifr/ra67Gd75HyATJs480qZ+IGcp5laKjNDrukAPXYBzutu9v3JKl9hTDnzca8
+         PHXW+2fh9X6ai4n1CUhpm2Wmh51/PAxFj0h7X8/x/lFCIrjTAPT7nEsoiHajttYm23L8
+         4Mr5P/b/FdrY5r1dlosaC7xUyF2Xf6gqG4oBN04QVIqjprHsP9X0Xk8ScXM+qQWFDM1b
+         4sQQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUD1YNRsvc5+hjxBeE58gEGvl1yrs5x9359cKDIZG2UVmtNcx1cSAbwx1XPHMULqpO4cflkYh2XStyRSeztGKpPWx0X
+X-Gm-Message-State: AOJu0Yw0zgeBc1fYXhkRc1Mnrx5Cd2kUmBk09X5JEh3DZ42xAP4vxr+u
+	BtAPepl/3t5EImOKQu1Gkkv+Mm2Cf7TMv3xpcNdVYpAKDpt6T4AwArBQdQ==
+X-Google-Smtp-Source: AGHT+IFIeSSps+U1z2ccKJi0AqFaHq58RBK3TbtwqsvHIi2lC2CJbvfG2QL4x0lNrnc6W608PtHtPA==
+X-Received: by 2002:ac8:5fc3:0:b0:434:6c3e:3074 with SMTP id k3-20020ac85fc3000000b004346c3e3074mr3382621qta.22.1713281104285;
+        Tue, 16 Apr 2024 08:25:04 -0700 (PDT)
+Received: from [192.168.1.206] ([172.58.188.23])
+        by smtp.gmail.com with ESMTPSA id dq20-20020a05622a521400b00434e990098bsm7271792qtb.77.2024.04.16.08.25.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 16 Apr 2024 08:25:03 -0700 (PDT)
+Message-ID: <551f4e4a-8aba-43f6-ae20-439041b87310@gmail.com>
+Date: Tue, 16 Apr 2024 11:25:03 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: fio output percentile latency seems upper bounded
+To: ylhsieh@mxic.com.tw, fio@vger.kernel.org
+References: <OFA9096527.7152DEBE-ON48258B01.0030FF36-48258B01.003110F5@mxic.com.tw>
+Content-Language: en-US
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <OFA9096527.7152DEBE-ON48258B01.0030FF36-48258B01.003110F5@mxic.com.tw>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following changes since commit 4eef23f627d103d7092b4141bd6b0c8f95309ee9:
+On 4/16/24 04:55, ylhsieh@mxic.com.tw wrote:
+> Hi, there
+> 
+> In fio output, sometimes I see tail percentile latency to be 17112760320,
+> and it remains this value to 99.99%, why? Also, the mean latency is larger
+> than this value? (intuitively, tail latency should be larger than mean
+> latency...?) What's the reason and how to make it reasonable?
+> 
+> "clat_ns" : {
+>    ...
+>    "mean" : 41081227631.728256,
+>    ...
+>    "percentile" : {
+>      "1.000000" : 1669332992,
+>      "5.000000" : 10536091648,
+>      "10.000000" : 17112760320,
+>      "20.000000" : 17112760320,
+>      ...
+>      "99.950000" : 17112760320,
+>      "99.990000" : 17112760320
+>    }
+> },
+> "lat_ns" : {
+>    ...
+>    "mean" : 41087031313.177292,
+>    ...
+> }
+> 
+> Thank you
+> YL
+> 
+> 
+> CONFIDENTIALITY NOTE:
+> 
+> This e-mail and any attachments may contain confidential information
+> and/or personal data, which is protected by applicable laws. Please be
+> reminded that duplication, disclosure, distribution, or use of this e-mail
+> (and/or its attachments) or any part thereof is prohibited. If you receive
+> this e-mail in error, please notify us immediately and delete this mail as
+> well as its attachment(s) from your system. In addition, please be
+> informed that collection, processing, and/or use of personal data is
+> prohibited unless expressly permitted by personal data protection laws.
+> Thank you for your attention and cooperation.
+> 
+> Macronix International Co., Ltd.
+> 
+> =====================================================================
+> 
 
-  howto: fix zonemode formatting (2024-04-02 11:10:58 -0400)
+Yes, there is an upper bound. See the discussion in stat.h:
 
-are available in the Git repository at:
+https://github.com/axboe/fio/blob/master/stat.h
 
-  git://git.kernel.dk/fio.git master
+The intention is to calculate the min, max, and mean without loss of 
+precision. But for the latency percentiles, each latency measurement is 
+assigned to a bucket that includes a range of values. The midpoint of 
+the bucket for the highest set of values is 17112760320 ns. Values 
+exceeding this are not tracked accurately.
 
-for you to fetch changes up to 8bcd4cb42931996575cb4430f3d630810f213434:
+You could increase FIO_IO_U_PLAT_GROUP_NR if you wanted to track long 
+latencies more accurately.
 
-  Revert "ioengines: Make td_io_queue print log_err when got error " (2024-04-15 12:26:56 -0600)
+Vincent
 
-----------------------------------------------------------------
-Jens Axboe (1):
-      Revert "ioengines: Make td_io_queue print log_err when got error "
-
- ioengines.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/ioengines.c b/ioengines.c
-index 5dd4355d..87cc2286 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -413,7 +413,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	if (io_u->error == EINVAL && td->io_issues[io_u->ddir & 1] == 1 &&
- 	    td->o.odirect) {
- 
--		log_err("fio: first direct IO errored. File system may not "
-+		log_info("fio: first direct IO errored. File system may not "
- 			 "support direct IO, or iomem_align= is bad, or "
- 			 "invalid block size. Try setting direct=0.\n");
- 	}
-@@ -421,7 +421,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	if (zbd_unaligned_write(io_u->error) &&
- 	    td->io_issues[io_u->ddir & 1] == 1 &&
- 	    td->o.zone_mode != ZONE_MODE_ZBD) {
--		log_err("fio: first I/O failed. If %s is a zoned block device, consider --zonemode=zbd\n",
-+		log_info("fio: first I/O failed. If %s is a zoned block device, consider --zonemode=zbd\n",
- 			 io_u->file->file_name);
- 	}
- 
