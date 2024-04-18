@@ -1,121 +1,95 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 211CF15FA63
-	for <fio@vger.kernel.org>; Thu, 18 Apr 2024 12:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B994168B06
+	for <fio@vger.kernel.org>; Thu, 18 Apr 2024 15:29:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713441611; cv=none; b=KEZ1lIRCnWarl8dseWV0rPbegML/z2rivy+4bbj34JPwt+uzIJ08xlGFUZ7EX96F1KBHTCBjk01eET6lL6Bi+Y4bSHaxSTWuuc5nVJaWCNgzyAySJcjNfAsbXqQVIJbR2qz1xGh3bUJNXbNuCo6dxVu3Kws7RtljbadZTSQvMug=
+	t=1713454171; cv=none; b=EeCYeQeFi0dV7U2om4bX7Roba3Tt09DsFfN3oRkvrqUtTYrnQSSpa0OsWt0NZxjfPJEK9Tm4GdE0zEKNimrLQxHUwOJcMktse8EyDYg8mqsAYihyk/6l7aG/UZy2xh4Y/n3BTDiEiCeyf6121NtYWKStvqL/aVJ2eMyez2+waDU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713441611; c=relaxed/simple;
-	bh=ujZTKmeq4agXkBHyYiktP1divZFeZXAJOo0pLxzSwO8=;
-	h=Subject:From:To:Message-Id:Date; b=k/0krPEi3NL1rJkyBv6IAA51lJm2WgC9VqLv2KWBsgaQGBWyxBqGwv4kfLxqRUGHo8/FPB5N9BnEflcZDZTKpl/QnisKQQ8DXG9LGkhOl9F6CYYHa98l1KaQcSzgVRHU7/rgseBXsk8aj0i1og9rRiVMWj8/jeDiveQ6EehUhpw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=K0pPBTpc; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1713454171; c=relaxed/simple;
+	bh=VCuQGJxObp3mLSHswefiBwQor7kTYD5hdgnz3yLH9dc=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=PXkZVjM4M6sryP5+8Fv3jareGZ8oOeZijTuZfKI7UhMUp+TCaauSKvoyl8Ux1QQGmKvp7Ys8XaZxHBdKPAKz9I0MO0EwucyDT5kHBSm1iuYKXP/SoMAvfQZZMYPo/17hLDyn6V+9gxlI3vOq33ZrJyG3bh0vmjTmc1S7sqQi/A0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=JetM+cOy; arc=none smtp.client-ip=209.85.214.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="K0pPBTpc"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=E6XuGNog4B7Gi0aYjr0BBXmSe7WRsThnz2P066pxsxU=; b=K0pPBTpcNrKvVob7/JEljfTUk/
-	cHbJ4od3Mx28bE5CnjISNGquklDgE6CAhQ4t8R7mWrGpfrg6dE2H4wQOXTBkHib/PIKh6YLXjfmMN
-	woO0td45ZxOlpoIN3AggipXH9BaRuP9OMn5u+lfBQBq4hFD+wzLXelaaBI1yWUByz6A9tbRxUbinv
-	T54lOIjGIJdJ1P2U9c6JZJtlC0NSRYLKWRhKPtVGWSRF6TTY/+kkmyPb2ZRaYKmLkL09MzlhqAIFQ
-	MlHBFLDwhmX5z5OPcbJlmEHzvWBrTO58payqFaqJM+3Udr87d5tbfekghhlybSkDnWtxixMhMZOn1
-	0uToFUwg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1rxQQu-00000005GSK-1Q0S
-	for fio@vger.kernel.org;
-	Thu, 18 Apr 2024 12:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 525611BC015F; Thu, 18 Apr 2024 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="JetM+cOy"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-1e7af7eb4ccso214755ad.1
+        for <fio@vger.kernel.org>; Thu, 18 Apr 2024 08:29:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1713454168; x=1714058968; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=62iG1O7gySMBJ6xKvtHY/kvYkJz0zkdQgVs8KAetBiw=;
+        b=JetM+cOyt7RxiIhraFRXrw7hnygAf8b81zp8sC4UN/U87fhexTaUjpmFUk6iBqWk4Y
+         lYE1mMgkZugjQzDMot2yR7BX5aqJwY84azHyyzypUqORdenSEMsZSURV9ctyBPLR90CE
+         cMNZA4YzywqZQJA2hLOoZFcBA5Nn2Nd1REZ5MUYX1QmSV7aWqhCpnBMKSKp+R/gOkhdl
+         xgLy6eO5uTQ9xGqa0P859NnLIOgbfz1wR2Hqyx82CZt0NUkUohVrgCD6Pi4U+ltAufLk
+         JGmHpcmUuQOVncbyLKSMcSXmWgZHBg5x129b1CfHx/KhnWso1xAVSUayG5I0nSnBqmmu
+         aALA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713454168; x=1714058968;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=62iG1O7gySMBJ6xKvtHY/kvYkJz0zkdQgVs8KAetBiw=;
+        b=JlbZlgmoe4qvRTWFo6FJEvowRl8Q6lLqMhgHv2zMSgRu+YzcQ5lww1JIVqlDhrW9e+
+         qYi2+Z/qlyEmkXqAog0ASat/DruANTF9OIHVLIH+e+G5/uQ0yyvNDrQw+DTfASgCg0Ua
+         CH2ESBeGRryF79bWY9b27aygPuHtH7N1cxupZHfqf/OeHMWkgMJ6Vxmb1MQ7SdgwJ0G+
+         9k8SoeAcx/63L2Dj1XsSnUOXoMQxTux34GfyFTjejHJXTO7H+Tguz1jwmxktuAVUc8gR
+         iKQUjK0uN7wFND4PeEnYwFMK3BB79jQMsjSIWh+qqw9xTGudU+RyBEcKJbr3u/uiG+PH
+         FKnA==
+X-Gm-Message-State: AOJu0YzTeFxzLz7hbLEwB3IgNgnc2mSukwppRQGkiH/ZbeyrjN29bc3V
+	TQ6uNUUFq+uxVsgRzJvXeuC1/tOQPdOwjYhM4jUV85/wO2dMkQFncaw1l3510Mg=
+X-Google-Smtp-Source: AGHT+IHFirioOa9SGmQCYCfC2IKJgEmosfUG65DvXqe0ICn5Xelv3IGoqq9bFPJvBFViXLGjCnieaA==
+X-Received: by 2002:a17:902:8498:b0:1de:ddc6:27a6 with SMTP id c24-20020a170902849800b001deddc627a6mr3380208plo.2.1713454167660;
+        Thu, 18 Apr 2024 08:29:27 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.194])
+        by smtp.gmail.com with ESMTPSA id h2-20020a170902704200b001e5c0ac3279sm1667249plt.74.2024.04.18.08.29.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Apr 2024 08:29:27 -0700 (PDT)
 From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240418120001.525611BC015F@kernel.dk>
-Date: Thu, 18 Apr 2024 06:00:01 -0600 (MDT)
+To: Vincent Fu <vincent.fu@samsung.com>, Chana Zaks <chana.zaks@wdc.com>
+Cc: fio@vger.kernel.org
+In-Reply-To: <20240418092222.20543-1-chana.zaks@wdc.com>
+References: <20240418092222.20543-1-chana.zaks@wdc.com>
+Subject: Re: [PATCH 0/2] Fix bug with rw sequence offset and io-size
+Message-Id: <171345416666.438203.16815296406613301554.b4-ty@kernel.dk>
+Date: Thu, 18 Apr 2024 09:29:26 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.12.5-dev-2aabd
 
-The following changes since commit 5b347a1d4e5fd81b6a1b515843b834c39fb3463d:
 
-  Merge branch 'directory-operation' of https://github.com/friendy-su/fio (2024-04-16 11:04:58 -0400)
+On Thu, 18 Apr 2024 12:22:20 +0300, Chana Zaks wrote:
+> In readwrite mode, when io-size > size, we break too early and start
+> looping the addresses too soon.
+> 
+> Chana-Zaks-wdc (2):
+>   Don’t break too early in readwrite mode
+>   test: add test for readwrite issue
+> 
+> [...]
 
-are available in the Git repository at:
+Applied, thanks!
 
-  git://git.kernel.dk/fio.git master
+[1/2] Don break too early in readwrite mode
+      commit: d782b76fc9086dac25d674a9439352f9fa962db1
+[2/2] test: add test for readwrite issue
+      commit: c6e2a258fbac28f6f421eef1a3be2e5ad5f5a01e
 
-for you to fetch changes up to e0bb44a5b2a67695f0b940772c70f678b323ec54:
+Best regards,
+-- 
+Jens Axboe
 
-  t/io_uring: only calculate per-file depth if we have files (2024-04-17 16:34:47 -0600)
 
-----------------------------------------------------------------
-Ankit Kumar (1):
-      ioengines: bump up FIO_IOOPS_VERSION
 
-Jens Axboe (2):
-      Merge branch 'ioops_ver' of https://github.com/ankit-sam/fio
-      t/io_uring: only calculate per-file depth if we have files
-
-Vincent Fu (1):
-      github: add reminders to PR template
-
- .github/PULL_REQUEST_TEMPLATE.md | 7 +++++++
- ioengines.h                      | 2 +-
- t/io_uring.c                     | 4 +++-
- 3 files changed, 11 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/.github/PULL_REQUEST_TEMPLATE.md b/.github/PULL_REQUEST_TEMPLATE.md
-index 4d98a694..6cead5b3 100644
---- a/.github/PULL_REQUEST_TEMPLATE.md
-+++ b/.github/PULL_REQUEST_TEMPLATE.md
-@@ -6,3 +6,10 @@ Please confirm that your commit message(s) follow these guidelines:
-    aren't something like a URL at 72-74 chars.
- 4. Empty line
- 5. Signed-off-by: Real Name <real@email.com>
-+
-+Reminders:
-+
-+1. If you modify struct thread_options, also make corresponding changes in
-+   cconv.c and bump FIO_SERVER_VER in server.h
-+2. If you change the ioengine interface (hooks, flags, etc), remember to bump
-+   FIO_IOOPS_VERSION in ioengines.h.
-diff --git a/ioengines.h b/ioengines.h
-index 2fd7f52c..e43650f7 100644
---- a/ioengines.h
-+++ b/ioengines.h
-@@ -9,7 +9,7 @@
- #include "zbd_types.h"
- #include "fdp.h"
- 
--#define FIO_IOOPS_VERSION	33
-+#define FIO_IOOPS_VERSION	34
- 
- #ifndef CONFIG_DYNAMIC_ENGINES
- #define FIO_STATIC	static
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 18e8b38e..aa6e09e9 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -974,7 +974,9 @@ static int setup_ring(struct submitter *s)
- 	for (i = 0; i < p.sq_entries; i++)
- 		sring->array[i] = i;
- 
--	s->per_file_depth = (depth + s->nr_files - 1) / s->nr_files;
-+	s->per_file_depth = INT_MAX;
-+	if (s->nr_files)
-+		s->per_file_depth = (depth + s->nr_files - 1) / s->nr_files;
- 	return 0;
- }
- 
