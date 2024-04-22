@@ -1,55 +1,55 @@
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF43815444B
-	for <fio@vger.kernel.org>; Mon, 22 Apr 2024 17:55:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92271153BF2
+	for <fio@vger.kernel.org>; Mon, 22 Apr 2024 17:55:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713808548; cv=none; b=jGiOeqxAkTkLo8I1OHeECuyDEkgr+ZteZr2dUj3dAhyhseMixozNHQCUXblU6032jO3MPsfcULL95sUxvJW2UNl+Ljtz61G8rhfeljrBeducrLSedSBGucISfvNEqnuOA8foPOtodIBLC9BumUNiFV7e9bN5+gk87DDr2xDAgFE=
+	t=1713808549; cv=none; b=YSfCVVcOUBWAgSENFDf6fqkitfupYLNe0zznTO0G/Z2vwehLHME2U7rNes32TkUNgkL5Z1UOPoAIhuxkgYVfj1EwGJquBOW+CmzwXJOkTfzAsQgqF64irVfGx3JJJhCnPdptduFjZoG/Xp3ygkOOGqWQ92vLxcyBYXAzmJMncaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713808548; c=relaxed/simple;
-	bh=yLQvTZkJoAxTAl1YVy8i3P9ABQ5gdTJEpbPaFItV57M=;
+	s=arc-20240116; t=1713808549; c=relaxed/simple;
+	bh=73LfmRyGz+UAIErihq1HzMqJpQS95yR8Dk9CJiFUWFg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fWIp+WUzcbPp3mk6s6ehWOH98bwrvr2ugeU/9kRSiMqmfw4VK0WnM2SYZXtbJ3bCA9T+SkSnCcwHqlfVF/rkQ4mYCM8FD/EvIaQNYQsGEUff4YOBSJGMWFmN2TQieFWUW9qBoiHXIHPGGIT6hko23K0F4OdZwxnFhKErB5iLbUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bwR7mf5U; arc=none smtp.client-ip=209.85.219.52
+	 MIME-Version; b=shRUBLbHbbKp1xqWZB2Ff9VXVPcHnzteBby473HevWkUU7Qot8VLl5GWJjYlCD6q+ZOuQniybXzuLj2OoBoV+t7EY2wMPuH3PXzXRJuAak4nDuDeYyvHBH5101BTB8cuYNd1DiyvZukOueGO0ntHFIyYHunu3gpWo8vZsj+aSdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GWLPPRIp; arc=none smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bwR7mf5U"
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-6a06b12027cso22686496d6.0
-        for <fio@vger.kernel.org>; Mon, 22 Apr 2024 10:55:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GWLPPRIp"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-69b7d2de292so16427766d6.2
+        for <fio@vger.kernel.org>; Mon, 22 Apr 2024 10:55:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1713808546; x=1714413346; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YxqRjj8fiwpjUGE7zJcjfY9eYovRhY+ISx26f0sYdno=;
-        b=bwR7mf5UNgH9OR98nBnF6ccRsEsi8TiSs3tAX0LDZ+yK5uvMzIQrIQrwAYNIU8YJay
-         D6e88AekNOWGbLp3VJjlKoxnSQlFPhmG4LrDv8N0xepE6KiQ5JoUx32OcUuMedpcc+Ww
-         ldZCsY/Bj1OFjlN2dw+M1FAgAvP3DteJ+TjqUTTO4BK2JdTnGhgN1sgXdzOLKuLVfPX4
-         SEPBxpu+to5S+Opiu1owf18o+8FZSXfmKJHvi7PyC71c70xsc7MuJEVxB/mRSXzeCwNa
-         ytB8DollZwksCVDnRrZlB5fVEUjxMu70JWcW9oIvHqlgFz2DAf2B++3NWrIyyO5rENcM
-         JtKg==
+        bh=IEpmkFgNs5ILaFry229E7qip9xSewByzchGC0bj6aLY=;
+        b=GWLPPRIpdjQS99Wfjsz36KqeSx0HO0j4w9aA+p1odR45AsDsait0kBMKn/Q8hSeveY
+         F9mEu1nrDPEf3aVlS3GUWG08I7B0eN42Guon6tL8emGb26ElG08RVEi4Y7VpPHM2T3UX
+         Io8HdDEZ3wBh9JJAdOPnynoTSONy3d3ZdPofAwwhWgYfYjcwtFxWAt9hQ6jv78fq0kwo
+         FD02GjMsWVKmtZ/DSai4nKh+gR3pK9hAP6QfCbp6mVNrR9TZ4UZ1mcD1vOUkgnp6mE/o
+         5KdNieLyNi/M7tBGHqS7kIDYEhyalDnw9Bk5OsBmLNiGaDyIMmjoV4yPOloRmNW3XqP8
+         ToGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1713808546; x=1714413346;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YxqRjj8fiwpjUGE7zJcjfY9eYovRhY+ISx26f0sYdno=;
-        b=uLc6xspniTsx9iyzgn1ZI1SSzucUKjcafQgPD4fIs7hzo1tVtXisUx3njJd9AkKL1+
-         zBnUuSK3Dvu6EhBJP3uZQl3xrx3dCNypiLzK678eW3dFc77IC4XPS/dBlx0J6S9lt6q4
-         FMRkAJeRQKlU+gXwSsdCwU3q29x0ebKH7ikRamy6ho3mte87gO7gFPuImI983F5tQi2a
-         t31wixgKawYR4JCPIQP3A6FtkFfd4U/pn5sbQKIVTZs9zDCr7C7pDh4NTtntL48ozPJr
-         YNIkQW49D6vDP75Jiah5m8fOS8TN50FDyEdFnJON/+ulbfjks0XV7/xlQJAC65zn82zI
-         1gHg==
-X-Forwarded-Encrypted: i=1; AJvYcCXXnVXGIK1ign0HmnBpJQD+B0JYULZ60D2bK9QrYcoZ2bu7ouhrq7qj4DVsSFWy34niblDO53GRCaLClj5XkItOxM48
-X-Gm-Message-State: AOJu0YwvFJMKbGfgg96EAMoL95YgHKMWK3IRaJlp822314xUdVs73bvK
-	MF3C0RrfBvcCm4IDR4Vt3To62ydZwpo1CEbCVy2gLMdQdTO7/9mOCZqQXw==
-X-Google-Smtp-Source: AGHT+IG/0Fg4eZEHZlGlxsePpvIFOpOX+ObppuENMLwSgum9uBsr6qzjzr7K0YjNiSS5lBHUgivOfw==
-X-Received: by 2002:ad4:4eab:0:b0:69c:b384:1ebb with SMTP id ed11-20020ad44eab000000b0069cb3841ebbmr762653qvb.22.1713808545645;
-        Mon, 22 Apr 2024 10:55:45 -0700 (PDT)
+        bh=IEpmkFgNs5ILaFry229E7qip9xSewByzchGC0bj6aLY=;
+        b=aDoW0abQoyv0VnrAIHs4HyIMbsJpncfEqJhmSc0q43TsD5NvnhczfEBIAfr1uGAhWg
+         5XNkBCaasmAzIovgvJzTG1T8y+zTyBuxmguQk3vhpWxtQxb3VLu+OML+ogncFoO9ng8g
+         X5fwK52uQBQx16s/idKHP3KD2D+VDEMzs2gOm0JDtWi40fPxzYtQgw/IXozrxxTUlvED
+         R9ZcEtAXPMgnSjqlj8D3W+ELu4hKkhQWbF0AAASar6+hQk7QoIj3NLGYXN/hszthnwFx
+         K6qBdbrGZ5zlH408bIOraeDUBlH/OfWKQVfeDm0vqynGPo//k063BhCK802C3ulpBYoN
+         M0Fw==
+X-Forwarded-Encrypted: i=1; AJvYcCVF+r638WQZyuXuvxcdsL48rAICs5FMycFe4Nzz6p97zJr8AhB+nPXGKnW2ZICfJtlLOmvOuRmgTZU+0hVigw1tk2Yj
+X-Gm-Message-State: AOJu0Ywjc7k/f6MT3u43/kDI1F24GdPzNM02azGw9yp6cjK7bLZ8pzf+
+	Dy3XJBIcFwIOsAhaBL9kb2k4JevnLY/60HKo+KzJFOYdLWU9GfZG
+X-Google-Smtp-Source: AGHT+IEJmLgshEaZvv0J8gWWfjKQev3eeuLC1QN/J48CJhx0YxUy/k/HGukygJEwX4Ymy8Wmv8N0cw==
+X-Received: by 2002:a05:6214:1742:b0:699:2760:b44 with SMTP id dc2-20020a056214174200b0069927600b44mr10223595qvb.8.1713808546329;
+        Mon, 22 Apr 2024 10:55:46 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.googlemail.com with ESMTPSA id a7-20020a0cca87000000b0069b82585f7bsm4392727qvk.21.2024.04.22.10.55.44
+        by smtp.googlemail.com with ESMTPSA id a7-20020a0cca87000000b0069b82585f7bsm4392727qvk.21.2024.04.22.10.55.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Mon, 22 Apr 2024 10:55:45 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
@@ -59,9 +59,9 @@ To: axboe@kernel.dk,
 	kbusch@kernel.org,
 	fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 2/9] fio: create over-arching data placement option
-Date: Mon, 22 Apr 2024 13:49:48 -0400
-Message-ID: <20240422175522.4614-3-vincent.fu@samsung.com>
+Subject: [PATCH 3/9] t/nvmept_fdp.py: test script for FDP
+Date: Mon, 22 Apr 2024 13:49:49 -0400
+Message-ID: <20240422175522.4614-4-vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240422175522.4614-1-vincent.fu@samsung.com>
 References: <20240422175522.4614-1-vincent.fu@samsung.com>
@@ -73,323 +73,766 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Since FDP and streams are similar, we should have an over-arching data
-placement option that encompasses both of these frameworks instead of
-having separate sets of similar options for FDP and streams.
-
-With a common set of options, users will be able to select the data
-placement strategy (fdp or streams), the placement identifiers to use,
-and the algorithm for selecting from the list of placement identifiers.
-
-The original set of FDP options is retained for backward compatibility.
-
-No functional change.
+This test script uses the io_uring pass-through ioengine to test fio's
+FDP support. This uses both the orignal and the new fdp-related options.
 
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- cconv.c          | 18 +++++++++-------
- dataplacement.c  | 14 ++++++-------
- dataplacement.h  | 11 ++++++++--
- filesetup.c      |  2 +-
- init.c           | 10 ++++++++-
- io_u.c           |  2 +-
- options.c        | 54 +++++++++++++++++++++++++++++++++++-------------
- server.h         |  2 +-
- thread_options.h | 15 +++++++-------
- 9 files changed, 86 insertions(+), 42 deletions(-)
+ t/nvmept_fdp.py | 745 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 745 insertions(+)
+ create mode 100755 t/nvmept_fdp.py
 
-diff --git a/cconv.c b/cconv.c
-index ead47248..16112248 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -354,10 +354,11 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 		o->merge_blktrace_iters[i].u.f = fio_uint64_to_double(le64_to_cpu(top->merge_blktrace_iters[i].u.i));
- 
- 	o->fdp = le32_to_cpu(top->fdp);
--	o->fdp_pli_select = le32_to_cpu(top->fdp_pli_select);
--	o->fdp_nrpli = le32_to_cpu(top->fdp_nrpli);
--	for (i = 0; i < o->fdp_nrpli; i++)
--		o->fdp_plis[i] = le32_to_cpu(top->fdp_plis[i]);
-+	o->dp_type = le32_to_cpu(top->dp_type);
-+	o->dp_id_select = le32_to_cpu(top->dp_id_select);
-+	o->dp_nr_ids = le32_to_cpu(top->dp_nr_ids);
-+	for (i = 0; i < o->dp_nr_ids; i++)
-+		o->dp_ids[i] = le32_to_cpu(top->dp_ids[i]);
- #if 0
- 	uint8_t cpumask[FIO_TOP_STR_MAX];
- 	uint8_t verify_cpumask[FIO_TOP_STR_MAX];
-@@ -652,10 +653,11 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 		top->merge_blktrace_iters[i].u.i = __cpu_to_le64(fio_double_to_uint64(o->merge_blktrace_iters[i].u.f));
- 
- 	top->fdp = cpu_to_le32(o->fdp);
--	top->fdp_pli_select = cpu_to_le32(o->fdp_pli_select);
--	top->fdp_nrpli = cpu_to_le32(o->fdp_nrpli);
--	for (i = 0; i < o->fdp_nrpli; i++)
--		top->fdp_plis[i] = cpu_to_le32(o->fdp_plis[i]);
-+	top->dp_type = cpu_to_le32(o->dp_type);
-+	top->dp_id_select = cpu_to_le32(o->dp_id_select);
-+	top->dp_nr_ids = cpu_to_le32(o->dp_nr_ids);
-+	for (i = 0; i < o->dp_nr_ids; i++)
-+		top->dp_ids[i] = cpu_to_le32(o->dp_ids[i]);
- #if 0
- 	uint8_t cpumask[FIO_TOP_STR_MAX];
- 	uint8_t verify_cpumask[FIO_TOP_STR_MAX];
-diff --git a/dataplacement.c b/dataplacement.c
-index 7518d193..a7170863 100644
---- a/dataplacement.c
-+++ b/dataplacement.c
-@@ -59,13 +59,13 @@ static int init_ruh_info(struct thread_data *td, struct fio_file *f)
- 	if (ruhs->nr_ruhs > FDP_MAX_RUHS)
- 		ruhs->nr_ruhs = FDP_MAX_RUHS;
- 
--	if (td->o.fdp_nrpli == 0) {
-+	if (td->o.dp_nr_ids == 0) {
- 		f->ruhs_info = ruhs;
- 		return 0;
- 	}
- 
--	for (i = 0; i < td->o.fdp_nrpli; i++) {
--		if (td->o.fdp_plis[i] >= ruhs->nr_ruhs) {
-+	for (i = 0; i < td->o.dp_nr_ids; i++) {
-+		if (td->o.dp_ids[i] >= ruhs->nr_ruhs) {
- 			ret = -EINVAL;
- 			goto out;
- 		}
-@@ -77,9 +77,9 @@ static int init_ruh_info(struct thread_data *td, struct fio_file *f)
- 		goto out;
- 	}
- 
--	tmp->nr_ruhs = td->o.fdp_nrpli;
--	for (i = 0; i < td->o.fdp_nrpli; i++)
--		tmp->plis[i] = ruhs->plis[td->o.fdp_plis[i]];
-+	tmp->nr_ruhs = td->o.dp_nr_ids;
-+	for (i = 0; i < td->o.dp_nr_ids; i++)
-+		tmp->plis[i] = ruhs->plis[td->o.dp_ids[i]];
- 	f->ruhs_info = tmp;
- out:
- 	sfree(ruhs);
-@@ -119,7 +119,7 @@ void dp_fill_dspec_data(struct thread_data *td, struct io_u *io_u)
- 		return;
- 	}
- 
--	if (td->o.fdp_pli_select == FIO_FDP_RR) {
-+	if (td->o.dp_id_select == FIO_DP_RR) {
- 		if (ruhs->pli_loc >= ruhs->nr_ruhs)
- 			ruhs->pli_loc = 0;
- 
-diff --git a/dataplacement.h b/dataplacement.h
-index 72bd4c08..b6ceb5bc 100644
---- a/dataplacement.h
-+++ b/dataplacement.h
-@@ -5,15 +5,22 @@
- 
- #define FDP_DIR_DTYPE	2
- #define FDP_MAX_RUHS	128
-+#define FIO_MAX_DP_IDS 	16
- 
- /*
-  * How fio chooses what placement identifier to use next. Choice of
-  * uniformly random, or roundrobin.
-  */
-+enum {
-+	FIO_DP_RANDOM	= 0x1,
-+	FIO_DP_RR	= 0x2,
-+};
+diff --git a/t/nvmept_fdp.py b/t/nvmept_fdp.py
+new file mode 100755
+index 00000000..031b439c
+--- /dev/null
++++ b/t/nvmept_fdp.py
+@@ -0,0 +1,745 @@
++#!/usr/bin/env python3
++#
++# Copyright 2024 Samsung Electronics Co., Ltd All Rights Reserved
++#
++# For conditions of distribution and use, see the accompanying COPYING file.
++#
++"""
++# nvmept_fdp.py
++#
++# Test fio's io_uring_cmd ioengine with NVMe pass-through FDP write commands.
++#
++# USAGE
++# see python3 nvmept_fdp.py --help
++#
++# EXAMPLES
++# python3 t/nvmept_fdp.py --dut /dev/ng0n1
++# python3 t/nvmept_fdp.py --dut /dev/ng1n1 -f ./fio
++#
++# REQUIREMENTS
++# Python 3.6
++# Device formatted with LBA data size 4096 bytes
++# Device with at least five placement IDs
++#
++# WARNING
++# This is a destructive test
++"""
++import os
++import sys
++import json
++import time
++import locale
++import logging
++import argparse
++import subprocess
++from pathlib import Path
++from fiotestlib import FioJobCmdTest, run_fio_tests
++from fiotestcommon import SUCCESS_NONZERO
 +
- 
- enum {
--	FIO_FDP_RANDOM	= 0x1,
--	FIO_FDP_RR	= 0x2,
-+	FIO_DP_NONE	= 0x0,
-+	FIO_DP_FDP	= 0x1,
-+	FIO_DP_STREAMS	= 0x2,
- };
- 
- struct fio_ruhs_info {
-diff --git a/filesetup.c b/filesetup.c
-index 8923f2b3..6fbfced5 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1411,7 +1411,7 @@ done:
- 
- 	td_restore_runstate(td, old_state);
- 
--	if (td->o.fdp) {
-+	if (td->o.dp_type == FIO_DP_FDP) {
- 		err = dp_init(td);
- 		if (err)
- 			goto err_out;
-diff --git a/init.c b/init.c
-index 7a0b14a3..ff3e9a90 100644
---- a/init.c
-+++ b/init.c
-@@ -1015,7 +1015,15 @@ static int fixup_options(struct thread_data *td)
- 		ret |= 1;
- 	}
- 
--
-+	if (td->o.fdp) {
-+		if (fio_option_is_set(&td->o, dp_type) &&
-+			(td->o.dp_type == FIO_DP_STREAMS || td->o.dp_type == FIO_DP_NONE)) {
-+			log_err("fio: fdp=1 is not compatible with dataplacement={streams, none}\n");
-+			ret |= 1;
-+		} else {
-+			td->o.dp_type = FIO_DP_FDP;
-+		}
-+	}
- 	return ret;
- }
- 
-diff --git a/io_u.c b/io_u.c
-index 735d9005..e9b94c48 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1065,7 +1065,7 @@ static int fill_io_u(struct thread_data *td, struct io_u *io_u)
- 		}
- 	}
- 
--	if (td->o.fdp)
-+	if (td->o.dp_type == FIO_DP_FDP)
- 		dp_fill_dspec_data(td, io_u);
- 
- 	if (io_u->offset + io_u->buflen > io_u->file->real_file_size) {
-diff --git a/options.c b/options.c
-index de935efc..09a24652 100644
---- a/options.c
-+++ b/options.c
-@@ -270,12 +270,12 @@ static int str_fdp_pli_cb(void *data, const char *input)
- 	strip_blank_front(&str);
- 	strip_blank_end(str);
- 
--	while ((v = strsep(&str, ",")) != NULL && i < FIO_MAX_PLIS)
--		td->o.fdp_plis[i++] = strtoll(v, NULL, 0);
-+	while ((v = strsep(&str, ",")) != NULL && i < FIO_MAX_DP_IDS)
-+		td->o.dp_ids[i++] = strtoll(v, NULL, 0);
- 	free(p);
- 
--	qsort(td->o.fdp_plis, i, sizeof(*td->o.fdp_plis), fio_fdp_cmp);
--	td->o.fdp_nrpli = i;
-+	qsort(td->o.dp_ids, i, sizeof(*td->o.dp_ids), fio_fdp_cmp);
-+	td->o.dp_nr_ids = i;
- 
- 	return 0;
- }
-@@ -3710,32 +3710,58 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.group  = FIO_OPT_G_INVALID,
- 	},
- 	{
--		.name	= "fdp_pli_select",
--		.lname	= "FDP Placement ID select",
-+		.name	= "dataplacement",
-+		.lname	= "Data Placement interface",
- 		.type	= FIO_OPT_STR,
--		.off1	= offsetof(struct thread_options, fdp_pli_select),
--		.help	= "Select which FDP placement ID to use next",
-+		.off1	= offsetof(struct thread_options, dp_type),
-+		.help	= "Data Placement interface to use",
-+		.def	= "none",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_INVALID,
-+		.posval	= {
-+			  { .ival = "none",
-+			    .oval = FIO_DP_NONE,
-+			    .help = "Do not specify a data placement interface",
-+			  },
-+			  { .ival = "fdp",
-+			    .oval = FIO_DP_FDP,
-+			    .help = "Use Flexible Data Placement interface",
-+			  },
-+			  { .ival = "streams",
-+			    .oval = FIO_DP_STREAMS,
-+			    .help = "Use Streams interface",
-+			  },
-+		},
-+	},
-+	{
-+		.name	= "plid_select",
-+		.alias	= "fdp_pli_select",
-+		.lname	= "Data Placement ID selection strategy",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct thread_options, dp_id_select),
-+		.help	= "Strategy for selecting next Data Placement ID",
- 		.def	= "roundrobin",
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
- 		.posval	= {
- 			  { .ival = "random",
--			    .oval = FIO_FDP_RANDOM,
-+			    .oval = FIO_DP_RANDOM,
- 			    .help = "Choose a Placement ID at random (uniform)",
- 			  },
- 			  { .ival = "roundrobin",
--			    .oval = FIO_FDP_RR,
-+			    .oval = FIO_DP_RR,
- 			    .help = "Round robin select Placement IDs",
- 			  },
- 		},
- 	},
- 	{
--		.name	= "fdp_pli",
--		.lname	= "FDP Placement ID indicies",
-+		.name	= "plids",
-+		.alias	= "fdp_pli",
-+		.lname	= "Stream IDs/Data Placement ID indices",
- 		.type	= FIO_OPT_STR,
- 		.cb	= str_fdp_pli_cb,
--		.off1	= offsetof(struct thread_options, fdp_plis),
--		.help	= "Sets which placement ids to use (defaults to all)",
-+		.off1	= offsetof(struct thread_options, dp_ids),
-+		.help	= "Sets which Data Placement ids to use (defaults to all for FDP)",
- 		.hide	= 1,
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_INVALID,
-diff --git a/server.h b/server.h
-index 6d2659b0..83ce449b 100644
---- a/server.h
-+++ b/server.h
-@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 103,
-+	FIO_SERVER_VER			= 104,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index c2e71518..a36b7909 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -391,11 +391,11 @@ struct thread_options {
- 	fio_fp64_t zrt;
- 	fio_fp64_t zrf;
- 
--#define FIO_MAX_PLIS 16
- 	unsigned int fdp;
--	unsigned int fdp_pli_select;
--	unsigned int fdp_plis[FIO_MAX_PLIS];
--	unsigned int fdp_nrpli;
-+	unsigned int dp_type;
-+	unsigned int dp_id_select;
-+	unsigned int dp_ids[FIO_MAX_DP_IDS];
-+	unsigned int dp_nr_ids;
- 
- 	unsigned int log_entries;
- 	unsigned int log_prio;
-@@ -709,9 +709,10 @@ struct thread_options_pack {
- 	uint32_t log_prio;
- 
- 	uint32_t fdp;
--	uint32_t fdp_pli_select;
--	uint32_t fdp_plis[FIO_MAX_PLIS];
--	uint32_t fdp_nrpli;
-+	uint32_t dp_type;
-+	uint32_t dp_id_select;
-+	uint32_t dp_ids[FIO_MAX_DP_IDS];
-+	uint32_t dp_nr_ids;
- 
- 	uint32_t num_range;
- 	/*
++
++class FDPTest(FioJobCmdTest):
++    """
++    NVMe pass-through test class. Check to make sure output for selected data
++    direction(s) is non-zero and that zero data appears for other directions.
++    """
++
++    def setup(self, parameters):
++        """Setup a test."""
++
++        fio_args = [
++            "--name=nvmept-fdp",
++            "--ioengine=io_uring_cmd",
++            "--cmd_type=nvme",
++            "--randrepeat=0",
++            f"--filename={self.fio_opts['filename']}",
++            f"--rw={self.fio_opts['rw']}",
++            f"--output={self.filenames['output']}",
++            f"--output-format={self.fio_opts['output-format']}",
++        ]
++        for opt in ['fixedbufs', 'nonvectored', 'force_async', 'registerfiles',
++                    'sqthread_poll', 'sqthread_poll_cpu', 'hipri', 'nowait',
++                    'time_based', 'runtime', 'verify', 'io_size', 'num_range',
++                    'iodepth', 'iodepth_batch', 'iodepth_batch_complete',
++                    'size', 'rate', 'bs', 'bssplit', 'bsrange', 'randrepeat',
++                    'buffer_pattern', 'verify_pattern', 'offset', 'fdp',
++                    'fdp_pli', 'fdp_pli_select', 'dataplacement', 'plid_select',
++                    'plids', 'number_ios']:
++            if opt in self.fio_opts:
++                option = f"--{opt}={self.fio_opts[opt]}"
++                fio_args.append(option)
++
++        super().setup(fio_args)
++
++
++    def check_result(self):
++        try:
++            self._check_result()
++        finally:
++            if not update_all_ruhs(self.fio_opts['filename']):
++                logging.error("Could not reset device")
++            if not check_all_ruhs(self.fio_opts['filename']):
++                logging.error("Reclaim units have inconsistent RUAMW values")
++
++
++    def _check_result(self):
++
++        super().check_result()
++
++        if 'rw' not in self.fio_opts or \
++                not self.passed or \
++                'json' not in self.fio_opts['output-format']:
++            return
++
++        job = self.json_data['jobs'][0]
++
++        if self.fio_opts['rw'] in ['read', 'randread']:
++            self.passed = self.check_all_ddirs(['read'], job)
++        elif self.fio_opts['rw'] in ['write', 'randwrite']:
++            if 'verify' not in self.fio_opts:
++                self.passed = self.check_all_ddirs(['write'], job)
++            else:
++                self.passed = self.check_all_ddirs(['read', 'write'], job)
++        elif self.fio_opts['rw'] in ['trim', 'randtrim']:
++            self.passed = self.check_all_ddirs(['trim'], job)
++        elif self.fio_opts['rw'] in ['readwrite', 'randrw']:
++            self.passed = self.check_all_ddirs(['read', 'write'], job)
++        elif self.fio_opts['rw'] in ['trimwrite', 'randtrimwrite']:
++            self.passed = self.check_all_ddirs(['trim', 'write'], job)
++        else:
++            logging.error("Unhandled rw value %s", self.fio_opts['rw'])
++            self.passed = False
++
++        if 'iodepth' in self.fio_opts:
++            # We will need to figure something out if any test uses an iodepth
++            # different from 8
++            if job['iodepth_level']['8'] < 95:
++                logging.error("Did not achieve requested iodepth")
++                self.passed = False
++            else:
++                logging.debug("iodepth 8 target met %s", job['iodepth_level']['8'])
++
++
++class FDPMultiplePLIDTest(FDPTest):
++    """
++    Write to multiple placement IDs.
++    """
++
++    def setup(self, parameters):
++        mapping = {
++                    'nruhsd': FIO_FDP_NUMBER_PLIDS,
++                    'max_ruamw': FIO_FDP_MAX_RUAMW,
++                }
++        if 'number_ios' in self.fio_opts and isinstance(self.fio_opts['number_ios'], str):
++            self.fio_opts['number_ios'] = eval(self.fio_opts['number_ios'].format(**mapping))
++
++        super().setup(parameters)
++
++    def _check_result(self):
++        if 'fdp_pli' in self.fio_opts:
++            plid_list = self.fio_opts['fdp_pli'].split(',')
++        elif 'plids' in self.fio_opts:
++            plid_list = self.fio_opts['plids'].split(',')
++        else:
++            plid_list = list(range(FIO_FDP_NUMBER_PLIDS))
++
++        plid_list = sorted([int(i) for i in plid_list])
++        logging.debug("plid_list: %s", str(plid_list))
++
++        fdp_status = get_fdp_status(self.fio_opts['filename'])
++
++        select = "roundrobin"
++        if 'fdp_pli_select' in self.fio_opts:
++            select = self.fio_opts['fdp_pli_select']
++        elif 'plid_select' in self.fio_opts:
++            select = self.fio_opts['plid_select']
++
++        if select == "roundrobin":
++            self._check_robin(plid_list, fdp_status)
++        elif select == "random":
++            self._check_random(plid_list, fdp_status)
++        else:
++            logging.error("Unknown plid selection strategy %s", select)
++            self.passed = False
++
++        super()._check_result()
++
++    def _check_robin(self, plid_list, fdp_status):
++        """
++        With round robin we can know exactly how many writes each PLID will
++        receive.
++        """
++        ruamw = [FIO_FDP_MAX_RUAMW] * FIO_FDP_NUMBER_PLIDS
++
++        remainder = int(self.fio_opts['number_ios'] % len(plid_list))
++        whole = int((self.fio_opts['number_ios'] - remainder) / len(plid_list))
++        logging.debug("PLIDs in the list should receive %d writes; %d PLIDs will receive one extra",
++                      whole, remainder)
++
++        for plid in plid_list:
++            ruamw[plid] -= whole
++            if remainder:
++                ruamw[plid] -= 1
++                remainder -= 1
++        logging.debug("Expected ruamw values: %s", str(ruamw))
++
++        for idx, ruhs in enumerate(fdp_status['ruhss']):
++            if ruhs['ruamw'] != ruamw[idx]:
++                logging.error("RUAMW mismatch with idx %d, pid %d, expected %d, observed %d", idx,
++                              ruhs['pid'], ruamw[idx], ruhs['ruamw'])
++                self.passed = False
++                break
++
++            logging.debug("RUAMW match with idx %d, pid %d: ruamw=%d", idx, ruhs['pid'], ruamw[idx])
++
++    def _check_random(self, plid_list, fdp_status):
++        """
++        With random selection, a set of PLIDs will receive all the write
++        operations and the remainder will be untouched.
++        """
++
++        total_ruamw = 0
++        for plid in plid_list:
++            total_ruamw += fdp_status['ruhss'][plid]['ruamw']
++
++        expected = len(plid_list) * FIO_FDP_MAX_RUAMW - self.fio_opts['number_ios']
++        if total_ruamw != expected:
++            logging.error("Expected total ruamw %d for plids %s, observed %d", expected,
++                          str(plid_list), total_ruamw)
++            self.passed = False
++        else:
++            logging.debug("Observed expected total ruamw %d for plids %s", expected, str(plid_list))
++
++        for idx, ruhs in enumerate(fdp_status['ruhss']):
++            if idx in plid_list:
++                continue
++            if ruhs['ruamw'] != FIO_FDP_MAX_RUAMW:
++                logging.error("Unexpected ruamw %d for idx %d, pid %d, expected %d", ruhs['ruamw'],
++                              idx, ruhs['pid'], FIO_FDP_MAX_RUAMW)
++                self.passed = False
++            else:
++                logging.debug("Observed expected ruamw %d for idx %d, pid %d", ruhs['ruamw'], idx,
++                              ruhs['pid'])
++
++
++class FDPSinglePLIDTest(FDPTest):
++    """
++    Write to a single placement ID only.
++    """
++
++    def _check_result(self):
++        if 'plids' in self.fio_opts:
++            plid = self.fio_opts['plids']
++        elif 'fdp_pli' in self.fio_opts:
++            plid = self.fio_opts['fdp_pli']
++        else:
++            plid = 0
++
++        fdp_status = get_fdp_status(self.fio_opts['filename'])
++        ruamw = fdp_status['ruhss'][plid]['ruamw']
++        lba_count = self.fio_opts['number_ios']
++
++        if FIO_FDP_MAX_RUAMW - lba_count != ruamw:
++            logging.error("FDP accounting mismatch for plid %d; expected ruamw %d, observed %d",
++                          plid, FIO_FDP_MAX_RUAMW - lba_count, ruamw)
++            self.passed = False
++        else:
++            logging.debug("FDP accounting as expected for plid %d; ruamw = %d", plid, ruamw)
++
++        super()._check_result()
++
++
++class FDPReadTest(FDPTest):
++    """
++    Read workload test.
++    """
++
++    def _check_result(self):
++        ruamw = check_all_ruhs(self.fio_opts['filename'])
++
++        if ruamw != FIO_FDP_MAX_RUAMW:
++            logging.error("Read workload affected FDP ruamw")
++            self.passed = False
++        else:
++            logging.debug("Read workload did not disturb FDP ruamw")
++            super()._check_result()
++
++
++def get_fdp_status(dut):
++    """
++    Run the nvme-cli command to obtain FDP status and return result as a JSON
++    object.
++    """
++
++    cmd = f"sudo nvme fdp status --output-format=json {dut}"
++    cmd = cmd.split(' ')
++    cmd_result = subprocess.run(cmd, capture_output=True, check=False,
++                                encoding=locale.getpreferredencoding())
++
++    if cmd_result.returncode != 0:
++        logging.error("Error obtaining device %s FDP status: %s", dut, cmd_result.stderr)
++        return False
++
++    return json.loads(cmd_result.stdout)
++
++
++def update_ruh(dut, plid):
++    """
++    Update reclaim unit handles with specified ID(s). This tells the device to
++    point the RUH to a new (empty) reclaim unit.
++    """
++
++    ids = ','.join(plid) if isinstance(plid, list) else plid
++    cmd = f"nvme fdp update --pids={ids} {dut}"
++    cmd = cmd.split(' ')
++    cmd_result = subprocess.run(cmd, capture_output=True, check=False,
++                                encoding=locale.getpreferredencoding())
++
++    if cmd_result.returncode != 0:
++        logging.error("Error updating RUH %s ID(s) %s", dut, ids)
++        return False
++
++    return True
++
++
++def update_all_ruhs(dut):
++    """
++    Update all reclaim unit handles on the device.
++    """
++
++    fdp_status = get_fdp_status(dut)
++    for ruhs in fdp_status['ruhss']:
++        if not update_ruh(dut, ruhs['pid']):
++            return False
++
++    return True
++
++
++def check_all_ruhs(dut):
++    """
++    Check that all RUHs have the same value for reclaim unit available media
++    writes (RUAMW).  Return the RUAMW value.
++    """
++
++    fdp_status = get_fdp_status(dut)
++    ruh_status = fdp_status['ruhss']
++
++    ruamw = ruh_status[0]['ruamw']
++    for ruhs in ruh_status:
++        if ruhs['ruamw'] != ruamw:
++            logging.error("RUAMW mismatch: found %d, expected %d", ruhs['ruamw'], ruamw)
++            return False
++
++    return ruamw
++
++
++TEST_LIST = [
++    # Write one LBA to one PLID using both the old and new sets of options
++    ## omit fdp_pli_select/plid_select
++    {
++        "test_id": 1,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "number_ios": 1,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 3,
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    {
++        "test_id": 2,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 1,
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": 3,
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    ## fdp_pli_select/plid_select=roundrobin
++    {
++        "test_id": 3,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "number_ios": 1,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 3,
++            "fdp_pli_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    {
++        "test_id": 4,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 1,
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": 3,
++            "plid_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    ## fdp_pli_select/plid_select=random
++    {
++        "test_id": 5,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "number_ios": 1,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 3,
++            "fdp_pli_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    {
++        "test_id": 6,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 1,
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": 3,
++            "plid_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    # Write four LBAs to one PLID using both the old and new sets of options
++    ## omit fdp_pli_select/plid_select
++    {
++        "test_id": 7,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "number_ios": 4,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 1,
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    {
++        "test_id": 8,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 4,
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": 1,
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    ## fdp_pli_select/plid_select=roundrobin
++    {
++        "test_id": 9,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "number_ios": 4,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 1,
++            "fdp_pli_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    {
++        "test_id": 10,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 4,
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": 1,
++            "plid_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    ## fdp_pli_select/plid_select=random
++    {
++        "test_id": 11,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "number_ios": 4,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 1,
++            "fdp_pli_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    {
++        "test_id": 12,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 4,
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": 1,
++            "plid_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    # Just a regular write without FDP directive--should land on plid 0
++    {
++        "test_id": 13,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": 19,
++            "verify": "crc32c",
++            "output-format": "json",
++            },
++        "test_class": FDPSinglePLIDTest,
++    },
++    # Read workload
++    {
++        "test_id": 14,
++        "fio_opts": {
++            "rw": 'randread',
++            "bs": 4096,
++            "number_ios": 19,
++            "output-format": "json",
++            },
++        "test_class": FDPReadTest,
++    },
++    # write to multiple PLIDs using round robin to select PLIDs
++    ## write to all PLIDs using old and new sets of options
++    {
++        "test_id": 100,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "2*{nruhsd}+3",
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    {
++        "test_id": 101,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "2*{nruhsd}+3",
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plid_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    ## write to a subset of PLIDs using old and new sets of options
++    {
++        "test_id": 102,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "{nruhsd}+1",
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": "1,3",
++            "fdp_pli_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    {
++        "test_id": 103,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "{nruhsd}+1",
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": "1,3",
++            "plid_select": "roundrobin",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    # write to multiple PLIDs using random selection of PLIDs
++    ## write to all PLIDs using old and new sets of options
++    {
++        "test_id": 200,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "{max_ruamw}-1",
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    {
++        "test_id": 201,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "{max_ruamw}-1",
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plid_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    ## write to a subset of PLIDs using old and new sets of options
++    {
++        "test_id": 202,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "{max_ruamw}-1",
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": "1,3,4",
++            "fdp_pli_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    {
++        "test_id": 203,
++        "fio_opts": {
++            "rw": 'randwrite',
++            "bs": 4096,
++            "number_ios": "{max_ruamw}-1",
++            "verify": "crc32c",
++            "dataplacement": "fdp",
++            "plids": "1,3,4",
++            "plid_select": "random",
++            "output-format": "json",
++            },
++        "test_class": FDPMultiplePLIDTest,
++    },
++    # Specify invalid options fdp=1 and dataplacement=none
++    {
++        "test_id": 300,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "io_size": 4096,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 3,
++            "output-format": "normal",
++            "dataplacement": "none",
++            },
++        "test_class": FDPTest,
++        "success": SUCCESS_NONZERO,
++    },
++    # Specify invalid options fdp=1 and dataplacement=streams
++    {
++        "test_id": 301,
++        "fio_opts": {
++            "rw": 'write',
++            "bs": 4096,
++            "io_size": 4096,
++            "verify": "crc32c",
++            "fdp": 1,
++            "fdp_pli": 3,
++            "output-format": "normal",
++            "dataplacement": "streams",
++            },
++        "test_class": FDPTest,
++        "success": SUCCESS_NONZERO,
++    },
++]
++
++def parse_args():
++    """Parse command-line arguments."""
++
++    parser = argparse.ArgumentParser()
++    parser.add_argument('-d', '--debug', help='Enable debug messages', action='store_true')
++    parser.add_argument('-f', '--fio', help='path to file executable (e.g., ./fio)')
++    parser.add_argument('-a', '--artifact-root', help='artifact root directory')
++    parser.add_argument('-s', '--skip', nargs='+', type=int,
++                        help='list of test(s) to skip')
++    parser.add_argument('-o', '--run-only', nargs='+', type=int,
++                        help='list of test(s) to run, skipping all others')
++    parser.add_argument('--dut', help='target NVMe character device to test '
++                        '(e.g., /dev/ng0n1). WARNING: THIS IS A DESTRUCTIVE TEST', required=True)
++    args = parser.parse_args()
++
++    return args
++
++
++FIO_FDP_MAX_RUAMW = 0
++FIO_FDP_NUMBER_PLIDS = 0
++
++def main():
++    """Run tests using fio's io_uring_cmd ioengine to send NVMe pass through commands."""
++    global FIO_FDP_MAX_RUAMW
++    global FIO_FDP_NUMBER_PLIDS
++
++    args = parse_args()
++
++    if args.debug:
++        logging.basicConfig(level=logging.DEBUG)
++    else:
++        logging.basicConfig(level=logging.INFO)
++
++    artifact_root = args.artifact_root if args.artifact_root else \
++        f"nvmept-fdp-test-{time.strftime('%Y%m%d-%H%M%S')}"
++    os.mkdir(artifact_root)
++    print(f"Artifact directory is {artifact_root}")
++
++    if args.fio:
++        fio_path = str(Path(args.fio).absolute())
++    else:
++        fio_path = 'fio'
++    print(f"fio path is {fio_path}")
++
++    for test in TEST_LIST:
++        test['fio_opts']['filename'] = args.dut
++
++    fdp_status = get_fdp_status(args.dut)
++    FIO_FDP_NUMBER_PLIDS = fdp_status['nruhsd']
++    update_all_ruhs(args.dut)
++    FIO_FDP_MAX_RUAMW = check_all_ruhs(args.dut)
++    if not FIO_FDP_MAX_RUAMW:
++        sys.exit(-1)
++
++    test_env = {
++              'fio_path': fio_path,
++              'fio_root': str(Path(__file__).absolute().parent.parent),
++              'artifact_root': artifact_root,
++              'basename': 'nvmept-fdp',
++              }
++
++    _, failed, _ = run_fio_tests(TEST_LIST, test_env, args)
++    sys.exit(failed)
++
++
++if __name__ == '__main__':
++    main()
 -- 
 2.43.0
 
