@@ -1,113 +1,140 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67A3314533F
-	for <fio@vger.kernel.org>; Fri, 26 Apr 2024 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B6D274400
+	for <fio@vger.kernel.org>; Mon, 29 Apr 2024 16:07:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714132810; cv=none; b=u2nK7rg6ojUpJX5uxM16OAYJwMB2xYfH+MV0UecuT/G6jSq51+0cUE6vcNlD/eh+PFt1BF+9LWO67QBVPa58zAYBiQpzIn6GQeWPZryY5UnvrLumO8NeqTy0JyMMtaJ5ElmSrt992vvHrZh1mROnSr5NkJ1DyEZcMPcKr7zcyV8=
+	t=1714406837; cv=none; b=TQKda/AT0qFrxcaxnBB3BdvbXW+0HUsqvf/xb0vuKx4x/O1XUVRv/3yphPtf+nfxVV671zckKvMR41Zefiuehz+g/DaOFSxdtHWEdwN4Kt8dhmtX/qPd+wrrQokaxzVS/PfqInK9RVeu7Sh1KCtOtTzSKDjj3TvJHUO/Nn2OxU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714132810; c=relaxed/simple;
-	bh=/70R3DbLKXJ/PbLNwBZe+CHN5UTUfWMHoHQQjbxcDac=;
-	h=Subject:From:To:Message-Id:Date; b=sV8Z4SqwBYmA55FLomgAkduBESdMOrQ3oR8rPDwTJ6DRf/0xpi0RduB5lFUCPXdw+aaA+WL8lfEDpImta7uHkzE+ZFbdOiy6bgk4vSamuUL5sPkK08EpTgreA7UFa/jukHr98EREPeCeDC0fD4fbkk8pXm5Y4ovZE1INLF1ufjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HFQ4047C; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1714406837; c=relaxed/simple;
+	bh=hx4TuJLGPMi30dxtOluuHCFAnU3Z3qHhSF5h8kxuxfs=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=e9m+u2OCZeNA5/yAZlara8fRM/hgGb5OBk1IqPerKPdHqiB2ypqSVIiGtk1fCE/Vydh64nZ3791MqOL5izs2J+sbV6ioD8Pq+hbrhIStazdidx8/jaDhtknAty5nximTFbFcIzNEyKcPytNiADaKrOrDPX2bXygoCI//9kvqbkY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dJnr2B+K; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HFQ4047C"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=WJB6oL89nARiqTHsb2nY67R+UrpC5n+Tc2RApFF6MI0=; b=HFQ4047C7vpbL+4W9yrDb5BvZE
-	idkHLfbX4uL1qdgHQqvZrFddlWCRxM7FjJkJgC5sD+1knAhCA66+yY2i6GNA+infjdPxA5pjsQc5G
-	d2CtSkqobkIaOeeNydpKPGenkeaYqP2eTXRrMNWq8lu2tDsvdncYq0MIZ0nLvUYHSRQdzigfANaH4
-	3LcSWPcUdWLNUvD+alaDpVybqNNM8frFOJImmesIZ3NHqZhWK7EYFmWg1Sq9dQEToAzFptu7FVIQL
-	l3Zf8crFSWKj4V5u/q1abKseXpl/hmUvYBXa9MpvjYKub/USu+bx1KwxJLaquqNOIadcVQq+ySNdP
-	YJl9UslA==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1s0KFJ-000000058w7-0R4e
-	for fio@vger.kernel.org;
-	Fri, 26 Apr 2024 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id A41A91BC0168; Fri, 26 Apr 2024 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240426120001.A41A91BC0168@kernel.dk>
-Date: Fri, 26 Apr 2024 06:00:01 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dJnr2B+K"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2db6f5977e1so54676721fa.2
+        for <fio@vger.kernel.org>; Mon, 29 Apr 2024 09:07:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1714406833; x=1715011633; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=6kQRRydI/uozpUt2H+vR4ia2gVp9Jr1IlafB1XBapqM=;
+        b=dJnr2B+KLIEmN5nCOhHJVojP7jruprqtEmfKtym9NS2+jZtvpFvpPdxCeTfQNgIXMt
+         rsE+818Ser7L66S4G+BoSoW5B36AuaZn64hHkRMiqWusTgGAolG12+8Hdyxafg0ajRD6
+         QznbPrZ05Uuv2G5KYtaN4Fu2v+Oz18Ph1dAy+qaEISgzbqSao8wsceEjPfPJqboU5Kqq
+         x/Jc7bgikBWtL8JEXxrJnGpcPi7nJRKRYNP+Zxr5iUKKCPWRWmfTdSMrWDYxMifJuNOR
+         SUX1ImF1F8Z7HkXoOSuogfYucf7hSYn/8bPuNZmCT4XK4/yoopWkpQNQjDNGFULe71Rn
+         ZsvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714406833; x=1715011633;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6kQRRydI/uozpUt2H+vR4ia2gVp9Jr1IlafB1XBapqM=;
+        b=aP08u5D88d1FyOGeCXAnw07OWf0DkMhpOqD/GBtn4ZuSp5KXOgO6GPAaG4LB3ENbK/
+         ebtPzwFE5R6NB3lwACKFnqSH6DFRq0rtXS0Gw4pWV1HGQLdu2uc5Lob2+4UHbdwxo+ei
+         mCn1qIvZsqxzputX7NR0EBiwvhjPa29a6dP3JS07S570L+BGrJbaUR08b6fjcFNm0HJR
+         KHTCyVZhVkBPk04trZlCCbpRRRSAt0lvz6xAR0Fv6haxixM7Sz+riVYBJM9jkbhv/730
+         PK+H6g7wDukxn6vwWCe8PIyv6dIOOLSNige5xmUZ38YXddogHhUzv3JUyg4750MuR4EO
+         26Tw==
+X-Gm-Message-State: AOJu0YzdmA5wV0R/GRGXzRBuXm6vGb0V4xNs9DiCSEMu1rpMvamuajZZ
+	AmpXvKOu+D9s8H1yLpR3XEQs5a7UvT+MlStP6CymgQV6udgg71qR8uw4OnDp6uRM/a87zpVLUGF
+	+K8ez7RWU8nTgp4jlVxXMKAGcQDKrplVW
+X-Google-Smtp-Source: AGHT+IFLSq7oPqnDjx7hxo61E9JjhfiAKMvTiXtf1ToQBw7YmuLtlwrT6tZeBUGndSX0uH9y0jssOdB+zN6q8sIv/KI=
+X-Received: by 2002:a2e:8689:0:b0:2d4:54f2:c409 with SMTP id
+ l9-20020a2e8689000000b002d454f2c409mr85551lji.38.1714406832811; Mon, 29 Apr
+ 2024 09:07:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Andrey Kuzmin <andrey.v.kuzmin@gmail.com>
+Date: Mon, 29 Apr 2024 17:07:02 +0100
+Message-ID: <CANvN+ensCLCiNoy-9nmT6hEXw7g0or7PwgzPhftKpg29wJkrDg@mail.gmail.com>
+Subject: io_uring initialization fails on Alma 9
+To: fio <fio@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-The following changes since commit 349bbcb2e36658db05d5247ef8cbcb285d58dfbf:
+Hi guys,
 
-  docs: update for new data placement options (2024-04-24 13:44:09 -0400)
+I'm seeing io_uring queue initialization failing on Alma 9 (see below
+for the details). Any hints/suggestions/workarounds?
 
-are available in the Git repository at:
+Regards,
+Andrey
 
-  git://git.kernel.dk/fio.git master
+[akuzmin@boots ~]$ uname -a
 
-for you to fetch changes up to 6a9a9bd2c524a7ef58d2fb8181038408155902b8:
+Linux uboots 5.14.0-362.24.2.el9_3.x86_64 #1 SMP PREEMPT_DYNAMIC Sat
+Mar 30 14:11:54 EDT 2024 x86_64 x86_64 x86_64 GNU/Linux
 
-  t/nvmept_trim: increase transfer size for some tests (2024-04-25 14:25:54 -0400)
+[akuzmin@boots ~]$ fio --version
 
-----------------------------------------------------------------
-Vincent Fu (1):
-      t/nvmept_trim: increase transfer size for some tests
+fio-3.35
 
- t/nvmept_trim.py | 5 +++++
- 1 file changed, 5 insertions(+)
+[akuzmin@boots ~]$ sudo grep io_uring_setup /proc/kallsyms
 
----
+ffffffffb8fd4ec0 t __pfx_io_uring_setup
 
-Diff of recent changes:
+ffffffffb8fd4ed0 t io_uring_setup
 
-diff --git a/t/nvmept_trim.py b/t/nvmept_trim.py
-index 57568384..c990747d 100755
---- a/t/nvmept_trim.py
-+++ b/t/nvmept_trim.py
-@@ -470,6 +470,7 @@ TEST_LIST = [
-             "output-format": 'json',
-             "buffer_pattern": 0x0f,
-             "size": 256*1024*1024,
-+            "bs": 256*1024,
-             },
-         "test_class": TrimTest,
-     },
-@@ -481,6 +482,7 @@ TEST_LIST = [
-             "verify_pattern": 0x0f,
-             "verify": "pattern",
-             "size": 256*1024*1024,
-+            "bs": 256*1024,
-             },
-         "test_class": TrimTest,
-     },
-@@ -491,6 +493,7 @@ TEST_LIST = [
-             "num_range": 8,
-             "output-format": 'json',
-             "size": 128*1024*1024,
-+            "bs": 256*1024,
-             },
-         "test_class": TrimTest,
-     },
-@@ -511,6 +514,7 @@ TEST_LIST = [
-             "verify_pattern": 0x0f,
-             "verify": "pattern",
-             "size": 128*1024*1024,
-+            "bs": 256*1024,
-             },
-         "test_class": TrimTest,
-         "success": SUCCESS_NONZERO,
-@@ -524,6 +528,7 @@ TEST_LIST = [
-             "verify": "pattern",
-             "offset": 128*1024*1024,
-             "size": 128*1024*1024,
-+            "bs": 256*1024,
-             },
-         "test_class": TrimTest,
-     },
+ffffffffb8fd4f60 T __pfx___ia32_sys_io_uring_setup
+
+ffffffffb8fd4f70 T __ia32_sys_io_uring_setup
+
+ffffffffb8fd4ff0 T __pfx___x64_sys_io_uring_setup
+
+ffffffffb8fd5000 T __x64_sys_io_uring_setup
+
+ffffffffb961d5d8 t io_uring_setup.cold
+
+ffffffffbaab0180 d event_exit__io_uring_setup
+
+ffffffffbaab0220 d event_enter__io_uring_setup
+
+ffffffffbaab02c0 d __syscall_meta__io_uring_setup
+
+ffffffffbaab0300 d args__io_uring_setup
+
+ffffffffbaab0310 d types__io_uring_setup
+
+ffffffffbb2bda48 d __event_exit__io_uring_setup
+
+ffffffffbb2bda50 d __event_enter__io_uring_setup
+
+ffffffffbb2bfb18 d __p_syscall_meta__io_uring_setup
+
+ffffffffbb2c3ab0 d _eil_addr___ia32_sys_io_uring_setup
+
+ffffffffbb2c3ac0 d _eil_addr___x64_sys_io_uring_setup
+
+[akuzmin@boots ~]$ sudo fio --name=randwrite --rw=randwrite
+--bsrange=4k-64k --runtime=10 --time_based --group_reporting
+--direct=1 --iodepth=64 --numjobs=1 --ioengine=io_uring
+--registerfiles=1 --percentage_random=50 --filename=/tmp/file.dat
+
+randwrite: (g=0): rw=randwrite, bs=(R) 4096B-64.0KiB, (W)
+4096B-64.0KiB, (T) 4096B-64.0KiB, ioengine=io_uring, iodepth=64
+
+fio-3.35
+
+Starting 1 process
+
+fio: pid=3051, err=1/file:engines/io_uring.c:1047, func=io_queue_init,
+error=Operation not permitted
+
+Run status group 0 (all jobs):
+
+
+
+Disk stats (read/write):
+
+    dm-0: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%,
+aggrios=0/0, aggrmerge=0/0, aggrticks=0/0, aggrin_queue=0,
+aggrutil=0.00%
+
+  sda: ios=0/0, merge=0/0, ticks=0/0, in_queue=0, util=0.00%
