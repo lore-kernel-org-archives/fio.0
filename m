@@ -1,110 +1,95 @@
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39D0312BF15
-	for <fio@vger.kernel.org>; Tue, 30 Apr 2024 10:30:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7179A537E4
+	for <fio@vger.kernel.org>; Tue, 30 Apr 2024 17:35:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714473036; cv=none; b=bbcX6mH396/CDQWiVrrApeNt3O9RHf43R+A3wnS5JGsB3rqKb/wIJdtxgO/0kIVZdCUXDCwUE9uUPW5/mOkku2sLTnsmyeYzlSzSiYbuBguIIZH4BVB80w/9KRHUSnywYfW0G0Hp6UIK7GYzUfxdi4ueoEWS2acVcck1QyvjCuU=
+	t=1714498515; cv=none; b=BQS1E+OtcR+yUzREl+RiE0aA+0nXFOvpanuZhKCN/W0HeRZRccrw2GxOru9u7u8LBn1cO8tT8VDBRK51x2/AkDYuHb30AySTrMVaQ4v9di/RuAb+pnsw3m3+WnXZWFvYemLGd5Tl4XgjkMhOL45b7GAqfKPUfpE6lrAmwelPTTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714473036; c=relaxed/simple;
-	bh=TgIqnMxiXbpX7qPUVXCSWb22PHFOZca7UHxBBATzmqQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=snZKIrVdushvoTrHEqLHbJ53+68AOlJsxnsTx+8Rh0VAX4tGARcLdiw8TGSEeuj8OWdjf962mZ/ehuMfOO/wznW2BzzJaoGe/Wp28eyVb6eg04AeUxPOJI8i/2cvUC5NDrMaaLKBS36rDCe7l2WLJb4oz8Yqydyf+Tk1lPugCWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=kEmY9uqX; arc=none smtp.client-ip=68.232.143.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1714498515; c=relaxed/simple;
+	bh=gUeOJHcYUZIeQD22FuPA7UaY3ot9AXKexYh2MoCcTLY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rd5mE0Cr7b3CvjyXdvk47yPrJr9xBrwGby4cNDRMnsNqSn+bA04dLqvpruaLE+dczn5cVp4AxRILhOd60OHa4y7kwEDzGeps23aawWbJqWkNYXiZX+dCmijL8VO1b6/1ewrrq0T2X9iyaAeAk2Dix+x3mw0vilDNlxnezonhntU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dr+u2Xpd; arc=none smtp.client-ip=209.85.222.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="kEmY9uqX"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1714473035; x=1746009035;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=TgIqnMxiXbpX7qPUVXCSWb22PHFOZca7UHxBBATzmqQ=;
-  b=kEmY9uqXrob9z2jG+PXiJzG52gmIn9ZjRi0E3j8m18wnDW1LvO0Nkgd4
-   6AT4BiERNy3UyxQNQuHYp6rymNwmIEYbDHyhUOAZ9q5Jc8bmMrVtZLASc
-   cNhjftp0E29NWhU08agf/u9x8X88NkIjWgikDsj9kLFuFo6gxC7N9imYa
-   l0gXz+N18wMG8cwew6yyXqStYjzfezUepAZLVMqlR9rodx2Tya5kHGiZ4
-   5YL1S/Jn7AoBRIITMPIdy5Ak1fIUiksc393l3Qc7oqlilLn1bIoGBapJD
-   r8EfkQRYetptGMk+g6GLYVYFFLbGbTRVqEe1p4b4amcAdpqEft132L3YV
-   w==;
-X-CSE-ConnectionGUID: 4CeqU8hARBSjgLCs6mDFUg==
-X-CSE-MsgGUID: an4S3xt/RLqvg0bFYddQUA==
-X-IronPort-AV: E=Sophos;i="6.07,241,1708358400"; 
-   d="scan'208";a="15244721"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 30 Apr 2024 18:30:27 +0800
-IronPort-SDR: JxmokRkOJiC1lQLgX1mCJHDj48mnTK/SbconxYwHWNiLi49Cw3iKR5p6smzzsXQ0jlxr5eHSEw
- iCa5wM43hGmRE+veleluuPxKNzGrS89n2NAPwQvN9O4mAduAI7PKHzqr9d1Q8nl/6LFc/vpwfO
- WqG05KXICp9C8pgAlOyRv5I7my0jko0rwX+pAYfHDAOFOLK5wjY/tFHE/GiQ3yBEWeqYvj4Byj
- lvUXn+ou+SNwauOPj315AsNtZHRMLH7ZDSUa5Zolen9w3kpuSFPnnyfsrLRzV0ksyoc6k+QxfR
- 6iQ=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 30 Apr 2024 02:38:30 -0700
-IronPort-SDR: RgdOofziqm9TGs/ScOtG/n95amdF3xrSeW/junE6y7yzwQgNYxFzKBP49NsnkMQch3+JaASXM3
- txmBVboTTMgLK+7LMNpPTBUMfL0oj6ycne+7terlA4KbYx3U2utbbZp8Q2/Cm7kdt5PmF1UojR
- mR4d92IXs2dNgXOx5EB/4ECmFWR3n+es8QTvkN+4X6q5uAmDc1BJKL/GDPdFYsQDKxVjDNazzX
- d6vsBdEL8fRS0auHpDffqnsvLmx4dTUU33m89n807AltZ8vplVUWjB9+htz5PSZ9dH+uYwXb6B
- Wnw=
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 30 Apr 2024 03:30:27 -0700
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 3/3] t/zbd: avoid test case 31 failure with small devices
-Date: Tue, 30 Apr 2024 19:30:22 +0900
-Message-ID: <20240430103022.4136039-4-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240430103022.4136039-1-shinichiro.kawasaki@wdc.com>
-References: <20240430103022.4136039-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dr+u2Xpd"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-78ef9ce897bso419769985a.0
+        for <fio@vger.kernel.org>; Tue, 30 Apr 2024 10:35:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1714498513; x=1715103313; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fwWI0wI7NCMBXRg6gzAwcceDZ0QsAFzzD0BxScCbVpE=;
+        b=Dr+u2XpdD8qSn+2dVcG8Mq9olc8ZkGQwuIuYJVHTtcavDaClDaxZ+YdOiqycc5OzTD
+         Gj5nhukES9Kh27YDfYEPxSJ3kf+m0pjLi7HBNY5/34hcUdmAwAAkis34vo6JFRWOBJfM
+         dOw+kzL5HW99k+akeQ2eUrYy8rb9uXLU01YQIFEqSKMy5nW2wmrLwP6yE9DArK3wmpaC
+         iEpJfMgQrkBd/virmu/zldwlAfx+/lCAu9H0Bb7wzGw7Gj0Tc5tpt+2Ydt0GaqqeYo4S
+         9RwkBRtrNawIWqb0FhtrCk32gw7YAOOHN1JzueLzMAw8uEM4x5zGSHvLwJk9agEFy4K2
+         TJ9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714498513; x=1715103313;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fwWI0wI7NCMBXRg6gzAwcceDZ0QsAFzzD0BxScCbVpE=;
+        b=uHLCXR1hyqIqdNnJDQLXYastti5NKJdiUzbH9+RIoDgq+bDMhi6AAwKuY8wv7ut7xe
+         q+L+48IzZFkLJzYpPUjfkfEr9E5BGEzWHawJ4vuOVSdQVfQH72z/eMJnL4x01KcL3NzF
+         /vDtU7yyKi9PIgZspX6c65n9CUFl/aD1znosOGkS0yu1c09X51AlU6LR8/wuoD6AxbEp
+         9EiBZ/st5NqfjBmrxN9v0NPiyRb62F7KdyhxBOrEP8nztpM+tBQDDtihqTqa3s8QuMLk
+         KfUwQu8CfzQXzZifjFlh3/Nh3xaOmUY8LHwLlwJMWIwyWE+w/aKOG+2QhHL0JUT2m/qK
+         oFMg==
+X-Forwarded-Encrypted: i=1; AJvYcCXFFxbgoUHj7saB9rpfUuoqhLVuow3ydJySjUhwqk3DWLGuwYjKavBlQM3swoRYlTwK0ZjdNKyyyqTIuwF4+J7o1d6F
+X-Gm-Message-State: AOJu0YyB5/xWVfzhFk4VY5etP8pAP/5IS7EECxcHUjvnlGkx4X6o90XW
+	4NF606CcX82Abgl4OBUWMKJmyFwlkQ183kR1LN6XNcPnqvn/IJL1
+X-Google-Smtp-Source: AGHT+IEFIugTkh5g3bJAdbzEXNxNZpjvlgU5Ui5LsMkeA/8X88+a4n3RoAX4BpO6yWJTC+ZlP5Rqrw==
+X-Received: by 2002:a05:6214:250f:b0:6a0:cd1b:9f9f with SMTP id gf15-20020a056214250f00b006a0cd1b9f9fmr38318qvb.38.1714498513106;
+        Tue, 30 Apr 2024 10:35:13 -0700 (PDT)
+Received: from [192.168.1.206] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id n11-20020a056214008b00b006a0d0c6ed22sm781321qvr.98.2024.04.30.10.35.12
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Apr 2024 10:35:12 -0700 (PDT)
+Message-ID: <114ae848-2cbc-40ba-8034-6a481604e38b@gmail.com>
+Date: Tue, 30 Apr 2024 13:35:12 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/3] zbd: fix two zonemode zbd problems
+To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <dlemoal@kernel.org>,
+ Dmitry Fomichev <Dmitry.Fomichev@wdc.com>
+References: <20240430103022.4136039-1-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20240430103022.4136039-1-shinichiro.kawasaki@wdc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The test case assumed that the test target devices have 128 or more
-sequential write required zones and uses 128 as the minimum number of
-zones to write. This caused failure when the devices had a smaller
-number of sequential write required zones. To avoid the failure, count
-the actual number of sequential write required zones and use it if it is
-smaller than 128.
+On 4/30/24 06:30, Shin'ichiro Kawasaki wrote:
+> Recently, two problems were found regarding fio zonemode=zbd option. The first
+> problem is the unexpected zone resets and the verify failures when
+> verify_backlog option is specified. The second is the unexpected failure of test
+> case 31 in t/zbd/test-zbd-support.
+> 
+> The first two patches address the first problem, and the last patch addresses
+> the second, respectively.
+> 
+> Shin'ichiro Kawasaki (3):
+>    zbd: remove unnecessary verify_backlog check in zbd_file_reset()
+>    t/zbd: add test case to confirm verify_backlog=1 options
+>    t/zbd: avoid test case 31 failure with small devices
+> 
+>   t/zbd/test-zbd-support | 19 +++++++++++++++++--
+>   zbd.c                  |  3 ---
+>   2 files changed, 17 insertions(+), 5 deletions(-)
+> 
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index ef98835c..e0b2a755 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -852,12 +852,15 @@ test31() {
-     # To distribute the write target zones evenly, skip certain zones for every
-     # write. Utilize zonemode strided for such write patterns.
-     bs=$((128 * 1024))
-+    off=$((first_sequential_zone_sector * 512))
-+    size=$((disk_size - off))
-     nz=$((max_open_zones))
-     if [[ $nz -eq 0 ]]; then
- 	nz=128
-     fi
--    off=$((first_sequential_zone_sector * 512))
--    size=$((disk_size - off))
-+    if ((size / zone_size < nz)); then
-+	nz=$((size / zone_size))
-+    fi
-     inc=$(((size / nz / zone_size) * zone_size))
-     opts=("--name=$dev" "--filename=$dev" "--rw=write" "--bs=${bs}")
-     opts+=("--offset=$off" "--size=$((inc * nz))" "--io_size=$((bs * nz))")
--- 
-2.44.0
-
+Applied. Thanks.
