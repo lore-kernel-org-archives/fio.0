@@ -1,55 +1,55 @@
 Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D01833982
-	for <fio@vger.kernel.org>; Tue, 30 Apr 2024 10:30:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 840BA205E14
+	for <fio@vger.kernel.org>; Tue, 30 Apr 2024 10:30:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714473035; cv=none; b=XP7wvPG+RZg8M7q3wazNiH6CAVDwOSr2OCjgNoRYhojYN2gmXt2riqbxBHE35Cr1Vt30bl5IRQg1JNoo3Pbd4oRtPs1KBB+CTKtzKLcorksiBTdSS3PcnyWSh8exzpNAbiHyozSj+uGpUusACtOkZ7yoVjeWDNSFRP2NWjyoT7w=
+	t=1714473036; cv=none; b=iw9o44kxLZ506EPSeLF4kGJvYz40EyEONpIuetdYJsi+gKH/Ca4ptq2j+ucMFOCs6qWoNR8nUTNegh1vVooAHNC/BNWUf+qhMj0MNiVJLAxjneHkiBVK2VNhoLw6Vz9RbcJopdlJIX2rDvwQlSKFCM968ZOX9KawQfUfmlM7n/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714473035; c=relaxed/simple;
-	bh=tkP+WblJY/3gEcvZrzZwNs8bISzDgjXDyaEm3iIC1kw=;
+	s=arc-20240116; t=1714473036; c=relaxed/simple;
+	bh=KuDKyBP3f7nQolom7hNJUYIQaYaBP4eeC6KbUuKieFk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jlwXrIJ3k0tCHSm+nu4vJL7+/qvSw3xNpw6sVxzgUJRWJhpI4+3XGyAtjzZVNaKKk1jzU6P3LhL2PuoAmEjjgcb+VuunUSeJyxRh5rEYJXyqdHTp6r6EIwGlR5OtGG5YTJPQZwpXhSR4wn7F1CgpYp3r7UrkzsZ+tubOspwmvNg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=iqgBV/iC; arc=none smtp.client-ip=68.232.143.124
+	 MIME-Version; b=Lh4RD+2TT0fL9N7OUigxg9JcVt5hPXloIO5Q96U4fNXfrtiW/3erIfk1MLDVABy+GZG8FAjCBqeliG/AYWKmKRDbVjam+67q/7lABG5wCn88WP1SCjjSLD9DlhaU2Acls/gPMsUatm2lZHElL6I/Lmz1MQn1hIUlwsrpVFt6K1I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=ivwBro5c; arc=none smtp.client-ip=68.232.143.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="iqgBV/iC"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="ivwBro5c"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1714473033; x=1746009033;
+  t=1714473034; x=1746009034;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=tkP+WblJY/3gEcvZrzZwNs8bISzDgjXDyaEm3iIC1kw=;
-  b=iqgBV/iCvxy98iTxuI79DKhG6XmK2v5KDOrOv9XD4NQDc962WV7zuIIZ
-   I4otX25SsdUCzDhxj5RnTnSZ/DESukC5/jZyKrJ1ce0dCYCdPDegu3Z5E
-   k+0FWtdGWAGSwe9q8xY6WVY91rRdEr2xnz4MwSvK/FkHpKjBWc/SDC79y
-   m2tbJa+d7oKIbUwljYmXVsgmlyenXYvYt9d/ZmhXknGYqeWbH6ViPUh8i
-   d4Ddl3SxdzMFIpnMzqJ6YkgtrI25vGif8h7Ss8QIdjr5XZ3rrgvMNyIKb
-   4EoitME1ww1t6a7l1g3/fa9N5RzDtrxj/ULPe/fNew8iEXC9D+5qGqa0e
-   Q==;
-X-CSE-ConnectionGUID: EQ4+3GrYQ++VM0VYGoBG2Q==
-X-CSE-MsgGUID: /n1u4M4ERFyjgk/23Rn0hg==
+  bh=KuDKyBP3f7nQolom7hNJUYIQaYaBP4eeC6KbUuKieFk=;
+  b=ivwBro5cgR2CH3sf+K8FmTo/eWnCLELwS9T3342cEhtBlS2W8RpRp+Ul
+   0TpmhlQfMGSxGiYQdi/Vq3wGUNs8jwtaI8brsD3QnoF56yBUqt04mLojZ
+   I5GdTrELAK4KwWrxXPGNfSHICy2cHa8mEaI3+QjodrIz01Hgw8AvXsEr2
+   Xp/Cb3bEHHDvQXKoIILzQWFVNeiEOfQP0fxWYHwQvK4WxRofzcHLtReED
+   lIPZ3hhXcWKtqS+Lg2KPyLm5Hx509FpP3f9bcOa2SN4QKA9dtnNEsbEux
+   6vpQsNyu1QrRP788CQsEECdcAGiP/0ZaeYK/s4EcmzuCB9KidM+ncN+Dr
+   g==;
+X-CSE-ConnectionGUID: Uf+l+tvmQCmF0nQAq/HTvg==
+X-CSE-MsgGUID: MET585GBQ3+n+Xm+6ilFfQ==
 X-IronPort-AV: E=Sophos;i="6.07,241,1708358400"; 
-   d="scan'208";a="15244717"
+   d="scan'208";a="15244719"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 30 Apr 2024 18:30:24 +0800
-IronPort-SDR: wzjFdSXHdM8KYZJLLt+Wz4vN+YdIL1M8xSriZdhfWKXO+aMjMAeGr9jrFTeqR1eez76t6TtnFK
- lQ00Xul5dB+qmbBZL/bJzAXqqUo1WTWAo59fOziEJLelKNJc03rRhRqFnatN8pTLhObqbkrEvR
- 1G9Qhayjr+wNzzjnyVQJtqaF0yJtBQc5JvjYbg4m8EvqCbFnIrOYYfLTZNA7I6+R4AmRkF5uSP
- z8NW4CjK6sm1ZisbCUxDtvXKyOYgDYjxE2CKqFJhvJPu5i03sXVurHcFnEwqsJMn9lXzHyxEQ/
- rSM=
+  by ob1.hgst.iphmx.com with ESMTP; 30 Apr 2024 18:30:25 +0800
+IronPort-SDR: n8PFz4Bhf5ojMuhc/9OmXdYmS7B9Nh00YPEAh3v+W7AzppzTQ4XSnWT93yoYnmqVseyCZ5cZva
+ y7dcPdBFi+JdHDQPaKYTh0YkW3lXazd+QiL0bZuMI4HZ9KZsRct5jCSyyF1c4hf7fDa73WP1CA
+ 0iMfct6C2SnMl2OoGAYeJRZ8P77B0CaaWYs1MsXZtu+s22gQjVWI5fxKFxw4lWfeldqXS028+3
+ Sx1id17QWM0FIfL+LU0lWOE7aoICd6XaEWnn79kvW1xdZjDaKXcGWbzsGSQ70lOCVisL9tLih4
+ kM4=
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 30 Apr 2024 02:38:28 -0700
-IronPort-SDR: IewKajwMNAmP8W9I0NbX0gVYTIUWpxK+faXweET9I0L0k9svxzEwmjd+zQ++U01SS4JrNEn+rM
- mY0lRkAeYSLakhQL5MWQEt30Ezeru64agd2VqnzOX96p6Qy2w68cAyd0ixGkQ+r5cWQsR/FvNA
- kjVtKK27jAk08lFs0cgBSh/0ha17ieMVw+PtxYy8v4N5UUrJ0yqOfpElbKJ+lqG/7JBvRXliI/
- yfenNTvCbfTtbcOTLo+wlECd7xr6arp4dhAeLhysy4UAQWFHDO/3ml/agUjNtIKdAtqQqlDqgY
- +Ns=
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 30 Apr 2024 02:38:29 -0700
+IronPort-SDR: ZJwSG9Xw9WlfGk4J/FyjH6ZHEBIqIoRKl4kzuDr0UVyJ4SVYnqAi7rZfFvd702WuZ+4IvE5wUv
+ rAzhy/pVhU13+7jVCiLSes3VTjAo89xirBpI5hD6EQLV1xXP584j1oHAM7rVXEkCBrpEiwGs9w
+ JoyZ1/rj2v+F5PAyqGOmKs/20HGLyOAXSf4TY/iqUu2+MLB2xX1XiLExfdCKOSFiy5vSsuM0dd
+ 2LdoQaqINMeUY9t4E2Bek/8kmFD0YD5qOH+IUkxGnmhyGjPs81taTyg98qX2KCBKYAfkXfuWM6
+ ppw=
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 30 Apr 2024 03:30:25 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 30 Apr 2024 03:30:26 -0700
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
@@ -57,9 +57,9 @@ To: fio@vger.kernel.org,
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Dmitry Fomichev <Dmitry.Fomichev@wdc.com>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 1/3] zbd: remove unnecessary verify_backlog check in zbd_file_reset()
-Date: Tue, 30 Apr 2024 19:30:20 +0900
-Message-ID: <20240430103022.4136039-2-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/3] t/zbd: add test case to confirm verify_backlog=1 options
+Date: Tue, 30 Apr 2024 19:30:21 +0900
+Message-ID: <20240430103022.4136039-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240430103022.4136039-1-shinichiro.kawasaki@wdc.com>
 References: <20240430103022.4136039-1-shinichiro.kawasaki@wdc.com>
@@ -71,39 +71,37 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The commit c5c8b92be5a2 ("zbd: fix zone reset condition for verify")
-improved zbd_file_reset() to not reset zones when data to verify is
-left. To check the left verify data, it tried to do the same as
-check_get_verify() including the check for the modulo operation
-"td->io_hist_len % td->o.verify_backlog". This check is required in
-check_get_verify() to know when to do the verify backlog operation.
-However, this check is not required in zbd_file_reset() since zone reset
-is not related to the verify backlog timing. The unnecessary check for
-"td->io_hist_len % td->o.verify_backlog" allows to reset zones even when
-td->io_hist_len is non-zero and the data to verify is left. It erases
-the data to verify and causes verify errors. Fix this by removing the
-unnecessary check.
+The previous commit fixed the verify failure due to the zone reset with
+the verify_backlog option. Add a test to confirm the fix.
 
-Fixes: c5c8b92be5a2 ("zbd: fix zone reset condition for verify")
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- zbd.c | 3 ---
- 1 file changed, 3 deletions(-)
+ t/zbd/test-zbd-support | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index 37417660..8a092cbe 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1361,9 +1361,6 @@ void zbd_file_reset(struct thread_data *td, struct fio_file *f)
- 	if (td->o.verify != VERIFY_NONE) {
- 		verify_data_left = td->runstate == TD_VERIFYING ||
- 			td->io_hist_len || td->verify_batch;
--		if (td->io_hist_len && td->o.verify_backlog)
--			verify_data_left =
--				td->io_hist_len % td->o.verify_backlog;
- 		if (!verify_data_left)
- 			zbd_reset_zones(td, f, zb, ze);
- 	}
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index c27d2ad6..ef98835c 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -1593,6 +1593,18 @@ test68() {
+ 	[[ $(grep -c "WRITE:" "${logfile}.${test_number}") == 1 ]]
+ }
+ 
++# Test rw=rw and verify_backlog=1 options do not cause verify failure
++test69() {
++	require_zbd || return "$SKIP_TESTCASE"
++
++	prep_write
++	run_fio --name=job --filename="$dev" --time_based --runtime=15s \
++		--rw=rw --offset=$((first_sequential_zone_sector * 512)) \
++		"$(ioengine "libaio")" --iodepth=32 --randrepeat=0 \
++		--verify=crc32 --verify_backlog=1 --zonemode=zbd --direct=1 \
++		>> "${logfile}.${test_number}" 2>&1 || return $?
++}
++
+ SECONDS=0
+ tests=()
+ dynamic_analyzer=()
 -- 
 2.44.0
 
