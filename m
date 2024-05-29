@@ -1,219 +1,201 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6FDB3E462
-	for <fio@vger.kernel.org>; Sat, 25 May 2024 12:00:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08C00180A67
+	for <fio@vger.kernel.org>; Wed, 29 May 2024 12:00:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716638412; cv=none; b=RE7QipUEer5mFH7vgxkc0oz1z40FSDw2FhBnVwK2VfB5du3e1YcRIB6FOrkUD+HrpHUb428+0aF4ddBy/FGvbsETUcsfx8YLdEGL7+XPU3qJb7ZNwkkRVjPi/op9n86ZZxReHo+XAnpvGuJQZo0hkUfapS4MNYTAz/TqVQ12LTU=
+	t=1716984011; cv=none; b=rN9FknluGtToPSEppuhBuWXfSbB4tIwzSiPABcwp2a8hjmdKrjCaLyJwGTQN0wM5P6BD2RRhnWUxcGWnNrRAAWWJziUXOgX1KYcr8rSjlixhSrdxhVE/8LpV6W04rFCpTt4cMC5QxLmG0T2oUs3eCnKjbc/BwQAYDatq97EZ/nM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716638412; c=relaxed/simple;
-	bh=DQS2b87i+kli8Mb4X2fNP7jx+RC3msJT9jcYeTOCIrM=;
-	h=Subject:From:To:Message-Id:Date; b=HDc08NpDg4frvNnGZYfOFpReSJpKeY14XzkOmR7l0nDb1w3Y9nwywP6bR+l3I2IQrycEW62VZW4mEJodGZcDQr05H3TsluiSknh623Ix4idwVWFveb7NJjXOlcfSebwgsNai8SLf/kv8ICL26xs3h+6CkpQ57FXkjoZxxK+SVVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=DTNdO/Ht; arc=none smtp.client-ip=90.155.92.199
+	s=arc-20240116; t=1716984011; c=relaxed/simple;
+	bh=tjUzkKo+KUuOGCOy8bBDo5ic3DqxPTwwKeHGxOAO4lE=;
+	h=Subject:From:To:Message-Id:Date; b=uBlNa+2aJwCPNnTVeCKDzUdvgT8SVQYY/OyN//uuwr9z0qvIctx5lVZQDVOQiFCa4kaoRgdHcjwOA9/Q0CE63jrQIISOB7rY2yrxDLx/NtzPhLgLiRjGO4ar8QcYuuQPrUR07xXM3sMBjXL6SmKShoNkaIEexXiLw6T+sUdH0b4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=M2sU8dom; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DTNdO/Ht"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="M2sU8dom"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
 	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=K8syKqHXq9mzIK0r1cwkNEyYUmR204ETrFksm8lJWdA=; b=DTNdO/HtLaeZlfH4ayvemuMp+N
-	9d0qc97zwrgkKSB4wz7ysblO8wET70Wcq60Zl4dTJ3ZnfeKi3ZeOMRvPHeEFkZw0G8lQx9N74eKv0
-	GkoyupIuFd7W1fjI8nH1hup8Nq1Ul7z5mnVKWtN/tzdlHh6RTRxYK2goUBMPFeTMQcKSWn6yXjXAt
-	LusPuMzN9TXQxMMZXqYo+T30I1TzrIVUZCXACGTSWtRk/tiyM/uld8M4fXw2djyMpNsrajxABE2UB
-	XedbyRZRvQxv6x+0eZmvacUCbVhqOeGa9Zd//5FXy7j+x90WEq/G6/3Js2Nsat6X83a39OTmBL7V8
-	unk5YAkg==;
+	bh=H9BKYyoEWOoeoVDxe8wDYqykh+wTuJg+We+oI5oUeg4=; b=M2sU8domwvJHpNq1U/z/vsmF1A
+	beeZ21643kKOnhPl1Caba+p+ZNN/HPPhCSD2icqBCYWHirHqs4hRRgcAy2aADKzz+ppq9f7zmia71
+	z64IE3tPnmKn5HC3F337EMfS391qyLh1efCWYv4L8ZMJyi9E72um//8QkUiUADj6mL+18iV0AvW30
+	/5mCr9c3rdrxeAUKWXH9qddEF3Amh2JVS3LC4VOanxhUmmudntnuJIGGGHAxDGrE9jZs9bNPNyZo7
+	wcQVNOCHer0QagJ1pLdngRtG6JVxU0KjLYC+tgn2lLecFNf/8j0+N34QTnM1X5PPhcP7XEtAhPtCo
+	eEAt+H3A==;
 Received: from [96.43.243.2] (helo=kernel.dk)
 	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sAq4C-0000000AIMx-2fd2
+	id 1sCHyN-0000000DfcQ-3hvb
 	for fio@vger.kernel.org;
-	Sat, 25 May 2024 12:00:05 +0000
+	Wed, 29 May 2024 12:00:04 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id CDCE51BC0139; Sat, 25 May 2024 06:00:01 -0600 (MDT)
+	id B77761BC0147; Wed, 29 May 2024 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240525120001.CDCE51BC0139@kernel.dk>
-Date: Sat, 25 May 2024 06:00:01 -0600 (MDT)
+Message-Id: <20240529120001.B77761BC0147@kernel.dk>
+Date: Wed, 29 May 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit d3bcdd30da4ad2d6f845e65d6a358c080e120b5e:
+The following changes since commit 85b5eb32dba009e82d8c1b368ce7d8170d59eb8a:
 
-  Merge branch 'enable-dataplacement-scheme' of https://github.com/parkvibes/fio (2024-05-21 14:06:32 -0400)
+  Merge branch 'nvme/support-sync-fua-for-iouring-v2' of https://github.com/minwooim/fio (2024-05-24 12:44:44 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 85b5eb32dba009e82d8c1b368ce7d8170d59eb8a:
+for you to fetch changes up to d5fbe84b83999d862838f36ea0d4a499e31f0653:
 
-  Merge branch 'nvme/support-sync-fua-for-iouring-v2' of https://github.com/minwooim/fio (2024-05-24 12:44:44 -0400)
+  Merge branch 'enable-dataplacement-while-replaying-io' of https://github.com/parkvibes/fio (2024-05-28 14:19:19 -0400)
 
 ----------------------------------------------------------------
-Minwoo Im (1):
-      io_uring: Add 'readfua' and 'writefua' options
+Hyunwoo Park (2):
+      fio: enable dataplacement(fdp) while replaying I/Os
+      t/nvmept_fdp: add a test(402)
+
+Jens Axboe (1):
+      Merge branch 'io_uring/fix-negative-cqe-status' of https://github.com/minwooim/fio
+
+Minwoo Im (2):
+      io_uring: Fix the flip to negative of CQE status
+      options: Add support hex value to ignore_error
 
 Vincent Fu (1):
-      Merge branch 'nvme/support-sync-fua-for-iouring-v2' of https://github.com/minwooim/fio
+      Merge branch 'enable-dataplacement-while-replaying-io' of https://github.com/parkvibes/fio
 
- HOWTO.rst          |  4 ++--
- engines/io_uring.c | 32 +++++++++++++++++++++++++++++++-
- engines/nvme.c     |  5 +++--
- engines/nvme.h     |  3 ++-
- fio.1              |  4 ++--
- 5 files changed, 40 insertions(+), 8 deletions(-)
+ engines/io_uring.c |  2 +-
+ iolog.c            | 14 +++++++++++++-
+ options.c          |  6 +++++-
+ t/nvmept_fdp.py    | 30 +++++++++++++++++++++++++++++-
+ 4 files changed, 48 insertions(+), 4 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 3b262fae..0b39a892 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2847,12 +2847,12 @@ with the caveat that when used on the command line, they must come after the
- 	Specify stat system call type to measure lookup/getattr performance.
- 	Default is **stat** for :manpage:`stat(2)`.
- 
--.. option:: readfua=bool : [sg]
-+.. option:: readfua=bool : [sg] [io_uring_cmd]
- 
- 	With readfua option set to 1, read operations include
- 	the force unit access (fua) flag. Default is 0.
- 
--.. option:: writefua=bool : [sg]
-+.. option:: writefua=bool : [sg] [io_uring_cmd]
- 
- 	With writefua option set to 1, write operations include
- 	the force unit access (fua) flag. Default is 0.
 diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 9069fa3e..3a03ae35 100644
+index 3a03ae35..05ce27eb 100644
 --- a/engines/io_uring.c
 +++ b/engines/io_uring.c
-@@ -82,11 +82,14 @@ struct ioring_data {
- 	struct cmdprio cmdprio;
+@@ -499,7 +499,7 @@ static struct io_u *fio_ioring_cmd_event(struct thread_data *td, int event)
+ 	io_u = (struct io_u *) (uintptr_t) cqe->user_data;
  
- 	struct nvme_dsm *dsm;
-+	uint32_t cdw12_flags[DDIR_RWDIR_CNT];
- };
- 
- struct ioring_options {
- 	struct thread_data *td;
- 	unsigned int hipri;
-+	unsigned int readfua;
-+	unsigned int writefua;
- 	struct cmdprio_options cmdprio_options;
- 	unsigned int fixedbufs;
- 	unsigned int registerfiles;
-@@ -135,6 +138,26 @@ static struct fio_option options[] = {
- 		.category = FIO_OPT_C_ENGINE,
- 		.group	= FIO_OPT_G_IOURING,
- 	},
-+	{
-+		.name	= "readfua",
-+		.lname	= "Read fua flag support",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct ioring_options, readfua),
-+		.help	= "Set FUA flag (force unit access) for all Read operations",
-+		.def	= "0",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_IOURING,
-+	},
-+	{
-+		.name	= "writefua",
-+		.lname	= "Write fua flag support",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct ioring_options, writefua),
-+		.help	= "Set FUA flag (force unit access) for all Write operations",
-+		.def	= "0",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_IOURING,
-+	},
- 	{
- 		.name	= "fixedbufs",
- 		.lname	= "Fixed (pre-mapped) IO buffers",
-@@ -432,7 +455,7 @@ static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
- 
- 	return fio_nvme_uring_cmd_prep(cmd, io_u,
- 			o->nonvectored ? NULL : &ld->iovecs[io_u->index],
--			dsm);
-+			dsm, ld->cdw12_flags[io_u->ddir]);
- }
- 
- static struct io_u *fio_ioring_event(struct thread_data *td, int event)
-@@ -1219,6 +1242,13 @@ static int fio_ioring_init(struct thread_data *td)
+ 	if (cqe->res != 0) {
+-		io_u->error = -cqe->res;
++		io_u->error = abs(cqe->res);
+ 		return io_u;
+ 	} else {
+ 		io_u->error = 0;
+diff --git a/iolog.c b/iolog.c
+index 96af4f33..37ad0d2a 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -140,8 +140,17 @@ static int ipo_special(struct thread_data *td, struct io_piece *ipo)
+ 			break;
  		}
- 	}
- 
-+	if (!strcmp(td->io_ops->name, "io_uring_cmd")) {
-+		if (o->readfua)
-+			ld->cdw12_flags[DDIR_READ] = 1 << 30;
-+		if (o->writefua)
-+			ld->cdw12_flags[DDIR_WRITE] = 1 << 30;
-+	}
+ 		ret = td_io_open_file(td, f);
+-		if (!ret)
++		if (!ret) {
++			if (td->o.dp_type != FIO_DP_NONE) {
++				int dp_init_ret = dp_init(td);
 +
- 	return 0;
- }
++				if (dp_init_ret != 0) {
++					td_verror(td, dp_init_ret, "dp_init");
++					return -1;
++				}
++			}
+ 			break;
++		}
+ 		td_verror(td, ret, "iolog open file");
+ 		return -1;
+ 	case FIO_LOG_CLOSE_FILE:
+@@ -233,6 +242,9 @@ int read_iolog_get(struct thread_data *td, struct io_u *io_u)
+ 				usec_sleep(td, (ipo->delay - elapsed) * 1000);
+ 		}
  
-diff --git a/engines/nvme.c b/engines/nvme.c
-index c6629e86..7b73c806 100644
---- a/engines/nvme.c
-+++ b/engines/nvme.c
-@@ -362,7 +362,8 @@ void fio_nvme_uring_cmd_trim_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- }
++		if (td->o.dp_type != FIO_DP_NONE)
++			dp_fill_dspec_data(td, io_u);
++
+ 		free(ipo);
  
- int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
--			    struct iovec *iov, struct nvme_dsm *dsm)
-+			    struct iovec *iov, struct nvme_dsm *dsm,
-+			    unsigned int cdw12_flags)
- {
- 	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
- 	__u64 slba;
-@@ -391,7 +392,7 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 	cmd->cdw10 = slba & 0xffffffff;
- 	cmd->cdw11 = slba >> 32;
- 	/* cdw12 represent number of lba's for read/write */
--	cmd->cdw12 = nlb | (io_u->dtype << 20);
-+	cmd->cdw12 = nlb | (io_u->dtype << 20) | cdw12_flags;
- 	cmd->cdw13 = io_u->dspec << 16;
- 	if (iov) {
- 		iov->iov_base = io_u->xfer_buf;
-diff --git a/engines/nvme.h b/engines/nvme.h
-index 2d5204fc..2db9eb86 100644
---- a/engines/nvme.h
-+++ b/engines/nvme.h
-@@ -426,7 +426,8 @@ int fio_nvme_get_info(struct fio_file *f, __u64 *nlba, __u32 pi_act,
- 		      struct nvme_data *data);
+ 		if (io_u->ddir != DDIR_WAIT)
+diff --git a/options.c b/options.c
+index f5d221c7..1dd60e8b 100644
+--- a/options.c
++++ b/options.c
+@@ -532,7 +532,11 @@ static int ignore_error_type(struct thread_data *td, enum error_type_bit etype,
+ 		if (fname[0] == 'E') {
+ 			error[i] = str2error(fname);
+ 		} else {
+-			error[i] = atoi(fname);
++			int base = 10;
++			if (!strncmp(fname, "0x", 2) ||
++					!strncmp(fname, "0X", 2))
++				base = 16;
++			error[i] = strtol(fname, NULL, base);
+ 			if (error[i] < 0)
+ 				error[i] = -error[i];
+ 		}
+diff --git a/t/nvmept_fdp.py b/t/nvmept_fdp.py
+index d6a543f2..c50c14e4 100755
+--- a/t/nvmept_fdp.py
++++ b/t/nvmept_fdp.py
+@@ -64,7 +64,7 @@ class FDPTest(FioJobCmdTest):
+                     'size', 'rate', 'bs', 'bssplit', 'bsrange', 'randrepeat',
+                     'buffer_pattern', 'verify_pattern', 'offset', 'fdp',
+                     'fdp_pli', 'fdp_pli_select', 'dataplacement', 'plid_select',
+-                    'plids', 'dp_scheme', 'number_ios']:
++                    'plids', 'dp_scheme', 'number_ios', 'read_iolog']:
+             if opt in self.fio_opts:
+                 option = f"--{opt}={self.fio_opts[opt]}"
+                 fio_args.append(option)
+@@ -148,6 +148,18 @@ class FDPMultiplePLIDTest(FDPTest):
+             with open(scheme_path, mode='w') as f:
+                 for i in range(mapping['nios_for_scheme']):
+                     f.write(f'{mapping["hole_size"] * 2 * i}, {mapping["hole_size"] * 2 * (i+1)}, {i}\n')
++
++        if 'read_iolog' in self.fio_opts:
++            read_iolog_path = os.path.join(self.paths['test_dir'], self.fio_opts['read_iolog'])
++            with open(read_iolog_path, mode='w') as f:
++                f.write('fio version 2 iolog\n')
++                f.write(f'{self.fio_opts["filename"]} add\n')
++                f.write(f'{self.fio_opts["filename"]} open\n')
++
++                for i in range(mapping['nios_for_scheme']):
++                    f.write(f'{self.fio_opts["filename"]} write {mapping["hole_size"] * 2 * i} {mapping["hole_size"]}\n')
++
++                f.write(f'{self.fio_opts["filename"]} close')
+  
+     def _check_result(self):
+         if 'fdp_pli' in self.fio_opts:
+@@ -789,6 +801,22 @@ TEST_LIST = [
+             },
+         "test_class": FDPMultiplePLIDTest,
+     },
++    # check whether dataplacement works while replaying iologs
++    {
++        "test_id": 402,
++        "fio_opts": {
++            "rw": "write:{hole_size}",
++            "bs": "{hole_size}",
++            "number_ios": "{nios_for_scheme}",
++            "verify": "crc32c",
++            "read_iolog": "iolog",
++            "dataplacement": "fdp",
++            "plid_select": "scheme",
++            "dp_scheme": "lba.scheme",
++            "output-format": "json",
++        },
++        "test_class": FDPMultiplePLIDTest,
++    },
+ ]
  
- int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
--			    struct iovec *iov, struct nvme_dsm *dsm);
-+			    struct iovec *iov, struct nvme_dsm *dsm,
-+			    unsigned int cdw12_flags);
- 
- void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 		      struct nvme_cmd_ext_io_opts *opts);
-diff --git a/fio.1 b/fio.1
-index 1c8e3a56..9a965cb0 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2632,11 +2632,11 @@ that "owns" the device also needs to support hipri (also known as iopoll
- and mq_poll). The MegaRAID driver is an example of a SCSI LLD.
- Default: clear (0) which does normal (interrupted based) IO.
- .TP
--.BI (sg)readfua \fR=\fPbool
-+.BI (sg, io_uring_cmd)readfua \fR=\fPbool
- With readfua option set to 1, read operations include the force
- unit access (fua) flag. Default: 0.
- .TP
--.BI (sg)writefua \fR=\fPbool
-+.BI (sg, io_uring_cmd)writefua \fR=\fPbool
- With writefua option set to 1, write operations include the force
- unit access (fua) flag. Default: 0.
- .TP
+ def parse_args():
