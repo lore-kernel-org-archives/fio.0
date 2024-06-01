@@ -1,80 +1,105 @@
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 234E91946F
-	for <fio@vger.kernel.org>; Fri, 31 May 2024 20:07:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176E914F132
+	for <fio@vger.kernel.org>; Sat,  1 Jun 2024 12:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717186047; cv=none; b=X/5TZYHZud2TyUeLHbrkZ1AEgTh3BMa+Ye597o+AAOU9borR0DM6+gVp14PTQrr5EaenzanEtgwSuEqLk/56tQhldRZXy+EssyNyec55BTvS0DZRjNhRP8G0mTYzNWTZNKcm3GWnqiIWWmSEbluXjD68PJs5azuwHTh7xOqHYdY=
+	t=1717243212; cv=none; b=D6qewmtjQbDhouEsqOwhJcXo3IClpNJEhCK6dxn2XzyJNcaA0oah/AmdIyBq4FmgNrjbvxtAglSi20irZRfjoBcnO3StDYXhImAj4+hw3Tx/CWkxWdPNXrkcPoFljkiYBN0GF2YYpJy9xwDu367M593tRouscsvwL49Mm0wlIks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717186047; c=relaxed/simple;
-	bh=iEsxK/s5YrFr2w712ZEg6xaavZSyPUbf7esQ7wP0Q34=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=TDaKUouuMstuo7VJ42dN09ty0Kh/jQf51syKy3UUZ3cSTwhw3H3di0YfOTDQVzgjIAfY6zxMx1oORNH5S/kYf1d/qzBgamIVFBQ4LAYqJ5r0mizvWJrxfC4E2PisLUJ6q92skCDvHt2gM7MEqtojQbE404bOhKp6nzg2IVm4vbM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CYdCmkgu; arc=none smtp.client-ip=209.85.160.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1717243212; c=relaxed/simple;
+	bh=vdIV6JUXFMb5lVzpRfnPa7F5At0YL2OIciyv3HMKim0=;
+	h=Subject:From:To:Message-Id:Date; b=a+C7s8yqiy1Xgh53Hc7xn1P20kmD7PdsEYgjHKULfsn9G48OXHkfAnYOv9/xEQ+1u8aAP4AvrqNsu5Qt4p0L0+ksNUwzAksBvPjvN/z7CHQ9UQVyzlngvVggVhPOMGLiM4wxMB4hre6yNSX3h95pseLdnnsIL49TRc0K8OXtSrw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ZgyWTk35; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CYdCmkgu"
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-43feec1a475so10333351cf.2
-        for <fio@vger.kernel.org>; Fri, 31 May 2024 13:07:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717186044; x=1717790844; darn=vger.kernel.org;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DJJsEs+F8GqK7/QU6RIbmBYToYyT9X0VMyxDaguZLKU=;
-        b=CYdCmkgu95bB8t0206AMNag0JFE9IqAlohE2Qkea3UGhMDJHvv04cwn3/qcdi+mgL6
-         2n21vqQ2nUBDpFlb6eebWnqf2j36zXa5A1emAfbUF7/30DXho+ryguoFgNbhqwbmDHx8
-         6aN2IDyP0MJ6KjKD0sit99QwSK+kqe/FOqaJYx4kW7l33vPBLUopiKuXj2u7CmNn4qDo
-         DNha9Ywt74e2CGQzrA25IPpWTj57JHzm5+KXkYYoXi9hZEOFYCfCKNNU5z9/7/7KxOnv
-         kog4HsBfP973PdAVYtKbije+y9A7SXFt7qVHsqzGaZhOhFB+ZQPIySXqcYnfCrnOO94L
-         /Y0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717186044; x=1717790844;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=DJJsEs+F8GqK7/QU6RIbmBYToYyT9X0VMyxDaguZLKU=;
-        b=xSXcFWrnHlcuL0ndHyzQkHplx34C2q6dQ3fWezquCCX/7uRMbmj/rtV9SuBE1gT8hG
-         JeWFhfjT1KqV6M64UCE1vcRBBMQ2a849GiAhwTeyDQ6PXBcPv0C/e0UabR4C+AFjZAKw
-         1nxLo9ygVMwyEMt8ffs+/mMj2HJSWEhMnJmLfqWjPMfonSoJ15+RKty8kAxmZcYTZRhJ
-         NmLYsr4oRYZuTWz7+OWvziDzhieMiKgyu3sVWrg44rNFMvC82FHurKiU4t+RmjQDu+Sp
-         gcJ76xrR4mIpKhUK3eYQ37GrWAEMw/2SKqSB+iQDujEaVHsLFTWw9k1cnhC2UQLH5lzP
-         z3IA==
-X-Gm-Message-State: AOJu0YxNeZUa3Wuk+ucc7KCETY0oSKfDda19fs85hcwBu7AADWJi8yTA
-	h1B0esUgS4inow+FGMV2zgMmR/Zg0uD8jx8XvCLmX70vMG8eOmB+s9C4ow==
-X-Google-Smtp-Source: AGHT+IHQcrJ+RTwcRUozNg5XytgGPQu1jMhfaJwTg/WCaAoLpqrHCBZmVsITJ7ksvwUYmVblfQls7w==
-X-Received: by 2002:ac8:5883:0:b0:43a:c483:9fc3 with SMTP id d75a77b69052e-43ff524c0fdmr32394991cf.26.1717186044298;
-        Fri, 31 May 2024 13:07:24 -0700 (PDT)
-Received: from [192.168.1.206] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43ff23c2240sm11309291cf.31.2024.05.31.13.07.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 31 May 2024 13:07:23 -0700 (PDT)
-Message-ID: <d7707a8d-fb44-404b-a2d9-3b196f147bf2@gmail.com>
-Date: Fri, 31 May 2024 16:07:22 -0400
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ZgyWTk35"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=DqcF83oCpXPVxadYDr/O0eBSgZdgyj/K1MFwxBX718E=; b=ZgyWTk35hTRG2WIfHwXyD0nKU2
+	pki1WF9CZM8v+FFh+DT9w0BeFPLbZBVtG28VBsggXI23TaJCL0i9UdrzLxHP5elTbEJ5yFT5uamZM
+	bZ2zvvsYpVwNjaY6+65RiKgIg86EfV6TZCf4/ow0sQ2mpds2Xi11hpkWgh4sTt+5nCv3U5NLKD+Ai
+	7hqAnS+rK+GOtRAe4aIvD2ddIsTRXEd/aL4X+QQnauZsUJ0BCriiQ1BdDc1zNYD8trMTyPvGIoBHc
+	KA67oAgBhiV8HMblcRKage5iwNYoWw/326hQgHcY2drbGIj7QJHKxaxm0K1NWX+UiyrJ5TMOeJthC
+	weOixPuQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sDNP1-0000000F1VR-3eQp
+	for fio@vger.kernel.org;
+	Sat, 01 Jun 2024 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 326871BC0124; Sat,  1 Jun 2024 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240601120001.326871BC0124@kernel.dk>
+Date: Sat,  1 Jun 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: gost.dev@samsung.com
-From: Vincent Fu <vincentfu@gmail.com>
-Subject: FDP blog post
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-I am pleased to share a blog post on FDP co-authored by Arun George, 
-Ankit Kumar, and me:
+The following changes since commit d5fbe84b83999d862838f36ea0d4a499e31f0653:
 
-https://github.com/vincentkfu/fio-blog/wiki/FDP
+  Merge branch 'enable-dataplacement-while-replaying-io' of https://github.com/parkvibes/fio (2024-05-28 14:19:19 -0400)
 
-We provide a brief introduction to FDP and then walk through an example 
-exercising fio's FDP support.
+are available in the Git repository at:
 
-Take a look! Feedback is welcome.
+  git://git.kernel.dk/fio.git master
 
-Vincent
+for you to fetch changes up to 93dc85482a998440f8e40814014da8cbfe9cf5e8:
+
+  Merge branch 'fix-coverity-scan-defect' of https://github.com/parkvibes/fio (2024-05-31 09:46:59 -0400)
+
+----------------------------------------------------------------
+Hyunwoo Park (2):
+      iolog: fix Null pointer dereferences (FORWARD_NULL)
+      iolog: fix Error handling issues (NEGATIVE_RETURNS)
+
+Vincent Fu (1):
+      Merge branch 'fix-coverity-scan-defect' of https://github.com/parkvibes/fio
+
+ iolog.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/iolog.c b/iolog.c
+index 37ad0d2a..b57f845e 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -145,7 +145,7 @@ static int ipo_special(struct thread_data *td, struct io_piece *ipo)
+ 				int dp_init_ret = dp_init(td);
+ 
+ 				if (dp_init_ret != 0) {
+-					td_verror(td, dp_init_ret, "dp_init");
++					td_verror(td, abs(dp_init_ret), "dp_init");
+ 					return -1;
+ 				}
+ 			}
+@@ -236,15 +236,15 @@ int read_iolog_get(struct thread_data *td, struct io_u *io_u)
+ 						io_u->buflen, io_u->file->file_name);
+ 			if (ipo->delay)
+ 				iolog_delay(td, ipo->delay);
++
++			if (td->o.dp_type != FIO_DP_NONE)
++				dp_fill_dspec_data(td, io_u);
+ 		} else {
+ 			elapsed = mtime_since_genesis();
+ 			if (ipo->delay > elapsed)
+ 				usec_sleep(td, (ipo->delay - elapsed) * 1000);
+ 		}
+ 
+-		if (td->o.dp_type != FIO_DP_NONE)
+-			dp_fill_dspec_data(td, io_u);
+-
+ 		free(ipo);
+ 
+ 		if (io_u->ddir != DDIR_WAIT)
