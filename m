@@ -1,140 +1,195 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B3B56125
-	for <fio@vger.kernel.org>; Sat,  8 Jun 2024 13:53:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFC59168C1D
+	for <fio@vger.kernel.org>; Wed, 12 Jun 2024 12:00:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717854839; cv=none; b=kXK4l4xsiotVvfCE8bhw7+aBUQybjqPA9UebupneCTIdWxmmIXd7TM5McyOS4YRdzU24G9D7Pt9/151u1AFPOW+OOomX91zpdrOR+RCQoTBGXfPgEJvzUrHfckgB1nzyH2KFjLgUB9KYUOkyR431K0JHeE9zaTSMZhLaI2PyaE4=
+	t=1718193609; cv=none; b=iO70JPVX1+0tV1/GC7lHdUp36vMqUoXg1/QpYar7ZnwvGyVHBTzBQfzdBmmJJmxREc3tX+OiJ4So/G18JHUCSXZQGr4YXTxYQnv7XmQcvid3eH5kLwdvzN2BYDt09ddapI6+j06Oaogx0kOOHtcOum8Fd9EPyQEwHvszG3VVw2M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717854839; c=relaxed/simple;
-	bh=IHA1/RP0ZdJxBn7lGR7I5nOgG0CG7tlELEZIOZ4oIpA=;
-	h=Date:From:To:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=JWqp99hsaAjRsakFZr08aM/Qy8taewJ2f/EFb6R+B8+y06yxGp1WT4+Go3l/0qqaQ6L1+3imu0gpFxKJcLpYeCkOF0ALEeqkqKzlq/0VORdnFBj2hNT5vY4rE5iDkd5tA8dTRFiyWkL/eHXWqJDltq9zD1vt0MMR88fVlap6grc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l+lYY5Gr; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1718193609; c=relaxed/simple;
+	bh=i5dTelSk4vg41Dldr/3hmmpud/zny/5ZeqFNb8BxoBw=;
+	h=Subject:From:To:Message-Id:Date; b=lIMZGoxIi51GaOEXaUwn+UPdG0izNCYzKmXCEj/AQc1SSWKptGrJzrTWPEpu3T00dlZhKMbmdybdUdiC3MNde2meK4gMKCqfnvsp7daqAPEB3TNnbpnBhjbhaITOM4H/GlrpePVNkaUjCaYHDz+mGLv3bYJBg7aq78sO/+GIyt0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ciqRtzdD; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l+lYY5Gr"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 458DcQBJ001704
-	for <fio@vger.kernel.org>; Sat, 8 Jun 2024 13:53:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date
-	:from:to:subject:message-id:references:content-type:in-reply-to
-	:sender:content-transfer-encoding:mime-version; s=pp1; bh=lq++xY
-	G1oHBfANnzv5qtkmksDnf+bI0V0tTmh6S54gs=; b=l+lYY5GrKy/Hm4q8x4yddw
-	41M1rbMNN4kGxaYF64x+ERC5WzBy+MesIBlruMJQS43BqjgZf3gTYYyJzRq0Ica3
-	+aZJanJL0XdcfSfMvAyOM+c/KEVTMsB5QoNA9lV0pR5uz9/D6ArQ9goP3nnHw8ls
-	Xxl3PKnLSZxp64s7M1XEFji5v+XdPEk/VmxTQqcBRNPwXKY+3xfq/rYU52c9OefC
-	j4KSDlYfNSge9P4Yz1ZcdVZ8Hc5yde8SA9/KAOmeKrGZ/2XwQYMTaDBNuwK9ox8Q
-	UOTC7ZEaASoHSt7am7Nu0HyiXxKjSaOSWQz/PY9s0EiBPBwXXo5hPJT8LNdKBj5g
-	==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ymqbbr3xw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <fio@vger.kernel.org>; Sat, 08 Jun 2024 13:53:56 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 458BktGl011618
-	for <fio@vger.kernel.org>; Sat, 8 Jun 2024 13:53:55 GMT
-Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ymffnt7b8-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-	for <fio@vger.kernel.org>; Sat, 08 Jun 2024 13:53:55 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 458DrnN920775264
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Sat, 8 Jun 2024 13:53:51 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 596892004B;
-	Sat,  8 Jun 2024 13:53:49 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4877C20040;
-	Sat,  8 Jun 2024 13:53:49 +0000 (GMT)
-Received: from p1gen4-pw042f0m (unknown [9.171.13.161])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Sat,  8 Jun 2024 13:53:49 +0000 (GMT)
-Received: from bblock by p1gen4-pw042f0m with local (Exim 4.97.1)
-	(envelope-from <bblock@linux.ibm.com>)
-	id 1sFwVw-00000004W1X-3yEC;
-	Sat, 08 Jun 2024 15:53:48 +0200
-Date: Sat, 8 Jun 2024 15:53:48 +0200
-From: Benjamin Block <bblock@linux.ibm.com>
-To: fio list <fio@vger.kernel.org>
-Subject: Re: Regression with 40f61ec71936 ("cpus_allowed: use
- __NRPROCESSORS_CONF instead of __SC_NPROCESSORS_ONLN for non-sequential CPU
- ids") and Idleness Profiling
-Message-ID: <20240608135348.GB957171@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-References: <20240608134436.GA957171@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20240608134436.GA957171@p1gen4-pw042f0m.boeblingen.de.ibm.com>
-Sender: Benjamin Block <bblock@linux.ibm.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: s9IGUGHY8OorPOz-nuxZDVk91U68n5Y6
-X-Proofpoint-ORIG-GUID: s9IGUGHY8OorPOz-nuxZDVk91U68n5Y6
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ciqRtzdD"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=RJz32nPPUN5RznCsOUjsmkcof/4s1Od/Imgfne9v0HY=; b=ciqRtzdDdz4sdoPj6JVIOch9+P
+	JxB5QBkIi8SRrR9gbJI2hUgrwl+Me1/xuS/py9FlVge82weOWtjqcPFCyfkTU+EXmc4FTr04gSzqj
+	dV+ditDpqSMTaOQ3XfEelNok7AUkfd9Zpj34NK0XiffKDeMRIjUq4E/idNG/q1z+wiQic1F8/RZOj
+	y/6KNRbnkySGh34x9SjPdYZaaINTQpB6VAA8siAq/yT2QRSfyEtRSwJd/1gT+CgmgbSLPi+TgPHcG
+	4qbNpTP6SIZ+jU61QwW/YsB/wpwzuQmfUqgSHpGFtqZPtJjwxKrE+iedcA9dUFZBzGHI1caILZGlh
+	fwgr7/tQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sHMe3-0000000Ef7E-3W5o
+	for fio@vger.kernel.org;
+	Wed, 12 Jun 2024 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 7BBC61BC013F; Wed, 12 Jun 2024 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240612120001.7BBC61BC013F@kernel.dk>
+Date: Wed, 12 Jun 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-08_07,2024-06-06_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- suspectscore=0 phishscore=0 clxscore=1015 spamscore=0 impostorscore=0
- bulkscore=0 mlxlogscore=694 adultscore=0 priorityscore=1501 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2405170001
- definitions=main-2406080104
 
-On Sat, Jun 08, 2024 at 03:44:36PM +0200, Benjamin Block wrote:
-> Making a small change like this to the profiling thread
-> 
->     @@ -123,13 +123,11 @@ static void *idle_prof_thread_fn(void *data)
->      
->      	/* exit if other threads failed to initialize */
->      	if (ipc.status == IDLE_PROF_STATUS_ABORT) {
->     -		pthread_mutex_unlock(&ipt->start_lock);
->      		goto do_exit;
->      	}
->      
-> v     	/* exit if we are doing calibration only */
->      	if (ipc.status == IDLE_PROF_STATUS_CALI_STOP) {
->     -		pthread_mutex_unlock(&ipt->start_lock);
->      		goto do_exit;
->      	}
->      
->     @@ -151,10 +149,9 @@ static void *idle_prof_thread_fn(void *data)
->      idle_prof_done:
->      
->      	ipt->loops = j + (double) k / page_size;
->     +do_exit:
->      	ipt->state = TD_EXITED;
->      	pthread_mutex_unlock(&ipt->start_lock);
->     -
->     -do_exit:
->      	free_cpu_affinity(ipt);
->      	return NULL;
->      }
-> 
-> fixes the issue that `fio` doesn't exit in case a profiling thread
-> aborts/exits before reaching their main loop.
+The following changes since commit fbf954c96bb4089b3097adde723216a4668f854b:
 
-Ah, this is also buggy :D 
+  engines/io_uring: eliminate FDP memory corruption risk (2024-06-07 09:45:02 -0400)
 
-            if (retval == -1) {
-                    ipt->state = TD_EXITED;
-                    pthread_mutex_unlock(&ipt->init_lock);
-                    goto do_exit;
-            }
+are available in the Git repository at:
 
-above uses the same label before having locked `ipt->start_lock`, but the idea
-applies.
+  git://git.kernel.dk/fio.git master
 
--- 
-Best Regards, Benjamin Block        /        Linux on IBM Z Kernel Development
-IBM Deutschland Research & Development GmbH    /   https://www.ibm.com/privacy
-Vors. Aufs.-R.: Wolfgang Wendt         /        Gesch?ftsf?hrung: David Faller
-Sitz der Ges.: B?blingen     /    Registergericht: AmtsG Stuttgart, HRB 243294
+for you to fetch changes up to a15118757dad19c7f17700903d169676f244e318:
+
+  helper_thread: check for null scalloc return value (2024-06-11 16:19:38 -0400)
+
+----------------------------------------------------------------
+Vincent Fu (5):
+      Reapply "smalloc: smalloc() already clears memory, scalloc() need not do it again"
+      t/stest: confirm that scalloc clears the buffer
+      iolog: check scalloc return value
+      t/stest: remove useless error assignment
+      helper_thread: check for null scalloc return value
+
+ helper_thread.c |  2 ++
+ iolog.c         |  1 +
+ smalloc.c       |  8 +-------
+ t/stest.c       | 37 +++++++++++++++++++++++++++++++------
+ 4 files changed, 35 insertions(+), 13 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/helper_thread.c b/helper_thread.c
+index 332ccb53..fed21d1d 100644
+--- a/helper_thread.c
++++ b/helper_thread.c
+@@ -418,6 +418,8 @@ int helper_thread_create(struct fio_sem *startup_sem, struct sk_out *sk_out)
+ 	int ret;
+ 
+ 	hd = scalloc(1, sizeof(*hd));
++	if (!hd)
++		return 1;
+ 
+ 	setup_disk_util();
+ 	steadystate_setup();
+diff --git a/iolog.c b/iolog.c
+index b57f845e..f727c97f 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -840,6 +840,7 @@ void setup_log(struct io_log **log, struct log_params *p,
+ 	struct flist_head *list;
+ 
+ 	l = scalloc(1, sizeof(*l));
++	assert(l);
+ 	INIT_FLIST_HEAD(&l->io_logs);
+ 	l->log_type = p->log_type;
+ 	l->log_offset = p->log_offset;
+diff --git a/smalloc.c b/smalloc.c
+index 134f3d77..23243054 100644
+--- a/smalloc.c
++++ b/smalloc.c
+@@ -566,13 +566,7 @@ void *smalloc(size_t size)
+ 
+ void *scalloc(size_t nmemb, size_t size)
+ {
+-	void *ret;
+-
+-	ret = smalloc(nmemb * size);
+-	if (ret)
+-		memset(ret, 0, nmemb * size);
+-
+-	return ret;
++	return smalloc(nmemb * size);
+ }
+ 
+ char *smalloc_strdup(const char *str)
+diff --git a/t/stest.c b/t/stest.c
+index c6bf2d1e..16ce6923 100644
+--- a/t/stest.c
++++ b/t/stest.c
+@@ -25,10 +25,11 @@ static FLIST_HEAD(list);
+ 
+ static int do_rand_allocs(void)
+ {
+-	unsigned int size, nr, rounds = 0, ret = 0;
++	unsigned int i, size, nr, rounds = 0, ret = 0;
+ 	unsigned long total;
+ 	struct elem *e;
+ 	bool error;
++	char *c;
+ 
+ 	while (rounds++ < LOOPS) {
+ #ifdef STEST_SEED
+@@ -38,12 +39,26 @@ static int do_rand_allocs(void)
+ 		nr = total = 0;
+ 		while (total < MAXSMALLOC) {
+ 			size = 8 * sizeof(struct elem) + (int) (999.0 * (rand() / (RAND_MAX + 1.0)));
+-			e = smalloc(size);
++			e = scalloc(1, size);
+ 			if (!e) {
+ 				printf("fail at %lu, size %u\n", total, size);
+ 				ret++;
+ 				break;
+ 			}
++
++			c = (char *)e;
++			for (i = 0; i < size; i++) {
++				if (*(c+i) != 0) {
++					printf("buffer not cleared at %lu, size %u\n", total, size);
++					ret++;
++					break;
++				}
++			}
++
++			/* stop the while loop if buffer was not cleared */
++			if (i < size)
++				break;
++
+ 			e->magic1 = MAGIC1;
+ 			e->magic2 = MAGIC2;
+ 			e->size = size;
+@@ -63,15 +78,25 @@ static int do_rand_allocs(void)
+ 			sfree(e);
+ 
+ 			if (!error) {
+-				e = smalloc(LARGESMALLOC);
++				e = scalloc(1, LARGESMALLOC);
+ 				if (!e) {
+-					error = true;
+ 					ret++;
+ 					printf("failure allocating %u bytes at %lu allocated during sfree phase\n",
+ 						LARGESMALLOC, total);
++					break;
+ 				}
+-				else
+-					sfree(e);
++
++				c = (char *)e;
++				for (i = 0; i < LARGESMALLOC; i++) {
++					if (*(c+i) != 0) {
++						error = true;
++						ret++;
++						printf("large buffer not cleared at %lu, size %u\n", total, size);
++						break;
++					}
++				}
++
++				sfree(e);
+ 			}
+ 		}
+ 	}
