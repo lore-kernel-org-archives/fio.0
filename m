@@ -1,328 +1,246 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B91D216C69C
-	for <fio@vger.kernel.org>; Fri, 12 Jul 2024 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6A7E61FD5
+	for <fio@vger.kernel.org>; Sat, 13 Jul 2024 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720785612; cv=none; b=WPB58Eh4VaCqod9FsH8z8KkCgGTzfwGr0y+QebvGZW6jti0y6ANB79V+1yPPnQit3oCa5mHT5zDJU3kGhhJjtK9B4Czk2+yOf4rGsziNTT4GcY+XHxOu5S+AXUKI8otYfP8YntW5JflpV9CStT3IwZVUZxT5YzpIYiHEbPqU1Bo=
+	t=1720872012; cv=none; b=MkIb8O9XNQsFl8S+EgY4u1WaMoN6Tnj+KcJmpU7RvALmPnmDdndTq01+DsykylwXFbdedokrvdWAExBtNaGrAm8HXc41oqFNLOfmpmzfDMEV5ngwK6eL7ehJgVuhYrRLeYCWkS9HkUw4xvL8Tzio3OvwbVGk0bEE0/FG6vYJ3cE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720785612; c=relaxed/simple;
-	bh=txGvDspqlyyvYxvh0EwhYcuVPRZuMY0lvz7TlgWEtqk=;
-	h=Subject:From:To:Message-Id:Date; b=QZzSn8EGKSSvjCHa5/fQTFaUFghoaFaHvh2SoHm3JOp+hsbV2N0BeEpJauDxpFRpCgv5XMLqPqhqFHMRdKADy3PMx1O15RKVzIu4oSd0PaoKOgsaGwUFiLzydIQOUUslWNGXD4Ad+B8iv9SdH6k5FZrttchsrQGLoLWAhWzBzOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=a270J0oD; arc=none smtp.client-ip=90.155.92.199
+	s=arc-20240116; t=1720872012; c=relaxed/simple;
+	bh=3srAP0w6gdhCwa9t6hUZgFJrtR8hNRnMJnZrTmZtPz8=;
+	h=Subject:From:To:Message-Id:Date; b=JyCjBaNK1NDln6Th64sR8+yRWWSj0/ywffwRy0MCMUJuJJi26fzbOxGdd+JKnXC8irCtL3WyDwy/oPTp2G/dlzYpOBsHU1W3oTZ15zPRetZG/Z79kSyjOomcNqkJ/5AkaCM2BQdGlqGxXDGDXTzbZeCRIGTC2ZDn2ZbbwdXSaSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Y4GGC9Sm; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="a270J0oD"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Y4GGC9Sm"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=gpBzPDwjxyAc2JrA/ORfNI4BD/S02DtlqPeMq1/N6Sg=; b=a270J0oDz/J084bV1hitF1L5VV
-	pspUimMxhmPuJTv4pIqdnHukYr2bRaJtN3j9yX8dNEMSW63owqZ7tE+88UMrFWYmLsiroH/lWkyvc
-	H6bViJhzGSRh9xAZveKDTxTUCj6svvHlYwZkaJsWyuIGiQaZECa9dwHPDbbzYcGrJgNnCQuzIKeaU
-	t6rHZLp9WLSRmHhel06oBc/cm5nAPimBuNOa4RH1+7DgO8dKudr6nqZRdI3jKjPwrLIVu6cMvVHLS
-	oK1NKm2cT4lM6rxHj3/sjUtB1OcRsODHTnp8DWqhqkrhpyJe23FUJzygHtx0GVLc9yo4rK+5hL1Wq
-	tIBDKaRA==;
+	bh=kHr+4AHLAy7paAa/8GcP85GZr1M76bklbUwC+CBYCy4=; b=Y4GGC9SmbZXB5TZcxEpDYzaHYe
+	bREVBo3MtmT5lvDrP1vzsTjDIyuzsborI3dBiOMgZSZEnHVesqG/nMjHACWuc87EerpXKYLwakFEz
+	x2ukMKSRs2XxhN8O5+YXOmlZiSb0swf6u8jwJ40j6Cf03UDN3wIefjijNMtb8ffAH5No2FM3tcGdb
+	1rG/tFvkn2nuREIJiGKaM79xKeTpYYgcDWoXMSkVgSD1+yX4K9JY6JGqzjuLtxVR5K7yYs2NlOJOO
+	RQrsRDLI4B7li/RJ+G2xeDuWSX2Gw3jX64izB+wBLLeOTuRFtPKm29ilTSydq4qTrOrpwiWb4WhXL
+	GKCYMJyA==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sSEwW-00000001ICd-2dBS
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sSbQ5-0000000DWN2-0rFV
 	for fio@vger.kernel.org;
-	Fri, 12 Jul 2024 12:00:05 +0000
+	Sat, 13 Jul 2024 12:00:05 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 9721C1BC012D; Fri, 12 Jul 2024 06:00:01 -0600 (MDT)
+	id 07D2F1BC014C; Sat, 13 Jul 2024 06:00:02 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240712120001.9721C1BC012D@kernel.dk>
-Date: Fri, 12 Jul 2024 06:00:01 -0600 (MDT)
+Message-Id: <20240713120002.07D2F1BC014C@kernel.dk>
+Date: Sat, 13 Jul 2024 06:00:02 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit 6eaa6422fccf857e6b1a88492db805dafca8ee85:
+The following changes since commit 89fc4019e2a5ecb23be181a6a1dcda1902cdcfcc:
 
-  windows: don't define strtoll for 32-bit builds (2024-06-28 18:48:43 -0400)
+  Merge branch 'io-uring-cmd/nvme/add-flush' of https://github.com/minwooim/fio (2024-07-11 09:59:48 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 89fc4019e2a5ecb23be181a6a1dcda1902cdcfcc:
+for you to fetch changes up to 2cb0841a1452f34a20ffe8fc1821b305f10b3f63:
 
-  Merge branch 'io-uring-cmd/nvme/add-flush' of https://github.com/minwooim/fio (2024-07-11 09:59:48 -0400)
+  os/os-qnx: fix overwrite of 'errno' (2024-07-12 10:52:33 -0600)
 
 ----------------------------------------------------------------
-Minwoo Im (6):
-      io_uring: Add support FLUSH command
-      td: Rename last_ddir to last_ddir_completed
-      td: Replace last_was_sync with last_ddir_issued
-      io_u: Ensure fsync only after write(s)
-      io_u: Support fsync for --rw=trimwrite
-      t/nvmept.py: Add test cases for FLUSH
+Huang weiliang(weller) (1):
+      Support QNX OS platform
 
-Vincent Fu (1):
-      Merge branch 'io-uring-cmd/nvme/add-flush' of https://github.com/minwooim/fio
+Jens Axboe (2):
+      Merge branch 'master' of https://github.com/huangweiliang/fio_for_qnx
+      os/os-qnx: fix overwrite of 'errno'
 
- engines/nvme.c |  5 ++++
- engines/nvme.h |  1 +
- fio.h          |  7 +++--
- io_u.c         | 10 +++----
- ioengines.c    |  4 +--
- libfio.c       |  1 -
- t/nvmept.py    | 91 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 7 files changed, 108 insertions(+), 11 deletions(-)
+ configure          |  6 ++++
+ engines/e4defrag.c |  1 +
+ os/os-qnx.h        | 99 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ os/os.h            |  3 ++
+ 4 files changed, 109 insertions(+)
+ create mode 100755 os/os-qnx.h
 
 ---
 
 Diff of recent changes:
 
-diff --git a/engines/nvme.c b/engines/nvme.c
-index 72934c8b..33d87477 100644
---- a/engines/nvme.c
-+++ b/engines/nvme.c
-@@ -381,6 +381,11 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 	case DDIR_TRIM:
- 		fio_nvme_uring_cmd_trim_prep(cmd, io_u, dsm);
- 		return 0;
-+	case DDIR_SYNC:
-+	case DDIR_DATASYNC:
-+		cmd->opcode = nvme_cmd_flush;
-+		cmd->nsid = data->nsid;
-+		return 0;
- 	default:
- 		return -ENOTSUP;
- 	}
-diff --git a/engines/nvme.h b/engines/nvme.h
-index bc2370b8..b5fef2fb 100644
---- a/engines/nvme.h
-+++ b/engines/nvme.h
-@@ -73,6 +73,7 @@ enum nvme_admin_opcode {
- };
+diff --git a/configure b/configure
+index 3eef022b..f3cb18a0 100755
+--- a/configure
++++ b/configure
+@@ -366,6 +366,8 @@ elif check_define __sun__ ; then
+   CFLAGS="$CFLAGS -D_REENTRANT"
+ elif check_define _WIN32 ; then
+   targetos='CYGWIN'
++elif check_define __QNX__ ; then
++  targetos='QNX'
+ else
+   targetos=`uname -s`
+ fi
+@@ -466,6 +468,9 @@ CYGWIN*)
+   pthread_condattr_setclock="no"
+   pthread_affinity="no"
+   ;;
++QNX)
++  LIBS="-lsocket"
++  ;;
+ esac
  
- enum nvme_io_opcode {
-+	nvme_cmd_flush			= 0x00,
- 	nvme_cmd_write			= 0x01,
- 	nvme_cmd_read			= 0x02,
- 	nvme_cmd_write_uncor		= 0x04,
-diff --git a/fio.h b/fio.h
-index 7d9927a0..4bb6cfa7 100644
---- a/fio.h
-+++ b/fio.h
-@@ -258,8 +258,9 @@ struct thread_data {
- 	size_t orig_buffer_size;
- 	volatile int runstate;
- 	volatile bool terminate;
--	bool last_was_sync;
--	enum fio_ddir last_ddir;
-+
-+	enum fio_ddir last_ddir_completed;
-+	enum fio_ddir last_ddir_issued;
+ # Now we know the target platform we can have another guess at the preferred
+@@ -1090,6 +1095,7 @@ if test "$have_vasprintf" != "yes" ; then
+ fi
+ cat > $TMPC << EOF
+ #include <stdio.h>
++#include <stdarg.h>
  
- 	int mmapfd;
- 
-@@ -629,7 +630,7 @@ static inline bool multi_range_trim(struct thread_data *td, struct io_u *io_u)
- 
- static inline bool should_fsync(struct thread_data *td)
+ int main(int argc, char **argv)
  {
--	if (td->last_was_sync)
-+	if (ddir_sync(td->last_ddir_issued))
- 		return false;
- 	if (td_write(td) || td->o.override_sync)
- 		return true;
-diff --git a/io_u.c b/io_u.c
-index a090e121..f81086b6 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -755,7 +755,7 @@ static enum fio_ddir get_rw_ddir(struct thread_data *td)
- 	 * See if it's time to fsync/fdatasync/sync_file_range first,
- 	 * and if not then move on to check regular I/Os.
- 	 */
--	if (should_fsync(td)) {
-+	if (should_fsync(td) && td->last_ddir_issued == DDIR_WRITE) {
- 		if (td->o.fsync_blocks && td->io_issues[DDIR_WRITE] &&
- 		    !(td->io_issues[DDIR_WRITE] % td->o.fsync_blocks))
- 			return DDIR_SYNC;
-@@ -815,7 +815,7 @@ static void set_rw_ddir(struct thread_data *td, struct io_u *io_u)
- 	if (td->o.zone_mode == ZONE_MODE_ZBD)
- 		ddir = zbd_adjust_ddir(td, io_u, ddir);
+diff --git a/engines/e4defrag.c b/engines/e4defrag.c
+index 37cc2ada..65ef0da7 100644
+--- a/engines/e4defrag.c
++++ b/engines/e4defrag.c
+@@ -11,6 +11,7 @@
+ #include <stdio.h>
+ #include <errno.h>
+ #include <fcntl.h>
++#include <stdint.h>
  
--	if (td_trimwrite(td)) {
-+	if (td_trimwrite(td) && !ddir_sync(ddir)) {
- 		struct fio_file *f = io_u->file;
- 		if (f->last_start[DDIR_WRITE] == f->last_start[DDIR_TRIM])
- 			ddir = DDIR_TRIM;
-@@ -1757,7 +1757,7 @@ static bool check_get_trim(struct thread_data *td, struct io_u *io_u)
- 		if (get_next_trim(td, io_u))
- 			return true;
- 	} else if (!(td->io_hist_len % td->o.trim_backlog) &&
--		     td->last_ddir != DDIR_READ) {
-+		     td->last_ddir_completed != DDIR_READ) {
- 		td->trim_batch = td->o.trim_batch;
- 		if (!td->trim_batch)
- 			td->trim_batch = td->o.trim_backlog;
-@@ -1779,7 +1779,7 @@ static bool check_get_verify(struct thread_data *td, struct io_u *io_u)
- 		if (td->verify_batch)
- 			get_verify = 1;
- 		else if (!(td->io_hist_len % td->o.verify_backlog) &&
--			 td->last_ddir != DDIR_READ) {
-+			 td->last_ddir_completed != DDIR_READ) {
- 			td->verify_batch = td->o.verify_batch;
- 			if (!td->verify_batch)
- 				td->verify_batch = td->o.verify_backlog;
-@@ -2122,7 +2122,7 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
- 		return;
- 	}
- 
--	td->last_ddir = ddir;
-+	td->last_ddir_completed = ddir;
- 
- 	if (!io_u->error && ddir_rw(ddir)) {
- 		unsigned long long bytes = io_u->xfer_buflen - io_u->resid;
-diff --git a/ioengines.c b/ioengines.c
-index 6b81dc77..dcd4164d 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -437,7 +437,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 			td->ts.total_io_u[io_u->ddir]++;
- 		}
- 
--		td->last_was_sync = ddir_sync(io_u->ddir);
-+		td->last_ddir_issued = ddir;
- 	} else if (ret == FIO_Q_QUEUED) {
- 		td->io_u_queued++;
- 
-@@ -448,7 +448,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 		if (td->io_u_queued >= td->o.iodepth_batch)
- 			td_io_commit(td);
- 
--		td->last_was_sync = ddir_sync(io_u->ddir);
-+		td->last_ddir_issued = ddir;
- 	}
- 
- 	if (!td_ioengine_flagged(td, FIO_SYNCIO) &&
-diff --git a/libfio.c b/libfio.c
-index d0c6bf8f..2596ae5a 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -101,7 +101,6 @@ static void reset_io_counters(struct thread_data *td, int all)
- 
- 	td->zone_bytes = 0;
- 
--	td->last_was_sync = false;
- 	td->rwmix_issues = 0;
- 
- 	/*
-diff --git a/t/nvmept.py b/t/nvmept.py
-index 1ade64dc..3d90f4bf 100755
---- a/t/nvmept.py
-+++ b/t/nvmept.py
-@@ -87,6 +87,53 @@ class PassThruTest(FioJobCmdTest):
-             self.passed = False
- 
- 
-+class FlushTest(FioJobCmdTest):
-+    def setup(self, parameters):
-+        fio_args = [
-+            "--name=nvmept-flush",
-+            "--ioengine=io_uring_cmd",
-+            "--cmd_type=nvme",
-+            "--randrepeat=0",
-+            f"--filename={self.fio_opts['filename']}",
-+            f"--rw={self.fio_opts['rw']}",
-+            f"--output={self.filenames['output']}",
-+            f"--output-format={self.fio_opts['output-format']}",
-+        ]
+ #include "../fio.h"
+ #include "../optgroup.h"
+diff --git a/os/os-qnx.h b/os/os-qnx.h
+new file mode 100755
+index 00000000..447c9957
+--- /dev/null
++++ b/os/os-qnx.h
+@@ -0,0 +1,99 @@
++#ifndef FIO_OS_QNX_H
++#define FIO_OS_QNX_H
 +
-+        for opt in ['fixedbufs', 'nonvectored', 'force_async', 'registerfiles',
-+                    'sqthread_poll', 'sqthread_poll_cpu', 'hipri', 'nowait',
-+                    'time_based', 'runtime', 'verify', 'io_size', 'num_range',
-+                    'iodepth', 'iodepth_batch', 'iodepth_batch_complete',
-+                    'size', 'rate', 'bs', 'bssplit', 'bsrange', 'randrepeat',
-+                    'buffer_pattern', 'verify_pattern', 'offset', 'fdp',
-+                    'fdp_pli', 'fdp_pli_select', 'dataplacement', 'plid_select',
-+                    'plids', 'dp_scheme', 'number_ios', 'read_iolog', 'fsync']:
-+            if opt in self.fio_opts:
-+                option = f"--{opt}={self.fio_opts[opt]}"
-+                fio_args.append(option)
++#define	FIO_OS	os_qnx
++#include <stdint.h>
++#include <stdio.h>
++#include <errno.h>
++#include <sys/param.h>
++#include <sys/statvfs.h>
++#include <sys/ioctl.h>
++#include <sys/utsname.h>
++#include <sys/sysctl.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/dcmd_cam.h>
 +
-+        super().setup(fio_args)
++/* XXX hack to avoid conflicts between rbtree.h and <sys/tree.h> */
++#undef RB_BLACK
++#undef RB_RED
++#undef RB_ROOT
 +
-+    def check_result(self):
-+        super().check_result()
++#include "../file.h"
 +
-+        job = self.json_data['jobs'][0]
++/* QNX is not supporting SA_RESTART. Use SA_NOCLDSTOP instead of it */
++#ifndef SA_RESTART
++#define SA_RESTART SA_NOCLDSTOP
++#endif
 +
-+        rw = self.fio_opts['rw']
-+        fsync = self.fio_opts['fsync']
++#define FIO_NO_HAVE_SHM_H
 +
-+        nr_write = job['write']['total_ios']
-+        nr_sync = job['sync']['total_ios']
++typedef uint64_t __u64;
++typedef unsigned int __u32;
 +
-+        nr_sync_exp = nr_write // fsync
++#define FIO_USE_GENERIC_INIT_RANDOM_STATE
++#define FIO_HAVE_FS_STAT
++#define FIO_HAVE_GETTID
 +
-+        # The actual number of DDIR_SYNC issued might miss one DDIR_SYNC command
-+        # when the last command issued was DDIR_WRITE command.
-+        if not ((nr_sync == nr_sync_exp) or (nr_sync + 1 == nr_sync_exp)):
-+            logging.error(f"nr_write={nr_write}, nr_sync={nr_sync}, fsync={fsync}")
-+            self.passed = False
++#define OS_MAP_ANON		MAP_ANON
 +
++#ifndef PTHREAD_STACK_MIN
++#define PTHREAD_STACK_MIN 4096
++#endif
 +
- TEST_LIST = [
-     {
-         "test_id": 1,
-@@ -255,6 +302,50 @@ TEST_LIST = [
-             },
-         "test_class": PassThruTest,
-     },
-+    {
-+        "test_id": 16,
-+        "fio_opts": {
-+            "rw": 'read',
-+            "bs": 4096,
-+            "number_ios": 10,
-+            "fsync": 1,
-+            "output-format": "json",
-+            },
-+        "test_class": FlushTest,
-+    },
-+    {
-+        "test_id": 17,
-+        "fio_opts": {
-+            "rw": 'write',
-+            "bs": 4096,
-+            "number_ios": 10,
-+            "fsync": 1,
-+            "output-format": "json",
-+            },
-+        "test_class": FlushTest,
-+    },
-+    {
-+        "test_id": 18,
-+        "fio_opts": {
-+            "rw": 'readwrite',
-+            "bs": 4096,
-+            "number_ios": 10,
-+            "fsync": 1,
-+            "output-format": "json",
-+            },
-+        "test_class": FlushTest,
-+    },
-+    {
-+        "test_id": 19,
-+        "fio_opts": {
-+            "rw": 'trimwrite',
-+            "bs": 4096,
-+            "number_ios": 10,
-+            "fsync": 1,
-+            "output-format": "json",
-+            },
-+        "test_class": FlushTest,
-+    },
- ]
++#define fio_swap16(x)	swap16(x)
++#define fio_swap32(x)	swap32(x)
++#define fio_swap64(x)	swap64(x)
++
++#ifdef CONFIG_PTHREAD_GETAFFINITY
++#define FIO_HAVE_GET_THREAD_AFFINITY
++#define fio_get_thread_affinity(mask)	\
++	pthread_getaffinity_np(pthread_self(), sizeof(mask), &(mask))
++#endif
++
++static inline int blockdev_size(struct fio_file *f, unsigned long long *bytes)
++{
++	struct stat statbuf;
++
++	if (fstat(f->fd, &statbuf) == -1) {
++		*bytes = 0;
++		return errno;
++	}
++
++	*bytes = (unsigned long long)(statbuf.st_blocksize * statbuf.st_nblocks);
++	return 0;
++}
++
++static inline int blockdev_invalidate_cache(struct fio_file *f)
++{
++	return ENOTSUP;
++}
++
++static inline unsigned long long os_phys_mem(void)
++{
++	int mib[2] = { CTL_HW, HW_PHYSMEM64 };
++	uint64_t mem;
++	size_t len = sizeof(mem);
++
++	sysctl(mib, 2, &mem, &len, NULL, 0);
++	return mem;
++}
++
++static inline unsigned long long get_fs_free_size(const char *path)
++{
++	unsigned long long ret;
++	struct statvfs s;
++
++	if (statvfs(path, &s) < 0)
++		return -1ULL;
++
++	ret = s.f_frsize;
++	ret *= (unsigned long long) s.f_bfree;
++	return ret;
++}
++
++#ifdef MADV_FREE
++#define FIO_MADV_FREE	MADV_FREE
++#endif
++
++#endif
+diff --git a/os/os.h b/os/os.h
+index 0f182324..d54e7c0d 100644
+--- a/os/os.h
++++ b/os/os.h
+@@ -24,6 +24,7 @@ enum {
+ 	os_windows,
+ 	os_android,
+ 	os_dragonfly,
++	os_qnx,
  
- def parse_args():
+ 	os_nr,
+ };
+@@ -39,6 +40,8 @@ typedef enum {
+ #include "os-freebsd.h"
+ #elif defined(__OpenBSD__)
+ #include "os-openbsd.h"
++#elif defined(__QNX__)
++#include "os-qnx.h"
+ #elif defined(__NetBSD__)
+ #include "os-netbsd.h"
+ #elif defined(__sun__)
