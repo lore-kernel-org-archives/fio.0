@@ -1,82 +1,90 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44FFF166F2F
-	for <fio@vger.kernel.org>; Tue,  6 Aug 2024 12:00:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95579376E6
+	for <fio@vger.kernel.org>; Tue,  6 Aug 2024 18:27:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722945617; cv=none; b=tNAie56OFcN3UkMZeVzG5V9Hm5VoAjCJGVXO4kgucvUmTyj/siCeOw4tj7G0R3pEtjLeCGTnENGg+V5anbUPXK7Gk5lzZDO1Uwqm2n/4OHzXl2FnGyGenBZVkkB/xTj1cmzTYIZpU8SlBfxNgzxx0tbuP+XR9fL33Az71pEgQFA=
+	t=1722968863; cv=none; b=VAamkn6zf3jsqMvDru5/ZWT46UCRR9r7wW7nmlpYntMXiuYcxpS1aldf7cbtIj/3pnthZf9X3Pu/y62WZECzGk/ySyizuImNUYzBIpSt5z84tguvqNoHLBY4r4uY5zwPmfqzAvIsZqtKQZODXaUsPq9F4hvyhj4O3V7fKGwZZrQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722945617; c=relaxed/simple;
-	bh=fzWC3AXL6Kt9R+pjQ46Xyy7L6qa0FEFJashX0jtoxmA=;
-	h=Subject:From:To:Message-Id:Date; b=MU3llZKg7a91zZuJ6HM3RcmotNLcCPlthlWyYUWIxG0V5DcSRkSV+oOWWUVnGwEqj/eE9xXvg3TlKVA3fjSH1EsVwtmsDl0ZiYYy+7xd4HnGVGHJ4tn7yBY2yEbxCFOG6x2qTcZTz4wIZR/LvaNKE8kYgNCMOpZyIypfbIEp7Vc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=jxsELk38; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1722968863; c=relaxed/simple;
+	bh=t8cvA7ACsoRqtlf+1cIWeBrNsN8/Wwzin/LSoLCK2js=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=QzTiCtIU3taQ7G+fJMi906H/POMfTDbL3iexI3NYuyjTcAhGC9svAFTXnq0/OqqVNFAzoA8gP1G0e3529qWZoU52GEuXjjGIz5gv3B93eRIMOyp9l5Mz/DLsrgmXNZTSCgt5kGSaUnk/sK14hP78n7sBwJ9KVz4JwTg6JfTGtw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com; spf=pass smtp.mailfrom=pcpartpicker.com; dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b=HfduvtUY; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pcpartpicker.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="jxsELk38"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=+47otvbGUXbLB4FGQhtbIQKPXCsdvTXIXso8wH7cyLs=; b=jxsELk38PbJqC7KwN84OY6mbwS
-	QpOu087tOXFcKjT8SV52MybqWYbhhHNKfF62rxSkeMld6KJv8g0lOjq+Uv6/V9bTlp+l7RmtYwsJh
-	IHdDtmti6rzgQYU5kzqDGgKB2BX+e/WMRzJGgITQKznzkNzEDuCizE++RMcYk+YTO7gNK2jP16CQF
-	xWDMlgynS1HQze2JsP5dPGnBNXgr6gwCR6dp6JH9hbKXF2wmQYdqM665raWrmg2DIxSt3iqMCQ4EZ
-	Ls7vZYcCRBK9Iy7HbY2uWEBIHi5kdG7vKCLm2S4lsmz6a+FzCEbqvAIdbb5NsrAdB8KdXUMOrMgfI
-	tmZH3kmg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
-	id 1sbIrH-00000005fTF-1jTl
-	for fio@vger.kernel.org;
-	Tue, 06 Aug 2024 12:00:07 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id B86ED1BC0178; Tue,  6 Aug 2024 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20240806120001.B86ED1BC0178@kernel.dk>
-Date: Tue,  6 Aug 2024 06:00:01 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b="HfduvtUY"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5ba43b433beso1058155a12.1
+        for <fio@vger.kernel.org>; Tue, 06 Aug 2024 11:27:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pcpartpicker.com; s=google; t=1722968856; x=1723573656; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=t8cvA7ACsoRqtlf+1cIWeBrNsN8/Wwzin/LSoLCK2js=;
+        b=HfduvtUYVAituFqbp4RvFGUR3q1/Mc9bPoOQ/1Kz4ILmDctDE9aEfeNt6nhKtddG8k
+         Q9L0JTqtp4zVaUU+XcQ91VzIuScL9GAps+NG+jHJjfD6Ks1SCl5xgl/vHqZIet+Xs10B
+         edJZtwDfJTJx4MIER8u+gZZn256a8a+OaNqQ6sddHKTvWLRal7+MkgEC+1ISTL6s/kqw
+         urEWHsxy8IYtGt3xfeXPfjx408yvbDz7P5jfp2SLQnWXE5FCOotg18Ydm3nSn6iWXIlP
+         y9bM4bTWZSI31dQnVKHvt/tgP0Ds+w7XgbWIXm6td6zY3KFP3tRkyYKjBKNroZmDqSny
+         0eoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722968856; x=1723573656;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=t8cvA7ACsoRqtlf+1cIWeBrNsN8/Wwzin/LSoLCK2js=;
+        b=LANUR2TbKV5LfCGJejU3spwCaaMDfUGnAPgrJ/zh/BbC9NUpVZ+/hBbTKBO/bUQJb6
+         oEwyQr+yzZVU8D00w/SrpknrtGzfsuoY1hsRU38c/pyik0kVgtanHFqDLAuT1YKvjAT3
+         zVNYOFkLczmj5sREAxD2tXhXtlb6eAxyIhori0s5XUdK6Q0X2SPg68yEjHjBaumuwGdK
+         fl51+ue8ud9YfCP0II55/0H+kI6YivJ8Ct4yiSnzEaJtYIEO3MMU+OVLMdd2u3cBCQci
+         mUdiXPVnhm9p2Y0GaOR+x/Lrkh0AGb04BCqWj76bevJQOjvCkndgxCtJxnmTMFWXNb1Z
+         28hA==
+X-Gm-Message-State: AOJu0YxALZ/KlwOWzGUSwa6QUWAsfmteIu6cDwppZmz9mIWcR32GIfeT
+	XQ3qrIboUnUvrg6Gk+6lVenQrGOwZbrMch3wHPffLF/G1LwkiE8srJO51KXUomgBMittJgCMbba
+	X9qgKTBFKQb+7ULwE7KxCZq4HuvJWSuIAYmqMpdYp/UoYaQroT4o=
+X-Google-Smtp-Source: AGHT+IF4iMTmqOJrVZXVH/DG4o7u5F7ZpFyR3lFx2hFVvFoDcZqh4aFD7S8auB/V7bjquM6p7b3q/UWdlQ19+pz+MHQ=
+X-Received: by 2002:a17:907:983:b0:a7a:b977:4c9e with SMTP id
+ a640c23a62f3a-a7dc50203e0mr1041783366b.21.1722968856037; Tue, 06 Aug 2024
+ 11:27:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Nick Neumann <nick@pcpartpicker.com>
+Date: Tue, 6 Aug 2024 13:27:24 -0500
+Message-ID: <CADqNVTqgZUs83yTKG_nJnbcg0JgO7y9n=zwk8rh=jr8SwHmVZw@mail.gmail.com>
+Subject: fio and cpu vulnerability mitigation best practices
+To: fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The following changes since commit 40176e3206288e36f01baea86b15d7ff450c3e00:
+We recently moved to Ubuntu 23.10 from 20.04 as our main image for
+benchmarking SSDs. In doing so, we noticed that many devices showed a
+significant drop in random I/O tests, with the drop more pronounced
+the faster the device was. We determined the root cause of the drop
+was the mitigation for the recent AMD SRSO vulnerability:
+https://docs.kernel.org/admin-guide/hw-vuln/srso.html
 
-  Merge branch 'qnx-phys-mem' of https://github.com/mvf/fio (2024-07-26 07:56:01 -0600)
+A notable example is random reads on an m.2 Optane device:
 
-are available in the Git repository at:
+sudo fio --filename=/dev/nvme0n1 --name=job --ioengine=libaio
+--direct=1 --rw=randread --bs=4K --iodepth=8 --runtime=15
+--time_based=1
 
-  git://git.kernel.dk/fio.git master
+With AMD SRSO mitigated: 1249 MiB/s, 320k IOPS
+With AMD SRSO mitigation disabled: 1682 MiB/s, 430k IOPS
 
-for you to fetch changes up to 8ac0eec77e9c25a054ff1fbff243ffdffcd6e858:
+I was looking for feedback on best practices for deciding to disable
+mitigations when benchmarking SSDs. In general I'm hesitant to disable
+mitigations, and all devices are benchmarked with the same settings.
+It can be argued that yes, bandwidth is reduced, but the mitigation is
+similar to using benchmark hardware with a slower CPU, etc. As long as
+all SSDs are benchmarked with the same hardware and settings, all that
+is happening is a compression of the results - faster devices should
+still be faster, just not by as much.
 
-  nvme/streams: avoid allocating too large a buffer (2024-08-05 18:15:24 +0000)
+But this particular mitigation has such a big effect that it makes me
+consider disabling it.
 
-----------------------------------------------------------------
-Vincent Fu (1):
-      nvme/streams: avoid allocating too large a buffer
-
- dataplacement.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/dataplacement.c b/dataplacement.c
-index 399659be..fc45cd27 100644
---- a/dataplacement.c
-+++ b/dataplacement.c
-@@ -52,7 +52,7 @@ static int init_ruh_info(struct thread_data *td, struct fio_file *f)
- 			log_err("fio: stream IDs must be provided for dataplacement=streams\n");
- 			return -EINVAL;
- 		}
--		ruhs = scalloc(1, sizeof(*ruhs) + FIO_MAX_DP_IDS * sizeof(*ruhs->plis));
-+		ruhs = scalloc(1, sizeof(*ruhs) + td->o.dp_nr_ids * sizeof(*ruhs->plis));
- 		if (!ruhs)
- 			return -ENOMEM;
- 
+Thoughts?
