@@ -1,90 +1,172 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95579376E6
-	for <fio@vger.kernel.org>; Tue,  6 Aug 2024 18:27:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 605091E4EF2
+	for <fio@vger.kernel.org>; Wed,  7 Aug 2024 12:00:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722968863; cv=none; b=VAamkn6zf3jsqMvDru5/ZWT46UCRR9r7wW7nmlpYntMXiuYcxpS1aldf7cbtIj/3pnthZf9X3Pu/y62WZECzGk/ySyizuImNUYzBIpSt5z84tguvqNoHLBY4r4uY5zwPmfqzAvIsZqtKQZODXaUsPq9F4hvyhj4O3V7fKGwZZrQ=
+	t=1723032010; cv=none; b=FS2NoE3WqbenWMr1y9iUncgnT41QtXA5aIBoBZ2BkVPRjWpGglKQ+RKBXa14OqfJcJn/RmVTTC0j8c7wrdRotvpXbQKctqhwznNMhvVJoDfdp1wpwidNKN7JTv7udYgbjrcrpIiy56KWCxo7EjEJu72763+YhhIa8pYlx/cBnBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722968863; c=relaxed/simple;
-	bh=t8cvA7ACsoRqtlf+1cIWeBrNsN8/Wwzin/LSoLCK2js=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=QzTiCtIU3taQ7G+fJMi906H/POMfTDbL3iexI3NYuyjTcAhGC9svAFTXnq0/OqqVNFAzoA8gP1G0e3529qWZoU52GEuXjjGIz5gv3B93eRIMOyp9l5Mz/DLsrgmXNZTSCgt5kGSaUnk/sK14hP78n7sBwJ9KVz4JwTg6JfTGtw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com; spf=pass smtp.mailfrom=pcpartpicker.com; dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b=HfduvtUY; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pcpartpicker.com
+	s=arc-20240116; t=1723032010; c=relaxed/simple;
+	bh=MMT3cw0wzJyjB86W+vb4qDpgtogkjPV7ZaeGuk0pml4=;
+	h=Subject:From:To:Message-Id:Date; b=pv1BooVFTjxljdue3gBYKbMzMIcuCC2fiWheY72cfwN6U8MM4LHnrLn5+fhCMwhvAtqz/h6abrhzCFqK15yK9Bb8zH/VnWAIZRQkcQjvp7t214scvjgmNCXLEoIasN9fziMDLffQTn08u238UIZ4lhKx+GslfuDsN3u54IhhF08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=k72JOwA5; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b="HfduvtUY"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5ba43b433beso1058155a12.1
-        for <fio@vger.kernel.org>; Tue, 06 Aug 2024 11:27:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pcpartpicker.com; s=google; t=1722968856; x=1723573656; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=t8cvA7ACsoRqtlf+1cIWeBrNsN8/Wwzin/LSoLCK2js=;
-        b=HfduvtUYVAituFqbp4RvFGUR3q1/Mc9bPoOQ/1Kz4ILmDctDE9aEfeNt6nhKtddG8k
-         Q9L0JTqtp4zVaUU+XcQ91VzIuScL9GAps+NG+jHJjfD6Ks1SCl5xgl/vHqZIet+Xs10B
-         edJZtwDfJTJx4MIER8u+gZZn256a8a+OaNqQ6sddHKTvWLRal7+MkgEC+1ISTL6s/kqw
-         urEWHsxy8IYtGt3xfeXPfjx408yvbDz7P5jfp2SLQnWXE5FCOotg18Ydm3nSn6iWXIlP
-         y9bM4bTWZSI31dQnVKHvt/tgP0Ds+w7XgbWIXm6td6zY3KFP3tRkyYKjBKNroZmDqSny
-         0eoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722968856; x=1723573656;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=t8cvA7ACsoRqtlf+1cIWeBrNsN8/Wwzin/LSoLCK2js=;
-        b=LANUR2TbKV5LfCGJejU3spwCaaMDfUGnAPgrJ/zh/BbC9NUpVZ+/hBbTKBO/bUQJb6
-         oEwyQr+yzZVU8D00w/SrpknrtGzfsuoY1hsRU38c/pyik0kVgtanHFqDLAuT1YKvjAT3
-         zVNYOFkLczmj5sREAxD2tXhXtlb6eAxyIhori0s5XUdK6Q0X2SPg68yEjHjBaumuwGdK
-         fl51+ue8ud9YfCP0II55/0H+kI6YivJ8Ct4yiSnzEaJtYIEO3MMU+OVLMdd2u3cBCQci
-         mUdiXPVnhm9p2Y0GaOR+x/Lrkh0AGb04BCqWj76bevJQOjvCkndgxCtJxnmTMFWXNb1Z
-         28hA==
-X-Gm-Message-State: AOJu0YxALZ/KlwOWzGUSwa6QUWAsfmteIu6cDwppZmz9mIWcR32GIfeT
-	XQ3qrIboUnUvrg6Gk+6lVenQrGOwZbrMch3wHPffLF/G1LwkiE8srJO51KXUomgBMittJgCMbba
-	X9qgKTBFKQb+7ULwE7KxCZq4HuvJWSuIAYmqMpdYp/UoYaQroT4o=
-X-Google-Smtp-Source: AGHT+IF4iMTmqOJrVZXVH/DG4o7u5F7ZpFyR3lFx2hFVvFoDcZqh4aFD7S8auB/V7bjquM6p7b3q/UWdlQ19+pz+MHQ=
-X-Received: by 2002:a17:907:983:b0:a7a:b977:4c9e with SMTP id
- a640c23a62f3a-a7dc50203e0mr1041783366b.21.1722968856037; Tue, 06 Aug 2024
- 11:27:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="k72JOwA5"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=Sa8JLs2+HBFGwQYaByiY7+9uaaxR9KGYeeL4mLA42y0=; b=k72JOwA5/DRaCHRz1CeHYjYPwq
+	rd/d8O8+lTAFDkCM/LbTW4wvQl+uGVIP2p/rh760C1hh8kACSiy2cuNqqTtsTPZ314rj18XxONtif
+	jflDuj1nDKFUGOlrG5715YGqF7NUbCWJ/bDpIy55itTGWhtfUb+dl4HMJk1Jr31cO62XCGHOt591j
+	XqykWWJkvqQY8p9JY/NV85ydl7xE5wO9/w6nZ3YiDwzg+hokAHSl8UdmRhsLOJ7QhJwsM+/Qt/O6+
+	wB26osxPt5RsZFqmDh1w6aNfa924i9h1uZSr6Wm5XRuXqh45Y3JGNnw1AoxvuKX/nCdIxnKycgZt/
+	VmBXpjyw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.97.1 #2 (Red Hat Linux))
+	id 1sbfKl-00000007G8I-3IlQ
+	for fio@vger.kernel.org;
+	Wed, 07 Aug 2024 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id A42F91BC0163; Wed,  7 Aug 2024 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240807120001.A42F91BC0163@kernel.dk>
+Date: Wed,  7 Aug 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: Nick Neumann <nick@pcpartpicker.com>
-Date: Tue, 6 Aug 2024 13:27:24 -0500
-Message-ID: <CADqNVTqgZUs83yTKG_nJnbcg0JgO7y9n=zwk8rh=jr8SwHmVZw@mail.gmail.com>
-Subject: fio and cpu vulnerability mitigation best practices
-To: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-We recently moved to Ubuntu 23.10 from 20.04 as our main image for
-benchmarking SSDs. In doing so, we noticed that many devices showed a
-significant drop in random I/O tests, with the drop more pronounced
-the faster the device was. We determined the root cause of the drop
-was the mitigation for the recent AMD SRSO vulnerability:
-https://docs.kernel.org/admin-guide/hw-vuln/srso.html
+The following changes since commit 8ac0eec77e9c25a054ff1fbff243ffdffcd6e858:
 
-A notable example is random reads on an m.2 Optane device:
+  nvme/streams: avoid allocating too large a buffer (2024-08-05 18:15:24 +0000)
 
-sudo fio --filename=/dev/nvme0n1 --name=job --ioengine=libaio
---direct=1 --rw=randread --bs=4K --iodepth=8 --runtime=15
---time_based=1
+are available in the Git repository at:
 
-With AMD SRSO mitigated: 1249 MiB/s, 320k IOPS
-With AMD SRSO mitigation disabled: 1682 MiB/s, 430k IOPS
+  git://git.kernel.dk/fio.git master
 
-I was looking for feedback on best practices for deciding to disable
-mitigations when benchmarking SSDs. In general I'm hesitant to disable
-mitigations, and all devices are benchmarked with the same settings.
-It can be argued that yes, bandwidth is reduced, but the mitigation is
-similar to using benchmark hardware with a slower CPU, etc. As long as
-all SSDs are benchmarked with the same hardware and settings, all that
-is happening is a compression of the results - faster devices should
-still be faster, just not by as much.
+for you to fetch changes up to 55b10ccca6a2ba623360a38c3fdf7332461646bb:
 
-But this particular mitigation has such a big effect that it makes me
-consider disabling it.
+  Merge branch 'master' of https://github.com/scaleoutsean/fio (2024-08-06 09:17:03 -0600)
 
-Thoughts?
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'master' of https://github.com/scaleoutsean/fio
+
+Sean Lee (1):
+      Improve http_host, filename in docs and example/http-s3.fio
+
+ HOWTO.rst            | 14 ++++++++++++--
+ examples/http-s3.fio | 16 +++++++++++++---
+ fio.1                | 11 +++++++++--
+ 3 files changed, 34 insertions(+), 7 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 9eeb203e..11b1c669 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -805,6 +805,11 @@ Target file/device
+ 	Note: Windows and FreeBSD (refer to geom(4)) prevent write access to areas
+ 	of the disk containing in-use data (e.g. filesystems).
+ 
++	For HTTP and S3 access, specify a valid URL path or S3 key, respectively.
++	A filename for path-style S3 includes a bucket name (:file:`/bucket/k/e.y`)
++	while a virtual-hosted-style S3 filename :file:`/k/e.y` does not because 
++	its bucket name is specified in :option:`http_host`.
++
+ 	The filename "`-`" is a reserved name, meaning *stdin* or *stdout*.  Which
+ 	of the two depends on the read/write direction set.
+ 
+@@ -2934,8 +2939,13 @@ with the caveat that when used on the command line, they must come after the
+ 
+ .. option:: http_host=str : [http]
+ 
+-	Hostname to connect to. For S3, this could be the bucket hostname.
+-	Default is **localhost**
++	Hostname to connect to. HTTP port 80 is used automatically when the value of 
++	the https parameter is *off*, and HTTPS port 443 if it is *on*. A 
++	virtual-hosted-style S3 hostname starts with a bucket name, while a 
++	path-style S3 hostname does not. See 
++	https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html for 
++	detailed examples.
++	Default is **localhost** (path-style S3 hostname)
+ 
+ .. option:: http_user=str : [http]
+ 
+diff --git a/examples/http-s3.fio b/examples/http-s3.fio
+index 2dcae364..c16e89b1 100644
+--- a/examples/http-s3.fio
++++ b/examples/http-s3.fio
+@@ -1,19 +1,29 @@
+ # Example test for the HTTP engine's S3 support against Amazon AWS.
+ # Obviously, you have to adjust the S3 credentials; for this example,
+ # they're passed in via the environment.
+-#
++# For non-AWS S3 implementations, refer to your S3 vendor's region 
++# settings. Note that the region value appears twice, in http_host and 
++# http_s3_region.
++# This example uses virtual-hosted-style requests:
++# https://bucket-name.s3.region-code.amazonaws.com/k/e.y
++# For path-style, prefix the key with the bucket name in the filename
++# so that filename=/bucket-name/k/e.y:
++# https://s3.region-code.amazonaws.com/bucket-name/k/e.y
++
++# Reference for Virtual-hosted-style vs. Path-style URLs:
++# https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html
+ 
+ [global]
+ ioengine=http
+ name=test
+ direct=1
+-filename=/larsmb-fio-test/object
++filename=/k/e.y
+ http_verbose=0
+ https=on
+ http_mode=s3
+ http_s3_key=${S3_KEY}
+ http_s3_keyid=${S3_ID}
+-http_host=s3.eu-central-1.amazonaws.com
++http_host=bucket-name.s3.eu-central-1.amazonaws.com
+ http_s3_region=eu-central-1
+ group_reporting
+ 
+diff --git a/fio.1 b/fio.1
+index 15bafbf9..6db76b2c 100644
+--- a/fio.1
++++ b/fio.1
+@@ -585,6 +585,11 @@ the first device, `\\\\.\\PhysicalDrive1' for the second etc.
+ Note: Windows and FreeBSD prevent write access to areas
+ of the disk containing in-use data (e.g. filesystems).
+ .P
++For HTTP and S3 access, specify a valid URL path or S3 key, respectively. 
++A filename for path-style S3 includes a bucket name (`/bucket/k/e.y') 
++while a virtual-hosted-style S3 filename (`/k/e.y') does not because its 
++bucket name is specified in \fBhttp_host\fR.
++.P
+ The filename `\-' is a reserved name, meaning *stdin* or *stdout*. Which
+ of the two depends on the read/write direction set.
+ .RE
+@@ -2554,8 +2559,10 @@ Touching all objects affects ceph caches and likely impacts test results.
+ Enabled by default.
+ .TP
+ .BI (http)http_host \fR=\fPstr
+-Hostname to connect to. For S3, this could be the bucket name. Default
+-is \fBlocalhost\fR
++Hostname to connect to.  HTTP port 80 is used automatically when the value 
++of the \fBhttps\fP parameter is \fRoff\fP, and HTTPS port 443 if it is \Ron\fP.  
++A virtual-hosted-style S3 hostname starts with a bucket name, while a 
++path-style S3 hostname does not.  Default is \fBlocalhost\fR.
+ .TP
+ .BI (http)http_user \fR=\fPstr
+ Username for HTTP authentication.
