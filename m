@@ -1,56 +1,56 @@
 Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FF3E146D6A
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D6B014A0B7
 	for <fio@vger.kernel.org>; Tue, 27 Aug 2024 07:09:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724742543; cv=none; b=IliFeKNJ5qRd8CzYTMEAsH569Ac0aY/2DA6Zk4KewXyKStuDm1GI+p4lZvJKGjGJVGVgW2OxG3E5J4hC/7E19JyK5HKvTzWqdjuewaUt2u1WlWyvayp1tyWCcAUAhvVU/1t04xwuYCM4C/Ljrx7+GKI6Mz1DoK0RfpaUR/ib8tI=
+	t=1724742543; cv=none; b=UpRfK/NKMToNNlXEpePnBrZhPCH3oU9hSyR5htujhfkk5rv9YA4EjwSHlN4YUudN1F6Urj9l3cYVBzx+kbSHbbMNS0FzTFVFZsS/O9Rb93Se89YWtgz2zZ5OfufE9G4EZX2BmNhXuL3GvbbHDpc+gmg3w7GG0vFjdyaBPTDEhmA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1724742543; c=relaxed/simple;
-	bh=terMpmijEQ3x5DxmDIUaO3yrl2iKNXeLs3m0li5NaqM=;
+	bh=GF7tT8rnJRQOzXfigTlCQwDYBre5ArV+8EyBpgGwios=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FuI+NyOWdDX+i1pcnEQCE42pTFlF4us0/VH8cnF9pDFx1Zy2hZ/nSF1R5/7DGOjsLWJUuYp6DqLf5OSvrR+ZO4ey9zFAUXHGxmDlFuG5/1o4X5Ubz7q1N+jnHTS8h95tT/6w/CDX5MTWj3dR8oOUz6ntajoQPC8jXKEZklZxMbU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=MFiA6g4d; arc=none smtp.client-ip=216.71.154.45
+	 MIME-Version; b=XU9yI688ZqV5H5XPwS3K8nteHw8iKJBgpfZR7I5WK6AWmxs+7RXGSjsZjzmsS9zQHpBZtKTL3ErqlEGfQgJ/A9jo5C2c+0f8I4FY+ZMco/q/QP79UeTnYTid/uMyHfiL608b5ArNxNM4FpTyOuWbe4+ZOyTziLM8jWLck6pBqSs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=HY9SQ/12; arc=none smtp.client-ip=216.71.154.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="MFiA6g4d"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="HY9SQ/12"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1724742541; x=1756278541;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=terMpmijEQ3x5DxmDIUaO3yrl2iKNXeLs3m0li5NaqM=;
-  b=MFiA6g4dIhFyk/NE4kGAUDCQxo5Y2CFTNAkUdaODmxWWpDBDoOF0w0hd
-   H/UMoJhi+nIWcX2t2aGBPDRzEDF3PdIsRwRUZnh9PKL3laY3eSvg8mmFV
-   tb6ojO9Qwe0pakgC18c/dgwq9w+LwTG/c4a+Jr2t74B2rBY0TZoOfWluC
-   YNrIPCllgJF2dfaH+jl6qw4BbhBbYoBflw6x+HPO3WLxF6MVtNz+69iA5
-   fiDoWnOVOmy5AK8CwdvK0TBprDBVmks0kKLmdZUi+0LqTn47W5mwBk4+Y
-   BFE6Ukw+njIdMy4Q9Dbsqg6bFjTCWpVoG0v7tfjzymxWUz4H1yoUQewJ9
+  bh=GF7tT8rnJRQOzXfigTlCQwDYBre5ArV+8EyBpgGwios=;
+  b=HY9SQ/12D2QlXsZT2S66QVMgTMxoEr+X1Mnfw5lsGG51OOdQ+ki53zt/
+   xn1aNofUrDjpiJQR41jtV61gJhC+Y2PCUIVZpTEY2gjTGQg+pivFdUwrw
+   M8km8CcTU/b2km3emE2j97kAtgrMO2oz65d7FiJWFAak1ShER5KlXt/CE
+   nyVNlq5sOORxaQGWWveF8TN82HEXUugfADw0rSdXmByX3Ycuac1FFpIkp
+   xXw3JA41GuFI25JQOotFERkFrwTaySwo0AiiFwBG1Vh4UPsW9RsVaJSNi
+   BADzKSNXAvzDjU7fE92YUbRTDhk+fBS7gkAhfb5qAmcp4e0UV5RyCIcck
    g==;
-X-CSE-ConnectionGUID: PycjSpThTYCvG+H1KQ0qFQ==
-X-CSE-MsgGUID: ugEuqKyQQz2b6Psrmwejsw==
+X-CSE-ConnectionGUID: VLIPKBHmTbWwv23LxormUQ==
+X-CSE-MsgGUID: gHHmoOnCQ+2B1XYS5kbVpQ==
 X-IronPort-AV: E=Sophos;i="6.10,179,1719849600"; 
-   d="scan'208";a="25297869"
+   d="scan'208";a="25297870"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Aug 2024 15:08:54 +0800
-IronPort-SDR: 66cd6ec7_XlbV6NGbialsAst9+DXrZjD79I0FHNzclCy5L5zTjCfOGAR
- HlSICJNZ4gcz9/hCLjFBboUHHGgMMHecHtsBw2g==
+  by ob1.hgst.iphmx.com with ESMTP; 27 Aug 2024 15:08:55 +0800
+IronPort-SDR: 66cd6ec8_nw63vXpstvrHwnqFE5UVu9H1MsOTWcttlge8yDN3j1RP0Ep
+ RAH4xmBaLKm1+7hkhYcV7YWkNBlInqhlONjfLYg==
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Aug 2024 23:14:32 -0700
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Aug 2024 23:14:33 -0700
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 27 Aug 2024 00:08:53 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 27 Aug 2024 00:08:54 -0700
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 2/9] stat: reduce arguments of add_log_sample()
-Date: Tue, 27 Aug 2024 16:08:43 +0900
-Message-ID: <20240827070850.947037-3-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 3/9] iolog: refactor flush_samples()
+Date: Tue, 27 Aug 2024 16:08:44 +0900
+Message-ID: <20240827070850.947037-4-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240827070850.947037-1-shinichiro.kawasaki@wdc.com>
 References: <20240827070850.947037-1-shinichiro.kawasaki@wdc.com>
@@ -62,278 +62,181 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The number of arguments of add_log_sample() has increased as fields get
-added to the log file format. Five parameters of them (data, ddir, bs,
-offset and priority) are passed to __add_log_sample(). This makes the
-function look more complicated and log field addition harder. To
-simplify the function, pack the five arguments into the new struct
-log_sample.
+flush_samples() controls the log file format depending on the options
+log_avg_msec, log_window_value, log_offset and log_prio. It has deeply
+nested branches to check the options. These nested branches make it
+difficult to add more fields to the log file format. For ease of the log
+file format improvements, refactor the function. Instead of checking all
+conditions at once, check each condition one by one, generate small
+strings for each field and add them to the final string to output. For
+this purpose, introduce the new function print_sample_fields() which
+generates each field string.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- stat.c | 117 ++++++++++++++++++++++++++++++++++-----------------------
- 1 file changed, 70 insertions(+), 47 deletions(-)
+ iolog.c | 131 +++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 67 insertions(+), 64 deletions(-)
 
-diff --git a/stat.c b/stat.c
-index fac6d534..03681b9d 100644
---- a/stat.c
-+++ b/stat.c
-@@ -24,6 +24,14 @@
- #define LOG_MSEC_SLACK	1
- #endif
- 
-+struct log_sample {
-+	union io_sample_data data;
-+	uint32_t ddir;
-+	uint64_t bs;
-+	uint64_t offset;
-+	uint16_t priority;
-+};
-+
- struct fio_sem *stat_sem;
- 
- void clear_rusage_stat(struct thread_data *td)
-@@ -3031,17 +3039,15 @@ static struct io_logs *get_cur_log(struct io_log *iolog)
- 	return iolog->pending;
+diff --git a/iolog.c b/iolog.c
+index f727c97f..06b51ea0 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -1009,13 +1009,42 @@ static void flush_hist_samples(FILE *f, int hist_coarseness, void *samples,
+ 	}
  }
  
--static void __add_log_sample(struct io_log *iolog, union io_sample_data data,
--			     enum fio_ddir ddir, unsigned long long bs,
--			     unsigned long t, uint64_t offset,
--			     unsigned int priority)
-+static void __add_log_sample(struct io_log *iolog, unsigned long t,
-+			     struct log_sample *sample)
++static int print_sample_fields(char **p, size_t *left, const char *fmt, ...) {
++	va_list ap;
++	int ret;
++
++	va_start(ap, fmt);
++	ret = vsnprintf(*p, *left, fmt, ap);
++	if (ret < 0 || ret >= *left) {
++		log_err("sample file write failed: %d\n", ret);
++		return -1;
++	}
++	va_end(ap);
++
++	*p += ret;
++	*left -= ret;
++
++	return 0;
++}
++
++/*
++ * flush_samples - Generate output for log samples
++ * Each sample output is built using a temporary buffer. This buffer size
++ * assumptions are:
++ * - Each sample has less than 10 fields
++ * - Each sample field fits in 25 characters (20 digits for 64 bit number
++ *   and a few bytes delimiter)
++ */
+ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
  {
- 	struct io_logs *cur_log;
+ 	struct io_sample *s;
+-	int log_offset, log_prio, log_avg_max;
++	struct io_sample_offset *sa;
++	bool log_offset, log_prio, log_avg_max;
+ 	uint64_t i, nr_samples;
+-	unsigned int prio_val;
+-	const char *fmt;
++	char buf[256];
++	char *p;
++	size_t left;
++	int ret;
  
- 	if (iolog->disabled)
+ 	if (!sample_size)
  		return;
- 	if (flist_empty(&iolog->io_logs))
--		iolog->avg_last[ddir] = t;
-+		iolog->avg_last[sample->ddir] = t;
+@@ -1025,75 +1054,49 @@ void flush_samples(FILE *f, void *samples, uint64_t sample_size)
+ 	log_prio = (s->__ddir & LOG_PRIO_SAMPLE_BIT) != 0;
+ 	log_avg_max = (s->__ddir & LOG_AVG_MAX_SAMPLE_BIT) != 0;
  
- 	cur_log = get_cur_log(iolog);
- 	if (cur_log) {
-@@ -3049,18 +3055,18 @@ static void __add_log_sample(struct io_log *iolog, union io_sample_data data,
- 
- 		s = get_sample(iolog, cur_log, cur_log->nr_samples);
- 
--		s->data = data;
-+		s->data = sample->data;
- 		s->time = t;
- 		if (iolog->td && iolog->td->o.log_alternate_epoch)
- 			s->time += iolog->td->alternate_epoch;
--		io_sample_set_ddir(iolog, s, ddir);
--		s->bs = bs;
--		s->priority = priority;
-+		io_sample_set_ddir(iolog, s, sample->ddir);
-+		s->bs = sample->bs;
-+		s->priority = sample->priority;
- 
- 		if (iolog->log_offset) {
- 			struct io_sample_offset *so = (void *) s;
- 
--			so->offset = offset;
-+			so->offset = sample->offset;
- 		}
- 
- 		cur_log->nr_samples++;
-@@ -3157,20 +3163,21 @@ static void __add_stat_to_log(struct io_log *iolog, enum fio_ddir ddir,
- 	 * had actual samples done.
- 	 */
- 	if (iolog->avg_window[ddir].samples) {
--		union io_sample_data data;
-+		struct log_sample sample = { {{ 0, 0 }}, ddir, 0, 0, 0 };
-+		union io_sample_data *d = &sample.data;
- 
- 		if (log_max == IO_LOG_SAMPLE_AVG) {
--			data.val.val0 = iolog->avg_window[ddir].mean.u.f + 0.50;
--			data.val.val1 = 0;
-+			d->val.val0 = iolog->avg_window[ddir].mean.u.f + 0.50;
-+			d->val.val1 = 0;
- 		} else if (log_max == IO_LOG_SAMPLE_MAX) {
--			data.val.val0 = iolog->avg_window[ddir].max_val;
--			data.val.val1 = 0;
-+			d->val.val0 = iolog->avg_window[ddir].max_val;
-+			d->val.val1 = 0;
- 		} else {
--			data.val.val0 = iolog->avg_window[ddir].mean.u.f + 0.50;
--			data.val.val1 = iolog->avg_window[ddir].max_val;
-+			d->val.val0 = iolog->avg_window[ddir].mean.u.f + 0.50;
-+			d->val.val1 = iolog->avg_window[ddir].max_val;
- 		}
- 
--		__add_log_sample(iolog, data, ddir, 0, elapsed, 0, 0);
-+		__add_log_sample(iolog, elapsed, &sample);
- 	}
- 
- 	reset_io_stat(&iolog->avg_window[ddir]);
-@@ -3187,11 +3194,10 @@ static void _add_stat_to_log(struct io_log *iolog, unsigned long elapsed,
- 
- static unsigned long add_log_sample(struct thread_data *td,
- 				    struct io_log *iolog,
--				    union io_sample_data data,
--				    enum fio_ddir ddir, unsigned long long bs,
--				    uint64_t offset, unsigned int ioprio)
-+				    struct log_sample *sample)
- {
- 	unsigned long elapsed, this_window;
-+	enum fio_ddir ddir = sample->ddir;
- 
- 	if (!ddir_rw(ddir))
- 		return 0;
-@@ -3202,8 +3208,7 @@ static unsigned long add_log_sample(struct thread_data *td,
- 	 * If no time averaging, just add the log sample.
- 	 */
- 	if (!iolog->avg_msec) {
--		__add_log_sample(iolog, data, ddir, bs, elapsed, offset,
--				 ioprio);
-+		__add_log_sample(iolog, elapsed, sample);
- 		return 0;
- 	}
- 
-@@ -3211,7 +3216,7 @@ static unsigned long add_log_sample(struct thread_data *td,
- 	 * Add the sample. If the time period has passed, then
- 	 * add that entry to the log and clear.
- 	 */
--	add_stat_sample(&iolog->avg_window[ddir], data.val.val0);
-+	add_stat_sample(&iolog->avg_window[ddir], sample->data.val.val0);
- 
- 	/*
- 	 * If period hasn't passed, adding the above sample is all we
-@@ -3256,12 +3261,13 @@ void add_agg_sample(union io_sample_data data, enum fio_ddir ddir,
- 		    unsigned long long bs)
- {
- 	struct io_log *iolog;
-+	struct log_sample sample = { data, ddir, bs, 0, 0 };
- 
- 	if (!ddir_rw(ddir))
- 		return;
- 
- 	iolog = agg_io_log[ddir];
--	__add_log_sample(iolog, data, ddir, bs, mtime_since_genesis(), 0, 0);
-+	__add_log_sample(iolog, mtime_since_genesis(), &sample);
- }
- 
- void add_sync_clat_sample(struct thread_stat *ts, unsigned long long nsec)
-@@ -3331,9 +3337,12 @@ void add_clat_sample(struct thread_data *td, enum fio_ddir ddir,
- 		add_stat_prio_sample(ts->clat_prio[ddir], clat_prio_index,
- 				     nsec);
- 
--	if (td->clat_log)
--		add_log_sample(td, td->clat_log, sample_val(nsec), ddir, bs,
--			       offset, ioprio);
-+	if (td->clat_log) {
-+		struct log_sample sample = { sample_val(nsec), ddir, bs,
-+			offset, ioprio };
-+
-+		add_log_sample(td, td->clat_log, &sample);
-+	}
- 
- 	if (ts->clat_percentiles) {
- 		/*
-@@ -3359,6 +3368,8 @@ void add_clat_sample(struct thread_data *td, enum fio_ddir ddir,
- 		if (this_window >= iolog->hist_msec) {
- 			uint64_t *io_u_plat;
- 			struct io_u_plat_entry *dst;
-+			struct log_sample sample = { {{ 0, 0 }}, ddir, bs,
-+				offset, ioprio };
- 
- 			/*
- 			 * Make a byte-for-byte copy of the latency histogram
-@@ -3372,8 +3383,9 @@ void add_clat_sample(struct thread_data *td, enum fio_ddir ddir,
- 			memcpy(&(dst->io_u_plat), io_u_plat,
- 				FIO_IO_U_PLAT_NR * sizeof(uint64_t));
- 			flist_add(&dst->list, &hw->list);
--			__add_log_sample(iolog, sample_plat(dst), ddir, bs,
--					 elapsed, offset, ioprio);
-+
-+			sample.data = sample_plat(dst);
-+			__add_log_sample(iolog, elapsed, &sample);
- 
- 			/*
- 			 * Update the last time we recorded as being now, minus
-@@ -3407,9 +3419,12 @@ void add_slat_sample(struct thread_data *td, struct io_u *io_u)
- 
- 	add_stat_sample(&ts->slat_stat[ddir], nsec);
- 
--	if (td->slat_log)
--		add_log_sample(td, td->slat_log, sample_val(nsec), ddir,
--			       io_u->xfer_buflen, io_u->offset, io_u->ioprio);
-+	if (td->slat_log) {
-+		struct log_sample sample = { sample_val(nsec), ddir,
-+			io_u->xfer_buflen, io_u->offset, io_u->ioprio };
-+
-+		add_log_sample(td, td->slat_log, &sample);
-+	}
- 
- 	if (ts->slat_percentiles)
- 		add_lat_percentile_sample(ts, nsec, ddir, FIO_SLAT);
-@@ -3433,9 +3448,12 @@ void add_lat_sample(struct thread_data *td, enum fio_ddir ddir,
- 
- 	add_stat_sample(&ts->lat_stat[ddir], nsec);
- 
--	if (td->lat_log)
--		add_log_sample(td, td->lat_log, sample_val(nsec), ddir, bs,
--			       io_u->offset, io_u->ioprio);
-+	if (td->lat_log) {
-+		struct log_sample sample = { sample_val(nsec), ddir, bs,
-+			io_u->offset, io_u->ioprio };
-+
-+		add_log_sample(td, td->lat_log, &sample);
-+	}
- 
- 	/*
- 	 * When lat_percentiles=1 (default 0), the reported per priority
-@@ -3475,9 +3493,12 @@ void add_bw_sample(struct thread_data *td, struct io_u *io_u,
- 
- 	add_stat_sample(&ts->bw_stat[io_u->ddir], rate);
- 
--	if (td->bw_log)
--		add_log_sample(td, td->bw_log, sample_val(rate), io_u->ddir,
--			       bytes, io_u->offset, io_u->ioprio);
-+	if (td->bw_log) {
-+		struct log_sample sample = { sample_val(rate), io_u->ddir,
-+			bytes, io_u->offset, io_u->ioprio };
-+
-+		add_log_sample(td, td->bw_log, &sample);
-+	}
- 
- 	td->stat_io_bytes[io_u->ddir] = td->this_io_bytes[io_u->ddir];
- 
-@@ -3526,13 +3547,12 @@ static int __add_samples(struct thread_data *td, struct timespec *parent_tv,
- 		add_stat_sample(&stat[ddir], rate);
- 
- 		if (log) {
--			unsigned long long bs = 0;
-+			struct log_sample sample = {
-+				sample_val(rate), ddir, 0, 0, 0 };
- 
- 			if (td->o.min_bs[ddir] == td->o.max_bs[ddir])
--				bs = td->o.min_bs[ddir];
+-	if (log_offset) {
+-		if (log_prio) {
+-			if (log_avg_max)
+-				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
+-			else
+-				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, 0x%04x\n";
+-		} else {
+-			if (log_avg_max)
+-				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
+-			else
+-				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %llu, %u\n";
+-		}
+-	} else {
+-		if (log_prio) {
+-			if (log_avg_max)
+-				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
+-			else
+-				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, 0x%04x\n";
+-		} else {
+-			if (log_avg_max)
+-				fmt = "%" PRIu64 ", %" PRId64 ", %" PRId64 ", %u, %llu, %u\n";
+-			else
+-				fmt = "%" PRIu64 ", %" PRId64 ", %u, %llu, %u\n";
+-		}
+-	}
 -
--			next = add_log_sample(td, log, sample_val(rate), ddir,
--					      bs, 0, 0);
-+				sample.bs = td->o.min_bs[ddir];
-+			next = add_log_sample(td, log, &sample);
- 			next_log = min(next_log, next);
- 		}
+ 	nr_samples = sample_size / __log_entry_sz(log_offset);
  
-@@ -3570,9 +3590,12 @@ void add_iops_sample(struct thread_data *td, struct io_u *io_u,
- 
- 	add_stat_sample(&ts->iops_stat[io_u->ddir], 1);
- 
--	if (td->iops_log)
--		add_log_sample(td, td->iops_log, sample_val(1), io_u->ddir,
--			       bytes, io_u->offset, io_u->ioprio);
-+	if (td->iops_log) {
-+		struct log_sample sample = { sample_val(1), io_u->ddir, bytes,
-+			io_u->offset, io_u->ioprio };
+ 	for (i = 0; i < nr_samples; i++) {
+ 		s = __get_sample(samples, log_offset, i);
++		sa = (void *) s;
++		p = buf;
++		left = sizeof(buf);
 +
-+		add_log_sample(td, td->iops_log, &sample);
-+	}
++		ret = print_sample_fields(&p, &left, "%" PRIu64 ", %" PRId64,
++					  s->time, s->data.val.val0);
++		if (ret)
++			return;
++
++		if (log_avg_max) {
++			ret = print_sample_fields(&p, &left, ", %" PRId64,
++						  s->data.val.val1);
++			if (ret)
++				return;
++		}
++
++		ret = print_sample_fields(&p, &left, ", %u, %llu",
++					  io_sample_ddir(s),
++					  (unsigned long long) s->bs);
++		if (ret)
++			return;
++
++		if (log_offset) {
++			ret = print_sample_fields(&p, &left, ", %llu",
++						  (unsigned long long) sa->offset);
++			if (ret)
++				return;
++		}
  
- 	td->stat_io_blocks[io_u->ddir] = td->this_io_blocks[io_u->ddir];
+ 		if (log_prio)
+-			prio_val = s->priority;
++			ret = print_sample_fields(&p, &left, ", 0x%04x",
++						  s->priority);
+ 		else
+-			prio_val = ioprio_value_is_class_rt(s->priority);
++			ret = print_sample_fields(&p, &left, ", %u",
++						  ioprio_value_is_class_rt(s->priority));
++		if (ret)
++			return;
+ 
+-		if (!log_offset) {
+-			if (log_avg_max)
+-				fprintf(f, fmt,
+-					s->time,
+-					s->data.val.val0,
+-					s->data.val.val1,
+-					io_sample_ddir(s), (unsigned long long) s->bs,
+-					prio_val);
+-			else
+-				fprintf(f, fmt,
+-					s->time,
+-					s->data.val.val0,
+-					io_sample_ddir(s), (unsigned long long) s->bs,
+-					prio_val);
+-		} else {
+-			struct io_sample_offset *so = (void *) s;
+-
+-			if (log_avg_max)
+-				fprintf(f, fmt,
+-					s->time,
+-					s->data.val.val0,
+-					s->data.val.val1,
+-					io_sample_ddir(s), (unsigned long long) s->bs,
+-					(unsigned long long) so->offset,
+-					prio_val);
+-			else
+-				fprintf(f, fmt,
+-					s->time,
+-					s->data.val.val0,
+-					io_sample_ddir(s), (unsigned long long) s->bs,
+-					(unsigned long long) so->offset,
+-					prio_val);
+-		}
++		fprintf(f, "%s\n", buf);
+ 	}
+ }
  
 -- 
 2.45.2
