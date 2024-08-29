@@ -1,60 +1,59 @@
-Received: from mail-io1-f48.google.com (mail-io1-f48.google.com [209.85.166.48])
+Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1166615CD62
-	for <fio@vger.kernel.org>; Thu, 29 Aug 2024 13:16:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 354CA1A7047
+	for <fio@vger.kernel.org>; Thu, 29 Aug 2024 17:08:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724937395; cv=none; b=ZK3J4kLqZ9Yqx8dtEwYEkp6HybMyqvHlCVF384Nxh2hYvcvfvIanEeKfCh+Dcp3EthNuHS6lPaDnuEXez5dVOkJqQqw82FJxN+iYIE1mM2Gpk320+qcPOPsFXedeRuRU4t0FsFkLFZL2nekbanKr+iJDAmkXR+lrK6VhZFM29Yw=
+	t=1724951284; cv=none; b=JvXXUPM3qtYZlsRRgcvRUOvHpkRU4G4ZzCR6sNdCdCVVqAT+rX3DhGxsezjU9FaR0cbU96N0pl3cDuhoZQMKT1mL6kZ5I1lG4Yr/Uems8nKQocmywAvbiwHexZAHWOd114fUVtfhaLmE4hn2xh3amzQpUwYH3J9oISgePSqMekA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724937395; c=relaxed/simple;
-	bh=9oY0N1p5wzVdlUBFV73GM7c+TpQ+zJriwmDM5qEaF/Q=;
+	s=arc-20240116; t=1724951284; c=relaxed/simple;
+	bh=VQrGRtlW9qwjMvL4AoVRxQqeGQLjBYd/Y0XpNVxP9Jg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XZtBAjDl6XNU/j94q+rySX/9P89Wmoqy+zPalxYuG6brZgLtGavcLvg1XOYoB9z0RSisDaRUYMbmi+AledYZAKbJ6NBwz4sTE55gwLfeIn7sH+i2g2xVjxUYoC/tRm0jVqy6t6t+Uit2BClatiaydVlnXSbcTYdnawc4d5+RyPg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=FsBJBD1O; arc=none smtp.client-ip=209.85.166.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	 In-Reply-To:Content-Type; b=hv4zADJmCRYg4HHHqkB9R+AGnspo43Rw8Z0JRkAqzc+YvtOrJGmTVMohqezhQH86c3OVtJbpObAwBgC+G1dJG9x5ZsGyS4Rf19bnyTNA5s/6aFRpkzjTF6QyTYoAn5kSZtUNGRrJqoIR/zXOvaPzqcUPTmTv+yL50Qn9xbqpM1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lDsU4TZa; arc=none smtp.client-ip=209.85.161.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="FsBJBD1O"
-Received: by mail-io1-f48.google.com with SMTP id ca18e2360f4ac-829e8718502so30487539f.3
-        for <fio@vger.kernel.org>; Thu, 29 Aug 2024 06:16:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lDsU4TZa"
+Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-5df96759e37so650247eaf.2
+        for <fio@vger.kernel.org>; Thu, 29 Aug 2024 10:08:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1724937392; x=1725542192; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1724951282; x=1725556082; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=pk9WvI4ZT9gNNpe2ApntPfDP6ZIqu5I3IA6ZQjYdOy0=;
-        b=FsBJBD1OxHwQDB4rsfAxYzSL+n7pjG42+3t6++W5wNPw6b7lHChHwHAxpU2F/Z2GB2
-         LnLjgT8iYf4rkHYSvTqXtO/Otgxkosk0ZgXsVE1m/0Bs5wHj3ag9pawbXeb8yrpsPf2z
-         9rOK5mETa+iKZ+oe6ZS0pUX1r0bov3WZvtQV4ryXp7wPJlCAegYHHsW4FIWmicrEIe5g
-         /6meaSKe51nIUqKzwc23rRi6RWOYxW1aVdpSJm/AniQN2fNRRtudNzbSaIUa/uWPWhNE
-         QsiPJkLhnVjuDU98ydX/wGc8qjsXRhuiyd07zM2hifU6nt2PrR79BfgW9y38Nfu9C7tF
-         m7HA==
+        bh=LuQ5iDfnCNDM9h6dMTQyhIigQD/lF6scgKELplW+ISs=;
+        b=lDsU4TZa9UVZLqOn+kGXdn5VDAsQfidoUw5HO0+hoWnjRMSSw043w1PxCAMWYZUdhG
+         qe9DIeie3fuCcGzGlWz8dGCmOhDJn2z4xaBWTmE9ms2b71tQ+yPOLL59nzFDiESngluL
+         qpNmeaIDB8bXK/Ot7Q7VKZzi+BAQQ9pCz+XuJ1hiQH2WUt1pzijvOdgESuNcE2SjDx4T
+         mRzGnOuj6WFfesn4V5U9F2vkokczP94bqUHLf+sU2/0SY7+RbLfXTvRsAZpmnnpRzuwF
+         upwUfywiaycb8EY7YyfZbY20TDknVAmF5ayVASJJtl/vxWF6hlYDwCczz+h6/pWhlEtw
+         PNKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724937392; x=1725542192;
+        d=1e100.net; s=20230601; t=1724951282; x=1725556082;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pk9WvI4ZT9gNNpe2ApntPfDP6ZIqu5I3IA6ZQjYdOy0=;
-        b=PvAgOBH1Eex795LPXOUe1qQ1iVU0DOYsl1MGR83Iv9R6L/cuS4gDeic07dbTYQHmkT
-         57fYBjckHSGkBdYxOXTB2fhroiPfbKU0L6jSUUQ/CvuEP6X+oRVo/oXqPXzQytkMnQLu
-         WoVrNu55J5LSFa4zv0XmBYwmtDsQWpS7MvI6rTwkrYe0IZWPHuRrMb4qCDyYcdKV/ars
-         ronXLZ6TfhS/Dt/g82aAWfts28wImnFpIEvZGbz3pLy7YHyD86g/yWd4LpKknxE33N9y
-         qJtqY6+iLK4U9Q5cBGSqk4j1ivqNauu0p6fmov58s2bi2IagqrG83KJx1OYgNROYTmcG
-         g1lw==
-X-Forwarded-Encrypted: i=1; AJvYcCVzqUlqBo9FFv/3kajs4eBDoYiVaqHNu6vZ1KuGgeDpa0Mr42wE9x95OwEaBec8CUp+xlE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyZiveqxo+ztmck6kPb5jyEqjkhf/vRZ+29p+4DfhpTp3drFU1z
-	0d+5elKwyBWEUFm+2+qgz6lOBRazhzG0O5lYdHlxxv1Hvf/EBZQztUGucjwh3h0X5F97cplldsY
-	l
-X-Google-Smtp-Source: AGHT+IHul3Ws4FV701AOhRgpTa4o5lpbiXyxBZ7Ro76msl2xQYLlCMSFtif7jecJxdi6FKFBQMAysg==
-X-Received: by 2002:a05:6602:619a:b0:804:1579:182c with SMTP id ca18e2360f4ac-82a11011423mr346295439f.5.1724937392011;
-        Thu, 29 Aug 2024 06:16:32 -0700 (PDT)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4ced2eab562sm237834173.134.2024.08.29.06.16.31
+        bh=LuQ5iDfnCNDM9h6dMTQyhIigQD/lF6scgKELplW+ISs=;
+        b=aKK6q7i+WSkbAS42Xyt7h/wQ1iTBQlffu5LA81EFGWRx0NAuqB7X7doXhSwHPmjEoN
+         cPhbbZSq+uE18MGIUOkieLB0hwkZCkngQrWH5R6S/fg1X3IGTh7EiTRW/xnfV1/gna4U
+         688xTADiwi3AILvhY+iR9BxIGQB7hUEX+YzN/1m3mcqZY8eRSvb2LQ35pXwvbgTElCaW
+         JYouZekgoRTqzHuavUzoYMWMdF9dcAc0foUvCfNmPRBlEn/VCRy51moA073Gh15ahr+L
+         5DLUm1ErTNrfKE+10OGszXtQC2o0kizZETsL5N8WL0V/1uP6pFKbDDfz8qn54hSB+SpN
+         DsfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVdPd/Kiv7DuJ61Bs1CbAlplSlaACP5cUmTNKnSXTGSwRqyrRACA94vFfPZAXxiqRy0Y3U=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyNIWzfO9pmnNTUFtftaFpG600PSxp2X/C71uAXZAA8rBCJsBJ+
+	PrJ9pm97XkWazQS6Oq1XrOEdHqE6yZ+EbsiiykXwXhV6z67UO7Pj
+X-Google-Smtp-Source: AGHT+IEB/kOwgCxGLoxT+fsRYQvl9b9SMREgly/7uQsH6HYmc0Raf0rtCM1nfpkHf2BpZZdgPgwMyA==
+X-Received: by 2002:a05:6358:7e14:b0:1b5:a157:27c9 with SMTP id e5c5f4694b2df-1b603c3af1dmr364873655d.15.1724951282077;
+        Thu, 29 Aug 2024 10:08:02 -0700 (PDT)
+Received: from [192.168.1.220] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a806d5dd0bsm67078785a.107.2024.08.29.10.08.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 29 Aug 2024 06:16:31 -0700 (PDT)
-Message-ID: <b761e02d-8c75-4b48-af09-67fb2ca86b4b@kernel.dk>
-Date: Thu, 29 Aug 2024 07:16:30 -0600
+        Thu, 29 Aug 2024 10:08:01 -0700 (PDT)
+Message-ID: <92796926-3f8b-4172-8443-4e4c1322c4b1@gmail.com>
+Date: Thu, 29 Aug 2024 13:08:00 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -62,25 +61,36 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/7] os-linux: Renumber RWF_UNCACHED
-To: John Garry <john.g.garry@oracle.com>, fio@vger.kernel.org
-Cc: martin.petersen@oracle.com, djwong@kernel.org, mcgrof@kernel.org
-References: <20240829123107.520005-1-john.g.garry@oracle.com>
- <20240829123107.520005-2-john.g.garry@oracle.com>
+Subject: Re: [PATCH v2 8/9] t/jobs/t0033: add test for the log file format
+To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>
+Cc: Nick Neumann <nick@pcpartpicker.com>, Damien Le Moal <dlemoal@kernel.org>
+References: <20240829085826.999859-1-shinichiro.kawasaki@wdc.com>
+ <20240829085826.999859-9-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20240829123107.520005-2-john.g.garry@oracle.com>
-Content-Type: text/plain; charset=UTF-8
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20240829085826.999859-9-shinichiro.kawasaki@wdc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 8/29/24 6:31 AM, John Garry wrote:
-> This now conflicts with RWF_ATOMIC.
+On 8/29/24 04:58, Shin'ichiro Kawasaki wrote:
+> Add a test to check the log file format which is described in the "Log
+> File Format" section in HOWTO.rst. Generate log files using combination
+> of options relevant to log files, and check that lines in log files have
+> the format expected. This test helps to confirm that the changes in the
+> log file related functions do not cause regressions.
+> 
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+> ---
 
-Still plan on resurrecting that at some point, but I think
-for now we should just drop it. Let me commit something
-for that...
+<snip>
 
--- 
-Jens Axboe
+Our automated tests now pass with the updated tests in this and the next 
+patch:
 
+https://github.com/fiotestbot/fio/actions/runs/10612135131
+
+The only failure is unrelated to these changes.
+
+Vincent
 
