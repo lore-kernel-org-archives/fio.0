@@ -1,198 +1,240 @@
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29FBE18C900
-	for <fio@vger.kernel.org>; Thu, 29 Aug 2024 08:58:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB320193078
+	for <fio@vger.kernel.org>; Thu, 29 Aug 2024 12:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724921920; cv=none; b=Ijt3FsFqhRDs9WCheMCrV/DEKtZ21kFfi9YTYq6g3U30xvIv2qRRkIr+ge7R+5YqfphZtzVkDsVg6Zd6IQfvXV0kWE6FSoNb9gyqC+Pb9pFFQz48ElpLo07+29QMqAoVdjlpZmwwG0wE12ZKRIZ1dn2gfIn07NGjGpN5/ojNbHY=
+	t=1724932811; cv=none; b=hMUy2WXUbsmrccKYFCGcjpvkDGXWxHTZbOtmpYX+Tp69SwfxmLof0mEBV6ZxXjdL7qw8qlp2rmuonzNu5or5I/fiej9qIeDVNriuLlRo+bjLyeeVengslc0bTIuBSuDuRSvnQsrtWAoiMiANg7ZBhLRvA7Lp45oU2+ALgSitVzc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724921920; c=relaxed/simple;
-	bh=JMeuFGI4QkxhtXfEgCMUd3N1d839cV/ZvYXSTpfuMu0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EqAglCXDnSBY1L1fC8h87A51WJKvgsZHDl9FPtF7St5VLZQxbAvzpTKOvo87rdulEB34q+88CaNtD25tPSM2EWdQ3rqDwWj8X4F9fATXQEsgy2+evZPqgVIdkWt/EtDSgUUiaFDY/u0rqpRovf2ulsfo2qs2KDKUWnVLUCl4KJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=WZ1qg3rY; arc=none smtp.client-ip=216.71.154.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1724932811; c=relaxed/simple;
+	bh=WMStBmZ23W2M+PoXwmadl3sdesHBPxS4veKzqtOL6sU=;
+	h=Subject:From:To:Message-Id:Date; b=IDVgZUbHzqNKeKaBTUHnUXgru4W2PQFtRrjiLxo8uzg9vCokG02SJ/9a6IPG0HutX8FX1ERG9nDhFLJVy7nN4Q/dOeSCrVO7OV/Y6VVJDj20b3WU9030U9R5YxcuXlJNKEi/BTugYbiRTvyXnhJ1LNMcF0pYRnsUwlP7/ICU0nY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=RT1XbGXB; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="WZ1qg3rY"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1724921919; x=1756457919;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=JMeuFGI4QkxhtXfEgCMUd3N1d839cV/ZvYXSTpfuMu0=;
-  b=WZ1qg3rY8wexuHV8MSk6CqTON/eVV07LwwwqhC+QRJnzD/eJIki6TxhN
-   o3UUTXXPOND1NNvv+z9o8smTph1YLtmB7i5WVwFJCUNGxNhA4nR3zdC3Q
-   kXkuHYd8anZ3gYCqtPPnPk0+KnFOEt2f7BnNoiHQu1YzjHnnwsr11tjOi
-   ny7zi/uwnqbloYQLJHPRhhAerEoyNnfSEo5UQwU9ulcTYzkQ0sxNQZIuT
-   X0xYl7ABR/T34AUjs2OqI5Pl1tKrezg4lC2Rp8GM4ovWhRmb1nJ21H7OV
-   8MxVDUfudWbMnSrqNa3HUErzzytYhgcG2SZvZp7IlicAAj1ooIM0Ig0sW
-   g==;
-X-CSE-ConnectionGUID: +vV0YJDmTJKI9cx5poRyBg==
-X-CSE-MsgGUID: uUnadtL2QYGTUKXFL5M0XQ==
-X-IronPort-AV: E=Sophos;i="6.10,185,1719849600"; 
-   d="scan'208";a="24854850"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 29 Aug 2024 16:58:38 +0800
-IronPort-SDR: 66d02a29_XA/J0lsySvR/6Xu9E06Yq7XCUwwByMkP9YRCe5DMkBr77sq
- aSBjNraxf0eJyERZKPALb57N+u5ZlDd0/lYozcg==
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Aug 2024 00:58:33 -0700
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 29 Aug 2024 01:58:37 -0700
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Nick Neumann <nick@pcpartpicker.com>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 9/9] t/jobs/t0034: add test for the log_issue_time option
-Date: Thu, 29 Aug 2024 17:58:26 +0900
-Message-ID: <20240829085826.999859-10-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240829085826.999859-1-shinichiro.kawasaki@wdc.com>
-References: <20240829085826.999859-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RT1XbGXB"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=zlZz2Rs3HV8f1ud5uSSzgy7sx+54eSRa2mImYdaQTGw=; b=RT1XbGXB7nBRg9A5+UjL08fNz9
+	0c/WV3dfv9lJUP/nJ8Fg4MXwPI1DXjtcFmoMM9sWrov8+B2v3oA32XJ4RLN6NLnzE+rhL79hfC9FE
+	zOhIywP1hbHzKK1KXwG67qG7ia73DEIKv9wo3e08HItADzGAFvjQ19zwyIK8nhE+kAjpo3bWreDdu
+	0JW6F+shudOCqV1tNSCvxzs01FkrI4DV0Vt71siHN8NCd1g1AcEgES0k6TZr+enR/iBXr6dXCm+0v
+	yx35ZuqonCKcwIBYO4ccw6IGphRcoS9fpxRjtnkmndjuV0hqKn+QlKBzrxcMAC8FcEcPMauUnt1Lf
+	heYYhZvw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1sjdoq-000000021jI-3gaT
+	for fio@vger.kernel.org;
+	Thu, 29 Aug 2024 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 950A21BC012E; Thu, 29 Aug 2024 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240829120001.950A21BC012E@kernel.dk>
+Date: Thu, 29 Aug 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add a test to check the newly added option 'log_issue_time'. Generate
-log files using the option and check that lines in the log files have
-the format described in the "Log File Format" section in HOWTO.rst.
+The following changes since commit 2d416331db2735031e85c8da64ce93382796799b:
 
-This test case has the logic same as t0033 except the log file names and
-matching patterns. Factor out the logic to the new class
-FioJobFileTest_LogFileFormat.
+  ci: install isal packages for testing (2024-08-21 20:31:46 +0000)
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 2a26258077b987ddba0633d07aaec0abfb5462a2:
+
+  ci: add containers for Alma, Oracle, and Rocky Linux (2024-08-27 18:29:54 +0000)
+
+----------------------------------------------------------------
+Vincent Fu (2):
+      ci: install updated bash on macOS platforms via workflow
+      ci: add containers for Alma, Oracle, and Rocky Linux
+
+ .github/workflows/ci.yml |   6 +++
+ ci/actions-build.sh      |   2 +-
+ ci/actions-install.sh    | 103 +++++++++++++++++++++++++++++++++++------------
+ 3 files changed, 84 insertions(+), 27 deletions(-)
+
 ---
- t/jobs/t0034.fio   | 27 ++++++++++++++++++++++++
- t/run-fio-tests.py | 51 +++++++++++++++++++++++++++++++++++++---------
- 2 files changed, 68 insertions(+), 10 deletions(-)
- create mode 100644 t/jobs/t0034.fio
 
-diff --git a/t/jobs/t0034.fio b/t/jobs/t0034.fio
-new file mode 100644
-index 00000000..2b6c4b2d
---- /dev/null
-+++ b/t/jobs/t0034.fio
-@@ -0,0 +1,27 @@
-+[global]
-+rw=read
-+filename=t0034file
-+size=8k
-+time_based
-+runtime=2s
-+ioengine=libaio
-+iodepth=1
-+
-+[job1]
-+write_lat_log=log
-+log_offset=1
-+log_issue_time=1
-+
-+[job2]
-+write_lat_log=log
-+log_offset=1
-+log_issue_time=1
-+log_avg_msec=100
-+log_window_value=both
-+
-+[job3]
-+write_lat_log=log
-+write_bw_log=log
-+write_iops_log=log
-+log_offset=1
-+log_issue_time=1
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index dfd5eac9..47482144 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -554,29 +554,50 @@ class FioJobFileTest_t0029(FioJobFileTest):
-         if self.json_data['jobs'][1]['read']['io_kbytes'] != 8:
-             self.passed = False
- 
--class FioJobFileTest_t0033(FioJobFileTest):
-+class FioJobFileTest_LogFileFormat(FioJobFileTest):
-     """Test log file format"""
-+    def setup(self, *args, **kws):
-+        super().setup(*args, **kws)
-+        self.patterns = {}
-+
-     def check_result(self):
-         super().check_result()
- 
-         if not self.passed:
-             return
- 
--        patterns = {
-+        for logfile in self.patterns.keys():
-+            file_path = os.path.join(self.paths['test_dir'], logfile)
-+            with open(file_path, "r") as f:
-+                line = f.readline()
-+                if not re.match(self.patterns[logfile], line):
-+                    self.passed = False
-+                    self.failure_reason = "wrong log file format: " + logfile
-+                    return
-+
-+class FioJobFileTest_t0033(FioJobFileTest_LogFileFormat):
-+    """Test log file format"""
-+    def setup(self, *args, **kws):
-+        super().setup(*args, **kws)
-+        self.patterns = {
-             'log_bw.1.log': '\\d+, \\d+, \\d+, \\d+, 0x[\\da-f]+\\n',
-             'log_clat.2.log': '\\d+, \\d+, \\d+, \\d+, 0, \\d+\\n',
-             'log_iops.3.log': '\\d+, \\d+, \\d+, \\d+, \\d+, 0x[\\da-f]+\\n',
-             'log_iops.4.log': '\\d+, \\d+, \\d+, \\d+, 0, 0, \\d+\\n',
-         }
- 
--        for logfile in patterns.keys():
--            file_path = os.path.join(self.paths['test_dir'], logfile)
--            with open(file_path, "r") as f:
--                line = f.readline()
--                if not re.match(patterns[logfile], line):
--                    self.passed = False
--                    self.failure_reason = "wrong log file format: " + logfile
--                    return
-+class FioJobFileTest_t0034(FioJobFileTest_LogFileFormat):
-+    """Test log file format"""
-+    def setup(self, *args, **kws):
-+        super().setup(*args, **kws)
-+        self.patterns = {
-+            'log_clat.1.log': '\\d+, \\d+, \\d+, \\d+, \\d+, \\d+, \\d+\\n',
-+            'log_slat.1.log': '\\d+, \\d+, \\d+, \\d+, \\d+, \\d+, \\d+\\n',
-+            'log_lat.1.log': '\\d+, \\d+, \\d+, \\d+, \\d+, \\d+, 0\\n',
-+            'log_clat.2.log': '\\d+, \\d+, \\d+, \\d+, 0, 0, \\d+, 0\\n',
-+            'log_bw.3.log': '\\d+, \\d+, \\d+, \\d+, \\d+, \\d+, 0\\n',
-+            'log_iops.3.log': '\\d+, \\d+, \\d+, \\d+, \\d+, \\d+, 0\\n',
-+        }
- 
- class FioJobFileTest_iops_rate(FioJobFileTest):
-     """Test consists of fio test job t0011
-@@ -913,6 +934,16 @@ TEST_LIST = [
-         'pre_success':      SUCCESS_DEFAULT,
-         'requirements':     [Requirements.linux, Requirements.libaio],
-     },
-+    {
-+        'test_id':          34,
-+        'test_class':       FioJobFileTest_t0034,
-+        'job':              't0034.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'pre_success':      SUCCESS_DEFAULT,
-+        'requirements':     [Requirements.linux, Requirements.libaio],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
--- 
-2.45.2
+Diff of recent changes:
 
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 1601aa9e..6fbba591 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -14,6 +14,9 @@ jobs:
+         container:
+         - {os: 'debian', dh: 'debian', ver: 'bookworm', target_arch: 'x86_64'}
+         - {os: 'fedora', dh: 'fedora', ver: '40', target_arch: 'x86_64'}
++        - {os: 'alma', dh: 'almalinux', ver: '9', target_arch: 'x86_64'}
++        - {os: 'oracle', dh: 'oraclelinux', ver: '9', target_arch: 'x86_64'}
++        - {os: 'rocky', dh: 'rockylinux', ver: '9', target_arch: 'x86_64'}
+         - {os: 'ubuntu', dh: 'ubuntu', ver: 'noble', target_arch: 'i686'}
+         - {os: 'ubuntu', dh: 'ubuntu', ver: 'noble', target_arch: 'x86_64'}
+ 
+@@ -127,6 +130,9 @@ jobs:
+           mingw-w64-${{matrix.arch}}-python-statsmodels
+           mingw-w64-${{matrix.arch}}-python-sphinx
+ 
++    - name: install bash 4 (macOS)
++      if: ${{ contains( matrix.build, 'macOS' ) }}
++      run:  HOMEBREW_NO_AUTO_UPDATE=1 brew install bash
+     - name: Install dependencies
+       run: ${{matrix.shell}} ./ci/actions-install.sh
+       if: ${{ !contains( matrix.build, 'msys2' ) }}
+diff --git a/ci/actions-build.sh b/ci/actions-build.sh
+index de444a22..861ed3a8 100755
+--- a/ci/actions-build.sh
++++ b/ci/actions-build.sh
+@@ -38,7 +38,7 @@ main() {
+                     ;;
+ 	    esac
+ 	    ;;&
+-        */linux | */ubuntu | */debian | */fedora)
++        */linux | */ubuntu | */debian | */fedora | */alma | */oracle | */rocky)
+             case "${CI_TARGET_ARCH}" in
+                 "i686")
+                     extra_cflags="${extra_cflags} -m32"
+diff --git a/ci/actions-install.sh b/ci/actions-install.sh
+index 38d39de9..77c511af 100755
+--- a/ci/actions-install.sh
++++ b/ci/actions-install.sh
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/usr/bin/env bash
+ # This script expects to be invoked from the base fio directory.
+ set -eu
+ 
+@@ -102,36 +102,87 @@ DPKGCFG
+     fi
+ }
+ 
++# Fedora and related distributions
+ install_fedora() {
+-    dnf install -y \
+-        bison-devel \
+-        cmake \
+-        cunit-devel \
+-        flex-devel \
+-        isa-l-devel \
+-        kernel-devel \
+-        libaio-devel \
+-        libgfapi-devel \
+-        libibverbs-devel \
+-        libiscsi-devel \
+-        libnbd-devel \
+-        libnfs-devel \
+-        libpmem-devel \
+-        libpmem2-devel \
+-        librbd-devel \
+-        numactl-devel \
+-        protobuf-c-devel \
+-        python3-scipy \
+-        python3-sphinx \
+-        python3-statsmodels \
+-        unzip \
+-        valgrind-devel \
+-        wget \
++    pkgs=(
++        bison-devel
++        git
++        cmake
++        flex-devel
++        gperftools
++        isa-l-devel
++        kernel-devel
++        libaio-devel
++        libibverbs-devel
++        libiscsi-devel
++        libnbd-devel
++        libnfs-devel
++        libpmem-devel
++        libpmem2-devel
++        librbd-devel
++        numactl-devel
++        protobuf-c-devel
++        python3-scipy
++        python3-sphinx
++        sudo
++        unzip
++        valgrind-devel
++        wget
++    )
++
++    case "${CI_TARGET_OS}" in
++        "fedora")
++            pkgs+=(
++                cunit-devel
++                libgfapi-devel
++                python3-statsmodels
++            )
++            ;;
++        "rocky" | "alma" | "oracle")
++            pkgs+=(
++                CUnit-devel
++                python-pip
++            )
++            ;;&
++        "rocky" | "alma")
++            pkgs+=(
++                glusterfs-api-devel
++            )
++            ;;
++    esac
++    dnf install -y "${pkgs[@]}"
+ 
+     # install librpma from sources
+     ci/actions-install-librpma.sh
+ }
+ 
++install_rhel_clone() {
++    dnf install -y epel-release
++    install_fedora
++
++    # I could not find a python3-statsmodels package in the repos
++    pip3 install statsmodels
++}
++
++install_oracle() {
++    dnf config-manager --set-enabled ol9_codeready_builder
++    install_rhel_clone
++}
++
++install_alma() {
++    dnf install -y 'dnf-command(config-manager)'
++    dnf config-manager --set-enabled crb
++    dnf install -y almalinux-release-devel
++    install_rhel_clone
++}
++
++install_rocky() {
++    dnf install -y 'dnf-command(config-manager)'
++    dnf config-manager --set-enabled crb
++    dnf config-manager --set-enabled devel
++    install_rhel_clone
++}
++
+ install_debian() {
+     install_ubuntu
+ }
+@@ -145,7 +196,7 @@ install_macos() {
+     #echo "Updating homebrew..."
+     #brew update >/dev/null 2>&1
+     echo "Installing packages..."
+-    HOMEBREW_NO_AUTO_UPDATE=1 brew install cunit libnfs bash
++    HOMEBREW_NO_AUTO_UPDATE=1 brew install cunit libnfs
+     pip3 install scipy six statsmodels sphinx
+ }
+ 
