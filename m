@@ -1,47 +1,47 @@
 Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07FEC18C900
-	for <fio@vger.kernel.org>; Thu, 29 Aug 2024 08:58:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16AA18A921
+	for <fio@vger.kernel.org>; Thu, 29 Aug 2024 08:58:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724921918; cv=none; b=HtAFEuGx30sRHc2zjUc1xapMwaBeffO3ForByerV0xB4BFwc/OpUZ4obl+U1ffEdaGJdRrlaGa1/DTOUBfgOJCz7AmY4T24xs+RX9LDrt7nJA1xfpfWqj+kyPP4+NPNeuUdiffvzqrwZSmvhBuDtTLvlhGv5X3cekbzZ57r9/gk=
+	t=1724921919; cv=none; b=sB/oUcO2LhkM7RF3xKzVK7aa0T5r5ixbkpDvFpRVkqxz8BxRd1vhUPhewmWl7CVl2d3vHuaSpLIbQD7iY+wgQjq+3WT/Uo5pqS6Emvfjw+I/ZG5gITemKaa9xVjWh6+TENijXhpOwBTP5AIhx2UbGS8Dpt6L6Y2HgfByc1t9Es8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724921918; c=relaxed/simple;
-	bh=Iz9dOuiW+Lih2tLQ1jOMVmpjhEtdqT+dYKGr8srqXqM=;
+	s=arc-20240116; t=1724921919; c=relaxed/simple;
+	bh=xn4BoE93l4hfbLWd3PRafNinOhr+R0AzVfvhhVPhD1w=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h8jRNvueGmwPrt9CE3Z4GKwaCMNv7mn3Jux2PbGPFLE3GxEgOXO6dtbtE4/17Jf2Achv3bApzjgkkYWLVOAy88j1wZJ31ciyezCSOoTL31+QZa4mkj+AYToEM46uOX7usqdfJgR/GA2l3XWO2bSEc8OkPaf3KMyNRYDlZKMN9T8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=r2oK4Cym; arc=none smtp.client-ip=216.71.154.42
+	 MIME-Version; b=rypoylAr54fzpnc8qiexL0zT1+pkyGug+4NZOqOnTFDSG//wywAQhAtj50h5q8/cFesFGBoZEoc7AKSLJNC18VAZkiX8xuXQRK6/KlRurIlfzyU4slZRngXCaLGNm3GUotuIZLNoUILG0fUnHMmhGSJgb7/G4kJW7GnpmBvB53A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=cjADoalG; arc=none smtp.client-ip=216.71.154.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="r2oK4Cym"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="cjADoalG"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1724921917; x=1756457917;
+  t=1724921918; x=1756457918;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Iz9dOuiW+Lih2tLQ1jOMVmpjhEtdqT+dYKGr8srqXqM=;
-  b=r2oK4CymLWrS7a9j2XZrnXsdbdI5o8ivmzMhvYkmanK4xHMuypOqdA3V
-   qth0b/FxeW100c99bT1Vicgyx6jgurubVZz/vFVIGh6+Kgqh4qE/8CNp3
-   YiODkZv7PqhAIm8O00i1tv5MbknLi7C0DwYL10v1ApVfMvin3xL4IOVq8
-   3ct027WSPDvd+AsKLYBcNdeUe8Wve19bVd59q6ScHS5q/EWpXnpeaiqSm
-   0Tf/bbede/eVqkz9GxGWmDcy7Rztaa60EEpUJm1FnylWdYrvRrude962X
-   gngwD5yLVB6TzTa68CslQFVY8GDYEqdelpwPmpvobH5LrMAblcH7nMaxr
-   g==;
-X-CSE-ConnectionGUID: LWMopA4xT7uafovh89MJlg==
-X-CSE-MsgGUID: lUcedXa9T1mEhuA+h+TVeQ==
+  bh=xn4BoE93l4hfbLWd3PRafNinOhr+R0AzVfvhhVPhD1w=;
+  b=cjADoalG15ynclSrkeYYclm9CU7hU8ZDGAuBuLXMBvhQfeOLne3wASYR
+   P1zt62ZiwQa421qngkNuiOEFuTB2OvOy2AmmlvS2cwGSYIlTn+vIVqh4r
+   0qXZJOxjdowYMbcvSNtaMNE3rUF9rFz92V7Hg6HIyAk5vUmTG29pkk9+n
+   06f0+NkMJrW05JsKUC6bIc/tGMyS33W0/apOb/QBDMmsHRGd5Sw1myGHb
+   56392opC9mBuaNlS5rFDV8Gm0IG0mBv+CwHIgAGg5clhLAr7PoC/nHRLR
+   TVgl+C7P9daDDDZ2kEuh0Irx8uV9Q+/Ntf1NvyRyq7xpsnAfVf50xB4wN
+   w==;
+X-CSE-ConnectionGUID: NLXsN+QoTrG/nlFhC+40iA==
+X-CSE-MsgGUID: XX/tNy4fQKeP9yslvs0nHA==
 X-IronPort-AV: E=Sophos;i="6.10,185,1719849600"; 
-   d="scan'208";a="24854839"
+   d="scan'208";a="24854845"
 Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 29 Aug 2024 16:58:36 +0800
-IronPort-SDR: 66d02a26_M0jNwFue8HphmcOQssMFb7A0iC605Oq9DzWFsrYvR3+mK+F
- 8FUK5DULcarycw7pPDFs+/c/oOo2W4EzHtv8xSw==
+  by ob1.hgst.iphmx.com with ESMTP; 29 Aug 2024 16:58:37 +0800
+IronPort-SDR: 66d02a28_qq0fTUQKpReN7fDdLVAgmuIDKpR2bdJhwQf16BJomZrklE/
+ zIbAkrrYXsmPj2HGc8WUL41xZE7bf+0cMDA3Brg==
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Aug 2024 00:58:31 -0700
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 29 Aug 2024 00:58:32 -0700
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 29 Aug 2024 01:58:35 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 29 Aug 2024 01:58:36 -0700
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
@@ -49,9 +49,9 @@ To: fio@vger.kernel.org,
 Cc: Nick Neumann <nick@pcpartpicker.com>,
 	Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 7/9] doc: describe the log_issue_time option
-Date: Thu, 29 Aug 2024 17:58:24 +0900
-Message-ID: <20240829085826.999859-8-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 8/9] t/jobs/t0033: add test for the log file format
+Date: Thu, 29 Aug 2024 17:58:25 +0900
+Message-ID: <20240829085826.999859-9-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240829085826.999859-1-shinichiro.kawasaki@wdc.com>
 References: <20240829085826.999859-1-shinichiro.kawasaki@wdc.com>
@@ -63,125 +63,113 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The recent commit introduced the new option log_issue_time. Describe its
-feature and restrictions.
+Add a test to check the log file format which is described in the "Log
+File Format" section in HOWTO.rst. Generate log files using combination
+of options relevant to log files, and check that lines in log files have
+the format expected. This test helps to confirm that the changes in the
+log file related functions do not cause regressions.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- HOWTO.rst | 21 +++++++++++++++++----
- fio.1     | 19 +++++++++++++++----
- 2 files changed, 32 insertions(+), 8 deletions(-)
+ t/jobs/t0033.fio   | 28 ++++++++++++++++++++++++++++
+ t/run-fio-tests.py | 35 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 63 insertions(+)
+ create mode 100644 t/jobs/t0033.fio
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 49a28464..49486cfd 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -4244,6 +4244,14 @@ Measurements and reporting
- 	Otherwise, the field shows if the command has the highest RT
- 	priority class or not. Also see	`Log File Formats`_.
- 
-+.. option:: log_issue_time=bool
+diff --git a/t/jobs/t0033.fio b/t/jobs/t0033.fio
+new file mode 100644
+index 00000000..156bdadc
+--- /dev/null
++++ b/t/jobs/t0033.fio
+@@ -0,0 +1,28 @@
++[global]
++rw=read
++filename=t0033file
++size=8k
++time_based
++runtime=2s
++ioengine=libaio
++iodepth=1
 +
-+	If this is set, the iolog options will include the command issue time
-+	for the I/O entry as well as the other data values. Defaults to 0
-+	meaning that command issue times are not present in logs. Also see
-+	`Log File Formats`_. This option shall be set together with
-+	:option:`write_lat_log` and :option:`log_offset`.
++[job1]
++write_bw_log=log
++log_prio=1
 +
- .. option:: log_compression=int
- 
- 	If this is set, fio will compress the I/O logs as it goes, to keep the
-@@ -5209,7 +5217,7 @@ Fio supports a variety of log file formats, for logging latencies, bandwidth,
- and IOPS. The logs share a common format, which looks like this:
- 
-     *time* (`msec`), *value*, *data direction*, *block size* (`bytes`),
--    *offset* (`bytes`), *command priority*
-+    *offset* (`bytes`), *command priority*, *issue time* (`nsec`)
- 
- *Time* for the log entry is always in milliseconds. The *value* logged depends
- on the type of log, it will be one of the following:
-@@ -5245,6 +5253,11 @@ the priority value (:option:`prio` and :option:`cmdprio` options) and the
- highest 3 bits indicating the IO priority class (:option:`prioclass` and
- :option:`cmdprio_class` options).
- 
-+The entry's *issue time* is the command issue time in nanoseconds. The logging
-+of the issue time can be toggled with :option:`log_issue_time`. This field has
-+valid values in completion latency log file (clat), or submit latency log file
-+(slat). The field has value 0 in other logs files.
++[job2]
++write_lat_log=log
++log_avg_msec=100
++log_window_value=both
 +
- Fio defaults to logging every individual I/O but when windowed logging is set
- through :option:`log_avg_msec`, either the average (by default), the maximum
- (:option:`log_window_value` is set to max) *value* seen over the specified period
-@@ -5253,12 +5266,12 @@ is set to both) is recorded. The log file format when both the values are report
- takes this form:
++[job3]
++write_iops_log=log
++log_offset=1
++log_prio=1
++
++[job4]
++write_iops_log=log
++log_avg_msec=100
++log_window_value=both
++log_offset=1
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index 22580613..dfd5eac9 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -47,6 +47,7 @@ import time
+ import shutil
+ import logging
+ import argparse
++import re
+ from pathlib import Path
+ from statsmodels.sandbox.stats.runs import runstest_1samp
+ from fiotestlib import FioExeTest, FioJobFileTest, run_fio_tests
+@@ -553,6 +554,30 @@ class FioJobFileTest_t0029(FioJobFileTest):
+         if self.json_data['jobs'][1]['read']['io_kbytes'] != 8:
+             self.passed = False
  
-     *time* (`msec`), *value*, *value1*, *data direction*, *block size* (`bytes`),
--    *offset* (`bytes`), *command priority*
-+    *offset* (`bytes`), *command priority*, *issue time* (`nsec`)
- 
- 
- Each *data direction* seen within the window period will aggregate its values in a
--separate row. Further, when using windowed logging the *block size* and *offset*
--entries will always contain 0.
-+separate row. Further, when using windowed logging the *block size*, *offset*
-+and *issue time* entries will always contain 0.
- 
- 
- Client/Server
-diff --git a/fio.1 b/fio.1
-index 0aabe89e..29e5ce95 100644
---- a/fio.1
-+++ b/fio.1
-@@ -3948,6 +3948,12 @@ shows the priority value and the IO priority class of the command.
- Otherwise, the field shows if the command has the highest RT priority
- class or not. Also see \fBLOG FILE FORMATS\fR section.
- .TP
-+.BI log_issue_time \fR=\fPbool
-+If this is set, the iolog options will include the command issue time for the
-+I/O entry as well as the other data values. Defaults to 0 meaning that command
-+issue times are not present in logs. Also see \fBLOG FILE FORMATS\fR section.
-+This option shall be set together with \fBwrite_lat_log\fR and \fBlog_offset\fR.
-+.TP
- .BI log_compression \fR=\fPint
- If this is set, fio will compress the I/O logs as it goes, to keep the
- memory footprint lower. When a log reaches the specified size, that chunk is
-@@ -4943,7 +4949,7 @@ and IOPS. The logs share a common format, which looks like this:
- .RS
- .P
- time (msec), value, data direction, block size (bytes), offset (bytes),
--command priority
-+command priority, issue time (nsec)
- .RE
- .P
- `Time' for the log entry is always in milliseconds. The `value' logged depends
-@@ -4986,6 +4992,11 @@ number with the lowest 13 bits indicating the priority value (\fBprio\fR and
- \fBcmdprio\fR options) and the highest 3 bits indicating the IO priority class
- (\fBprioclass\fR and \fBcmdprio_class\fR options).
- .P
-+The entry's `issue time` is the command issue time in nanoseconds. The logging
-+of the issue time can be toggled with \fBlog_issue_time\fR. This field has valid
-+values in completion latency log file (clat), or submit latency log file (slat).
-+The field has value 0 in other log files.
-+.P
- Fio defaults to logging every individual I/O but when windowed logging is set
- through \fBlog_avg_msec\fR, either the average (by default), the maximum
- (\fBlog_window_value\fR is set to max) `value' seen over the specified period of
-@@ -4995,12 +5006,12 @@ takes this form:
- .RS
- .P
- time (msec), value, value1, data direction, block size (bytes), offset (bytes),
--command priority
-+command priority, issue time (nsec)
- .RE
- .P
- Each `data direction' seen within the window period will aggregate its values
--in a separate row. Further, when using windowed logging the `block size' and
--`offset' entries will always contain 0.
-+in a separate row. Further, when using windowed logging the `block size',
-+`offset' and `issue time` entries will always contain 0.
- .SH CLIENT / SERVER
- Normally fio is invoked as a stand-alone application on the machine where the
- I/O workload should be generated. However, the backend and frontend of fio can
++class FioJobFileTest_t0033(FioJobFileTest):
++    """Test log file format"""
++    def check_result(self):
++        super().check_result()
++
++        if not self.passed:
++            return
++
++        patterns = {
++            'log_bw.1.log': '\\d+, \\d+, \\d+, \\d+, 0x[\\da-f]+\\n',
++            'log_clat.2.log': '\\d+, \\d+, \\d+, \\d+, 0, \\d+\\n',
++            'log_iops.3.log': '\\d+, \\d+, \\d+, \\d+, \\d+, 0x[\\da-f]+\\n',
++            'log_iops.4.log': '\\d+, \\d+, \\d+, \\d+, 0, 0, \\d+\\n',
++        }
++
++        for logfile in patterns.keys():
++            file_path = os.path.join(self.paths['test_dir'], logfile)
++            with open(file_path, "r") as f:
++                line = f.readline()
++                if not re.match(patterns[logfile], line):
++                    self.passed = False
++                    self.failure_reason = "wrong log file format: " + logfile
++                    return
++
+ class FioJobFileTest_iops_rate(FioJobFileTest):
+     """Test consists of fio test job t0011
+     Confirm that job0 iops == 1000
+@@ -878,6 +903,16 @@ TEST_LIST = [
+         'pre_success':      SUCCESS_DEFAULT,
+         'requirements':     [Requirements.linux, Requirements.libaio],
+     },
++    {
++        'test_id':          33,
++        'test_class':       FioJobFileTest_t0033,
++        'job':              't0033.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          None,
++        'pre_success':      None,
++        'pre_success':      SUCCESS_DEFAULT,
++        'requirements':     [Requirements.linux, Requirements.libaio],
++    },
+     {
+         'test_id':          1000,
+         'test_class':       FioExeTest,
 -- 
 2.45.2
 
