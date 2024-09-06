@@ -1,133 +1,81 @@
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE0127450
-	for <fio@vger.kernel.org>; Fri,  6 Sep 2024 02:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3829D1CBE89
+	for <fio@vger.kernel.org>; Fri,  6 Sep 2024 12:00:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725590250; cv=none; b=BTHPZrIOFBLS6lqooZ1RLPZ8gLXgzSObIxi0n59Do8WCtjSFe4lg/Fa/ra4+eGpW4n1O0d/zxaLS8KrQtQQsAznOnxh2Pt6yQmVugckRRQxMkfhmatSfG53Ttp/NqfT/+YFbQzsjlciAXQrhNCEjSehkJlF+mdcXtE6mLEiXXuw=
+	t=1725624016; cv=none; b=qgsadEet4PzDu/pN7mn92fprO/Hpt5f/DlA4fmUo7RDmBHbE2LPrZFdhDCjBzo6A8rNIJ9GUSEFkPDTO/H6cbzGw6KjBawN9dpgkqXN7AGqUS4nPMet9loFX2dqzRZ7jnstV2adi/2rcISHOvgiBCZ4Qj/8ufk3T16zH1opyh9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725590250; c=relaxed/simple;
-	bh=ft/WGU5w4g7S9yNkdLq/ymRrG78mWf7GIsyZp1C8FrU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R2aceTUZ5yx04bd5zHUGkR0ofMA4qd6Lpr3xnNhAFkJHMHsNPAWyMEHjNTegTFP4aw0kpzmccZ2+gRAeQ7nOpVKX529KrsVAoEzU0VeVnUMJc7ZaIF1lwT5s3xq2e8waNPFEzCgZe47+W9rEn36SL4myvXS8XeT5WJ/q4L2U9Cc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=Bz27l7sc; arc=none smtp.client-ip=68.232.143.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1725624016; c=relaxed/simple;
+	bh=cIHxLFY7W8fPLz52RVo9ZS5lnM9QOL3RCGRa72SCPCk=;
+	h=Subject:From:To:Message-Id:Date; b=uIlqZoGinOZPJQpJOlH1vDDdZSnjzOE3BQKVG3OaVMi/su2HiFnYrnUXzMU6VA3Zlf+tDrOnezZcfyfZ8POzSPaquIrojhV13AIzvNS3GSu8liKVCuL88e4pz5sDwFhbMrVqM45z+sm9jC542yCO+Fl2BAxwIouVa5nBL/ZbOxQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=iRuILXJd; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="Bz27l7sc"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1725590248; x=1757126248;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ft/WGU5w4g7S9yNkdLq/ymRrG78mWf7GIsyZp1C8FrU=;
-  b=Bz27l7scpUe3el+4x1PSBEzg8tkgqY/VZOTSLgXzz2ZsUIWbAUptUgii
-   zqKMjEjg6x7myUPUo1gHpCbx6dZrVP17w39ZVCxlXn1gzDXD/mzJisU1W
-   upvXcbAd1l1eF/cjUXJ4vX2G1H/M1eMKN+kvabmHRSFqYwPQwJYRThgwN
-   nKwPygC+dNoZPB+6nUTKrXDnmXFVA6M+eAE4GfBMiuTzmnAYpDeGMSyNT
-   TKBTf6qDv/7JfajMZhIeeNto9zqzzFUg0EYDGk85rcRKTeqwuGXUUS4db
-   mVaTcYkbBorF/glXDcGOzQIbB1/vVOn4wIvEPuYbUGH1CjnazBPPJosv+
-   Q==;
-X-CSE-ConnectionGUID: lLH1tvZXRQuB9DJMauV2oQ==
-X-CSE-MsgGUID: CyD2i6soTLG61mQ1nhgXWQ==
-X-IronPort-AV: E=Sophos;i="6.10,206,1719849600"; 
-   d="scan'208";a="26440246"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 06 Sep 2024 10:37:21 +0800
-IronPort-SDR: 66da5cc2_VxsFrdcViqS3fKJqff6zsVM8rz5BlrjUc9tATUVlnwJp2P3
- i+C8YBPtyBazwxZbr5SPUVfR8C2ne8w9EVh/AQg==
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 05 Sep 2024 18:37:07 -0700
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 05 Sep 2024 19:37:21 -0700
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 2/2] t/jobs/t0035: add test for the file operations IO engine
-Date: Fri,  6 Sep 2024 11:37:17 +0900
-Message-ID: <20240906023717.1464031-3-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240906023717.1464031-1-shinichiro.kawasaki@wdc.com>
-References: <20240906023717.1464031-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="iRuILXJd"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=3qk+XRPqPlpT5UKENjazZnlnNON3GOAEpfLgU12d2Tk=; b=iRuILXJd2aWVxrWMyCr3nzh5Pe
+	kBlWXhN7shu1zp8/rDEP58Pow5fbqrdD98npwwMa08rRKkVgqnoxNQdMFJBLn56+uoIX86wSzhUEm
+	Nlz5uOMAoI5erF6TkqvHHEcApQIj5ITrZptS8AKhMXXcaKfPmOHqscsmqwB2+N7eIBgbxl02mPlae
+	7TUUakmmjFUzJQuo3Ix/+8ZvK7HmynghC7N5PZ1O+yvMX34Pa6lypW8lMw/WWTLhrAotjFXteG+En
+	skO4fj5qiIKUPiksWDDLKySAJdWZb6ebdKmmQTECwX7nOJ6O6T7mz7WXIhS/hItMsMpPwSXR4rl9v
+	Z8SEZH9Q==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1smXdH-00000003qbj-3cCR
+	for fio@vger.kernel.org;
+	Fri, 06 Sep 2024 12:00:09 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 656991BC0151; Fri,  6 Sep 2024 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20240906120001.656991BC0151@kernel.dk>
+Date: Fri,  6 Sep 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The previous commit fixed the NULL pointer dereference which happened
-when the write_lat_log option is specified for the file operations IO
-engine. Add a new test case to confirm the fix. This test case also
-covers the basic use cases of the file operations IO engine.
+The following changes since commit 20d0ba84d3b7e7abd8a3318175b46f5e5363547d:
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+  t/jobs/t0034: add test for the log_issue_time option (2024-09-04 13:59:45 -0400)
+
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 65098b11f8aa28e328c225dcd39e3338bb005fdc:
+
+  iolog: add va_end on error (2024-09-05 14:35:30 -0400)
+
+----------------------------------------------------------------
+Vincent Fu (1):
+      iolog: add va_end on error
+
+ iolog.c | 1 +
+ 1 file changed, 1 insertion(+)
+
 ---
- t/jobs/t0035.fio   | 27 +++++++++++++++++++++++++++
- t/run-fio-tests.py | 10 ++++++++++
- 2 files changed, 37 insertions(+)
- create mode 100644 t/jobs/t0035.fio
 
-diff --git a/t/jobs/t0035.fio b/t/jobs/t0035.fio
-new file mode 100644
-index 00000000..fd3488f9
---- /dev/null
-+++ b/t/jobs/t0035.fio
-@@ -0,0 +1,27 @@
-+[global]
-+size=4k
-+write_lat_log=log
-+
-+[job1]
-+ioengine=filecreate
-+filename=t0035file1
-+
-+[job2]
-+ioengine=filestat
-+filename=t0035file2
-+
-+[job3]
-+ioengine=filedelete
-+filename=t0035file3
-+
-+[job4]
-+ioengine=dircreate
-+filename=t0035dir1
-+
-+[job5]
-+ioengine=dirstat
-+filename=t0035dir2
-+
-+[job6]
-+ioengine=dirdelete
-+filename=t0035dir3
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 47482144..d713c1c4 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -944,6 +944,16 @@ TEST_LIST = [
-         'pre_success':      SUCCESS_DEFAULT,
-         'requirements':     [Requirements.linux, Requirements.libaio],
-     },
-+    {
-+        'test_id':          35,
-+        'test_class':       FioJobFileTest,
-+        'job':              't0035.fio',
-+        'success':          SUCCESS_DEFAULT,
-+        'pre_job':          None,
-+        'pre_success':      None,
-+        'pre_success':      SUCCESS_DEFAULT,
-+        'requirements':     [],
-+    },
-     {
-         'test_id':          1000,
-         'test_class':       FioExeTest,
--- 
-2.45.2
+Diff of recent changes:
 
+diff --git a/iolog.c b/iolog.c
+index aadb0d05..ef173b09 100644
+--- a/iolog.c
++++ b/iolog.c
+@@ -1022,6 +1022,7 @@ static int print_sample_fields(char **p, size_t *left, const char *fmt, ...) {
+ 	ret = vsnprintf(*p, *left, fmt, ap);
+ 	if (ret < 0 || ret >= *left) {
+ 		log_err("sample file write failed: %d\n", ret);
++		va_end(ap);
+ 		return -1;
+ 	}
+ 	va_end(ap);
