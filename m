@@ -1,114 +1,89 @@
-Received: from fhigh3-smtp.messagingengine.com (fhigh3-smtp.messagingengine.com [103.168.172.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A60B9146588
-	for <fio@vger.kernel.org>; Fri,  6 Sep 2024 21:20:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21E59158543
+	for <fio@vger.kernel.org>; Fri,  6 Sep 2024 21:23:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725657620; cv=none; b=qIQ3GLT2gOX/lIRSTmeqEBfgPnLPTngJXKScbEr5SRn0PAlJ23DqbuKPEoY1OQEnaeqV3yL0so9dn/kfc3/kykSIPmf+uUGwBT5z/RXdUn2vdEcpbPa/ItjgyTu/jDEnVyfcU3gL/h7PEy0AlaiU8t2YJyADuUPOkDC+tXvYK3g=
+	t=1725657787; cv=none; b=WWTyfZHQSARwKxy3FptoVpfIzArVd78R+RKrHA+DBZhUP1OQRXMpy95XCn13Rx5MpVw7AIq4Jeajb4FPVdoNrhGDEiCWEkvq1HHd1Squ6O7Ds99EwKvmAXFwfKHUHlvYiTBssaYrCvx++gQGQgs59kY2NARVM2CO3RmYGZou44o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725657620; c=relaxed/simple;
-	bh=KkImU5PDh9GkJynJhO8S30TYgaSeQN9D9avDmEbH5Y0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gpuehz002vJcPTm4dr7mRwTmlfPtKVQr5C6fWpLPglMCaEYQRziw+gkg6wrsZ4/Z+03hQgzwE7UIQ5MqiMKUa7caFsW4YLrgH2wD35gVlP6RZAx0U/zbO3rQK+e090CPzB13frK91AKE2FKLEh+ymH4cUiUbLxpFLxEb0gm41mc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bsdio.com; spf=fail smtp.mailfrom=bsdio.com; dkim=pass (2048-bit key) header.d=bsdio.com header.i=@bsdio.com header.b=Al+YuPRN; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=DXk3RVTb; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bsdio.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=bsdio.com
+	s=arc-20240116; t=1725657787; c=relaxed/simple;
+	bh=Ms0SW9ouGbJKn869XIT3ZN+fQk18tPFxyyJw6/MZgYQ=;
+	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=de6dwTymWsdOSL4m9Ez3JrcWccP6lUSwrV3+MaauvPPKaSP/awLzCTYOsPLnTfHdoSc1sXdeB2GPJ9l5yEeSQ0Cnlxqeg4nt/ttjzEWgFhUYOrF5O7DgPndqnDMEHobk6i3s1M91SQs3Bt7SYCQOxuHhnTPmKUHhKGm0AbpOWgc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=Q1zpVzv3; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bsdio.com header.i=@bsdio.com header.b="Al+YuPRN";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="DXk3RVTb"
-Received: from phl-compute-10.internal (phl-compute-10.phl.internal [10.202.2.50])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id B3EE11140116;
-	Fri,  6 Sep 2024 17:20:15 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-10.internal (MEProxy); Fri, 06 Sep 2024 17:20:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bsdio.com; h=cc
-	:cc:content-transfer-encoding:content-type:date:date:from:from
-	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
-	:to; s=fm2; t=1725657615; x=1725744015; bh=PWLf6BKvJXQwSpqHcO6Yz
-	RUuDXv5Il/VT8yrxgHRBUQ=; b=Al+YuPRNTkEfA70vwT5BCG9IZ04UxQ3I/7TlX
-	6/o/QAXQ931mjTz6GkrwQHrjRNsijPZa1h0A5k/H4PKFLALU07Z7DE7+bCFj2bVs
-	WcYJbY1Afe83LSZ9AkEp9+1oVbP5I4hIxOr7fxsdjmlRQCZrdhX5vufwT54mpGLF
-	5Y3CWKdpYflnA/nfsxsMIeJSNZR2DvZE/SeXf/WoXLQVuK1PUWhYHda5XOiBggYN
-	lb0692IsdMlcGj0lorsrRmtWkrGWhcGKHuU/a7zXGsLSwnDBtdwx3eySLOkm9K6O
-	u6JuK/Ac1cv/K4q0Kwcbqvn6qqT1YjpdwIeciewoyfWeWDFGw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm1; t=1725657615; x=1725744015; bh=PWLf6BKvJXQwSpqHcO6YzRUuDXv5
-	Il/VT8yrxgHRBUQ=; b=DXk3RVTb6k/z0qENtoOr2TtKJOVza8u87msChLCjNHeq
-	leUf3TavloW/l5N0hMpGegAGONpkma/Jm3C2i2Wo059OpvOKczzDBtxMGEeLxYZ9
-	9NLvNUCGPBaCK14LkWBQne85uVk8CJ/fN8ZiPU4e5KX5BCmzG8nz52okuYRYQXch
-	Nkug9jyJbSKhzXebHcDkfnE1rErDi0ryq7SepAJMjtPB0D8uAXEcYFoc4pK9px/r
-	4PHfRB4AwiS4hv8Rc/jqwZAI5159J8ODlaQXyFPzU5jBZe9GvOwOSP9grneic+D+
-	XxjzVwJzal04vR72UjITSB6EakFOfb4yR8POJenUCw==
-X-ME-Sender: <xms:D3LbZhuZyPAzWT6Ddx1S0xE3-a6VeGU9JXJhlCE4I_zk1sHxr3nbtA>
-    <xme:D3LbZqeO0ZVfXCiSgJWFOAz97Qnbnv3fZ1av4GAFgXfMxagV-5NOKqMb721bXwEg8
-    GmX9mGFb3urI9SZ-J0>
-X-ME-Received: <xmr:D3LbZkwfuFte1gPWX8oXYKTdDtEr-2HacDdbzpq7KPzcLg31hYOrUWcNhCE9MQb1hATk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrudeiuddgudeivdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
-    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvve
-    fufffkofgggfestdekredtredttdenucfhrhhomheptfgvsggvtggtrgcuvehrrghnuceo
-    rhgvsggvtggtrgessghsughiohdrtghomheqnecuggftrfgrthhtvghrnhepgeefjeeuud
-    evleevgeeigeduhffghffhhfffueektdekteehheevheeuledvuddtnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghdpshhpihhnihgtshdrnhgvthenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehrvggsvggttggrsegsshguihhordgt
-    ohhmpdhnsggprhgtphhtthhopeefpdhmohguvgepshhmthhpohhuthdprhgtphhtthhope
-    grgigsohgvsehkvghrnhgvlhdrughkpdhrtghpthhtohepfhhiohesvhhgvghrrdhkvghr
-    nhgvlhdrohhrghdprhgtphhtthhopehrvggsvggttggrsegsshguihhordgtohhm
-X-ME-Proxy: <xmx:D3LbZoMHd4BK32G__VGyUvCggOFt_zchoVC6_1juQntrpBhvaI3WXg>
-    <xmx:D3LbZh-pdWbLl717X18OK_dDx99rtAr5QMMHLqlfLxBoFvOaIS3JNA>
-    <xmx:D3LbZoV4haFjCgUk-EzEcw7p5Z59ahZWvMq2NfLfyJc9R9xYIi895Q>
-    <xmx:D3LbZidgVZPrIW-Xal4dY2_-oHAhafJa2S---0gK5ob42LEm0NeWVw>
-    <xmx:D3LbZsaJ8KMXSQorahkkD19VYC8ct4VX3Zg5U59CodNES5tziucVqoR5>
-Feedback-ID: i5b994698:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 6 Sep 2024 17:20:14 -0400 (EDT)
-From: Rebecca Cran <rebecca@bsdio.com>
-To: axboe@kernel.dk,
-	fio@vger.kernel.org
-Cc: Rebecca Cran <rebecca@bsdio.com>
-Subject: [PATCH] Update mailing list details in README.rst
-Date: Fri,  6 Sep 2024 15:19:40 -0600
-Message-ID: <20240906211941.850156-1-rebecca@bsdio.com>
-X-Mailer: git-send-email 2.46.0
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="Q1zpVzv3"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-70cec4aa1e4so1789254b3a.1
+        for <fio@vger.kernel.org>; Fri, 06 Sep 2024 14:23:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1725657783; x=1726262583; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Fo5oj061P7wLISNLtoEWKisBCB4GkTNXf6LThXzKTGA=;
+        b=Q1zpVzv36lKGEUR65SCNtp/+SjTnc+QpkiBgjjwCCs61c8631EMiImJHlqc0kBqSPo
+         yjq+Nen6/VppjEiSBXy6n7HI96XqhNgsEGGi7zOIUOtRaNKkS9OkQxvUdMxGSDbWtS1/
+         fBGiIfVoUdtKFVJC3Q5p8PFlxt3P/SEHRHwHP4Ma9poffdSetpXK3iDPkP6R6+thANlm
+         oIAIXfWhdOlW6AlPCz8s5zgnfeZB3lmTlmcATLFBG/OpYnKsh2+iMlUP3EFhSSA+HpcC
+         FTSgnyWASpQ9oZYfDhb7GOnjE7Pw2JtHZBwOypIWBpVYoszg4/qDAO7L/COCYL/B9quG
+         Df9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725657783; x=1726262583;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Fo5oj061P7wLISNLtoEWKisBCB4GkTNXf6LThXzKTGA=;
+        b=r0XfXiUM0I+yCGzq8eXrwT0Zp2KTr9E1GvPzJNtc5GjPCz1GqOw/9PnZgn548WX29q
+         z7A8GP08aoUbGLavonZC3d2RKR8B/TbH1akGDZwYWiHva5VrzTdLqHCbUDC3T3re//ZV
+         ootDUaEyTdPa0A7SbNYIE/PpkSTss/BC0KU7sT1DIP3KPyT2UnIHoRb7/siYOK4D0BpT
+         3id5b9eVeF9+av31sz1iD5J7847gWcDL3n6d+r+eEimvn6Q2ap+wanpBI8DQXoHyvnJ9
+         zVzttdETkSuJVC+Od+Q+zSU1wY5lEG1F6uJg65UMggIflJZrzhX7p5Q7Sp0IK70ZQqD1
+         WBlw==
+X-Gm-Message-State: AOJu0YziJTtNL2ADVGEAKI3kzt5YSlAj1GO6DvnT/V/SyiUic7/MsG+H
+	yaGth4ZziVVAexRG/Doch/8H0SRDfi1MFGU+vcEVluMWJm+xOCS1wz9+hxlzadu5+DcVPDRNwcK
+	V
+X-Google-Smtp-Source: AGHT+IEKuJyx1o1g7w7WESWhmwJUCGR/dg6P/tcHYCzybC0MOkOV1tqgxEK/q07qRPyUS66TV2gO5A==
+X-Received: by 2002:a05:6a00:23d4:b0:70b:cf1:8dc9 with SMTP id d2e1a72fcca58-718e3491e3dmr970868b3a.25.1725657782784;
+        Fri, 06 Sep 2024 14:23:02 -0700 (PDT)
+Received: from [127.0.0.1] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-718087382ccsm2040376b3a.169.2024.09.06.14.23.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 Sep 2024 14:23:02 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: fio@vger.kernel.org, Rebecca Cran <rebecca@bsdio.com>
+In-Reply-To: <20240906211941.850156-1-rebecca@bsdio.com>
+References: <20240906211941.850156-1-rebecca@bsdio.com>
+Subject: Re: [PATCH] Update mailing list details in README.rst
+Message-Id: <172565778187.235238.5288574256759085965.b4-ty@kernel.dk>
+Date: Fri, 06 Sep 2024 15:23:01 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.14.1
 
-Majordomo commands are no longer used, so update README.rst with the new
-method of subscribing to the mailing list.
 
-Signed-off-by: Rebecca Cran <rebecca@bsdio.com>
----
- README.rst | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+On Fri, 06 Sep 2024 15:19:40 -0600, Rebecca Cran wrote:
+> Majordomo commands are no longer used, so update README.rst with the new
+> method of subscribing to the mailing list.
+> 
+> 
 
-diff --git a/README.rst b/README.rst
-index dd521daf..e672ce64 100644
---- a/README.rst
-+++ b/README.rst
-@@ -53,11 +53,10 @@ see REPORTING-BUGS.
- 
- An automated mail detailing recent commits is automatically sent to the list at
- most daily. The list address is fio@vger.kernel.org, subscribe by sending an
--email to majordomo@vger.kernel.org with
-+email to fio+subscribe@vger.kernel.org or visit
-+https://subspace.kernel.org/vger.kernel.org.html.
- 
--	subscribe fio
--
--in the body of the email. Archives can be found here:
-+Archives can be found here:
- 
- 	https://www.spinics.net/lists/fio/
- 
+Applied, thanks!
+
+[1/1] Update mailing list details in README.rst
+      commit: f0af0812543d3d9a4019e2979c6e32f479ee70c4
+
+Best regards,
 -- 
-2.46.0
+Jens Axboe
+
+
 
