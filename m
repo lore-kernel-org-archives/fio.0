@@ -1,78 +1,71 @@
-Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3AD770FE
-	for <fio@vger.kernel.org>; Tue, 10 Sep 2024 18:01:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC331AC8A2
+	for <fio@vger.kernel.org>; Tue, 10 Sep 2024 23:49:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725991312; cv=none; b=kA8GZAYmrdwPV8UrwulW6fsPbwYtka7XsuNnyzPOy/pAbVsnusOdP8DR4jTmrCsDYb0irFA/gZrjvIXniNBGq0fBWG0kEMTR5+NDzISBQTJ3uPbUOAcSj2skTduSRWoxkO5PJa9mAt7p6HnZa8JTj5RSVfDjuLlM4+P3T8tb6dY=
+	t=1726012184; cv=none; b=tPjTOennKYrAzItJuSgAe1zwxjJOgHTZQNE0n3FQtjfrh1QGCnTRKaM+G5QJD2tTm0vCOyPwuHv9iDNDt97ythtmEjeHCsY3iH6TNS5OqHtB894WEGHS7ziAuODT1r3l6FHcqd8GQhG68+7ME9/QjwY5qXIM7U329Ji29n2zFhs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725991312; c=relaxed/simple;
-	bh=YMMurFwFbeHYqi1IRSWb9STJpawvN5VSmYb7Kz/m0ik=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=gNEKhAMFjU/X8NM7d3m+Et2A0EckczQ8L5zdVFN9lm/j3FHPKzO89f3mNj2CR/IKJGh1PJCceLs15JBxi86rZcap89MH83dgRfPaJT08sIB1QnPwYqQrYta3CjAjk5OH0PAbYjqNtq1UkJtQW3xZYNboafIhAYStFVCwzQNikkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J8MvwhJt; arc=none smtp.client-ip=209.85.167.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1726012184; c=relaxed/simple;
+	bh=YMU6gsf4C9f+g2Tntl647MDHB59jvjZ1VVQjhNy0E9U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=moZqDVVBQb/5ob8SJsWS41tK97H06+amhhHHExojkhNMbOIhNvEsMA0M3yLt8b5+Q96CjdwD+19Aq5q3OTr5D+8uckht0ZhAcbSuI+f3YU6iB+TBRz9gSJvjQmdRArgmcKXhdnSmVpuevl53TR7/x/Vy1AK2NRquhPdwMDQM/hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KvBJyGDF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J8MvwhJt"
-Received: by mail-oi1-f175.google.com with SMTP id 5614622812f47-3dd16257b7bso2317050b6e.1
-        for <fio@vger.kernel.org>; Tue, 10 Sep 2024 11:01:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725991310; x=1726596110; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=YMMurFwFbeHYqi1IRSWb9STJpawvN5VSmYb7Kz/m0ik=;
-        b=J8MvwhJtW2KB5Yf7+U97KPUlbjr6V03Pcl4wc0eNwxfHQc7+HxXlCywcK0k8DjzTLp
-         LprvZo3MzlSb4YaXdnxQhX0h2b9Fr6RB9+KHyVNGoRENA6Vlz39G+05IIMfY8sAl1Vho
-         Y3/8Y1DPnDTkdQ9lKR9n058j0PEGOFoFuUK2tQU18HJtg4tVfDZQW/LiEe0obFWXP+fw
-         Z53mmi0V+lIfFf1tg6kIDvp3pmhnIbplOO9uAQ1CdBgTYrijPmaMW4rorep5J06Qdjps
-         zcVkFfFexbISC7Led2yKc9rZLtC+hpC3SCCulhTOttp9QA9JqTfoNRLKx73OUQ1RnepJ
-         dRrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725991310; x=1726596110;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=YMMurFwFbeHYqi1IRSWb9STJpawvN5VSmYb7Kz/m0ik=;
-        b=jSA+przkxVCyxaC5IvxHDsEFx2Ffkoq2iyjMaF1MdxABWAR3bLiABMrsdGsAmOAhqU
-         f9XaAk5Q4qN6vU/SHVxRNOwxR/C8MwUylxC76gOfnhqJ+APJ2SZ5j9DhNbX9A1eO6db9
-         STdfZMMR1XCJB1C7v1fGhELl3VN5vyiz+2aQQFWfFtK3LYZfwQxYH6QGx+hhgqmMAGMt
-         ENn1HgMG0yNiQY63nrnS4IG5dwBa56JeWn/IC8xq0RncR4J5w+Gd1h7LYJFDxw8JUlkc
-         Sa1NwU4H+OY7FLiV6tvkYg/ha/ZWT1rhSgjHExRhSz92Fa7bcwTC0Iwfo4Q0P5y1QxQw
-         +FHQ==
-X-Gm-Message-State: AOJu0YyfJnqrYbWDSMqzW3ZtZ9ymyC1bEM1MAlTUKQKGiV2juTL7+qaS
-	slWF2DZx2W2UhvWh8aVqGbxyGA5HPqtm4bfKYlTdCE+IRYTSJyqcBs+aMt8U+sPPN6ccuhy9Uck
-	CbwxczSoa8gCXP8QInKQz+7BBCIDHif6I
-X-Google-Smtp-Source: AGHT+IH4fL2Y50+pJr7wCwqjzod5eVciknMWiWQltL8Tu7Y3bd/VQgmnc63fobFp08e8fquGTW94hpOFy/HqklHqFfo=
-X-Received: by 2002:a05:6808:1407:b0:3e0:4dbc:34f7 with SMTP id
- 5614622812f47-3e04dbc373amr3606562b6e.21.1725991309761; Tue, 10 Sep 2024
- 11:01:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KvBJyGDF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69253C4CEC3;
+	Tue, 10 Sep 2024 23:49:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1726012183;
+	bh=YMU6gsf4C9f+g2Tntl647MDHB59jvjZ1VVQjhNy0E9U=;
+	h=Date:Subject:To:References:From:In-Reply-To:From;
+	b=KvBJyGDFpEPw1WjZTzdDxIJqAQNd4KdyYmBzbDqxkvHIukIemBqV7U3nXHtnWFSBw
+	 pS6OHiJ+qCZeAqd9Ok2nciDnnEtePBnKkw5zimc9D/CdWBVTSk0fe+MDTCNksP+Nrn
+	 Thn65nQ511rxGAXEM8fKATLwEpTnuDbRRyv63aVd3kyYEx27ceM16aDr6nZzOv1Qb4
+	 2Zb5WFYXowuC8XpMkeRSWbFk20EpBFA9o7X+cVrUNTTwah0aDIDqRrp2SYMLq5gkYj
+	 6VlRwYv7Fqn3Tt7anPKe40mUZ4GZi0atsVxMc8fTXiN/i57aGZsb/UI9ZvWUNFz7Qp
+	 TWgTwg8xw5+6g==
+Message-ID: <44241ecf-7130-469f-8a10-873be7e464d8@kernel.org>
+Date: Wed, 11 Sep 2024 08:49:42 +0900
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Anatoly Belanovsky <abelanovsky@gmail.com>
-Date: Tue, 10 Sep 2024 21:01:39 +0300
-Message-ID: <CALeYq=AP_h293ZrkixjFLxXzYpB3nm1YgAyZxYCMHW=ByvxBWg@mail.gmail.com>
-Subject: how to fully load RAM while stressing SSD using fio
-To: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: how to fully load RAM while stressing SSD using fio
+To: Anatoly Belanovsky <abelanovsky@gmail.com>, fio@vger.kernel.org
+References: <CALeYq=AP_h293ZrkixjFLxXzYpB3nm1YgAyZxYCMHW=ByvxBWg@mail.gmail.com>
+From: Damien Le Moal <dlemoal@kernel.org>
+Content-Language: en-US
+Organization: Western Digital Research
+In-Reply-To: <CALeYq=AP_h293ZrkixjFLxXzYpB3nm1YgAyZxYCMHW=ByvxBWg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hello,
+On 9/11/24 03:01, Anatoly Belanovsky wrote:
+> Hello,
+> 
+> I would like to stress my SSD and RAM with fio and I use command
+> 
+> fio --direct=1 --rw=randrw --rwmixread=90 --rwmixwrite=10 --bs=4k
+> --ioengine=libaio --iodepth=256 --numjobs=2 --time_based
+> --group_reporting --eta-newline=1 --runtime 12h --name=job1
+> --new_group --filename=/dev/nvme0n1
+> 
+> I noticed that while I am stressing it with fio the power consumption
+> of RAM is much less than if I use other stress utilities like intel
+> ptat or y-cruncher.
+> 
+> How I can run fio to use full power capacity of RAM? I tried to
+> increase numjobs but it didn't help.
 
-I would like to stress my SSD and RAM with fio and I use command
+Remove direct=1. That will add lots of memory copies. But then you may not see
+the real speed of your drive due to this added overhead.
 
-fio --direct=1 --rw=randrw --rwmixread=90 --rwmixwrite=10 --bs=4k
---ioengine=libaio --iodepth=256 --numjobs=2 --time_based
---group_reporting --eta-newline=1 --runtime 12h --name=job1
---new_group --filename=/dev/nvme0n1
+-- 
+Damien Le Moal
+Western Digital Research
 
-I noticed that while I am stressing it with fio the power consumption
-of RAM is much less than if I use other stress utilities like intel
-ptat or y-cruncher.
-
-How I can run fio to use full power capacity of RAM? I tried to
-increase numjobs but it didn't help.
-
-Best Regards, Anatoly
