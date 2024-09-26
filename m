@@ -1,64 +1,64 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8231891BA
-	for <fio@vger.kernel.org>; Thu, 26 Sep 2024 21:17:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CDF91885B2
+	for <fio@vger.kernel.org>; Thu, 26 Sep 2024 21:33:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727385440; cv=none; b=e4IhFv4pl+c3hU5L9Og82P09EUo6e2VmryWXleohdrFS5EecOssAbKGEAJfe44WC9y0V+FlLWSEEWAqLOzgv/MZEfnKdD5Nd08OYpPWQRL5FqpNeuIMOXvgD9sHbdAS0eZ3SqwR5yXF3enHRWskpT5DoBrKYaOw3vHhMb8c8yV0=
+	t=1727386408; cv=none; b=cmzJrcjSiNNvnTwkOrvjbLbVTIT8DzDIcCWf8kgeU+t07SDqon/cqTMEoVOlt+AMlwZ5Vr1Ftg4TvfANluoNBTpLRwAaB6t1q4tyR5XvAT2RklQkNj8cv0cPwEPLQkGnL5qIMsdvGUk67nNFH0mr3PIx3vHkvXbnj4q6k/7d+/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727385440; c=relaxed/simple;
-	bh=1y/P7pg61at83B+YbZ4fMapjtGURYEUHNAzNwAFGuns=;
+	s=arc-20240116; t=1727386408; c=relaxed/simple;
+	bh=MzI32NFnp65VzeKAp91uBQl5SnN5d5gEziyJmWO5iEg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z8lPbz8oLPY2jIM9Wz/1X7vHT3zi3sjgYnYDDq+g5nIhDYcU9qFJkCsv7zloO47+EYLpLh5Tq2TsCIngwq4Jwid1Xyq3NaUbp7ILZDi24VoudQXNmGsvM0VPCGbndZFujLWYQimDOTYZWweQSJnsAuYpgwAUt1BSnMjTK4MJWSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Afbrqclk; arc=none smtp.client-ip=209.85.214.176
+	 Content-Type:Content-Disposition:In-Reply-To; b=fVBHXpGSUWwOn9ngbwbVOmJ1DP9DZXSPcaZl2dk97OAXLbIF4FByxsj8FKfsDm4qbiKWPKPqz5RVv8HWuDNjWqwJbM3TYjuCkaYX7WIsIuvyou4FScwbmU1igsAFpe5bQXgjnVuyttQP6tosgu2nWwq8ajy+PKy7E9djFqtCcf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dFeijsJ+; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Afbrqclk"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-20b2ee76302so894345ad.3
-        for <fio@vger.kernel.org>; Thu, 26 Sep 2024 14:17:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dFeijsJ+"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2e0752be2d1so257395a91.1
+        for <fio@vger.kernel.org>; Thu, 26 Sep 2024 14:33:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727385437; x=1727990237; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1727386407; x=1727991207; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=CZs6p2wGUW/JIHds7GiQ22DzYzAxP1TDMS8jVzyqgh0=;
-        b=AfbrqclkDUSHThy00+q8z3vimXcX+NvNy5twi5lga9Ba1mqeND1D1SWSydvvJFitDQ
-         G97XgUhG7bFy3cknFIAkB31iEvzFCJYC/bRO4rXaH3PTEIe5ysubrrhnIfwUygz3+pyI
-         7pk9kLU3ofsJ02TU556UhlqqST998ntUZpKus0omH8G3rvbxzlEuC8Sdcn2vZ/Fgvxb6
-         wtj78Ot+SMkOZ7v/dUUpA6IzrIH0+L9fAs32c6PjXoYKEm7en/J3jlChix03HBEW5gSW
-         ByQCXWNtIu5O7xnk5gVSyhZXV8Lxg4UPk/VtyFsZ0PwhdMMN58MjyLbpo4rXRIXAO7Yw
-         DgiQ==
+        bh=533s2AqcKBleg10NqFgk3L0ZN2OzRUP8BV+fBJ6crIE=;
+        b=dFeijsJ+AxSah0xP5dUqpjt0PQlo9BAwKNui4UhQSOoNYhkFrqGIZn3Fn7daQJN4Wh
+         qzRi1927jxCF76/kXffGr50OdHbnQp0Rus/8sSjZEQSS3RZha2xMOw4rhHaGft2zUR1x
+         h5OaZ5r3ON/eqKQTyjy+SRVeP3TINLlvGYn38bNXcH9v858xYgJ+ydv2DQwh0UyxWG1y
+         4BGhe+bzLWnvF3dQKYu2rO25MTNnFw6MfooAWuKcnwP0Rmf+CtaxvyGg2Kerpoc9Rox5
+         8BeVfb73eh8SSbQt6zkWJidxH27cv2mvGNn7uH4/XeILcgwKnSIa66cQC8tyYZ482Oyt
+         UOvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727385437; x=1727990237;
+        d=1e100.net; s=20230601; t=1727386407; x=1727991207;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CZs6p2wGUW/JIHds7GiQ22DzYzAxP1TDMS8jVzyqgh0=;
-        b=xODN2aAYoOE76myTWPikWOsSaWtj6fLlHW3Yn0+/BmzJCT2LBQb0AXjwFNY0bPe5SO
-         H8tAitfrdB2FYrCgeHICyQTMeImaoJ49PQeB7n3f/MWZB/35/gbk7xVg2IvAHLnHC0RG
-         ZAgPXFyK/b2dm4Bzrv5eBwSfjcOlOGt6Agv46b0YLm8vsH/h7wLEc+MqghexvsiMl2xK
-         mKfSHQxsTgJ6Vpt9xyoNb0BDJCG9wVhSxNjJyn7oCqB3grKpBYNTB/HtQcQNxN4l7kZb
-         39M7OFzFEiMou1isd+e/6ATK2XT0CNldzwEX/e9Vhwtk56YzOdfk26+IpWGX0slbCpqH
-         42Ag==
-X-Forwarded-Encrypted: i=1; AJvYcCWAGq23FWV9hLM0q3DwtwQ5nnzvxZQVifbSh48STcYu0hJG1rG/YGFywteoEXuBnSlvTGg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxGFLg7Z5IUP5KMxHcB5Byadft8/Cb+4aXrHZ+8We7g9R4woq3b
-	mXGjPiqd/1Pd/hPk4eez+JYgu7JhsAT29zggtne6xxLT0lPsBWaE
-X-Google-Smtp-Source: AGHT+IE+tcC88gyMqV489doSyTW4den9F8u9DNiBgO+HRli6qhP107YL+yDscwFas3wZzYWndu1saA==
-X-Received: by 2002:a17:902:d488:b0:207:457f:b8f6 with SMTP id d9443c01a7336-20b367d535fmr6854805ad.2.1727385436894;
-        Thu, 26 Sep 2024 14:17:16 -0700 (PDT)
+        bh=533s2AqcKBleg10NqFgk3L0ZN2OzRUP8BV+fBJ6crIE=;
+        b=eS9ovhrrGNrtD/ohyFlhM6s16kYkEYr9VUTufghyBfqIYVCcAQ6Gxi81luTu5U8rJk
+         H0OGxUqAK/p4STMoDhRAJpQNq2IRKFM9o7QLstOmtHgoHHYotKtS5FVmXkPR5Qylt9iA
+         luhEYxayeRqO9SafuLFlIU6Y/CNewrqXS2cZ3jv52EQUra3QD2k28VOzO9Sai/iwMtYL
+         qPnd8MwCQ3eBIWy/TGLdFHcBcMeNRuPz/TEvVA9H/mOguQSR2DcF41MJ+I5h9wMtPT+K
+         Tdue6X1rgFJGWBaDqSAPVap/s3SlukSMJoJmJ81TiFXUVwIGXiXdUmjKxqIsloVLJMxp
+         YduA==
+X-Forwarded-Encrypted: i=1; AJvYcCUXi1C+wWfUoP8MDvazmHGoFb7nVuvTbAJOVoWcRzEqym+42jxsiW4ItyEyaNuJ6dPxOkQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQfbDKheZiPQBj8SE8dE4ZqgMpPYoEG8sCS1roFaqbdiZAEeM2
+	Pt4DTik2YFM8Qt/cWy3N6+sbf5LwfArSWGQXiPWsNEjUXuMwt5fl
+X-Google-Smtp-Source: AGHT+IG8R7rHMgiFzb21LEaOzpn1iC3+Y4mRHM+GFt+6keFUNbCssu6TRbfa1wcxH05Q4WIgTuoyQg==
+X-Received: by 2002:a17:902:e809:b0:207:da7:bd0d with SMTP id d9443c01a7336-20b37b8f671mr5822345ad.15.1727386406606;
+        Thu, 26 Sep 2024 14:33:26 -0700 (PDT)
 Received: from minwoo-desktop ([116.121.76.56])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20b37e0d488sm2597025ad.147.2024.09.26.14.17.15
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20b37db042fsm2755935ad.115.2024.09.26.14.33.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Sep 2024 14:17:16 -0700 (PDT)
-Date: Fri, 27 Sep 2024 06:17:12 +0900
+        Thu, 26 Sep 2024 14:33:26 -0700 (PDT)
+Date: Fri, 27 Sep 2024 06:33:20 +0900
 From: Minwoo Im <minwoo.im.dev@gmail.com>
 To: Jens Axboe <axboe@kernel.dk>
 Cc: Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org,
 	Vincent Fu <vincent.fu@samsung.com>,
 	Minwoo Im <minwoo.im@samsung.com>
 Subject: Re: [PATCH] io_uring: Add IO_U_F_DEVICE_ERROR to identify error types
-Message-ID: <ZvXPWDEOokazVd3V@minwoo-desktop>
+Message-ID: <ZvXTIO3DNbzG5EZ/@minwoo-desktop>
 References: <20240926004134.26004-1-minwoo.im.dev@gmail.com>
  <1c383a92-ea5c-485f-9015-995c77117dfe@kernel.dk>
  <38ba3cf4-4c3a-4060-a58b-1a7bd7ef8ff9@gmail.com>
@@ -108,7 +108,28 @@ On 24-09-26 15:06:49, Jens Axboe wrote:
 > 
 > Doh yes, I fixed that up now.
 
-I appreciate for your fix!
+Jens,
+
+How about the following one for the fix?  (checked with clang)
+
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 6c07c1011c40..85cebf8371cf 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -589,7 +589,7 @@ ret:
+                io_u_set(td, io_u, IO_U_F_DEVICE_ERROR);
+        else
+                io_u_clear(td, io_u, IO_U_F_DEVICE_ERROR);
+-       io_u->error = io_u->error;
++       io_u->error = abs((int)io_u->error);
+        return io_u;
+ }
+
+io_u->error is unsigned, but it can have negative value as an errno.
+io_u->error should be converted to a positive one especially when it's
+an errno.  If we don't, it will be like Unknown error:
+
+fio: io_u error on file /dev/ng0n1: Unknown error -22: write offset=429916160, buflen=1048576
 
 > 
 > > I do have a bot that automatically runs mailing list patches through
@@ -116,12 +137,6 @@ I appreciate for your fix!
 > > always quick enough to manually report CI failures:
 > > 
 > > https://github.com/fiotestbot/fio/actions
-
-Vincent,
-
-I will have a look into the CI when I posted patches to the mailing list.
-It's super cool to have it.
-
 > 
 > Send them to the list! It's not like it's a high traffic list, and
 > that's super useful. Mostly because it gets the same coverage as a
