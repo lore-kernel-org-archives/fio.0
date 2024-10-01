@@ -1,134 +1,218 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71DAB19CC08
-	for <fio@vger.kernel.org>; Tue,  1 Oct 2024 10:37:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4E15183CA5
+	for <fio@vger.kernel.org>; Tue,  1 Oct 2024 12:00:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727779051; cv=none; b=lDjnLUMhAGFM9vRMApW7a5cZVfE0WRZeJIgnyPjY532w7SZo8qZhHlJoFGDchCHGsM+rDLAJ+DxUw8D/nr3Vl/Kn3gL+84EwOS5/XGThNBiw3xeDGh3yseqD9254IV8kzLEfqsMIPkveuewpPscHHn+7VrR8G1IdcwA1KDRtoUw=
+	t=1727784009; cv=none; b=Nt7h88shZC1ClRKORRUPdNmQZ/1yZuHJvobQSni8RkXqsLoxg8RMQOJQ7dGwdSKKN5VCSLaDxPnxqs5BEne4dtKKtDGpxe26OGTmprwMg32aTEGjtOKSG6K4SDBvPUvjsRMQpf+P77irPROFrAtK3TCotsKdEPSAYOxUX4pC2kg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727779051; c=relaxed/simple;
-	bh=ZPgp3wIEge55YEV39KvIc1iZForklYtgg40f7XFSVN4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=alosFxPuwLAMMJKiiabcw/t9kIr1LB+S/UwwG4oEGXfqcppEsda8ovqNFvMus6/ODNczoLKZ79PRzU2nE4aGFyNcuFr27q9V60fy8ljUnUYH9EaIoadR2g/pzqS2TtNfNDydqXqzKf5hge4xS+5kilIqJEs3TbS76WI3f73nUD0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C39aI9z8; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1727784009; c=relaxed/simple;
+	bh=prPzZbvKNxBU/z2Uozk+dfjiuCfgQks3/zRTJN4GkGw=;
+	h=Subject:From:To:Message-Id:Date; b=sl1ojI2jU2k4WtQMaYIqjGieKnxv6/ogqOTTdXllAk9IpRyHAso+ofMg6MR6JTa7m3RBy9i2HY45xq2ZbKSoEBZkNazgvmWUtO1EqQztPIKshPt064enNhbvaUZ2RT023z4Qk1mYSetddKQbo7dGMv56epZF6upMoPxxU/Q1AX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=lBciRfXV; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C39aI9z8"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-2e082bf1c7fso3913059a91.3
-        for <fio@vger.kernel.org>; Tue, 01 Oct 2024 03:37:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727779049; x=1728383849; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZPgp3wIEge55YEV39KvIc1iZForklYtgg40f7XFSVN4=;
-        b=C39aI9z8Y5x4iI2IeBV8duLIHtvCJNtFBcrTiwh0qSpdf61dSb8YFWs3p7J6bZSfBd
-         vJpvL9ckPiL6B1GE3I6oykHQIytBjItaoBnfLFyx306fJ+QeUdzlwRi9k94Ru6eOv1uA
-         9tXxW/yu/GUG3MITYunQy2HQ+iyGr8+fE7YIKpthVHjU9yQgUATLB+a2+/NhWWzc967m
-         Mx8D5qJuPVY/cu/eqzJG08/nRIqvGSrQoJwwXs1A7+CQmjZwR21tYU8UWXriylXuhsD4
-         8kJ+sM5s9suLA0rrDS7EIBrsVoZxIb6h3S4H0ZLGf7zEFzI7XvPtPlttqK9B3kqz2qgO
-         lSEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727779049; x=1728383849;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZPgp3wIEge55YEV39KvIc1iZForklYtgg40f7XFSVN4=;
-        b=AKa91jNmuYais5l6xnIwMYsgJPMEIklDCjrVaBdBx0Nf4E3hc6gpkzsgo4ww2ZMGAS
-         9XqKV/2d5ZaaUF7eSTjSHleXb7DOuJk3vlUF61oAMQ8m+eN3di+lKTBCa5WqClk2cMxK
-         mNVKQ9HKjeF9x+PmBKtnGy0WgzCh8viMc0HsYXon+LcqX6z+atPK8sLlRIIMNUWmyyKW
-         X1A04ojAL152+4WiM951+hCS58QUqO7w3VA3whWOdCIq3QovszXdi5+92GeYvFMiSB2w
-         jYEOg+JMxQwy+c8QjjFHXHOTruGhZjqTR6dfBuguH+U8KwvpTO5OAgKJHwSsEHGOxG3B
-         xynw==
-X-Gm-Message-State: AOJu0YxwMbBEvtD1o8OZ58HgAPnZxX8zgQQX0zvbSdf7dp5aWK8jRSLH
-	pXNjrwY32mU3vVHncpb2w6I3Nck/kgF5WFntJSK3fWBdf5HAx3szIKNJpPFVfqRMBgEnnhpS8gF
-	EhyncrZu4h/LrS+0F5lu8gccO5rFuYg==
-X-Google-Smtp-Source: AGHT+IE0pcCRMQXAsIDynLdocDdsVIT7HU7yk1UMXZzqWOfhHK0X1HTXY0rISwpapPDNSJFvl3a04zWppcKspo7e4uw=
-X-Received: by 2002:a17:90a:a40c:b0:2e0:8733:6c78 with SMTP id
- 98e67ed59e1d1-2e0b8a1b6ffmr16704993a91.15.1727779049478; Tue, 01 Oct 2024
- 03:37:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lBciRfXV"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=gtWbd467KgfTqQgdLsI8FIivIQbVEKCvU6ifZDYf7SY=; b=lBciRfXVyqi41MVWQUtW41ltKG
+	ckIZ6bPOq64m66SfQpLfa0KMNNKss+ckXbpXg/T6lV6K7+JEPuaadCqBOXis2HRQmNtVZr0LnKzK+
+	WK7Fg3UnU9CPLfAQQVylj036nA95sYAlaOqUmsi2Yezhp+QlAuEXjWSh8LSKL/2FfCrVHvbQ8DbB2
+	FLw1MorRbaBVLXs5bz5dg6eVoQtpKMDhyvqlx8jRJCCFblOSGn7WD0jG6wtFKjVs63fzDsdAvYkZN
+	+4A1ztPdatMnuSHanM5dOVWPPNadDTfZhI/kM9NEPXqbOOQ7CeyYSkzrUvxl636TdKeNqYWqbIFs1
+	Vk9zggbA==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1svbXv-000000031jl-344d
+	for fio@vger.kernel.org;
+	Tue, 01 Oct 2024 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 618941BC015D; Tue,  1 Oct 2024 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20241001120001.618941BC015D@kernel.dk>
+Date: Tue,  1 Oct 2024 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <1727778878-30167-mlmmj-071cdab3@vger.kernel.org>
-In-Reply-To: <1727778878-30167-mlmmj-071cdab3@vger.kernel.org>
-From: Prasad Boddupalli <p.boddupalli@gmail.com>
-Date: Tue, 1 Oct 2024 16:06:52 +0530
-Message-ID: <CA+VE31bGvC02vyL_drrEtsRn8t9tURTK9F9H9F+jS0vUw7QStg@mail.gmail.com>
-Subject: Verification errors when write phase is aborted midway
-To: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 
-Hello All,
+The following changes since commit fef1936ee2be62bdfedffef472a124fded94633e:
 
-I am running fio verification in two phases:
+  ci/qemu: change the name of this workflow (2024-09-27 19:33:57 +0000)
 
-(1) Write phase, with do_verify=0, on the block device /dev/sdb using
---direct=1 flag. While the write phase is running, the disk is
-disconnected physically. Since data got written to the block device,
-the journal (state file) was created. After the disk was disconnected,
-errors were in-flight writes were reported as follows:
+are available in the Git repository at:
 
-fio: io_u error on file /dev/sdb: Input/output error: write
-offset=2112716800, buflen=8192
-fio: io_u error on file /dev/sdb: Input/output error: write
-offset=2112724992, buflen=8192
-fio: io_u error on file /dev/sdb: Input/output error: write
-offset=2112733184, buflen=8192
-fio: io_u error on file /dev/sdb: Input/output error: write
-offset=2112741376, buflen=8192
+  git://git.kernel.dk/fio.git master
 
-(2) When I run the verification phase, the verification fails with the
-following errors:
+for you to fetch changes up to 980fb7f2d9981bbfe4a3158d6293308c76a6d77a:
 
-verify: bad magic header 0, wanted acca at file /dev/sdb offset
-2112716800, length 8192 (requested block: offset=2112716800,
-length=8192)
-verify: bad magic header 0, wanted acca at file /dev/sdb offset
-2112724992, length 8192 (requested block: offset=2112724992,
-length=8192)
-verify: bad magic header 0, wanted acca at file /dev/sdb offset
-2112733184, length 8192 (requested block: offset=2112733184,
-length=8192)
+  engines/io_uring: add support for async TRIM (2024-09-30 09:47:18 -0600)
 
-The offsets reported in the errors in the verification phase
-correspond more or less to the errors reported in the write phase.
+----------------------------------------------------------------
+Jens Axboe (2):
+      t/io_uring: only load tail once per reap loop
+      engines/io_uring: add support for async TRIM
 
-I am assuming that information in the state file will correspond to
-successful writes, writes that were persisted on the disk and
-acknowledged. If so, why was the verification done for data at offsets
-whose writes failed in-flight ?
+ engines/io_uring.c  | 37 +++++++++++++++++++++++++++++++------
+ os/linux/io_uring.h |  5 ++++-
+ t/io_uring.c        | 10 ++++++----
+ 3 files changed, 41 insertions(+), 11 deletions(-)
 
-Following are the options to write and verification phase:
+---
 
-write:
+Diff of recent changes:
 
-' --rw=write'
-' --bs=8K'
-' --direct=1'
-' --ioengine=libaio'
-' --iodepth=16'
-' --verify=crc32c'
-' --filename={device_name}'
-' --size={disk_size}G'
-' --offset={write_offset}'
-' --runtime=20m'
-' --time_based=1'
-' --do_verify=0'
-
-verify:
-' --rw=read'
-' --bs=8K'
-' --direct=1'
-' --ioengine=libaio'
-' --iodepth=16'
-' --verify=crc32c'
-' --filename={device_name} '
-' --size={disk_size}G'
-' --offset={write_offset}'
-' --verify_only=1'
-' --verify_state_load=1'
-' --verify_dump=1'
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 85cebf83..1b6a4346 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -84,6 +84,7 @@ struct ioring_data {
+ 	struct io_cq_ring cq_ring;
+ 	unsigned cq_ring_mask;
+ 
++	int async_trim_fail;
+ 	int queued;
+ 	int cq_ring_off;
+ 	unsigned iodepth;
+@@ -373,6 +374,10 @@ static int io_uring_enter(struct ioring_data *ld, unsigned int to_submit,
+ #endif
+ }
+ 
++#ifndef BLOCK_URING_CMD_DISCARD
++#define BLOCK_URING_CMD_DISCARD	_IO(0x12, 0)
++#endif
++
+ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+ {
+ 	struct ioring_data *ld = td->io_ops_data;
+@@ -448,6 +453,16 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
+ 				sqe->fsync_flags |= IORING_FSYNC_DATASYNC;
+ 			sqe->opcode = IORING_OP_FSYNC;
+ 		}
++	} else if (io_u->ddir == DDIR_TRIM) {
++		sqe->opcode = IORING_OP_URING_CMD;
++		sqe->addr = io_u->offset;
++		sqe->addr3 = io_u->xfer_buflen;
++		sqe->rw_flags = 0;
++		sqe->len = sqe->off = 0;
++		sqe->ioprio = 0;
++		sqe->cmd_op = BLOCK_URING_CMD_DISCARD;
++		sqe->__pad1 = 0;
++		sqe->file_index = 0;
+ 	}
+ 
+ 	if (o->force_async && ++ld->prepped == o->force_async) {
+@@ -539,13 +554,23 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
+ 	cqe = &ld->cq_ring.cqes[index];
+ 	io_u = (struct io_u *) (uintptr_t) cqe->user_data;
+ 
++	/* trim returns 0 on success */
++	if (cqe->res == io_u->xfer_buflen ||
++	    (io_u->ddir == DDIR_TRIM && !cqe->res)) {
++		io_u->error = 0;
++		return io_u;
++	}
++
+ 	if (cqe->res != io_u->xfer_buflen) {
++		if (io_u->ddir == DDIR_TRIM) {
++			ld->async_trim_fail = 1;
++			cqe->res = 0;
++		}
+ 		if (cqe->res > io_u->xfer_buflen)
+ 			io_u->error = -cqe->res;
+ 		else
+ 			io_u->resid = io_u->xfer_buflen - cqe->res;
+-	} else
+-		io_u->error = 0;
++	}
+ 
+ 	return io_u;
+ }
+@@ -737,7 +762,8 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
+ 	if (ld->queued == ld->iodepth)
+ 		return FIO_Q_BUSY;
+ 
+-	if (io_u->ddir == DDIR_TRIM && td->io_ops->flags & FIO_ASYNCIO_SYNC_TRIM) {
++	/* if async trim has been tried and failed, punt to sync */
++	if (io_u->ddir == DDIR_TRIM && ld->async_trim_fail) {
+ 		if (ld->queued)
+ 			return FIO_Q_BUSY;
+ 
+@@ -1632,9 +1658,8 @@ free:
+ static struct ioengine_ops ioengine_uring = {
+ 	.name			= "io_uring",
+ 	.version		= FIO_IOOPS_VERSION,
+-	.flags			= FIO_ASYNCIO_SYNC_TRIM | FIO_NO_OFFLOAD |
+-					FIO_ASYNCIO_SETS_ISSUE_TIME |
+-					FIO_ATOMICWRITES,
++	.flags			= FIO_NO_OFFLOAD | FIO_ASYNCIO_SETS_ISSUE_TIME |
++				  FIO_ATOMICWRITES,
+ 	.init			= fio_ioring_init,
+ 	.post_init		= fio_ioring_post_init,
+ 	.io_u_init		= fio_ioring_io_u_init,
+diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
+index c7a24ad8..1040f690 100644
+--- a/os/linux/io_uring.h
++++ b/os/linux/io_uring.h
+@@ -22,7 +22,10 @@ struct io_uring_sqe {
+ 	union {
+ 		__u64	off;	/* offset into file */
+ 		__u64	addr2;
+-		__u32	cmd_op;
++		struct {
++			__u32	cmd_op;
++			__u32	__pad1;
++		};
+ 	};
+ 	union {
+ 		__u64	addr;	/* pointer to buffer or iovecs */
+diff --git a/t/io_uring.c b/t/io_uring.c
+index aa6e09e9..0fa01837 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -699,14 +699,15 @@ static int reap_events_uring(struct submitter *s)
+ {
+ 	struct io_cq_ring *ring = &s->cq_ring;
+ 	struct io_uring_cqe *cqe;
+-	unsigned head, reaped = 0;
++	unsigned tail, head, reaped = 0;
+ 	int last_idx = -1, stat_nr = 0;
+ 
+ 	head = *ring->head;
++	tail = atomic_load_acquire(ring->tail);
+ 	do {
+ 		struct file *f;
+ 
+-		if (head == atomic_load_acquire(ring->tail))
++		if (head == tail)
+ 			break;
+ 		cqe = &ring->cqes[head & cq_ring_mask];
+ 		if (!do_nop) {
+@@ -755,16 +756,17 @@ static int reap_events_uring_pt(struct submitter *s)
+ {
+ 	struct io_cq_ring *ring = &s->cq_ring;
+ 	struct io_uring_cqe *cqe;
+-	unsigned head, reaped = 0;
++	unsigned head, tail, reaped = 0;
+ 	int last_idx = -1, stat_nr = 0;
+ 	unsigned index;
+ 	int fileno;
+ 
+ 	head = *ring->head;
++	tail = atomic_load_acquire(ring->tail);
+ 	do {
+ 		struct file *f;
+ 
+-		if (head == atomic_load_acquire(ring->tail))
++		if (head == tail)
+ 			break;
+ 		index = head & cq_ring_mask;
+ 		cqe = &ring->cqes[index << 1];
