@@ -1,147 +1,100 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E340815855C
-	for <fio@vger.kernel.org>; Fri,  4 Oct 2024 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BE9E1D9A41
+	for <fio@vger.kernel.org>; Fri,  4 Oct 2024 15:10:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728043212; cv=none; b=deeFioGJhcIacoGMnCrAmXaQpNrF2YPA0mbfr1bC9NVT72ti09nE34jXK4VUllZEd1LL4SbHR+Vm5CitJ1v599d157O/bxH+wRpWHAQTae+mBcw7IOUQvKsmHxiPQMbUDrR2ZSq1U+6Bw7+o1kG7pntClFJQQDdW2s9qWaFjh5g=
+	t=1728054617; cv=none; b=bbsxVKtrK8eL7mV1N8RsJFW1MtDoEBYEFj08MB5LQqzYJaeM1OAKb6a4LanKldzJxmZ/OPpYbWSpUdMOBkea+3ZT1ZxbEy/4f3ExeRiH+vH8J6vMK6y+muKSh/HwCr7NeN/mZ0k1XbZWHB54noIK3GZofbbZfRTZYpJ9qepxO8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728043212; c=relaxed/simple;
-	bh=rCW723Qf6e7lATWCR2MHgP9XmZqSB3IUMe1wAWbm+k0=;
-	h=Subject:From:To:Message-Id:Date; b=gZEogKN7DB78EJNuF07/dSzfsLrBnOe3Ogn3PLkoPkywcqugrtJICutDuRHpyY/wNSlbXP17B/PjfV7x6rO7lCp/XLC0y00YBK9V4tYFXyI3+puuh1TYzHGYasQNIiO5rwdseOqNfto7FAWb0nHRm0Nw92fZfc6n59+c9GX5ziQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=aUqOm1T7; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1728054617; c=relaxed/simple;
+	bh=XxsupIVPl7B4fkDXoGgxgp99f0uhhF8DwakxLkoDXF4=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=g3D/ampnyw2jXRCDpcBPe2LO2NIcibe6c2kgT25KphOthkVteAnxm1hFlIQ6cL9izKGXGzRWgYh14P6dfADYzpSqe9nzQs2x0ME8V9aC50aJVdYRpX0gV735qS0WlMkEc6BdGs5CBc81Gq0N3dw1cWyWydoAp8liKhE9kgBRhVA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ionos.com; spf=pass smtp.mailfrom=ionos.com; dkim=pass (2048-bit key) header.d=ionos.com header.i=@ionos.com header.b=B2fMhKKJ; arc=none smtp.client-ip=209.85.208.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ionos.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ionos.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="aUqOm1T7"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=RvASzUHwgPdi1IoiIrA40P1XAc1urW1rXjotO5vW9k8=; b=aUqOm1T751QsUYngv7nJjoUlsk
-	eJ+qbgf3lFQ5Fb+GFghae0yGKZ7TGoZknwKoFL+ebwPKITpCG87XK4K67hNUVkitFi9mh9jUaKFeG
-	yz+/PZ7Rt95WyYWgTG4iNsUHl9X7o85sIqEanLHa46UY2l0lgjeAD5pCHVN8CaN+DujC/mCjYJ9Nl
-	GMbeJckAF3YR/U3zo+4j1pCcqTTs5OB0/i5w9VdFiUqIoIkfG3WRIhjMVv0Ulu7LSR8oSYHCuLG77
-	xN38kxu9tFCE4Gz/ruTm9+ZGfvp5u8kKURAsIWCToYxbn2WqL/+ZOeGWSaHtLa2evD8gudfLgwe+K
-	StK5/zJQ==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1swgya-0000000AKvE-2q6L
-	for fio@vger.kernel.org;
-	Fri, 04 Oct 2024 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 256C81BC0168; Fri,  4 Oct 2024 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20241004120002.256C81BC0168@kernel.dk>
-Date: Fri,  4 Oct 2024 06:00:02 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=ionos.com header.i=@ionos.com header.b="B2fMhKKJ"
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-2fad0f66d49so35859971fa.3
+        for <fio@vger.kernel.org>; Fri, 04 Oct 2024 08:10:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ionos.com; s=google; t=1728054610; x=1728659410; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=XxsupIVPl7B4fkDXoGgxgp99f0uhhF8DwakxLkoDXF4=;
+        b=B2fMhKKJBYDHvhHR085GcCyyWWnO6tHTUI4IqlxllV6kd41Np72ePiWD3VjKiInjo7
+         EM7wnu5CK2qYmoGPdjNJ3HKVcsp7b0WZn4+CNnSLCLkW0c4BccW9CbgfH0YkgLtkhGks
+         aoWIF/A4QOWFVFvdZuyoSFRDpaKLwxWmBZKozFXAZNg3gZ0df+6xyBeuY7dCEN614miG
+         Et81gOXnB4vHRYfNUafsOuMw53S7zSh/2O1N0LFh449TgFUUni1XGEcWu3kVMgPGg2/V
+         Y4gOyFeUEJKgOy+vp/lIAi7VUF5dUdX7o8mgXcXJ4Q4PoDQldxfM91puGLWHdHpy0iY+
+         U5/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728054610; x=1728659410;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=XxsupIVPl7B4fkDXoGgxgp99f0uhhF8DwakxLkoDXF4=;
+        b=WeWRv9zVnI4Bqmwhu5QYs1ZFDXxImS61LbspLXKUcbzNTPGgeAgEMURNM/e7Q+nWjh
+         Vjhw0CTvLUDrFp0Jp+tMTX+9rjr4xwRsDKlPkg1uTNrjWQMUTNqZg50nRv+uD+Rqu7Ld
+         zMAJyx33qFJla77FG8Ao8+wWOwl2cZSbBfuLVP+1lf2JAh5TKum9V75yvzdxXQY0SSgW
+         gyL/7M+U9n/6WlIW372c0zdbygz9Bbbw+Body0R5LZ8Vm3oPfc57FGAN3ag3NJfpj545
+         e4u+uuVzBFr0tI6m1J+9yB6M0quAIGpS/NHxtz2H6v9kqCWIwShimy2tV18XYDpnwJ+l
+         Kqzg==
+X-Gm-Message-State: AOJu0YzzPI4OqyFnEhO2bGgkvc79clUtQzVRzxfY9Fj8/ARYmcsHJK6p
+	3huseTDNkouxQE1h2jYP4Q/bxAM0z8UEES1+mltUSCgurvtvMZbotrWA1g4ye7p7eBHNs/Lbp8J
+	Fm5G7QfYT7M0xDp5R8Odd7M9FgA6Wc9uJMo0nTITC+rvXo9rFyeAN5w==
+X-Google-Smtp-Source: AGHT+IH65+nrs4kBqh+rtJdScP0s7hLHaeEiNe/3O0oToGr2Ax0MDo0azCPWD6A4utzRCaG/wdeewUVtFCtFgAfmV6Q=
+X-Received: by 2002:a2e:b8c4:0:b0:2f8:c0bd:d65f with SMTP id
+ 38308e7fff4ca-2faf3c1e753mr15350441fa.20.1728054610122; Fri, 04 Oct 2024
+ 08:10:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Haris Iqbal <haris.iqbal@ionos.com>
+Date: Fri, 4 Oct 2024 17:09:59 +0200
+Message-ID: <CAJpMwygnT=KmzZHxJGUWgg1AJe-UbAP_bP5mN7iCLdtFoYwNdQ@mail.gmail.com>
+Subject: Question about an fio profile which leads to a CPU lockup
+To: fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The following changes since commit 92245726b7f608a7e6e294222e68821b4dcc38ea:
+Hello,
 
-  docs: addtions to client/server section (2024-10-02 17:15:40 -0400)
+I am running the following fio profile on an RDMA storage stack with a
+raid5 in the back end, and I see a CPU lockup. (I can provide more
+details about the setup if needed).
 
-are available in the Git repository at:
+""
+[global]
+description=Emulation of Storage Server Access Pattern
+bssplit=512/20:1k/16:2k/9:4k/12:8k/19:16k/10:32k/8:64k/4
+fadvise_hint=0
+rw=randrw
+direct=1
+random_distribution=zipf:1.2
+time_based=1
+runtime=60
+ramp_time=1
+ioengine=libaio
+iodepth=128
+iodepth_batch_submit=128
+iodepth_batch_complete_min=1
+iodepth_batch_complete_max=128
+numjobs=1
+group_reporting
 
-  git://git.kernel.dk/fio.git master
+[job1]
+filename=/dev/rnbd0
+""
 
-for you to fetch changes up to cd56c0af6f3e1ec3cad49ab0d0c002f2c7de3f90:
+First question I have is, is there wrong with the above profile?
+Next, if I simply change the iodepth_batch_complete_min=0 in the above
+profile, I see no hangup.
 
-  docs: mention unsupported configuration (2024-10-03 20:39:38 +0000)
+My next step is to reach out to the kernel raid group, but before that
+I wanted to confirm that the fio profile leading to the hangup isn't
+incorrect/illegal or something.
 
-----------------------------------------------------------------
-Vincent Fu (2):
-      client/server: enable "All clients" latency percentiles
-      docs: mention unsupported configuration
-
- HOWTO.rst | 11 ++++++++++-
- client.c  | 10 ++++++++++
- fio.1     | 10 +++++++++-
- 3 files changed, 29 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index ac59ddcd..2a57f60a 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -4128,6 +4128,11 @@ Measurements and reporting
- 	`job_start`. For these properties, the values for the first job are
- 	recorded for the group.
- 
-+        Also, options like :option:`percentile_list` and
-+        :option:`unified_rw_reporting` should be consistent among the jobs in a
-+        reporting group. Having options like these vary across the jobs in a
-+        reporting group is an unsupported configuration.
-+
- .. option:: new_group
- 
- 	Start a new reporting group. See: :option:`group_reporting`.  If not given,
-@@ -5391,4 +5396,8 @@ Terse output in client/server mode will differ slightly from what is produced
- when fio is run in stand-alone mode. See the terse output section for details.
- 
- Also, if one fio invocation runs workloads on multiple servers, fio will
--provide at the end an aggregate summary report for all workloads.
-+provide at the end an aggregate summary report for all workloads. This
-+aggregate summary report assumes that options affecting reporting like
-+:option:`unified_rw_reporting` and :option:`percentile_list` are identical
-+across all the jobs summarized. Having different values for these options is an
-+unsupported configuration.
-diff --git a/client.c b/client.c
-index 5964faba..d6d54663 100644
---- a/client.c
-+++ b/client.c
-@@ -1128,6 +1128,16 @@ static void handle_ts(struct fio_client *client, struct fio_net_cmd *cmd)
- 	sum_thread_stats(&client_ts, &p->ts);
- 	sum_group_stats(&client_gs, &p->rs);
- 
-+	if (!client_ts.members) {
-+		/* Arbitrarily use the percentile toggles and percentile list
-+		 * from the first thread_stat that comes our way */
-+		client_ts.slat_percentiles = p->ts.slat_percentiles;
-+		client_ts.clat_percentiles = p->ts.clat_percentiles;
-+		client_ts.lat_percentiles = p->ts.lat_percentiles;
-+
-+		for (int i = 0; i < FIO_IO_U_LIST_MAX_LEN; i++)
-+			client_ts.percentile_list[i] = p->ts.percentile_list[i];
-+	}
- 	client_ts.members++;
- 	client_ts.thread_number = p->ts.thread_number;
- 	client_ts.groupid = p->ts.groupid;
-diff --git a/fio.1 b/fio.1
-index cce80894..53fb7849 100644
---- a/fio.1
-+++ b/fio.1
-@@ -3844,6 +3844,10 @@ have a natural group-level equivalent. Examples include \fBkb_base\fR,
- \fBunit_base\fR, \fBsig_figs\fR, \fBthread_number\fR, \fBpid\fR, and
- \fBjob_start\fR. For these properties, the values for the first job are
- recorded for the group.
-+.P
-+Also, options like \fBpercentile_list\fR and \fBunified_rw_reporting\fR should
-+be consistent among the jobs in a reporting group. Having options like these
-+vary across the jobs in a reporting group is an unsupported configuration.
- .RE
- .TP
- .BI new_group
-@@ -5148,7 +5152,11 @@ Terse output in client/server mode will differ slightly from what is produced
- when fio is run in stand-alone mode. See the terse output section for details.
- .P
- Also, if one fio invocation runs workloads on multiple servers, fio will
--provide at the end an aggregate summary report for all workloads.
-+provide at the end an aggregate summary report for all workloads. This
-+aggregate summary report assumes that options affecting reporting like
-+\fBunified_rw_reporting\fR and \fBpercentile_list\fR are identical across all
-+the jobs summarized. Having different values for these options is an
-+unsupported configuration.
- .SH AUTHORS
- .B fio
- was written by Jens Axboe <axboe@kernel.dk>.
+Regards
+-Haris
