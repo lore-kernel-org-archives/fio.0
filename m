@@ -1,100 +1,157 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BE9E1D9A41
-	for <fio@vger.kernel.org>; Fri,  4 Oct 2024 15:10:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC9651FAC29
+	for <fio@vger.kernel.org>; Fri,  4 Oct 2024 19:07:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728054617; cv=none; b=bbsxVKtrK8eL7mV1N8RsJFW1MtDoEBYEFj08MB5LQqzYJaeM1OAKb6a4LanKldzJxmZ/OPpYbWSpUdMOBkea+3ZT1ZxbEy/4f3ExeRiH+vH8J6vMK6y+muKSh/HwCr7NeN/mZ0k1XbZWHB54noIK3GZofbbZfRTZYpJ9qepxO8I=
+	t=1728068840; cv=none; b=ZeBew2qU0gUn18OMwkjQ+Gp9cYpxll/F0ktCqgebuINm7+XzcdvlN1DiKQ4EaS3fDWQJDDv0S9smP86jOWVrsAXS/OQMhtEap8fr9leA2nolk0T9ZB7gqB7u/429EsVoiNwNby9yb1mJ+qeoUKnDNujDJmx6ztTDugFuUK0mBaA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728054617; c=relaxed/simple;
-	bh=XxsupIVPl7B4fkDXoGgxgp99f0uhhF8DwakxLkoDXF4=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=g3D/ampnyw2jXRCDpcBPe2LO2NIcibe6c2kgT25KphOthkVteAnxm1hFlIQ6cL9izKGXGzRWgYh14P6dfADYzpSqe9nzQs2x0ME8V9aC50aJVdYRpX0gV735qS0WlMkEc6BdGs5CBc81Gq0N3dw1cWyWydoAp8liKhE9kgBRhVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ionos.com; spf=pass smtp.mailfrom=ionos.com; dkim=pass (2048-bit key) header.d=ionos.com header.i=@ionos.com header.b=B2fMhKKJ; arc=none smtp.client-ip=209.85.208.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ionos.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ionos.com
+	s=arc-20240116; t=1728068840; c=relaxed/simple;
+	bh=DN7/bV2hg1P6H+U9lOJQa9hBrGp8vmWFrp7rg/p8Jzg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=fnHc6X3TKDEOx0HNSRMKUZRZipJJTNqE6iWNqgh5je9XS/BmDjV8MXM03P6nb2z4jebuTMXuC6rJD/GNXea7Qk87FrH3jV0rjEXv74dc5SGo+xPHHyRSPL5HNQVdQdKQm581LVISsf9AKUyMHd86mA/ax2FoXi0W/OcBMKreCG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MEAa5CdS; arc=none smtp.client-ip=209.85.160.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ionos.com header.i=@ionos.com header.b="B2fMhKKJ"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-2fad0f66d49so35859971fa.3
-        for <fio@vger.kernel.org>; Fri, 04 Oct 2024 08:10:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MEAa5CdS"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-45aeef3ce92so14812091cf.2
+        for <fio@vger.kernel.org>; Fri, 04 Oct 2024 12:07:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ionos.com; s=google; t=1728054610; x=1728659410; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=XxsupIVPl7B4fkDXoGgxgp99f0uhhF8DwakxLkoDXF4=;
-        b=B2fMhKKJBYDHvhHR085GcCyyWWnO6tHTUI4IqlxllV6kd41Np72ePiWD3VjKiInjo7
-         EM7wnu5CK2qYmoGPdjNJ3HKVcsp7b0WZn4+CNnSLCLkW0c4BccW9CbgfH0YkgLtkhGks
-         aoWIF/A4QOWFVFvdZuyoSFRDpaKLwxWmBZKozFXAZNg3gZ0df+6xyBeuY7dCEN614miG
-         Et81gOXnB4vHRYfNUafsOuMw53S7zSh/2O1N0LFh449TgFUUni1XGEcWu3kVMgPGg2/V
-         Y4gOyFeUEJKgOy+vp/lIAi7VUF5dUdX7o8mgXcXJ4Q4PoDQldxfM91puGLWHdHpy0iY+
-         U5/A==
+        d=gmail.com; s=20230601; t=1728068838; x=1728673638; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ufVPzsAkGuaHN3n0ApEucYNylK24B1Bnq9oECPM8UxE=;
+        b=MEAa5CdSkuvPDYuuOTrceTHv6fque3JTq/q7w7PRNjWIBuDSfJR2EKvzMzObsVCnSd
+         okzi+qnxLabSTryTa3urV9sft01yk74Z1d5VLsU5VOfFx99D5S5dyFBfHRF05OKzoRQI
+         S6hVls6G1c+4+itkbTTjW1lf6SC2jWzO8kmM3AcsvlsU5KqsMTJ60+t0uHXLo/wXVYXx
+         uzHpbtDKYGLXDhLitqob3fYWdvCPJf2cplInGGwOtED07jdYQSVMoph/PyHSWk3ioQ3A
+         cRzcs+W3JYx4oFHt0XVZb1Ubw/85CTrK0TN0H7qxXDJGrJ5FsnQ+TLdGzH6LffoaMkN3
+         mrEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728054610; x=1728659410;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XxsupIVPl7B4fkDXoGgxgp99f0uhhF8DwakxLkoDXF4=;
-        b=WeWRv9zVnI4Bqmwhu5QYs1ZFDXxImS61LbspLXKUcbzNTPGgeAgEMURNM/e7Q+nWjh
-         Vjhw0CTvLUDrFp0Jp+tMTX+9rjr4xwRsDKlPkg1uTNrjWQMUTNqZg50nRv+uD+Rqu7Ld
-         zMAJyx33qFJla77FG8Ao8+wWOwl2cZSbBfuLVP+1lf2JAh5TKum9V75yvzdxXQY0SSgW
-         gyL/7M+U9n/6WlIW372c0zdbygz9Bbbw+Body0R5LZ8Vm3oPfc57FGAN3ag3NJfpj545
-         e4u+uuVzBFr0tI6m1J+9yB6M0quAIGpS/NHxtz2H6v9kqCWIwShimy2tV18XYDpnwJ+l
-         Kqzg==
-X-Gm-Message-State: AOJu0YzzPI4OqyFnEhO2bGgkvc79clUtQzVRzxfY9Fj8/ARYmcsHJK6p
-	3huseTDNkouxQE1h2jYP4Q/bxAM0z8UEES1+mltUSCgurvtvMZbotrWA1g4ye7p7eBHNs/Lbp8J
-	Fm5G7QfYT7M0xDp5R8Odd7M9FgA6Wc9uJMo0nTITC+rvXo9rFyeAN5w==
-X-Google-Smtp-Source: AGHT+IH65+nrs4kBqh+rtJdScP0s7hLHaeEiNe/3O0oToGr2Ax0MDo0azCPWD6A4utzRCaG/wdeewUVtFCtFgAfmV6Q=
-X-Received: by 2002:a2e:b8c4:0:b0:2f8:c0bd:d65f with SMTP id
- 38308e7fff4ca-2faf3c1e753mr15350441fa.20.1728054610122; Fri, 04 Oct 2024
- 08:10:10 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1728068838; x=1728673638;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ufVPzsAkGuaHN3n0ApEucYNylK24B1Bnq9oECPM8UxE=;
+        b=TaW8HYVvoQA8eEzlt6C8fG2ZL4ADNGqbB80spQJ1Jg02OsA3aJNL3xEcGggVAuMOBB
+         8h7kITat+ZbKSy3VJIFxk3M7zOqfjoFqAaPpSg2cgGvgVa4ti0bIsVvfhSPXzZn8yMv0
+         pNdFmxT7KIiQwF1p7+KT65p7OQQNEo4qobOWafZ9VWc5utgaxDJ3L/MDbvOPThwPGcAe
+         KB/cqHy5MMrLoHVCzfea6Ri+WRFSgxFYnuq5Uxd4aVxTR4a8Rm/fU2EeBH8XA99t+i+M
+         6O8z3kFeICMW9wh1eaomnq0Y5j+3k5RMq7HNZCuzXWkN9jx6+L7mv7AvC7nHw2/FUIpX
+         8T0w==
+X-Forwarded-Encrypted: i=1; AJvYcCVW0c0dcqrrQ1jSQf4pKGizzp2s8ck50/I+/xo5l6tqD7cpqYflUK4hLAvdSbT4B9DOSAc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzlyugYPThz0YFFDo7F3c6G4U3IYfuitZYwM54TCYqGuZgsqMA7
+	4Ws4LF70GkKES6y2X8HICazW2xsAmTJmIlpjwX8AtiNqOoQr0EmCMY1Bjg==
+X-Google-Smtp-Source: AGHT+IFEWBTKQdY2tpgb43YB6umj+vyLKF2oCQrlaJSB/fLfj62dUAkSfBEzMtG8aihX54FJ5skT5g==
+X-Received: by 2002:a05:622a:60b:b0:44f:f83d:469f with SMTP id d75a77b69052e-45d9ba4719bmr47537091cf.14.1728068837720;
+        Fri, 04 Oct 2024 12:07:17 -0700 (PDT)
+Received: from [192.168.1.220] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-45da75561d5sm1717171cf.50.2024.10.04.12.07.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 04 Oct 2024 12:07:16 -0700 (PDT)
+Message-ID: <e8f87ac8-4a2c-488c-ad35-cbaa7428d197@gmail.com>
+Date: Fri, 4 Oct 2024 15:07:14 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Haris Iqbal <haris.iqbal@ionos.com>
-Date: Fri, 4 Oct 2024 17:09:59 +0200
-Message-ID: <CAJpMwygnT=KmzZHxJGUWgg1AJe-UbAP_bP5mN7iCLdtFoYwNdQ@mail.gmail.com>
-Subject: Question about an fio profile which leads to a CPU lockup
-To: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: Verification errors when write phase is aborted midway
+To: Prasad Boddupalli <p.boddupalli@gmail.com>, fio@vger.kernel.org
+References: <1727778878-30167-mlmmj-071cdab3@vger.kernel.org>
+ <CA+VE31bGvC02vyL_drrEtsRn8t9tURTK9F9H9F+jS0vUw7QStg@mail.gmail.com>
+Content-Language: en-US
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <CA+VE31bGvC02vyL_drrEtsRn8t9tURTK9F9H9F+jS0vUw7QStg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello,
+On 10/1/24 06:36, Prasad Boddupalli wrote:
+> Hello All,
+> 
+> I am running fio verification in two phases:
+> 
+> (1) Write phase, with do_verify=0, on the block device /dev/sdb using
+> --direct=1 flag. While the write phase is running, the disk is
+> disconnected physically. Since data got written to the block device,
+> the journal (state file) was created. After the disk was disconnected,
+> errors were in-flight writes were reported as follows:
+> 
+> fio: io_u error on file /dev/sdb: Input/output error: write
+> offset=2112716800, buflen=8192
+> fio: io_u error on file /dev/sdb: Input/output error: write
+> offset=2112724992, buflen=8192
+> fio: io_u error on file /dev/sdb: Input/output error: write
+> offset=2112733184, buflen=8192
+> fio: io_u error on file /dev/sdb: Input/output error: write
+> offset=2112741376, buflen=8192
+> 
+> (2) When I run the verification phase, the verification fails with the
+> following errors:
+> 
+> verify: bad magic header 0, wanted acca at file /dev/sdb offset
+> 2112716800, length 8192 (requested block: offset=2112716800,
+> length=8192)
+> verify: bad magic header 0, wanted acca at file /dev/sdb offset
+> 2112724992, length 8192 (requested block: offset=2112724992,
+> length=8192)
+> verify: bad magic header 0, wanted acca at file /dev/sdb offset
+> 2112733184, length 8192 (requested block: offset=2112733184,
+> length=8192)
+> 
+> The offsets reported in the errors in the verification phase
+> correspond more or less to the errors reported in the write phase.
+> 
+> I am assuming that information in the state file will correspond to
+> successful writes, writes that were persisted on the disk and
+> acknowledged. If so, why was the verification done for data at offsets
+> whose writes failed in-flight ?
+> 
+> Following are the options to write and verification phase:
+> 
+> write:
+> 
+> ' --rw=write'
+> ' --bs=8K'
+> ' --direct=1'
+> ' --ioengine=libaio'
+> ' --iodepth=16'
+> ' --verify=crc32c'
+> ' --filename={device_name}'
+> ' --size={disk_size}G'
+> ' --offset={write_offset}'
+> ' --runtime=20m'
+> ' --time_based=1'
+> ' --do_verify=0'
+> 
+> verify:
+> ' --rw=read'
+> ' --bs=8K'
+> ' --direct=1'
+> ' --ioengine=libaio'
+> ' --iodepth=16'
+> ' --verify=crc32c'
+> ' --filename={device_name}'
+> ' --size={disk_size}G'
+> ' --offset={write_offset}'
+> ' --verify_only=1'
+> ' --verify_state_load=1'
+> ' --verify_dump=1'
+> 
 
-I am running the following fio profile on an RDMA storage stack with a
-raid5 in the back end, and I see a CPU lockup. (I can provide more
-details about the setup if needed).
+When you build fio from source there is a t/fio-verify-state utility to 
+display the contents of the verify state file. Are you able to run it to 
+display the contents of your verify state file?
 
-""
-[global]
-description=Emulation of Storage Server Access Pattern
-bssplit=512/20:1k/16:2k/9:4k/12:8k/19:16k/10:32k/8:64k/4
-fadvise_hint=0
-rw=randrw
-direct=1
-random_distribution=zipf:1.2
-time_based=1
-runtime=60
-ramp_time=1
-ioengine=libaio
-iodepth=128
-iodepth_batch_submit=128
-iodepth_batch_complete_min=1
-iodepth_batch_complete_max=128
-numjobs=1
-group_reporting
+Are you running on a big ending platform? This feature was broken on 
+such platforms until recently.
 
-[job1]
-filename=/dev/rnbd0
-""
+https://github.com/vincentkfu/fio-blog/wiki/Testing-on-a-big-endian-platform
 
-First question I have is, is there wrong with the above profile?
-Next, if I simply change the iodepth_batch_complete_min=0 in the above
-profile, I see no hangup.
+Vincent
 
-My next step is to reach out to the kernel raid group, but before that
-I wanted to confirm that the fio profile leading to the hangup isn't
-incorrect/illegal or something.
-
-Regards
--Haris
