@@ -1,96 +1,161 @@
-Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD983216A27
-	for <fio@vger.kernel.org>; Tue,  5 Nov 2024 21:59:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E34C21DB37C
+	for <fio@vger.kernel.org>; Wed,  6 Nov 2024 13:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730843957; cv=none; b=RLdYZPTxEJsK6xImkzS4PbyQcWx2qFPe3QWPBSuke5XlMCC0DsajmLaOlhnGq0yA+1EeWdaxGiYNgdeJyb6HqWqfZDORr8dLSGmp6JBFtQz0XCWkUUaSsOPyzwrG8tyz4ujct5Mhs2ICKdoms/ghuMQ7gwjG3c7Pbl4M4k//bBI=
+	t=1730898011; cv=none; b=jQNxqDW2XyuEBBnMeEyy0daJmMCNVuOwFb3f59rLk/XetYWC60afVAzH8cweUWQNhISmonRD0TDSP4wWCettVRb+BQK2Nh7NGdmQZBbCPr223+2kVQKl4WsCFqFu4bPck+dB1l8QRkDsll1zg9Xba9FcjnFBQBSZZvJ6rVoRYAA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730843957; c=relaxed/simple;
-	bh=TUFAXMSSeo/lgRy8dgvL8AGHlaPHZx4hphgkiZDi65I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rnY+JXP6wFl8XDMDtC5m1hDFg18HCh9MfcMlX/kdNWIGY3heEs2r6/IlnK94UqdcXo04ZEBNEGhiOrrCQd5IFKiNot37bI5VWZ1t2qV/TRAcOwjE6g4+RLyFjmh/8OR+eSGDYSaYWdpgoi6jG30sntDMRJrXO05GM7MzqyHs8kA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EuZlL/Gs; arc=none smtp.client-ip=209.85.222.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1730898011; c=relaxed/simple;
+	bh=rh0Q2gp1CwOZtgxgj83sLuhopt0uLho1AMz91P7i85U=;
+	h=Subject:From:To:Message-Id:Date; b=HGgt2qxAJuaqwCopnT98ERYIAb5lQRbp24n36qpD0oTtvYdJi/Gzc5bsY3o0r/QoEfcugGXYNG5WmQdkkFSnjNUF2b7r6Qy8Fru70B/sWerY3fTW3A33QTZjpaNe+nuBN6JZABSVoQYWjor83RNkmfEP0DxLrgqkTcrCcQx5/mE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HN5hwKfN; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EuZlL/Gs"
-Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-84fdb038aaaso1794691241.3
-        for <fio@vger.kernel.org>; Tue, 05 Nov 2024 13:59:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1730843954; x=1731448754; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=TUFAXMSSeo/lgRy8dgvL8AGHlaPHZx4hphgkiZDi65I=;
-        b=EuZlL/Gsep4Pdz3ju4uTcoZ1xWRQxEsJFjikY6otQ/7/tZIvDzPaixnVr5f8IDDnSZ
-         WRH27IwxT2bgyWm0+MF8QrHcaYtGy8K+0y6CePsUEDawX54BtD1DvvLdLN0lox2bVOKu
-         BKP5VozG0v2ta9nWD9uv6yx//9ZGC+TvsS6gF1V/oDsPahhsupUwF/9YXSU7HUBisnbh
-         b4rC+jy/B6EiW22LXUEp9dvVXObdVgkXblPyxwlGEvVG52Y3FhSZV/daWSxO8G7nb0TC
-         9WSAbJHCeb0LnlqkF6betvfA+S8nW+DDI6XnkZWk4Vn0uXoqyLl05NvGaZ0xicQiADEI
-         XUgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730843954; x=1731448754;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TUFAXMSSeo/lgRy8dgvL8AGHlaPHZx4hphgkiZDi65I=;
-        b=l+YgoGSQosgV6EI0mLSVyohr1t/XDOmZL7hamFQq9GAmQeBvriK0TFAzVhKjeBK9z+
-         mvYIGH6CDCogMpXE9A+D/ASJ3eMRupilZFu9iJlCvE77S43qZsjOjvKS+/lqPrcyaQr3
-         4v5ucS6yH4Kl8udhgbUK28QK01A0SkZj6ngsUuy5yb7cmm44D62oVTA9yStgh5tsdGiw
-         b7bPmCpFAP5OTEBV4UQneTV3iGNwrHA6UZThJY0NqCLVA0IODjKwF/G8JvhPW3Cz4SoT
-         LrVfR/CT0wjQ67+LVGANq08qgMhxVZ0/k8zyCTG8+chXfRMDmRlNxJ6R5xmCrhl3Jm91
-         B7lw==
-X-Forwarded-Encrypted: i=1; AJvYcCVIHkVU9xZLySF3CTRnixQ1NX8QMRh73FNO1197vZIyIbsh95CHq9oSK2zZLNgq8c28Yfo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YykrwGm7eEnFME0KW0L/ktcnTXOnJRBUCUDlTBZLJKcPsA9dpBy
-	j0IxMnBSd5Ltx9JcnRQb9zEvlxaDGkMjCRRVROKTH7wDBB2K16MH0gXaAZp37mxkNR9g5TeUs85
-	bJ5SGIZUg6sks/kOaO+23tdBVaWE=
-X-Google-Smtp-Source: AGHT+IHYMdj9nYU5G6h/sFDz2hb1ECiYu0oEVbxoU6mP4/ujMbClwZPWOwyR/jX3kFqME83TSo9TlEhnsDRluRwXEBs=
-X-Received: by 2002:a05:6102:5124:b0:4a7:4900:4b5a with SMTP id
- ada2fe7eead31-4a962ddc4efmr16724752137.9.1730843954391; Tue, 05 Nov 2024
- 13:59:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HN5hwKfN"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=zYcMLkvdO1ycq5VjAn3dd8awpp2W+l3CUXLDstP5ihQ=; b=HN5hwKfN+i2i4aJ0Sw7Of8XOxZ
+	N3eRL9s3l/1ZBlov433NFSJ80XM4sacxH7ZZl6R4Ifggm9lIeOYhHLaXKHFkGe4V/C6BSZ1Y21K1J
+	J8j1Q3BO9vrlRDChPTUwh1wUns7K6CabA+KA/uiPMxvHvir/oC87qGmxrZru8wevh5wc0bO/Q+LNc
+	UcQGusSol13iGw2Qbn7wYsmQpyjHWXJczqBcLp/fE/vEEKaoeTZ1JW1g3Lv5lWZSiO6Ws+rMXUHT9
+	RoFVneAUuyUhdk9C7Emgc3ciK6Yvog71scP12VM0kS4aB9bZ/+656YjNK3oETYfD7LF4x+9+W6H5u
+	ovxAInbA==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1t8fdj-00000004aXG-1P72
+	for fio@vger.kernel.org;
+	Wed, 06 Nov 2024 13:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id D31D61BC0153; Wed,  6 Nov 2024 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20241106130001.D31D61BC0153@kernel.dk>
+Date: Wed,  6 Nov 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <5c833f46-a124-4d0d-ae07-5e9ecb4648d8@gmail.com>
- <PH7PR14MB74195A055EE5BF97F7054A32A4522@PH7PR14MB7419.namprd14.prod.outlook.com>
- <422c7d4a-5b9b-48d5-adf7-355947d18014@gmail.com> <IA1PR19MB6449DFD774C96F404487D5E4E5522@IA1PR19MB6449.namprd19.prod.outlook.com>
- <c59db85a-2106-4c54-b5a9-808c916f7f5a@gmail.com>
-In-Reply-To: <c59db85a-2106-4c54-b5a9-808c916f7f5a@gmail.com>
-From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Tue, 5 Nov 2024 21:58:48 +0000
-Message-ID: <CALjAwxgv_1F69huvkNKPLawygqQ19k8OJVkezXFkuV59Tf33ug@mail.gmail.com>
-Subject: Re: blog post on fio write zeroes performance
-To: Vincent Fu <vincentfu@gmail.com>
-Cc: "Terekhov, Mikhail" <Mikhail.Terekhov@dell.com>, Adam Horshack <horshack@live.com>, 
-	"fio@vger.kernel.org" <fio@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 
-On Tue, 5 Nov 2024 at 21:33, Vincent Fu <vincentfu@gmail.com> wrote:
->
-> On 11/5/24 15:45, Terekhov, Mikhail wrote:
-> >
-> > Does it mean that in the regular case (not write zeroes) fio spends significant time scrambling buffers and IO performance is lower than it could be?
-> >
-> > Regards,
-> > Mikhail
->
-> For regular writes on contemporary devices the time that fio spends
-> scrambling buffers is small compared to the device response time.
->
-> However, if you want the absolute highest write performance or are
-> really pushing the limits with a device, it might be worth running the
-> job with zero_buffers or scramble_buffers=0 to see what difference it makes.
+The following changes since commit 6a193ce90a4d8958d5000809dd8e3286e8215d0f:
 
-It's worth noting that even in the "not write zeros dedicated command"
-case some devices (or things in the I/O path like filesystems etc.)
-can detect or compress buffers of zeros and thus are able to achieve
-(unrealistic) higher speeds that they cannot reach when "real" data is
-used...
+  t/io_uring: add symbolic defines for NOP flags (2024-11-04 10:27:06 -0700)
 
+are available in the Git repository at:
 
---
-Sitsofe
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to f2415d711a11fec6d5e4081a7bdc060b98c76043:
+
+  t/io_uring: fix size confusion in allocate_mem() (2024-11-05 07:57:41 -0700)
+
+----------------------------------------------------------------
+Jens Axboe (3):
+      engines/io_uring: don't mess with non power-of-2 queue depth
+      Merge branch 'io_uring-depth'
+      t/io_uring: fix size confusion in allocate_mem()
+
+ engines/io_uring.c | 23 ++++++++++++++---------
+ t/io_uring.c       |  2 +-
+ 2 files changed, 15 insertions(+), 10 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 60b4f653..79eacbc4 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -770,7 +770,8 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
+ 
+ 	fio_ro_check(td, io_u);
+ 
+-	if (ld->queued == ld->iodepth)
++	/* should not hit... */
++	if (ld->queued == td->o.iodepth)
+ 		return FIO_Q_BUSY;
+ 
+ 	/* if async trim has been tried and failed, punt to sync */
+@@ -1006,7 +1007,7 @@ static int fio_ioring_queue_init(struct thread_data *td)
+ {
+ 	struct ioring_data *ld = td->io_ops_data;
+ 	struct ioring_options *o = td->eo;
+-	int depth = td->o.iodepth;
++	int depth = ld->iodepth;
+ 	struct io_uring_params p;
+ 	int ret;
+ 
+@@ -1086,7 +1087,7 @@ static int fio_ioring_cmd_queue_init(struct thread_data *td)
+ {
+ 	struct ioring_data *ld = td->io_ops_data;
+ 	struct ioring_options *o = td->eo;
+-	int depth = td->o.iodepth;
++	int depth = ld->iodepth;
+ 	struct io_uring_params p;
+ 	int ret;
+ 
+@@ -1231,7 +1232,7 @@ static int fio_ioring_post_init(struct thread_data *td)
+ 		return 1;
+ 	}
+ 
+-	for (i = 0; i < td->o.iodepth; i++) {
++	for (i = 0; i < ld->iodepth; i++) {
+ 		struct io_uring_sqe *sqe;
+ 
+ 		sqe = &ld->sqes[i];
+@@ -1272,7 +1273,7 @@ static int fio_ioring_cmd_post_init(struct thread_data *td)
+ 		return 1;
+ 	}
+ 
+-	for (i = 0; i < td->o.iodepth; i++) {
++	for (i = 0; i < ld->iodepth; i++) {
+ 		struct io_uring_sqe *sqe;
+ 
+ 		if (o->cmd_type == FIO_URING_CMD_NVME) {
+@@ -1330,9 +1331,13 @@ static int fio_ioring_init(struct thread_data *td)
+ 
+ 	ld = calloc(1, sizeof(*ld));
+ 
+-	/* ring depth must be a power-of-2 */
+-	ld->iodepth = td->o.iodepth;
+-	td->o.iodepth = roundup_pow2(td->o.iodepth);
++	/*
++	 * The internal io_uring queue depth must be a power-of-2, as that's
++	 * how the ring interface works. So round that up, in case the user
++	 * set iodepth isn't a power-of-2. Leave the fio depth the same, as
++	 * not to be driving too much of an iodepth, if we did round up.
++	 */
++	ld->iodepth = roundup_pow2(td->o.iodepth);
+ 
+ 	/* io_u index */
+ 	ld->io_u_index = calloc(td->o.iodepth, sizeof(struct io_u *));
+@@ -1362,7 +1367,7 @@ static int fio_ioring_init(struct thread_data *td)
+ 	}
+ 	parse_prchk_flags(o);
+ 
+-	ld->iovecs = calloc(td->o.iodepth, sizeof(struct iovec));
++	ld->iovecs = calloc(ld->iodepth, sizeof(struct iovec));
+ 
+ 	td->io_ops_data = ld;
+ 
+diff --git a/t/io_uring.c b/t/io_uring.c
+index dec9552b..eea5fe0a 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -1006,7 +1006,7 @@ static void *allocate_mem(struct submitter *s, int size)
+ 		return numa_alloc_onnode(size, s->numa_node);
+ #endif
+ 
+-	if (posix_memalign(&buf, t_io_uring_page_size, bs)) {
++	if (posix_memalign(&buf, t_io_uring_page_size, size)) {
+ 		printf("failed alloc\n");
+ 		return NULL;
+ 	}
