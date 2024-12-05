@@ -1,90 +1,81 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89C0133080
-	for <fio@vger.kernel.org>; Mon,  2 Dec 2024 18:37:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B89FE218AB4
+	for <fio@vger.kernel.org>; Thu,  5 Dec 2024 13:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733164664; cv=none; b=delghU7u9j2Ur8/prPUFGapOc9eivdR9Cki0cmT0bNmhg0oPN4kI+Ep4bQ/1o9J8pQ5gDleebai1/b8Jrm4KGCJeAGo2v7nP68e/enLkLkOY8ZVRJq/JqIOs53uYkcIi7eAviySPvDAhJAYnn/n9/xkCP5zHXEn4GPF9keaEuG0=
+	t=1733403612; cv=none; b=AILwDvYEFGyfFOCb22cnpFcJuqCxqfQ7ykag65AaFhnKPOL4yS2HIf4Zl+7UMNcvAztiHwqX4A+ofUNTbMocEas+rRvBD6o5liSWtc7lYAPsDGfTkFA+qPWEM1VVXF3EsIrbZ/bDRiwv/e6TsKwIyEUN36UdZX/nevYjbTgIbKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733164664; c=relaxed/simple;
-	bh=PqO0v/n48oc15udiCtC5taabmBrAn/q39BZh8hZFQUQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=l4u8mQIVA0KtJc2MLm9xKMjRFk/4ax3Cqxcb1Uq46bHQplNPStGOhIw/VdVezu+rvotmgmraxYUlosuQFfLxG6qpaiLfgOEaxlKVVPGWvjIjncYQ3MKRxjpZOTZEPnFhEBgccTcbihLoC1IzEUvVtcACgB1nTTVEDiztX2uR0pA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=em5r71c7; arc=none smtp.client-ip=209.85.160.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1733403612; c=relaxed/simple;
+	bh=efhT/RlmvDMg2ywHfho3QeXfGq+Vig6MkAzjqPbs/Gw=;
+	h=Subject:From:To:Message-Id:Date; b=WWNVSblXTKU2zN886AVTw4nD0IYGRxcgGjoBg7m267NA23qYLbKJF71yb0ouYn/5tTUNFeMKGo+tJt9k8h0hJ9U4PHTyqOe03yOZ4MnkM5+15TOAftTJYrlXF6kAKeU6zJPvjMXZkk0/kcKjgMAdFPs/geR7nzUGfJJj/bXESMI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=AvziVvzB; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="em5r71c7"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-46679337c24so38764951cf.3
-        for <fio@vger.kernel.org>; Mon, 02 Dec 2024 10:37:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733164662; x=1733769462; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=TQe6eVBtLm32Xungwrj2AIIE9vImN21PR41UoDT4bOw=;
-        b=em5r71c7BB1cRBXqNmiBwibbqfW5klYaTH4VxDUXiiX3IvgjKJYgvsXz/46WzxMpJg
-         WVXmceefw4c0n6xY92UHB7wFTnkmReErkW0iG+NRVIUi16mMXCHd7/2IuW0d3NGrJ6L0
-         dHheE6b1zfeGAmY6UEMwrQtDg/+BYFKIY6FO70OW5nVxFxqi5gWgLE+MxM/6bD4RJ42A
-         h0ebSW9eGqhRSv24hbiRJjHNCDXvZ/QPH7rFbxWVvVbGT/NdaEl/AATgi9BvY6ZxwsGp
-         YTbnHXg8pJALQvF4OLBQbWQoHPTkUDeTbePNS116/gfczRUDFGn0DPgYCZbiYKf5F1rR
-         pfOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733164662; x=1733769462;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=TQe6eVBtLm32Xungwrj2AIIE9vImN21PR41UoDT4bOw=;
-        b=PJK6pNfhtV+XHbCHJRGutXGgOwk56ndV0M9w/H1UKqYV7bvmhtwAt0ztTZyjqdlnHM
-         zUj9fT1pwg+BB9Gxv4PD3ntZDVdjLL70bZtKcHRjDQKj1xF8hua/R7OHrmaV3k58o+Rv
-         BNFOo+AGKtjn+QOMBRlWjncucYtP+43RTYt8TkMTUPfSpbRchrLZBPrrWZA7UeIMxWmT
-         sG4WalaBT8ixS0snw9tFQepubBB7l0DXv9BqjE8yg8FuixnDmkDYXLVuvGo+qOKgKzhE
-         2hy8JLaIB86nh3WAojTIPG6I2aT4XolQ7AcfE94c2asO4omKB/xHIz/mR8Ic2pcu5AkD
-         uADQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWbjmx1f5HZEhZuxUDE2OfFNQRmV5F/Lc8TT1+pl552IkxiXn+/606VkMeVh6TwFGCAVjY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyCOagwKUekIbf6IVzuyQGmwQC+bAFXBzDdCf7RDjfBZ7Hp4yHO
-	47ts3Qs8rPFsvpbyybHqwmM1KzkKablfsCGL1rFQmz4gKBDzUeie
-X-Gm-Gg: ASbGnctfucLl7DN20+TlKxwLiqE8+4j+z9PrM35KEAeFtdYUsnLvBCUM9XRSA6h3G3v
-	MxnkJnPfKjldC4B4mFia3zhibHnOtDNr5zux4AZq/mMp4avnf9cS/2a7BieDjHtiTvoSnkmfPEP
-	x7amZdyavjMFMfY8kX/Y3xdQI+zBXV0JO92ELG1qS6f+puCGh6vHwjYbjRp2mUdHknM6mn3Mxv7
-	/G/nTpUQxM5ZvwGI8r8TUF1No6ARv2Uygel6D8hicEqbQM9BwlqSip1lmUYsVsM8DC0oglAKby4
-	5hM9oawWHBf5J1NYT67y8wNIUA==
-X-Google-Smtp-Source: AGHT+IGmkg7kby6XdFCccHSNIXaOum2auyCF662c1yGsxNbDf8eONwGNFqTxxEF1gflA+q/VKgeG5w==
-X-Received: by 2002:a05:622a:180e:b0:463:4bb6:bfe2 with SMTP id d75a77b69052e-466b366f08emr446399001cf.50.1733164662014;
-        Mon, 02 Dec 2024 10:37:42 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-466c407dab3sm51535871cf.49.2024.12.02.10.37.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 02 Dec 2024 10:37:41 -0800 (PST)
-Message-ID: <b39df833-2208-4d04-9e81-9bfdc37c8afc@gmail.com>
-Date: Mon, 2 Dec 2024 13:37:40 -0500
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="AvziVvzB"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=m5ncMdm6+UJQ1hcRTUcW6eCvv/3S8wghaJusJ7ff0yY=; b=AvziVvzBGSXQxzLa7M0g3jAdQF
+	r1IGJaAxmVMOQ7rbDAqRqoRezc8nOJN4121DfJfdSqf4haJ/zdM1xvLb8dXE254wFFNxV4qxX4ZeG
+	bbzydGOM3Jo5ddG0uWK/zvpgJ5/0Sym/ZVQWgnoKMBM6J1NGgtCutXh7hKoz+0S8wUOHk0UhbBxjV
+	x1e+KbP3RK13l1MgtgcopZqAMgyGzZRf9apJCzDjJD8G6bwSWpDuTqhmUym1sSwi7uiWKClETEi0j
+	7NzttYcX3Yat+FqjmXPRnKnZhtlYi5+r5fnXofDVTZ5SUkwi2kGJTc6IfNrNMlc8bc/yp456VmIou
+	9l7n4nzA==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1tJBSg-00000002tO0-3wro
+	for fio@vger.kernel.org;
+	Thu, 05 Dec 2024 13:00:07 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id D0B851BC016A; Thu,  5 Dec 2024 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20241205130001.D0B851BC016A@kernel.dk>
+Date: Thu,  5 Dec 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Could I use fio to send write zeroes command (NVM Command Set) to
- a block device (/dev/nvme0n1)? Not a character device (/dev/ng0n1).
-To: =?UTF-8?B?6IqI5Zu95pS/?= <guozhengmi@gmail.com>,
- "fio@vger.kernel.org" <fio@vger.kernel.org>
-References: <DM5PR03MB31469D90F8C20E2B9844E808AF292@DM5PR03MB3146.namprd03.prod.outlook.com>
-Content-Language: en-US
-From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <DM5PR03MB31469D90F8C20E2B9844E808AF292@DM5PR03MB3146.namprd03.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
 
-On 11/27/24 21:43, 芈国政 wrote:
-> Hi all
-> Could I use fio to send write zeroes command (NVM Command Set) to a block device (/dev/nvme0n1)? Not a character device (/dev/ng0n1).
-> I studied the fio code and did some tests on nvme ssd, but found that it doesn't work. I wonder if there is something wrong with my understanding?
-> 
-> Thanks for the feedback!
-> Tim
+The following changes since commit dc03e3788e2b47281b67e9354a7ff02a3053264a:
 
-Fio does not support sending write zeroes commands to block devices.
+  docs: explain type of memory allocated by md_per_io_size (2024-11-22 19:50:06 +0000)
 
-Vincent
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 6f3de5cefec65b1fd31abd79274089282ea6569e:
+
+  stat: fix unified_rw_reporting=both BW and IOPS (2024-12-04 19:00:53 +0000)
+
+----------------------------------------------------------------
+Vincent Fu (1):
+      stat: fix unified_rw_reporting=both BW and IOPS
+
+ stat.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/stat.c b/stat.c
+index c5413f2f..f1984dce 100644
+--- a/stat.c
++++ b/stat.c
+@@ -507,6 +507,7 @@ static struct thread_stat *gen_mixed_ddir_stats_from_ts(struct thread_stat *ts)
+ 	ts_lcl->slat_percentiles = ts->slat_percentiles;
+ 	ts_lcl->percentile_precision = ts->percentile_precision;
+ 	memcpy(ts_lcl->percentile_list, ts->percentile_list, sizeof(ts->percentile_list));
++	ts_lcl->sig_figs = ts->sig_figs;
+ 
+ 	sum_thread_stats(ts_lcl, ts);
+ 
