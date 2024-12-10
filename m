@@ -1,94 +1,102 @@
-Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5551B1C5CC6
-	for <fio@vger.kernel.org>; Mon,  9 Dec 2024 15:45:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649A11A0B0E
+	for <fio@vger.kernel.org>; Tue, 10 Dec 2024 13:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733759102; cv=none; b=FLg3mEoJsmYylJUcOaW0mvcCM7y8igoL8BgkghGTv3wA4h5RZ1WMrszrnis1wKsaGv/elUX0cKIE3XuDhk7le7wrN5n1AaLqDL3mFU2FvcTikjftor07nyZZ4A82e2fFoAYp23EAHZRHVnzhBW+H+8ruEKzn5Im/AhlebeOiFHQ=
+	t=1733835613; cv=none; b=pBHOKL3PM4+imoEl/qIs395FYRWebMgd4Y9/dvWEFTZoZ4dJAqVMYoolaamAtWxfh6F74DCOPBwUd+UIXFaBQNNc4imxVt0u28kR1tysCnDa/keYQqPN0VgLwsfpQQwC/cAeZcBba7YTOzS640vV7cxUMJ2JYCuqhcvWc1NIhOI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733759102; c=relaxed/simple;
-	bh=PzPr7O16rNwKWQ1J9qfBC2Y4+wYJ/uGwQUMMmRlecvs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=m+6vrLoWGoui/CGAktNqwnZh1pcTQ1lnjR6YrkUtz1bt4KuTLP9/v17kDkA6h6ngdeD7fwmgTcxvogIstmj2S0rGGdvolN0mA6FBhodAXUXXzNvRAlhUtWzkvUyUhT5WtsjZyeJoLCnnGArqtOCjHva3UB8h8yF2uMBWolANcnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DCFdz68c; arc=none smtp.client-ip=209.85.219.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1733835613; c=relaxed/simple;
+	bh=T65txr3dMX4uoOowo0ROzVR08WGlDJ6YK8vWodRZDY4=;
+	h=Subject:From:To:Message-Id:Date; b=gkUddFhUgqnyOeD5V3CGAlqsdjOl0KKGHAHXAdG9mVY3d0QKh00kZK5/eZH72qQ9hKWAZeSpAdRwKcMCl8OrMcItpGFlQEgmo9QeSUMEC0xMZaWyIQCIJWsecjjavnoTvEYP+GzKRMlksZHSPWexWRH20W0EbU3043lcEQ2wk2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=fo8ISkEi; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DCFdz68c"
-Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-6d8a3e99e32so35906466d6.2
-        for <fio@vger.kernel.org>; Mon, 09 Dec 2024 07:45:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733759100; x=1734363900; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LGfPkqNZzVo4c+zWLCi5nSrZWsvZ0iSs7Au59hhvWMI=;
-        b=DCFdz68cuE7f/plcoPHw8Ce39PkgTcOsEFCHt5KFeE1vpSacrNq4RmZetfVNqGIwJ6
-         HfB0Lisi3+BiKdHwjklbp5fDXzlOWjtwYPTab/3t15P2VMp/EMyGLOpU0TnbpsQuwiDL
-         pCGOg0UfmuRRq2NSq4FKq7BjMCrQa4L2woamTd9pR0hcoAJe9EQ4vnGg59PN44MNu1/2
-         PgU+1AQ8zzbq7nWpzfiozfhSOZtNY0A+7CAnugRAKwGYz4zRufAD2wnE+t1JJGWm7+7n
-         +p/T8+RwcKBq3SP3P94/ADTQor52P2DVso+k5rOvfGWnoza6gNVhicCRpF1/01o5pa9p
-         xIFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733759100; x=1734363900;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LGfPkqNZzVo4c+zWLCi5nSrZWsvZ0iSs7Au59hhvWMI=;
-        b=AcwrckWufCtMv4Lf94VMBM0+WGmQqz3BRMJg+Md6R+LvPqHgOBi48Ey/OQTcvzd1pj
-         vWW7sZgZkcsBISh24lDFPVbGwvgFSILMXdE4PVxBjkVgbaaZtipLlneieiPbv5bdYFM+
-         41E9MUQdsvHaGwr6wHxCBbxq6X0Se7GtMFFMf/RLj4IqZPCxagJogZbQbMOf9Hlc0msr
-         FXs2bnwM158xWIObDVeLti+bpyIKvqE+nXlXwL3Emx8F+zO2sYs++x1biLfofvm81+U2
-         Qa3l+IFfcDtpGyhBZkCplVAagp+7TYSwnrHcwCoC2KTb3jEKgG8gL27hnw8kjE6GcaqQ
-         FN4g==
-X-Forwarded-Encrypted: i=1; AJvYcCVrh4c4Mp18150PxmyMMKpwL/HZG+48QFLTN6dIXkvijDPY/VAPvNoAjNyALZ7BcNd+oMA=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxx0iB1FQRG9AaX64osKGJTpJ6Bkpztl1yuu7NlkS0AlacZEiVc
-	hlVWyRZ3XLw99GmsuAn8ECEr0FjHpwXia9dTPBv6WUnCTgUkHL8g
-X-Gm-Gg: ASbGncubvgbe+HUxz1zzZvnUk9scFzTJJFdYvUlbVEeFNA28rXNEV5J1CpU/9q0L0F/
-	2F6XRSaTvWycSIZfkydTgMTivAF4eV6ROthA249EN9i8u/W4lVcxIfFxLKldjtdYz9vFCfAICZA
-	zYeGPpFsRfNG+lkoetxsdIY9VzYS13rSLpTorZGZis88CcHsI2U/5wduRxHmvycXyfl/1MXLFCZ
-	Y+yItwjBG96c3BaNnK9Ah/BDhKlyk81TFH5faiCGLmxFnqYAH6ezdVs/Ib2apKpBJEPAPFb55aN
-	so0Uhom2XsEzcw7NIXIu5yBCUw==
-X-Google-Smtp-Source: AGHT+IF9UcRNNfdhEbc+fdmyuGsW/7q0zGADmTaIrt5NJTQqwlMD3g5msBKgxgmxYIFTXyh52wxDeA==
-X-Received: by 2002:a05:6214:301e:b0:6d8:9c92:654a with SMTP id 6a1803df08f44-6d91e341b7emr18521576d6.10.1733759100059;
-        Mon, 09 Dec 2024 07:45:00 -0800 (PST)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6d8fa317ed0sm26624396d6.46.2024.12.09.07.44.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Dec 2024 07:44:59 -0800 (PST)
-Message-ID: <bc7d9d9f-7b47-46ae-a06b-ad298125a0e3@gmail.com>
-Date: Mon, 9 Dec 2024 10:44:58 -0500
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="fo8ISkEi"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=AcCtSPbOEZ9QG+VfcnTGHupkmjFLcEYE7ebxPxW1Ht4=; b=fo8ISkEixbYqF/cBjNyubiPS+P
+	BqmONptGs5L7nEVO0Ai9RgVH3FRlM42CGuvRhRVT0bTMNM8Wl+Ju38ZOBZrgu0/rqK7kZMBZKZPwd
+	jnhUtkEIyqJwGUTl16guw7gmQaRAwg9j9XPDy/QQHgsxfsqEoSuQqc8H4CzOp7YPGTQQHT2tS4rGt
+	068UOSmcc2+79s5kLSstEFH/9kB9ICs9YCAJkFc81TjlMUMUkDzPolqyo8qL8bK8WE1WgUKBzI+Ha
+	gZitJmbH9FNDsEgI+h9o4kSFOc1+hQFQNJD1vsULpdwVfItY6Z3gTbRaxYylvHwdPzjNeH+lhP67q
+	CtbbzbUg==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1tKzqO-00000003gVn-2bw0
+	for fio@vger.kernel.org;
+	Tue, 10 Dec 2024 13:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 33A151BC0158; Tue, 10 Dec 2024 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20241210130001.33A151BC0158@kernel.dk>
+Date: Tue, 10 Dec 2024 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] nfs: add support for new libnfs API
-To: Ronnie Sahlberg <ronniesahlberg@gmail.com>, fio@vger.kernel.org
-References: <20241209054758.3269700-1-ronniesahlberg@gmail.com>
-Content-Language: en-US
-From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <20241209054758.3269700-1-ronniesahlberg@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-On 12/9/24 00:47, Ronnie Sahlberg wrote:
-> New update of libnfs will have a new API that changes some signatures,
-> primarily in order to make nfs_[p]read[_async] calls
-> zero-copy in the sense that (almost) no data copy is done in the library
-> and READ3/READ4 payloads are read straigth from the socket into the
-> application buffer.
-> 
-> In-library zero-copy only works for !krb5 and !tls sessions but can provide
-> significant boost for read-intensive workloads when can be used.
-> 
-> Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
-> ---
+The following changes since commit 6f3de5cefec65b1fd31abd79274089282ea6569e:
 
-Applied. Thanks.
+  stat: fix unified_rw_reporting=both BW and IOPS (2024-12-04 19:00:53 +0000)
 
-Vincent
+are available in the Git repository at:
 
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to f512744be77f2c65e17e3ddde90c2458124ac152:
+
+  nfs: add support for new libnfs API (2024-12-09 10:44:15 -0500)
+
+----------------------------------------------------------------
+Ronnie Sahlberg (1):
+      nfs: add support for new libnfs API
+
+ engines/nfs.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/nfs.c b/engines/nfs.c
+index 6bc4af1f..13b55038 100644
+--- a/engines/nfs.c
++++ b/engines/nfs.c
+@@ -157,16 +157,28 @@ static int queue_write(struct fio_libnfs_options *o, struct io_u *io_u)
+ {
+ 	struct nfs_data *nfs_data = io_u->engine_data;
+ 
++#ifdef LIBNFS_API_V2
++	return nfs_pwrite_async(o->context, nfs_data->nfsfh,
++				io_u->buf, io_u->buflen, io_u->offset,
++				nfs_callback, io_u);
++#else
+ 	return nfs_pwrite_async(o->context, nfs_data->nfsfh, io_u->offset,
+ 				io_u->buflen, io_u->buf, nfs_callback, io_u);
++#endif
+ }
+ 
+ static int queue_read(struct fio_libnfs_options *o, struct io_u *io_u)
+ {
+ 	struct nfs_data *nfs_data = io_u->engine_data;
+ 
++#ifdef LIBNFS_API_V2
++	return nfs_pread_async(o->context, nfs_data->nfsfh,
++				io_u->buf, io_u->buflen, io_u->offset,
++				nfs_callback, io_u);
++#else
+ 	return nfs_pread_async(o->context, nfs_data->nfsfh, io_u->offset,
+ 				io_u->buflen, nfs_callback, io_u);
++#endif
+ }
+ 
+ static enum fio_q_status fio_libnfs_queue(struct thread_data *td,
