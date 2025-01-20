@@ -1,99 +1,105 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBC5B1F3D56
-	for <fio@vger.kernel.org>; Tue, 17 Dec 2024 13:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D1641DF74C
+	for <fio@vger.kernel.org>; Mon, 20 Jan 2025 11:58:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734440411; cv=none; b=pmz/tirEEuq0ducJjK/eUcR4suLZnZ0q0EUGfVbGhzXMEbCasJUEy2HtmBaxtgzzFfj8L3/MzXS/AMTt660iMq730dc7z+Da3+e+mTGFx7mZSq1fTslvLH7jJftSDaY9MOw5llvaQLBkLFxX86CT4GifLzEKC8AFTeQuoPQmrt8=
+	t=1737374334; cv=none; b=YvcdP8B/psXN1g/LYOjUpZU68zbqSu9W+RwnFRP6RW7S1L7H8dn63Drtyhh7g+XMIkeX9YUGBJaCnvxxMUYwhND96g/ZUgha6wSWLX9knDHHq95sFKKrQ9aXXuK4n558zaewXh9oNLSNT+41DR5q5iulD9iwI3k7eDbVNCAOen4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734440411; c=relaxed/simple;
-	bh=nJSBwenJst4c6VJXMuZ6zRJF2du9l1ykeSa3gar33wE=;
-	h=Subject:From:To:Message-Id:Date; b=vEfXhqGk8TwP6K4Mm8DACrnu2anV7G6WXIn2lU2ABl+rfl/S2MY8JhMi/xSmkltdI6guxdjiVkWqBNfsP00Ps0NL+XC96T1xYQDJGRBj/bdPREC2C7pbiayaetCBVptpk3s1CURs0HOjDGktnV/RPximuCfdcT5FyUaLhZts9i0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=f9WQyR/Q; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1737374334; c=relaxed/simple;
+	bh=SrkUnVHP5DfiN/jMm8kbBkddABwFSX/v5/mZcv4B/9A=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=OAkQDfK/lElgzEaJpa5v5drOG0hXFNr6t9/+zxVuiK5aVsXO2sA+XcAOL5m3iV1cNaN7vtm4Hun4ngh5MIgcB0Y2nFyZlnKfYnrAaOdAIXGprHQHny4dKL/ObvsywDjV7E6BW8fPw4A9pOivx7pXcDYbtzbOQieJV/ikZr3uucM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SzwhtXwS; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="f9WQyR/Q"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=gbgxQsLlLj8lX9OiXxMcEbTMy3EZA2xlNgGTMQZTC4U=; b=f9WQyR/QMKEiNZFGRnWemxCY2s
-	RYdeuuz/sm/we45FCbyVtSBO7m0sjKFhcMKkFaJFhVQqsPyr7c13f7ysSDj59dHyqMQHUr5HiPLr8
-	M3zYBdbsPQqcvUBtyRtAKF6cJRdp+D2umELrNwG5AoMzSO0EBY6R+KchN0QxUXv8hrbnn6ogXOlFG
-	znR42K11Y4g+d0eDPL90cmeJXp+whVARERkwuU/rvvSu1yHn3eJ+1/1k516jsU8PyDcdHFmxDRgBN
-	rPBQAvuu3Ron2v7xqQpUDzN6vHSizYz2T8Lmg3LCJF3kHK+orWgfDpm6ov67e/4biSWhWBA7oEr8/
-	J2QwkNWw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
-	id 1tNXBF-000000054nF-26pV
-	for fio@vger.kernel.org;
-	Tue, 17 Dec 2024 13:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id BC40A1BC0134; Tue, 17 Dec 2024 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20241217130001.BC40A1BC0134@kernel.dk>
-Date: Tue, 17 Dec 2024 06:00:01 -0700 (MST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SzwhtXwS"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2f42992f608so6056762a91.0
+        for <fio@vger.kernel.org>; Mon, 20 Jan 2025 03:58:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1737374332; x=1737979132; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=SrkUnVHP5DfiN/jMm8kbBkddABwFSX/v5/mZcv4B/9A=;
+        b=SzwhtXwShj8vXeH7clMtYeVqhNnefO9k7j60qaxE4XeQ46cxBaPcmEjfbQGHB7j3Ke
+         V+qc6JPnlKz0pViOgiWbQ+Xa/D/0BBFsKk8de/xrqGas9GIiCLkJBnB7IZhg0WImO9DS
+         HAhLAfu4sDyvnXFQLIQeHQdcgUHz2BxdX6mEy6zw8HEw8Ep6n2fXt8WkHmBkD7Txbk4a
+         24iRftUVbSU923nV1M/oac6LLD5IhSQ5UeuVSITa1hSCnlWSMz+7l/L2XXG3MFxQIzvx
+         gBH80FByzXwhM0/DOF7QyD53T9JA8ww7FiNeVCjD2sNOtWsB81YDTHwybW9I/9ZIueHL
+         c4rw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737374332; x=1737979132;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SrkUnVHP5DfiN/jMm8kbBkddABwFSX/v5/mZcv4B/9A=;
+        b=wqWUW+gtjCy9WLnPra3OIkZzzjtrVrfypiTzxeMt+5OOwKfrc1oIHPS2HAHhxy6hOT
+         u7dJKG7h0AQZsXFh7i0bkITFe8m1Cf8MRinFYK6YvO4WfSefLJzpYLcb2p/8+yAQBiQy
+         WudYVmeaPh6B8R5V3KbuqxYx6T5NyFbMvcsB6zHzJemO3w3r6Fx7Lhg6hwNW88jXSfU0
+         x0M8wKmswwP5OUWRVUfsNBzze38R8UCrSPaDGbKcjnOYV6upl1pIABhZDiS/7O+bfDfC
+         iNLCEaeduG98pNA9dFh2ftxgLDFl7v3WsXGPe+pVf/RDrO/bmW87cdzv5mKR26FHTA85
+         yHBA==
+X-Gm-Message-State: AOJu0YzaE7AWNA2oPJyoQlduaB3Af6kCgfdFXcck8x6M+jGpHHtHkdIu
+	5Ie1T9mqVluQKiZNakTy0Uq2QHq9ITiqYCZ13wRTjWEDZUBYkrAEoHxFasRfh/kk8EDLwFXqDz4
+	L9SyfyQ5zgs9kFG9ksmxCg61E8e1NI6RS
+X-Gm-Gg: ASbGnctOSvg8LV4WcDUPs1pQq6UNSrDuUIpeNGBgmSVEiqhJRRnJbSUQhN2nh1aNfQa
+	h5/q7+jaidvIJkklqMKonNyodJ9CZb2bQsRcqh9dUppbFstFCXttqmKCoYXPX2cDIDBzKAwdGVq
+	zDuLl2PQ==
+X-Google-Smtp-Source: AGHT+IEhR1BULUQmiyB2dbn7pmWDHm5Iekd70Gv8VT5N1x4p10iAEd6+b4kl6b4kZMxdohpOaeNULMMSzc26rKhAucg=
+X-Received: by 2002:a17:90b:51cd:b0:2ee:d186:fe48 with SMTP id
+ 98e67ed59e1d1-2f782d323b3mr18882810a91.28.1737374332034; Mon, 20 Jan 2025
+ 03:58:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Giuliano G Motter <mottergiuliano@gmail.com>
+Date: Mon, 20 Jan 2025 08:58:40 -0300
+X-Gm-Features: AbW1kvbQcy0N49h-OblKG0JSxe13yM1e8QbVQ8iV5iZ9gfFBmEb_S4hvQxR1QUw
+Message-ID: <CAK0q08N-yCNKK9Jsg5h2_Kmm9iEhc95fPuGxYYC-BhK8dkeboQ@mail.gmail.com>
+Subject: How do I characterize my usecase so that I can simulate it with fio
+ the closest?
+To: fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The following changes since commit f512744be77f2c65e17e3ddde90c2458124ac152:
+Hello all,
 
-  nfs: add support for new libnfs API (2024-12-09 10:44:15 -0500)
+The company I work with uses USB Sticks as a crucial part of the
+product and I was assigned a task to bring up a pragmatic method to
+characterize USB Sticks from different models/vendors/manufacturers.
 
-are available in the Git repository at:
+I intend to write a simple pytest based framework that will use fio to
+characterize the USB sticks systematically.
+This would allow me to perform hundreds of tests in sampled devices to
+either approve or reprove that model/vendor/manufacturer, based on the
+performance parameters.
 
-  git://git.kernel.dk/fio.git master
+To start with, I plan to perform a series of synthetic tests - where I
+don't intend to simulate the real use case, but rather, just to
+compare different device's performances against each other in a
+handful of made-up stress scenarios.
 
-for you to fetch changes up to d1ebbdd2de8afc6cee885d5a2f04a79e2598217a:
+At a second moment, tough, I would in fact like to implement a test
+that is the closest as possible to the real process we have during USB
+stick flashing
 
-  Merge branch 'master' of https://github.com/termim/fio (2024-12-16 13:23:58 -0500)
+Question:
+How do I characterize my use case so that I can simulate it with fio?
 
-----------------------------------------------------------------
-Mikhail Terekhov (1):
-      Add .readthedocs.yaml file.
+My process is something like "./proprietary_script.sh --device
+/dev/sdc", where "proprietary_script.sh" is a single threaded app that
+mounts the USB Stick and performs a series of copies (with cp) from
+the host's SSD to the USB Stick fs.
 
-Vincent Fu (1):
-      Merge branch 'master' of https://github.com/termim/fio
+How can I know what are the values of IO type, IO engine, IO size,
+block size, etc to call fio with, so that fio will simulate my process
+the closest? How can I gather such information?
 
- .readthedocs.yaml | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
- create mode 100644 .readthedocs.yaml
+By the way, the OS is a Ubuntu 14.
 
----
+Thank you!
 
-Diff of recent changes:
-
-diff --git a/.readthedocs.yaml b/.readthedocs.yaml
-new file mode 100644
-index 00000000..e731de6d
---- /dev/null
-+++ b/.readthedocs.yaml
-@@ -0,0 +1,20 @@
-+# .readthedocs.yaml
-+# Read the Docs configuration file
-+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-+
-+# Required
-+version: 2
-+
-+build:
-+  os: ubuntu-22.04
-+  tools:
-+    python: "3"
-+
-+# Build documentation in the docs/ directory with Sphinx
-+sphinx:
-+   configuration: doc/conf.py
-+
-+# Optionally build your docs in additional formats such as PDF
-+formats:
-+   - epub
-+   - pdf
+Giuliano Galhardi Motter
+mottergiuliano@gmail.com
