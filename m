@@ -1,116 +1,83 @@
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17A1823DE
-	for <fio@vger.kernel.org>; Wed, 22 Jan 2025 01:38:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.141.245
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5835D249F9
+	for <fio@vger.kernel.org>; Wed, 22 Jan 2025 02:59:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737509928; cv=none; b=sA431KgGGvpo4RRqmOBciLBWn2cEfgSOSRqs5/iQBpfDuj6sMl857njYFfewkxL7Aw/rKjR9M2VP56DJZCdFfatBwDke3wFQJR1GwLGnzRUP8K/hm5wzZGvimuAFXCkE+JfGPBrw7cVYZXpiznRrpnFiY+nsYg/PKupe0JRjcz4=
+	t=1737514800; cv=none; b=YHaAJ0s6xYkfEaxWpOQHAigwrk1z15JYVeaRFXTKg/Sc7n3Zc460zT/P+URB9f0SN2gFgQqd5HTdGk++5S20BwtEYySa0ZzqNY3AZbYN27HJF0OVDigf8CBVd/9aBCgC4Ehj8FZ7jxSnI+BRG9NuewOztPdaX1PytPGDsOxpT80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737509928; c=relaxed/simple;
-	bh=0tzGRx4/wJvb7KCprdmlHJDNw/vRUbIzqXbOAa1SdRU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=NF33LBR4cmsSpXbh0VnS+wshzaFz/lYDYoq1BOYeMC64HpJ0bLZUlaOQfux6f7IgBgLY5IqfxoN1epg9P/VwRweU6MpyRwZ/ZLfATMZq0TDkzKGb21JSKbvdngLmzDuPxNPs2P0N1cniPdQyl1NL6754ibLr4kjoODqcKvz5HV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=N7un9/ju; arc=none smtp.client-ip=68.232.141.245
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1737514800; c=relaxed/simple;
+	bh=NfxdpnUKQNO/pss8hi4Ki0y0L/3xuoqW3nzdNAxJzC0=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=A8CbJ6orgiffxGY397LEK91k+dCkzmPUSQLq537VaRwk8PhCJmVEluQenCGSS7qIbd3ItMHeebxEwWGXxtwuEPmyCeHmLBI0kPQhGpddcOOj6+RXpSyquyupk1Y3I8bhNuQWDLWEmUlgCihcnoauaMtBj2lq0F8EWygWypMWuUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=maw0HaLw; arc=none smtp.client-ip=209.85.222.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="N7un9/ju"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1737509926; x=1769045926;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=0tzGRx4/wJvb7KCprdmlHJDNw/vRUbIzqXbOAa1SdRU=;
-  b=N7un9/juryCsdAC1ewX7ToavDzHSXCCwacYFu06ejbpsr/7DOTL8h3Pc
-   U/U5yiwp188P0oC+Okzo95qOtWT2EfWJooxj/9WyRZNgO2e/yBnRO84Zi
-   OdzWfqmu01bpyMxvDBFCWkgNLmg4+iWLOlytYGQ/OwQrINHxutkYhwPnB
-   X+bUlfU1cn1bsobEbWMEqnnbbQ0tvUbih39jJoNNDsSl3oVmmiOI+XTap
-   I0urA6Q60C3+GsIJCQ5K0ProfEIgZ0iF2GXQDrnxe2Avjw5H3Umnv99ro
-   F9iambxxrAuCHeUdcYYG/i95aVn+qSY6wGj2IvLTQuT4FO0oY4O+WUjMD
-   Q==;
-X-CSE-ConnectionGUID: mobUXWMpR+iZkzv59Xg8Bw==
-X-CSE-MsgGUID: j0Xurn+cSW6TVo3KCmbZKg==
-X-IronPort-AV: E=Sophos;i="6.13,223,1732550400"; 
-   d="scan'208";a="37689158"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 22 Jan 2025 09:38:39 +0800
-IronPort-SDR: 67903e88_YX2GLc4bOHvrSTC+5H5fs8p0G4SAwDdmHQ2BR2YRUC9LQhj
- lBxjVhnUQoFiq0njS1UCs68fNAvHbCpO0okVQxg==
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 21 Jan 2025 16:40:40 -0800
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 21 Jan 2025 17:38:39 -0800
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Niklas Cassel <niklas.cassel@wdc.com>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 2/2] t/zbd: add test case to confirm no max_open_zones limit check
-Date: Wed, 22 Jan 2025 10:38:35 +0900
-Message-ID: <20250122013835.1223725-3-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20250122013835.1223725-1-shinichiro.kawasaki@wdc.com>
-References: <20250122013835.1223725-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="maw0HaLw"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7be49f6b331so589917285a.1
+        for <fio@vger.kernel.org>; Tue, 21 Jan 2025 18:59:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1737514798; x=1738119598; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=NfxdpnUKQNO/pss8hi4Ki0y0L/3xuoqW3nzdNAxJzC0=;
+        b=maw0HaLw+qsEa2vAzJSrvoTVM6JDcNcca7MDGnxETkjnFzipWqWqAQnNbQ4rRnv+rm
+         O7tfHfwq7ftRKfkTh9YmEVPUMJJtHHwdRM4fWW/8q0WW0o9lHcONhnmiYgrCgofDlEoB
+         Kmqc/m2Aw1qD5XBpwe2b1cwMHyXBu8aoaUoY0yNC2fGkYZ4ywhHf/sZNZDQr3GkcWF7o
+         xHgkVP+yq9gAfDaWh6+FD0Yt2ygcRrdBBkczGFSMYfuj9ei1DSx83XZJAGRKbVzWVkXE
+         wIbY0ob/G5xtmAuf98lPfTIoXT+YJY3J/3NRsMx4h2XlzeWdkDfZvGMgHvourMireu1r
+         YXeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737514798; x=1738119598;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NfxdpnUKQNO/pss8hi4Ki0y0L/3xuoqW3nzdNAxJzC0=;
+        b=qoFUC6ZHLyvXZt8Vy0Yhby1MTHWex6GdHjP5lwEG5iWPZdiq5NHp9cJIGy51+Nz9mV
+         Q6QhM3VO6if+ZRaSXbusmrb54nRdm94up7wVk1iV/4kJpOxKcQM1UJ73q6RwWAoavRft
+         CsJtd2roLLqoWBbMkfwX97+N0ZkqW+YO/jva1bfOQMEB/a+A5HkKYpAuh+6awuqMXycU
+         lvLitHzwfEsKcdiqEaEtnjkN/PWJIbodwu9zd0TukO7WBBegJIt/2G5DM2XyMTbFF+5j
+         wzxTHzg02f+LAPZeHZVcSuZaNiNSurQjqXndYIN3OJtB4RIeCbeIgEMK8YCWL8qNXmiC
+         l6sQ==
+X-Gm-Message-State: AOJu0Yze7WxGQKwImTmRLAQ7TMRV2qcHnh71y+72wi2It3oNVLXua+yP
+	S9wMJhe75qnLL6LAxHI6J2JsqECYTEgD9r9v2Gff6FS2D/NXnkPAxMt1
+X-Gm-Gg: ASbGncsUIXPZ/v+A9nEEVqKIeoyUMDCuaZM2aenGy+QnrFPbA2wjsUlsI3l2Q/VA7+4
+	i320qtZEzrnBfCD87SeLNT3Q/VX2pRQkhUhzAP5wLral4wn9KIBTYrST4murN33OMXYP2Ni6+GU
+	0xjfzjpmf11mGQGN+73KDYDJ1OjhgQsiKT5Q2lSaFbnEbtqdjmzjG2A7ogFC7TCqcU/n/t3ghq+
+	7S38kaDFqTla57ILJ4d3LLSm61vLh3x4hrtjOS6dHqhYUJwpJ3n0bqHWI0wG9C7mRhenZ6wyWEa
+	Dmrn7FmggftBOusQEGzpISF7Daqi55FUPYpnMqNbUksnNQzPYJ/Wfh5dQuVsWyA4
+X-Google-Smtp-Source: AGHT+IGHxBzZdusDNkr95N2RZO3ZIFcv//pIcbDlz0rAOfbpwOpdZmNBPmmrO+fkzBkvlUBui/ZPrw==
+X-Received: by 2002:a05:620a:8808:b0:7b6:f143:44e3 with SMTP id af79cd13be357-7be6323efbbmr2877009485a.32.1737514797957;
+        Tue, 21 Jan 2025 18:59:57 -0800 (PST)
+Received: from fv-az789-398.ieztu3jclcrurakx3eg5vmcnoh.ex.internal.cloudapp.net ([172.183.230.32])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7be614d990asm620465585a.70.2025.01.21.18.59.57
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jan 2025 18:59:57 -0800 (PST)
+Date: Tue, 21 Jan 2025 18:59:57 -0800 (PST)
+Content-Type: multipart/mixed; boundary="===============7264202904265255697=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v2_0/2=5D_zbd=3A_fix_open_zone_status_check_for_non-write_jobs?=
+In-Reply-To: <20250122013835.1223725-1-shinichiro.kawasaki@wdc.com>
+References: <20250122013835.1223725-1-shinichiro.kawasaki@wdc.com>
+Message-ID: <173751479677.2494.10108657408406494863@fv-az789-398.ieztu3jclcrurakx3eg5vmcnoh.ex.internal.cloudapp.net>
 
-The previous commit fixed the max_open_zones limit check for non-write
-jobs. Add a test case to confirm the fix.
+--===============7264202904265255697==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index e0b2a755..468fce70 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1608,6 +1608,35 @@ test69() {
- 		>> "${logfile}.${test_number}" 2>&1 || return $?
- }
- 
-+# Test max_open_zones and job_max_open_zones do not error out for non-write jobs
-+test70() {
-+	require_zbd || return "$SKIP_TESTCASE"
-+
-+	reset_zone "${dev}" -1
-+
-+	# Write data to two zones and make them open
-+	run_fio_on_seq "$(ioengine "psync")" --io_size="$min_seq_write_size" \
-+		       --rw=write --offset_increment=1z --numjobs=2 \
-+		       --group_reporting=1 >> "${logfile}.${test_number}" 2>&1
-+
-+	# Confirm max_open_zones=1 for read workload does not fail
-+	run_fio_on_seq "$(ioengine "psync")" --io_size="$min_seq_write_size" \
-+		       --rw=read --max_open_zones=1 \
-+		       >> "${logfile}.${test_number}" 2>&1 || return $?
-+
-+	# Confirm job_max_open_zones=1 for read workload does not fail
-+	run_fio_on_seq "$(ioengine "psync")" --io_size="$min_seq_write_size" \
-+		       --rw=read --job_max_open_zones=1 \
-+		       >> "${logfile}.${test_number}" 2>&1
-+	grep -q 'valid only for write jobs' \
-+	     "${logfile}.${test_number}" || return $?
-+
-+	# Confirm max_open_zones=1 for trim workload does not fail
-+	run_fio_on_seq "$(ioengine "psync")" --rw=trim --io_size=1z \
-+		       --bs="$zone_size" --max_open_zones=1 \
-+		       >> "${logfile}.${test_number}" 2>&1
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
--- 
-2.47.0
+The result of fio's continuous integration tests was: success
 
+For more details see https://github.com/fiotestbot/fio/actions/runs/12899960142
+
+--===============7264202904265255697==--
