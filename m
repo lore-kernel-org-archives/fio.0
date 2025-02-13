@@ -1,118 +1,84 @@
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 055622063FE
-	for <fio@vger.kernel.org>; Thu, 13 Feb 2025 05:25:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B14D3206F22
+	for <fio@vger.kernel.org>; Thu, 13 Feb 2025 05:49:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739424324; cv=none; b=it16ocS/OZkPMAcXwQkWeBZelJY6O9xBXL+7BYK4piDBS17bujArf7CUHaDqw5MzCViiNcKDzofEvW4vZ59xgDudRxpwn4SeBkoABccbXTaiwDWRYFUAZQplAjpYZtnx+6/lUQXg2QI6DGnNuTDGepaXwt55wu2Z8pEF3H3IIeA=
+	t=1739425783; cv=none; b=bDY/I6gcSNU0t0Uc82z9Zf1PDNsh56OO9GkuBZYuG6YHZAH50wEAXoskwwTImWlN6hWDllYBoHkWXwr7PHp9TwrKrhGcdBLip4MFtnCgaa1pfd+qxcbesHCqopi7QwjOwHS/wkrCnzQlg9Ir6wUqqwr+6ntcxVkP5bHLtyDcQH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739424324; c=relaxed/simple;
-	bh=OI6X1Qc9aR6A6zRSP1PWgrHq/eIL3Dcot+ZILmAoyJI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h+ohG4StrptAN/wqaAAu0L0m4khLC0Xt+DMAuipdg47ebC4kUARJEx4M2Qo0yyWq+ktYYohJDPO1aSH9R/sFHmVidrhTV2Mty2oNPWD9X9cnS2Pm4NGz50eFDURzcF6zmjfpsWoVKTscpjmMLB6I/XlmytDnwuerOqbZshiEUiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=LU/FPXnY; arc=none smtp.client-ip=68.232.143.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1739425783; c=relaxed/simple;
+	bh=ptaXJrNTlsxIVRWJtz4UlE9qifyDmghwqvZvw1Y6Wgw=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=FWLvLyzwAWfuSlcZ6StjAENxGzQJpayqn4Xtb01n6XUsvqMeORgeatvz7Xl+EbwSQXMivn5UxzZsvv/ZLarJwVm19mQAje19uzM9wcOiSvzEkNgzG4XUmQbrk/2+NSnnrnd4TpvJFhGFaRusVROYBpyzEDEKUB4EOaiCMFeza6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ByuD/yxd; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="LU/FPXnY"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1739424322; x=1770960322;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=OI6X1Qc9aR6A6zRSP1PWgrHq/eIL3Dcot+ZILmAoyJI=;
-  b=LU/FPXnYzbuTWpvVXl0jovlBDHfKf2QFRr+fXjBE71H2G9fk/yGkUHKJ
-   oaleqEPxybsHRjlIlSoB2duQNnWN/fYVyNKy+salrFkr8Mu8yLP6j5TlU
-   dqdw/eZu8UruhbEtHj66sp5w8l4HiqVv15Axllw80osSNodSCe3hS0VW6
-   C58OVAAe5Jj6ac+SsKH6W+eFIDQSqZYBSBXsEKyKUI5/VtfB9j2++EvJi
-   HwYEfgAcNFdt6gJUVxvVMJ8cQPN7X2frBnqu2zVeCnO4XnP3ljFvrTppd
-   Ev+3lX+KdDSLtnv1tgOOA7MQjw36zMpsPlcoOZ4qEuE1mKw7IWS/HEprY
-   Q==;
-X-CSE-ConnectionGUID: tWqzuh3fTHy5iOK88t6ipw==
-X-CSE-MsgGUID: MCQu4yhOTD+de9vASVjiog==
-X-IronPort-AV: E=Sophos;i="6.13,282,1732550400"; 
-   d="scan'208";a="38948613"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 13 Feb 2025 13:25:15 +0800
-IronPort-SDR: 67ad7488_clkS190yAyl8VYeFPbQcTE/vhTKykpin8DNNhTqZHVFwgRR
- dZl20k4XjANrYwnLyDBM67DNg9XdU02dDk+TaTg==
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 12 Feb 2025 20:26:49 -0800
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 12 Feb 2025 21:25:14 -0800
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 3/3] t/verify-state.c: adjust to verify state format change
-Date: Thu, 13 Feb 2025 14:25:10 +0900
-Message-ID: <20250213052510.1474423-4-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20250213052510.1474423-1-shinichiro.kawasaki@wdc.com>
-References: <20250213052510.1474423-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ByuD/yxd"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2f44353649aso830473a91.0
+        for <fio@vger.kernel.org>; Wed, 12 Feb 2025 21:49:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1739425781; x=1740030581; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ptaXJrNTlsxIVRWJtz4UlE9qifyDmghwqvZvw1Y6Wgw=;
+        b=ByuD/yxd6hWf8DHgV/592+R+4d48ix1kVDIRjv14JDlm110MPHuIaoS/a52XhjDAh4
+         Wqn6/FwN0LSszDbcutDP5UJ3auN9HMbAN86o4ZCRYWaeSID0fQuAzoej7/Ve3xJ7RIvi
+         dmmOuIiY0LHoHZImYpFoxgdVYIhRPAco1YJhYJOeC2/DAmTWyRgUMcazxkgbgZawRoid
+         +yjS7jPCbbgf++abWwtlO7WKVBtL5aom5fltmNpqIcPpuCEV/Eb494QEUvcFuP5VwNjg
+         CkFZcZgjyy7ZnYtADdU7jl2MDv8a24+Dkm6ClC7lvpWN4gyJPx37OhEZ60jHMkukNTXm
+         JtrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1739425781; x=1740030581;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ptaXJrNTlsxIVRWJtz4UlE9qifyDmghwqvZvw1Y6Wgw=;
+        b=w6lGQ67HxBOxFWxMLXHfXR9gjfXPzBDwKF2IxIACHP5TAqj5e8pH+w7eDyu+oM46X+
+         bI9Krnl0VskLZAURQQ8ofzlhvT7dlnx9nVonITjVSViEstI8pTqd7nPuP67h9ifT9ARp
+         3tI58x+7CJ0qRXsMQ7abVq0ZdYwYngYQmLcmTabCbzOkEX7tqn147I9YU6er/whxOp9F
+         zGXcnQAYIC3cRvp+hIqICZ+S/xNJdYthkyT9Gzxh3ND7hqM0KlYji+GUWh9IEh9beXXh
+         T5VyI7Br/qh6zCmo1LhtkW5RdSABB9YsssF3N19Z6IVJvtiH9KrV2DkBmSk2fdt9olWu
+         wAdw==
+X-Gm-Message-State: AOJu0Yw6XK9/kzY00FnjUwbImIvYjRyGb4tkzKZ1SYPzZnbEC5kKW/xe
+	1wLL2PXuLJ84ankjy93xEfEA/FrHuqWVAWcDJtdd8w8YwPOcVhaPJt7f
+X-Gm-Gg: ASbGncuVadaif0zPqPFT8COh7nTkGWU7ankgMhmP466ylbG0ACGaJIM0Mr3SgsgLoiK
+	0gf9twIFB9F0BO9/8d6FSpWjVbfFXDSUGapMd+Zs/VM/X8mU78q7FirvGrBSoAQrr8Zk8BOkrUA
+	Z7C8ysXEEytwiYAaoHS0LV07DWqH2x6s6thdwwpea33X9yxlM3cdW+lDW/mLxRfsJCfEhrmOngl
+	sX4cYe3lBEi8eJlY8UsM6AJswiLCY99bgIygNA4WGX6gSMVLb9duHeE8/qYmYsCK1kwqssK1cpl
+	tC/9QMW4vwaqDzoqJBrzF0Eiti//i94Y41Z633gOFAnmxOtogmnbcrEUrnVItgHkaRaCY8A1Ei1
+	zT3NOzo3te8Y=
+X-Google-Smtp-Source: AGHT+IH0e7FxZpf1dnuewNzm6xB1EPQdhych8psMqhSMLz58XhSc1saiCRNMqd5YP/yGw73rFzP95A==
+X-Received: by 2002:a17:90b:258e:b0:2f8:34df:5652 with SMTP id 98e67ed59e1d1-2fbf9072b46mr7348276a91.21.1739425780589;
+        Wed, 12 Feb 2025 21:49:40 -0800 (PST)
+Received: from fv-az1915-977.xkjcjftakiyujkhqi2elkn4nmb.dx.internal.cloudapp.net ([52.160.165.197])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2fbf9757365sm2415842a91.0.2025.02.12.21.49.40
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Feb 2025 21:49:40 -0800 (PST)
+Date: Wed, 12 Feb 2025 21:49:40 -0800 (PST)
+Content-Type: multipart/mixed; boundary="===============4586733178281175449=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_0/3=5D_fix_verify_stop_for_verify_state_of_async_writes?=
+In-Reply-To: <20250213052510.1474423-1-shinichiro.kawasaki@wdc.com>
+References: <20250213052510.1474423-1-shinichiro.kawasaki@wdc.com>
+Message-ID: <173942577971.2484.12473423249844880679@fv-az1915-977.xkjcjftakiyujkhqi2elkn4nmb.dx.internal.cloudapp.net>
 
-The previous commit modified the format of verify state files. To adjust
-to the change, add support of the new field "max_no_comps_per_file" and
-pass it to __thread_io_list_sz(). Also check the version number against
-the new version 4.
+--===============4586733178281175449==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/verify-state.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/t/verify-state.c b/t/verify-state.c
-index 734c1e4c..f8787e9a 100644
---- a/t/verify-state.c
-+++ b/t/verify-state.c
-@@ -23,6 +23,7 @@ static void show_s(struct thread_io_list *s, unsigned int no_s)
- 	printf("Name:\t\t%s\n", s->name);
- 	printf("Completions:\t%llu\n", (unsigned long long) s->no_comps);
- 	printf("Depth:\t\t%llu\n", (unsigned long long) s->depth);
-+	printf("Max completions per file:\t\t%lu\n", (unsigned long) s->max_no_comps_per_file);
- 	printf("Number IOs:\t%llu\n", (unsigned long long) s->numberio);
- 	printf("Index:\t\t%llu\n", (unsigned long long) s->index);
- 
-@@ -46,6 +47,7 @@ static void show(struct thread_io_list *s, size_t size)
- 
- 		s->no_comps = le64_to_cpu(s->no_comps);
- 		s->depth = le32_to_cpu(s->depth);
-+		s->max_no_comps_per_file = le32_to_cpu(s->max_no_comps_per_file);
- 		s->nofiles = le32_to_cpu(s->nofiles);
- 		s->numberio = le64_to_cpu(s->numberio);
- 		s->index = le64_to_cpu(s->index);
-@@ -57,9 +59,9 @@ static void show(struct thread_io_list *s, size_t size)
- 
- 		show_s(s, no_s);
- 		no_s++;
--		size -= __thread_io_list_sz(s->depth, s->nofiles);
-+		size -= __thread_io_list_sz(s->max_no_comps_per_file, s->nofiles);
- 		s = (struct thread_io_list *)((char *) s +
--			__thread_io_list_sz(s->depth, s->nofiles));
-+			__thread_io_list_sz(s->max_no_comps_per_file, s->nofiles));
- 	} while (size != 0);
- }
- 
-@@ -90,7 +92,7 @@ static void show_verify_state(void *buf, size_t size)
- 		return;
- 	}
- 
--	if (hdr->version == 0x03)
-+	if (hdr->version == 0x04)
- 		show(s, size);
- 	else
- 		log_err("Unsupported version %d\n", (int) hdr->version);
--- 
-2.47.0
+The result of fio's continuous integration tests was: success
 
+For more details see https://github.com/fiotestbot/fio/actions/runs/13301127698
+
+--===============4586733178281175449==--
