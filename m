@@ -1,84 +1,173 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB28D23A9
-	for <fio@vger.kernel.org>; Sat, 15 Feb 2025 09:13:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6172B1A2545
+	for <fio@vger.kernel.org>; Sat, 15 Feb 2025 13:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739610841; cv=none; b=qqDj8sZHBCLFWplwskCv8T5S+jguxuglos7Jlh3iLh9o6uSzdFsw6VgKMkzteORfLFTt/1caN23lexCDbCDpx4Snzt5nWO3x91DHUoGivez43aQtEQHBl3YZLPy3x51dv4PlErJAM6PSmlUj1Do9b+7/sX/V58fgQaZLugjdgso=
+	t=1739624411; cv=none; b=h1pH/1l67FGyh7PGVPdh/LvxnG70ObsG+IoYAoEYdPIhWY+rLDMVh7pSG7b3duTz6N1KrwQ1E+sZW1Zsbp+6gu+xIRvuJpJVkYcOuqQ/nlnczZkI6gOQdsOpCqhLdfhasg6YRIkhlB7icSeoxMzSwSjyr0N3f7ubor8HUeWbkSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739610841; c=relaxed/simple;
-	bh=2gO4MwNcptjz7Ho8x34hb/F+p0FnKNPnOgfyjHW6p5U=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=ofS/dP4gz4VuSalqUCGzShLUJkGf/SCJVgxgg72uUhde+cKANEYBx+Vk33xLCqJl5gFE2VmDmRG5v2Qvx0RCvl4Y2fVRDql/GVNJLJL/WWgWexIOwcCsVSfCnE3/sWNJP8zRsXKCjXSeXHsx6iGbXGybO35TY/PbvA1Xgqe3I7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i83+P6ww; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1739624411; c=relaxed/simple;
+	bh=mfLGisIBZaNtIbh9SJeoxw1H06hn4h7Lk2UjEqf5yJo=;
+	h=Subject:From:To:Message-Id:Date; b=WgqY9PoNTS5NZx81DliiTP48zpnTWc71Y9YalMilY//QszSM3cyBAtlNCsKW9UmfS/GoAQ+Y1kHtJSaFjY1BF8E4lye27F3sJCYu2E4bQhD018N9UMUlgKocvIy09onFGXfdDWiorlHc3/sfbg2J4nGXytxu0RprC/Pg6F+Bih8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=A4+sEAFF; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i83+P6ww"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7c08621f6a2so120025085a.0
-        for <fio@vger.kernel.org>; Sat, 15 Feb 2025 01:13:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739610838; x=1740215638; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=2gO4MwNcptjz7Ho8x34hb/F+p0FnKNPnOgfyjHW6p5U=;
-        b=i83+P6wwQzD4/PSUIafbO02tGFRpvyGy23p20a3bBk6IIQudytN4bx2ndhyg0RkmwD
-         4qZHgg9V9G/HFuxj8uLTWraBx2Vi71kbHs1GpR9QzHGMJs52DTXQ3L/DbhdoMruYyIR/
-         0JppIr+qPutII8zDCJJSuPydzpQxYQ8Fygzg64t2A+6P4mI5sElXBO0+iTQVfI9Q6oI/
-         Pi5zPS6j9vdcidwnOZ1hLinFrV7Y72g/45nJoE2slHS7KPhkc79csTpaTxi8I+tn/y+e
-         xfVfjTNvYmr1hG4Q/7FaGbe1eCNaeEk5YVY8PsvLbHvashBGObR7Unh9PQtCxArEmvGe
-         1Wgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739610838; x=1740215638;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=2gO4MwNcptjz7Ho8x34hb/F+p0FnKNPnOgfyjHW6p5U=;
-        b=Dmko2X9N/dfalkJ31M84R2YoLZSVN4arlW628nmZolEWA0Ks/+EGd7Y+QUw3wO7KEg
-         TcOalJEYcVZzR8zaSYqL0Oc1/wmETVZB13ixiOpGqYaORneh+cod4a4H367QJmG4ByMH
-         Z8fqURuTcm0MrmmVxObrGKQsXHjV0p5538U0rTIg/x3dzsWNU1ml/plNIJpvC+RZzLaC
-         A6toRrf5xtYvBSketPn3SZgONt9ocEa0BtEJIoCIA8C+pDxkjBIw4CrfAly5QPcLLXyb
-         cLb6mgBbvhNM3DDorwGyrMTPCsPA0V82628oSVxskhRR5fbAvf5BF1jq+ut+exdYszeb
-         Ze3g==
-X-Gm-Message-State: AOJu0YxJ4v8xjhatrfcVdMUYoFui4+WPkBuGkS9j0aZOTgoKNcoblwZu
-	HZ/EPkvrcDFKs/y7CWlsYGpgpTnj7R2NTSVNKYC1wD/jvOzoSILqnFZD
-X-Gm-Gg: ASbGncuZGDLDiuXiloYGvd6b74X/Z7qtDzVwFw+OlS3VsX7/eZguoaoZZMSOJ4BGgwF
-	+tMYpKg3rdf24nGbraDuhVz/UPF3I2MZA+KHdFn2vKuA1y+zbBPssT2XB+lIH9eIzyfa+9RV1j3
-	zxTxRdRjkGdta59g+uWfOdSiY5ywZpPceX/qY21AUcn4grM4fBuDNl+JF1VE4DwkCi+zBLs4E6E
-	JuidjrWpDG1DTHaXGCkGnRKL6QXcOc0oj2BD+liNS1MRCGN1s8xipbYhQhEWCBdtUQhTmFSmevS
-	nLXRMOJdI33NqavBx7c1u/3c4ArLqJjEn/BXja0Q4ssYdvVm2FqqwMA0YM+njm5ek6/QrOGC1Dc
-	yg7TdOKzvcQ==
-X-Google-Smtp-Source: AGHT+IG92n4W8iVze5cqTUebsOmeYqWGxfSgvGJPxzryS55VZ6YNzlJadMlqQJCjFItRKEpwz41/+Q==
-X-Received: by 2002:a05:620a:4441:b0:7c0:7f07:a635 with SMTP id af79cd13be357-7c08aac61c6mr370587085a.53.1739610838436;
-        Sat, 15 Feb 2025 01:13:58 -0800 (PST)
-Received: from fv-az1970-919.jylfb2lvhi2edjyxod04kr2g0d.cx.internal.cloudapp.net ([20.246.78.212])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c07c86e5cesm298071985a.93.2025.02.15.01.13.57
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Feb 2025 01:13:58 -0800 (PST)
-Date: Sat, 15 Feb 2025 01:13:58 -0800 (PST)
-Content-Type: multipart/mixed; boundary="===============6189706373974824806=="
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="A4+sEAFF"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=aiaHLPZtxTXfjXqrPyiLtwdRo0LbF90O6qaA/QVJY+U=; b=A4+sEAFFtPi1AJmpkkhdPvJ6KM
+	DgRZOc4X+luJyOo1zkzSusAd56YBjYtbtcacpLQQxs2hXtJoyv7DXS6+nfj1zYj7uN9U2QxHCG01v
+	jX60vdU8U9pbZ4lukTi47h2vJazytoxlSUVVkOT09R7pTJDPXa1/VztB4SJbU3HxxnOAWq0C1Hgg4
+	0oz03QjoABWnpEoEGp9iaPKey7RZIYM0wLV8G2uXbFWHVl9frhiHdkfdX28WpguIP8CRBUXStQ6mP
+	a0Zt8naXodd+kF9akko4mr0k4X1dFk6ifJ4oUyPdgea9CRkjtQboe6tDi7dv7eDtkU9xUbr+mpfmB
+	HJFGMCCg==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98 #2 (Red Hat Linux))
+	id 1tjHm9-00000001U5R-0T9a
+	for fio@vger.kernel.org;
+	Sat, 15 Feb 2025 13:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 003E91BC0147; Sat, 15 Feb 2025 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20250215130002.003E91BC0147@kernel.dk>
+Date: Sat, 15 Feb 2025 06:00:01 -0700 (MST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH=5D_libaio=3A_Add_vectored_io_support?=
-In-Reply-To: <f0d66512e3df3d2142910e996c42389c21232d12.1739608655.git.ritesh.list@gmail.com>
-References: <f0d66512e3df3d2142910e996c42389c21232d12.1739608655.git.ritesh.list@gmail.com>
-Message-ID: <173961083756.2483.10072616510521829049@fv-az1970-919.jylfb2lvhi2edjyxod04kr2g0d.cx.internal.cloudapp.net>
 
---===============6189706373974824806==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+The following changes since commit e2d375856c5a443b340b06a33fb40740dda7fee9:
 
+  t/io_uring: fix passthrough fixed buffer support (2025-02-13 08:58:17 -0700)
 
-The result of fio's continuous integration tests was: None
+are available in the Git repository at:
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/13343516855
+  git://git.kernel.dk/fio.git master
 
---===============6189706373974824806==--
+for you to fetch changes up to 2768c33ec1a34cbc03f122876fea72a630da9ccb:
+
+  Merge branch 't0036-0037' of https://github.com/kawasaki/fio (2025-02-14 09:26:48 -0500)
+
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (1):
+      t/jobs/t0036,0037: add tests for verify_state_save/load options
+
+Vincent Fu (1):
+      Merge branch 't0036-0037' of https://github.com/kawasaki/fio
+
+ t/jobs/t0036-post.fio |  8 ++++++++
+ t/jobs/t0036-pre.fio  |  8 ++++++++
+ t/jobs/t0037-post.fio | 12 ++++++++++++
+ t/jobs/t0037-pre.fio  | 12 ++++++++++++
+ t/run-fio-tests.py    | 18 ++++++++++++++++++
+ 5 files changed, 58 insertions(+)
+ create mode 100644 t/jobs/t0036-post.fio
+ create mode 100644 t/jobs/t0036-pre.fio
+ create mode 100644 t/jobs/t0037-post.fio
+ create mode 100644 t/jobs/t0037-pre.fio
+
+---
+
+Diff of recent changes:
+
+diff --git a/t/jobs/t0036-post.fio b/t/jobs/t0036-post.fio
+new file mode 100644
+index 00000000..13653c65
+--- /dev/null
++++ b/t/jobs/t0036-post.fio
+@@ -0,0 +1,8 @@
++[global]
++filename=t0036file
++verify=md5
++size=512k
++
++[job]
++readwrite=read
++verify_state_load=1
+diff --git a/t/jobs/t0036-pre.fio b/t/jobs/t0036-pre.fio
+new file mode 100644
+index 00000000..ae94c88f
+--- /dev/null
++++ b/t/jobs/t0036-pre.fio
+@@ -0,0 +1,8 @@
++[global]
++filename=t0036file
++verify=md5
++size=512k
++
++[job]
++readwrite=write
++verify_state_save=1
+diff --git a/t/jobs/t0037-post.fio b/t/jobs/t0037-post.fio
+new file mode 100644
+index 00000000..90ccc0c8
+--- /dev/null
++++ b/t/jobs/t0037-post.fio
+@@ -0,0 +1,12 @@
++[global]
++filename=t0037file.1:t0037file.2:t0037file.3:t0037file.4
++verify=md5
++ioengine=libaio
++iodepth=32
++size=512k
++loops=4
++
++[job]
++readwrite=read
++verify_state_load=1
++
+diff --git a/t/jobs/t0037-pre.fio b/t/jobs/t0037-pre.fio
+new file mode 100644
+index 00000000..4a5e30dc
+--- /dev/null
++++ b/t/jobs/t0037-pre.fio
+@@ -0,0 +1,12 @@
++[global]
++filename=t0037file.1:t0037file.2:t0037file.3:t0037file.4
++verify=md5
++ioengine=libaio
++iodepth=32
++size=512k
++loops=4
++
++[job]
++readwrite=write
++verify_state_save=1
++
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index 4ab670de..101e95f7 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -951,6 +951,24 @@ TEST_LIST = [
+         'pre_success':      None,
+         'requirements':     [],
+     },
++    {
++        'test_id':          36,
++        'test_class':       FioJobFileTest,
++        'job':              't0036-post.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          't0036-pre.fio',
++        'pre_success':      SUCCESS_DEFAULT,
++        'requirements':     [],
++    },
++    {
++        'test_id':          37,
++        'test_class':       FioJobFileTest,
++        'job':              't0037-post.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          't0037-pre.fio',
++        'pre_success':      SUCCESS_DEFAULT,
++        'requirements':     [Requirements.linux, Requirements.libaio],
++    },
+     {
+         'test_id':          1000,
+         'test_class':       FioExeTest,
