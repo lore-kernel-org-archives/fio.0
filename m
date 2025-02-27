@@ -1,117 +1,113 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90D362288E3
-	for <fio@vger.kernel.org>; Thu, 27 Feb 2025 11:29:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1951C1D90DB
+	for <fio@vger.kernel.org>; Thu, 27 Feb 2025 16:54:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740655751; cv=none; b=KfY8cleERvLq7lamFOtX9R91kVEQ3UJ+Zrmm6Jvs27XPSKs2ECCPx2GfCfKBipMVMYPUxSHAZtv7/ym+lSGNlyCn4+XKuuZ/XIKrpycCqIK8mb5QCu0Jskd2tRJ5j7vpGD32Newuf645asOpLn1QAv6aeHOccvWgYhPNAWwAXjo=
+	t=1740675292; cv=none; b=QainsrGgr0ZbloEjyHmNmj+c3280Rjwex616QaZiVGBtsS//pidKdLxG6Fo0eRE7mWtXfM9T+zzowfnkGiGxE7tXv6OWIMY0QGmMti/O/RtAytgFoyPK9dPp3Llo0IObKbjwuKDCksO8RpOpQlXqJA4eUGOQeiMUpSdRSVcjS4c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740655751; c=relaxed/simple;
-	bh=DA3K/tnYkObmkPeNmmS1VevmrWVIY0qXpVqBeBPlpZk=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=sCnA5tkoDa0J3gIeWHOK9GiF+VhJYre8HOI22EySKuwIV0W9ZUTRTCT+S5BCfBCWislg4cXykYD8x8ekuYd7KqEQHqQXEcy87H9Hbi7dQkMOdcR5Wlkum95CVyH6cnpMGG2LbX5I6l/lvoXjFCoZX/CsBvCD1f0vbRr7Zgx9idQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KfM71AVH; arc=none smtp.client-ip=209.85.128.42
+	s=arc-20240116; t=1740675292; c=relaxed/simple;
+	bh=9SDV0XYKx36jy3XjQVU02e+7xD8mk4R22M7ftxn5dC4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=U9qOR93pdbrq0Jd3QpEC7ay1oJk5yj4FqfPsCNYOqfA0wqvIPwa8WpYn9f7SpQAVAHExClE1zO9HeDBrqK4pWbWt/Wwi65qPlyWT+3chkzc44YOyGdkJ2INxoAEdPL8ysycToNoerff2xtVkqenE5C3XYmETT3oAAicNpfUYhBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IlmW8J+9; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KfM71AVH"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-439a1e8ba83so8088995e9.3
-        for <fio@vger.kernel.org>; Thu, 27 Feb 2025 03:29:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IlmW8J+9"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7c0970e2e79so210220185a.3
+        for <fio@vger.kernel.org>; Thu, 27 Feb 2025 08:54:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740655748; x=1741260548; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+        d=gmail.com; s=20230601; t=1740675290; x=1741280090; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=8geHr5hoMO6wgVmsoq5wkZm1VbLTLmFqwv64EcWnrY4=;
-        b=KfM71AVHMx49WOvfOhu3ep7vmhVjCBcAJ9PqPx7JFU1B4JIK4E6jm05KJnbzrs/rsu
-         ZS5pjuUGe+tMHn2/0lZKPYSdXQwWiwA/uM0Vr9Y5kB6pmotDdujrPHfJTz1gybB+wSt2
-         ls4+jMC6SWi/nEupwU3Wqd+DwaKxk1QEyxcCjc2MYOLvCjky5Fvt5igieODuOKyj0k4x
-         8MDt3tN1QohwsMy/6elK1ldvB8Cbf8BxtUfVuZ1ndXqT4L9q9RFfh1nNFyK8PvWbz5aV
-         eEisWwjg8Ojo9kiO00crC5aiWZXHk/RuAcQUapxr4wMo8Vo4VnfBL9KoYdsxPxkLhkwz
-         0CuA==
+        bh=yIJZhI33GgKJaXEDxDSts/HpxytyPUNPXYEhao20BCg=;
+        b=IlmW8J+96oUMAKZtPOwoi6hx7uW12WYThZh/zvly6jl4MIEbJnlAi3SAL4OHGEkq0W
+         zj9nbUbvSH3lLZLueDZhjbq2z0yQNdoOCHmJ/0hC3fcMee2VL79xbSFB9RaqMy/AyOQl
+         WGf3/3pO+/KrLNMLWWVivb5OWFgSxXaSbX5zE1oTkIiY0gX6uJ8CTjXSehovJjeiEP08
+         /ckjs3T6JqFuRSpeMMT4D2fJbiYB32UDR8b8ZNK3J8rVh2Go3PVc01SGKPCWhlXEogpd
+         SxkDmGbc0qKY4YOHQv1yGODJvKTQpOCkiFiOuMpfUHYlaaPXvVsC+8f9w0DSG1EbYcWS
+         ykag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740655748; x=1741260548;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+        d=1e100.net; s=20230601; t=1740675290; x=1741280090;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=8geHr5hoMO6wgVmsoq5wkZm1VbLTLmFqwv64EcWnrY4=;
-        b=t4onUeZV+Zp+c5Syy3YGaDbD1/bMjyn+p1rq/fHzsC7EU0BX5wgciSJCKn8qwLWK8f
-         dJYSGCGbvGGFwA2lxwtDKgqL5H8IWcXTH7vUNku41q3cb5ycbRvDDveFY5olpJ0zbvNH
-         kjs3yA+1oD78Dqef9ckP1HFmioqcofeIdI+HZ7uhVuYsOdMWY0rYOmykdiZChNrn1X8F
-         4PwENBS+OY4yX1LCU1QEzlXNSrTGq5ANiEoIFZS6dNNzOpmA8lcAqLe+rBq1KtelQXnM
-         bvLUTah+1iqNiQck5WAD9q7fyWM+bfO5XIeBF7MWtc8ckNsUqXbYoCx1+pH+M4W4GuRe
-         Jd6g==
-X-Gm-Message-State: AOJu0YxcX05SO6AGsCWh6b0w6fLvdVCSwoq2OVsXGZFeqiM+vDaUb4Jb
-	kPkii2iAWlQJN4JMMzoB8PDJ1fOtzhDMwNSdb56wTn9/vNioy0jDv9SuLg==
-X-Gm-Gg: ASbGncvKr4gOyMwttrmN4FqpJs0V1tv9h3cy3+phznq8LCOxe5CkGkc1CEriHN0w2Ml
-	UTnuLcnmYGYgT9D2kibCx6N5TaYyBns9K+ibkgf5S06EsliSnEjzpymHDFP9GxFykuDyXiTi7c+
-	tcXuo5KcyhujfMsUxN2/qFMQGJx1ZnZPq5k9MagbSMRoQPUvrw7jGBRDKInfXF65kXW2uCtlrf4
-	SIxc/nOBqNPiEA3TAcPI7h2aFoufbdN36ewZlR0Hb1fONG1rvOdecN9wQDE2+PihUiDiWQdvklG
-	d3CNjux4NN+QEl9RcUiilvrVHw==
-X-Google-Smtp-Source: AGHT+IFYNWPwtCUIFLPVyEIKX/b9ib5wMyjtmtpyp4z2bwl2DLudiwN+oJYu57Wqcdqy7man+P7aOA==
-X-Received: by 2002:a05:600c:358c:b0:439:84ba:5760 with SMTP id 5b1f17b1804b1-439aeae1c8bmr223375655e9.5.1740655747659;
-        Thu, 27 Feb 2025 03:29:07 -0800 (PST)
-Received: from ed.ac.uk ([2001:630:3c1:90:97e6:f326:b9e:1a85])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b7a28b6fbsm19251565e9.35.2025.02.27.03.29.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Feb 2025 03:29:07 -0800 (PST)
-Date: Thu, 27 Feb 2025 11:29:05 +0000
-From: Karim Manaouil <kmanaouil.dev@gmail.com>
-To: fio@vger.kernel.org
-Cc: kmanaouil.dev@gmail.com
-Subject: A question about fio flows
-Message-ID: <20250227112905.egy7rsoa3bhw44xk@ed.ac.uk>
+        bh=yIJZhI33GgKJaXEDxDSts/HpxytyPUNPXYEhao20BCg=;
+        b=CkglENI20zmWQ8OgkkIeAapUKpL/DgG/eNL9ZLHTDRuuhAzY09dK57IJGZmp2UdF6h
+         EOfAhj35H63XhKGD/2WX/lDimKj6frs92h1BQCyQ6cf3mVuNwyRF0w+J53OAlTSgPzfS
+         3ugHIttZuGLZYti1o1DZ2NVAfv+QkjOw95jCSLVgVxTBPPWpU315izBIABDz68VwDMME
+         E0WUjLEezL0f6f3ygOomMbMgOk50+3/Bs3G6bZGAkkECv1FdIk6lrwn2r+xzJ1Wrk+N8
+         Oj8bFnVq1b4afEjV8566owILDsD2XdkqrB0FnS30ZIdnlMUqqoyHiSSCVLsyxeBrTqOn
+         8PvQ==
+X-Gm-Message-State: AOJu0YwJDKplBxbXGWTPBnaEcBuor+i9BpjExBsJvEBU6Ca6Dte/00GM
+	sqWxckt1U2VhE5uRulfcsPEBjbIIsw/P93ENJYSSOQbDr5sa6CsBFvtDwA==
+X-Gm-Gg: ASbGncu6auPrhwRq8Yh1lNuqYvapwUuqDwGWhwoK/fJTtk97jHLWpXiOHtm3S8E/7w0
+	MjDSmTHpy/akzLIk9iGwleadmUEi8lZa+v9FBN7/knHrfElnFpQVfijpxz5HQbrD70i6JCKbRNp
+	wroDF/WqAz/EHWLL34r6yUydsLBfP4EvAHThtaWl0/zN1ZS8IPNG4gNE2PBGAxRU7KgYoYB72R9
+	oFdLnHh+zsLP8dF6I5jHnlJfDOtvFfpuf9HTth3glDOawR8RD0966BVr1/EisEz5rS7gxsud4YK
+	iMFu/jG8zZ9wXtt5H7GdOLtMS6rNv5XJaVBfqnO840+tuLQZp4X0AT1Vgp6Ob1mRtqZG29RF6dG
+	pGQ==
+X-Google-Smtp-Source: AGHT+IGQvxOjkngOpcPCNcLYFK297xWv5uKbfjhHvJdMRthUWaYQPnUTzcp7g2OuOPsdVNHei1AA5Q==
+X-Received: by 2002:a05:620a:4116:b0:7c0:9e09:4994 with SMTP id af79cd13be357-7c23c048921mr1593301585a.52.1740675289812;
+        Thu, 27 Feb 2025 08:54:49 -0800 (PST)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c378da072fsm124796685a.86.2025.02.27.08.54.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Feb 2025 08:54:48 -0800 (PST)
+Message-ID: <35bee198-cb20-4a29-9960-075c510819d3@gmail.com>
+Date: Thu, 27 Feb 2025 11:54:48 -0500
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/21] verify fixes and a new test suite
+To: Ankit Kumar <ankit.kumar@samsung.com>, axboe@kernel.dk
+Cc: fio@vger.kernel.org, Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+ john.g.garry@oracle.com
+References: <CGME20250227053350epcas5p31b3b5b47590d70804dade59842d87b27@epcas5p3.samsung.com>
+ <20250227104727.1794982-1-ankit.kumar@samsung.com>
+Content-Language: en-US
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20250227104727.1794982-1-ankit.kumar@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi all,
+On 2/27/25 5:47 AM, Ankit Kumar wrote:
+> This series fixes few issues with verify, and introduces a new test
+> suite.
+> 
+> Inital few patches add the missing client/server support for
+> verify_write_sequence. This also changes its behavior such that if
+> verify_write_sequence is explicitly enabled fio will not disable it
+> under any circumstance.
+> 
+> Numerous header seed mismatch issues have been reported. This series
+> introduces a new option verify_header_seed which is similar to
+> verify_write_sequence, which allow users to disable any header seed
+> verification. For certain workloads which used to overwrite header seed
+> before verification, we simply disable the header seed checks now. This
+> now includes a few more scenarios such as verify_only mode, read only
+> workloads and workloads with norandommap, where the header seed match is
+> not guaranteed.
+> 
+> Few more fixes related to verify_offset, workloads that have offset
+> modifiers, verification issue when multiple files are specified, are part
+> of this series.
+> 
+> Lastly this includes robust test suite for verify.
+> CI run result: https://github.com/vincentkfu/fio/actions/runs/13552248490
+> 
+> Note: The fixes in this series doesn't cover experimental_verify and any
+> workload with variable block sizes.
+> 
 
-I am working on some experiments where I need to have 12 jobs. Each
-job is reading from a different file (job1 -> file1, job2 -> file2,
-etc).
+I have worked closely with Ankit on these patches and hope others can 
+take a look to point out anything we may have missed.
 
-Now, some files should receieve more I/O than others. To implement this
-bias between files, I opted for flows. Basically, I start from 100 and I
-assign a percentage to each file. For example, a snippet of my fio job
-file below:
-
-[private-0]
-flow=37
-filename=/srv/dax/private/private-0
-[private-1]
-flow=23
-filename=/srv/dax/private/private-1
-[private-2]
-flow=10
-filename=/srv/dax/private/private-2
-[private-3]
-flow=9
-filename=/srv/dax/private/private-3
-[private-4]
-flow=7
-filename=/srv/dax/private/private-4
-[private-5]
-flow=3
-filename=/srv/dax/private/private-5
-[private-6]
-flow=3
-filename=/srv/dax/private/private-6
-
-I am not sure if this is properly achieving what I want to achieve.
-
-I have a doubt that having too many files and many flows will reduce
-scheduling precision or introduce scheduling overhead. I don't know how
-this feature is implemented internally, thus my question.
-
-Can you please briefly explain how the feature works. And Do you think
-this is a sane approach? If not, what better alternative can I use?
-
--- 
-Best,
-Karim
-Edinburgh University
+Vincent
