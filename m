@@ -1,67 +1,65 @@
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+Received: from mailout4.samsung.com (mailout4.samsung.com [203.254.224.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A48252165F1
-	for <fio@vger.kernel.org>; Thu, 27 Feb 2025 07:03:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C0821D3C9
+	for <fio@vger.kernel.org>; Thu, 27 Feb 2025 07:03:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740639825; cv=none; b=ppV7i0/AoaCGcdyTA3ZzW0pB998XwU41QrrqMcs3hCC9itM+j0K7Kr6jcK35VzijotbFDt6dAsDe/UJL0ffzlfYC9eAXqrgMdiQgK7A25cng8vogtgPTSOxRnkewqIil7ce9A9vpu10IB9zwBoHhTV5rJ+GIcRFEBVNSGQygJhE=
+	t=1740639827; cv=none; b=LhqF46dG4DgBxAzSZN/0V5x46pp7JczlKhImlEtzNM0o6GuJuZ3qyeQBz0ATHPh8UtI1sx6FQWdZF7zEQK96cIbApb3TAawhCGF6KYMpu+9Y4+1dn49YPGR0qPPGAgj+lrCMDVqZ/m9crX+doJUCxRHkCxihiLWj/dM1z+gy4Hs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740639825; c=relaxed/simple;
-	bh=+zgi+22lFi4qUC5KqpNtHfS/xfWdpWiYhdpKeZJSeNk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
-	 Content-Type:References; b=HkNoqudH1YNZKLiuZoswlYWGjpIg36dc4LC+Af0TdZSAJQf+CgTidMLZsDfsN09O+zmtBL/Nnt83QB572Zg+c6SYkGIcTdkAtI2PYZuezpgQVp2rfvZsmrsfK9q/K2FFqsqtjAfetuUPG2tZVUEV3ztnsvfHV4vZrDYUKRsbYEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=Q9ZCds5s; arc=none smtp.client-ip=203.254.224.24
+	s=arc-20240116; t=1740639827; c=relaxed/simple;
+	bh=YarxK4RgaKbaJ6CgjbKaDH9ETVDEP4ErZ6gF7Xt5Keg=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type:
+	 References; b=j1BtnL22WEEw5eYwHjKpp7dQomnJaMwCp5M4pbiDsxVrgRBekLwkVC50NPuk1t5G9dqs4dvtPu/WFdO186foc3eG3eg89rGXgZOOxxesop5IOxhNqBxrWQ5o9AYE5du/pE6oxE6uQbCdFLboW3UjlJCkyoee74gm9M72x4lEE8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=ZI+a4VXv; arc=none smtp.client-ip=203.254.224.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="Q9ZCds5s"
-Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250227070340epoutp01e5288e5dbd510779b24db71bb30af529~n-rHBuxx92750627506epoutp01B
-	for <fio@vger.kernel.org>; Thu, 27 Feb 2025 07:03:40 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250227070340epoutp01e5288e5dbd510779b24db71bb30af529~n-rHBuxx92750627506epoutp01B
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="ZI+a4VXv"
+Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
+	by mailout4.samsung.com (KnoxPortal) with ESMTP id 20250227070336epoutp0480eb0c30143143b46d856f3dd46ad028~n-rDwsgDp2254922549epoutp04d
+	for <fio@vger.kernel.org>; Thu, 27 Feb 2025 07:03:36 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout4.samsung.com 20250227070336epoutp0480eb0c30143143b46d856f3dd46ad028~n-rDwsgDp2254922549epoutp04d
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1740639820;
-	bh=FxZJ5Cd+2xbW3qQOfMAm4SR/lqjX5PYn0GbKBBx4zds=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Q9ZCds5sTdH+T/2PZp1yX08hSH5lP/geOJ4rFd3ELERARKTTyVhp7PRhwcLj8YuaA
-	 tspPt4tNEyXErGASd2BTMxFhYr989HxEsytICCwfUeKPG5dKON52N7yJOw/1tcXTJ2
-	 2Z3u3FiGqwVw0tLzKbU5aqgwP7VcFddMJzDe9yRs=
-Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
-	epcas5p2.samsung.com (KnoxPortal) with ESMTP id
-	20250227070340epcas5p2f4eee1370d19afb73267edd27eb8c28e~n-rGpnH931466914669epcas5p2d;
-	Thu, 27 Feb 2025 07:03:40 +0000 (GMT)
-Received: from epsmges5p1new.samsung.com (unknown [182.195.38.176]) by
-	epsnrtp1.localdomain (Postfix) with ESMTP id 4Z3Mkd6lrpz4x9QC; Thu, 27 Feb
-	2025 07:03:37 +0000 (GMT)
-Received: from epcas5p3.samsung.com ( [182.195.41.41]) by
-	epsmges5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	BE.B1.20052.84E00C76; Thu, 27 Feb 2025 16:03:36 +0900 (KST)
+	s=mail20170921; t=1740639816;
+	bh=/ChxtnyTD8saNXCMMlP94LU6DTJQU3ey8gxSF+F/M0s=;
+	h=From:To:Cc:Subject:Date:References:From;
+	b=ZI+a4VXvsGU6LndN8O4gNku15msgKoDEnKcYTsaXevz0tWF+vFbQ6auzpNesAz3Ef
+	 3r0I1b0/Cy+Z48xDjqNaB56fiaiAKbl0Atzde895OhLeq2TYStcWhVj5jZ6aPXjRVi
+	 OQmPR1GMGQfVpwW5MmK7rBOWh3rN0FyqpxdHlYlw=
+Received: from epsnrtp2.localdomain (unknown [182.195.42.163]) by
+	epcas5p1.samsung.com (KnoxPortal) with ESMTP id
+	20250227070336epcas5p1cd1141a2cbef27f52e8cf99c540374c4~n-rDgye650319303193epcas5p16;
+	Thu, 27 Feb 2025 07:03:36 +0000 (GMT)
+Received: from epsmgec5p1new.samsung.com (unknown [182.195.38.181]) by
+	epsnrtp2.localdomain (Postfix) with ESMTP id 4Z3MkY52TQz4x9QG; Thu, 27 Feb
+	2025 07:03:33 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+	epsmgec5p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	29.92.19710.24E00C76; Thu, 27 Feb 2025 16:03:30 +0900 (KST)
 Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
-	epcas5p1.samsung.com (KnoxPortal) with ESMTPA id
-	20250227053351epcas5p16500419aa17a3d86f1802332000c8e1a~n_csq4ixQ1213912139epcas5p1j;
-	Thu, 27 Feb 2025 05:33:51 +0000 (GMT)
-Received: from epsmgms1p1new.samsung.com (unknown [182.195.42.41]) by
+	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
+	20250227053350epcas5p31b3b5b47590d70804dade59842d87b27~n_crArQ390147701477epcas5p35;
+	Thu, 27 Feb 2025 05:33:50 +0000 (GMT)
+Received: from epsmgms1p2new.samsung.com (unknown [182.195.42.42]) by
 	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
-	20250227053351epsmtrp2bffe0bd2f4d07bb87ab76711986b4539~n_csqAheK2879728797epsmtrp2i;
-	Thu, 27 Feb 2025 05:33:51 +0000 (GMT)
-X-AuditID: b6c32a49-bb50c24000004e54-97-67c00e4892f9
+	20250227053350epsmtrp20c1ee4c356d0dfbeee01936206a3f296~n_crAE6P52879728797epsmtrp2f;
+	Thu, 27 Feb 2025 05:33:50 +0000 (GMT)
+X-AuditID: b6c32a44-36bdd70000004cfe-e6-67c00e4248bc
 Received: from epsmtip2.samsung.com ( [182.195.34.31]) by
-	epsmgms1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
-	82.A3.18729.F39FFB76; Thu, 27 Feb 2025 14:33:51 +0900 (KST)
+	epsmgms1p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	46.4A.18949.E39FFB76; Thu, 27 Feb 2025 14:33:50 +0900 (KST)
 Received: from unvme-desktop.samsungds.net (unknown [107.99.41.39]) by
 	epsmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20250227053351epsmtip205dfacc25df0d5f7df18040a6dc808bd~n_cr_Lkch1586815868epsmtip2f;
-	Thu, 27 Feb 2025 05:33:51 +0000 (GMT)
+	20250227053349epsmtip21ea49f56caa5cb509d96d337a8a0f088~n_cqTtjG61753617536epsmtip2U;
+	Thu, 27 Feb 2025 05:33:49 +0000 (GMT)
 From: Ankit Kumar <ankit.kumar@samsung.com>
 To: axboe@kernel.dk, vincentfu@gmail.com
 Cc: fio@vger.kernel.org, Ankit Kumar <ankit.kumar@samsung.com>
-Subject: [PATCH 02/21] verify: add missing client/server support for
- verify_write_sequence
-Date: Thu, 27 Feb 2025 16:17:08 +0530
-Message-Id: <20250227104727.1794982-3-ankit.kumar@samsung.com>
+Subject: [PATCH 00/21] verify fixes and a new test suite
+Date: Thu, 27 Feb 2025 16:17:06 +0530
+Message-Id: <20250227104727.1794982-1-ankit.kumar@samsung.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20250227104727.1794982-1-ankit.kumar@samsung.com>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -69,105 +67,119 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrFKsWRmVeSWpSXmKPExsWy7bCmpq4H34F0g4trJC3WXPnNbrH6bj+b
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrDKsWRmVeSWpSXmKPExsWy7bCmhq4T34F0g1vTjSzWXPnNbrH6bj+b
 	xcdZL5gtNrQJOrB47Jx1l93j8tlSj74tqxg9Pm+SC2CJyrbJSE1MSS1SSM1Lzk/JzEu3VfIO
 	jneONzUzMNQ1tLQwV1LIS8xNtVVy8QnQdcvMAVqopFCWmFMKFApILC5W0rezKcovLUlVyMgv
-	LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOaHi+l61goUDFsxN9bA2Mz3i7GDk5
-	JARMJL7f/M3UxcjFISSwm1Hi95QFUM4nRonZ9zcxQzjfGCVedO5nh2m5tvYaO0RiL6PE096J
-	rBDOD0aJeyteM4JUsQloS7x6ewOonYNDREBDYs3dVJAws4CdxNXDL9lAbGGBGIl3e++zgtgs
-	AqoSrS0dzCA2L1DNknldzBDL5CVmXvoOtphTwF7iTWcjC0SNoMTJmU9YIGbKSzRvnQ12qYTA
-	MXaJtfsPsUI0u0j86pgANUhY4tXxLVAfSEl8freXDcLOltj08CcThF0gceRFL1S9vUTrqX6w
-	+5kFNCXW79KHCMtKTD21jgliL59E7+8nUK28EjvmwdiqEn/v3WaBsKUlbr67CmV7SKy5DhIH
-	hdUkRomWHctZJzAqzELyzywk/8xCWL2AkXkVo2RqQXFuemqxaYFhXmo5PJaT83M3MYIToZbn
-	Dsa7Dz7oHWJk4mA8xCjBwawkwsuZuSddiDclsbIqtSg/vqg0J7X4EKMpMMAnMkuJJucDU3Fe
-	SbyhiaWBiZmZmYmlsZmhkjhv886WdCGB9MSS1OzU1ILUIpg+Jg5OqQam3gfPyrcHZrzvP7fE
-	QCDU1eX0tOvOda4XLn/t3SwXt/FV2p3EPTYHzv6V9tj+67PelPXMW6rdzOcddNGy29MuLq3+
-	Vyms53D/wkVsBa/rF0VMVSr9rfWv1p7/qNgHtxZf/VQGZWEP14VX3zZdXRkdrZp15O6NqmOP
-	VNbKysru22eaHpu8YOlBJom/PoamnqHmZoalXcbtkYx7zs8QlVq18p226gUN1eO/BOby5Xq2
-	6i+/kcatvdXl7oHUfcIlL5Ze32jtI7XhXdnVE//VHEx1eXqcAh7lSOjvF4r6bcP4I59594XS
-	X79kFnz7MmXWzX//rrEcWuw/XeP3hgmBZVVzM1Z8Pnzm25EfN1+9rfR/o8RSnJFoqMVcVJwI
-	AILg5BANBAAA
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrPLMWRmVeSWpSXmKPExsWy7bCSvK79z/3pBu9fW1qsufKb3WL13X42
-	i4+zXjBbbGgTdGDx2DnrLrvH5bOlHn1bVjF6fN4kF8ASxWWTkpqTWZZapG+XwJXR8HwvW8FC
-	gYpnJ/rYGhif8XYxcnJICJhIXFt7jb2LkYtDSGA3o8TlX71ADgdQQlpi4fpEiBphiZX/nrOD
-	2EIC3xglJs3RALHZBLQlXr29wQxiiwhoSRxb18QGYjMLOEj827UFzBYWiJL4su0rC4jNIqAq
-	0drSAVbPK2AnsWReFzPEfHmJmZe+g83nFLCXeNPZyAKxy05iwcRvTBD1ghInZz5hgZgvL9G8
-	dTbzBEaBWUhSs5CkFjAyrWKUTC0ozk3PLTYsMMxLLdcrTswtLs1L10vOz93ECA5TLc0djNtX
-	fdA7xMjEwXiIUYKDWUmElzNzT7oQb0piZVVqUX58UWlOavEhRmkOFiVxXvEXvSlCAumJJanZ
-	qakFqUUwWSYOTqkGJhljiamXM1dNPcLysbXsVH++wuPXDcVzzi7n+uHUYvGz24ctubLkmW2y
-	3vdjW9fzG57lvG7lLd/0rL17sqlK05JtRSoMtmd3huf6Sd38/PTHrQrG6tKZdW0O3dZfg3eo
-	M2Rq2kdzl/HeYpz6wKWez/SF2cLDLGf0zQ94Xq+rmrb78YEVT5zfvRfJ39g++1rAFf6VwYIP
-	mQTv2xX2LlreeiSv596UHOn7p/LXiOb3ZimI7agIVLKqmtV96q6QpsKK3ffDWTKuNcl5Tpf4
-	wu1/N2eiZPgOYdEARyv53YJ80WuOXDu0fv+ztO0NO/9UvolYbfnVPVGsJChgT8aO08tmMCzj
-	brvI9Ohp0erU0/vnKbEUZyQaajEXFScCAM532V/CAgAA
-X-CMS-MailID: 20250227053351epcas5p16500419aa17a3d86f1802332000c8e1a
+	LrFVSi1IySkwKdArTswtLs1L18tLLbEyNDAwMgUqTMjOuLJ8IWPBJYmK4ys/szQwbhbqYuTk
+	kBAwkVg6dytjFyMXh5DAbkaJ7xtamCCcT0DOjdlQmW+MEsfuLGOHaZnQvpcZIrGXUeLhoUlQ
+	VT8YJa59m8IEUsUmoC3x6u0NoCoODhEBDYk1d1NBwswCdhJXD79kA7GFBSwkdr6/ywxiswio
+	ShzrXcwCUs4LVPOjkQ1il7zEzEvfwfbyCghKnJz5hAVijLxE89bZYDdICGxjl+jdtwCqwUXi
+	48FtrBC2sMSr41ugjpaS+PxuL1RNtsSmhz+ZIOwCiSMvepkhbHuJ1lP9YCczC2hKrN+lDxGW
+	lZh6ah0TxF4+id7fT6BaeSV2zIOxVSX+3rvNAmFLS9x8dxXK9pDYdWMm2AlCArESa7uWs0xg
+	lJ+F5J1ZSN6ZhbB5ASPzKkbJ1ILi3PTUZNMCw7zUcni8JufnbmIEJzstlx2MN+b/0zvEyMTB
+	eIhRgoNZSYSXM3NPuhBvSmJlVWpRfnxRaU5q8SFGU2AQT2SWEk3OB6bbvJJ4QxNLAxMzMzMT
+	S2MzQyVx3uadLelCAumJJanZqakFqUUwfUwcnFINTNduRlfVHDgfU9Fr2lh88uO/bdosn8/5
+	sd3gdZ7+ceOyZbLyvB8Xi2isPGW12r9sx6VI3ZNifL5HuY9flM7hiJrb3/d5s8MWjsh58gvk
+	u9MEbFewfJgQN23B34TzDIEhhx5FBqe/Y7/Fp+FVIt3m59Z09OchjsqFKhLJYcH5Ud3TS+Zp
+	HOvVXLtaNrrl95x1f9dcfnI97NuEwIpJnoX3PzP1rj1hXuMx1ZrjGrfJGnupla9rvp4wS9zf
+	/UPfUiXu9t8t55TLdkb9ri7jmOVS3vzvwe/ZjWl3Lz14NEPuA+urqesOZr1+fMPslCtfOe/0
+	xctlnjSnrV9YzL3uQcdRboUjDzd/Pi50fMHRHP/lV1OVWIozEg21mIuKEwHpzva//wMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprOLMWRmVeSWpSXmKPExsWy7bCSvK7dz/3pBtOOc1qsufKb3WL13X42
+	i4+zXjBbbGgTdGDx2DnrLrvH5bOlHn1bVjF6fN4kF8ASxWWTkpqTWZZapG+XwJVxZflCxoJL
+	EhXHV35maWDcLNTFyMkhIWAiMaF9L3MXIxeHkMBuRok7F/cwdTFyACWkJRauT4SoEZZY+e85
+	O0TNN0aJXXMes4Ik2AS0JV69vcEMYosIaEkcW9fEBmIzCzhI/Nu1BcwWFrCQ2Pn+LlgNi4Cq
+	xLHexSwg83kF7CR+NLJBzJeXmHnpOzuIzSsgKHFy5hMWiDHyEs1bZzNPYOSbhSQ1C0lqASPT
+	KkbJ1ILi3PTcYsMCo7zUcr3ixNzi0rx0veT83E2M4LDT0trBuGfVB71DjEwcjIcYJTiYlUR4
+	OTP3pAvxpiRWVqUW5ccXleakFh9ilOZgURLn/fa6N0VIID2xJDU7NbUgtQgmy8TBKdXAVLY5
+	MJt/+u07HxhvHrxufKK0TE13TpFf+hOVJUcO6LzgZrnkeNg74qX8stXt843CpAwPzwu3+Vmz
+	/uZM8drC17saWN05dJO8j6j2v5C9GvJr/4SV32ZNXDe5ZndrczvjeT9Fi6B709YdYn1WoXds
+	d8S5pztDLzye8GPFicuPfwd2Nzywv5+vdH1iqfymKW2bLh/6HH/td1j2z4d19y6bRnxe5lcz
+	iaH31rOb0rXvDKMuJudsPFzTfnZms9Ka79PzE/wXXFOZ8tj2O8fmwobeyQVt3/XDWHwXGGyV
+	LTl/tkvDRejnw0/i5ZZRktWzZpjHfG3atV5SfoWtZ235DUWmu/fb3jp2Lv5X5b7mtkJlirgS
+	S3FGoqEWc1FxIgAltkrWqgIAAA==
+X-CMS-MailID: 20250227053350epcas5p31b3b5b47590d70804dade59842d87b27
 X-Msg-Generator: CA
 Content-Type: text/plain; charset="utf-8"
 X-Sendblock-Type: REQ_APPROVE
 CMS-TYPE: 105P
 DLP-Filter: Pass
 X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250227053351epcas5p16500419aa17a3d86f1802332000c8e1a
-References: <20250227104727.1794982-1-ankit.kumar@samsung.com>
-	<CGME20250227053351epcas5p16500419aa17a3d86f1802332000c8e1a@epcas5p1.samsung.com>
+X-CMS-RootMailID: 20250227053350epcas5p31b3b5b47590d70804dade59842d87b27
+References: <CGME20250227053350epcas5p31b3b5b47590d70804dade59842d87b27@epcas5p3.samsung.com>
 
-Ensure that we convert verify_write_sequence option for client/server.
+This series fixes few issues with verify, and introduces a new test
+suite.
 
-Fixes: 2dd80ee4 ("fio: Support verify_write_sequence")
+Inital few patches add the missing client/server support for
+verify_write_sequence. This also changes its behavior such that if
+verify_write_sequence is explicitly enabled fio will not disable it
+under any circumstance.
 
-Signed-off-by: Ankit Kumar <ankit.kumar@samsung.com>
----
- cconv.c          | 2 ++
- server.h         | 2 +-
- thread_options.h | 2 ++
- 3 files changed, 5 insertions(+), 1 deletion(-)
+Numerous header seed mismatch issues have been reported. This series
+introduces a new option verify_header_seed which is similar to
+verify_write_sequence, which allow users to disable any header seed
+verification. For certain workloads which used to overwrite header seed
+before verification, we simply disable the header seed checks now. This
+now includes a few more scenarios such as verify_only mode, read only
+workloads and workloads with norandommap, where the header seed match is
+not guaranteed.
 
-diff --git a/cconv.c b/cconv.c
-index 9571f1a8..ef3fbaa8 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -182,6 +182,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 	o->verify_state = le32_to_cpu(top->verify_state);
- 	o->verify_interval = le32_to_cpu(top->verify_interval);
- 	o->verify_offset = le32_to_cpu(top->verify_offset);
-+	o->verify_write_sequence = le32_to_cpu(top->verify_write_sequence);
- 
- 	o->verify_pattern_bytes = le32_to_cpu(top->verify_pattern_bytes);
- 	o->buffer_pattern_bytes = le32_to_cpu(top->buffer_pattern_bytes);
-@@ -442,6 +443,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->verify_state = cpu_to_le32(o->verify_state);
- 	top->verify_interval = cpu_to_le32(o->verify_interval);
- 	top->verify_offset = cpu_to_le32(o->verify_offset);
-+	top->verify_write_sequence = cpu_to_le32(o->verify_write_sequence);
- 	top->verify_pattern_bytes = cpu_to_le32(o->verify_pattern_bytes);
- 	top->verify_fatal = cpu_to_le32(o->verify_fatal);
- 	top->verify_dump = cpu_to_le32(o->verify_dump);
-diff --git a/server.h b/server.h
-index 449c18cf..d31cd688 100644
---- a/server.h
-+++ b/server.h
-@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 107,
-+	FIO_SERVER_VER			= 108,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index d0e0a4ae..4d8addc4 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -484,6 +484,8 @@ struct thread_options_pack {
- 	uint32_t experimental_verify;
- 	uint32_t verify_state;
- 	uint32_t verify_state_save;
-+	uint32_t verify_write_sequence;
-+	uint32_t pad2;
- 	uint32_t use_thread;
- 	uint32_t unlink;
- 	uint32_t unlink_each_loop;
+Few more fixes related to verify_offset, workloads that have offset
+modifiers, verification issue when multiple files are specified, are part
+of this series.
+
+Lastly this includes robust test suite for verify.
+CI run result: https://github.com/vincentkfu/fio/actions/runs/13552248490
+
+Note: The fixes in this series doesn't cover experimental_verify and any
+workload with variable block sizes.
+
+Ankit Kumar (14):
+  filesetup: remove unnecessary check
+  verify: add missing client/server support for verify_write_sequence
+  init: write sequence behavior change for verify_only mode
+  fio: add verify_header_seed option
+  verify: disable header seed checking instead of overwriting it
+  verify: enable header seed check for 100% write jobs
+  verify: disable header seed check for verify_only jobs
+  verify: header seed check for read only workloads
+  verify: fix verify issues with norandommap
+  verify: disable write sequence checks with norandommap and iodepth > 1
+  backend: fix verify issue during readwrite
+  init: fixup verify_offset option
+  verify: fix verify issue with offest modifiers
+  verify: adjust fio_offset_overlap_risk to include randommap
+
+Vincent Fu (7):
+  t/fiotestcommon: do not require nvmecdev argument for Requirements
+  t/fiotestlib: improve JSON decoding
+  t/fiotestlib: display stderr size when it is not empty but should be
+  t/verify.py: Add verify test script
+  t/fiotestcommon: add a success pattern for long tests
+  t/run-fio-test: add t/verify.py
+  ci: add nightly test for verify
+
+ .github/workflows/ci.yml |   2 +
+ HOWTO.rst                |  52 ++-
+ backend.c                |  18 +-
+ cconv.c                  |   4 +
+ ci/actions-full-test.sh  |  13 +
+ filesetup.c              |  14 +-
+ fio.1                    |  46 ++-
+ fio.h                    |   9 +
+ init.c                   |  43 ++-
+ iolog.c                  |   9 +-
+ options.c                |  11 +
+ server.h                 |   2 +-
+ t/fiotestcommon.py       |   7 +-
+ t/fiotestlib.py          |  20 +-
+ t/run-fio-tests.py       |   8 +
+ t/verify.py              | 799 +++++++++++++++++++++++++++++++++++++++
+ thread_options.h         |   3 +
+ verify.c                 |  10 +-
+ 18 files changed, 1005 insertions(+), 65 deletions(-)
+ create mode 100755 t/verify.py
+
 -- 
 2.25.1
 
