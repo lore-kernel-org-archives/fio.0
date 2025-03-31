@@ -1,70 +1,70 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B8241BDCF
-	for <fio@vger.kernel.org>; Mon, 31 Mar 2025 14:02:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CC571BDCF
+	for <fio@vger.kernel.org>; Mon, 31 Mar 2025 14:02:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743429755; cv=none; b=XAj0QZkAyczE60tin4vwtE4eU7vDdfMKIvLbkBeCnZOcc2RW33bQuEpWfedOXmGkZZbG/VoH/v8dZIZ0tdKj2PAURc4+a+mQnM8Mh5xcjjaEjNd5SMtKgRT8pc/A6nPC8wTQw/40Ueg+h0eFsN4TwphUw+Bh8P5ebrHxJqrZ7bI=
+	t=1743429757; cv=none; b=i/nQGj//+Y+FATW3wDElgR6NE2abOvMavLla7actVugWfH8jSyegyox+vHuVAl6Yl8LnJD9dlWcsGSLv1amHzqmpNIdjT/5oTnpZJkxuveo9j2unnE5+clNdxPGfE3xMUkn8Wrq70o3QDJtzzkRdr37Nrsa+gYvgOfCcqpuLklM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743429755; c=relaxed/simple;
-	bh=FrTaJ5Xdia+1sy5Fs3U4oXx1YW8f2wst3h0UpmVDdvo=;
+	s=arc-20240116; t=1743429757; c=relaxed/simple;
+	bh=2m+9c3iWEZKpJxg3vbevRePIaCo4v5S6LIa4BmYsvcA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OGBhokOc5ZcmyL3sr2KmTx+SViiZZCZcunQrBJ/Z4NNg2kmZsA1iE3KFi5YPcyxysn+ficuRZmvSAikQp6dErLd5qBLwLsA7pjGGaP75/DMdbMgcTP2kDzZJja21svEg7KzFhnD22LT6jTF9BCUe4Xox7sphIptbTTo4IQho0Zo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SY6P1I/8; arc=none smtp.client-ip=209.85.160.175
+	 MIME-Version; b=qwa7o2VoU70p5faKriRGcZ9GGVI12EAjFW5UmA7hRsbCACwxu1gNUqYQX2FgW61p73XP8gfYUulJUH8oyzxnqeR1x7JeDw7TnjY6YzPCyxGPsdbgXKaRjh+H3Y5R6MqFP0s9LmWzc0OjBC4Qi45UC39xByiGlcf13FjjBbCWzDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bWNmNZ+Y; arc=none smtp.client-ip=209.85.219.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SY6P1I/8"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-47686580529so46429891cf.2
-        for <fio@vger.kernel.org>; Mon, 31 Mar 2025 07:02:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bWNmNZ+Y"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6e41e17645dso43618126d6.2
+        for <fio@vger.kernel.org>; Mon, 31 Mar 2025 07:02:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743429752; x=1744034552; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1743429754; x=1744034554; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/+7tj0cqorULMElBtP7ZqkD4w1gnd0UMlXinl9EG+YU=;
-        b=SY6P1I/8/IXWZ454AqSF+jU2G1bC3DsS9fYlO+2lQFufVOKUi/iLjKenyos/z2XQfV
-         cM8LGwD3suQ2A79BZVsN04Z9tr73uD+S9m2tf8HKbw/RcK7QGEEarh4O09zXGfYB1+9I
-         gQOK2fjZvxQvH4TU/Xs7nkt+BLQOi961i6noG5y6i6fj2WGzckahWYtplwjdOsu0i2Lu
-         CQMZjWaWK5VNpTebZV27oU44yKQtnQyooQyeX9UyVwj8OB6MCnip2pD1FSDA/YMrUBt2
-         lx4BWS0/a1lnolImX9i5SASKKDESD99ohKdvp8orRbvE1gIlLKqtNW/rrCCpoQKuSuJn
-         qQog==
+        bh=dX6HN9ADg6R0TFckXUXtupc0LQklfXSFOzOcMovwiVQ=;
+        b=bWNmNZ+Y217AcP0m7j5MFzBUMpP+BXhjVpNH9Oh+SUnbOiNJ2J6L7+nV4oTiubb4Lu
+         jDspmP1HbkiYvLS1f2kg/tu8WmIrIpZ6xwMr8olM36yUwYzVOf6L7Fz1W/DYitw9By8S
+         wiGhFT+b0dEeU2mUMig08CncyKtaR+/+spqG5yyeoE/IVtrb/oHSubsskyYMwnp1wPb0
+         qZ/rsOOuyCPaAjc/Rmaw99Fx4TETtko5duFA79Z4iC+PL2cm3byc7HUflEHC0lajEQ0l
+         KvwxhRrlJnrPNdJdVJRWMleGCM6418uMju/V+eWjLhULITkG/FJhK1fQvrQdko2zTNgL
+         FuTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743429752; x=1744034552;
+        d=1e100.net; s=20230601; t=1743429754; x=1744034554;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/+7tj0cqorULMElBtP7ZqkD4w1gnd0UMlXinl9EG+YU=;
-        b=nVDKbSaE1qwO845w5RiQ+SFHVJK9SMUhMoB4eyyJsVrGkuWXG8Nd5HV9/sh6b/1eNo
-         VtMM3S8eX0caKmropU42GBA2XlSGExbv3xp/dGs7OBsRfJgOSP2y68eVIpD19ZpzRJMb
-         6bIBobFMl+NomCgp8I0kuEaCrgZfgR9eSceLMrSvOaBcYDnAZbcxireL5Lahn/N6+c3r
-         8UF8mLK8wg7GoUOst2H3mrCeZcnD4dvVbSchDdl3c+AbC+tB8vD3PihnEc5QthyJsI11
-         wksBC085rliyoFMuJHevXydAAyo2UgLMzRnOqUIY+067a2Ssg61ZRNG4swVSyhaMFxyl
-         FUKw==
-X-Gm-Message-State: AOJu0YycX7P/zqCxJr9KgP4b4aS+OQTPXgylMS14CVWQgnEvNSb60mjy
-	KvTrwwM82RVCDvesHRnfb08VymsMfw/7u4y2ihjhGcs7n0sVSdmuWiGFbg==
-X-Gm-Gg: ASbGncv5umwSJYjPcaCj/uMWzLT1GnZh5xHWz4wyKppIyOzfVefNhLjYpowFqWlWJVt
-	/UL3QLBe3GeYGObMTcIK+43Vj/lX1PyvtTpo/eF6oZrW1Y6hKfZvkFPSvtJqk5EUQVrUhkvrLr6
-	6oDjBjYqPKCOvC/6gk0BnYSM00JDIBsc5FVlzUSNZQ88P0ca+9u5I4FVazoFTuZuifFwuTxKjIM
-	PnBU7XeEt6KGhaEO39PGkizVWu5bEjQcJVFXno1x3OSbitj0VInbkLpeXgIiAiTciU6ZsahvSUg
-	Ez501mZ2VrdGDhae9vpXRuku2yFw1N1EgJ7fYjxstG/NwxMW/d0EwMIcpRs8KQcRBZ4cWP0Hb3/
-	rGZ5oUKY6vCAUOHkIEHmN+Xf8cs6ZWyQwmA==
-X-Google-Smtp-Source: AGHT+IGwJd/qJj1QG7+XTY/139FoWQRYkQen2umKStN/imsjMsLEnXR4ogA51InyKTtWaJkvcOhECA==
-X-Received: by 2002:a05:6214:27ef:b0:6d8:a7e1:e270 with SMTP id 6a1803df08f44-6eed625d45amr110561856d6.40.1743429752374;
-        Mon, 31 Mar 2025 07:02:32 -0700 (PDT)
+        bh=dX6HN9ADg6R0TFckXUXtupc0LQklfXSFOzOcMovwiVQ=;
+        b=v5WDXz/osYRgyG5JICXMqTCkQ66hGvx2c3VD3aWDmlWa1GfdknTtG+mhnPg6wXwiN9
+         0ZJQxeCA2fZjvUDyGNq1vgvbmlVKoFkrAoA1XPW3cABkvFgxbXfYH3OyVsEn8yfUkRqf
+         7HAegNClu5QjIrwmbJOMQleNjrbbSBQwiHydOSMQ/pFFQMNa9iRoNfF7Q9igY+5+C5Ja
+         MNDgaFfuJ3Iyt3uxYyl+ivd7OkXM/sLpdzFSgXGC1KJrCeiM8gM2+hO1l78useKQmsU6
+         LNL1H8G6zTwCwnNiHSpDO80UJwfz1aeI+jyAlY7rLNWNPTPyWVaZdPilN0V+Qh0U3P6b
+         rKXw==
+X-Gm-Message-State: AOJu0YyXTCI0hCKFXJ1IFohU/d6t9f2xpdJinpKFbGC/ZPdCkEuq2EoZ
+	um/7BGxhD9KhGv5/q/As2H4X21KJbupTXxXpFeKIEiysbeywcKWbOT3LtA==
+X-Gm-Gg: ASbGncsLLDYVklnUmzs3NDRClnLjA1E4s+FyQAQ4jLr4hbyBRXGNTrrOhrn2ZMWOAv2
+	QSDlqMcSgeV0Z4ZDHcs2yZZH3/iREB0OdZEfJGZ4hu1LOSJ9VX6ei+Wq9dNdlJyQ8fHVbPvrWUA
+	5G9h+47qrTTiD/BQ7ooUgOwALBnTIB6dItgRXNy+iNtE7OK7/jvhyzNJ9iH4Yu/lXtOSuod3WE4
+	qZr15CsNavLcQFw9op9fy/hN3pWcZON51qkRcy8ZMakuSBHTkWlGpbuSHEeRYxtQqvJQYtXO/h6
+	/S1rR/MSYVymgABFrhhG8T1xS4O3rUxiIoQzzfR8tJZZClU2+3JHefDQt5QzfPjHF0sducrDspb
+	zzu46Wbi1khoedi1/H/SVK7t2UyH9qHrs5A==
+X-Google-Smtp-Source: AGHT+IHrcS6fUbToARpch7cX7TznNDGD5fgsozjE3KfC55DbOLZNoq/iXVKXhAzOAK/RmaOwMYiGwQ==
+X-Received: by 2002:a05:6214:f2e:b0:6e8:fabd:ddd with SMTP id 6a1803df08f44-6eed607430dmr95314546d6.1.1743429753991;
+        Mon, 31 Mar 2025 07:02:33 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-6eec965a7d0sm47231246d6.62.2025.03.31.07.02.31
+        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-6eec965a7d0sm47231246d6.62.2025.03.31.07.02.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Mar 2025 07:02:31 -0700 (PDT)
+        Mon, 31 Mar 2025 07:02:32 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
 X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
 To: fio@vger.kernel.org,
 	axboe@kernel.org
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 1/7] fio: allow trim operations for verify/trim workloads
-Date: Mon, 31 Mar 2025 10:01:28 -0400
-Message-ID: <20250331140204.1971-2-vincent.fu@samsung.com>
+Subject: [PATCH 2/7] trim_verify: include a trim panel in the output
+Date: Mon, 31 Mar 2025 10:01:29 -0400
+Message-ID: <20250331140204.1971-3-vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250331140204.1971-1-vincent.fu@samsung.com>
 References: <20250331140204.1971-1-vincent.fu@samsung.com>
@@ -76,67 +76,32 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fio has the ability to verify trim operations by running a verify
-workload and setting the trim_percentage, trim_backlog, and
-trim_verify_zero options. Some of the written blocks will then be
-trimmed and then read back to see if they are zeroed out.
+The trim bit in td_ddir is not set when trim_percentage/backlog is
+enabled yet fio still issues trim operations. Detect these cases and
+produce output describing trim operations if we issued any.
 
-This patch changes fio_ro_check to allow trim operations when fio is
-running a verify/trim workload.
+This is similar to the fix (615c794cbf851c994e94fffe8b8f565e64f137a5)
+committed for verify_backlog.
 
-Fixes: 196ccc44 ("fio.h: also check trim operations in fio_ro_check")
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- fio.h  | 10 +++++++++-
- init.c |  7 +++++++
- 2 files changed, 16 insertions(+), 1 deletion(-)
+ backend.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fio.h b/fio.h
-index d6423258..00f0f09b 100644
---- a/fio.h
-+++ b/fio.h
-@@ -292,6 +292,7 @@ struct thread_data {
- 
- 	unsigned int verify_batch;
- 	unsigned int trim_batch;
-+	bool trim_verify;
- 
- 	struct thread_io_list *vstate;
- 
-@@ -618,7 +619,14 @@ extern bool eta_time_within_slack(unsigned int time);
- static inline void fio_ro_check(const struct thread_data *td, struct io_u *io_u)
- {
- 	assert(!(io_u->ddir == DDIR_WRITE && !td_write(td)) &&
--	       !(io_u->ddir == DDIR_TRIM && !td_trim(td)));
-+	       !(io_u->ddir == DDIR_TRIM && !(td_trim(td) || td->trim_verify)));
-+
-+	/*
-+	 * The last line above allows trim operations during trim/verify
-+	 * workloads. For these workloads we cannot simply set the trim bit for
-+	 * the thread's ddir because then fio would assume that
-+	 * ddir={trimewrite, randtrimwrite}.
-+	 */
- }
- 
- static inline bool multi_range_trim(struct thread_data *td, struct io_u *io_u)
-diff --git a/init.c b/init.c
-index 95f2179d..85ae67fd 100644
---- a/init.c
-+++ b/init.c
-@@ -729,6 +729,13 @@ static int fixup_options(struct thread_data *td)
- 						o->start_delay_high);
- 	}
- 
-+	/*
-+	 * Denote whether we are verifying trims. Now we only have to check a
-+	 * single variable instead of having to check all three options.
-+	 */
-+	td->trim_verify = o->verify && o->trim_backlog && o->trim_percentage;
-+	dprint(FD_VERIFY, "td->trim_verify=%d\n", td->trim_verify);
-+
- 	if (o->norandommap && o->verify != VERIFY_NONE
- 	    && !fixed_block_size(o))  {
- 		log_err("fio: norandommap given for variable block sizes, "
+diff --git a/backend.c b/backend.c
+index b75eea80..f2a4ad35 100644
+--- a/backend.c
++++ b/backend.c
+@@ -1994,7 +1994,8 @@ static void *thread_main(void *data)
+ 			update_runtime(td, elapsed_us, DDIR_READ);
+ 		if (td_write(td) && td->io_bytes[DDIR_WRITE])
+ 			update_runtime(td, elapsed_us, DDIR_WRITE);
+-		if (td_trim(td) && td->io_bytes[DDIR_TRIM])
++		if (td->io_bytes[DDIR_TRIM] && (td_trim(td) ||
++			((td->flags & TD_F_TRIM_BACKLOG) && td_write(td))))
+ 			update_runtime(td, elapsed_us, DDIR_TRIM);
+ 		fio_gettime(&td->start, NULL);
+ 		fio_sem_up(stat_sem);
 -- 
 2.47.2
 
