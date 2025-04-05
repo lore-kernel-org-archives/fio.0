@@ -1,84 +1,86 @@
-Received: from mail-qt1-f176.google.com (mail-qt1-f176.google.com [209.85.160.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29A6E21ABCF
-	for <fio@vger.kernel.org>; Mon, 31 Mar 2025 14:41:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 130F21E1DFB
+	for <fio@vger.kernel.org>; Sat,  5 Apr 2025 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743432114; cv=none; b=LPlOCky7KREmsWYIxiRfKIJ2Rb2lChimIHT5fZDIRW8t77xP5sgZB3Y9sm8nGJL7A2V+Ry2LSOwU+z4fwmE3ry+v9gBVWF6wFtXS/X88n8g6wPMszz3kPFldoyT3ZbcO+lfhCeUFyxp+fNkKSTvc/DH8Y0KLu33IDtYdn/UllHg=
+	t=1743854411; cv=none; b=u8fhmtZxRQIOcToHD1wOkjyYK1EElAK8598v3tTowJKkc2l6jCL1XTel699jkryCJdZP8uinSu/2xdxRMybshGLLgGRNnvAXbHxPGOFYoeIneVmJ9MK5boc6xxQUC0eBEjUxPdxjiiIfqnj0pY14LjF8fuq8Xhz2hd78xJFo/tk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743432114; c=relaxed/simple;
-	bh=otr2ayZzW2P0mU5KBzLXuw/N3uJ01qO4U7aZLrCpz2U=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=aJn4smbiRdezYmKNKFsIns4S4XWmwNg7XAC6uHppyblkcAkQL7hwczh0N2qT0Btu5BZUtPpcTEDn+rPAaPp7hpDjmjynk+5sshYhJ22+GF/byWoxUivApD7DKxAO7h6FdYBIJlJa5YugwC6rAasSFpc+1efe5+vyBbyPhwRuP5A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TNmQVyOx; arc=none smtp.client-ip=209.85.160.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1743854411; c=relaxed/simple;
+	bh=4hbBslb6xyM2O0TtONElEl5HgucHZpGX+0hEi/1XfRc=;
+	h=Subject:From:To:Message-Id:Date; b=uHOhFG7NYoHxu9Ly3WKbeo0OboAU95n0Tw7d+FVhYryhm1E08WwXhvNohPxehCteAAB1guo8x6FpCBMqdKylgBvN7OvyxIW7T0aNzaX5vHFc7cexhp3HAr4p8xW6Thrk+QQo2vn+gQzEvUouED0S/JcqxX5fJFHXX1tkuvxrj0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HPOrmfmn; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TNmQVyOx"
-Received: by mail-qt1-f176.google.com with SMTP id d75a77b69052e-4766cb762b6so42062071cf.0
-        for <fio@vger.kernel.org>; Mon, 31 Mar 2025 07:41:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1743432112; x=1744036912; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=otr2ayZzW2P0mU5KBzLXuw/N3uJ01qO4U7aZLrCpz2U=;
-        b=TNmQVyOxK7oH04O1+H8L4QU/NyWMQzHiLNDyRKXVUYvXaexohnzllsVmmJhUk2X189
-         AjxnUztld+psQNMgiwU9KZ4lmn9v4T2TOV9C8sjnIXtgGfUGXCwUkjZ9ByrK1p6PRpE1
-         VDfumWTG8y42WzSzYiAcjjsEiM8NT/pWaN+5EiJR7T/1qH66ALMFUWlsyw2ZklLFO0XO
-         S80IgyNsfmiHRZbopTLCWTePdn+lBy1hmcQS2jpIiEEig3DzDNUJmssOTZVcIc3rNoes
-         JR2+oHXFwk3wC7S5erRk7cVqogIRmJfBimnlMnmgF5gWZek+Msv7uBnoFkBeXgWE9mTP
-         P9rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743432112; x=1744036912;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=otr2ayZzW2P0mU5KBzLXuw/N3uJ01qO4U7aZLrCpz2U=;
-        b=KSDBRyt+2Pmn+RqC6wJ6h4E8hqLK920MyPab7lzzOvezv+TAYa46OZbcisRHm2hThR
-         7RDa6oFQMw+lXBVec9GIt7mO0/WW2IyGK+8frcYndNOnDTVcHjDSBiALIiB2OZfbdbX/
-         pV1QMe8b3E9dfNjPIHdrvUUAxp1PqgGtMkJgbah6gtj87m1+y+5M8poqC3bnJoP7VE92
-         HKmjbNv5ZhXP4V3R/u3r4b41mpOjs6r66hDFbMDsQFX1ZowooGa9wjerywiokGQd6J/2
-         0jU8lFtNXrdnxtbdpTXMjCxqmnrLFTrQPRUSHouhaINpw02azzAg1f3HLxERqri83QRv
-         lAMQ==
-X-Gm-Message-State: AOJu0Yw/CoQ0N/NhvsJsqWNe0BwgChU0V1Zk+EwkJZiXWVp2TVWMd1cu
-	hFUuEQGMTXtpHNTU6SaYYAzYFZbdtLbDW0qHykhUs8SF35Z3KnaSm37TmK8=
-X-Gm-Gg: ASbGncvHrox6w/2z4ojCVfNWORAceSI8rAshlJo2LO6fdFfKCE2TksqjISwD8h5pH7O
-	MH6NspYSCeIvHtdqyKA5GuTeQyi2qDiKDzxXWNc8Nk8M/oa92FbgyTrXyyHO3fj3sd4SPutYaoL
-	ucGHKR4DBJ318lExkm0+2+iakbeH/TxYzU+QwA64jBxvB/foVrZYK4OI4q2WJOezEuACE2CSLUE
-	7/WG/Z9KSw3YQPJyGPl0pC0BWMVHi+E8bouYlQwrYtw9RUYXAUxDIF03R5O5eb0nGzDO1kq9vYG
-	yjiNJn6ZRZEgt3rw190boGImfpAVEPTN4rjgzHqi9Nln07g08RRLhhoW+FWdjcgAQi7OomLpxwm
-	35XvivjWr5ACx4e/n1zPppRNWEOIgdd+cmO9iCw==
-X-Google-Smtp-Source: AGHT+IHGz3Qsek7l0h9zzFHA0V++GRkZQyysY2+Yian40zfoVQYzwCjpUQPgSUUduwLxkomd73S15A==
-X-Received: by 2002:a05:622a:5a1a:b0:472:521:871a with SMTP id d75a77b69052e-477845e5eb0mr210465541cf.23.1743432111905;
-        Mon, 31 Mar 2025 07:41:51 -0700 (PDT)
-Received: from fv-az1964-598.n50j0q0wg3ueflgghgs2zwx0ph.bx.internal.cloudapp.net ([20.42.49.182])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-47782a7fab5sm50755391cf.36.2025.03.31.07.41.51
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 Mar 2025 07:41:51 -0700 (PDT)
-Date: Mon, 31 Mar 2025 07:41:51 -0700 (PDT)
-Content-Type: multipart/mixed; boundary="===============0582896714574266319=="
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HPOrmfmn"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=i9cWkON5GzDMMkUIvs1TeYO/rqOXIP2lHQUHsoNncLQ=; b=HPOrmfmn1kGyXcn7h2uUymz+HO
+	RenvWIgd1T7cvaI8Hnv1111ISvTPvCV+fFO6uBnP4aqBD3I0iXT47VJUE8HlqUc8X78Zp6BsYyIUt
+	BbKywUvrKjhNcEpC5UlDSrwQ7HSGdWaxixD0BU74+On04Dhu5EesXAFNCl2tIzMxCoT1y5DIgGm9/
+	yRRb3rxJZ3Waa+wAWGC1RoJryKKRKuSWpkvBV79188Z8Yd0XId6NJ7a6J+aK+kngeEF59sM8LNFhg
+	NXYeVDKYgzVIdBJefrUCjU/QVexqm8oMde3BZqFAOW/hiLrKnPiGCQjTbbdXsCLXeF0525v+0gg1P
+	yZd//c7w==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.1 #2 (Red Hat Linux))
+	id 1u12Bw-00000007YBk-3iz1
+	for fio@vger.kernel.org;
+	Sat, 05 Apr 2025 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id B08E51BC0152; Sat,  5 Apr 2025 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20250405120001.B08E51BC0152@kernel.dk>
+Date: Sat,  5 Apr 2025 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH_0/7=5D_verify_trim_operations?=
-In-Reply-To: <20250331140204.1971-1-vincent.fu@samsung.com>
-References: <20250331140204.1971-1-vincent.fu@samsung.com>
-Message-ID: <174343211141.2487.6017345249818370842@fv-az1964-598.n50j0q0wg3ueflgghgs2zwx0ph.bx.internal.cloudapp.net>
 
---===============0582896714574266319==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+The following changes since commit 58818df7b0948d36ba9743160a1f570700d2347d:
 
+  Merge branch 'iouring-spellingfix-2025-03-18' of https://github.com/proact-de/fio (2025-03-18 07:14:24 -0600)
 
-The result of fio's continuous integration tests was: failure
+are available in the Git repository at:
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/14173747734
+  git://git.kernel.dk/fio.git master
 
---===============0582896714574266319==--
+for you to fetch changes up to c283fe11bda9efde7f063e6fe693802724ddc8c0:
+
+  ci: set kvm permissions for GHA QEMU jobs (2025-04-04 11:27:27 -0400)
+
+----------------------------------------------------------------
+Vincent Fu (1):
+      ci: set kvm permissions for GHA QEMU jobs
+
+ .github/actions/start-vm/action.yml | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/.github/actions/start-vm/action.yml b/.github/actions/start-vm/action.yml
+index 3449aac5..ab13aa09 100644
+--- a/.github/actions/start-vm/action.yml
++++ b/.github/actions/start-vm/action.yml
+@@ -25,6 +25,12 @@ runs:
+     - name: install wait-for-it
+       shell: bash
+       run: sudo apt update && sudo apt-get -qq install wait-for-it
++    - name: Enable KVM group perms
++      shell: bash
++      run: |
++        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
++        sudo udevadm control --reload-rules
++        sudo udevadm trigger --name-match=kvm
+     - name: Start VM in background
+       shell: bash
+       run: |
