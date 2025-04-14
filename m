@@ -1,142 +1,113 @@
-Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3980320C005
-	for <fio@vger.kernel.org>; Fri, 11 Apr 2025 11:12:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.143.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E89536C
+	for <fio@vger.kernel.org>; Mon, 14 Apr 2025 00:29:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744369946; cv=none; b=DC9iZgaJ2do3d0hwawO4OB68rMY/Yak9Gk+d/fyU2s+l9h8TMIToqzGPZH9NgOm5dp1IZkK6GotYu8ahIpE3413CSHG5lZHKY7YYIDa0Lr5cfH0jUFLUy9j2lbApPAuYOrsXCUODN78kac2YkI+mqG+z7POLqgM9qZIL7w0QbxM=
+	t=1744590588; cv=none; b=aU2WuY+/k441gVpI5fNa+BVuhYgxJV88XM8yX2TVAMKUKmIuJcR8ZyUOHdZnmSfruNVlcuC5yIkSB4R/GiIDCpm2Aq3YO7azucS7ERfYs4ZkuePdSWRALtK9eaXyckBkoMfspxgBdYE9cfPMwPpAI8EHm93/PKS1VXRjdOh97vI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744369946; c=relaxed/simple;
-	bh=MOMauB9ZIay41OabnEOMtfbjEFaPPrvEYCW3OnU4FX8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=XbkbUU3EfrM0bdcmcijy0uW6eA/mcNeA7iQWU0Srq2deDKJMWksJP+7Z2FNR0zqe7W8ESIhzRxKtR7tcjLTFL/YY0PkWmlYzyMBG8344ksINggmX9gAXBPPf8RlsOYNHFFN17Qu8zHZd9L6ph2F56Im2KgZL2KfkQVKfPlObl+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=jOl90cX1; arc=none smtp.client-ip=68.232.143.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1744590588; c=relaxed/simple;
+	bh=UXGMnpwMk2uCulzR0HWK5FfAEbh9n0oLNizHw25Lfsw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=FlKh6ttUVEchKiCSoZsCZb1tDEE9J6T0OL2XXWxLPJEEU9MValtqZurk9WiXvVHYLCpxSvLh62Hln1V4jCwK6O37QZmvOnzdZ5YlHplpky6tCNVhELYPsdKRwvHoE0qlX67yVTC3J5tCe93uLT+PF3cPGsciWh+AvC2el527lkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=plXMS9fP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="jOl90cX1"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1744369945; x=1775905945;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=MOMauB9ZIay41OabnEOMtfbjEFaPPrvEYCW3OnU4FX8=;
-  b=jOl90cX1POESU1kuPKRgy6HEwLCthZlLKoG8SUueLNuNMVlCOOAcUyxL
-   jRTBWc6zAw/CpVOEIk5QZ7IHba75fwjnOefIi9z5aQM++rXV0mXONAipo
-   XoEI7xYu1yWNunXdNLhN0BR08rzUk7lxu9CGdz4+1UF2Icf/SguzgD6pq
-   2O1zNEbyoOqodKD8WjPSWOBLrXhYXiQjrX+1gdUOE4LqxsksCLWNujy0T
-   pXZjBuRUMHN29GHRJNpHFeVs7BiPCtzkEB3eOXbr9PxeNlD6PXy5gI1qz
-   IdIFw6ec4BSX8Qm4NT3VUsGO4VhOe2eaMBq8MB/6MADijSix3COaKL94G
-   A==;
-X-CSE-ConnectionGUID: +JfMN3rZR4CUItJ6/Q6hLQ==
-X-CSE-MsgGUID: pgATd1qTRu2o7V1+7AF4ZA==
-X-IronPort-AV: E=Sophos;i="6.15,205,1739808000"; 
-   d="scan'208";a="81898588"
-Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 11 Apr 2025 19:12:25 +0800
-IronPort-SDR: 67f8eb13_20zgJv+ieU+El6isloxSFe0/fG21ZwQ8ZogjtkYvdGinojh
- 7d7veGEtwbipAxMBy4AFyjR5JXXO8vL5aECihmQ==
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 11 Apr 2025 03:12:35 -0700
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 11 Apr 2025 04:12:24 -0700
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 4/4] t/zbd: add test for the case all write zones have small remainder
-Date: Fri, 11 Apr 2025 20:12:19 +0900
-Message-ID: <20250411111219.57424-5-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250411111219.57424-1-shinichiro.kawasaki@wdc.com>
-References: <20250411111219.57424-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="plXMS9fP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95E62C4CEDD;
+	Mon, 14 Apr 2025 00:29:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744590588;
+	bh=UXGMnpwMk2uCulzR0HWK5FfAEbh9n0oLNizHw25Lfsw=;
+	h=Date:Subject:To:References:From:In-Reply-To:From;
+	b=plXMS9fPvCC4kN6eKgSG01oQ4/pl13hzTXbBWNO77WE3kqM+6cP+I/ZukZ9NUYQS0
+	 lZyCXrxrlOt6CiJRtwkpL0wx68Ho9Kslv8rYCDX8IPBD0XDAmwqDKZfVy74TdEFd9d
+	 lEv0xfDl6ZzuS+/nXvS1yeolwD/IKj+JUHWUCoS17j/vXsyY6Q6yHSpEu1hU4l6CD0
+	 ftoPn+fL3CTRzy/6bB3699o9orJRTH64OYimP86p7CBnyUowbqJOvZz+tNdaObcEy8
+	 6Z60KIsr5HeZH6lzFpY5LVmI5+a9NrqcNOoUTr+rRZ3bCV9KOXbvctJ/FJnlYIF5v/
+	 6KhlPUbGGMRUg==
+Message-ID: <ca6da862-71a8-4c40-a6cf-a1b5999edc5e@kernel.org>
+Date: Mon, 14 Apr 2025 09:29:00 +0900
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/4] zbd: move zone finish operation to
+ zbd_convert_to_write_zone()
+To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>
+References: <20250411111219.57424-1-shinichiro.kawasaki@wdc.com>
+ <20250411111219.57424-2-shinichiro.kawasaki@wdc.com>
+From: Damien Le Moal <dlemoal@kernel.org>
+Content-Language: en-US
+Organization: Western Digital Research
+In-Reply-To: <20250411111219.57424-2-shinichiro.kawasaki@wdc.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The previous commit fixed the unexpected write stop when all write
-target zones have small remainder sectors to write. Add a test case to
-confirm the fix.
+On 4/11/25 8:12 PM, Shin'ichiro Kawasaki wrote:
+> Currently, when a write target zone has fewer remainder sectors than
+> the block size, fio finishes the zone to make the zone inactive (not
+> open), so that another zone can be open and used as a write target zone.
+> This zone finish operation is implemented in zbd_adjust_block().
+> However, this placement is less ideal because zbd_adjust_block() manages
+> not just write requests but also read and trim requests.
+> 
+> Since the zone finish operation is exclusively necessary for write
+> requests, implement it into zbd_convert_to_write_zone(). While at it,
+> improve the function comment.
+> 
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 48 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 48 insertions(+)
+A few nits below. But otherwise, nice cleanup !
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 468fce70..0278ac17 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -346,6 +346,14 @@ require_max_active_zones() {
- 	return 0
- }
- 
-+require_no_max_active_zones() {
-+	if ((max_active_zones > 0)); then
-+		SKIP_REASON="$dev has max_active_zones limit"
-+		return 1
-+	fi
-+	return 0
-+}
-+
- # Check whether buffered writes are refused for block devices.
- test1() {
-     require_block_dev || return $SKIP_TESTCASE
-@@ -1637,6 +1645,46 @@ test70() {
- 		       >> "${logfile}.${test_number}" 2>&1
- }
- 
-+# Test random write does not end early when the zones as many as max_open_zones
-+# have remainder smaller than block size.
-+test71() {
-+	local off size capacity zone_fill_size i
-+
-+	require_zbd || return "$SKIP_TESTCASE"
-+	require_seq_zones 8 || return "$SKIP_TESTCASE"
-+	require_no_max_active_zones || return "$SKIP_TESTCASE"
-+
-+	reset_zone "${dev}" -1
-+
-+	# Fill data to every other zone in the test target 8 zones. This leaves
-+	# 4 zones in the implicit open condition. Leave 12kb remainder in the
-+	# 4 zones.
-+	off=$((first_sequential_zone_sector * 512))
-+	size=$min_seq_write_size
-+	capacity=$(total_zone_capacity 1 "$off" "$dev")
-+	zone_fill_size=$((capacity - 3 * 4096))
-+	run_one_fio_job "$(ioengine "psync")" --rw=write --offset="$off" \
-+			--bs=4k --zonemode=strided \
-+			--zonesize="$zone_fill_size" \
-+			--zonerange=$((zone_size * 2)) \
-+			--io_size=$((zone_fill_size * 4)) \
-+			>> "${logfile}.${test_number}" 2>&1 || return $?
-+	# Close the 4 zones to not fail the next fio command with the
-+	# --max_open_zones=1 option
-+	for ((i = 0; i < 4; i++)); do
-+		close_zone "$dev" $(((off + zone_size * 2 * i) / 512)) || return $?
-+	done
-+
-+	# Run random write with 8kb block size
-+	run_one_fio_job "$(ioengine "psync")" --rw=randwrite --offset="$off" \
-+			--bs=$((4096 * 2)) --zonemode=zbd \
-+			--zonesize="$zone_size" --size=$((zone_size * 8)) \
-+			--max_open_zones=1 --debug=zbd \
-+		       >> "${logfile}.${test_number}" 2>&1 || return $?
-+
-+	check_written $((zone_size * 8)) || return $?
-+}
-+
- SECONDS=0
- tests=()
- dynamic_analyzer=()
+Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
+
+> ---
+>  zbd.c | 84 ++++++++++++++++++++++++++++++++---------------------------
+>  1 file changed, 45 insertions(+), 39 deletions(-)
+> 
+> diff --git a/zbd.c b/zbd.c
+> index ee095b1d..5e0f7f4e 100644
+> --- a/zbd.c
+> +++ b/zbd.c
+> @@ -1396,16 +1396,23 @@ static bool any_io_in_flight(void)
+>  	return false;
+>  }
+>  
+> -/*
+> +/**
+> + * zbd_convert_to_write_zone - Convert the write request to writable zone
+
+Maybe: Convert the target zone of an io_u to a writable zone
+?
+
+> + * @td: The fio thread data
+> + * @io_u: The I/O unit write request to convert
+
+We do not convert the io_u, but rather, the zones it targets, no ?
+
+> + * @zb: The zone selected at the beginning of the function call. The caller must
+> + *      hold zb->mutex.
+> + *
+>   * Modify the offset of an I/O unit that does not refer to a zone such that
+> - * in write target zones array. Add a zone to or remove a zone from the lsit if
+> + * in write target zones array. Add a zone to or remove a zone from the list if
+
+Nit: s/list/array
+
+>   * necessary. The write target zone is searched across sequential zones.
+>   * This algorithm can only work correctly if all write pointers are
+> - * a multiple of the fio block size. The caller must neither hold z->mutex
+> - * nor f->zbd_info->mutex. Returns with z->mutex held upon success.
+> + * a multiple of the fio block size. The caller must not hold
+> + * f->zbd_info->mutex. Returns with z->mutex held upon success.
+>   */
+
+
 -- 
-2.49.0
-
+Damien Le Moal
+Western Digital Research
