@@ -1,116 +1,125 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90E1213E02A
-	for <fio@vger.kernel.org>; Thu, 24 Apr 2025 14:01:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DA452DF68
+	for <fio@vger.kernel.org>; Thu, 24 Apr 2025 14:52:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745503289; cv=none; b=iu+Jhgkgb5jjRO4lsohc1DF5rZQ93koOGO+Fs6J4ak4TaUW48aZLuhPgLypQywy4AFn37WfDm1l7o5On7D0yyBKtu+1xPtLE6s0mWYiWiiqykuv99IH7ofRHlHpm9qooqOXZoQNAIQi4A8JkOWJaGo8hnCtkdvj7ASySG5Sh1bU=
+	t=1745506324; cv=none; b=P/nypOMxaX+B7PoGpuzoDEvm2hSkEkQGPds484nvymMaI6OZzRl6dES8oXzpYMxcaU05f8/TLu9kvv9udWmgBPw1PSwSbBprk4IPQbRhvJDI6QsNoYMaB21uTv9OlVkax++vmEvfe5pEc7KMm7UUyLEgQTmURhpU4Q2N5rk3NzE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745503289; c=relaxed/simple;
-	bh=hLtipk3GquP6WkdGAQDeYVji5tUNLJDqZ4UtIEZWsQA=;
+	s=arc-20240116; t=1745506324; c=relaxed/simple;
+	bh=UB9R1jRn9hiu1b34HVjLJemicx39J90scaQcsR0RAfk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GyOrP0nRdHQeEUgjLM4u8O8F8nLz/WtPo8cZSQWwoOZEudrqy4mIQ4oW6Zf1gVS8TkwTnD+F48n0pNmNhgqmLrqfPY4AozxYOaCcB+UODb7HeLMOD3ZbBe0Q4e36oHwNtLQb3PZWjqG7yjn4a+nOqPsZjnpkryOePXXmPgiW22s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OGI6MEqt; arc=none smtp.client-ip=209.85.219.44
+	 In-Reply-To:Content-Type; b=gGue0rE+tEOpVbedmuoaY1LM8IGlLea1/wwNYpgMVghs4iJTxX6pjc3fgV4Adj8DUcYMuiZTL3HUx9W4V63KR0e/vKnX3tBpD2RGecLOpcKVLx0PKgTh1hiYdzGfvIoQgf9N/U6FWXO/VLKMWNwVXROaNxXnUKOw3QUt10Uq4N8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GUTycaTK; arc=none smtp.client-ip=209.85.219.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OGI6MEqt"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6e8ff1b051dso1849926d6.1
-        for <fio@vger.kernel.org>; Thu, 24 Apr 2025 07:01:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GUTycaTK"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-6e8ffa00555so10933156d6.0
+        for <fio@vger.kernel.org>; Thu, 24 Apr 2025 07:52:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745503286; x=1746108086; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=gmail.com; s=20230601; t=1745506322; x=1746111122; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=RGAUb5Wjph+cDHFjYucndb+YJnTEUeAlmmroId3bFDY=;
-        b=OGI6MEqtvcMvdXuVLpXse1EA/M0ZTqLGRt+gt9OGRah4Z0EESZWi7Ag61P5vb4L6y0
-         4rkKcR5hwr7o0aFPVEodyk6SFSW16oY3c4wIIZk9kT/QOM08Fv4gU1b9Oq669q34JGj4
-         VJRYf92W12pjvJCfQ9TNBhqlDGkv7/13hgUlO6WmEqkzCl4kl/tPsh7o45SRZOEIIZum
-         cMafA3RPQ4qPsIRG16FNTCfhxxo2W6CRPLIVJEs7MjGIAZp+4yoWBdoVuFuqE+CHYUgu
-         lhBxJONvIyLY1nRS/0j1Ob5Rq0bcM735R7i5ZNuYh6yfdg7SRk1wqDvojN1nOM4Zu9rn
-         bP0Q==
+        bh=7SWBkpJWabjR2MtwjQzODwTA7jJkkH41SkvSCyp063A=;
+        b=GUTycaTKsb3ZbAcb6G/+BkZ9FieJ9AQ9AXKE24wKoj3qKsq79jS3nUNxdbROUuL2+j
+         l5TII29fol+OgPvW8OeyFjW7ngcPznrl9bDeQkFU2Xd1jU+dEBNQ551CwyzV0Cb1K4jp
+         2O+br3SNbiMrmdJDweoUi7JSbVLV0cEs1Xj/J0YFuLduodU9K/wSRd5zfqYBNav0NuQQ
+         qzcaw/o1cbGGaGSlZfh5PjI/TOhwpiZqLNwWE0ik+dNgJapnfIAPnoJ63qu7Se0mBMp9
+         nMUomMf0mkOqeDgmldnyJM7+C9fIXIEp2GOzN8vvpfUW+FeYtsihXTiQunOzIGwXxhac
+         3Bmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745503286; x=1746108086;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1745506322; x=1746111122;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RGAUb5Wjph+cDHFjYucndb+YJnTEUeAlmmroId3bFDY=;
-        b=uWPKWn1sU9/kJb8smkONi/5oJEXxfrYt7zhOIgVR2aVPzbtdjyhuf6zARIZnRN5GyF
-         7IFoKUNFepyf7sT7THyRCZMa9K3F6bn4Qmx7rXgjaUUFu7aD9bdF/Sjv+FBCwsuVt51k
-         umpAeBf6VeJ5i0iVQM2pYQvik0JAGR46DNmDL9uW1UsOAPwtW/7/HwePTHx7XmdlNhIg
-         gdSmqfEEsk4W5vdWzb/YKA7ytUFNRc9NdiROaOusZSGNE/ZOtgkbbK0KbueH5ql5teXU
-         On5aoa1M3cvnPZw0DBZFmUqUiTnc+HlpMbDbSWXCFeVP5sbiGRp4lXYtne8Y81QFg85d
-         MGnA==
-X-Forwarded-Encrypted: i=1; AJvYcCXNAH7AssMTt+jxdNkU8SnewLKdiRQ2RHv5YJ17Y4e0suwl439L/Oj4hdWsbvlB5sZukBY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwcHWdvIOUnL7583npqu4sab3IjtP3iVYewrk01jz4yrwyVAJmb
-	AghhmTWAe1aBKVHzx7TfSnPjfkSb2hliy99PxyB/Q8pVomGLj0dk
-X-Gm-Gg: ASbGncs6+EAyz2cMqcxyHYVFpCrzVxvKwhvJQOlTTX0zvrr31RiKsr55uKEKy+q/Bha
-	d85HFULofmHzfrc3vci+8Aad/lvZvt9hmqSy95ZxVfdrnrIdk89o9rqA5ptWPVRWORzBT1JQ6s5
-	gCwTj+Y2Mp9pyE4Zol9AG9LuPF3QqclSkzPB6rF8KWidRcq36UZZmDNfBj14Lfa0jPsy5qE9hDa
-	YLOjlP6sKs+60LTda/j5uEribdQ4anoHajLPOvYDb/hSkz0lWqlPH83Xv+esu3zPjqUu4SRgLRv
-	mFmWBOg1WpqqosiJYyVEig3gFYrNQttBtoGVeuJNx1IoQcso7+IVlDrmJaoTu06vy5KqZ1C0Yfk
-	mXgzvUDwV/AUkCEp3
-X-Google-Smtp-Source: AGHT+IF0YOgMHfoKQPNEj6SnS7qlYFPEteSZV05WU4Iv71BPVCzTA+qlNT0CFM8v7B6O47XAVlBlfA==
-X-Received: by 2002:ad4:4ea1:0:b0:6f0:e2d4:226e with SMTP id 6a1803df08f44-6f4bffd8122mr14947756d6.8.1745503286140;
-        Thu, 24 Apr 2025 07:01:26 -0700 (PDT)
-Received: from [192.168.1.201] (pool-108-48-176-137.washdc.fios.verizon.net. [108.48.176.137])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f4c0968ed0sm9734966d6.67.2025.04.24.07.01.25
+        bh=7SWBkpJWabjR2MtwjQzODwTA7jJkkH41SkvSCyp063A=;
+        b=gQ9b6oTVCe/vXypNMfKvvDJscU7KBeqact6a4uCwzb6NazuNp4paDmoEGYBjZn8fSk
+         eIKS0UMFjdB/9YO6nyRyPvHQcpLMcqYpMauF15eRd0DJr+IuGzlZLf2GukIiPSkueZhm
+         2p4Eo2rFNuNOjeUD5wwJ+jK9BLKes1En6DzRgWpiEgyZBgSG/ObM01bQGov2XpfMV6KU
+         FLcmvxyDcCEbDTLIifKySJgyNea3Ciggf5vM3fFNFhJ9AVhGSqojlw8y4WCYgg60QeJr
+         8+lfW7xf+HT0hwmZS6Jk5ij5GrYluQpdWTRZ3Aea3Z2y8c8wEl01Bm1QwwdeiECrhLp9
+         1Lew==
+X-Forwarded-Encrypted: i=1; AJvYcCXxGl1mO3wjDucgnAnT0IV3lauMUZX1VRK+ndU+5cRp2PpCgY9nyKASlP2cAVkHwDIjhNE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxLSdhDVccMPP5VZZYxwU14OrzUdPTnmC5QtDdtRT7/6sehdfh+
+	IEruzt6VPLtqCv7XWN1+ecKyCgkdZkRorp/h/+vvdmzEZUYqqUn+
+X-Gm-Gg: ASbGncseTwo+SrP3ESPBklVixfZqdPLcVOrNMIpMDcnp6j3LDswzfaIWsIq51eHpgIi
+	/mo3sGaG70SWbBvwcNyRX6KEdgz5QFW5f3TpbDIYf0pahIplLHK/6qnKfl3pn3mCJk20Cbe4LEU
+	QMXk4qjAIMAkRNNXlq07O969uimzRB13V8kejBnig9fIo+LniLpehQ+/usEO5cX2D3hf0lgHQJT
+	2XNiNAYqSjILDIQuEDc0MP3sctLE1V8AXcvNcSGMcdql4nwPbVNljrWn2dmEJ1Nl8BnDmja5gcU
+	vFK+gS5uxc+vW41SyZHbe1TPJARt7I1nZrAjCxIzH00sKFTfKlvh2+BX4iSRmNfbfOsPGldm9ri
+	zV/W0OPMCcMakc4Tp
+X-Google-Smtp-Source: AGHT+IEe8sgMAhztFQNtqqr0LGad0hITIqcOknp41rMuyGA1xNKnDPBf2YTbKT0jJOJx/ctOt51OJw==
+X-Received: by 2002:a05:6214:1c8e:b0:6e6:5e15:d94f with SMTP id 6a1803df08f44-6f4bfc0a70emr54026826d6.27.1745506321434;
+        Thu, 24 Apr 2025 07:52:01 -0700 (PDT)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-47e9f5bcf0dsm12547231cf.35.2025.04.24.07.52.00
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 24 Apr 2025 07:01:25 -0700 (PDT)
-Message-ID: <ce3a5fb5-ed48-b751-4de7-cf72aae5df49@gmail.com>
-Date: Thu, 24 Apr 2025 10:01:24 -0400
+        Thu, 24 Apr 2025 07:52:00 -0700 (PDT)
+Message-ID: <9b128c9e-fe73-46f9-8e83-ae552f6c2531@gmail.com>
+Date: Thu, 24 Apr 2025 10:51:59 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [BUG] active zones exceeded error with max_open_zones
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 5/8] zbd: add the recover_zbd_write_error option
+To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>
+Cc: Damien Le Moal <dlemoal@kernel.org>
+References: <20250421123828.82712-1-shinichiro.kawasaki@wdc.com>
+ <20250421123828.82712-6-shinichiro.kawasaki@wdc.com>
 Content-Language: en-US
-To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org"
- <fio@vger.kernel.org>, Damien Le Moal <dlemoal@kernel.org>
-References: <2b55d2f4-a093-d944-3d36-6efb5fb271ef@gmail.com>
- <ptncklg56axp5463pdaadt5a3xxepeu4vnnl3qqtg3k2elpsmj@lcl7boaxswn5>
-From: Sean Anderson <seanga2@gmail.com>
-In-Reply-To: <ptncklg56axp5463pdaadt5a3xxepeu4vnnl3qqtg3k2elpsmj@lcl7boaxswn5>
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <20250421123828.82712-6-shinichiro.kawasaki@wdc.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 4/24/25 02:13, Shinichiro Kawasaki wrote:
-> On Apr 23, 2025 / 13:11, Sean Anderson wrote:
->> Hi,
->>
->> I'm getting an "active zones exceeded" error when running fio with
->> --rw=randwrite mode:
->>
->> # fio --bs=4k --rw=randwrite --norandommap --fsync=1 --number_ios=16384 --name=flushes --direct=1 --zonemode=zbd --max_open_zones=1978 --filename=/dev/my_zone_dev
->> flushes: (g=0): rw=randwrite, bs=(R) 4096B-4096B, (W) 4096B-4096B, (T) 4096B-4096B, ioengine=psync, iodepth=1
+On 4/21/25 8:38 AM, Shin'ichiro Kawasaki wrote:
+> When the continue_on_error options is specified, it is expected that the
+> workload continues to run when non-critical errors happen. However,
+> write workloads with zonemode=zbd option can not continue after errors,
+> if the failed writes cause partial data write on the target device. This
+> partial write creates write pointer gap between the device and fio, then
+> the next write requests by fio will fail due to unaligned write command
+> errors. This restriction results in undesirable test stops during long
+> runs for SMR drives which can recover defect sectors.
 > 
-> Hi,
+> To allow the write workloads with zonemode=zbd to continue after write
+> failures with partial data writes, introduce the new option
+> recover_zbd_write_error. When this option is specified together with the
+> continue_on_error option, fio checks the write pointer positions of the
+> write target zones in the error handling step. Then fix the write
+> pointer by moving it to the position that the failed writes would have
+> moved. Bump up FIO_SERVER_VER to note that the new option is added.
 > 
-> The block size is 4k. And according to the blkzone report, it looks like the gap
-> between the zone size and zone capacity is 512b. So, I guess the fio can not
-> fill the gap by 4k writes. It looks likely this unalignment between the gap and
-> the block size left unwritten small remainders in many zones, then many zones
-> are kept open and the device exceeded the max active zone limit. Based on this
-> guess, I suggest to try with 512 byte block size to align it with the gap.
-
-Same issue. And fio seems to be capable of working with the gap in --rw=write mode.
-
->> fio-3.39
+> For that purpose, add a new function zbd_recover_write_error(). Call it
+> from zbd_queue_io() for sync IO engines, and from io_completed() for
+> async IO engines. Modify zbd_queue_io() to pass the pointer to the
+> status so that zbd_recover_write_error() can modify the status to ignore
+> the errors. Add three fields to struct fio_zone_info. The two new fields
+> writes_in_flight and max_write_error_offset track status of in-flight
+> writes at the write error, so that the write pointer positions can be
+> fixed after the in-flight writes completed. The field fixing_zone_wp
+> stores that the write pointer fix is ongoing, then prohibit the new
+> writes get issued to the zone.
 > 
-> Recently, I contributed a fix which handles the case many small remainders are
-> left by random write workload to zoned block devices [1]. The fix was upstreamed
-> after the fio version 3.39. I also suggest to try out the latest fio code with
-> 4k blocksize.
+> When the failed write is synchronous, the write pointer fix is done by
+> writing the left data for the failed write. This keeps the verify
+> patterns written to the device, then verify works together with the
+> continue_on_zbd_write_error option. When the failed write is
+> asynchronous, other in-flight writes fail together. In this case, fio
+> waits for all in-flight writes complete then fix the write pointer. Then
+> verify data of the failed writes are lost and verify does not work.
+> Check the continue_on_zbd_write_error option is not specified together
+> with the verify workload and asynchronous IO engine.
 > 
-> [1] https://github.com/axboe/fio/commit/e2e29bf6f8300186d267fa46a7b266d14d174575
+> Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Changes are needed in cconv.c to enable this new option to work in 
+client/server mode.
 
-Yeah, I saw that, but it didn't appear to be related to this issue. I will try it
-out tonight.
-
---Sean
+Vincent
