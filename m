@@ -1,169 +1,207 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48EF42701B8
-	for <fio@vger.kernel.org>; Thu, 24 Apr 2025 05:53:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745473991; cv=none; b=OONx6zKmItrNsBjs51Q8aAYS++2wjc1Ocn393ZiizY4RY8kpR5r0cAxohJ7rPM/GhiqOBHqJM6yxbIzcTRQlGAtBUvSrKgVgF8qtmbkuA/Xx+i7fhwm5+o3e6hZikXHwsLIbgjAc1NA44agfcE0Y88mPsyY3myR1UNVk1ER+o10=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745473991; c=relaxed/simple;
-	bh=b9eCWQ2IBFUf8AtFm+1eRI8bzMO1q6NJBLaKHYuJu5Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=N2kuPnWgEI6xnxsrYp/swVCS/buxkvM0Il44tN1g8N4OgP0Gwwd8XHr3HGqzn7YTOmTKAA1ITsOKldfKZtMBXrE2/UlaYYGamIWE4FwC9K7MxxHSd5Txnzi3ljRpAQyQTSs2R00oOhmtuUpEXOiwG/0XEW0lsg5gn4fGtNM7WdA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ot0dfTMk; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9CFA2701B8
+	for <fio@vger.kernel.org>; Thu, 24 Apr 2025 06:14:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=68.232.141.245
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1745475249; cv=fail; b=PqAQ7mGWn1VvVkOtOUiWyNvcn9iEfifxyGGn3lBjS1mIxDGCV5bephh797/ja6lPDcMOHdtkTfti/i0nXE9DtFwWXJVvLgvM3L2snMRBrQjl110xMYwrhIgCPitrC67TStI4Eppv4dji7c5XCWLZRYjCZaXXCkyvgkMkyEUMlnI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1745475249; c=relaxed/simple;
+	bh=p7Ynzc+21gzo76+tTIDC5ObQtbrHq8XAy6FMRfVsZgE=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=QhHoaTXMXuCDSGOclcEcpw2X7HFA1HbxOA0xr/1aKn0sl/BEB1s0TRmuffU9pQ/jSLisxvJDMKywG6wi6Lni7hgkA1rdBzhHdm3bJYNrL1+jqlmdRjWL70v0E42992K1OuA97ERyhImPoS21hsi2NulzaUbpcxOcYDl7gVKIH7Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=JIZXfKKm; dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b=sFZUazXC; arc=fail smtp.client-ip=68.232.141.245
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ot0dfTMk"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-7c5a3334fddso8690185a.1
-        for <fio@vger.kernel.org>; Wed, 23 Apr 2025 22:53:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="JIZXfKKm";
+	dkim=pass (1024-bit key) header.d=sharedspace.onmicrosoft.com header.i=@sharedspace.onmicrosoft.com header.b="sFZUazXC"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1745475247; x=1777011247;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-id:content-transfer-encoding:
+   mime-version;
+  bh=p7Ynzc+21gzo76+tTIDC5ObQtbrHq8XAy6FMRfVsZgE=;
+  b=JIZXfKKmNwV0tYC6k0e4RtnKKkakIANoS9qboA8xYPDkHe28zQ+7Mxxd
+   ioIXAnMQyaMeEnP72hZLwJMYgUUNx39Gu5u0jdUSfRhfDrMGLS5VdGpD8
+   cHTKqtfxCgMgp0NGXd30EcSJ5VtNe8Jo9Ej2eSickMhrmsIQSihm5mjVL
+   flZj/cMCI1JHm0OHmbvXVrYK4clGRC723/1jvxHd8lvj08/HHXUZQU1Ri
+   LL6FAVaKkk8GGTN0NelrUe8TmnU1iEXe1kHuJ3OCSJtFfHCFINaJJTosz
+   83B9A08qWeIParfKYgiYlFHUS/u2fiIG3UGYD8aSBlZ59nJ3eKaUEoG9G
+   A==;
+X-CSE-ConnectionGUID: p/fSPS82RwKbfjy5kl7D5Q==
+X-CSE-MsgGUID: jmL7BuIPRSufnYBTHGUz6Q==
+X-IronPort-AV: E=Sophos;i="6.15,235,1739808000"; 
+   d="scan'208";a="76343433"
+Received: from mail-westus2azlp17010003.outbound.protection.outlook.com (HELO CO1PR03CU002.outbound.protection.outlook.com) ([40.93.10.3])
+  by ob1.hgst.iphmx.com with ESMTP; 24 Apr 2025 14:13:58 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Gdkaf8N05gaso1WmEsKIc4gQQNUC+J2ABcpfSzqoR55VoDWKb80ZUIyAAefbm2ggk6BzXXEzumZBSJrBUYytqSjcC47jUoKkKIL0va6jEkGTz6bbZikGyF1IeeJ2K8x0NiVl/bko1QLbqtTocu+NPj9znTva/vU94OlCbR1ikqmsTMmkHFqUJo6KGYpfo+ZMlTrxbK0yCwoU7Kmlm4ATnScWoTJuPMZUvn9us9YloqGiORPm9LOwx7Z6xr/coRSpNbW0yI3BxYEx/XmYzedDivvM6KSEzBGiH0ZjSwsP+iSGkovxU4xbUiAs7x36mRX5O8GnrCyp6Tu1yWG4Oc4vPw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=p7Ynzc+21gzo76+tTIDC5ObQtbrHq8XAy6FMRfVsZgE=;
+ b=Z3QFqp8hhgvg8gJ4rCCCQWj4F9bE5UUzuwkY1b6dKLfDyFZHket0h+ks19bLUQwNOlSI/bE98hvQ7yBBD8tyK3+0c9FizIMhfwWLy50d7p8zV7qgqn7v+dUVKebocLvDTKL3vg2k/HTLeqTZlwffCpfhvZWeYwDZjQkdAMh+4a23wrgRw9ZS8KChF1ABPqVoE+e1cF3rYule7mjq7fb/MjVZMhfFZ8Ej1LXs8TimVl9QXuWAo12On7OyX0n6soAe1513ANQFOpPJOkfFjHBbkO2sxRUPdRczBAueL49UN7gOpQ+c74RqIKn0LyZM+tO/uR15aeW7keE0MhxdwQZgIw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745473989; x=1746078789; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=n0cv8g1PCUaPqImc/JlzzWZZ+RPyd2tz+l0C3Rhkks0=;
-        b=Ot0dfTMkkh0qpuBE+lFAOpdOLPRz7mCJjMMcVkPUjNFkCmbWt8Pg+/6z++amjDnW5u
-         aSv2L+zt8jnB5WRpcZhEI0zf76L0ESvLmaWpYB1LCZ4N1a1O1vWf4TdjcSxofF2T5dSW
-         h9mO764LpRRXlKnTdqxw0ypKnEaQ+3vMxfg9W9g5R3Kl+NkDYRD4B57XkIJwcFnqX81n
-         Hfbp6nCOanPqTnqMHiS/O/0AxjpKxAsIjFv1fHEcMyedlH0lv3rzsr1RYLsNplGC1UdU
-         mGutZ4WEQdK4bvM+h5gpICy/xRSS3a5zsI+axiWpM0YuQ38Yo0hcmFJSPUhwHF+nf7+6
-         Iuog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745473989; x=1746078789;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=n0cv8g1PCUaPqImc/JlzzWZZ+RPyd2tz+l0C3Rhkks0=;
-        b=F6CHJwI0WPSRuffuobQWjks1xBcjYzXM6mr+9Hme2nXNT7abyjeKrRGnffkTdnNYI/
-         FvaQ5RopC1u+sJdWOMjSe3ZDXhpnKgs6hCAuI6LPRA8SXS3JWo7Br6FMIVRSZRiSCdON
-         k/X6AfAEVCKdDRImmmKhfL9iNHZuk9fjhwdjBQV72US5g/xOJ7k6hjaAeuyu19AwpaNZ
-         TBnyVz5OPgn5nmRSjP/amOvFbmbnNbzoP9vULJUFBzMFu+nawPDocQlf+cTXlS3IyCj9
-         Q2KRrpcEdck3YcE0XfPCw9FJElA39/qb6433cJz+mXrYXdf75YKVsqHK+jnNCcqxb2zQ
-         7bLA==
-X-Forwarded-Encrypted: i=1; AJvYcCXi/Jj9ol4mq38E4QKbnGvFJlzxHSX/ooKUVEEFSSdV58avbINizz3msddpR71SEQMUlDc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxd3Bgc1oh2F2dTdZb6AlZQqD/NhvR5jjg0qFBMexNgMXXf1s6I
-	SZBnzDgJzzwkO3CAil+jRbzABNI7r8+F7/y8l02utIASbaM717pX
-X-Gm-Gg: ASbGncstY9iFT3ESVK+kFVibZAKPRa2BxtpIdNZIeV3BG8sO8muXluBTSwPWPkjtRG7
-	jz9dK4CQpVEEDOvlIMm+tfIOSefyD9FRUWBKsaXni3k+NxiOqKqKcumNKVWBhkXW6ppb+BTAkua
-	6r6bRw0kWTzS+vn1wlvsFAfeRvtC3RRLoEGEBrqlUAoRxtkHYmdfquJ5HNwazbmOqvrz69cikwg
-	iny8WC5cEyqxjp3zWbsYlvW23d99fQcxgG+/YKpDmGeqnGi/Xmh4ZsEEdSWntjbsDjFlLRB/LSq
-	YD5iAkcvgJIXP37RQyHmHy7a/h1UZiI1oKMFXonPMob2R+1gL4I7N6lVEN7t2ote2BF+BEqsbUg
-	IoVD13WjwoiLKs/sI
-X-Google-Smtp-Source: AGHT+IHO1q5zsjE23iMtgdrmoO8iue5UeuLPsMZMkcoha99XonL/NYFj4bIXxbvRfnSrjLd7HD42QQ==
-X-Received: by 2002:a05:622a:1486:b0:474:efa8:3607 with SMTP id d75a77b69052e-47eb2893a8amr7002021cf.1.1745473988994;
-        Wed, 23 Apr 2025 22:53:08 -0700 (PDT)
-Received: from [192.168.1.201] (pool-108-48-176-137.washdc.fios.verizon.net. [108.48.176.137])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-47e9f7a820esm7569761cf.41.2025.04.23.22.53.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Apr 2025 22:53:08 -0700 (PDT)
-Message-ID: <c08e28c3-8528-bb90-3e77-95f10cf1ca27@gmail.com>
-Date: Thu, 24 Apr 2025 01:53:07 -0400
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=p7Ynzc+21gzo76+tTIDC5ObQtbrHq8XAy6FMRfVsZgE=;
+ b=sFZUazXC/AyLmPm256QRTSZSDXshX8upwUFTaRs0WMxpQkdI5YrUqdPmGXcs9+pDiT4opsaet7bbN6IQpkDrrxtoJLSxsTFyR4Z14bZejLh4Niq1joRg9Fyt8sSdsvVtgY32bI3EAO8ODU0X1vsF+Vh8bIusN3NRSPg16SC4mz4=
+Received: from DM8PR04MB8037.namprd04.prod.outlook.com (2603:10b6:8:f::6) by
+ PH7PR04MB8923.namprd04.prod.outlook.com (2603:10b6:510:2f5::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8655.35; Thu, 24 Apr
+ 2025 06:13:56 +0000
+Received: from DM8PR04MB8037.namprd04.prod.outlook.com
+ ([fe80::b27f:cdfa:851:e89a]) by DM8PR04MB8037.namprd04.prod.outlook.com
+ ([fe80::b27f:cdfa:851:e89a%7]) with mapi id 15.20.8678.021; Thu, 24 Apr 2025
+ 06:13:55 +0000
+From: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: Sean Anderson <seanga2@gmail.com>
+CC: Jens Axboe <axboe@kernel.dk>, "fio@vger.kernel.org" <fio@vger.kernel.org>,
+	Damien Le Moal <dlemoal@kernel.org>
+Subject: Re: [BUG] active zones exceeded error with max_open_zones
+Thread-Topic: [BUG] active zones exceeded error with max_open_zones
+Thread-Index: AQHbtHLH77+zun67Ik6XWhsgb7UqFLOyVzeA
+Date: Thu, 24 Apr 2025 06:13:55 +0000
+Message-ID: <ptncklg56axp5463pdaadt5a3xxepeu4vnnl3qqtg3k2elpsmj@lcl7boaxswn5>
+References: <2b55d2f4-a093-d944-3d36-6efb5fb271ef@gmail.com>
+In-Reply-To: <2b55d2f4-a093-d944-3d36-6efb5fb271ef@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wdc.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM8PR04MB8037:EE_|PH7PR04MB8923:EE_
+x-ms-office365-filtering-correlation-id: 858cfb9a-6648-49cf-ef09-08dd82f731ba
+wdcipoutbound: EOP-TRUE
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|366016|376014|1800799024|38070700018;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?KF98oVUByTJcz2mqRAXyN9aIzl3V8UpbKslPk4mYg1wKLeQOjUYHxqJqNKHg?=
+ =?us-ascii?Q?M0+16/49rCJZPM+LHLPSo071GzCwnl7qcavlBJGIgSoWveClpTPTTE7s+NgH?=
+ =?us-ascii?Q?sZXZwv3+id0hTrpfLfjlviTW8WxRF3uU3opI1kSIewvO7C3tEvy3MlS4TRhP?=
+ =?us-ascii?Q?rWWW33YK6gPaHsWraJL5NPS/bXZdJQe1Cn3XtajupWQigjkrPWWw7/ttS1mO?=
+ =?us-ascii?Q?lMFodHK58EdGh+0W2WU4RGoHjLVSGmieNwu4uk/wEwIlaezxdOq9ne5a9De4?=
+ =?us-ascii?Q?yGBsA+jrNdTISwpG3q5agqA22s/hajospvfnKvwWYvbFWUPP6lOgm6gpTpcO?=
+ =?us-ascii?Q?C2eXKacOt1r5befOAghEKm/FhcjCzOPKJlch1dkm7ljxQlMmwKoEHIHhfyAT?=
+ =?us-ascii?Q?cANzpVXMT7u7TCuwql7MhdhD4Vp9sG/uEngmv5R23xlyLPLp15xpGkt+moo+?=
+ =?us-ascii?Q?5ad/CQ6Wm/HgVMIH42/766GCcb8fY47QtLts0gmxEWmACc2VJzNSmJPz3hB3?=
+ =?us-ascii?Q?VtbYKwFu2BZ8Ybz+9hP45MvdrFa8obPtDMLGt5t8i7Y8ZK5lt1uYQQaQFrAv?=
+ =?us-ascii?Q?6u/6fLXkKRvGqaTtJPskfWZ7A5gOuip0CrUpxnO1ByvkkQcoF/Tz9mTy/cNP?=
+ =?us-ascii?Q?0dfRePYEc4RsidJhTDhC7zmdQgkUBRcQf0ScrBNMW2h6KH6DdQH+AaVvGGl4?=
+ =?us-ascii?Q?tYj70I2/Gil9w5SHozqql7wTwzV0g3vL2O/9rMlS0PhUdOU6SX6sv0w1HTdO?=
+ =?us-ascii?Q?hIc5MMkal+9g065mN/7vAvOPlfrKNhgDv3WgIlIpWBIZsfWRwzF87MAt2QxM?=
+ =?us-ascii?Q?H5TwmYcsSDv8cu9NVp/aL5vhx1DpkLDaboBdMQMlDXB9ErNybedAEWlnL9SV?=
+ =?us-ascii?Q?L8E1DOjAGtzHgxThenb0iK85nP3wELUfHNAMaZX4SldbciNhGd45EtawY5U+?=
+ =?us-ascii?Q?Z3++KioX923fAn+i/+oQYcS/WRjliRPyEmxu5JGB0hyw7/g4RP9ji8zJkoba?=
+ =?us-ascii?Q?vwQXNkwtTyKSCzhrrYpYI9Onqu6nXRycN5iMU9doW1OCPntFi0MQNF/hDOKC?=
+ =?us-ascii?Q?3Yh/o/wfH+VT6mvlBhZuVmyiqrr+y4kQmrmp3trziIFk1cRtokTt8nXZz3V3?=
+ =?us-ascii?Q?j2+CcnuoIGkx3ydQl7DheV5h3b+Q1R1Je6PWZeOA8z1iBZlMB3mVIEoTj60t?=
+ =?us-ascii?Q?dUia5SzqF0eU9TaR5LBo2FJAHXZxm7Le+usPVwuuePYjPkY1KU2J7UhbcloP?=
+ =?us-ascii?Q?MYHq/PZeRB4aCXfF6ZHJUUalGtYpep3uf9jEkL4hUlsW/NjEgi+vFbmCk5QG?=
+ =?us-ascii?Q?suOxw31tceOzZ3YY/G+cVJEawTzyTsENdKDPZL88AAwW8WUlmnqNRerxpYhh?=
+ =?us-ascii?Q?XkUhP4sIuesSeQ96jcVkZ6BBgl7ArQV6Ow7Zqz4J2ueyArBO/hukt5TH929d?=
+ =?us-ascii?Q?cQSlr/RCf9o=3D?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM8PR04MB8037.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?zwcytu3LMF1fksfrhecYPGhVSBlv+zKcLC4XtoL6vxJ+giI05iDhxi0gMTqZ?=
+ =?us-ascii?Q?xVWrgzPN4ckcmfUkdMhtDiGemQ9T3xkj95BRgppAN2PvRSGNNrTtnvkoA9O/?=
+ =?us-ascii?Q?tvYb9MpenABrBKoTf+AO119pE34eHVL7aSKkoTB83vx/ZmZ0rtah3q5e3fvo?=
+ =?us-ascii?Q?1P/y/KBsRv5QzMrF9X7rzkYfY+5a+Tn0r1CZPNvvX20yh3nHo2xEmhYV7OqR?=
+ =?us-ascii?Q?qrNJnXoBfb5tcscfXlPpZGWN1EMfma9pFPz5r5lMOMtW2Hrl4Y6PMP3AavIW?=
+ =?us-ascii?Q?dpiyOOOd3K1BbQRWkEMYuqhnOAuntRA3Bn4sDpMj6/fYlyfYRTR1jOLzngyO?=
+ =?us-ascii?Q?NJ+Dk5+bZZm3frfxH3RJPk322pz3H4jH0rMHWsXVqeAVbYJrcJhZ5SJd0+2K?=
+ =?us-ascii?Q?wxEr4iB0PbkNZeOCrCVxPa+3nju+87E/hVqB/ELthgcEhcOzFmWcwPBoIoGO?=
+ =?us-ascii?Q?t72FBUm1muK/vYg+JN9rmRfuVhCIVq+ehCNMA7vgjXOMMmUtFstBwPCkaUCT?=
+ =?us-ascii?Q?IEt2w7HKyILkAxytHIfm5uFSn8FIcewJkH/pTEN53Ng7OhtY2zXITvEM18xf?=
+ =?us-ascii?Q?yk0FES9f/+yqkKR2pKSSbnXuHBxQqITa122CVmtzmXozltAAIdT4YzxMqvEa?=
+ =?us-ascii?Q?HdWA8bPytiAfR8eci2T+OkDAS0wYb/YsrZtMxrMebZVKcdKKyG2RmRrrJ+2r?=
+ =?us-ascii?Q?EK50+4PsVGfCNkXrGW5RWnQR8UvFdASKiQY6WRnylWYZBwb1Q6D2sAwAHEkn?=
+ =?us-ascii?Q?pvjfmN2lxAjgx1Fsy1Dw7KhnukdUXK/l5zV3ePEjH8yxZgi7xU50n2AyA0xC?=
+ =?us-ascii?Q?HmCY399RF/l6DLd3ZS3qHJFgcheQNcyKnezfTRfgS4kOAIz6F0DcOgD82pem?=
+ =?us-ascii?Q?xRoUt+Y8e6g47JQqoSi2qZLAavDIgORvST+/K10TP+t2C4jVCk8lSaktjGs9?=
+ =?us-ascii?Q?htPBE9FkzvnSbrOzgM/M/UsshLC08gwR84ACN99VY8EX0jxjL2BErS+ljLK3?=
+ =?us-ascii?Q?C5uRXh24XBQWTpEEyfDxdMYr9PXkwcw2OGhTeyr+Y280/tVeyzzNfJgFK5tA?=
+ =?us-ascii?Q?TqQ+aUe9yDTNI9OqTYVyteh0BIrt0+I7XQere/Hqg+F42Nmmy9pUhj03ftj4?=
+ =?us-ascii?Q?4Le7l3QjQXJTa3RckEW78WkJz8gvIHd8ruQGCm9NRp0IdDiBtFOaRIn11d8S?=
+ =?us-ascii?Q?nLjc2FM9nJT57SF0d1e51A8BP44cU8kTS5bnyuGYDIjZqyjw//26rs+Db9Am?=
+ =?us-ascii?Q?zYGtLk6lOD3ls4Fq/NS0FfHCSZd9TnM4MKy8TKfEwKryPKc/Sqn5capuj8Na?=
+ =?us-ascii?Q?i7dbYFxGUOx8KeK1H9eXF5tsSNODQT2Ll08Dp6W+v/EEREW0mNJDAVHScDDK?=
+ =?us-ascii?Q?iVAif6y8hokWTyfCbe4A8/09PBYDH2nh4VxFlMimaFaTwIxm7/CKY7UNCHiY?=
+ =?us-ascii?Q?To5Ex3tSQIiQrLgj5k4ueSuNo3US+QKV9DRTLPvi9WskFUgMY4J+zYySFXOE?=
+ =?us-ascii?Q?uOOoBvtGCZTBAnDcMFul7bpq/2dnIlV1+YFakNBu/kegYz/r7U9D5VMPeCmK?=
+ =?us-ascii?Q?dGUOT9dS4Q2UArf0Rr2E7HarLVxdYFOxVVcuEBseaZZ+yh4FQn4ih9hRf5Ur?=
+ =?us-ascii?Q?iw=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <75DE800D7FF9DD4AB339062FE127CD6C@namprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [BUG] active zones exceeded error with max_open_zones
-Content-Language: en-US
-To: Damien Le Moal <dlemoal@kernel.org>,
- Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
- Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
-References: <2b55d2f4-a093-d944-3d36-6efb5fb271ef@gmail.com>
- <2a232db8-280a-4a76-aade-916499fd524d@kernel.org>
- <949cb711-b20b-6bb5-6663-e12ca7d71cf2@gmail.com>
- <9483165f-c834-4272-9949-59e93659551b@kernel.org>
-From: Sean Anderson <seanga2@gmail.com>
-In-Reply-To: <9483165f-c834-4272-9949-59e93659551b@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
+	Zz/kOhzDjohmd7OnnhtQMFAPYkphoaaomzxrMPavZVP4DyV9U6YZVwhPQaHPHvG14rUcXWe0Gfesh96ctQph06ZIsf/EUIm0nMbOzztUVZbfP/+t897zO7c9gR1A4UlaRTv4nbhWnTYtFGVs1OrQawrTWs/c+YTYFDuggTU4pfP+/IXu3sXwfcTDOwbD2+u4e1uGRUmUZr3cVrUw5ylBUGXQ7Mn2efWf4/7kn+291vETeH7NSEWOEIsA8MzJ0o1siyGwczHHcVSTfqYyVFcr9vaRbgLUJPbKwphlm4fbZKpg3+d2TORbWl9N/e7XWbrI+9oPfZGB25UZZku/aRcv4Me/+ehOyBSH5zsTtzRsT2ISZJc68H6PdN64aK+scfINk9KvFGJdJb1Kwd1WrrLR3/VpHp02NXqFiVeW87+eIWM5b3YmUAcW7FN66eGe9zMTMdu9Yz4iNSmhBO3lmLoYsvKSP8kpVNW7RVg43W5E9Wj6SuciwcsdOx53Xq36xycEeVFdgJnns+cGXab8bOgnz52oX3qqtNGG3f3Gpfn072uGIQJvdiAKFRLQRtfsllpGDjQXJ6jfOIiL15xrvgHPyT6t9UhzIdcR7u3ghqIcbP+WKRt4HjqAKP5nHPL3VVAR
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM8PR04MB8037.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 858cfb9a-6648-49cf-ef09-08dd82f731ba
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Apr 2025 06:13:55.9104
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: xsoTXcc32eLHXY8tWsPAuAdUF8MdC2sRa2iZKdNWckXbTiT7ONymGdAI8wKKDHUHy4UPeJ7KwKng+LABhkiDvaEW+fhzf4AvKY6xxV0wGNQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR04MB8923
 
-On 4/24/25 01:40, Damien Le Moal wrote:
-> On 4/24/25 14:27, Sean Anderson wrote:
->> On 4/23/25 23:10, Damien Le Moal wrote:
->>> On 4/24/25 02:11, Sean Anderson wrote:
->>>> Hi,
->>>>
->>>> I'm getting an "active zones exceeded" error when running fio with
->>>> --rw=randwrite mode:
->>>>
->>>> # fio --bs=4k --rw=randwrite --norandommap --fsync=1 --number_ios=16384 --name=flushes --direct=1 --zonemode=zbd --max_open_zones=1978 --filename=/dev/my_zone_dev
->>>
->>> --max_open_zones=1978 is an extremely large value that likely exceeds the drive
->>> capabilities, which is what fio is telling you.
->>> What are your drive maximum open and active zones limits ?
->>>
->>> cat /sys/block/my_zone_dev/queue/max_open_zones
->>> cat /sys/block/my_zone_dev/queue/max_active_zones
->>
->> This is correct for the drive.
-> 
-> I am sure it is. My point is that you cannot use --max_open_zone fio option with
-> a value larger than what these sysfs attribute values are.
+On Apr 23, 2025 / 13:11, Sean Anderson wrote:
+> Hi,
+>=20
+> I'm getting an "active zones exceeded" error when running fio with
+> --rw=3Drandwrite mode:
+>=20
+> # fio --bs=3D4k --rw=3Drandwrite --norandommap --fsync=3D1 --number_ios=
+=3D16384 --name=3Dflushes --direct=3D1 --zonemode=3Dzbd --max_open_zones=3D=
+1978 --filename=3D/dev/my_zone_dev
+> flushes: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 4096B-4096B, =
+(T) 4096B-4096B, ioengine=3Dpsync, iodepth=3D1
 
-as I said
+Hi,
 
-# cat /sys/block/my_zone_dev/queue/max_open_zones
-1978
-# cat /sys/block/my_zone_dev/queue/max_active_zones
-1978
+The block size is 4k. And according to the blkzone report, it looks like th=
+e gap
+between the zone size and zone capacity is 512b. So, I guess the fio can no=
+t
+fill the gap by 4k writes. It looks likely this unalignment between the gap=
+ and
+the block size left unwritten small remainders in many zones, then many zon=
+es
+are kept open and the device exceeded the max active zone limit. Based on t=
+his
+guess, I suggest to try with 512 byte block size to align it with the gap.
 
->>> fio will use the min_not_zero of these 2 values as the maximum number of zones
->>> that can be written simultaneously. Especially if your drive has an active zone
->>> limit, you *cannot* write to more zones than that limit at the same time.
->>> fio will default to max_open_zones=min_not_zero(drive max open, drive max
->>> active) and for a random write workload, it will:
->>> - pick zones randomly up to max_open_zones
->>> - direct write IOs to a randomly chosen zone in the current set of open zones
->>> and when an open zone becomes full, randomly pick another zone to replace it.
->>
->> Well the issue is that it appears to just pick random zones, not random open zones.
-> 
-> The drive may be completely empty, all zones empty, so no open zones to chose
-> from. So fio picks a random zone and adds it to the set of open zones it tracks.
-> It will repeat that until the set of open zones reaches the limit, at which
-> point, fio has no choice but to keep writting these open zones until they are full.
-> 
-> If the drive already has open zone in the fio workload range, these zones will
-> be added to the set of open zones on fio start.
+> fio-3.39
 
-But it's not doing this.
+Recently, I contributed a fix which handles the case many small remainders =
+are
+left by random write workload to zoned block devices [1]. The fix was upstr=
+eamed
+after the fio version 3.39. I also suggest to try out the latest fio code w=
+ith
+4k blocksize.
 
->>> For your workload, if you want to measure the maximum "random" write performance
->>> of your disk, simply do NOT specify --max_open_zones=. fio will pick the best
->>> possible number for you.
->>
->> Same issue.
-> 
-> Are you specifying an offset+size range ? If yes, how many zones are open in
-> that range and outside of it ?
-
-The full command line and output is in my original email. I ran `blkzone reset`
-before this. If I don't do a reset first it fails almost immediately.
-
-> What drive is it ? Looking at the blkzone report you sent, the zones look
-> ridiculously small (32 sectors...)... Is this a null_blk device ?
-
-Something I'm working on. I'm not done testing yet (which is why I was messing around
-with fio). You can probably guess what it is based on the geometry.
-
-I'm actually thinking of creating a device mapper driver (layer?) to combine the zones
-because a lot of other layers expect larger zones. E.g. btrfs expects 4M zones. Not
-sure whether it should go under linear or not.
-
-But tbh this is a bit strange to me. Ideally filesystems should take advantage of smaller
-zones because they more closely approximate conventional zones. And if they need to store
-larger structures they should just store them in multiple zones.
-
-> If that is the case, try creating the drive with larger zones. You may be
-> hitting a bug with such tiny zones. Since such drive do not exist in the field,
-> we never really tested such extreme configuration.
-
-The hardware I am targeting naturally has small zones, so I am interested in finding/fixing
-these sorts of bugs.
-
---Sean
+[1] https://github.com/axboe/fio/commit/e2e29bf6f8300186d267fa46a7b266d14d1=
+74575=
