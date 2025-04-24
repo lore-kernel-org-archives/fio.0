@@ -1,101 +1,114 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3984C265613
-	for <fio@vger.kernel.org>; Wed, 23 Apr 2025 21:04:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3411A4C98
+	for <fio@vger.kernel.org>; Thu, 24 Apr 2025 03:00:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745442285; cv=none; b=hfMdJVpvDhSoxwFeZh1SIi5UlY5lbzVYULPKgLaEPMZOF0RqbzyikGeJONYeDvaIVNjTNQzlKINgPHKibrU/3VC3W2l+wIAHiSzQw4TEp6DR3sFnoo/YQFDTcLOXR7eig5xu4e/qn1yA030VfWW//vwDPZCasUewZAjKe31SRn8=
+	t=1745463658; cv=none; b=RI5SH9YQugT0mDrtljdPAfy1HfEKhEl7W5wny16hiWy29/TCb7ncVhJfuupNJCfms6CFydvnV6GwGFUvu5ewCmIjSghrmyFtApqw/m9Aa5+TIpzrzLw7setgCzg5f860WwwSp1zKLDDytOZmEB7ntG8/bQCBVlMEvUGgaU19glE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745442285; c=relaxed/simple;
-	bh=gVO+GOtJAcYSPnCdBTGkcxm+Re8Bmmq/qk4f/BagVsM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=doDwCwqmJSdAYKbc9n4kAGjfFjZMow858XQh+/OrXSyGy9M/AjH5v4xfTLDAJ/ctCnbncpQyjz/G1xi5Z4Ldn0RsQy3p4Se7KVT87vdAndKwTWfIQul5WlkGf86yScertz6B/A03ZCghBzIMeAff+xh+F3VRerTNEOVG3swniTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com; spf=pass smtp.mailfrom=pcpartpicker.com; dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b=c4Wrw6y+; arc=none smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pcpartpicker.com
+	s=arc-20240116; t=1745463658; c=relaxed/simple;
+	bh=No0tuxAb3ESylOUtiQ1M40Ug+0eIhyC7/4bqsGCGFf0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GCquHYdGYMMpLqLgB7xOAQMAyO4xn7u1+ObvpzQYc4POXTfgAlC9jccJ82tAL07xB3IAV/5hLCMfVKUhXvWCFzb4SlffqnSU7k7OCIl3gmG1qEudLVPEe7I63HZioTpuJSWYetqA5e2aaFZdbO6A2SRLLUGzt4nZT8+74rkzsD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WVOqEISH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b="c4Wrw6y+"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-5f623af283fso38171a12.0
-        for <fio@vger.kernel.org>; Wed, 23 Apr 2025 14:04:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pcpartpicker.com; s=google; t=1745442281; x=1746047081; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=gVO+GOtJAcYSPnCdBTGkcxm+Re8Bmmq/qk4f/BagVsM=;
-        b=c4Wrw6y+Sr2eWUY9ID7nw/LxhV2yMPMgPMdw21ARe+bmxVPId5iELL7tkGExr69kQ3
-         OeqpCBhDgHtZ+J4mL4fhjf0cLntYTLZWF9JRKZpIlm63YUSCxTq8xoR2Ln4gxfFFCwwP
-         9RJZbfJpGkRINGlRsdFk4HTClpD95H3k/HztejjKKX3o+CxH61hGUCpBrzo1j99mUZpS
-         A1A3Y7dhXBOXiK8GlxcQ9KakxCT9N7dpt82gh4ncwgK5fb2jd/5DLIwupGoTqRO35RoD
-         o66mFuu1LRybZQiLjWq9RMpWT37oqW8w0sV3/z5PStEItCPbyCOKM+EBtbRyuszycZMd
-         tE6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745442281; x=1746047081;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=gVO+GOtJAcYSPnCdBTGkcxm+Re8Bmmq/qk4f/BagVsM=;
-        b=jcn36MZERsonJZpCKniINbgpVVr5guofiVXOiLv86LgkGcm2SMN8Q/gucGY7hyKYC1
-         TZ3ea/Uhj6JoXqyVU7Yt4SRbM8D0u5T8ap9jQeVUv7lBI2JqNTrbncvKwhKvo/glV03R
-         6r899evLj0OXPngpycOIFJ6UeZIzxCs9L1lWI5VGi9NZ+f2RcSC4ppoGgavRf98pdQqv
-         nyvBaRaWiNOJ9XVsYlvndpVbyP1yMKf6bQMDqvhktD/PA6KViAP1b+krogV/8JDdCvZu
-         HPUmzGTOAAKloaiCpV3vWCcpXwyMG69WeFOGmvafVGlG2A2qzw1zMYZt1Ff2A22eke2f
-         Iv1Q==
-X-Gm-Message-State: AOJu0YzkaDdT21RgPNvLnVfhcANn/yB6sYeZLUXSsWK/2ABIuG1FpJ/8
-	eEStrZCK8FNYWKJGAuleJAm0yZZO9Zc/6kgzOsRg13dnBRTzQc7s04b1pMs9dJiFArVy6MZ6qPu
-	OaeLXILYQi2TLOVQXWRa/lOUAnABVHkziDfZdYsXrlTCerW3kUxo=
-X-Gm-Gg: ASbGncuC3Rg403pVoU/qI9uiWN98ifIKfDXAk+tWMbbAAs/UpxAKOJu9F4DgNp0PCxg
-	P+Ov3EDqvjge2IUeCdR+KD5aSPrRmQD67ciXfrgUraQPtynesVDAfddiYZ4CrdJxOvFZa46gZ0j
-	F07dtslc4Wm7dNcfj+taHaag==
-X-Google-Smtp-Source: AGHT+IHVLHWZNtI3FySKdrts9Yobcum0HoDsOQgjUenz5cxbTgwW70FqPcEKsj3xn5Urs78f0pVAufEM2ns1/yMC1gs=
-X-Received: by 2002:a17:907:3f12:b0:ac7:3910:17b8 with SMTP id
- a640c23a62f3a-ace57485e5emr7070866b.15.1745442281427; Wed, 23 Apr 2025
- 14:04:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WVOqEISH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F9A6C4CEE2;
+	Thu, 24 Apr 2025 03:00:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1745463656;
+	bh=No0tuxAb3ESylOUtiQ1M40Ug+0eIhyC7/4bqsGCGFf0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=WVOqEISHWdw7lwoHqbzT+w2RaKsL/JHQfZjRS8qJubSIqJ5t08Q8V9MEJ4yf5WHmp
+	 ypsBTyRbl8ppYA01RtDCa6deCBUJZgYlYMBIJwTmtBGcZxBt7E1DTzN6eFOKYsrGQc
+	 0rMVfHZgMmlRYelhejMK924JuThO1t3CSKbwn6Zqf9r74RdGGhczHn/TfEdw3m80BF
+	 muHYdNiktiruMtxwhIRBhHi98Zk3wPwFvrUfwQ5ubB130kg2ciYjkY5+umz5AZDEWO
+	 dZF5uxaohI/Psf8egabqAZaZ6IIla1O5RtJf348MhIbRKudr3FPGCOUNe2Ti5D0E4e
+	 NxnhEWGn6f3cw==
+Message-ID: <e5c59cb4-4613-415b-a8df-9926bfecee64@kernel.org>
+Date: Thu, 24 Apr 2025 12:00:54 +0900
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CADqNVTpRsQXDsW034A8SWeWEbpsAUcidWiKgpj+Xm74NYNPjQQ@mail.gmail.com>
- <faad816b-3683-43e6-a700-65eba76d9a0d@kernel.org> <CADqNVTrptG5b4Un=Q9Hqe5WPMTdcaCDtbjzR753j9YWorEBnxA@mail.gmail.com>
-In-Reply-To: <CADqNVTrptG5b4Un=Q9Hqe5WPMTdcaCDtbjzR753j9YWorEBnxA@mail.gmail.com>
-From: Nick Neumann <nick@pcpartpicker.com>
-Date: Wed, 23 Apr 2025 16:04:28 -0500
-X-Gm-Features: ATxdqUF3eJFhFXaqhbwUmLEhiaq9nAnrTNAb9CRbklwXhV0HLNoGG9dh_5KOTOE
-Message-ID: <CADqNVTqM3se6L=qJUh5U3kwpWCCbuR3GjE+xQ+JCQVRL=t60OA@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
 Subject: Re: Performance variation in traditional HDDs?
-To: Damien Le Moal <dlemoal@kernel.org>
+To: Nick Neumann <nick@pcpartpicker.com>
 Cc: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+References: <CADqNVTpRsQXDsW034A8SWeWEbpsAUcidWiKgpj+Xm74NYNPjQQ@mail.gmail.com>
+ <faad816b-3683-43e6-a700-65eba76d9a0d@kernel.org>
+ <CADqNVTrptG5b4Un=Q9Hqe5WPMTdcaCDtbjzR753j9YWorEBnxA@mail.gmail.com>
+ <CADqNVTqM3se6L=qJUh5U3kwpWCCbuR3GjE+xQ+JCQVRL=t60OA@mail.gmail.com>
+Content-Language: en-US
+From: Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <CADqNVTqM3se6L=qJUh5U3kwpWCCbuR3GjE+xQ+JCQVRL=t60OA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Just a quick update on initial test results. We started with the two
-"identical" drives (https://pcpartpicker.com/product/BcQG3C) that
-showed the largest difference. Note these are SMR drives so we are
-careful to do an "ATA SECURITY ERASE" before running our benchmark.
+On 4/24/25 06:04, Nick Neumann wrote:
+> Just a quick update on initial test results. We started with the two
+> "identical" drives (https://pcpartpicker.com/product/BcQG3C) that
+> showed the largest difference. Note these are SMR drives so we are
+> careful to do an "ATA SECURITY ERASE" before running our benchmark.
 
-Previously we had these drives sitting vertically in 3d-printed trays
-during our benchmarking. We moved to benchmarking them mounted
-horizontally with screws and vibration dampening pads. They were
-mounted to a heavy metal "open air" style case. Drive 1 was
-benchmarked, then Drive 1 was removed and Drive 2 installed in the
-exact same location as Drive 1, and then Drive 2 was benchmarked.
+So these are drive-managed SMR disks, right ?
+All bets are off in terms on performance then. These drives behave like SSDs and
+do a lot of internal "grabage collection" to handle the sequential write SMR
+constraint. And even doing a purely sequential write workload to the disk does
+not guarantee in-order deliveries of the writes to the disk, so that garbage
+collection may be trigerring and changing the results. AHCI adapters are
+notorious for *not* delivering commands in order...
 
-We didn't see any real difference in results when changing to this
-traditional mounting. Drive 1 went from an average full-write
-throughput of 174.06MB/s to 174.08MB/s. Drive 2's average full write
-throughput stayed at exactly 157.88MB/s.
+> Previously we had these drives sitting vertically in 3d-printed trays
+> during our benchmarking. We moved to benchmarking them mounted
+> horizontally with screws and vibration dampening pads. They were
+> mounted to a heavy metal "open air" style case. Drive 1 was
+> benchmarked, then Drive 1 was removed and Drive 2 installed in the
+> exact same location as Drive 1, and then Drive 2 was benchmarked.
 
-Looking at a graph of throughput over time for the
-differently-behaving but identical drives is really interesting:
-https://cdna.pcpartpicker.com/static/forever/images/content/13b2fa7e147ddd5359f5638b4efde7af.png
+Mounting drives vertically is fine. Plenty of enterprise high-density JBOD
+enclosures use such mounting. Vibration dampening is still a requirement of course.
 
-We're working on making sure our HDD mounting is adequate. Do you have
-any specific guidance/tips on what should be done? Is the goal of the
-mounting to prevent outside vibrations from affecting the drive,
-dissipating internal vibrations, or both? We use a number of identical
-3U rackmount machines for our SSD benchmarking and would also like to
-leverage them for diving into this HDD issue in more depth, but they
-do not have traditional HDD mounting locations. So for now we are more
-slowly conducting experiments on one of our open-air dev benchmark
-machines, which has proper mounting locations.
+> We didn't see any real difference in results when changing to this
+> traditional mounting. Drive 1 went from an average full-write
+> throughput of 174.06MB/s to 174.08MB/s. Drive 2's average full write
+> throughput stayed at exactly 157.88MB/s.
+> 
+> Looking at a graph of throughput over time for the
+> differently-behaving but identical drives is really interesting:
+> https://cdna.pcpartpicker.com/static/forever/images/content/13b2fa7e147ddd5359f5638b4efde7af.png
+
+The general shape of the curve going down with higher LBAs is normal as an HDD
+performance is higher at OD (outter diameter, more sectors per track) than ID
+(inner diamters, shorter tracks so less sectors per revolution).
+However, since these seems to be drive-managed SMR disks, there is no way to
+tell how the HDD firmware is mapping LBAs to physical sectors. The noisy results
+tend to indicate that there is a lot of HDD internal IOs going on.
+
+> We're working on making sure our HDD mounting is adequate. Do you have
+> any specific guidance/tips on what should be done? Is the goal of the
+> mounting to prevent outside vibrations from affecting the drive,
+> dissipating internal vibrations, or both? We use a number of identical
+> 3U rackmount machines for our SSD benchmarking and would also like to
+> leverage them for diving into this HDD issue in more depth, but they
+> do not have traditional HDD mounting locations. So for now we are more
+> slowly conducting experiments on one of our open-air dev benchmark
+> machines, which has proper mounting locations.
+
+I do not think this is a mounting issue. Drive-managed SMR and disk internal
+state differences are more likely. I recommend you contact your drive vendor to
+see if they can explain things. Generally, drive internal FW operation is not
+public information though.
+
+Another thing you may want to try is to do a full format of the drive before
+benchmarking them. To make sure the LBA mapping is reset and consistant between
+the drives.
+
+
+-- 
+Damien Le Moal
+Western Digital Research
