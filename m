@@ -1,56 +1,56 @@
 Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CA992010F6
-	for <fio@vger.kernel.org>; Fri, 25 Apr 2025 05:21:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA04A1F4C8E
+	for <fio@vger.kernel.org>; Fri, 25 Apr 2025 05:21:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745558517; cv=none; b=kY0DrGuteqtYIKK7EoU9C9WJt6Fnyldfqr+1VRyLY03/P2m5myvgsQrKm5XRDrelgVgfuSRlSTkKmdNueO9QGczpVk3EJqQ80i3yrdJNR70gRak0KwA112CAkLZ5z0Yd+MK93jUgNtYzB71S30MBa7oREcYcOpWvwyT3cFhtW2k=
+	t=1745558519; cv=none; b=eKr5Qra4WedZ9SRkF4U/s9fkRzgmkFtHA321TGFT8XGjFsy14lJnQ9oZNEcuaue+ggDjvo3jTBh+d+EqtjWboXK7Qj/08CoxSL3fGyLOOY0HnvuWzxQ6OEnFIltB8V5kv5G4EYv+N3LSnQxtDwuZGXzHMhKCRsc5ki6ZEOjjwno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745558517; c=relaxed/simple;
-	bh=mplodBE1MX7PshMyi4jLyH6QnRTeaC0NLlIL9BtykW4=;
+	s=arc-20240116; t=1745558519; c=relaxed/simple;
+	bh=VT4/WOj8S3xmCzR4oAD5rLludvmh/Vbqu0B3ivercZE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=goU5zG+lvadeSFKYGFqJERcP9k35POMGegmbhgvnaRyQUfRtUGE2oySbfsbSUS8Xou1ntMTsYcnWdZcqeX0/HVX59Z0CVGSwmkb/0DXAViHlGjjV4jJTmHzlG3yPFLaXevyic/0k8/Tr3RM1ct9HLZXdrt/bhkpWUSLcxJK27Z8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=DYW8dmSL; arc=none smtp.client-ip=216.71.154.45
+	 MIME-Version; b=MDbZi64msUqcmB4+M1bLI4ZjyGfQKTKanWddgSWMCNLUnfSb56KgEUUWjYxrEFbGGiPxCFdZuPVNQIUe5zM6lZvc+VxsbZoIFDm1Kfv28bZAXfy/hjOgRIxiW6/wYjetHzIpU7R3nsg8PZhR1eBOjsf0g+bZWrsrjFeLLNzLhh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=FfVaHtNb; arc=none smtp.client-ip=216.71.154.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="DYW8dmSL"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="FfVaHtNb"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1745558515; x=1777094515;
+  t=1745558516; x=1777094516;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=mplodBE1MX7PshMyi4jLyH6QnRTeaC0NLlIL9BtykW4=;
-  b=DYW8dmSLYWDRx87rPWxxvLolBB2+Suzor76k0C/Z3zRMJ3nLyuWns9ep
-   6fCA0haB5ygcdq8Eufku6GduYUXYhzwoQSSqAPBTznHB4ZUTrFnXLBMit
-   AbVC4/UPEx5qZ+cp0QXT6JsvQ4xyFzHhNGEIAPi0R/G3hnDsYkiCojUlR
-   7G7HRIg11P3Ev1bdOkX8zO2hWa8AuwJY5i/Ye7Ylb5WA8ykB37Rgvlw+a
-   +G8t6TvlKmIXtvEbKniE+6lYoI+HKZBA40T377vcSKbm4vkpJ28Rq9BVz
-   GxPredH49DqCTmRS62W5UvMLd5Ono/r4aVEUOGZX2acd4YGhR5UOk2MyW
-   A==;
-X-CSE-ConnectionGUID: DzRoyymXTmqVnAeteFapAQ==
-X-CSE-MsgGUID: A0XxlXY1Tjyhu+JW5yUdsw==
+  bh=VT4/WOj8S3xmCzR4oAD5rLludvmh/Vbqu0B3ivercZE=;
+  b=FfVaHtNbRMxKU5sIosoCMYwiN7MTSBOQOGTsVPvnZlnkUOsYPl8x7AXU
+   vy5u7jTUVDW7fvDBKMa64w9OnOaqyaGg79fWm44zJf0CQPHJi0CZWUp/x
+   4GKBDERiPLJCmP6+B3jI4qRCaITDBjzlXU7xCSZFNjUmu/VthGYGrMMzj
+   TL3GG+vt8ZjcTXkrlUEyxUAOTV/z8/XrhM77290F0+6HX0YFtodvcsvY9
+   uoNc++P6kHVIetgKyP3y4GxAPPYQ8lPrit7sC8sB0Eg583T0PCeB39hmo
+   hFymMRbDPV/mjkPe1U7Qzt5LYL6QpZ034H1etTkKSmnd/Dz4OgVyDKf78
+   w==;
+X-CSE-ConnectionGUID: LBx+Db3FQd+Iu2mHP9iriw==
+X-CSE-MsgGUID: sij/gCqWSDWCybsy3j0yHA==
 X-IronPort-AV: E=Sophos;i="6.15,238,1739808000"; 
-   d="scan'208";a="82381448"
+   d="scan'208";a="82381449"
 Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 25 Apr 2025 13:21:55 +0800
-IronPort-SDR: 680b0dd7_Ho8dh6s/t+izgwt5k37c8G4PLAUk2cRgTGBAFBjztV8/Glp
- qB8Oeib1pmnVjyr82vaMNX3rtB1rXKpX4jkNbng==
+  by ob1.hgst.iphmx.com with ESMTP; 25 Apr 2025 13:21:56 +0800
+IronPort-SDR: 680b0dd8_iYaSbMUD+xFx4EWcoqWpTxqIYfAWuCKJUuw7GA//EgTy+qs
+ Sixw2jLKZ9VDZwn8ZHjjoOcfXUdJZvifpe7LVxw==
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 24 Apr 2025 21:21:43 -0700
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 24 Apr 2025 21:21:45 -0700
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 24 Apr 2025 22:21:54 -0700
+  by uls-op-cesaip01.wdc.com with ESMTP; 24 Apr 2025 22:21:55 -0700
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 5/8] zbd: add the recover_zbd_write_error option
-Date: Fri, 25 Apr 2025 14:21:45 +0900
-Message-ID: <20250425052148.126788-6-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 6/8] t/zbd: set badblocks related parameters in run-tests-against-nullb
+Date: Fri, 25 Apr 2025 14:21:46 +0900
+Message-ID: <20250425052148.126788-7-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250425052148.126788-1-shinichiro.kawasaki@wdc.com>
 References: <20250425052148.126788-1-shinichiro.kawasaki@wdc.com>
@@ -62,461 +62,33 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When the continue_on_error options is specified, it is expected that the
-workload continues to run when non-critical errors happen. However,
-write workloads with zonemode=zbd option can not continue after errors,
-if the failed writes cause partial data write on the target device. This
-partial write creates write pointer gap between the device and fio, then
-the next write requests by fio will fail due to unaligned write command
-errors. This restriction results in undesirable test stops during long
-runs for SMR drives which can recover defect sectors.
-
-To allow the write workloads with zonemode=zbd to continue after write
-failures with partial data writes, introduce the new option
-recover_zbd_write_error. When this option is specified together with the
-continue_on_error option, fio checks the write pointer positions of the
-write target zones in the error handling step. Then fix the write
-pointer by moving it to the position that the failed writes would have
-moved. Bump up FIO_SERVER_VER to note that the new option is added.
-
-For that purpose, add a new function zbd_recover_write_error(). Call it
-from zbd_queue_io() for sync IO engines, and from io_completed() for
-async IO engines. Modify zbd_queue_io() to pass the pointer to the
-status so that zbd_recover_write_error() can modify the status to ignore
-the errors. Add three fields to struct fio_zone_info. The two new fields
-writes_in_flight and max_write_error_offset track status of in-flight
-writes at the write error, so that the write pointer positions can be
-fixed after the in-flight writes completed. The field fixing_zone_wp
-stores that the write pointer fix is ongoing, then prohibit the new
-writes get issued to the zone.
-
-When the failed write is synchronous, the write pointer fix is done by
-writing the left data for the failed write. This keeps the verify
-patterns written to the device, then verify works together with the
-continue_on_zbd_write_error option. When the failed write is
-asynchronous, other in-flight writes fail together. In this case, fio
-waits for all in-flight writes complete then fix the write pointer. Then
-verify data of the failed writes are lost and verify does not work.
-Check the continue_on_zbd_write_error option is not specified together
-with the verify workload and asynchronous IO engine.
+As a preparation to add test cases which check that the
+continue_on_error option and the recover_zbd_write_error option work
+when bad blocks cause IO errors, set additional null_blk parameters
+badblocks_once and badblocks_partial_io. These parameters were added to
+Linux kernel version 6.15-rc1 and allows more realistic scenario of
+write failures on zoned block devices. The former parameter makes the
+specified badblocks recover after the first write, and the latter
+parameter leaves partially written data on the device.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- HOWTO.rst        |  11 +++++
- cconv.c          |   2 +
- fio.1            |   9 ++++
- io_u.c           |   5 ++
- io_u.h           |   3 +-
- ioengines.c      |   2 +-
- options.c        |  10 ++++
- server.h         |   2 +-
- thread_options.h |   2 +
- zbd.c            | 122 +++++++++++++++++++++++++++++++++++++++++++++--
- zbd.h            |  12 ++++-
- 11 files changed, 170 insertions(+), 10 deletions(-)
+ t/zbd/run-tests-against-nullb | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index bde3496e..a7e2f693 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -1126,6 +1126,17 @@ Target file/device
- 	requests. This and the previous parameter can be used to simulate
- 	garbage collection activity.
+diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
+index 97d29966..f1cba355 100755
+--- a/t/zbd/run-tests-against-nullb
++++ b/t/zbd/run-tests-against-nullb
+@@ -91,6 +91,9 @@ configure_nullb()
+ 		fi
+ 	fi
  
-+.. option:: recover_zbd_write_error=bool
++	[[ -w badblocks_once ]] && echo 1 > badblocks_once
++	[[ -w badblocks_partial_io ]] && echo 1 > badblocks_partial_io
 +
-+	If this option is specified together with the option
-+	:option:`continue_on_error`, check the write pointer positions after the
-+	failed writes to sequential write required zones. Then move the write
-+	pointers so that the next writes do not fail due to partial writes and
-+	unexpected write pointer positions. If :option:`continue_on_error` is
-+	not specified, errors out. When the writes are asynchronous, the write
-+	pointer move fills blocks with zero then breaks verify data. If an
-+	asynchronous IO engine and :option:`verify` workload are specified,
-+	errors out. Default: false.
- 
- I/O type
- ~~~~~~~~
-diff --git a/cconv.c b/cconv.c
-index df841703..cc1a52c7 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -265,6 +265,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 	o->zone_mode = le32_to_cpu(top->zone_mode);
- 	o->max_open_zones = __le32_to_cpu(top->max_open_zones);
- 	o->ignore_zone_limits = le32_to_cpu(top->ignore_zone_limits);
-+	o->recover_zbd_write_error = le32_to_cpu(top->recover_zbd_write_error);
- 	o->lockmem = le64_to_cpu(top->lockmem);
- 	o->offset_increment_percent = le32_to_cpu(top->offset_increment_percent);
- 	o->offset_increment = le64_to_cpu(top->offset_increment);
-@@ -637,6 +638,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->zone_mode = __cpu_to_le32(o->zone_mode);
- 	top->max_open_zones = __cpu_to_le32(o->max_open_zones);
- 	top->ignore_zone_limits = cpu_to_le32(o->ignore_zone_limits);
-+	top->recover_zbd_write_error = cpu_to_le32(o->recover_zbd_write_error);
- 	top->lockmem = __cpu_to_le64(o->lockmem);
- 	top->ddir_seq_add = __cpu_to_le64(o->ddir_seq_add);
- 	top->file_size_low = __cpu_to_le64(o->file_size_low);
-diff --git a/fio.1 b/fio.1
-index 0ea239b8..8476b681 100644
---- a/fio.1
-+++ b/fio.1
-@@ -890,6 +890,15 @@ A number between zero and one that indicates how often a zone reset should be
- issued if the zone reset threshold has been exceeded. A zone reset is
- submitted after each (1 / zone_reset_frequency) write requests. This and the
- previous parameter can be used to simulate garbage collection activity.
-+.BI recover_zbd_write_error \fR=\fPbool
-+If this option is specified together with the option \fBcontinue_on_error\fR,
-+check the write pointer positions after the failed writes to sequential write
-+required zones. Then move the write pointers so that the next writes do not
-+fail due to partial writes and unexpected write pointer positions. If
-+\fBcontinue_on_error\fR is not specified, errors out. When the writes are
-+asynchronous, the write pointer move fills blocks with zero then breaks verify
-+data. If an asynchronous IO engine and \fBverify\fR workload are specified,
-+errors out. Default: false.
- 
- .SS "I/O type"
- .TP
-diff --git a/io_u.c b/io_u.c
-index 17f5e853..70a11837 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2102,6 +2102,11 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
- 	assert(io_u->flags & IO_U_F_FLIGHT);
- 	io_u_clear(td, io_u, IO_U_F_FLIGHT | IO_U_F_BUSY_OK | IO_U_F_PATTERN_DONE);
- 
-+	if (td->o.zone_mode == ZONE_MODE_ZBD && td->o.recover_zbd_write_error &&
-+	    io_u->error && io_u->ddir == DDIR_WRITE &&
-+	    !td_ioengine_flagged(td, FIO_SYNCIO))
-+		zbd_recover_write_error(td, io_u);
-+
- 	/*
- 	 * Mark IO ok to verify
- 	 */
-diff --git a/io_u.h b/io_u.h
-index 22ae6ed4..178c1229 100644
---- a/io_u.h
-+++ b/io_u.h
-@@ -111,8 +111,7 @@ struct io_u {
- 	 * @success == true means that the I/O operation has been queued or
- 	 * completed successfully.
- 	 */
--	void (*zbd_queue_io)(struct thread_data *td, struct io_u *, int q,
--			     bool success);
-+	void (*zbd_queue_io)(struct thread_data *td, struct io_u *, int *q);
- 
- 	/*
- 	 * ZBD mode zbd_put_io callback: called in after completion of an I/O
-diff --git a/ioengines.c b/ioengines.c
-index dcd4164d..05d01a0f 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -386,7 +386,7 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- 	ret = td->io_ops->queue(td, io_u);
--	zbd_queue_io_u(td, io_u, ret);
-+	zbd_queue_io_u(td, io_u, &ret);
- 
- 	unlock_file(td, io_u->file);
- 
-diff --git a/options.c b/options.c
-index 416bc91c..71c97e9e 100644
---- a/options.c
-+++ b/options.c
-@@ -3794,6 +3794,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_ZONE,
- 	},
-+	{
-+		.name	= "recover_zbd_write_error",
-+		.lname	= "Recover write errors when zonemode=zbd is set",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct thread_options, recover_zbd_write_error),
-+		.def	= 0,
-+		.help	= "Continue writes for sequential write required zones after recovering write errors with care for partial write pointer move",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_ZONE,
-+	},
- 	{
- 		.name   = "fdp",
- 		.lname  = "Flexible data placement",
-diff --git a/server.h b/server.h
-index e5968112..0b93cd02 100644
---- a/server.h
-+++ b/server.h
-@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 109,
-+	FIO_SERVER_VER			= 110,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index d25ba891..b0094651 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -390,6 +390,7 @@ struct thread_options {
- 	int max_open_zones;
- 	unsigned int job_max_open_zones;
- 	unsigned int ignore_zone_limits;
-+	unsigned int recover_zbd_write_error;
- 	fio_fp64_t zrt;
- 	fio_fp64_t zrf;
- 
-@@ -710,6 +711,7 @@ struct thread_options_pack {
- 	uint32_t zone_mode;
- 	int32_t max_open_zones;
- 	uint32_t ignore_zone_limits;
-+	uint32_t recover_zbd_write_error;
- 
- 	uint32_t log_entries;
- 	uint32_t log_prio;
-diff --git a/zbd.c b/zbd.c
-index 61770575..8f0e4bc6 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1267,6 +1267,18 @@ int zbd_setup_files(struct thread_data *td)
- 	if (!zbd_verify_bs())
- 		return 1;
- 
-+	if (td->o.recover_zbd_write_error && td_write(td)) {
-+		if (!td->o.continue_on_error) {
-+			log_err("recover_zbd_write_error works only when continue_on_error is set\n");
-+			return 1;
-+		}
-+		if (td->o.verify != VERIFY_NONE &&
-+		    !td_ioengine_flagged(td, FIO_SYNCIO)) {
-+			log_err("recover_zbd_write_error for async IO engines does not support verify\n");
-+			return 1;
-+		}
-+	}
-+
- 	if (td->o.experimental_verify) {
- 		log_err("zonemode=zbd does not support experimental verify\n");
- 		return 1;
-@@ -1810,11 +1822,11 @@ static void zbd_end_zone_io(struct thread_data *td, const struct io_u *io_u,
-  * For write and trim operations, update the write pointer of the I/O unit
-  * target zone.
-  */
--static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
--			 bool success)
-+static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int *q)
- {
- 	const struct fio_file *f = io_u->file;
- 	struct zoned_block_device_info *zbd_info = f->zbd_info;
-+	bool success = io_u->error == 0;
- 	struct fio_zone_info *z;
- 	uint64_t zone_end;
- 
-@@ -1823,6 +1835,14 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 	z = zbd_offset_to_zone(f, io_u->offset);
- 	assert(z->has_wp);
- 
-+	if (!success && td->o.recover_zbd_write_error &&
-+	    io_u->ddir == DDIR_WRITE && td_ioengine_flagged(td, FIO_SYNCIO) &&
-+	    *q == FIO_Q_COMPLETED) {
-+		zbd_recover_write_error(td, io_u);
-+		if (!io_u->error)
-+			success = true;
-+	}
-+
- 	if (!success)
- 		goto unlock;
- 
-@@ -1850,11 +1870,19 @@ static void zbd_queue_io(struct thread_data *td, struct io_u *io_u, int q,
- 		break;
- 	}
- 
--	if (q == FIO_Q_COMPLETED && !io_u->error)
-+	if (*q == FIO_Q_COMPLETED && !io_u->error)
- 		zbd_end_zone_io(td, io_u, z);
- 
- unlock:
--	if (!success || q != FIO_Q_QUEUED) {
-+	if (!success || *q != FIO_Q_QUEUED) {
-+		if (io_u->ddir == DDIR_WRITE) {
-+			z->writes_in_flight--;
-+			if (z->writes_in_flight == 0 && z->fixing_zone_wp) {
-+				dprint(FD_ZBD, "%s: Fixed write pointer of the zone %u\n",
-+				       f->file_name, zbd_zone_idx(f, z));
-+				z->fixing_zone_wp = 0;
-+			}
-+		}
- 		/* BUSY or COMPLETED: unlock the zone */
- 		zone_unlock(z);
- 		io_u->zbd_put_io = NULL;
-@@ -1881,6 +1909,15 @@ static void zbd_put_io(struct thread_data *td, const struct io_u *io_u)
- 
- 	zbd_end_zone_io(td, io_u, z);
- 
-+	if (io_u->ddir == DDIR_WRITE) {
-+		z->writes_in_flight--;
-+		if (z->writes_in_flight == 0 && z->fixing_zone_wp) {
-+			z->fixing_zone_wp = 0;
-+			dprint(FD_ZBD, "%s: Fixed write pointer of the zone %u\n",
-+			       f->file_name, zbd_zone_idx(f, z));
-+		}
-+	}
-+
- 	zone_unlock(z);
- }
- 
-@@ -2071,8 +2108,15 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u)
- 	    io_u->ddir == DDIR_READ && td->o.read_beyond_wp)
- 		return io_u_accept;
- 
-+retry_lock:
- 	zone_lock(td, f, zb);
- 
-+	if (!td_ioengine_flagged(td, FIO_SYNCIO) && zb->fixing_zone_wp) {
-+		zone_unlock(zb);
-+		io_u_quiesce(td);
-+		goto retry_lock;
-+	}
-+
- 	switch (io_u->ddir) {
- 	case DDIR_READ:
- 		if (td->runstate == TD_VERIFYING && td_write(td))
-@@ -2279,6 +2323,8 @@ accept:
- 
- 	io_u->zbd_queue_io = zbd_queue_io;
- 	io_u->zbd_put_io = zbd_put_io;
-+	if (io_u->ddir == DDIR_WRITE)
-+		zb->writes_in_flight++;
- 
- 	/*
- 	 * Since we return with the zone lock still held,
-@@ -2350,3 +2396,71 @@ void zbd_log_err(const struct thread_data *td, const struct io_u *io_u)
- 		log_err("%s: Exceeded max_active_zones limit. Check conditions of zones out of I/O ranges.\n",
- 			f->file_name);
- }
-+
-+void zbd_recover_write_error(struct thread_data *td, struct io_u *io_u)
-+{
-+	struct fio_file *f = io_u->file;
-+	struct fio_zone_info *z;
-+	struct zbd_zone zrep;
-+	unsigned long long retry_offset;
-+	unsigned long long retry_len;
-+	char *retry_buf;
-+	uint64_t write_end_offset;
-+	int ret;
-+
-+	z = zbd_offset_to_zone(f, io_u->offset);
-+	if (!z->has_wp)
-+		return;
-+	write_end_offset = io_u->offset + io_u->buflen - z->start;
-+
-+	assert(z->writes_in_flight);
-+
-+	if (!z->fixing_zone_wp) {
-+		z->fixing_zone_wp = 1;
-+		dprint(FD_ZBD, "%s: Start fixing %u write pointer\n",
-+		       f->file_name, zbd_zone_idx(f, z));
-+	}
-+
-+	if (z->max_write_error_offset < write_end_offset)
-+		z->max_write_error_offset = write_end_offset;
-+
-+	if (z->writes_in_flight > 1)
-+		return;
-+
-+	/*
-+	 * This is the last write to the zone since the write error to recover.
-+	 * Get the zone current write pointer and recover the write pointer
-+	 * position so that next write can continue.
-+	 */
-+	ret = zbd_report_zones(td, f, z->start, &zrep, 1);
-+	if (ret != 1) {
-+		log_info("fio: Report zone for write recovery failed for %s\n",
-+			 f->file_name);
-+		return;
-+	}
-+
-+	if (zrep.wp < z->start ||
-+	    z->start + z->max_write_error_offset < zrep.wp ) {
-+		log_info("fio: unexpected write pointer position on error for %s: wp=%"PRIu64"\n",
-+			 f->file_name, zrep.wp);
-+		return;
-+	}
-+
-+	retry_offset = zrep.wp;
-+	retry_len = z->start + z->max_write_error_offset - retry_offset;
-+	retry_buf = NULL;
-+	if (retry_offset >= io_u->offset)
-+		retry_buf = (char *)io_u->buf + (retry_offset - io_u->offset);
-+
-+	ret = zbd_move_zone_wp(td, io_u->file, &zrep, retry_len, retry_buf);
-+	if (ret) {
-+		log_info("fio: Failed to recover write pointer for %s\n",
-+			 f->file_name);
-+		return;
-+	}
-+
-+	z->wp = retry_offset + retry_len;
-+
-+	dprint(FD_ZBD, "%s: Write pointer move succeeded for error=%d\n",
-+	       f->file_name, io_u->error);
-+}
-diff --git a/zbd.h b/zbd.h
-index 5750a0b8..14204316 100644
---- a/zbd.h
-+++ b/zbd.h
-@@ -25,6 +25,9 @@ enum io_u_action {
-  * @start: zone start location (bytes)
-  * @wp: zone write pointer location (bytes)
-  * @capacity: maximum size usable from the start of a zone (bytes)
-+ * @writes_in_flight: number of writes in flight fo the zone
-+ * @max_write_error_offset: maximum offset from zone start among the failed
-+ *                          writes to the zone
-  * @mutex: protects the modifiable members in this structure
-  * @type: zone type (BLK_ZONE_TYPE_*)
-  * @cond: zone state (BLK_ZONE_COND_*)
-@@ -32,17 +35,21 @@ enum io_u_action {
-  * @write: whether or not this zone is the write target at this moment. Only
-  *              relevant if zbd->max_open_zones > 0.
-  * @reset_zone: whether or not this zone should be reset before writing to it
-+ * @fixing_zone_wp: whether or not the write pointer of this zone is under fix
-  */
- struct fio_zone_info {
- 	pthread_mutex_t		mutex;
- 	uint64_t		start;
- 	uint64_t		wp;
- 	uint64_t		capacity;
-+	uint32_t		writes_in_flight;
-+	uint32_t		max_write_error_offset;
- 	enum zbd_zone_type	type:2;
- 	enum zbd_zone_cond	cond:4;
- 	unsigned int		has_wp:1;
- 	unsigned int		write:1;
- 	unsigned int		reset_zone:1;
-+	unsigned int		fixing_zone_wp:1;
- };
- 
- /**
-@@ -106,6 +113,7 @@ enum io_u_action zbd_adjust_block(struct thread_data *td, struct io_u *io_u);
- char *zbd_write_status(const struct thread_stat *ts);
- int zbd_do_io_u_trim(struct thread_data *td, struct io_u *io_u);
- void zbd_log_err(const struct thread_data *td, const struct io_u *io_u);
-+void zbd_recover_write_error(struct thread_data *td, struct io_u *io_u);
- 
- static inline void zbd_close_file(struct fio_file *f)
- {
-@@ -114,10 +122,10 @@ static inline void zbd_close_file(struct fio_file *f)
- }
- 
- static inline void zbd_queue_io_u(struct thread_data *td, struct io_u *io_u,
--				  enum fio_q_status status)
-+				  enum fio_q_status *status)
- {
- 	if (io_u->zbd_queue_io) {
--		io_u->zbd_queue_io(td, io_u, status, io_u->error == 0);
-+		io_u->zbd_queue_io(td, io_u, (int *)status);
- 		io_u->zbd_queue_io = NULL;
- 	}
+ 	echo 1 > power || return $?
+ 	return 0
  }
 -- 
 2.49.0
