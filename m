@@ -1,103 +1,112 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8C8C29CEB
-	for <fio@vger.kernel.org>; Sun, 27 Apr 2025 17:23:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D091D88D0
+	for <fio@vger.kernel.org>; Wed, 30 Apr 2025 07:49:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745774617; cv=none; b=Eqkj1tnrnoB4uaHLJJ5zgguUoZT6/S1xpqFSwXPS82kjLK7hui4v5P1cjSkjV+AVhAYUolonaEPxmlwU3FCxYuu9Kvr9RJ3KxkhyDbRPbt7y8zpHxPsW2TQV/hw/gZlKjXElluOP+amkoCS7hngp9OOTcuE1GNWsiaEzhO5jvuQ=
+	t=1745999402; cv=none; b=LnFwhWN9loiULrvBxHgXIE1y16tgdMtvdmrwqjrkq4UehT3RUnVJ9W4l/yzumH25iF/1LntUGU8T2nM4kjKukyxxbPTH+xATOZ8SYCTrqP9LJGQ/TagWstn1RqgngWGImHlpvnHlffcQfHp0gx1UPrEkedmG7KPmb35EZefYGZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745774617; c=relaxed/simple;
-	bh=ikkKhWwQ7TzjUOIRuScaD9vmnc05rkeAD6CbPWeMvzQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LFekZP+GX6+ADYowBELtqQft4F2tGtSWK7nHfZQX1w2LUJLbce+VktJzCqMtKhXT9cbRGODpmM/djjm8M4Rei4rcPyeIPP+xGX7gzf1JAllRyKQ+tLFl8T2OswUQAKVqwh4L4m4/gfdsb9SIAutfphvt7GSVtoIhmWE8vC+3Ujk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com; spf=pass smtp.mailfrom=pcpartpicker.com; dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b=WD4yt5qm; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pcpartpicker.com
+	s=arc-20240116; t=1745999402; c=relaxed/simple;
+	bh=EDck1RBbvk1gk7OzHktkxr9TVTNintS6M/lmA+tJ0tk=;
+	h=From:Content-Type:Mime-Version:Subject:Message-Id:Date:To; b=Sj0pU+MinnztOyLpZnwsMOjPBNG+R4HyW1gmqWGb3ZMjjQAbV7NwHNEllPxLs+Ouue0BnQnoGYvaTyUDTtogQAoxOiGRRmuEV2N6U9MprgErg5sdStoVYD0vIBftJ18xoTn2wHOdgdXocTXtb+wKeoRlnjjhscLNXk7AQisxMgY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=web_rene@gmx.de header.b=CbLBeUco; arc=none smtp.client-ip=212.227.17.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b="WD4yt5qm"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5f76a47549cso192176a12.0
-        for <fio@vger.kernel.org>; Sun, 27 Apr 2025 10:23:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pcpartpicker.com; s=google; t=1745774614; x=1746379414; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ikkKhWwQ7TzjUOIRuScaD9vmnc05rkeAD6CbPWeMvzQ=;
-        b=WD4yt5qmYnXkIxEX+iUwHaAMSXu7gMVjtSSdHS4YqpiA80x8k4TxChI7L4G2ScbG73
-         od1rA5SmXuvQmoafP72zNW7XKJ3nEJob/qetmWSkYNCatfnteJeKhe1NC/Xoo6dIz9fu
-         pXNkqVO8aMT0Efy8IqQyA4kJw7x5o+1g8g+Fu73L7NH9fomMlR1oQuJjS7cJv69VLgzp
-         Sx5cwG/kS5V90kGhw1SZFqFWssmSF2YH1ri9OgtQJHiIZV982RWvHarbEiXYJHgqdtVV
-         RaHo31+ofEXfUpN3ytwuBnoDzkWBs3hdohRjRXhYxJmAGUhtxmKQMZj/w3LR1jBBHARY
-         p1kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745774614; x=1746379414;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ikkKhWwQ7TzjUOIRuScaD9vmnc05rkeAD6CbPWeMvzQ=;
-        b=uGyPsQiLNJD9p4sfluR76g3ME8LuhtPsBvCPqpYQQ0LfnH68KPOBawe+qReylAX/81
-         2xpmkCTSvxohH/O6vbUlaTArLCag0CMiSw+jr7zJsoVCQVhIweV0Ca68+sLJ4VYLGHRA
-         aCeOO5dBQBgnJk0YMKA8ztTSJToNmDhckK0bfZAxXm+DQ0qTqBZ1oxvcP+6US2Yo8zDa
-         TFXD5i/WaaRQPaf8AOEB4kv0bNCY3QE0V/hYSkXzvW+P4G1U8slCuD+nclEsMGH8tpmH
-         fliYpYi/qFPxSX1wpXaBt00dVCbguyV6KJmOZ3tVttdshuYoIedgOba7Cb6p7irwtsho
-         ACYA==
-X-Gm-Message-State: AOJu0YzxxiJ0WvJAkkOeEVFmHvCEwnxaNaItHhmdvoDq+hMLt4XNXLYR
-	cLvgAJf3jdYjhn1d5umLfflWSU7AON86pOSw5wqLOwBRNOdogoxEu8VqjHZZ5d/jRZNImkAAIkX
-	rrRtNL23BAXnOquNzKf/QecE8evq8lSQ9S9gb1g==
-X-Gm-Gg: ASbGncsFbCx0RhSKR3f3mh7HZ8Wb3XwpQEHFt0GnfnKc91aWO+RTZNIdtQmLLpmuYyv
-	QuLDyQR6jeP1rNKRv9dfP9vsU91FIrb7zRR8FobynmTAeZy5Nb3MHhAHc1h3yCgNr+8T9htUU34
-	Pd0H1IJt/xV/gfrsWJWhPZLA==
-X-Google-Smtp-Source: AGHT+IG3JCHJ0cg9QXAnBuAi0Ltdw58BSO2anjCBPgtPuUEfExP64FKyFo9B1l7pW74kDkE+QUAXAPnlzo6lHRpA7jQ=
-X-Received: by 2002:a17:907:989:b0:ac7:4324:f56a with SMTP id
- a640c23a62f3a-ace714278b8mr255148366b.13.1745774613757; Sun, 27 Apr 2025
- 10:23:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=web_rene@gmx.de header.b="CbLBeUco"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
+	s=s31663417; t=1745999397; x=1746604197; i=web_rene@gmx.de;
+	bh=EDck1RBbvk1gk7OzHktkxr9TVTNintS6M/lmA+tJ0tk=;
+	h=X-UI-Sender-Class:From:Content-Type:Content-Transfer-Encoding:
+	 Mime-Version:Subject:Message-Id:Date:To:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=CbLBeUcoHq47ztKDrabixBCgUIq79A0EA2FSK4uDUjSLzm7F/Sl+oOtGsfWxIvgG
+	 noXWCxW9f5efn0mz/W406nK69HeoC99Whr9YrxrALkbwhMyHfcRTiH3eRJYQsNKEl
+	 CY1KGetQaVt8p1bLIpZBG3e2aYs9pW1YYKK7UkFmWDzc9u58sGgBrtwM+4e7QK3OT
+	 14Pddtw0TFAcpReGX3jiDdJ4qTLAntaX8mgpY6b7rdmIcRwgXKGGDv4PjTkYf1Ybi
+	 h7PoWRsc8lIYuOQVc6fmsKIcT4hu2MR8991+iDL1gpYoO4TXWiNR3KQbEY2itE3RK
+	 iQlr1tt38T48ig8aZA==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from smtpclient.apple ([82.98.92.2]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mqb1c-1unVob1Lgu-00ftWk for
+ <fio@vger.kernel.org>; Wed, 30 Apr 2025 09:49:57 +0200
+From: =?utf-8?Q?Ren=C3=A9_Weber?= <web_rene@gmx.de>
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <CADqNVTpRsQXDsW034A8SWeWEbpsAUcidWiKgpj+Xm74NYNPjQQ@mail.gmail.com>
- <faad816b-3683-43e6-a700-65eba76d9a0d@kernel.org> <CADqNVTrptG5b4Un=Q9Hqe5WPMTdcaCDtbjzR753j9YWorEBnxA@mail.gmail.com>
- <CADqNVTqM3se6L=qJUh5U3kwpWCCbuR3GjE+xQ+JCQVRL=t60OA@mail.gmail.com> <e5c59cb4-4613-415b-a8df-9926bfecee64@kernel.org>
-In-Reply-To: <e5c59cb4-4613-415b-a8df-9926bfecee64@kernel.org>
-From: Nick Neumann <nick@pcpartpicker.com>
-Date: Sun, 27 Apr 2025 12:23:21 -0500
-X-Gm-Features: ATxdqUHyUA6fCH8jIeXTJBcxgTS4HNlGZotqNbeezSDpTSILCq34ZYt56Mu9tSE
-Message-ID: <CADqNVTpdEgAgp3tvCEVGq1trdJwMO=EVZ5bwBQppWVfaBUOeFw@mail.gmail.com>
-Subject: Re: Performance variation in traditional HDDs?
-To: Damien Le Moal <dlemoal@kernel.org>
-Cc: fio@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.500.181.1.5\))
+Subject: Aggregated results too high when using multiple servers via "client"
+ command 
+Message-Id: <8C4338A1-1AA8-4D3B-B862-DC07F5DB5757@gmx.de>
+Date: Wed, 30 Apr 2025 09:49:46 +0200
+To: fio@vger.kernel.org
+X-Mailer: Apple Mail (2.3826.500.181.1.5)
+X-Provags-ID: V03:K1:lhUHEjWj1/ClzFbN/s7OKt/A2Qo+b4PA964kJ4nzRVpd74AlZ0x
+ 3ewlqsQK+aTtsGjWq7kF9lHeQ+dTp6qS1vlZysycHkQLERO0rUNhaX55VAdLu+O2H9jrzlv
+ PwormqL0YYBBHvfI2hpr54rEIYEeHGnP1GDmzWMVFAast5/A7aWSDazYHDgxtH9/2gyPO8U
+ EFasb/1e9t/LCoQhUlVig==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:mndNKbcd1z0=;PAGkllKHcH9o++zcWzFtdN5qmVp
+ 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
 
-On Wed, Apr 23, 2025 at 10:00=E2=80=AFPM Damien Le Moal <dlemoal@kernel.org=
-> wrote:
-> So these are drive-managed SMR disks, right ?
-
-Yes. I chose these first because they show the largest performance
-difference between two "identical" drives. We do an ATA SECURITY ERASE
-to reset their state/LBA mapping - it takes longer than a full drive
-write.
-
-Here is another set of identical drives
-(https://pcpartpicker.com/product/XtjG3C) that just completed and also
-show a significant performance difference. These are CMR drives with
-the same model number and firmware.
-
-We did three full drive writes on each drive, using the same proper
-horizontal mounting and position.
-
-Looking at the average full drive write speed we saw the following
-results in MB/s:
-
-Drive 1: 162.72, 162.73, 162.73
-Drive 2: 155.69, 155.70, 155.72
-
-Each individual drive is incredibly consistent in its performance. But
-drive 1 is over 4% faster than drive 2.
-
-The difference can be seen in a graph comparing one full write run of each:
-https://cdna.pcpartpicker.com/static/forever/images/content/221396115ee6bae=
-8fbd35135fbc6441e.png
+I am trying to do a benchmark from multiple clients in order to test the =
+performance of a NAS device.
+When running the test each of the clients reports a performance of =
+~950MB/s. The summarized performance in the log shows 4x950MB/s though =
+the NAS device only supports (and shows) a maximum bandwith of 950 MB/s =
+in total. To my understanding, the servers I am adressing via =
+=E2=80=9Eclient=3Dhost.list=E2=80=9C should generate load in parallel =
+which should then reduce each stream to the maximum bandwith supported =
+by the NAS divided by the number of clients=E2=80=A6 but somehow each =
+client reports the maximum bandwith oft he target and the summary =
+therfor is wrong. I tried group_reporting and various other command =
+without success.
+Any advice here for a newbie?=
