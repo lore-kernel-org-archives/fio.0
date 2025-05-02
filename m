@@ -1,112 +1,128 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D091D88D0
-	for <fio@vger.kernel.org>; Wed, 30 Apr 2025 07:49:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F03322A1AA
+	for <fio@vger.kernel.org>; Fri,  2 May 2025 19:34:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745999402; cv=none; b=LnFwhWN9loiULrvBxHgXIE1y16tgdMtvdmrwqjrkq4UehT3RUnVJ9W4l/yzumH25iF/1LntUGU8T2nM4kjKukyxxbPTH+xATOZ8SYCTrqP9LJGQ/TagWstn1RqgngWGImHlpvnHlffcQfHp0gx1UPrEkedmG7KPmb35EZefYGZk=
+	t=1746214454; cv=none; b=Kr0uqMiTeU9ZxA/BaD8RopQFR6i4LwseRGmQzwDOup2PY6FOVaKmYqj7HRSlre0RgFHGlsp5WCl2UnoG7rw+YO812rO6G1+9Jq7Khk2Ab3ZTYHnG2FyemBnMY/IDxZFf1D3xViAiNaAFSlFWRNUtxik6Zo5EYaxYjJgQLPGRq1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745999402; c=relaxed/simple;
-	bh=EDck1RBbvk1gk7OzHktkxr9TVTNintS6M/lmA+tJ0tk=;
-	h=From:Content-Type:Mime-Version:Subject:Message-Id:Date:To; b=Sj0pU+MinnztOyLpZnwsMOjPBNG+R4HyW1gmqWGb3ZMjjQAbV7NwHNEllPxLs+Ouue0BnQnoGYvaTyUDTtogQAoxOiGRRmuEV2N6U9MprgErg5sdStoVYD0vIBftJ18xoTn2wHOdgdXocTXtb+wKeoRlnjjhscLNXk7AQisxMgY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=web_rene@gmx.de header.b=CbLBeUco; arc=none smtp.client-ip=212.227.17.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
+	s=arc-20240116; t=1746214454; c=relaxed/simple;
+	bh=g9dtI7roTqslVHFLr4I9JeMzslEbVl0qbsoj/s0rADc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gkin8huGLY8UF9yWgJiOs3GoNqd21vQgwKPggHquXxksabXPL4zB55uZ2Z2v00tXGy80FDm+lZnhNn9sOod23ckThVwe0oZq4MzWn+6TZS/HvAIbH5rkvBCeTYRQ92J3D6xacTByntDtIQXHP712te6pECYd5OT0KvRYJQ94LCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com; spf=pass smtp.mailfrom=pcpartpicker.com; dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b=JLAYP1Bm; arc=none smtp.client-ip=209.85.218.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=pcpartpicker.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pcpartpicker.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=web_rene@gmx.de header.b="CbLBeUco"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1745999397; x=1746604197; i=web_rene@gmx.de;
-	bh=EDck1RBbvk1gk7OzHktkxr9TVTNintS6M/lmA+tJ0tk=;
-	h=X-UI-Sender-Class:From:Content-Type:Content-Transfer-Encoding:
-	 Mime-Version:Subject:Message-Id:Date:To:cc:
-	 content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=CbLBeUcoHq47ztKDrabixBCgUIq79A0EA2FSK4uDUjSLzm7F/Sl+oOtGsfWxIvgG
-	 noXWCxW9f5efn0mz/W406nK69HeoC99Whr9YrxrALkbwhMyHfcRTiH3eRJYQsNKEl
-	 CY1KGetQaVt8p1bLIpZBG3e2aYs9pW1YYKK7UkFmWDzc9u58sGgBrtwM+4e7QK3OT
-	 14Pddtw0TFAcpReGX3jiDdJ4qTLAntaX8mgpY6b7rdmIcRwgXKGGDv4PjTkYf1Ybi
-	 h7PoWRsc8lIYuOQVc6fmsKIcT4hu2MR8991+iDL1gpYoO4TXWiNR3KQbEY2itE3RK
-	 iQlr1tt38T48ig8aZA==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from smtpclient.apple ([82.98.92.2]) by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mqb1c-1unVob1Lgu-00ftWk for
- <fio@vger.kernel.org>; Wed, 30 Apr 2025 09:49:57 +0200
-From: =?utf-8?Q?Ren=C3=A9_Weber?= <web_rene@gmx.de>
-Content-Type: text/plain;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=pcpartpicker.com header.i=@pcpartpicker.com header.b="JLAYP1Bm"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-ac2c7a367d9so31748566b.3
+        for <fio@vger.kernel.org>; Fri, 02 May 2025 12:34:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pcpartpicker.com; s=google; t=1746214450; x=1746819250; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=g9dtI7roTqslVHFLr4I9JeMzslEbVl0qbsoj/s0rADc=;
+        b=JLAYP1BmmdA3rUM2j2PKwKbAydlo/Ifn4owWG33J8lsWQd/B5E3wnWxAhmqqJ6ljWd
+         nb9zIrhYlentDnE/61j3vltOpUdJTbLleLOeYA7orf7P3un8Jg9cSzrb/CSEyY5VXZVB
+         m0jJOA4uMHA/b1mhKp8vXS878wcyx3e4X8fu6CcDXm4Am9c/q1Ku0lWGfPkLzhPs/UGt
+         aegMmP3UMk49g+3MYeJNZ0YhQ24yr1KgrKhy9Cfo6Nt7lX6bCE03H4BPr5C162w6Q/Hu
+         3bRSq+Xe7STWrXC/ILFOCUqs4UzHkrNRiKTfar1qUQx5ChPZ4pU660D3ljG7ShUeN9qo
+         4nzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746214450; x=1746819250;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=g9dtI7roTqslVHFLr4I9JeMzslEbVl0qbsoj/s0rADc=;
+        b=lmuJfGirBk9MTR2IwkoExwFaCg+dzye98USW/O5bmION49ykO4U9GrRLJmBtixX2f3
+         URux2lEc+eMDmR+anm3Fe3dNnsEgh2H2YkTC8cCL5y/XtV/f2Tqb4drpTew2C0VdcJ1p
+         /g7K/Wo1PCRZ27movwv84lhM09St+0CfbCu2fz/kE9MfNZtRQ2PnPh5KtdJ9yXjuoOa8
+         pq9n8+RWMG0dxHTYQLT7MHx/d2u3jvmrTXxSXFYpfzfPY7OxBCIezweHWh+ing+bkLBH
+         R4o94haMq0mFjvVzm/vSxXK5OuVfplpTmkMmp6v5wGFhAxn4J+6YzzDitGXGjvUMhC47
+         70Zw==
+X-Gm-Message-State: AOJu0YzRsOk4/y4Ygwk/a1qk9c6PnkTdzKCSZZNxmI9yERaFVPSPd1Ic
+	4/Ha+RJOA1k9BlEaZ0EX9M1SoIjtjZDaePqvFtwlj10yymMgNnQpZkG3fL4Gl8U+Hh0RQMgVhPM
+	JVueOwWFG1r+Qzbq87VTCWLynxzLZaFOdNuRT0O2nssOGsI9dHPA=
+X-Gm-Gg: ASbGnct6v0LlprgmD8SW2Mp+6FvrB27GTzaqJuf7O2TxPWqUiuwqAwhoS614OAXWkFM
+	sssp0UpM62xeeicULXcCHSy5aW11wo1qKbbBd0i5vx0+QB/7IgOt+EMZVSdx4EKSM3TqaDK7tAg
+	oEiXlVp+Vz+FmABaWqkfZWlDo9b3eY9rYv
+X-Google-Smtp-Source: AGHT+IHgQiCXdBr/kAEFATMYkHoIHzMLErIeenziS8lBf2wFnz+gtv0462lDXpxAiKn11ofUHrllKq2Hye2GtRPGHFQ=
+X-Received: by 2002:a17:907:1c1e:b0:abf:6166:d0e8 with SMTP id
+ a640c23a62f3a-ad17acd3243mr128492366b.3.1746214450189; Fri, 02 May 2025
+ 12:34:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.500.181.1.5\))
-Subject: Aggregated results too high when using multiple servers via "client"
- command 
-Message-Id: <8C4338A1-1AA8-4D3B-B862-DC07F5DB5757@gmx.de>
-Date: Wed, 30 Apr 2025 09:49:46 +0200
-To: fio@vger.kernel.org
-X-Mailer: Apple Mail (2.3826.500.181.1.5)
-X-Provags-ID: V03:K1:lhUHEjWj1/ClzFbN/s7OKt/A2Qo+b4PA964kJ4nzRVpd74AlZ0x
- 3ewlqsQK+aTtsGjWq7kF9lHeQ+dTp6qS1vlZysycHkQLERO0rUNhaX55VAdLu+O2H9jrzlv
- PwormqL0YYBBHvfI2hpr54rEIYEeHGnP1GDmzWMVFAast5/A7aWSDazYHDgxtH9/2gyPO8U
- EFasb/1e9t/LCoQhUlVig==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:mndNKbcd1z0=;PAGkllKHcH9o++zcWzFtdN5qmVp
- jUhPzEyuZJgi6HTfBMGn3Tj/oZlSTGj0m3X6aL5C32Jn2sr/XCXnsjHzb29uz6ZFEij7Q/d1F
- ePvBbaRHQzia7rhgibWDxUroCGIA42Gx5nVGIoqkjcD8pNvW7/4Teb7hcYx9l8hS9ng9QzscR
- qcQK1A7+ax5wMDUrnKtePbB5dgBSLjMqB5dfLyiTODwv9PGLIAt0rZeNMuKmK5C4RT9ywy6im
- amyasqW2lOGGCHy545ToH9KVaNb7FHijUJC0mdntCgaLH+u+u9SolfooAa15kE/mjuL7Q13z+
- eTO2N8o+aA6H3xLgbIb6iPbhdcXqUOFlzI6pQjXYqbAQ+TE5kA8b03gYJtU6Xr2N43JaAmXHs
- DdTv+pPTPE/32ucwlIk+bvMZqfBzUbywH4USXTLATfHvAk2L5w00GR6y6cPntsoh/Q1ZoGeLd
- uK6QaVHEgYDe7ko4xNuG8FnExXRX5VlGKw93W/YUBXtjOzdzV+aAKAmOL7SV1YHhw9K9lVSm0
- UoMpuEOxBI1IrtltnQ4dgNd60bGiPSHzZNFVSGM8h4Wbu/6A8faFVKGQXfLIHxk3MRHppe9uh
- PioRp7zORETo3x70ABQ+UrnmSabLQyd6E2XoUBVID+mJSxGbbfEJXmXTluF2RgYzBa4JFgDHb
- lXmEwldHL59/E8dvySqPrXFM9d0upXCqe6H09KBimZUSZKX+uNVW1ZmFiur8GO4iuTTEX95FO
- zBc5fcEkKoRlm3uUrHGjfaRXRp1ej1OH39mDfNHs4XxU84IZSsfqKFfCDmdhVlVq2FvkYiuIK
- X19yuw6xCWZKI0E2lNzonxyuePUNkZmJULY+silhA3wGkrte7Ul274YYuXKUAWFUGx5vFnYoy
- lsKN5A/2L9MDGK/DGPJJ2Ep1eNfd3e3MafhkZf388YhdCnnXxvVUkBy7NYGfolvfKuFzxn5Cm
- bCPyNuH+JLgG3zTPZtM7o0602XKOGb4+v/uzIEXkXXyzHrdDYFwP2yuYhMs2g3z3/k9X1CLCc
- GwXr9PFo9FFoYuI9XXBVQJKfcAWJtKmnNjET9HnjE0o6GPbTaJu3VmZyYsXvaQatW5+EMGwyt
- DQosVHvW/C+n9jyvukCrkC6YU0qvpW8jVzDhj6r+g7BJhN/uEveYGSwEKJAWVzUiY1F0E5iML
- 55GdsNq0zpcpqxE+qb6s2JwQAaRnfm0PLZkEZLDfTmE3Lm6oeMxnzfcSZOdOb46aT4bSBwU1C
- XETw5sQqWnybidBDCf1m7yO1Uq9yGhUZ5Yym3Gvzokum2BgOvxgdujFRAAagmTbUMDwk4zr6Y
- 3M0G1zVeck8+KnaGQtW+/nqRRU9S8w/QzhdJ2jisPfLQPoZ2NZ4lXR7l9uHV+g+BPVclxF8TE
- 0ZTafEmOENRdPKHCKvWARo0PUYOVjIG9i2TaYgG45hOJdkouSbq0eoZh5dtQTVmgW7J2c7lr7
- ME0GwaB6OPgefVubeD1fPAMPlNj/0Yu/1whbUz3qe6Joqg7GMhevQ548B+Oj+59BbgEoDctUk
- zV6e3Pja9ud5L18hSOTZA01JS8RDevUGsHBCrSdEock053Jyfadqp5NT3FAZjXdYuwT1r++cU
- BtrOVquwyjJ0O3u0lKkOWFt4LkdP0BLeU+jExLSQ/croZEH/ietP5VYmd17AMgYMeF7e5vro+
- mJmVOBxI0wqLI76n5mzViPU8DsXaLI8gwhJD1U5KbCAnFwH9kGiuH6xW2JBSDVt/mi1I86rXF
- 9j3K33RBiCrsn2Nvcis9TR6FTrCVmf6tQW24LCdVlburpOYxC/6vQAOHX5PRBAgxQQvydJxkL
- 3u0Mv+lfhlzK7eVG2z9dX5y7Pi7G7zhgDTrxESOcEEYg/dgLAKQwDqHr6lbJT0/J1W+94j40T
- ZMTgBtxYpb2IYoh2lOW2C1+ppz4I6dwAF6uC9f+c2R6OS06AI9BdJVKQGDhUsE6cfVmyNymMw
- gqeAKi/WI974U25nQhDSVm7vUFIExrrucoEVhC8bPUxM0N5NQddf7A9Qvan3rlaijqjYEwlrV
- yTFlMvPa4WsvqgtviyOJy3Al473I8x93Wq1LJMM9R5dAD7maWE61i4qbFsvAtZ+QzLT3swub+
- bFtUgkB7G2ywKmWoJ4EgTmkjeRi42rxjBNTI1+d7aD7yWc5SYu6skYzXFy9rCO8dM9qh58dOe
- bholxXvydz9RMjEx5rDILZ0tbqcLvPh138hN6F34GYd4bz2mTJWJ7DnTJ09YjcVmXXQKpITU2
- tlo+EVnmddnZDSovPZ7yVq9FmRMCjug5q/t08orm7ISlcS4z5aAgUpOjCP2GPHuPn5chZtJu4
- d1/ulrR0gNK0Rwu+8FvsQWeJ0d/8kYPSaJ4Jy5acwx1hwiImfd0ckWTRn48dXkeamO5M0sP3I
- wGwb2PZH/83aEpPavslzIlPFGiWcQhkDz2ii2Yl5aFpJLIgKAa4TEp28t1HT53bhb+ZwLEOkz
- iKlqcijRBltp6Fnm2oHZnCvaA1+qdMsKLooAHsJ2NSHP3otR/YvPmrTOJhZ3Zmzo5eLrMmpXM
- wply6XF+er/j2dEtmbdvW/75UGbaLGqKjmbIWElRJ99ssQoyc4HqAHWH6mPXyXdK7aJ9C3Xu6
- +AdpwSkcEkJrwm6AddHlPMn1kevXL59SEgbW+/QKTy0yPI6EshYvuHcrpkG6I/a9pROApwJlt
- b9e9H9y2UtLySDP9BsIlXU7XWFywSJnuQoVzE6jccwskNHBzYzkGS+MARqMYGwS0cu7sPCAHC
- eC73Vi9m4K5Idba9DgZ/AAQdKDNfcU6AU7jNetYzKYhW+FkHaO/8SfOKgvnZJAd4mOJbH8pPs
- iHQ8n9T663fS077RmU+KG8wbmY0SYCKkpFodIcZQt96LLtlJMSURLBHIMzCub7opRhxDadLkM
- 10jPapDBu94f/bqGHUcF7icy7O34F6g8l0fOibEoMIOryvaBpQQT+7v4k2iyKzl9LzmPxGKNL
- F/tS8e+0lbfFxbvIxO0PvJ8E2dSo7/EhwUqBjhGy2xvm7pn2XOJM
+MIME-Version: 1.0
+References: <CADqNVTpRsQXDsW034A8SWeWEbpsAUcidWiKgpj+Xm74NYNPjQQ@mail.gmail.com>
+ <faad816b-3683-43e6-a700-65eba76d9a0d@kernel.org> <CADqNVTrptG5b4Un=Q9Hqe5WPMTdcaCDtbjzR753j9YWorEBnxA@mail.gmail.com>
+ <CADqNVTqM3se6L=qJUh5U3kwpWCCbuR3GjE+xQ+JCQVRL=t60OA@mail.gmail.com>
+ <e5c59cb4-4613-415b-a8df-9926bfecee64@kernel.org> <CADqNVTpdEgAgp3tvCEVGq1trdJwMO=EVZ5bwBQppWVfaBUOeFw@mail.gmail.com>
+In-Reply-To: <CADqNVTpdEgAgp3tvCEVGq1trdJwMO=EVZ5bwBQppWVfaBUOeFw@mail.gmail.com>
+From: Nick Neumann <nick@pcpartpicker.com>
+Date: Fri, 2 May 2025 14:33:57 -0500
+X-Gm-Features: ATxdqUHQQ4J6V7uc6wuaEyu2ulZI7KM1Rl53-GIgjJwbTWBZxIzeodoxtH4XFFU
+Message-ID: <CADqNVTr=172CGUwUGUzDHtONV5YWw2hirKXzebmb0rp2YdDTLQ@mail.gmail.com>
+Subject: Re: Performance variation in traditional HDDs?
+To: Damien Le Moal <dlemoal@kernel.org>
+Cc: fio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I am trying to do a benchmark from multiple clients in order to test the =
-performance of a NAS device.
-When running the test each of the clients reports a performance of =
-~950MB/s. The summarized performance in the log shows 4x950MB/s though =
-the NAS device only supports (and shows) a maximum bandwith of 950 MB/s =
-in total. To my understanding, the servers I am adressing via =
-=E2=80=9Eclient=3Dhost.list=E2=80=9C should generate load in parallel =
-which should then reduce each stream to the maximum bandwith supported =
-by the NAS divided by the number of clients=E2=80=A6 but somehow each =
-client reports the maximum bandwith oft he target and the summary =
-therfor is wrong. I tried group_reporting and various other command =
-without success.
-Any advice here for a newbie?=
+Here's another CMR drive (https://pcpartpicker.com/product/6FQcCJ).
+Here, two identical drives with same model number and firmware show
+about a 10% difference in performance.
+
+Looking at the average full drive write speed we saw the following
+results in MB/s:
+
+Drive 1: 153.86, 153.86, 153.86
+Drive 2: 140.63, 140.64, 140.65
+
+Again, each individual drive is incredibly consistent in its
+performance. But drive 1 is over 9% faster than drive 2. And the
+graphs of bandwidth over time for a full write are markedly different:
+
+https://cdna.pcpartpicker.com/static/forever/images/content/684ce1fea285868=
+1575fb7666b8b987f.png
+
+Reporting benchmarked performance for HDDs is problematic when there
+is variation like this between two of the same drive.
+
+On Sun, Apr 27, 2025 at 12:23=E2=80=AFPM Nick Neumann <nick@pcpartpicker.co=
+m> wrote:
+>
+> On Wed, Apr 23, 2025 at 10:00=E2=80=AFPM Damien Le Moal <dlemoal@kernel.o=
+rg> wrote:
+> > So these are drive-managed SMR disks, right ?
+>
+> Yes. I chose these first because they show the largest performance
+> difference between two "identical" drives. We do an ATA SECURITY ERASE
+> to reset their state/LBA mapping - it takes longer than a full drive
+> write.
+>
+> Here is another set of identical drives
+> (https://pcpartpicker.com/product/XtjG3C) that just completed and also
+> show a significant performance difference. These are CMR drives with
+> the same model number and firmware.
+>
+> We did three full drive writes on each drive, using the same proper
+> horizontal mounting and position.
+>
+> Looking at the average full drive write speed we saw the following
+> results in MB/s:
+>
+> Drive 1: 162.72, 162.73, 162.73
+> Drive 2: 155.69, 155.70, 155.72
+>
+> Each individual drive is incredibly consistent in its performance. But
+> drive 1 is over 4% faster than drive 2.
+>
+> The difference can be seen in a graph comparing one full write run of eac=
+h:
+> https://cdna.pcpartpicker.com/static/forever/images/content/221396115ee6b=
+ae8fbd35135fbc6441e.png
