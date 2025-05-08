@@ -1,64 +1,64 @@
-Received: from mail-io1-f52.google.com (mail-io1-f52.google.com [209.85.166.52])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B57A728688F
-	for <fio@vger.kernel.org>; Thu,  8 May 2025 17:18:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB5E528688F
+	for <fio@vger.kernel.org>; Thu,  8 May 2025 17:18:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746724714; cv=none; b=I3DmTGG26NcZKRTT43HomANO8Ush75TA6GCxZrGUUoF0zSfW1vw2DAtPgP7ULJ1EDe6cb5JgHM/NqAB2MvfKMtikh20AqxuGQ22uCF9CuUBrN2BC35nDtWWyQ41S8UWRqSZj/OQ7midzQliTVsP1kSLSOadslyt0WAhzmFZTgQI=
+	t=1746724726; cv=none; b=TuEtBJBN3LLGom7+HM0D5BnKt9STosRY5MZ4BxAGLph6Mh6ICO3VSeQfUVrNeEA9j8GY8AQoSXoJQIolxY0gCY37m2Ja/zvKzr5C1uBp64Pu92L/iJZ6VfZqetgqcN5eV+IAuL/KOm5dQCCgDF8BItbWUcnvOdbcIk2Pz083ZUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746724714; c=relaxed/simple;
-	bh=9sXTonDVLPdUYTiDXweR13PEBnnq8czT3pT3SDWu+10=;
+	s=arc-20240116; t=1746724726; c=relaxed/simple;
+	bh=1hkzy217qPnz9osk7pG6shseCtQSly7Nh3HILFP2PWQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ow3B+GyL2z11EKHQo5PnfWGB2jFqe9OcUpFxf7BK4PdOXTGKg9Zt7GJqItoqW9a65l2RyHdKmSUokv/9ItRNJI+7mVqp218tbzfFy9AXNqxPaelVojUEgP/0eyrV36i+1MIQS9AffWAf5Nvyvj1iQyQ5BbpoyFzZTaVJ34JyPRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=18akfjly; arc=none smtp.client-ip=209.85.166.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	 In-Reply-To:Content-Type; b=PP+DW8DroPjgSQQRKjIIT+rZRnl/NC6oRLlIuWwO2TMvw50Rsem6fVf/tOpp1yMDMGOF50mRbKcHhrPQ6iRXRyF9VMGUWIE22QTSbgG6MrQf01oIB3j5YwbMm069E3AUYdcBbFTGDQF3j98VKnFmDJ/0mNz//ZnaVzDFw9vGP4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=df4Y3mep; arc=none smtp.client-ip=209.85.219.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="18akfjly"
-Received: by mail-io1-f52.google.com with SMTP id ca18e2360f4ac-85db3475637so79032039f.1
-        for <fio@vger.kernel.org>; Thu, 08 May 2025 10:18:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="df4Y3mep"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6f54036c4b9so11737066d6.1
+        for <fio@vger.kernel.org>; Thu, 08 May 2025 10:18:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1746724710; x=1747329510; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1746724723; x=1747329523; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=/1p/05enpiX3szgbSh+MNUTd/BbHaitcbdq1+ttBJLw=;
-        b=18akfjlyNRtkNw/kuubyFkoZbfL0Kr+aobF+jEqIl6D75uchmc/MVk2Q7qifbtNk7N
-         5hi6XFCFmA2AkwMuGkg/9TuJyTIOqckOxyeUdruVL16CnZGU+EHT5h6t6bC6WPCa/nzQ
-         277v9mNjVLQMzr3NqQMlM6bXwX2ZV6qeaQ6A8GXXjbnOEU40TACM4O2Uc1sGK/Ya61l/
-         Yi8edEhSjv4p9lLpzwjvmy4UKulFn7hqdVptAkGRF2gmceTRLEcaYp9IXWR2ZkJ8jNiU
-         1ZCAZFI198vzD0t5zmVWHNiZNRqxHQxm+Td380B9/WnJdD0EdFarU+eOwFfq7S2Ae6WQ
-         T2dA==
+        bh=VAKB1oIB4GEJG1mAmI0R6LF2Y5iBHy6XZ4CuyrN+1sc=;
+        b=df4Y3mepXSzZt7KymdGzWZKzds2+4t6hFDfU9LnlO0WlTpiBO8BKAytJjsaOBfGJxT
+         XwdARvFkmUPcgwpXTkxO3fKU2pBkFA4tnGBdSbze3vdFxkRxoYee1m6Pp+ZbYFwilgfD
+         XixLzlgGw/p9Hmd9YP68oUP4kyMHqpOrwj518Z5OeslxPpopEUKjUqICwsPRgxEX/q7F
+         nPpKBgv+PRQPSHdm97mf8x5AHC6KUcPSlzZpPRBHHK16yM6xN8zN8kgwumo1wCpXqLxO
+         sUAuxYsD2q2sD48Flc6FX2svjY2DtH9jKhz597UBLSUbTqhQUkJHudYDjg09Cc0ySisu
+         n4VQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746724710; x=1747329510;
+        d=1e100.net; s=20230601; t=1746724723; x=1747329523;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/1p/05enpiX3szgbSh+MNUTd/BbHaitcbdq1+ttBJLw=;
-        b=WOGWX6nszA5xZ8wSspjE601gVso6kVSzt3Pn7HmMKdg9iC/LGbbl/HgT/Jl0+CpC3B
-         WEurT3HWOx9K8ygneg8XqGKiigVt0fJoFSB3kqWVAb0kPjxS4mxE1iQjzZJxVWNYJpGe
-         uchfksJ5cuLhlCBOjSOf80QN+c90xJz5tIcvUS2imL+YFzciYxIqJVUnk/kGRNPBxKFI
-         hCpbo7j+nbPLjukNgkgNJEQy0wL9AWjm5ndbxp8JmkLrYbFMsp8cZPNQTYQdwvUS9NU4
-         P+CJvRhafdZr/3kNGz5kT89bQJCKnTPw6lzlUFB/YHUwthNzJQg464Ur5tKaYNtytVGs
-         Ki4g==
-X-Forwarded-Encrypted: i=1; AJvYcCVN7qKJKgvoxqE9irhs7DFD4gK2xADEG2SCxfUFVgK27sfIvAiWs1qyzrymcQK69oJbOAE=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzn7Kyb40EnVQZBzeVy48WRZC3n5vxY4qVLjGwn9QUnZNjrdOGX
-	f+Vw6XPhmNwrD/41tqlm7zrxSLrb7qq+5QhsmETqe8/YTtjGd3bIM7YTJy8AsMk=
-X-Gm-Gg: ASbGncs+6SDD4psEX1JUw97ic3ErYTfyqc2agUUgvIUKbVz+Gh5ZMZDqOzd61jc6XlX
-	1UbbjG+oa9Zy6Zv8V7xSHiiqFPCmNegv6Gky3r3s8eX35lZqA5I630G58Hl68WDIAXioGsZhMN5
-	9nyWGi8qrdfOMZ0Eaovcz0me+PePzBTaOqGlvALUT60173G82qmE51PocBYMJKjsiBmUY7KjhSo
-	p+xkzP2shIPAbKkHUHAGtCW6cda3/Q+iwfxqPqKztVA0fFIA11eU2/5YSzRaOx7SS94gouPWabR
-	p9FplRO2b5HaDANP7+FxoxdA2iESP2STXALzRVLMSMs7QSA=
-X-Google-Smtp-Source: AGHT+IG0a++FTKEO/kzObUW++Z19gNCuwYrABp1nFW/1+w1iwFNPdZPDduVX6/Yq8v1vHEMd0H/K2w==
-X-Received: by 2002:a05:6602:2594:b0:85b:5c9a:a9ce with SMTP id ca18e2360f4ac-867550aa561mr486819939f.6.1746724709687;
-        Thu, 08 May 2025 10:18:29 -0700 (PDT)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4fa226594besm46229173.124.2025.05.08.10.18.28
+        bh=VAKB1oIB4GEJG1mAmI0R6LF2Y5iBHy6XZ4CuyrN+1sc=;
+        b=ciM9i3JpbnnWTP5IqmSzvAcypMcMPNoxLg2ehaqk1FfJesStnBmFNHGKRZotMrpH34
+         op5qUAJ8iwcxh2Jaz9OnASqlFjrdyt1mrQ3/CSygQ68DH0eiFwiq66bYQnz8xsgtSFsN
+         vb45KZQ6PSZTT/zuwoHT/9+2REfolbqzl7xLV6ZIK4IQiu4xXUl2gT75NI6+d1zjO/5i
+         joLD7RoO1bR3T2AtcHVTdg+tkrqevNU1C4sKwugMshSokVPQUwJPGDh7sqUIchQbL1s9
+         IF9x06vdK1pw97so/FnuuZTWc9/UN1Wof6dBEvAfvmcIg83P1bofySNkYYKVJl+2MPge
+         zQjA==
+X-Gm-Message-State: AOJu0YyL49vdENDL1tSbNRcSCsWpyTbl2T15f7wuCPq+gIpCP0OefKUK
+	CTHkyZ7HhGM2MPuO/4erWVZJJtideAXQzAuTEQjySfKB2tFrKPDL
+X-Gm-Gg: ASbGncvE6U4mtdnhoilUZhzjTnKnYc4U1fj7WTe9rOAEnLbXQDDZ55BpQHQwBut5Zj7
+	XwhLbGos2g7no0fYt0eGUVTeaoKX3z15P69i2MBbO59cNueLYmn1cM7zlpZcrfmgVln4JpeeTU6
+	O3EJ3NfzmaMpxaCN1+GjOzwddoxkIHNy536mkro6i5GsgjjQx5CFtzXpveZ31fbw4oQ82qy2slK
+	geZPt8x1zq9NKmy8LF9n2wuJEOdUSXuoO+DjmwJ46IYGkbzcS/zR7LDfTFnv5fga6/kheOI5EON
+	Wg7vi4Y0Ymebiujl7kMZlZsWQwZzejvkUpSLJ10PHp3SpN/c2rvoxDWh6fNzoXFIFqDXR+RXbhZ
+	VtgILVXrZLx8RbKJP
+X-Google-Smtp-Source: AGHT+IGVj9p92XWixcQVyykO2oqpVzQf5LxFCxTX+GfgIGRTDumGKoJMvBzmCR4iZYqmB8hnKvrh/g==
+X-Received: by 2002:a05:6214:5197:b0:6f5:3a79:a4b2 with SMTP id 6a1803df08f44-6f6e47afc9cmr917906d6.14.1746724723308;
+        Thu, 08 May 2025 10:18:43 -0700 (PDT)
+Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f6e39e06a6sm2144166d6.2.2025.05.08.10.18.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 May 2025 10:18:29 -0700 (PDT)
-Message-ID: <16cf9fd1-968b-4349-903b-9a58eb0c9945@kernel.dk>
-Date: Thu, 8 May 2025 11:18:28 -0600
+        Thu, 08 May 2025 10:18:42 -0700 (PDT)
+Message-ID: <0f0fadc3-61fd-4956-b60b-fbb9844f07b2@gmail.com>
+Date: Thu, 8 May 2025 13:18:42 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -66,60 +66,45 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] windows: fix pread/pwrite
-To: Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org
-Cc: Vincent Fu <vincent.fu@samsung.com>
-References: <20250508171444.2113-1-vincent.fu@samsung.com>
+Subject: Re: [PATCH v2 0/8] zbd: support continue_on_error for zonemode=zbd
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+ Jens Axboe <axboe@kernel.dk>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>,
+ Damien Le Moal <dlemoal@kernel.org>
+References: <20250425052148.126788-1-shinichiro.kawasaki@wdc.com>
+ <174661736206.1785376.17260834205270367848.b4-ty@kernel.dk>
+ <d120fd1e-22e3-46f4-88a6-559f256e20c5@gmail.com>
+ <a4728f95-f894-4ee3-80e9-674635848806@kernel.dk>
+ <brryp7uhtfs6ujltz5c5v3sq4laqqi4yvrwvndr3masoz7pkrd@5rct3dza32t2>
 Content-Language: en-US
-From: Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <20250508171444.2113-1-vincent.fu@samsung.com>
-Content-Type: text/plain; charset=UTF-8
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <brryp7uhtfs6ujltz5c5v3sq4laqqi4yvrwvndr3masoz7pkrd@5rct3dza32t2>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 5/8/25 11:14 AM, Vincent Fu wrote:
-> The pread and pwrite functions for Windows posix emulation never actually seek
-> to the requested offset. Fix this so that the psync ioengine works correctly on
-> Windows.
+On 5/7/25 9:28 PM, Shinichiro Kawasaki wrote:
+> On May 07, 2025 / 11:22, Jens Axboe wrote:
+> ...
+>>> Shin'ichiro, there are some build failures with macOS and Windows:
+>>>
+>>> https://github.com/axboe/fio/actions/runs/14882253382
+>>
+>> Indeed... Guess I should've staged it, in lieu of our CI being
+>> able to pick up and build on-list patches.
+>>
+>> Shin'ichiro, please fix those up, thanks.
 > 
-> Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
-> ---
->  os/windows/posix.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
+> Sorry for the trouble. I created the fix PR [1], and it's already merged.
+> Thanks for the quick action.
 > 
-> diff --git a/os/windows/posix.c b/os/windows/posix.c
-> index e3abf383..3e48c3ff 100644
-> --- a/os/windows/posix.c
-> +++ b/os/windows/posix.c
-> @@ -830,18 +830,24 @@ ssize_t pwrite(int fildes, const void *buf, size_t nbyte,
->  		off_t offset)
->  {
->  	int64_t pos = _telli64(fildes);
-> -	ssize_t len = _write(fildes, buf, nbyte);
-> +	ssize_t len;
->  
-> +	_lseeki64(fildes, offset, SEEK_SET);
-> +	len = _write(fildes, buf, nbyte);
->  	_lseeki64(fildes, pos, SEEK_SET);
-> +
->  	return len;
->  }
->  
->  ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset)
->  {
->  	int64_t pos = _telli64(fildes);
-> -	ssize_t len = read(fildes, buf, nbyte);
-> +	ssize_t len;
->  
-> +	_lseeki64(fildes, offset, SEEK_SET);
-> +	len = read(fildes, buf, nbyte);
->  	_lseeki64(fildes, pos, SEEK_SET);
-> +
->  	return len;
->  }
+> [1] https://github.com/axboe/fio/pull/1893
+> 
+> To prevent this mistake in the future, I will do compile test on my MacBook,
+> or create PR to run the CI.
 
-lol, how broken is that... Does windows have any offset read/write
-variants, or is lseek required?
+I actually have a bot that runs mailing list patches through our CI but 
+lore.kernel.org recently implemented measures against web scraping bots. 
+However, I changed fiotestbot to now masquarade as the Lynx browser and 
+it should be working again.
 
--- 
-Jens Axboe
-
+Vincent
