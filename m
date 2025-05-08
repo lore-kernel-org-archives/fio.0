@@ -1,146 +1,117 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D6E7223DDE
-	for <fio@vger.kernel.org>; Thu,  8 May 2025 12:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 557F728640E
+	for <fio@vger.kernel.org>; Thu,  8 May 2025 17:15:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746705612; cv=none; b=nPV2ynQrGyTlQCKw1lUAnx5gcCPx521Nw16jyO+4lEsY2RzaVor/+rOgxes4ZDOi2MJUYTNejAZ/veFKYbdjrlXaXbuaEcI2yNzFMYhrwbmNPyIz9MhLvWUHOlDxkiWg6FyVba/SsnYF5KyL0m1xEnz4uFJpAz1Sh8IsmnohRhk=
+	t=1746724503; cv=none; b=MsSWMQdNxUg1w9jRiOYQxxde7KIbANdxU5HSxYmT8+fyZeIO2OYa1c/KN7FGDVm0zfh84/vHdSkrsk//CuZ2kzvVv1Asv+k5GvjXNEhxDzsykmFPT6SL4Zm4l/68JKJwRt+PAW4vQp/HsugdXP4HRW/7kU3sLwRbtBO5HC3sFYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746705612; c=relaxed/simple;
-	bh=2goCj0HnaZ+/VPHMdcPXhOovwrVl1uH0ZCivEtvtHAM=;
-	h=Subject:From:To:Message-Id:Date; b=OxE8UrL4vM3aaHTs57Y+qMc6/8nxXtE0JuCZghLSf76UTvJPAPyF26k1EPgZjHR5PJv9FsPWJ6SB5MFL5LsYIZ55pZxXvx4qccST7+VU/i5bdWp5csvdnYVtxIyJk5m+rEI+Jyuc64zDQ3y9X1U+tow2teF7aXu3UIcNNWbCCic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=JWHmMM4V; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1746724503; c=relaxed/simple;
+	bh=W1b1S3bwIcouS2a8xD3yTbQYGZXjiAcrqkAuf9XiXSg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=INBSiwpkPOhL1Un7CHGfqV2uo9YQs+vz68+bpCJo3y/lt0fhrgCQSlkSg+lN0LOdT9aUx4MqQJPlhgysjKMYZFWqAsyRrHDdTtH2DVTfI0pAsQ/RS4tGZ7eAsLCzedaM1oyD6gBb1ScNDmu2m74pR7btQdAFs2J0IaLNOS8meXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PmOANZyB; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="JWHmMM4V"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=ED7+dA57ykiBKEz5grDMZYewh8MwdtZZLz/FdFES3u8=; b=JWHmMM4VK+Kn3mkfnKAjneZTwq
-	vFemw7hrfd2i4tGHgREElBUzrtoN6E4mnUuou+CUczq+07aAZlhwqO+6L9e3aTjimp8vVU9u/RBVk
-	t1Hh7FqPMei3TzNGvM+nSGMICFDxqe4bfZtvezooVWoFNAmMvYA+9ACLLCEtpoxW4ddU466olPf7E
-	8fgVJZ4ECrh8k2C5yp0JmtO0AonXKcLN/tjDozyWNK+MgFwVupXkBflWG/kSPwR0gsfb6idE2VG72
-	/hUEpzQekhBtPwKuucpPc9MZmj4xpUVODME4piRRr0Qbnw3YhtyM2Jex6SE+X4l0qIIqS8DVCo4lX
-	lDcIkmDg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uCzv5-00000000U9O-05QE
-	for fio@vger.kernel.org;
-	Thu, 08 May 2025 12:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 893CE1BC0162; Thu,  8 May 2025 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20250508120001.893CE1BC0162@kernel.dk>
-Date: Thu,  8 May 2025 06:00:01 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PmOANZyB"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7c54f67db99so260980885a.1
+        for <fio@vger.kernel.org>; Thu, 08 May 2025 10:15:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1746724500; x=1747329300; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JlgeMDyw10/xz85KJ9MyipfDzNUs17u6ehbSgsa3OfI=;
+        b=PmOANZyB+1N3CCf6elE4Ko4NU3xLcBAQGP6JBBdmTzvs+OmgqpH4eqiuPcpiwANBsb
+         xatAlQUsi14qYEm2zR2ev1sebNEK1pxQe83H8I/8OKgAj0fUZRUqTb3QH286keWiQjhb
+         EsDDQCnYTz18+pZV1iABwIdICqF4b9qMMIKuZv9QmQmJyGU9ari2Pap33gFFHKdQ5MmU
+         yAHCHUylPSSmO+mZcmglfCpvZWK7qVV8vmZceT3T0yfuQ/JmmenNcCGtaZ6e8x/5zaV6
+         3/1NnF2t1qGLJwcwAd4HqBJxM/3OwSx0H7bSPHW4x4YoJxF8zTmatnw5yVgWvJUsP4df
+         zw9A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746724500; x=1747329300;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JlgeMDyw10/xz85KJ9MyipfDzNUs17u6ehbSgsa3OfI=;
+        b=aR3W1gh+TCu8RiOGubLCi+xvg/4/uk32P7iiqwPNA+8exCbbwiRNMjyOzNbHfnp2UP
+         E2WXwQTQCdPyUJLtR96Oz8s3hS4DEsjSdqDWi9BscK2701S1/5bAtpdfPXM+pUIw92qF
+         gf2ZlQ+hOtRaMt1dCZTrBSn4SgZDDj2UczKHVW4lGNCWyd+l6knuxgmd4M6xvvOAan+5
+         xPawKpTGlncMjJuVZMeQeCitT9I0Or0ZMeKnW902cZcKjZOK13e7iZdZ61OULQtSWCXQ
+         nX5qopT976klowVi7E/AjchV0RJvlgEryJcCNm1Y6mT80MgSusTH0/bPuiknEfCcqfnu
+         aT2w==
+X-Gm-Message-State: AOJu0YwNJFzGdblkt/SWu1sd3Wnhpmhgd3KvfvnG/TlVRgRSlS2BY+kx
+	JZqhChEMmpgeZRF6XwKSJ/ADebv58DC6Og85Oig7+MQuNyQWyGmTmnQlvxIA
+X-Gm-Gg: ASbGnctv7Iy1IyW48SwiR8bP2b/VoUeKpoKjC9s1IK0mgmWoWct9Wy5MtL2C9YI23Zm
+	CeNGEizJlcC03DTaL9ImGbSEYrmzOiN3b5arSaY/Rn25xH7NFS+Fu+0aHR4/VVQ4ToiVRt8f7xN
+	CmupDrKtsa+WzI6vjk26BarTB5EN4jXH+77QMsKYhMlCeUm+8Rw9YYZVWxhQTjrG66+uz31O0bY
+	lbuXjr9LYcuBd5Ee/rvx/cODLYdcpsYRrdrZZ0rcnirXJaP3/dIKrK27kBejHrAgK70rNJMrBd/
+	L7sfdXT1jYgZUNDQipxRuMPGO9oVKI3xNNVTfniFWp+RDrSd8TO2E7cgbwGxmqrqRW7zg9IkxMl
+	K6WHzBFqZzMP8JkOtLCUa6bb35pvAHQ==
+X-Google-Smtp-Source: AGHT+IF/MimbWjZU+xO1zTrrW7PXAYIOOBqIapjdW3kbJ2Gjlf0LJ5bX1nz4BbWAAHOfTAQ0joJ7rw==
+X-Received: by 2002:a05:620a:400f:b0:7c5:9480:7cb4 with SMTP id af79cd13be357-7cd01771585mr10128085a.9.1746724499821;
+        Thu, 08 May 2025 10:14:59 -0700 (PDT)
+Received: from fio-dev.vincentfu.org. (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.googlemail.com with ESMTPSA id af79cd13be357-7cd00f4d54fsm17027385a.14.2025.05.08.10.14.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 May 2025 10:14:59 -0700 (PDT)
+From: Vincent Fu <vincentfu@gmail.com>
+X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
+To: fio@vger.kernel.org,
+	axboe@kernel.dk
+Cc: Vincent Fu <vincent.fu@samsung.com>
+Subject: [PATCH] windows: fix pread/pwrite
+Date: Thu,  8 May 2025 13:14:34 -0400
+Message-ID: <20250508171444.2113-1-vincent.fu@samsung.com>
+X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The following changes since commit 4dc6c8da6ed938f12a42f167839100ab551ae8d1:
+The pread and pwrite functions for Windows posix emulation never actually seek
+to the requested offset. Fix this so that the psync ioengine works correctly on
+Windows.
 
-  t/zbd: add run-tests-against-scsi_debug (2025-05-07 05:28:47 -0600)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 1276068fa9ecfede2fcfb2068f4670a553a6dfa4:
-
-  Merge branch 'continue_on_error_fix_up' of https://github.com/kawasaki/fio (2025-05-07 19:18:57 -0600)
-
-----------------------------------------------------------------
-Avritt Rohwer (1):
-      Document expected filename format for s3 http engine.
-
-Jens Axboe (3):
-      Merge branch 'patch-1' of https://github.com/avrittrohwer/fio
-      HOWTO: fix bad whitespace
-      Merge branch 'continue_on_error_fix_up' of https://github.com/kawasaki/fio
-
-Shin'ichiro Kawasaki (1):
-      oslib: blkzoned: add missing blkzoned_move_zone_wp() stub
-
- HOWTO.rst            | 5 ++++-
- README.rst           | 4 ++++
- examples/http-s3.fio | 7 +++++++
- oslib/blkzoned.h     | 6 ++++++
- 4 files changed, 21 insertions(+), 1 deletion(-)
-
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
+ os/windows/posix.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index a7e2f693..a5033d82 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -808,7 +808,10 @@ Target file/device
- 	For HTTP and S3 access, specify a valid URL path or S3 key, respectively.
- 	A filename for path-style S3 includes a bucket name (:file:`/bucket/k/e.y`)
- 	while a virtual-hosted-style S3 filename :file:`/k/e.y` does not because 
--	its bucket name is specified in :option:`http_host`.
-+	its bucket name is specified in :option:`http_host`. In both cases, the
-+	filename should begin with a ``/``. The HTTP engine does not automatically
-+	add a leading ``/`` when constructing URLs from :option:`http_host` and
-+	:option:`filename`.
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index e3abf383..3e48c3ff 100644
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -830,18 +830,24 @@ ssize_t pwrite(int fildes, const void *buf, size_t nbyte,
+ 		off_t offset)
+ {
+ 	int64_t pos = _telli64(fildes);
+-	ssize_t len = _write(fildes, buf, nbyte);
++	ssize_t len;
  
- 	The filename "`-`" is a reserved name, meaning *stdin* or *stdout*.  Which
- 	of the two depends on the read/write direction set.
-diff --git a/README.rst b/README.rst
-index e672ce64..c4688921 100644
---- a/README.rst
-+++ b/README.rst
-@@ -165,6 +165,10 @@ Configure will attempt to determine the target platform automatically.
- It's possible to build fio for ESX as well, use the ``--esx`` switch to
- configure.
- 
-+The HTTP engine is enabled depending on if the curl and openssl shared libraries
-+are detected on the system. For Ubuntu, these packages are libcurl4-openssl-dev
-+and libssl-dev.
++	_lseeki64(fildes, offset, SEEK_SET);
++	len = _write(fildes, buf, nbyte);
+ 	_lseeki64(fildes, pos, SEEK_SET);
 +
- 
- Windows
- ~~~~~~~
-diff --git a/examples/http-s3.fio b/examples/http-s3.fio
-index c16e89b1..043426ba 100644
---- a/examples/http-s3.fio
-+++ b/examples/http-s3.fio
-@@ -9,6 +9,13 @@
- # For path-style, prefix the key with the bucket name in the filename
- # so that filename=/bucket-name/k/e.y:
- # https://s3.region-code.amazonaws.com/bucket-name/k/e.y
-+#
-+# IMPORTANT: filename needs to begin with a '/':
-+# FIO formats the url as `"http://%s%s", o->host, object`, so if 
-+# filename does not begin with a '/' DNS will fail. For example, if
-+# http_host=amazonaws.com and filename=k/1, URL will be set to 
-+# amazonaws.comk/1 and curl will attempt to resolve amazonaws.comk
-+# which will fail.
- 
- # Reference for Virtual-hosted-style vs. Path-style URLs:
- # https://docs.aws.amazon.com/AmazonS3/latest/userguide/VirtualHosting.html
-diff --git a/oslib/blkzoned.h b/oslib/blkzoned.h
-index 3a4c73c2..a8e4a948 100644
---- a/oslib/blkzoned.h
-+++ b/oslib/blkzoned.h
-@@ -54,6 +54,12 @@ static inline int blkzoned_reset_wp(struct thread_data *td, struct fio_file *f,
- {
- 	return -EIO;
+ 	return len;
  }
-+static inline int blkzoned_move_zone_wp(struct thread_data *td,
-+					struct fio_file *f, struct zbd_zone *z,
-+					uint64_t length, const char *buf)
-+{
-+	return -EIO;
-+}
- static inline int blkzoned_get_max_open_zones(struct thread_data *td, struct fio_file *f,
- 					      unsigned int *max_open_zones)
+ 
+ ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset)
  {
+ 	int64_t pos = _telli64(fildes);
+-	ssize_t len = read(fildes, buf, nbyte);
++	ssize_t len;
+ 
++	_lseeki64(fildes, offset, SEEK_SET);
++	len = read(fildes, buf, nbyte);
+ 	_lseeki64(fildes, pos, SEEK_SET);
++
+ 	return len;
+ }
+ 
+-- 
+2.47.2
+
