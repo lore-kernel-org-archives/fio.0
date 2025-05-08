@@ -1,60 +1,60 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBCAB288521
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C983A2882B1
 	for <fio@vger.kernel.org>; Thu,  8 May 2025 18:59:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746730752; cv=none; b=DOUziGSvdS/RA42l3JoHsm2zEMAnlqiDO/RDLnyrcxe8teWckwlvoXNnOY+kH0hveeWVCGmEbhz4KpQhZ8cXBwhuzDH+AmERCRlW06PoIRPnLH+rRYnIuiBXe3p/Frk+WrJV3VRk5keq/rOH1SrAOCCCPiJ4Cb5QQ5jrYJCKFE4=
+	t=1746730753; cv=none; b=YPzj3I5uKyQbcNrILLs+jixF0CZd20DftMef+XXzvbQUrqxANE4imUCKpfrkZUihcvbDrVT8YkPbc2khMSLUAbZgilXJYlfQ9xZ57Q6rp3DtONPyxFiY7x8WC+xC+ufGhy4xYAct6mLiASC850nkcGhD79AFzHy133cB0oF1Zk0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746730752; c=relaxed/simple;
-	bh=xucdfvoESerLJka82l+D1siofOQN8CiYJLLETy3rFps=;
+	s=arc-20240116; t=1746730753; c=relaxed/simple;
+	bh=wiidl9CClEZKqT/5ZUPjJrSrWExj+XXMTh51e/BuzNQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WxtLHT86QQzzhRQO0uq2oa8aLnvV6H+0ZP7rRUCHMKop6PHaESLg+L4ipyOY2PuEX7HZGmN6nGGlOJxjO0Krnv40upfC+jKQNBZlWoyFBal5znEakh/gi5lqruDD/enPm0dBdWpeN3skOb/UwNIPKjS1zwzHxt9jlRNbJjEig9o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=doRXYEG7; arc=none smtp.client-ip=209.85.222.182
+	 MIME-Version; b=LNdo9qEOqtiuHTM+yRo4mEfR/fAJo4O/FPwProeaC7sJ0zNXvxg5RJZcd9I5ZbTr9AOi4Yeu9Cb/eFMbE358wrxKfYyWx4JKrB+wNjnUdo7lFyLxskRwZcbWDgrYTNxrqdl3UIqtYikw+8uVGXHEj7NI3jHZCDPe2FE3/4BRCNI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KKdS5byo; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="doRXYEG7"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7c5a88b34a6so146906485a.3
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KKdS5byo"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-7c54b651310so183422485a.0
         for <fio@vger.kernel.org>; Thu, 08 May 2025 11:59:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746730748; x=1747335548; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1746730749; x=1747335549; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=inhbDSUjK2BV1x+cGwexX8AbDH2KTMgihTscuNUAd+U=;
-        b=doRXYEG7N/Dy8PCD5SppyBFpKiYRPOC/DR9ReafmiP7TixC577oq8g6DxSrdp6PmhB
-         u5ifddodG+MU6GuaArKCnrWlQNMiDj9rZ28hHtyOb5ieVdgzmGY2Yc9EclB7ovRxrDrm
-         ZDjPtNbrzuj30AfGLERCv5SCrErAnhaD3HQi63Gzxn+EC6n4UVdHj+amI4Px2mb833i0
-         J4RF+N5Hu0Dm8KOVVhyjASFNMcUv8tZsd+THjJYW8M2+hfWjUPUcwIIV0lhybofVHBu6
-         jlMjE0ikky4DxZ7aI2uT4OAPnMjuii6Mg3oyF5iI1eDsY5lSqEJnh+cSLuMNdvKAg+DP
-         hQjQ==
+        bh=Sh8WB5S44Wu9D+5gth5z1Amb/tfD2HsYafwufBDygMo=;
+        b=KKdS5byo6TAfiqQaeQlNRxVoniOwJj7ZvA/+Y4H1yBNphXwAJ9d926jMiK9hsZpiqb
+         6hL5DiSkBeeenOUDOtQ0lCuez25gdTCUKgQSBinBHRgv5J8FlJn68ia6iYWVeG6vKbrn
+         eD4KE7j2iNd3eAGNRJkux5+e6T/N8XN6uzGoDaK9c1fQ/zKEeZyIzi2sjeWKlJj6oW//
+         LVQEUnyz6099W/KDQx0Og8bqiqrZ1zEJ1lqU6UQ5uU+FRITI6cc95mYqe8VaLcPEHH+g
+         kckKDYHC+oWkoZaDYA7OMi+MkkkAaq7HobMxBz1JMf3Clhwz29EJAAoWPCwTyLfPaHBY
+         iD/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746730748; x=1747335548;
+        d=1e100.net; s=20230601; t=1746730749; x=1747335549;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=inhbDSUjK2BV1x+cGwexX8AbDH2KTMgihTscuNUAd+U=;
-        b=ouZvOKmYlzMGtKzXn01qYLW8iBHd7xfSJK90w0nD0GR2n4ia9djPZl4KHKWD1t5ygW
-         AXhExry7cq83XIHLt5Wcp8ErQ+fza/y3C7hDn6kES+Jnls5sR05E8h/NnegEqnEjF049
-         7JWCuM/LXGkHuf5HitmKo7VuHvSaETn+/oefjlzwpf6TFZpuR0Y3aYHZqABRz4OWhGZu
-         PPd1fArjdBjIWU+j0lK3mvrzB3B5QkGreKEpAJ/jMHmlUwlAdef8QN8xB+0BHbmZAvUA
-         Ch2xnkXBLxR3juGe/07lOUmuoiQpqW+X49EqLMzzKqxtAonG31BNuds7U0P6OnQKfoHl
-         BymA==
-X-Gm-Message-State: AOJu0Yydp+z9hzV2VPemOQlqgscFJ9G0K0CctaBRWRKhufLg7ZbVpd/L
-	Q8B0TrU/wRnqhzarGtNKkKpPVnZg81yAFTZg6f0W1I7vh9QnoXwCmQwxu2zU
-X-Gm-Gg: ASbGnct5pggsYgb6mTgq/jKDTsvcDfKGm/zxk9794CecAxhBBD4rPI8Mab21L7WEvNe
-	LJV5vg1GoNNMN6Npnk0uFv9v1N6g4Ng3cpzYdCL2xqsaRyG7HmTELphv4lNUJtBBkId5Zx80X1D
-	yEJyRhTOExSdOnIVXrdjSsv/H6JKGRyi78/O5z4T5Iwg7V7bZm33ZNBkKYDf69BqXEUwswrIQHY
-	dw2HK3h0BMDq6dkoMXN8OG24bXzzEr6oWpZ+VDvAHkD7WTjYKWiBv/MXn4c0oCCcDSCVhgpceLa
-	VH+gB/JkSG5D2L2l5IPnwO3CiQKvoVWmOI+enACoj80BkzM8B/9cpZlh64FLEGzlb6m9GlgTYFW
-	9ATrUfmJ9AL5Mrx96ha+W0FFWl8MhW9LRW9y6rvRQ
-X-Google-Smtp-Source: AGHT+IGXBSPWBQgaQcQyPTRT6YlLCcOWe1kR8Kx8Uo3bMl9caAfwnNFV5ULoM0x4C0TSv9Aks8mw9g==
-X-Received: by 2002:a05:620a:468c:b0:7ca:f3c7:5ba9 with SMTP id af79cd13be357-7cd010d0fdfmr162984885a.7.1746730747629;
-        Thu, 08 May 2025 11:59:07 -0700 (PDT)
+        bh=Sh8WB5S44Wu9D+5gth5z1Amb/tfD2HsYafwufBDygMo=;
+        b=WGn51UujIBs0iz8O0r3abGenA7uNHeAAh4lgDEWZ0g3rzYTvT8CYyKEyAzy0xkd12z
+         JNAY3YCY/nr0/l6yzRZ2+pmZpxJDlQtEs0z1GhwDpAZlJWkzKBdeKimbZl/4YAamUqXP
+         EqoHAxPDUX/bzTFCq9W5aMa4pKBNf23NoWBBM4aVRsJYf6oubP7U7Uk73GLu0Ysd3+6Q
+         EcGf3xbC372m4jfGQssw0jQfopEFYGnEMP6ZIpEOcC9Id3iBFTac2yUVM5iT7KrbwDzZ
+         wNhvwvdxG6mfLPXAyAjM0hn5mv76gRECaSGNV7d//IVvhlUMEclxeL86kLsoo8Wmbu/b
+         neRQ==
+X-Gm-Message-State: AOJu0YyLO660I3qSriH6Oy/4NP82qtdK5DEc4SmjSkmiPCCntv4OK3Dh
+	ITbFLtMsXJcrrO01UVWC1+aIDebFD9VnQUxoyPlIoukF8woJwVOAgLVWLLBm
+X-Gm-Gg: ASbGncuRWiDEPq2dYCfKWqXuZgiOh3qWOyTRtjKFgToAzu1i8eZ7URQWoZMhrabBPLX
+	m6mSFNTzmJmQFLsllGQZCfLhX/V4hpYKeIBZJnfymLqwZkzroAYIo/5fb5S6ay9V0qM7AQtFSO1
+	6fPe18TT5Soc1zSQAXag5jC/doCVG/jgxwsw4mHu26z9J/epQF7CI0WrYpdt6NpLvT4DEigMiBE
+	NLKS5N4lRK+IsL+MIIiKKKBz+yKU0HqUvgKRMKdAKk0ARtACnAIkCeIq0/0khpzMuTm5bgBS6bO
+	N5KdwwwDIohThGInU66ne6bGz+VS85fnVl/gsjkXACzbRqo330l0CWUVZ0HrWQrgSN4RCy9QzmB
+	PelhIkF4UK7jcccbtRNxXXeZCyALFHQ==
+X-Google-Smtp-Source: AGHT+IHiQh6RBcrFu6KV1O5CEgwykg75ZxX1I8dFuHQX34wV+Rxhu+cApzORv82jyGkh+uFN0qdOeQ==
+X-Received: by 2002:a05:620a:8328:b0:7cd:145:994a with SMTP id af79cd13be357-7cd01459e06mr68307585a.11.1746730748650;
+        Thu, 08 May 2025 11:59:08 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.googlemail.com with ESMTPSA id af79cd13be357-7cd00fdc59csm26611785a.77.2025.05.08.11.59.06
+        by smtp.googlemail.com with ESMTPSA id af79cd13be357-7cd00fdc59csm26611785a.77.2025.05.08.11.59.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 08 May 2025 11:59:07 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
@@ -62,9 +62,9 @@ X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
 To: fio@vger.kernel.org,
 	axboe@kernel.dk
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 05/11] t/fiotestcommon: lengthen timeout for longer tests
-Date: Thu,  8 May 2025 14:58:13 -0400
-Message-ID: <20250508185832.3702-6-vincent.fu@samsung.com>
+Subject: [PATCH 06/11] ci: for nightly verify tests use all checksum methods
+Date: Thu,  8 May 2025 14:58:14 -0400
+Message-ID: <20250508185832.3702-7-vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250508185832.3702-1-vincent.fu@samsung.com>
 References: <20250508185832.3702-1-vincent.fu@samsung.com>
@@ -76,28 +76,28 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-For GitHub-hosted Windows runners t/verify.py runs for longer than 30
-min when it tests all checksum methods. Make the timeout for SUCESS_LONG
-tests 1hr to accommodate these tests.
+By default t/verify.py runs tests with only a small selection of
+checksum methods. Run the test script with an option so that our nightly
+tests use all of the checksum methods.
 
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- t/fiotestcommon.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ ci/actions-full-test.sh | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/t/fiotestcommon.py b/t/fiotestcommon.py
-index 9003b4c1..04dfb91f 100644
---- a/t/fiotestcommon.py
-+++ b/t/fiotestcommon.py
-@@ -22,7 +22,7 @@ SUCCESS_DEFAULT = {
- SUCCESS_LONG = {
-     'zero_return': True,
-     'stderr_empty': True,
--    'timeout': 1800,
-+    'timeout': 3600,
-     }
- SUCCESS_NONZERO = {
-     'zero_return': False,
+diff --git a/ci/actions-full-test.sh b/ci/actions-full-test.sh
+index 4222a21a..6ff13c4d 100755
+--- a/ci/actions-full-test.sh
++++ b/ci/actions-full-test.sh
+@@ -41,6 +41,8 @@ main() {
+ 	args+=(
+ 	    --run-only
+ 	    1017
++	    -p
++	    "1017:--complete"
+ 	)
+     else
+ 	skip+=(
 -- 
 2.47.2
 
