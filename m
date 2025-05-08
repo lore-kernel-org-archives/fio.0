@@ -1,143 +1,116 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38867207DEE
-	for <fio@vger.kernel.org>; Thu,  8 May 2025 18:00:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEAC92165E8
+	for <fio@vger.kernel.org>; Thu,  8 May 2025 18:59:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746727256; cv=none; b=WiEee02FOsFHHPdylQQMVvGMA4PMeK5mfERUohKp2tfTcxom9wIh9+a4BkOPFkIgteqHmYgIn62GlX3Lh2H7qNCnURLNqoDkgzSrUQCG4qKVUULx8GOLrfaUV2T9qVIh/db7dqdB0m7oQ6Ln85b6a4LmbSfEH86A0uvkSSXFRaA=
+	t=1746730743; cv=none; b=so4W2TfnA0r62BvarbhdZDPgWAb+ZQ3QEfYLApYrtiwFtlcF7bxHFsX+N97axQFz/R81HCiMpJNNqgd+pgECp0/SY/Xx3EghjPI2gu/+Eq+58KK0O3RHOmMui9brgvUcy6i/0hUbCYKXxSnWG7pfns38RJdTaEd1vtlokqPCV48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746727256; c=relaxed/simple;
-	bh=idTdPQ5vocZkOZogfcpn2BTPBozlreS7rgrqMkeQHs0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qu2r9NeIRxXbJzvfbinYoFOHN4OMj3QqZBNi4bBLa4+lharCBW2tlBZXTx/yrep8thKFhyMdg/b3SxeeT1bZgWI2PloZtqS+9YyduMjKvHkqngnZe23sJaeFXCYawBmxAxohlI47Yn3op2Y4g2fP41bpl835XQKxyxQ/yHMw7r8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CofqUtk9; arc=none smtp.client-ip=209.85.222.170
+	s=arc-20240116; t=1746730743; c=relaxed/simple;
+	bh=P0G8+cbeqcchIl2iylPM7emZiqfr0Pi/cCuB2ZJtoUo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oCbODQjeyMnX6GKeg0OY3AVaw4LnnHyN9GyfTXSDmZN+wVf+LcVSff2KbEgx/bPrmVVpPe/oXjhMsFX6gM/D5onBKH/qDsXg+JQAjSAPmTbme3eJmICwdiA4Ucu4CiR63pinRzI+LO4N0N3udmO0zLWSDyQCxyUK2kx2a/IkX1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d6kCi0IV; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CofqUtk9"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7c5b8d13f73so166967185a.0
-        for <fio@vger.kernel.org>; Thu, 08 May 2025 11:00:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d6kCi0IV"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7c5f720c717so294825485a.0
+        for <fio@vger.kernel.org>; Thu, 08 May 2025 11:59:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746727254; x=1747332054; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oBtjJg1jqOL7GE+L0+dxVPMGoa6D9DxYlcVnmb1EIqA=;
-        b=CofqUtk9onVcsCSkcqr5VXppy5s/1vZ5zuybQf9V3TLzJtAI1nOTU+Jmknl/xV8vuE
-         neLttZkgDvclbXisjQSHPj9Q38hS1TxKHBsUnD5YqikK3Z0z5ovzlvoMoM7wL6kzy8/x
-         mGwDrgnC9hBA4aJcTNDulfj8m3oOcT7xnHY0kDUIHnB1sM1qejxXWDjFNlGPKo2sEK6v
-         eOFXY32awGAIhAEreFIB6tKZELJTksQjst8kkmxea6qMWypjUcOTnz6ayhoXUMQ6HZRx
-         wnAyMnQbUqTe5fP1xtrgqxJJ0afnhty6xSJP8FOPHSPRebrEUQbdKItjgOqXxQ8FaKOO
-         4HRQ==
+        d=gmail.com; s=20230601; t=1746730740; x=1747335540; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=FtBqDsQ3f7QFZGDBjtZBaWK39cDvBnHniqGSyBCLarg=;
+        b=d6kCi0IVsBKNiBFF38ljJ4nSSbXHoYmi2GHTFxzn5tr6uO1rysK9nnWA2RbkJdY13F
+         VuJ6BulUrzWgJiwNC1pBy9ThsnpBgGoT380UPdZPKG6rISFni0leT1kXCbj1YJtLctek
+         Ggw/2DiKW3HpJySS4jiZJUVC6tYXp9EfnN6KH+MgzVVNjnq34rZnL4x2nRleqeh2G5uE
+         vu2WGrd5mhyxmKDdDxoNgavA3QQS4jKF2+dX0IJOWpmhQT8Zy2DHG1QyFH0DdU2VL8nM
+         d92snL+1nZXud79zphazsLg1WFP7rIqLJjxrDzhEGwknFAk9z3xX/x+EpthUK0EjgESv
+         y/HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746727254; x=1747332054;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=oBtjJg1jqOL7GE+L0+dxVPMGoa6D9DxYlcVnmb1EIqA=;
-        b=IKk+tjPYgUlRB4jfOVB/0JkoTpuFiSML3F4BwdK/4jRyWdgu7rBKeQpp6oWKjtPtKQ
-         Ut0kU7O8NwpnNn6ZwaHp1Qo6VrAzIaMCPapXy09CEoWy35oyVtjdJ4vd+JVYtEC8X4gV
-         VjKyKO9gbYWoJ94okgJrR6IFJvUCbF3/WeT/NpmeV3RKqYF0N99D5WXS2a+mx4HkGcWD
-         0Ei40Uwes8B5nlQsM4BRMDxXN2SCmBG+yAuIYtDkiUDlyW/qSChzzx2aJZDRSiV1acYf
-         wr17u7igzzQKgvWi1pIvS0rMnlDEdQ19sSpK92CFERmwVJOSHe9rm/4EKd1vW6bEvk6F
-         bFdg==
-X-Gm-Message-State: AOJu0YxjBGvt0tYH0VJX/sOqqfRPm2xTS83PYBM0OpAJIr7CJk74mTHJ
-	DVYCUcQO9sMsiTTbXd/bH9GgbZoz3TxjRRJS5Yu1fZbc47xBPsjeq1vxQ+6m
-X-Gm-Gg: ASbGncs7pptCJnQGyFhJLz3+I0xFW6aFYzGUG9L1Xx0x5fEMeL6A4Ut8vD684k2L7N1
-	sab3HXgMV578dgYniDe9K8jPN3b6ZgB5t2/4Rza8/2HpgeCAJ8646CKcskui+pV/oSOnIPrVxVM
-	sumxSKHss48HfMcnjgIJhh1CxhUN604YyUfteDsifVOM40cn8Z7dn4EvGMC5fvg7BRhOidij/Op
-	WbRIGR4a39DAaq5TeplSONSldg10qyQHCS1dY0WRYAIaMNTRmD+lRD1jt/v0/Sq71dmtaClbRMA
-	Yu8S5CthK1M3Lke6/fKW5asSRrkUidE+e0g6mw2gxu0U08eWqtyBDMZlUgJ0DTtAQYFlL2GRV4A
-	iJzbZfzKy4OCHayNV
-X-Google-Smtp-Source: AGHT+IFxPWCeu3rFIHKx2YtjnNela8JcoadPm8HzVBFbOvVCpysrSXJ9QZVh0yhh6HnPFg0129j/1Q==
-X-Received: by 2002:a05:620a:4556:b0:7ca:bdbe:c5af with SMTP id af79cd13be357-7cd010f3f30mr83688785a.10.1746727253847;
-        Thu, 08 May 2025 11:00:53 -0700 (PDT)
-Received: from [192.168.1.211] (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd00f4e172sm21564685a.15.2025.05.08.11.00.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 May 2025 11:00:53 -0700 (PDT)
-Message-ID: <44bebdec-119a-4039-bbcf-db323d74cc30@gmail.com>
-Date: Thu, 8 May 2025 14:00:52 -0400
+        d=1e100.net; s=20230601; t=1746730740; x=1747335540;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FtBqDsQ3f7QFZGDBjtZBaWK39cDvBnHniqGSyBCLarg=;
+        b=GgavaZLtWfDPX+/t9aw6fCpSh+rAwSmidlYbKqIFZjtOeG9/xuD9e1ijmtQfKqs6/A
+         02zW++KnklXYlHCDvvwQm1nDQI9bQNoT2QyIx2GVyFP+rVJ6eKaSS7VTfXUvv8wJzMiZ
+         gKGqkzeQOrYtaS0LSJiuKOIBdrYAUQ6LG4fJuVigdqlg9l+HR4vcABbG/Bt4HLEPrsLE
+         Hmg5AwbUW2T7GPN3fyzjMy3r8QG9KYgLI3emM+NS8UE7STiU58st+VQtkY0vMRkuNQn2
+         cmaYkOg6lr2h+1cgGjZ/BrGU+WbZE6ifwSAxFELewMSjgh86jWzUoUwhVjZcNnKtrMWh
+         WwkA==
+X-Gm-Message-State: AOJu0YxeWXbddRy60kaNwV71y+HWYk76sxgwcwQc9EhACzlg9W3YBhQC
+	G8uKEbI7SohSNb0u8kELMEvWvotJkj/ZbPTyc+huSoAZDxFO9FssbIrTK9fX
+X-Gm-Gg: ASbGnct0C5UrMjulyX2/MbV4lnU7HHsH+o9hdhlxhUfewNiWOGVuNY31zEzsvKi1X3u
+	YuuqLW/KunLXihL4xKKHjqgG3hKpq4TZl0c1GQdpGS2FcsBLlHtSZs0tjVxBc8NYL7GOxK+RKX4
+	BNBmBkuxliZQGzxvRDfJw3NQy8ANKl8nsnlgxb6hQnA+g2RSw8M3yTPaHJ+thd1amutLhs1uqyW
+	FNLX77kwICSq13XE/thMqLMmCj31TXPVyjSCSyewCX8yBtBEZ8sO035OJl1If61tUD/OLsQuG8d
+	F1AFvTYER7TbJlvbdZdTZ3A07FhOOaxEBn0T/bmO2OsaJEtZq69wipjqa3FjwMiTXZ/p2E9ZBoO
+	mGAlVJm4T6Vi1xKdK3nOLnfwG3WqEJw==
+X-Google-Smtp-Source: AGHT+IEcmBtq3oqiAGYY5D8ZQGwHS/7HRPrbl4uS2kBWkkV459aXljw96Jxl3IU8Ew8k4pOqLcYKiA==
+X-Received: by 2002:a05:620a:d95:b0:7c5:9566:83dc with SMTP id af79cd13be357-7cd017d2ea0mr53289285a.25.1746730739526;
+        Thu, 08 May 2025 11:58:59 -0700 (PDT)
+Received: from fio-dev.vincentfu.org. (pool-173-79-40-147.washdc.fios.verizon.net. [173.79.40.147])
+        by smtp.googlemail.com with ESMTPSA id af79cd13be357-7cd00fdc59csm26611785a.77.2025.05.08.11.58.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 08 May 2025 11:58:58 -0700 (PDT)
+From: Vincent Fu <vincentfu@gmail.com>
+X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
+To: fio@vger.kernel.org,
+	axboe@kernel.dk
+Cc: Vincent Fu <vincent.fu@samsung.com>
+Subject: [PATCH 00/11] verify pattern interval
+Date: Thu,  8 May 2025 14:58:08 -0400
+Message-ID: <20250508185832.3702-1-vincent.fu@samsung.com>
+X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] windows: fix pread/pwrite
-To: Jens Axboe <axboe@kernel.dk>
-Cc: fio@vger.kernel.org, Vincent Fu <vincent.fu@samsung.com>
-References: <20250508171444.2113-1-vincent.fu@samsung.com>
- <16cf9fd1-968b-4349-903b-9a58eb0c9945@kernel.dk>
- <CAOp=CX=dgfwZqbjSqxHgRSRZDLkifJFEWemeVvpBMcdR7WkADw@mail.gmail.com>
- <2adb3a16-946c-4adf-9285-a251e018082d@kernel.dk>
-Content-Language: en-US
-From: Vincent Fu <vincentfu@gmail.com>
-In-Reply-To: <2adb3a16-946c-4adf-9285-a251e018082d@kernel.dk>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 5/8/25 1:35 PM, Jens Axboe wrote:
-> On 5/8/25 11:31 AM, Vincent Fu wrote:
->> On Thu, May 8, 2025 at 1:18?PM Jens Axboe <axboe@kernel.dk> wrote:
->>>
->>> On 5/8/25 11:14 AM, Vincent Fu wrote:
->>>> The pread and pwrite functions for Windows posix emulation never actually seek
->>>> to the requested offset. Fix this so that the psync ioengine works correctly on
->>>> Windows.
->>>>
->>>> Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
->>>> ---
->>>>   os/windows/posix.c | 10 ++++++++--
->>>>   1 file changed, 8 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/os/windows/posix.c b/os/windows/posix.c
->>>> index e3abf383..3e48c3ff 100644
->>>> --- a/os/windows/posix.c
->>>> +++ b/os/windows/posix.c
->>>> @@ -830,18 +830,24 @@ ssize_t pwrite(int fildes, const void *buf, size_t nbyte,
->>>>                off_t offset)
->>>>   {
->>>>        int64_t pos = _telli64(fildes);
->>>> -     ssize_t len = _write(fildes, buf, nbyte);
->>>> +     ssize_t len;
->>>>
->>>> +     _lseeki64(fildes, offset, SEEK_SET);
->>>> +     len = _write(fildes, buf, nbyte);
->>>>        _lseeki64(fildes, pos, SEEK_SET);
->>>> +
->>>>        return len;
->>>>   }
->>>>
->>>>   ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset)
->>>>   {
->>>>        int64_t pos = _telli64(fildes);
->>>> -     ssize_t len = read(fildes, buf, nbyte);
->>>> +     ssize_t len;
->>>>
->>>> +     _lseeki64(fildes, offset, SEEK_SET);
->>>> +     len = read(fildes, buf, nbyte);
->>>>        _lseeki64(fildes, pos, SEEK_SET);
->>>> +
->>>>        return len;
->>>>   }
->>>
->>> lol, how broken is that... Does windows have any offset read/write
->>> variants, or is lseek required?
->>>
->>> --
->>> Jens Axboe
->>>
->>
->> I could not find a better way to do this but I am hoping someone who
->> knows more about Windows than I do can weigh in. Sitsofe?
-> 
-> It's probably not a big deal. I did a quick search and doesn't seem like
-> one exists for that.
-> 
+This patch series adds the verify_pattern_interval option which
+refreshes and restarts the verify_pattern every N bytes. This is
+intended to be used when verify_pattern contains the %o format specifier
+in order to write each offset with its LBA. Doing this 512 bytes at a
+time for a large device is slow, so verify_pattern_interval allows fio
+to write this pattern in larger chunks.
 
-Ok thanks. I will go ahead with it then.
+Patch 1 makes testing easier by adding a verify=pattern_hdr option.
+Patches 2-3 fix two bugs found while testing the new feature.
+Patch 4 directs fio to omit an inappropriate error message.
+Patches 5-7 improve testing.
+Patch 8 implements this new feature.
+Patches 9-11 add tests to verify the new feature.
 
-Vincent
+Vincent Fu (11):
+  verify: add verify mode for a pattern with header
+  verify: fix verify_offset when used with pattern_hdr
+  verify: make verify_pattern=%o thread safe
+  verify: omit verify type mismatch error message for pattern verify
+  t/fiotestcommon: lengthen timeout for longer tests
+  ci: for nightly verify tests use all checksum methods
+  ci: don't skip verify tests when triggered manually
+  verify: add verify_pattern_interval option
+  t/verify: test cases for running pattern and pattern_hdr
+  t/verify: Windows --output work-around
+  t/verify: add tests to exercise verify_pattern_interval
+
+ HOWTO.rst               |  11 +++
+ cconv.c                 |   2 +
+ ci/actions-full-test.sh |   9 ++-
+ fio.1                   |  10 +++
+ options.c               |  16 ++++
+ server.h                |   2 +-
+ t/fiotestcommon.py      |   2 +-
+ t/verify.py             | 123 ++++++++++++++++++++++++++++++-
+ thread_options.h        |   3 +
+ verify.c                | 158 ++++++++++++++++++++++++++++++++--------
+ 10 files changed, 295 insertions(+), 41 deletions(-)
+
+-- 
+2.47.2
+
