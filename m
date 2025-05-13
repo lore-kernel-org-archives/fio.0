@@ -1,84 +1,102 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+Received: from mail-io1-f41.google.com (mail-io1-f41.google.com [209.85.166.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 316864C80
-	for <fio@vger.kernel.org>; Tue, 13 May 2025 04:00:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4099F1E8328
+	for <fio@vger.kernel.org>; Tue, 13 May 2025 18:07:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747108816; cv=none; b=eFGwt5i+pDTS8HJode5UYGHlfx+KOOmrz0i+v85wOdlC6xqpMV2Px2aHmTiwveggQ8Lk3UR51ZNmJ39OraL7gpP41CGkNuae70yt+ORzQYBdKceC6HvlsgZPedfrn/+VGDjWwIZ7BGuo2sgE+Ay+kdVPg/FN322hbKLHQWcKguk=
+	t=1747159640; cv=none; b=ADMqEIMyNFRGxUXa8Ztpp7naKsoLktpm5jlwyyQOfOp8WpitQ30rbrKutuT/AUbzCiNHEwNY6XmE20Xz4qr/92ZIrq1i8f6MVtd6/SQWzAq8Y1RJ0qHSmVnGhSvQwI/uLyr16DhEoj1a5p26K9Zw19Y7I4ODtH0BRRD2mfjdhYM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747108816; c=relaxed/simple;
-	bh=qHreBeouXjaoBFy8d8P+gDpoO36XScg2HoVfuCaEqbE=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=u4NdLOQ+DybRMiFjSBc2nyTNjTBJGoE+fGrWwlQ60urCBkz7mIOhsFU9yKhDaLT+2XsSnJAJBB0Uqmv2NsNwjPvHkcIIfaLICOXpNWWig2IfvcQYi8cLere2NORY0VhPweCjFRqwzOAttbijNxEdARGUsGvQ452cCQUqXYVNBdA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQoLrZuM; arc=none smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747159640; c=relaxed/simple;
+	bh=mxuu6BpTg332TYu4Kwok/j7wMJSDfTpzr7wW9uIWzlw=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=tEaXOZHI/RiOc9ZoLlGS+veXItR9VTXFE1O4YDXt3UBfYDYAWUnaXctwtDSpHdNiyjLKFZkWzWoX7HBzbjoX601OREpzSp+JG1X2Fj1KLQH4zixtkeMWyh/Pc+e3klRFsiLI8Ic/RVNtCtLkWnDgoLJzbewggQ/UAm3HQQk6dnk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=oQK1Wfxn; arc=none smtp.client-ip=209.85.166.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQoLrZuM"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7c542ffec37so619617785a.2
-        for <fio@vger.kernel.org>; Mon, 12 May 2025 21:00:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="oQK1Wfxn"
+Received: by mail-io1-f41.google.com with SMTP id ca18e2360f4ac-86135ac9542so5633139f.1
+        for <fio@vger.kernel.org>; Tue, 13 May 2025 11:07:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747108814; x=1747713614; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=qHreBeouXjaoBFy8d8P+gDpoO36XScg2HoVfuCaEqbE=;
-        b=LQoLrZuM/QxkkOyz62LNp6/asRmVvIfqIxCRysjjh/e6+JLT/APoBdjEJssQwXArd6
-         sKE3wctyS2Kn9+mbKGqZqTZjgcwnIS49gAzFs8+BfzLvPqjCOOVB6nR15MYnqj4Tte3M
-         JHugfu9NDZEz9ZV5lCvai45nIIIWtPDS3NKzovIcNQd0NGHJVC9WLG3B1UP2zBVRvQbc
-         7ivEkFW0vSX5NmqBSJVTaod741BjfL6NfAg0CkghXg57xoXke8wKZe1pePxxkJcT1d8f
-         7bbtFT3QzHi/D9+slftyK4KFO9TEHA6muLzWlfnW3FvlZne/o69Cnl69SLs2s5dtlFKm
-         am3w==
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1747159635; x=1747764435; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aVr01JCveL7c+t3oKnRb3toDx1qxjgvKJfVeaWFm1GU=;
+        b=oQK1WfxnVWTfFo6QcIPu9t2s4dXti4GwXPVDZyTa8SsQIACClSk0Uf4Agll7rtluLh
+         dPDfRNC1v7JKxkiJ6aK3iEf3I/axflrw5nK1M5CvMPm7VdzKS6WjU1yTKGYNmvGe0m1A
+         PElkAtN3isRomcQCFx8lBUCoMYIb17VsOSMRMxPax+RDNNW7rnd55tx654NumY8oFd03
+         hu7KRnKwzoiQOoYxg1K/GBTMlmEy79kQBGqkKtIbJEBGAGC7P5U7soqHRgKVZ8d9DbrB
+         rz1uILWsIxzmZgF10Ek6C24VmEDpiJnc5GsldNeY5zfOImJXG9hd1DQsZUU4/IRyoTio
+         Ob7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747108814; x=1747713614;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qHreBeouXjaoBFy8d8P+gDpoO36XScg2HoVfuCaEqbE=;
-        b=PkYMey8XUbZR0BeT0xpv43h8t4O4gc0aLEMeWe5s2RC4R9QEPjynCkuKrh5mZyetJH
-         3G8oIvVOpRAe0O+XinuOLz5ai/CcFczn3O2p6mZpAMwNX0vMKDaBGRj5IHXfsxpbpv9h
-         9ZV5l/Ma0RpkhlIcniGxZ4qwIw2ecyXeuD2f8+lOu5qJ0cE7UpWDAcMPu0vxp3Z8dkWd
-         1omqxwkJw924n15nbUVwkPrg5ih0w6jFJzHvI+uHNiSs/CSLrrIpEY2WrMDV/Y8vqt9a
-         DxrutI8VQJPUkYWyv1H22yq1jpkBo+rHKI5hPZ1CdHZ8Z3Xj2z6CmbbTUee4YQg7qp2Y
-         K4vQ==
-X-Gm-Message-State: AOJu0YwliOijNcP96RHIKclcAhCv4rHmssbkygP2UH6PYMyHR4Jeus8H
-	WFUD5dEVOWziffA1n3WxoKs5A5sONiMQwES7dYYl79E9lkAtKu5ubGH6
-X-Gm-Gg: ASbGncuNsHB4cAUu+GyExlio/Qo57HLpHgA45YhQ1+1NTv/Ak+4D5i/ttpmYEc+77cj
-	1fcU0qYXS0ePkefvwHN9jfUw0Q4rPQ2kt5VV7gJMe6gS6d/xF4RThCQ+rnauOZ8ZxIQZeD5/VSi
-	Q/6GbPUBCQnICA0mESqCzLLEA9qwuu5D/LuuwDyxB343NWO+jldsAwZxCLJ+U7W2R7rNalwvDCa
-	v16bA1Bs+NN60Udp03JYENNWqn9DGHo+OppxuvMzlSspmvQZQiCJFJREDl9+m1LS98Eew/Nlnuc
-	HZg7yIi/4H42mQtXuri8tkAiofEVAvFvH+yKnjz1E/mOOXlV6pXw82vm+scSdsRV00eUK9jmHtw
-	wNDG7aAHIe+kaTxxAbPs/25jPJLejdZvdW59xczP6hR0=
-X-Google-Smtp-Source: AGHT+IHcUbGO9ID7VJ+8gsPQv5tz9LuQYFEQhh8REd2N1odN2Dy1K30w3HBlCXs/oCoI3iA1ZK6EfQ==
-X-Received: by 2002:a05:620a:4013:b0:7c5:53ab:a74f with SMTP id af79cd13be357-7cd01154926mr1869251985a.39.1747108813720;
-        Mon, 12 May 2025 21:00:13 -0700 (PDT)
-Received: from fv-az1690-142.qpzrwuosrkvuxczmeamxp1lsch.ex.internal.cloudapp.net ([20.25.193.0])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd00f63c59sm646700785a.34.2025.05.12.21.00.13
-        for <fio@vger.kernel.org>
+        d=1e100.net; s=20230601; t=1747159635; x=1747764435;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aVr01JCveL7c+t3oKnRb3toDx1qxjgvKJfVeaWFm1GU=;
+        b=e8ZTxy2zycYqHyz9bsXdxH9rTWt4zSaUbNTzxRMK5Tocs3K09pfRBZ6FKZdd7cyLZT
+         yjMDwkLusGlL3CihRMvYhb04xUd4exaab8e/HDKqVrvT4ILzf7tzkWncOdMj+6WXzknu
+         6JpxL6XUXpUgw4dkuoGwMpELBmhjDiGLZMpuk8NnGcttyB+pJqbW+16aVZv6o/VAPs/0
+         dvz/opaduzPRxSSwqUiPehbC11jhR4+rg/3wzdRgPZvGKnHskNHFXeTP4vJL6+no0bQ3
+         KQ8HFi1uoMjNKKZuOfzfJS3ac/QWbvayd2CSngUV10XbOHgB7/PpMnTHRvmy8GLHIt1m
+         oODw==
+X-Gm-Message-State: AOJu0YwNwkeiC3xTfaNfYY/SphwUajF5QkWZ5cLds2560BnORdk7nLjm
+	L5DbIV3HQDXf9eCeuqoRiGCQ+JMpxTcRJ4Rtvap1eCgRrrTp3Mv67kq6PPAFfuNtXdwhmWcYgo/
+	t
+X-Gm-Gg: ASbGncuV8FZmwfIKH6QdvWtO8PBrrh3EX3EU0wC9HjI8AA7E7UUfQpSaFfERPIrhu0O
+	19c3TDGgN6d85o8qn7VoVRrr/I+4GA8jE+92oHjzQwzEtcqoIgU5VIhzZNs7MVhSaKjeoHnCxk1
+	hRZ7geBRO2lrQ4iYasLcnMdE7YZjfJrucCX7u97jtdWwyyMYEVyMN5dv2eKxQ9L4j6fZiv2SKvo
+	G0wh+KtMjHo5hITbuJhlobR6IprjCWDEmYfFuSbLd/gFkzYdqnUBm3ykfoCLq8Ig7taTtI2MY5O
+	ocGTt1fPA+Ijtb/236EuN0wZu/WpPfXf36PJdHqWk5cz9+T9h1Gx
+X-Google-Smtp-Source: AGHT+IHb0xJ+VAz83wh8umB2HG61jEbKqR8e6njSxZhjUcociMLc69xM1v0cYCx0AR51CSPQxDx/DA==
+X-Received: by 2002:a5d:9f51:0:b0:85e:dbe3:137f with SMTP id ca18e2360f4ac-869f9576f93mr463912339f.0.1747159634722;
+        Tue, 13 May 2025 11:07:14 -0700 (PDT)
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4fa2249edb0sm2195676173.25.2025.05.13.11.07.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 May 2025 21:00:13 -0700 (PDT)
-Date: Mon, 12 May 2025 21:00:13 -0700 (PDT)
-Content-Type: multipart/mixed; boundary="===============3168410138746109590=="
+        Tue, 13 May 2025 11:07:14 -0700 (PDT)
+From: Jens Axboe <axboe@kernel.dk>
+To: fio@vger.kernel.org, Vincent Fu <vincentfu@gmail.com>, 
+ Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: Damien Le Moal <dlemoal@kernel.org>
+In-Reply-To: <20250513031837.74780-1-shinichiro.kawasaki@wdc.com>
+References: <20250513031837.74780-1-shinichiro.kawasaki@wdc.com>
+Subject: Re: [PATCH v2] fio_sem, diskutil: introduce fio_shared_sem and use
+ it for diskutil lock
+Message-Id: <174715963384.431924.28807087420248562.b4-ty@kernel.dk>
+Date: Tue, 13 May 2025 12:07:13 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH_v2=5D_fio=5Fsem=2C_diskutil=3A_introduce_fio=5Fshared=5Fsem_and_use_it_for_diskutil_lock?=
-In-Reply-To: <20250513031837.74780-1-shinichiro.kawasaki@wdc.com>
-References: <20250513031837.74780-1-shinichiro.kawasaki@wdc.com>
-Message-ID: <174710881301.2586.4586100199272502902@fv-az1690-142.qpzrwuosrkvuxczmeamxp1lsch.ex.internal.cloudapp.net>
-
---===============3168410138746109590==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.14.3-dev-7b9b9
 
 
-The result of fio's continuous integration tests was: success
+On Tue, 13 May 2025 12:18:37 +0900, Shin'ichiro Kawasaki wrote:
+> To report disk utilization statistics, fio allocates struct disk_util
+> objects for each disk of the I/O target files. These struct disk_util
+> objects are allocated via smalloc() from the fio shared memory, allowing
+> them to be allocated or freed by any fio process. The disk_util objects
+> are managed with the global list disk_list and are all freed by the fio
+> main process at the end of fio_backend() through
+> disk_util_prune_entries().
+> 
+> [...]
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/14987685708
+Applied, thanks!
 
---===============3168410138746109590==--
+[1/1] fio_sem, diskutil: introduce fio_shared_sem and use it for diskutil lock
+      commit: 21628ec537c7228a5df62751d228b6af585f882d
+
+Best regards,
+-- 
+Jens Axboe
+
+
+
