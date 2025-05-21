@@ -1,82 +1,104 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f172.google.com (mail-il1-f172.google.com [209.85.166.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECAA426560A
-	for <fio@vger.kernel.org>; Wed, 21 May 2025 12:00:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A71B265CDF
+	for <fio@vger.kernel.org>; Wed, 21 May 2025 13:20:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747828818; cv=none; b=ZzYSubNk48WEJNFkmd82Mm+viBiglvpM7R5tP7R2aq1Fopwa5BCj9W8cFQPVX6PKCe9B2tIlqc3k6qrJQpDQbu03Rs3u4NmewXyoZgQSESnSojj8Vzj1Pnp67U30BxbTgmH7F4pR9Nxv3akL0oj7iDkrBxRUNM7EufspHzJcqTE=
+	t=1747833635; cv=none; b=UgliY6TcAPEYMeeUGdgr5Pl0eRwDgb+kULdiJsKMlPPZBZ5gbVKbtlqzNLd5YA6Q/bExuL+MA8pXd9kGyDHlbWiq7+SzIcQJG7kXVy+m62klVKgT+/ktvMgtE2YxtmAyXH/MN9kOIv/VkJB6gvp/zoF1S/m+Ogz2vscjFFiyiIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747828818; c=relaxed/simple;
-	bh=HWXOxIMTmrOIkGvKUNHelS1UU6f0GrCHuLnU7fp5r5U=;
-	h=Subject:From:To:Message-Id:Date; b=VNJiWWI4+VyuFRxhTXuDtSddO+OY8H/hCKJahN3tdK9Xisrn5GjgGVlom72TKw1CqJ7RcL7189RxqWKPv8G4rQA/8UqmKKWpmHi5Scc3WwjPenhDCOx7LIdB6obcL1T5CRTn21Jw2lpXJaYYphBw+rPJNGy8Rl70ET3glSEOv0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=dI+dBaNh; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1747833635; c=relaxed/simple;
+	bh=oxIhTmla4RezxA2q3w/rfh67gwtMSak9HDhKJbhShq0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WqccM8Dy2gPpedh9cXjdiij01BPy0oXiXCNIGdHXHDHnBTOJz8KnDmdR/0Mh1Z0W4QwMyArdOJLm3p6lhD1lyFvinF3/hgJ0XaxIOxjwMV/wlKtCw0JuzEcw/SVYx8uiAd37GdUdjXtKXV4u24fY7j4R+vZAWKxzK5JrPRnhYzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=EG8HRr4j; arc=none smtp.client-ip=209.85.166.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="dI+dBaNh"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=PmK5Jus+HNv7T6gS76YNmBaIVta05kmwQeDOtoiDiZc=; b=dI+dBaNhKu4YiluOgCKqLWwUOZ
-	zPc7p955BfQ9otn70vU+EfegbqZES5A4onjVtnPyAoDTZYdJLLtLR8fLISh1rKgb4YFmaSe4bnmc9
-	+gctcZAnXdyRMJdzGyid5ERvZXUhiVSSdBWI7x03qJAavPSVOorSXw8mqsCCGL/hPCa+aa61m5Mnq
-	t2xDZvJuSEJeLoysRFwpM1kxIONbMXmJpD9yWh5lqKC01CbuOPsjNYXCojKGd4WM8DnBT5Y3gSyRW
-	x6tbwHBN2PpBIorUh3BFb5n0EMD3bS303luWU7DfktkzbSTwPViihb4DNhu5LDKwtpEf7AMeANKNj
-	At3FjSzA==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uHi79-00000004cc2-3oC7
-	for fio@vger.kernel.org;
-	Wed, 21 May 2025 12:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 3C81C1BC0161; Wed, 21 May 2025 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20250521120001.3C81C1BC0161@kernel.dk>
-Date: Wed, 21 May 2025 06:00:01 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="EG8HRr4j"
+Received: by mail-il1-f172.google.com with SMTP id e9e14a558f8ab-3da74959554so22821085ab.2
+        for <fio@vger.kernel.org>; Wed, 21 May 2025 06:20:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1747833631; x=1748438431; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=9G/39dQx4WLM5OKkPrxBp2IeAd8dmzIK0VRSIjxVYAY=;
+        b=EG8HRr4jX2EKEKzAGlWflBnHTq4mGwYmfCSzdnr7qE2aZRaUfXDIg7j2G4G5o/ECFb
+         okasqmFKO+UCM3wiSQmDUitSlrYnhl7x31NYWWdDQZWJHUI8uvZCFVaQSNIHbElUxtz8
+         9gYOCwxFhq2oFWbWXYWwkHcOPq3mvrAZNpRFUwOW4RJCXTo0uShKyxqL6qq243Qfr4uc
+         HeqUeV1eswfHTVvToD1WGMtK7Bm35rxQ5aPgeuiTR0crcE21YtHktjGHvxzjuDsV35Qz
+         luddzFfTSKnUdqcwkJS5PBm3ybnqIr7DdMzmXGJQMOpeA0cUJIexZwPvKZvbUDtEvyw+
+         4zlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747833631; x=1748438431;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9G/39dQx4WLM5OKkPrxBp2IeAd8dmzIK0VRSIjxVYAY=;
+        b=rsQojjDBLbsRWVqRfSQsK4ti4X0o42ipaMrG0+EDxAGrbJWYXft2VAzKtq3+qT8R89
+         kN55Wg/7a6xgC7eC5NYKDTXexShmTqjWdAdbXDrQE05kysvbzrUYBiVe7dsrc4mc89ef
+         k71nJHSF7iSrvBDlPl65RXzA9lEGSx0/BPKZKLgLZeWehwJkQJsal2XMWG2M9Au+Gxku
+         mz/VSJiaKbadKkfLpAkQhccfoo87Af2XqotCJZdMSx3t6m7zlnvvcairAQAJV4fTOUsF
+         FDkEXwOdqiODW4YuhglzsNOucFU+lwsM7tjlr3JMc0o2cN+dBzYCVUxJyjttx4gdA8J+
+         aMSA==
+X-Forwarded-Encrypted: i=1; AJvYcCX2F9BqnTt2Zz27gbKwiPXMA34otDuNFedqj9AuxumIodMbANKmFqPcl2daC8yd1Vb3MZs=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzwzb3wDbNhnNrL5f0K5uLg3eM7bwSdGOkkGK22L3iRo2yCK3pi
+	K/FxaLlnoGc9L6J/rco/KiCRSxl6WPopbE+cV4jDWWXGozFXzhO6FEvgE0RLbAmZO3s=
+X-Gm-Gg: ASbGncsj1ez4f7ZT1jmQDlTBbyK5QAizaURE2T99LAda9KfDDWslTSXKCovOKlOLDtO
+	T5/3gniL/XYPJ+lEAjG3XMXa9ZogHO6CYZbWYCUYx3PkR0OEz+spJZlqoz0eRhi+hzioxQ8gaWG
+	qn7WsZZx98qcmv31Zi5vXWcGX7WBVvhquGWQbIYPo9F72pDbivIBs4vBeiGIUfSH+S9SZKhGH2n
+	lX4skyXVqYQzuJkNeM8fmQEGfVz0A4uTO7bqtSTWf5qF95QlHE6EfQH9Ak3gp1lq9yt7UL6rxhi
+	YX2ZYmbTm/OPUUMofuSmOaTZP7ofIzqR1QEjkoPnnjdL67gE2G+MNVWznQ==
+X-Google-Smtp-Source: AGHT+IEkQAgpCNjNiWmAQUdgRhciJrXJeDsjq98ib6fSgbhbslop281WZ6WJTQX0/aebKIiluboX2Q==
+X-Received: by 2002:a05:6e02:9d:b0:3d3:db70:b585 with SMTP id e9e14a558f8ab-3db84375cd6mr205590615ab.21.1747833630991;
+        Wed, 21 May 2025 06:20:30 -0700 (PDT)
+Received: from [192.168.1.116] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3db843f7a32sm29297775ab.34.2025.05.21.06.20.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 21 May 2025 06:20:30 -0700 (PDT)
+Message-ID: <a6d5bbaa-4a99-4027-9bc8-94920fa9f02b@kernel.dk>
+Date: Wed, 21 May 2025 07:20:29 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Add Zhaoxin support to enable tsc_reliable and
+ arch_random features
+To: Runa Guo-oc <RunaGuo-oc@zhaoxin.com>, fio@vger.kernel.org,
+ vincentfu@gmail.com
+Cc: cobechen@zhaoxin.com, tonywwang@zhaoxin.com, xanderchen@zhaoxin.com,
+ louisqi@zhaoxin.com, runaguo@zhaoxin.com, leoliu@zhaoxin.com
+References: <20250521020421.6862-1-RunaGuo-oc@zhaoxin.com>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20250521020421.6862-1-RunaGuo-oc@zhaoxin.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The following changes since commit fb253b221687439c92a0ee147427d70a4e36e28f:
+On 5/20/25 8:04 PM, Runa Guo-oc wrote:
+> Signed-off-by: Runa Guo-oc <RunaGuo-oc@zhaoxin.com>
 
-  t/verify: add tests to exercise verify_pattern_interval (2025-05-16 12:09:30 -0400)
+This is literally the same as the intel one, why duplicate all
+of that? Just do:
 
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to ff930c4653ae3952d6b09ab3ec89671aeabf2cbe:
-
-  Fio 3.40 (2025-05-20 12:23:01 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Fio 3.40
-
- FIO-VERSION-GEN | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index 623fd33d..f9db3568 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
+diff --git a/arch/arch-x86-common.h b/arch/arch-x86-common.h
+index f32835cce33b..ac26126ae84a 100644
+--- a/arch/arch-x86-common.h
++++ b/arch/arch-x86-common.h
+@@ -68,7 +68,8 @@ static inline void arch_init(char *envp[])
+ 			 (unsigned int *) &str[4]);
  
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.39
-+DEF_VER=fio-3.40
- 
- LF='
- '
+ 	str[12] = '\0';
+-	if (!strcmp(str, "GenuineIntel"))
++	if (!strcmp(str, "GenuineIntel") || !strcmp(str, "  Shanghai  ") ||
++	    !strcmp(str, "CentaurHauls"))
+ 		arch_init_intel();
+ 	else if (!strcmp(str, "AuthenticAMD") || !strcmp(str, "HygonGenuine"))
+ 		arch_init_amd();
+
+-- 
+Jens Axboe
