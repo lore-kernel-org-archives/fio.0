@@ -1,104 +1,84 @@
-Received: from mail-il1-f172.google.com (mail-il1-f172.google.com [209.85.166.172])
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A71B265CDF
-	for <fio@vger.kernel.org>; Wed, 21 May 2025 13:20:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27BA22AE7C
+	for <fio@vger.kernel.org>; Wed, 21 May 2025 17:49:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747833635; cv=none; b=UgliY6TcAPEYMeeUGdgr5Pl0eRwDgb+kULdiJsKMlPPZBZ5gbVKbtlqzNLd5YA6Q/bExuL+MA8pXd9kGyDHlbWiq7+SzIcQJG7kXVy+m62klVKgT+/ktvMgtE2YxtmAyXH/MN9kOIv/VkJB6gvp/zoF1S/m+Ogz2vscjFFiyiIo=
+	t=1747849777; cv=none; b=jKeH54xvsY4NQX+Jr0ipM+qfXoqUyTCL93P5DbfuyB+3OSFilEJJJSq7w5XdhHizpA4B1jRDswugvTzNCv6ttDj9uq7Z0Og++y1kc8ECh5XMk1wl4M8IXV5vhpR0C95RMADWOksZDMBZthUTc3fWOTwFkbUslORj1BrkPakX2ws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747833635; c=relaxed/simple;
-	bh=oxIhTmla4RezxA2q3w/rfh67gwtMSak9HDhKJbhShq0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WqccM8Dy2gPpedh9cXjdiij01BPy0oXiXCNIGdHXHDHnBTOJz8KnDmdR/0Mh1Z0W4QwMyArdOJLm3p6lhD1lyFvinF3/hgJ0XaxIOxjwMV/wlKtCw0JuzEcw/SVYx8uiAd37GdUdjXtKXV4u24fY7j4R+vZAWKxzK5JrPRnhYzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=EG8HRr4j; arc=none smtp.client-ip=209.85.166.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1747849777; c=relaxed/simple;
+	bh=fVLBJ9g3oRsCGroHv/Swn3q8q705sJ40S1y7ZlIoJL8=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=r+/bdN6y659UD040cbCe2IP79Kf0fRRjQCb5a4Cay8FGHv5TBcYT+9LRgR2+P8ZRsDb74mwQA9Eunj1XUJQLCeIuWsNzcPBFW7OOAC1ZvAyk8oYOFP+5Tf73GgUlunORtgYB22R6Pn9DF7ezoOVEy2q3VIhzY4cVhmkSF6N878s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Lft/CyBA; arc=none smtp.client-ip=209.85.160.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="EG8HRr4j"
-Received: by mail-il1-f172.google.com with SMTP id e9e14a558f8ab-3da74959554so22821085ab.2
-        for <fio@vger.kernel.org>; Wed, 21 May 2025 06:20:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Lft/CyBA"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-4769f3e19a9so48153941cf.0
+        for <fio@vger.kernel.org>; Wed, 21 May 2025 10:49:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1747833631; x=1748438431; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=gmail.com; s=20230601; t=1747849774; x=1748454574; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=9G/39dQx4WLM5OKkPrxBp2IeAd8dmzIK0VRSIjxVYAY=;
-        b=EG8HRr4jX2EKEKzAGlWflBnHTq4mGwYmfCSzdnr7qE2aZRaUfXDIg7j2G4G5o/ECFb
-         okasqmFKO+UCM3wiSQmDUitSlrYnhl7x31NYWWdDQZWJHUI8uvZCFVaQSNIHbElUxtz8
-         9gYOCwxFhq2oFWbWXYWwkHcOPq3mvrAZNpRFUwOW4RJCXTo0uShKyxqL6qq243Qfr4uc
-         HeqUeV1eswfHTVvToD1WGMtK7Bm35rxQ5aPgeuiTR0crcE21YtHktjGHvxzjuDsV35Qz
-         luddzFfTSKnUdqcwkJS5PBm3ybnqIr7DdMzmXGJQMOpeA0cUJIexZwPvKZvbUDtEvyw+
-         4zlw==
+        bh=fVLBJ9g3oRsCGroHv/Swn3q8q705sJ40S1y7ZlIoJL8=;
+        b=Lft/CyBAVIJuDrua3U3++t7ETERv529bGGPxyq2FDzIpNORC2S1s2mOWoewnaM/r+4
+         DIJn//lO88cSkCkZA5fofbuIQDzWAoGj7ZJ3nxkVLoQWU+6geHid+ts6WbjkWTn19UHu
+         /NAaxdvBN6a3hWPgGbU1t2t6SGex2HUNLZN5s5vCCAr626jQ9UUsWa0f2pr5yFIyzg5U
+         K6YlbNAO8cKX3XNIy1V1bAyrhLXYzMxmBFTVbPGgM4HWWJLghebvERUKS7XloDFK/uZJ
+         rPC7IbNBWc9omqNWHUFppqeQClfA4RBVj4RVC1Pw8opSc0C8zC6pnO711YgVODNn8VMA
+         mxow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747833631; x=1748438431;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1747849774; x=1748454574;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9G/39dQx4WLM5OKkPrxBp2IeAd8dmzIK0VRSIjxVYAY=;
-        b=rsQojjDBLbsRWVqRfSQsK4ti4X0o42ipaMrG0+EDxAGrbJWYXft2VAzKtq3+qT8R89
-         kN55Wg/7a6xgC7eC5NYKDTXexShmTqjWdAdbXDrQE05kysvbzrUYBiVe7dsrc4mc89ef
-         k71nJHSF7iSrvBDlPl65RXzA9lEGSx0/BPKZKLgLZeWehwJkQJsal2XMWG2M9Au+Gxku
-         mz/VSJiaKbadKkfLpAkQhccfoo87Af2XqotCJZdMSx3t6m7zlnvvcairAQAJV4fTOUsF
-         FDkEXwOdqiODW4YuhglzsNOucFU+lwsM7tjlr3JMc0o2cN+dBzYCVUxJyjttx4gdA8J+
-         aMSA==
-X-Forwarded-Encrypted: i=1; AJvYcCX2F9BqnTt2Zz27gbKwiPXMA34otDuNFedqj9AuxumIodMbANKmFqPcl2daC8yd1Vb3MZs=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzwzb3wDbNhnNrL5f0K5uLg3eM7bwSdGOkkGK22L3iRo2yCK3pi
-	K/FxaLlnoGc9L6J/rco/KiCRSxl6WPopbE+cV4jDWWXGozFXzhO6FEvgE0RLbAmZO3s=
-X-Gm-Gg: ASbGncsj1ez4f7ZT1jmQDlTBbyK5QAizaURE2T99LAda9KfDDWslTSXKCovOKlOLDtO
-	T5/3gniL/XYPJ+lEAjG3XMXa9ZogHO6CYZbWYCUYx3PkR0OEz+spJZlqoz0eRhi+hzioxQ8gaWG
-	qn7WsZZx98qcmv31Zi5vXWcGX7WBVvhquGWQbIYPo9F72pDbivIBs4vBeiGIUfSH+S9SZKhGH2n
-	lX4skyXVqYQzuJkNeM8fmQEGfVz0A4uTO7bqtSTWf5qF95QlHE6EfQH9Ak3gp1lq9yt7UL6rxhi
-	YX2ZYmbTm/OPUUMofuSmOaTZP7ofIzqR1QEjkoPnnjdL67gE2G+MNVWznQ==
-X-Google-Smtp-Source: AGHT+IEkQAgpCNjNiWmAQUdgRhciJrXJeDsjq98ib6fSgbhbslop281WZ6WJTQX0/aebKIiluboX2Q==
-X-Received: by 2002:a05:6e02:9d:b0:3d3:db70:b585 with SMTP id e9e14a558f8ab-3db84375cd6mr205590615ab.21.1747833630991;
-        Wed, 21 May 2025 06:20:30 -0700 (PDT)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3db843f7a32sm29297775ab.34.2025.05.21.06.20.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 21 May 2025 06:20:30 -0700 (PDT)
-Message-ID: <a6d5bbaa-4a99-4027-9bc8-94920fa9f02b@kernel.dk>
-Date: Wed, 21 May 2025 07:20:29 -0600
+        bh=fVLBJ9g3oRsCGroHv/Swn3q8q705sJ40S1y7ZlIoJL8=;
+        b=djGuHZX/cpXTLCz/t3oj1DsR2zUuUneza1AE4yixR32IEqNmMTcnI3tagIyJF41QbQ
+         ADNDARQ7X4fmVN4X0rT7JQCtgx5EC7fYT2+mDmU7ZyxrdViGdzgFX3FBlCSzt4Ejyt3P
+         HDy50a08bZtngvSjBOGaCwIu4EYSo638Ivrv2JFcGVCTFeImcTI1rT5LzQIWwvBU8l/S
+         WLmXednPKblxmNy6mWUeBlaaYJolCdO53sHipmEcqD540Uk5qKBiW2Iyu87RH7NLW/Jp
+         O4uAZjR7chC+hmLmpuB4Y5Zk83X+C8gIyc3CikbWTmtVUWLerWXMaLb7XcZLQpsqUUBS
+         qMmA==
+X-Gm-Message-State: AOJu0YxGtZWV7+deQ4w6tHwNLoo4Mf23cBEfRdc/FCLAMj39Q3pYJWpe
+	HRMMDAvS4Ne4NNnFTfdVZYzZPGlLbq2IFLZoYP2+/Zlddjc2zQoE1hypsEiR
+X-Gm-Gg: ASbGnctTYI49VpyjsQPdF9GNDWq1yFnWGapk9hbic8An5JGhMnPLaYr4JXkAzluyEME
+	4KjdQgvC8k56O93FpfERA5n2pkLB1BGC00aeO86OGcO0jU/YaA2CHmU9KNO7aP6lLKwXsdXpHtv
+	/xzY1wtA0BUYCr7pxjIEBnDH9DFAtrOJb59o0gFEl0Tz/05lQeSdXJEPYnkiYs2wevq5XeJJBh6
+	SkWRDk2aDykkkqyuOEiwAiQzIkeU3b/80YJ2ASpWVCvnOHrUK4f4VpxH5G5WyQLvKl1JgCkBElD
+	0qjARS4w5unfZAr/sdvjpvZcIqYOhTAqNR2Zf1nA7z5mm4/bHpich8K4lJ5KDfzFcQ/VemdvW8K
+	QVAxbOm1SkrdOvnykhS+eqQvjP3TMHU6lCwxuI+Dk2e26KfOS4XE=
+X-Google-Smtp-Source: AGHT+IHB4uXnPOHCEUe80+W5WW3zHplsHcRhCfzG4eoXgFKdkhA82co9Dm9uvsEBQOxreW9Gh7FM3w==
+X-Received: by 2002:a05:622a:440c:b0:494:b258:abbf with SMTP id d75a77b69052e-494b258ae5bmr290563171cf.52.1747849774530;
+        Wed, 21 May 2025 10:49:34 -0700 (PDT)
+Received: from pkrvmf6wy0o8zjz.ewmzc0bqkruufhf1y4x1ywmkfc.ex.internal.cloudapp.net ([172.214.243.139])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-494ae4fd7f0sm86552391cf.57.2025.05.21.10.49.33
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 May 2025 10:49:34 -0700 (PDT)
+Date: Wed, 21 May 2025 10:49:34 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="===============8562196438166442552=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] Add Zhaoxin support to enable tsc_reliable and
- arch_random features
-To: Runa Guo-oc <RunaGuo-oc@zhaoxin.com>, fio@vger.kernel.org,
- vincentfu@gmail.com
-Cc: cobechen@zhaoxin.com, tonywwang@zhaoxin.com, xanderchen@zhaoxin.com,
- louisqi@zhaoxin.com, runaguo@zhaoxin.com, leoliu@zhaoxin.com
-References: <20250521020421.6862-1-RunaGuo-oc@zhaoxin.com>
-Content-Language: en-US
-From: Jens Axboe <axboe@kernel.dk>
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH=5D_Add_Zhaoxin_support_to_enable_tsc=5Freliable_and_arch=5Frandom_features?=
 In-Reply-To: <20250521020421.6862-1-RunaGuo-oc@zhaoxin.com>
-Content-Type: text/plain; charset=UTF-8
+References: <20250521020421.6862-1-RunaGuo-oc@zhaoxin.com>
+Message-ID: <174784977305.2686.2705267545671388475@pkrvmf6wy0o8zjz.ewmzc0bqkruufhf1y4x1ywmkfc.ex.internal.cloudapp.net>
+
+--===============8562196438166442552==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-On 5/20/25 8:04 PM, Runa Guo-oc wrote:
-> Signed-off-by: Runa Guo-oc <RunaGuo-oc@zhaoxin.com>
 
-This is literally the same as the intel one, why duplicate all
-of that? Just do:
+The result of fio's continuous integration tests was: success
 
-diff --git a/arch/arch-x86-common.h b/arch/arch-x86-common.h
-index f32835cce33b..ac26126ae84a 100644
---- a/arch/arch-x86-common.h
-+++ b/arch/arch-x86-common.h
-@@ -68,7 +68,8 @@ static inline void arch_init(char *envp[])
- 			 (unsigned int *) &str[4]);
- 
- 	str[12] = '\0';
--	if (!strcmp(str, "GenuineIntel"))
-+	if (!strcmp(str, "GenuineIntel") || !strcmp(str, "  Shanghai  ") ||
-+	    !strcmp(str, "CentaurHauls"))
- 		arch_init_intel();
- 	else if (!strcmp(str, "AuthenticAMD") || !strcmp(str, "HygonGenuine"))
- 		arch_init_amd();
+For more details see https://github.com/fiotestbot/fio/actions/runs/15164633006
 
--- 
-Jens Axboe
+--===============8562196438166442552==--
