@@ -1,87 +1,83 @@
-Received: from mx1.zhaoxin.com (MX1.ZHAOXIN.COM [210.0.225.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AC5E1A5B99
-	for <fio@vger.kernel.org>; Thu, 22 May 2025 05:55:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.0.225.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 073F2146D65
+	for <fio@vger.kernel.org>; Thu, 22 May 2025 06:49:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747893340; cv=none; b=hVjPD5x7W5AbW+2wstcnxfujaNfXESV8917Yon6KaTpErQRpfXtgNSuRs2bnZ5ExjeUELd0xLoo2xV+shANGtiSohYTgVs4qQmBoc+01T80cq4ogA7btqO42ik1g/ylq2tZD5xBUVWrhmcM3qi8XN6evAyeF2hCzZTQxqb5uFhs=
+	t=1747896548; cv=none; b=l9d8mI2SlVR81mn7Y94lisrl4T88U/vFJuJDNDvlP7gdlUWH8vRJHR7Scj/cdmt6WhgafUJ7Zk9T2hPLaYNDHL7y1JhDsbR1ixTZtVO1jZv7jSlbKorOr5b7n/xIqHl/Q87juxQx+sgv/ZpByjYXxtxuEshalkva1kINYkAkVE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747893340; c=relaxed/simple;
-	bh=h62rr09PS636e+8Rr0iJjyyiyW7zlFuOlV7uhxp4Vb4=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=AcwekHhln8ArSCfCLXM37t/OwhjlWxNNzgpDCsMp0rFu1xNjF8ue6GlaJbVi0SK8ri1i90xqlkwsQjc6JQYzhKZBpueTLRWCRKuKrcUC+iTSgoIdyyLV0La1sVQyasehUxolfPuEk612bSRr7USdQXBj1Di6lS8FkuKl2vQEg3Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com; spf=pass smtp.mailfrom=zhaoxin.com; arc=none smtp.client-ip=210.0.225.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zhaoxin.com
-X-ASG-Debug-ID: 1747893325-086e2367bdee2b0001-eg1xC3
-Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx1.zhaoxin.com with ESMTP id kIs2MZAWYeKcsbeg (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 22 May 2025 13:55:25 +0800 (CST)
-X-Barracuda-Envelope-From: RunaGuo-oc@zhaoxin.com
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
-Received: from ZXSHMBX1.zhaoxin.com (10.28.252.163) by ZXSHMBX2.zhaoxin.com
- (10.28.252.164) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2507.44; Thu, 22 May
- 2025 13:55:25 +0800
-Received: from ZXSHMBX1.zhaoxin.com ([::1]) by ZXSHMBX1.zhaoxin.com
- ([fe80::2c07:394e:4919:4dc1%7]) with mapi id 15.01.2507.044; Thu, 22 May 2025
- 13:55:25 +0800
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
-Received: from runaguo-ubuntu-18-04.Zhaoxin.com (10.29.8.38) by
- zxbjmbx1.zhaoxin.com (10.29.252.163) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.44; Thu, 22 May 2025 12:37:03 +0800
-From: Runa Guo-oc <RunaGuo-oc@zhaoxin.com>
-To: <fio@vger.kernel.org>, <axboe@kernel.dk>, <vincentfu@gmail.com>
-CC: <cobechen@zhaoxin.com>, <tonywwang@zhaoxin.com>, <xanderchen@zhaoxin.com>,
-	<louisqi@zhaoxin.com>, <runaguo@zhaoxin.com>, <leoliu@zhaoxin.com>
-Subject: [PATCH] Add Zhaoxin support to enable tsc_reliable and arch_random features
-Date: Thu, 22 May 2025 12:37:03 +0800
-X-ASG-Orig-Subj: [PATCH] Add Zhaoxin support to enable tsc_reliable and arch_random features
-Message-ID: <20250522043703.8458-1-RunaGuo-oc@zhaoxin.com>
-X-Mailer: git-send-email 2.17.1
+	s=arc-20240116; t=1747896548; c=relaxed/simple;
+	bh=miqhds3YRqywUuDHH58iA260T16TwcpowzMMUofdyQ8=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=HwErYrn+/x+rfRe+h9x/fQj/w69KIm8pK34l2ZLcHr4KXxfrWzo+aqfXyluQHW2hnUFZUFV5mHFMY75oTIzUKIXYRo6iHDd3X1srUaqGAZmKcr5CfeSkjRnVkfHt5wGYrWrNlGEBFJSHHEIInk6AdRd9yIY0vxnW28wgvdIGfzw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O5Nfljnd; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O5Nfljnd"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-231e331baceso59886045ad.0
+        for <fio@vger.kernel.org>; Wed, 21 May 2025 23:49:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1747896546; x=1748501346; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=miqhds3YRqywUuDHH58iA260T16TwcpowzMMUofdyQ8=;
+        b=O5NfljndwBglDRo4lYd4RYgQZWF2RwxJJGUBZ2QclMORZlUzy+yBs7I1o4i23z3/lh
+         /Po1NzcqjNG+94M0MBC0EbIxNoZIV0kbdXchKWa2QENO3xnpTiWgG6eQNfXVcqiq9fES
+         MComp+xq/PcyMy9NqBNwDUwJTQ5RIcYd+sr0LJ0FO22Yd3nEzhpynXo3nfSMz8PyhBu2
+         e4/E++TanPEzejimMotsEjZCe88SfqPQVREDlGRkxDw46YGlldVIN8+TIqM1Rvp1nAgs
+         X5bcDDHuGEL5clzWVlrLEv55lAj6uAT2ecSjqb8LB5lm70fjyWGZGGDyaXi3iKWb749U
+         guIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747896546; x=1748501346;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=miqhds3YRqywUuDHH58iA260T16TwcpowzMMUofdyQ8=;
+        b=sEwGzgpA38uNm4FUuc1N4/NQ1voWeEI3O+0A+Q2QOcW9/hsAFh85ousvO8iNqUYWDG
+         2dIyIdjZE+d6xMmvghJcYKJOJWEEN0dwcKb61IT4+Dq857Ue2yWdOttkM6K6QSxIpp0O
+         YLuyAkj4LbXF6Sx4MLMp3eGvhXPg32+D2VHr6h6YhY7KEGTJqvNopOmQz1SCzftvbai6
+         yokJ6VWSYJ5Z7Ju7C/TMBBYybcSGIq0KmlB10QCoHK+aHbxYsMHREpi3YtNbUJrq0Q7R
+         HhrxC2EvgqWJRJtzochewZPxhoN3ybH/Cb0UPYRwRsCairGiqxl7LLQfrtFx0LclnXNc
+         DnsA==
+X-Gm-Message-State: AOJu0YxTKL8mVffu9lorZdwNbMgj8slAcER2pIf/cXsmW35J+deUEQQd
+	SDlF55os/uY3EGfepCwjnPBYsnYEFmKme4Ub/dWEUn1ZnyVxsiilczwvDjw3
+X-Gm-Gg: ASbGnct4EsYVm97TMZW/HUJ3rKE6KtcchNYFYuA2ejHuHGrwesAkBHATHUdNSmYEJiM
+	vXCPcafTtZY6ADpP/5RQ/5Ol+RuOTJHNzjckixkmuX2qYqGcuusdgxqjqMwTeNRgnZSD8RWOcTP
+	slwjLdk539AEKAy4GzoVeqfNKuZfUoFFcEiQWOrDOQVqhWH/XCGbb6flVpvFT2Hx9DPkLM423QF
+	9Y+7EYE6XYVpy/yxZWc6qNlBuEj5J/2rdWskFL52WL/ZuH8hkTtgSLFmHC/q/n3LJqwX9SD8z7Y
+	V1X0knzP/1+rtFba2SN+aWZ6g1ZjIOosFt9k12dUhvgyFv+o
+X-Google-Smtp-Source: AGHT+IFh98r/7TgGgrcVQwzLw1e9E6sIZ4BcWIBGAAFTJLvWMQQDn2c3nvqydS7Ql7D0f+eGkVivdg==
+X-Received: by 2002:a17:902:ea0a:b0:22e:50e1:73e with SMTP id d9443c01a7336-231d44d78e9mr326040055ad.14.1747896545883;
+        Wed, 21 May 2025 23:49:05 -0700 (PDT)
+Received: from [10.1.0.125] ([13.73.50.40])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-231d4e975cdsm102172575ad.154.2025.05.21.23.49.05
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 May 2025 23:49:05 -0700 (PDT)
+Date: Wed, 21 May 2025 23:49:05 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="===============6821161908620218287=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
- zxbjmbx1.zhaoxin.com (10.29.252.163)
-X-Moderation-Data: 5/22/2025 1:55:23 PM
-X-Barracuda-Connect: ZXSHMBX2.zhaoxin.com[10.28.252.164]
-X-Barracuda-Start-Time: 1747893325
-X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
-X-Barracuda-URL: https://10.28.252.35:4443/cgi-mod/mark.cgi
-X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 694
-X-Barracuda-BRTS-Status: 1
-X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
-X-Barracuda-Spam-Score: -2.02
-X-Barracuda-Spam-Status: No, SCORE=-2.02 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=
-X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.141743
-	Rule breakdown below
-	 pts rule name              description
-	---- ---------------------- --------------------------------------------------
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH=5D_Add_Zhaoxin_support_to_enable_tsc=5Freliable_and_arch=5Frandom_features?=
+In-Reply-To: <20250522043703.8458-1-RunaGuo-oc@zhaoxin.com>
+References: <20250522043703.8458-1-RunaGuo-oc@zhaoxin.com>
+Message-ID: <174789654500.2835.15253151106943081248@pkrvmf6wy0o8zjz>
 
-Signed-off-by: Runa Guo-oc <RunaGuo-oc@zhaoxin.com>
----
- arch/arch-x86-common.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+--===============6821161908620218287==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-diff --git a/arch/arch-x86-common.h b/arch/arch-x86-common.h
-index f32835cc..bd329c32 100644
---- a/arch/arch-x86-common.h
-+++ b/arch/arch-x86-common.h
-@@ -68,7 +68,8 @@ static inline void arch_init(char *envp[])
- 			 (unsigned int *) &str[4]);
- 
- 	str[12] = '\0';
--	if (!strcmp(str, "GenuineIntel"))
-+	if (!strcmp(str, "GenuineIntel")) || (!strcmp(str, "  Shanghai  ") ||
-+	    !strcmp(str, "CentaurHauls"))
- 		arch_init_intel();
- 	else if (!strcmp(str, "AuthenticAMD") || !strcmp(str, "HygonGenuine"))
- 		arch_init_amd();
--- 
-2.17.1
 
+The result of fio's continuous integration tests was: failure
+
+For more details see https://github.com/fiotestbot/fio/actions/runs/15179641974
+
+--===============6821161908620218287==--
