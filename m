@@ -1,163 +1,252 @@
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0BF1DE2CF
-	for <fio@vger.kernel.org>; Sun, 15 Jun 2025 08:12:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42D3B218596
+	for <fio@vger.kernel.org>; Tue, 24 Jun 2025 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749975180; cv=none; b=Lx3w7ROaIPgmtQ7KtgE1Dfc1/JJVXTTm7v76s1AXeaordwtS1XE4L28N2wo7rY0Y9ri6dM28P08FJquRq5oGCL3YQH8acPdos6p2D8ps4Ol7XDUBeGVcRNeHSEdIlJlBrcCTeygP740ZWZczptTg4Dfd18dkqgSRAzfN+LTdG1g=
+	t=1750766414; cv=none; b=Wy3z1ds/pzb5D623X3M70+OB9XKNsvR4J9q51djsKg9IN34bHOyWP/5tHd0NCNeafDi4rbRl1BejiBx+Y2GG3N1n1FVIaMqUrlO/Y5Uj80cSnpzlTqO4ziGeHC1VlfEK9Th1zNBsERIw20rWxPhKOwIWDUIPXOYV5hdsei+VevA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749975180; c=relaxed/simple;
-	bh=o8cBbckU6vzdu1zbI7DFbQnzRdLLBJvR4wFchPcSiKM=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=M9fPqYZrjRFHyWUG8c4hjH0LAy6F9bpD4SyUNDkshY71ud8iY6/wwY/pP22S/AjwgsIutPBZGk5GGldIyCRGpBZORCotTrWXyUbo+5bS2MzBHvjbBWjvBkonNMOd60uSCAToUMXL3kyWsfPxqsdLrVsvqrAr+N501+CwTVlrDOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mc0Qegr8; arc=none smtp.client-ip=209.85.217.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750766414; c=relaxed/simple;
+	bh=cZ05xJYPS4i1uoIIu4vODoWotm2ySJpJ5OczzrzPdVM=;
+	h=Subject:From:To:Message-Id:Date; b=e0O5vJqDQ8IKxymWwEmiv6tpFLNyxZZngKTTSNT/S7EP+sNWYszfkTe8xZDo3mVD1mLmCeK6FRyhMdMm9mY4cwO9MirA0B1GilyakFQIxnlRyat40xsTVTolqPGJqz3qR7kmPh1n6oChE0pBjQES5i47UcIWPnmxJuLYx+KK3Gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=PXDIpm4s; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mc0Qegr8"
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-4e80edfa06fso142670137.2
-        for <fio@vger.kernel.org>; Sun, 15 Jun 2025 01:12:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749975177; x=1750579977; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=jT/OLDPjhHFoiHWYZATWzP3MQngNpog910S3yLge7Pw=;
-        b=mc0Qegr8b3vY4hj3Ro25yr/ebO8hhhHGIFZG8yGeDZZ2LMfFBnF1Uh8X34f5mr2mSN
-         RRBMTixjb+EoLgrMhIdAwDAybJAFuccN56bEFVNzFsZKH6FE8+1zkCF+wj9LmxCTiPWS
-         l8ajqPftrMamAIx4ZaBhmjw7rYWoe6qN4CplLRHx4T+ldMrlp0eho4wg4g3dAH1QuQ7t
-         8UXPBPh2OsHTLyF33osZifYdBuznanK49Gg7VfBZqDO/Ka9Bcn8Ev4f/L8rqd+o+t6ny
-         bi7rFvLTZi+Ua8iOjZjUGSrzImCWbWchUX32yJsHIemwsslA8gTsoMQAYX4aBfsvrg5F
-         F7pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749975177; x=1750579977;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=jT/OLDPjhHFoiHWYZATWzP3MQngNpog910S3yLge7Pw=;
-        b=HkldTG/aBbTVlmpvbS0MEBp8wlNSmoswnDu6y/HoV1RVtwBqS7ouE2Y2I9hHsGLBzt
-         bKOSFc/BAWYxNj8VedjZsQyEzW9RthofOgok3qp8Khn9mD8p+YiEeXi1Z3Cf1sCRDiXD
-         ltWIADO6Qge/TdSSEY6GVdrGLxdXCVD0+yv15X3jSB0i18UIhqDOhHcCelq9lQd10jY9
-         roB17iYxuY30yrd9fzGPMFYkMfVY2Raa9MQPEg57F2K9Ci6SKdbSGQuiVbP4pTXxVhSO
-         mbnbFvCViyYveNI8C2l0CS4Kue7bNibN1SuLsIehvs5ydrX2Jwnu08vPzY3L9/FcwYjT
-         HVQw==
-X-Gm-Message-State: AOJu0YxHFE86Ouuu0rWotaqgCGMnep3M7CfoiCEKHTl3QOVqLamx4vvD
-	+LyApwsnPyBkyES8XR5URe2c+SFs+M3u+bEkDK86h5sSRf8ZcUHRX5YXrzJbRgHnfhqFeAdngzA
-	EGOY3g8ehjz15MZZiLsV5QEv9/C7hWBhbrBtg2MTnQgY5
-X-Gm-Gg: ASbGncvRgIvbdew5st6OkrnSLNdYWHy3pIdSvMNgVZw4GXMYAFFb+bwRFDEpATUquTV
-	+G7/dAT7vCgQbk623GTxIn5F84AZiwEmuP5PuREKjhNB7egLMPGoTU0f26BJ7gzUBwF/CfrLin9
-	3SSZFzA0Rh6ePLDynU8clGhvIg0MwwfquEWBAT19eMd5Xm
-X-Google-Smtp-Source: AGHT+IHQ84rBXio9S26shay/S7q2pQ1X9n5g27u/zRAakFNzicLRXBRLHgqgBCcxw35LM+uGwRBgzzNXt49ClawcJKY=
-X-Received: by 2002:a05:6102:4bcd:b0:4e2:ecd8:a27 with SMTP id
- ada2fe7eead31-4e7f632330fmr3392638137.4.1749975177491; Sun, 15 Jun 2025
- 01:12:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="PXDIpm4s"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=SoSvSiTgN/W2jhKhsbcuJGHuW/aeV21MxOmBPBX2Vbs=; b=PXDIpm4sidv88RAx2rEG5tu61I
+	JTHYyzcUBFY483Z81QKoRZUaYVN+Mb6RFaKg7vIGcKN9JVSiSdq2N4EtowsvLATc9InEpSMoLrLKO
+	+7Dqw/KDASLlOKO/JYYfj8qzwwiqG4O9UYZSL81L517bgGIi/PxhcjVjufAmquOvIYZqbLAMqoa98
+	vWT3ZvTgm/CwCOpqUoef06Ynpnw6f2VciATKrtz+3nSCq70PNShuYzolKQM+04ueIN5TgaxDuypSV
+	6obsU5q3mnu/ZJz8gcyuaLlg7OOckVv3L0oRvipW1McW19s9w7ZZybDrtr55DiYEazvjswI2Bj9cB
+	82sg1mEw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uU2Jp-00000005Qei-49dK
+	for fio@vger.kernel.org;
+	Tue, 24 Jun 2025 12:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 1D0E11BC017A; Tue, 24 Jun 2025 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20250624120002.1D0E11BC017A@kernel.dk>
+Date: Tue, 24 Jun 2025 06:00:02 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: CyberGym <cybergym.io@gmail.com>
-Date: Sun, 15 Jun 2025 16:12:46 +0800
-X-Gm-Features: AX0GCFu8TTlMMI6UQLD6Zw7ymxg7G_kv7-xcyrir86TOnbv5_EzBQUo1n0i0AOI
-Message-ID: <CAMjwZPGTg_xv6-YPA6PQGyJ1QgMup9k0atw_VT4qw1=hixYkKA@mail.gmail.com>
-Subject: Null Pointer Dereference in __bloom_check via Uninitialized
- file_bloom in fio
-To: fio@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000d22745063797d82f"
 
---000000000000d22745063797d82f
-Content-Type: multipart/alternative; boundary="000000000000d22744063797d82d"
+The following changes since commit 813445e7129240d51216e396a5ba8e19296b6581:
 
---000000000000d22744063797d82d
-Content-Type: text/plain; charset="UTF-8"
+  backend: clean up requeued io_u's (2025-06-05 01:44:43 +0000)
 
-Hi,
+are available in the Git repository at:
 
-We are a team of security researchers at UC Berkeley. We recently
-identified a bug in the latest version of the fio library. In
-fio/lib/bloom.c, a null pointer dereference exception is triggered on line
-103 in the __bloom_check function. It seems that certain inputs cause the
-function file_bloom_exists, in the file fio/filehash.c, to call the
-function bloom_string on line 103 when the variable file_bloom has yet to
-be initialized. file_bloom is passed as the first argument to the
-bloom_string function, which itself is located in the fio/lib/bloom.c file.
-bloom_string then calls __bloom_check with the null pointer as the first
-argument, ultimately leading to the exception.
+  git://git.kernel.dk/fio.git master
 
-You may find the original input that caused this error below (please unzip
-first), with sha256 checksum
-78ac354e97f09a8b5fef7332dc3653a328ae955feded239b95eebaff6db9e553.
+for you to fetch changes up to 7037b833e175aae32900b73bf597aad08c1d8472:
 
-Though, the following input is more concise and preserves the same program
-behavior:
-[global]
-numjobs=2
-filename=x
+  windows: drop nanosleep and clock_gettime (2025-06-23 15:04:34 -0400)
 
-Sincerely,
-UC Berkeley CyberGym Team
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'fix_real_file_size_when_pi_is_enabled' of https://github.com/SuhoSon/fio
 
---000000000000d22744063797d82d
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Leonid Kozlov (1):
+      parse: use minimum delimiter distance
 
-<div dir=3D"ltr">Hi,<br><br>We are a team of security researchers at UC Ber=
-keley. We recently identified a bug in the latest version of the fio librar=
-y. In fio/lib/bloom.c, a null pointer dereference exception is triggered on=
- line 103 in the __bloom_check function. It seems that certain inputs cause=
- the function file_bloom_exists, in the file fio/filehash.c, to call the fu=
-nction bloom_string on line 103 when the variable file_bloom has yet to be =
-initialized. file_bloom is passed as the first argument to the bloom_string=
- function, which itself is located in the fio/lib/bloom.c file. bloom_strin=
-g then calls __bloom_check with the null pointer as the first argument, ult=
-imately leading to the exception.<br><br><div>You may find the original inp=
-ut that caused this error below (please unzip first), with sha256 checksum =
-78ac354e97f09a8b5fef7332dc3653a328ae955feded239b95eebaff6db9e553.<br><br>Th=
-ough, the following input is more concise and preserves the same program be=
-havior:<br>[global]<br>numjobs=3D2<br>filename=3Dx<br><br>Sincerely,<br>UC =
-Berkeley CyberGym Team</div></div>
+Vincent Fu (2):
+      Merge branch 'fix-random-distribution-parsing-failure' of https://github.com/leonid-kozlov/fio
+      windows: drop nanosleep and clock_gettime
 
---000000000000d22744063797d82d--
---000000000000d22745063797d82f
-Content-Type: application/zip; 
-	name="3b2a5347be2e4029b27ed8e706a926a8.bin.zip"
-Content-Disposition: attachment; 
-	filename="3b2a5347be2e4029b27ed8e706a926a8.bin.zip"
-Content-Transfer-Encoding: base64
-Content-ID: <f_mbxe0sd11>
-X-Attachment-Id: f_mbxe0sd11
+suho.son (1):
+      io_uring: ensure accurate real_file_size setup for full device access with PI enabled
 
-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
-AGsGAAAAAA==
---000000000000d22745063797d82f--
+ configure          |  2 --
+ engines/io_uring.c |  5 +++-
+ os/os-windows.h    |  1 -
+ os/windows/posix.c | 72 ------------------------------------------------------
+ os/windows/posix.h |  1 -
+ parse.c            |  9 ++++---
+ 6 files changed, 10 insertions(+), 80 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/configure b/configure
+index 986eb0a6..9e69dc4b 100755
+--- a/configure
++++ b/configure
+@@ -462,8 +462,6 @@ CYGWIN*)
+   build_static="yes"
+   rusage_thread="yes"
+   fdatasync="yes"
+-  clock_gettime="yes" # clock_monotonic probe has dependency on this
+-  clock_monotonic="yes"
+   sched_idle="yes"
+   pthread_condattr_setclock="no"
+   pthread_affinity="no"
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 51228037..c87e1cd4 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -1610,7 +1610,10 @@ static int fio_ioring_cmd_get_file_size(struct thread_data *td,
+ 			return ret;
+ 		}
+ 
+-		f->real_file_size = data->lba_size * nlba;
++		if (data->lba_ext)
++			f->real_file_size = data->lba_ext * nlba;
++		else
++			f->real_file_size = data->lba_size * nlba;
+ 		fio_file_set_size_known(f);
+ 
+ 		FILE_SET_ENG_DATA(f, data);
+diff --git a/os/os-windows.h b/os/os-windows.h
+index 12f33486..909c12e3 100644
+--- a/os/os-windows.h
++++ b/os/os-windows.h
+@@ -106,7 +106,6 @@ int fdatasync(int fildes);
+ int lstat(const char * path, struct stat * buf);
+ uid_t geteuid(void);
+ char* ctime_r(const time_t *t, char *buf);
+-int nanosleep(const struct timespec *rqtp, struct timespec *rmtp);
+ ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset);
+ ssize_t pwrite(int fildes, const void *buf, size_t nbyte,
+ 		off_t offset);
+diff --git a/os/windows/posix.c b/os/windows/posix.c
+index 3e48c3ff..4c692a1e 100644
+--- a/os/windows/posix.c
++++ b/os/windows/posix.c
+@@ -549,50 +549,6 @@ return 0;
+ #define CLOCK_MONOTONIC_RAW 4
+ #endif
+ 
+-/*
+- * Get the value of a local clock source.
+- * This implementation supports 3 clocks: CLOCK_MONOTONIC/CLOCK_MONOTONIC_RAW
+- * provide high-accuracy relative time, while CLOCK_REALTIME provides a
+- * low-accuracy wall time.
+- */
+-int clock_gettime(clockid_t clock_id, struct timespec *tp)
+-{
+-	int rc = 0;
+-
+-	if (clock_id == CLOCK_MONOTONIC || clock_id == CLOCK_MONOTONIC_RAW) {
+-		static LARGE_INTEGER freq = {{0,0}};
+-		LARGE_INTEGER counts;
+-		uint64_t t;
+-
+-		QueryPerformanceCounter(&counts);
+-		if (freq.QuadPart == 0)
+-			QueryPerformanceFrequency(&freq);
+-
+-		tp->tv_sec = counts.QuadPart / freq.QuadPart;
+-		/* Get the difference between the number of ns stored
+-		 * in 'tv_sec' and that stored in 'counts' */
+-		t = tp->tv_sec * freq.QuadPart;
+-		t = counts.QuadPart - t;
+-		/* 't' now contains the number of cycles since the last second.
+-		 * We want the number of nanoseconds, so multiply out by 1,000,000,000
+-		 * and then divide by the frequency. */
+-		t *= 1000000000;
+-		tp->tv_nsec = t / freq.QuadPart;
+-	} else if (clock_id == CLOCK_REALTIME) {
+-		/* clock_gettime(CLOCK_REALTIME,...) is just an alias for gettimeofday with a
+-		 * higher-precision field. */
+-		struct timeval tv;
+-		gettimeofday(&tv, NULL);
+-		tp->tv_sec = tv.tv_sec;
+-		tp->tv_nsec = tv.tv_usec * 1000;
+-	} else {
+-		errno = EINVAL;
+-		rc = -1;
+-	}
+-
+-	return rc;
+-}
+-
+ int mlock(const void * addr, size_t len)
+ {
+ 	SIZE_T min, max;
+@@ -937,34 +893,6 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout)
+ 	return rc;
+ }
+ 
+-int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
+-{
+-	struct timespec tv;
+-	DWORD ms_remaining;
+-	DWORD ms_total = (rqtp->tv_sec * 1000) + (rqtp->tv_nsec / 1000000.0);
+-
+-	if (ms_total == 0)
+-		ms_total = 1;
+-
+-	ms_remaining = ms_total;
+-
+-	/* Since Sleep() can sleep for less than the requested time, add a loop to
+-	   ensure we only return after the requested length of time has elapsed */
+-	do {
+-		fio_gettime(&tv, NULL);
+-		Sleep(ms_remaining);
+-		ms_remaining = ms_total - mtime_since_now(&tv);
+-	} while (ms_remaining > 0 && ms_remaining < ms_total);
+-
+-	/* this implementation will never sleep for less than the requested time */
+-	if (rmtp != NULL) {
+-		rmtp->tv_sec = 0;
+-		rmtp->tv_nsec = 0;
+-	}
+-
+-	return 0;
+-}
+-
+ DIR *opendir(const char *dirname)
+ {
+ 	struct dirent_ctx *dc = NULL;
+diff --git a/os/windows/posix.h b/os/windows/posix.h
+index 02a9075b..afb00d5a 100644
+--- a/os/windows/posix.h
++++ b/os/windows/posix.h
+@@ -3,7 +3,6 @@
+ 
+ typedef int clockid_t;
+ 
+-extern int clock_gettime(clockid_t clock_id, struct timespec *tp);
+ extern int inet_aton(const char *, struct in_addr *);
+ extern int win_to_posix_error(DWORD winerr);
+ 
+diff --git a/parse.c b/parse.c
+index 656a5025..5bb55bff 100644
+--- a/parse.c
++++ b/parse.c
+@@ -480,14 +480,17 @@ static size_t opt_len(const char *str)
+ 	char delimiter[] = {',', ':'};
+ 	char *postfix;
+ 	unsigned int i;
++	size_t candidate_len;
+ 
++	size_t prefix_len = strlen(str);
+ 	for (i = 0; i < FIO_ARRAY_SIZE(delimiter); i++) {
+ 		postfix = strchr(str, delimiter[i]);
+-		if (postfix)
+-			return (int)(postfix - str);
++		candidate_len = (size_t)(postfix - str);
++		if (postfix && candidate_len < prefix_len)
++			prefix_len = candidate_len;
+ 	}
+ 
+-	return strlen(str);
++	return prefix_len;
+ }
+ 
+ static int str_match_len(const struct value_pair *vp, const char *str)
