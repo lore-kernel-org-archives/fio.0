@@ -1,252 +1,86 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42D3B218596
-	for <fio@vger.kernel.org>; Tue, 24 Jun 2025 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E501D79D2
+	for <fio@vger.kernel.org>; Mon, 30 Jun 2025 19:42:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750766414; cv=none; b=Wy3z1ds/pzb5D623X3M70+OB9XKNsvR4J9q51djsKg9IN34bHOyWP/5tHd0NCNeafDi4rbRl1BejiBx+Y2GG3N1n1FVIaMqUrlO/Y5Uj80cSnpzlTqO4ziGeHC1VlfEK9Th1zNBsERIw20rWxPhKOwIWDUIPXOYV5hdsei+VevA=
+	t=1751312526; cv=none; b=A+XN2cifpDO58Q9Xn87JLpHZm5Ld9pJMwNeAZaU4aFuqHUFrkS45hD8h/ZCK/cM5FVZN8wA8D3VuQ53Nas3SNaTdHTFlsd9tdXdyhdix3MWPxXm3bb7EN8AZHUpiUgfBidVr2ZJK1bzlTsAFAA4IKACKUnS3ZecmLUdbzO2HCcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750766414; c=relaxed/simple;
-	bh=cZ05xJYPS4i1uoIIu4vODoWotm2ySJpJ5OczzrzPdVM=;
-	h=Subject:From:To:Message-Id:Date; b=e0O5vJqDQ8IKxymWwEmiv6tpFLNyxZZngKTTSNT/S7EP+sNWYszfkTe8xZDo3mVD1mLmCeK6FRyhMdMm9mY4cwO9MirA0B1GilyakFQIxnlRyat40xsTVTolqPGJqz3qR7kmPh1n6oChE0pBjQES5i47UcIWPnmxJuLYx+KK3Gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=PXDIpm4s; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1751312526; c=relaxed/simple;
+	bh=neI6yxGVpbmNcGfrl3WJPJyCa4Lxrpd2xn6fww8GTZs=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:Content-Type; b=gUkKnZoCppz5JMZdCw3aetwgXH1apCTsxx/2TMiE9prBqSG934O7qQACdXGpBpJIFloQm0LEznk+BEuRcuj8FIISUhCRQkiDGjadl7ZpWFwdXeq+S6HkYZa1zAddIqz0HWxhy7MZvh1lXkrYBdCpYj4O6mUvVMSSKCGSLf/GpOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PqfODsDd; arc=none smtp.client-ip=209.85.160.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="PXDIpm4s"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=SoSvSiTgN/W2jhKhsbcuJGHuW/aeV21MxOmBPBX2Vbs=; b=PXDIpm4sidv88RAx2rEG5tu61I
-	JTHYyzcUBFY483Z81QKoRZUaYVN+Mb6RFaKg7vIGcKN9JVSiSdq2N4EtowsvLATc9InEpSMoLrLKO
-	+7Dqw/KDASLlOKO/JYYfj8qzwwiqG4O9UYZSL81L517bgGIi/PxhcjVjufAmquOvIYZqbLAMqoa98
-	vWT3ZvTgm/CwCOpqUoef06Ynpnw6f2VciATKrtz+3nSCq70PNShuYzolKQM+04ueIN5TgaxDuypSV
-	6obsU5q3mnu/ZJz8gcyuaLlg7OOckVv3L0oRvipW1McW19s9w7ZZybDrtr55DiYEazvjswI2Bj9cB
-	82sg1mEw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uU2Jp-00000005Qei-49dK
-	for fio@vger.kernel.org;
-	Tue, 24 Jun 2025 12:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 1D0E11BC017A; Tue, 24 Jun 2025 06:00:02 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20250624120002.1D0E11BC017A@kernel.dk>
-Date: Tue, 24 Jun 2025 06:00:02 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PqfODsDd"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-4a76ea97cefso25120501cf.2
+        for <fio@vger.kernel.org>; Mon, 30 Jun 2025 12:42:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1751312523; x=1751917323; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2NBYn8kEV+tKNLDvpDIMeg+6vHfTmSa8W7uQvfZna4s=;
+        b=PqfODsDdUSEDAU6yTSbpFM7uiGhQIM+x6xYAqD/gtmjX2Lso5YCHMBZeQtd7cxPUo8
+         SiAIzjuTnJHcMUwF9MvOANE816sVxTqEdSSbnwesTWBmxh+7x5zHn8YZWBxOvF84elkK
+         uoKAIJY6oM02SvTvNG1u8kkAZhn2gcwW83eznpxmWMxDwf1EaAMpyOw0WaMcdPIc2Y7f
+         3gmf2mzXaGd5/kErcJ+Bxhbp/WDrHKCWqieNa8wo7mDWJBllxqoc5zD3/IIM4g+7e5iI
+         NTs3lO1dt3Qwdt4Gwof8Gpko8Tjibl77wrOkgZBOe4+XBS0o0anf9178EIWwo6A4owxM
+         GgrQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751312523; x=1751917323;
+        h=content-transfer-encoding:content-language:cc:to:subject:from
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=2NBYn8kEV+tKNLDvpDIMeg+6vHfTmSa8W7uQvfZna4s=;
+        b=Lt3qhLmJPjWE1CFKIyclRDyvRpJvfAZyftJJrMTc5ZdQA0BK2gIpg6btRC6nSXtcAH
+         cXCk1aVbRSr1q+p7b5MlfhhbZbEdbZTnn+lRuuMVHnuWETTOU2R5Bx9AbrIvrVUSulGf
+         t4XexoOC+4DcO9nSZWbWQ4WW7u1KA56MU2ROl+xaTyCaw8IbLDWNGaPX1OFua1Oxjr12
+         ONs3feTUhsBj5Nmt9rrlDPeTFHMjwINwCx0Vz7c2wzv6ZnODSJePohdLpzZAKh6BWU25
+         ODhicobjaSaYA0yY1rHaok7aIOEfEa0cFw6viWrZLIO3b/2h29flXyEGo2vAsvGn7ubn
+         8Wmg==
+X-Gm-Message-State: AOJu0YyVxi5TZQKpamRdts6zlUQ6xT1Jsfv1dPZBuW7oLmRjWkHIiUYU
+	ThOfm2Qc3s3qhGVX7qy+sFwDAxjI8VzC8DvQaXKvzhCZtEK7syzaNgpJTL66CQ==
+X-Gm-Gg: ASbGnct4NJmtku35rn6okljhFk3z3FIJ0R31vACucelRSUlmYzL5q1tkhjWcWBws3Le
+	11eJKbB9lzdsnmdb+TVBj+lUVx8Cu5rcMwnQQmFPfeWD2Va1lwz3Qaq8kT/tRmBKaZgy38Z2rcC
+	aSuMe8K3ApJdJE8LDvGCS+8jpiX6ub01EkM+4kk73KoExkkQbVYYulBzgSGWsly2/+j40ZuHVg6
+	U/Yq4vHeA4uB1+bKLhrjDiQ0EwPYcNIteT2tTnmOkbsYEo5J39lkYWhTsKyRMP0EGNDNNMwwQqs
+	+TfYtuFs7HZHeSk8N0CXcuJTGJ+eb+etlPp7l7EAWbQ7K7lcPUer84hF4zH6CQOrCD/PbO0y/RA
+	7OYWlJovxH6jc8Z2x3hIyhDjH0OQZQSNbEBrHCyPqaDSe7g==
+X-Google-Smtp-Source: AGHT+IF696gIoq9ZztP+gVJqd1InZmvHl2rbcsccQO4RPkgltv5KXMaAVJ719lCXMAUI/1afcsya3A==
+X-Received: by 2002:ac8:58d2:0:b0:494:9fc0:de3 with SMTP id d75a77b69052e-4a7fcad0725mr258055811cf.32.1751312523220;
+        Mon, 30 Jun 2025 12:42:03 -0700 (PDT)
+Received: from [192.168.1.211] (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a7fc10620dsm63994181cf.7.2025.06.30.12.42.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Jun 2025 12:42:02 -0700 (PDT)
+Message-ID: <e17fc881-c699-4d72-8824-0eceb69a7d3a@gmail.com>
+Date: Mon, 30 Jun 2025 15:42:01 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+From: Vincent Fu <vincentfu@gmail.com>
+Subject: blog post on fio's verify feature
+To: "fio@vger.kernel.org" <fio@vger.kernel.org>
+Cc: gost.dev@samsung.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The following changes since commit 813445e7129240d51216e396a5ba8e19296b6581:
+I am pleased to share a blog post about fio's verify feature.
 
-  backend: clean up requeued io_u's (2025-06-05 01:44:43 +0000)
+https://github.com/vincentkfu/fio-blog/wiki/Verify-overview
 
-are available in the Git repository at:
+Ankit Kumar and I contributed some verify-related patches a few months 
+ago, and this blog post shares some of what is going on behind the 
+scenes in a verify workload.
 
-  git://git.kernel.dk/fio.git master
+Feedback is welcome.
 
-for you to fetch changes up to 7037b833e175aae32900b73bf597aad08c1d8472:
-
-  windows: drop nanosleep and clock_gettime (2025-06-23 15:04:34 -0400)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'fix_real_file_size_when_pi_is_enabled' of https://github.com/SuhoSon/fio
-
-Leonid Kozlov (1):
-      parse: use minimum delimiter distance
-
-Vincent Fu (2):
-      Merge branch 'fix-random-distribution-parsing-failure' of https://github.com/leonid-kozlov/fio
-      windows: drop nanosleep and clock_gettime
-
-suho.son (1):
-      io_uring: ensure accurate real_file_size setup for full device access with PI enabled
-
- configure          |  2 --
- engines/io_uring.c |  5 +++-
- os/os-windows.h    |  1 -
- os/windows/posix.c | 72 ------------------------------------------------------
- os/windows/posix.h |  1 -
- parse.c            |  9 ++++---
- 6 files changed, 10 insertions(+), 80 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/configure b/configure
-index 986eb0a6..9e69dc4b 100755
---- a/configure
-+++ b/configure
-@@ -462,8 +462,6 @@ CYGWIN*)
-   build_static="yes"
-   rusage_thread="yes"
-   fdatasync="yes"
--  clock_gettime="yes" # clock_monotonic probe has dependency on this
--  clock_monotonic="yes"
-   sched_idle="yes"
-   pthread_condattr_setclock="no"
-   pthread_affinity="no"
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 51228037..c87e1cd4 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -1610,7 +1610,10 @@ static int fio_ioring_cmd_get_file_size(struct thread_data *td,
- 			return ret;
- 		}
- 
--		f->real_file_size = data->lba_size * nlba;
-+		if (data->lba_ext)
-+			f->real_file_size = data->lba_ext * nlba;
-+		else
-+			f->real_file_size = data->lba_size * nlba;
- 		fio_file_set_size_known(f);
- 
- 		FILE_SET_ENG_DATA(f, data);
-diff --git a/os/os-windows.h b/os/os-windows.h
-index 12f33486..909c12e3 100644
---- a/os/os-windows.h
-+++ b/os/os-windows.h
-@@ -106,7 +106,6 @@ int fdatasync(int fildes);
- int lstat(const char * path, struct stat * buf);
- uid_t geteuid(void);
- char* ctime_r(const time_t *t, char *buf);
--int nanosleep(const struct timespec *rqtp, struct timespec *rmtp);
- ssize_t pread(int fildes, void *buf, size_t nbyte, off_t offset);
- ssize_t pwrite(int fildes, const void *buf, size_t nbyte,
- 		off_t offset);
-diff --git a/os/windows/posix.c b/os/windows/posix.c
-index 3e48c3ff..4c692a1e 100644
---- a/os/windows/posix.c
-+++ b/os/windows/posix.c
-@@ -549,50 +549,6 @@ return 0;
- #define CLOCK_MONOTONIC_RAW 4
- #endif
- 
--/*
-- * Get the value of a local clock source.
-- * This implementation supports 3 clocks: CLOCK_MONOTONIC/CLOCK_MONOTONIC_RAW
-- * provide high-accuracy relative time, while CLOCK_REALTIME provides a
-- * low-accuracy wall time.
-- */
--int clock_gettime(clockid_t clock_id, struct timespec *tp)
--{
--	int rc = 0;
--
--	if (clock_id == CLOCK_MONOTONIC || clock_id == CLOCK_MONOTONIC_RAW) {
--		static LARGE_INTEGER freq = {{0,0}};
--		LARGE_INTEGER counts;
--		uint64_t t;
--
--		QueryPerformanceCounter(&counts);
--		if (freq.QuadPart == 0)
--			QueryPerformanceFrequency(&freq);
--
--		tp->tv_sec = counts.QuadPart / freq.QuadPart;
--		/* Get the difference between the number of ns stored
--		 * in 'tv_sec' and that stored in 'counts' */
--		t = tp->tv_sec * freq.QuadPart;
--		t = counts.QuadPart - t;
--		/* 't' now contains the number of cycles since the last second.
--		 * We want the number of nanoseconds, so multiply out by 1,000,000,000
--		 * and then divide by the frequency. */
--		t *= 1000000000;
--		tp->tv_nsec = t / freq.QuadPart;
--	} else if (clock_id == CLOCK_REALTIME) {
--		/* clock_gettime(CLOCK_REALTIME,...) is just an alias for gettimeofday with a
--		 * higher-precision field. */
--		struct timeval tv;
--		gettimeofday(&tv, NULL);
--		tp->tv_sec = tv.tv_sec;
--		tp->tv_nsec = tv.tv_usec * 1000;
--	} else {
--		errno = EINVAL;
--		rc = -1;
--	}
--
--	return rc;
--}
--
- int mlock(const void * addr, size_t len)
- {
- 	SIZE_T min, max;
-@@ -937,34 +893,6 @@ int poll(struct pollfd fds[], nfds_t nfds, int timeout)
- 	return rc;
- }
- 
--int nanosleep(const struct timespec *rqtp, struct timespec *rmtp)
--{
--	struct timespec tv;
--	DWORD ms_remaining;
--	DWORD ms_total = (rqtp->tv_sec * 1000) + (rqtp->tv_nsec / 1000000.0);
--
--	if (ms_total == 0)
--		ms_total = 1;
--
--	ms_remaining = ms_total;
--
--	/* Since Sleep() can sleep for less than the requested time, add a loop to
--	   ensure we only return after the requested length of time has elapsed */
--	do {
--		fio_gettime(&tv, NULL);
--		Sleep(ms_remaining);
--		ms_remaining = ms_total - mtime_since_now(&tv);
--	} while (ms_remaining > 0 && ms_remaining < ms_total);
--
--	/* this implementation will never sleep for less than the requested time */
--	if (rmtp != NULL) {
--		rmtp->tv_sec = 0;
--		rmtp->tv_nsec = 0;
--	}
--
--	return 0;
--}
--
- DIR *opendir(const char *dirname)
- {
- 	struct dirent_ctx *dc = NULL;
-diff --git a/os/windows/posix.h b/os/windows/posix.h
-index 02a9075b..afb00d5a 100644
---- a/os/windows/posix.h
-+++ b/os/windows/posix.h
-@@ -3,7 +3,6 @@
- 
- typedef int clockid_t;
- 
--extern int clock_gettime(clockid_t clock_id, struct timespec *tp);
- extern int inet_aton(const char *, struct in_addr *);
- extern int win_to_posix_error(DWORD winerr);
- 
-diff --git a/parse.c b/parse.c
-index 656a5025..5bb55bff 100644
---- a/parse.c
-+++ b/parse.c
-@@ -480,14 +480,17 @@ static size_t opt_len(const char *str)
- 	char delimiter[] = {',', ':'};
- 	char *postfix;
- 	unsigned int i;
-+	size_t candidate_len;
- 
-+	size_t prefix_len = strlen(str);
- 	for (i = 0; i < FIO_ARRAY_SIZE(delimiter); i++) {
- 		postfix = strchr(str, delimiter[i]);
--		if (postfix)
--			return (int)(postfix - str);
-+		candidate_len = (size_t)(postfix - str);
-+		if (postfix && candidate_len < prefix_len)
-+			prefix_len = candidate_len;
- 	}
- 
--	return strlen(str);
-+	return prefix_len;
- }
- 
- static int str_match_len(const struct value_pair *vp, const char *str)
+Vincent
