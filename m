@@ -1,86 +1,85 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E501D79D2
-	for <fio@vger.kernel.org>; Mon, 30 Jun 2025 19:42:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE99D2737E2
+	for <fio@vger.kernel.org>; Tue,  1 Jul 2025 12:00:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751312526; cv=none; b=A+XN2cifpDO58Q9Xn87JLpHZm5Ld9pJMwNeAZaU4aFuqHUFrkS45hD8h/ZCK/cM5FVZN8wA8D3VuQ53Nas3SNaTdHTFlsd9tdXdyhdix3MWPxXm3bb7EN8AZHUpiUgfBidVr2ZJK1bzlTsAFAA4IKACKUnS3ZecmLUdbzO2HCcA=
+	t=1751371217; cv=none; b=mzaTQ5dcJYrGwQ6y2ppae+fPflU3YVaUg49YW2WU/JXl/TPqwgjTcEKk7cJh5qwzxJa+nqceOxwizF9/WjOETtma5ysuMdaxvM9w2kywcb5KUoBKo/6Ga8jgtwfilxlJLy3UCY0nyP4Ngl6n1ceZ8i8PurhmGEU5B6WDoJ4168A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751312526; c=relaxed/simple;
-	bh=neI6yxGVpbmNcGfrl3WJPJyCa4Lxrpd2xn6fww8GTZs=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:Content-Type; b=gUkKnZoCppz5JMZdCw3aetwgXH1apCTsxx/2TMiE9prBqSG934O7qQACdXGpBpJIFloQm0LEznk+BEuRcuj8FIISUhCRQkiDGjadl7ZpWFwdXeq+S6HkYZa1zAddIqz0HWxhy7MZvh1lXkrYBdCpYj4O6mUvVMSSKCGSLf/GpOQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PqfODsDd; arc=none smtp.client-ip=209.85.160.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751371217; c=relaxed/simple;
+	bh=xLBErME7I0Yw+l12xH5531UxjdCtrFueF+L7XCgh+Uc=;
+	h=Subject:From:To:Message-Id:Date; b=uIg4UmNwOAjaKI/+BIc67Me/jXQLUEhsgwrcD6Poc/UET6Np50wo1UC/S6aOPRRtjmcN+KhtvF+0v7fKIjLJxJosyirObtDjcXVX2QDD1ybxVZgmSy0rSWCSdS19QozSGZMADsB6DqoFNSxw5i0a5hUItn0VLTd6mAeU9x6RWj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=JBjk4EHM; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PqfODsDd"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-4a76ea97cefso25120501cf.2
-        for <fio@vger.kernel.org>; Mon, 30 Jun 2025 12:42:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751312523; x=1751917323; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2NBYn8kEV+tKNLDvpDIMeg+6vHfTmSa8W7uQvfZna4s=;
-        b=PqfODsDdUSEDAU6yTSbpFM7uiGhQIM+x6xYAqD/gtmjX2Lso5YCHMBZeQtd7cxPUo8
-         SiAIzjuTnJHcMUwF9MvOANE816sVxTqEdSSbnwesTWBmxh+7x5zHn8YZWBxOvF84elkK
-         uoKAIJY6oM02SvTvNG1u8kkAZhn2gcwW83eznpxmWMxDwf1EaAMpyOw0WaMcdPIc2Y7f
-         3gmf2mzXaGd5/kErcJ+Bxhbp/WDrHKCWqieNa8wo7mDWJBllxqoc5zD3/IIM4g+7e5iI
-         NTs3lO1dt3Qwdt4Gwof8Gpko8Tjibl77wrOkgZBOe4+XBS0o0anf9178EIWwo6A4owxM
-         GgrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751312523; x=1751917323;
-        h=content-transfer-encoding:content-language:cc:to:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=2NBYn8kEV+tKNLDvpDIMeg+6vHfTmSa8W7uQvfZna4s=;
-        b=Lt3qhLmJPjWE1CFKIyclRDyvRpJvfAZyftJJrMTc5ZdQA0BK2gIpg6btRC6nSXtcAH
-         cXCk1aVbRSr1q+p7b5MlfhhbZbEdbZTnn+lRuuMVHnuWETTOU2R5Bx9AbrIvrVUSulGf
-         t4XexoOC+4DcO9nSZWbWQ4WW7u1KA56MU2ROl+xaTyCaw8IbLDWNGaPX1OFua1Oxjr12
-         ONs3feTUhsBj5Nmt9rrlDPeTFHMjwINwCx0Vz7c2wzv6ZnODSJePohdLpzZAKh6BWU25
-         ODhicobjaSaYA0yY1rHaok7aIOEfEa0cFw6viWrZLIO3b/2h29flXyEGo2vAsvGn7ubn
-         8Wmg==
-X-Gm-Message-State: AOJu0YyVxi5TZQKpamRdts6zlUQ6xT1Jsfv1dPZBuW7oLmRjWkHIiUYU
-	ThOfm2Qc3s3qhGVX7qy+sFwDAxjI8VzC8DvQaXKvzhCZtEK7syzaNgpJTL66CQ==
-X-Gm-Gg: ASbGnct4NJmtku35rn6okljhFk3z3FIJ0R31vACucelRSUlmYzL5q1tkhjWcWBws3Le
-	11eJKbB9lzdsnmdb+TVBj+lUVx8Cu5rcMwnQQmFPfeWD2Va1lwz3Qaq8kT/tRmBKaZgy38Z2rcC
-	aSuMe8K3ApJdJE8LDvGCS+8jpiX6ub01EkM+4kk73KoExkkQbVYYulBzgSGWsly2/+j40ZuHVg6
-	U/Yq4vHeA4uB1+bKLhrjDiQ0EwPYcNIteT2tTnmOkbsYEo5J39lkYWhTsKyRMP0EGNDNNMwwQqs
-	+TfYtuFs7HZHeSk8N0CXcuJTGJ+eb+etlPp7l7EAWbQ7K7lcPUer84hF4zH6CQOrCD/PbO0y/RA
-	7OYWlJovxH6jc8Z2x3hIyhDjH0OQZQSNbEBrHCyPqaDSe7g==
-X-Google-Smtp-Source: AGHT+IF696gIoq9ZztP+gVJqd1InZmvHl2rbcsccQO4RPkgltv5KXMaAVJ719lCXMAUI/1afcsya3A==
-X-Received: by 2002:ac8:58d2:0:b0:494:9fc0:de3 with SMTP id d75a77b69052e-4a7fcad0725mr258055811cf.32.1751312523220;
-        Mon, 30 Jun 2025 12:42:03 -0700 (PDT)
-Received: from [192.168.1.211] (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a7fc10620dsm63994181cf.7.2025.06.30.12.42.02
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 Jun 2025 12:42:02 -0700 (PDT)
-Message-ID: <e17fc881-c699-4d72-8824-0eceb69a7d3a@gmail.com>
-Date: Mon, 30 Jun 2025 15:42:01 -0400
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="JBjk4EHM"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=8k/3AkMtL1DNASEEVPGc1b5AgP4ZhpzpdfsvbeWVD9k=; b=JBjk4EHMOH/AtrfWwL20gdDhZi
+	rnFiupxPX0wdDudwPDthnBYPCiMjROGFEgmwMU2aHPzVUprtLXmpUJilustE5yk4J4XSmskANdwGg
+	kmC0k0Ih1e3Uj8WTrWhICI6GPYENIDgagTI0Mg3/7G6wFr46pej8W0knYMOe9dFTOWjYcNa4mbspX
+	Woha74dSHmXO3YgLAncy9cOtt5No2qtFIpjKlcyAahB6Ms/2GyHx+O2BM9m3o3jDpbJrFYgTDO6qx
+	I6SGOZ++TMEhQOaOh3tDjtmWT6S7omfIWKvzNLEJ4MFKyN3ozOT5sAksHFi9SvCqzHDCh59MmOwC9
+	KU72i3Xw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1uWZef-00000006qTg-3FNU
+	for fio@vger.kernel.org;
+	Tue, 01 Jul 2025 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id D37231BC0175; Tue,  1 Jul 2025 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20250701120001.D37231BC0175@kernel.dk>
+Date: Tue,  1 Jul 2025 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Vincent Fu <vincentfu@gmail.com>
-Subject: blog post on fio's verify feature
-To: "fio@vger.kernel.org" <fio@vger.kernel.org>
-Cc: gost.dev@samsung.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
 
-I am pleased to share a blog post about fio's verify feature.
+The following changes since commit 7037b833e175aae32900b73bf597aad08c1d8472:
 
-https://github.com/vincentkfu/fio-blog/wiki/Verify-overview
+  windows: drop nanosleep and clock_gettime (2025-06-23 15:04:34 -0400)
 
-Ankit Kumar and I contributed some verify-related patches a few months 
-ago, and this blog post shares some of what is going on behind the 
-scenes in a verify workload.
+are available in the Git repository at:
 
-Feedback is welcome.
+  git://git.kernel.dk/fio.git master
 
-Vincent
+for you to fetch changes up to 5db7e6b26bd07824c6207dcbac1a8e7a95a3f20c:
+
+  Merge branch 'fix-randtrimwrite' of https://github.com/minwooim/fio (2025-06-30 07:42:00 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'fix-randtrimwrite' of https://github.com/minwooim/fio
+
+Jungwon Lee (1):
+      io_u: fix offset calculation in randtrimwrite
+
+ io_u.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/io_u.c b/io_u.c
+index 70a11837..360bd774 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -431,7 +431,7 @@ static int get_next_block(struct thread_data *td, struct io_u *io_u,
+ 	if (td_randtrimwrite(td) && ddir == DDIR_WRITE) {
+ 		/* don't mark randommap for these writes */
+ 		io_u_set(td, io_u, IO_U_F_BUSY_OK);
+-		offset = f->last_start[DDIR_TRIM];
++		offset = f->last_start[DDIR_TRIM] - f->file_offset;
+ 		*is_random = true;
+ 		ret = 0;
+ 	} else if (rw_seq) {
