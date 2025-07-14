@@ -1,234 +1,110 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com [209.85.221.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA05F237713
-	for <fio@vger.kernel.org>; Thu, 10 Jul 2025 12:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AF2E1A275
+	for <fio@vger.kernel.org>; Mon, 14 Jul 2025 03:32:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752148810; cv=none; b=DLMn36UoPrXZAV3dsEUua0B2DdAveH/q6AcsmwgJ4yCItq3uyLUKLWj3kqwr/RX0xIcltFzIQJrfPhcuP326ePqV2rm963XXLtssxvJ5rWBNEUx55NEsnKJo2K7NTVZza93JUt3TnDNW8UZQ9WAKoZMg4SL4uNmvB68Q/NxTFrs=
+	t=1752463943; cv=none; b=qB/68ID/QUDmCVH1HKae+rljCm+AaZChTU83o3PWuWeyNGuJROxbPXuAqsbS3Pgcxc+JW5njIqalDpusiD3vBW6zOxW+FnSem6lhOCXikW/fCyppdZOH3/sRRUaDgI59C7DJQqwpahK2EARePnQxhy7UGiXqsRqgMrCB1M3KfVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752148810; c=relaxed/simple;
-	bh=wuDHz9LgcHZa50eA2WiR2JquZkQD6NBKbUhinVODKz8=;
-	h=Subject:From:To:Message-Id:Date; b=swUfZE6ZGwacnRoakMPlJglCtEdGROQphzs7OA0rswmkhR1ZX/qnTSG0PoTELgo4zXGF7Njz0gkCyCGnlFbeQ9V/48lJ1MxjYon9OBw2qYwhjNIUh6OXJm7/84zPVsSTV6WlliIDScuHEu8duGQ32+8MaBUJ/30fVJV0ahs/o48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=mH3SgK0j; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1752463943; c=relaxed/simple;
+	bh=LITA8YENtXG0bS9EJnDBjQ45iJEAHuSV+e2NZiwsUok=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=u3ebEhxOXvueu1aEYYiJoYqVn3+9aO7iqdcgA6lRMmI77nDbCPZYsK3eDqRRrdXW9+40TvbWZi46qUqa540BdYAVnFRg9UuW7pKUG/y4IhEmcWUqhf+m9CRb3wMKWW4688EOzDUTWKyChkwExJwM8xSWOjaneBKtNIDjnOIdSok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dJ/chJOd; arc=none smtp.client-ip=209.85.221.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="mH3SgK0j"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=aUQn2kISomadLeQMMfPYLh7khJq+IguFy2quCDPpm5U=; b=mH3SgK0j3rQu2TwkbmoYRJ1uxg
-	B3W3SgTHn2oPybPh0cApMuueoftp9MSpyAoPYNpY/ri9vAqOLFQDczwx6NvxfiXDOXY+RH/DzdcQ9
-	kXVW9i2eKRmvpMwta3fIMOKGpz0lt59+/dND6VNoryTOwhNKtjg3cJcPHcSlAQBeNADNbscK2R9sv
-	i6U887q/lzak6/jmTBGdo12OImkN0WYFshUQpGXDWhYGF7vbH+29bWaNf2vSWZJS2Dh6kddZPZfLe
-	w18MxKyAi707p6RcZ/If9iYIRXRIijSyL86f8J3Iv/jibqdawybCmLxEOjNB9+slsy2ejykGFnnuD
-	0tqqHnAQ==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uZpwa-000000090XX-3opE
-	for fio@vger.kernel.org;
-	Thu, 10 Jul 2025 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id B10601BC016B; Thu, 10 Jul 2025 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20250710120001.B10601BC016B@kernel.dk>
-Date: Thu, 10 Jul 2025 06:00:01 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dJ/chJOd"
+Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-5315ebfd92cso3209860e0c.0
+        for <fio@vger.kernel.org>; Sun, 13 Jul 2025 20:32:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1752463941; x=1753068741; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LITA8YENtXG0bS9EJnDBjQ45iJEAHuSV+e2NZiwsUok=;
+        b=dJ/chJOdwX8H0mGgIiPRT/CU4EVeawmom8kCAX2Yfn0Zkdvj/dDTApqRBFe00phE1K
+         a+uCTrqqBmvoAcDzOE8k+DbGLywRVxo100rZ9QOjExpul7cMo2X8urRN2Fj9wqMhS3Ec
+         pbUBn34rHYyOeNB7nysPS4dkwgQBWPKuTe6p/Z7HTeAMsxYocFB/otETElPv/cwVvOJ8
+         sOiQXnMQ0iT0x33NteP8gHnniOtRqvx0If093w+JV/kk1CJeh7cH87gZ9TVW1Ak/x6el
+         DPitMThnG+4K0jrceQF8tj5wBrhAyNz/mq8g+1lh8ZLIlYT5ROREXdV5JHd12q+08U1v
+         i//g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752463941; x=1753068741;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LITA8YENtXG0bS9EJnDBjQ45iJEAHuSV+e2NZiwsUok=;
+        b=CShE8/hMCfLv0k1qpzl2AfcRC0lkvE4oHeVlB7VQYFy5dDOo0IWsCZruH0jWyOWRB0
+         nZJ7mLVHT/0BRqAXR5xQ/K7alaAu7lAGGSDGDelxnAiTdJLJa1EIMdRUVYw6CeeGRvn2
+         46xVxCKzQXMRZsyfPn4iXheX0yw4zjxk6LhV51ie5zJl3myayvxf0hZxmlcC8R/Fp2KP
+         KzmoRGexNwLAcaFc9OFNz7y3PLadx63Bztc5rNdRZMSzo0v1OSPPGJfYUGboKqZmtkc3
+         fYfCIHNt9oXBX/7KxHnUnqQ3GNaU9i3vDgGqZUU51gLKZ7ld3hKNiP9qFx3OBDxD3rEH
+         aUPg==
+X-Gm-Message-State: AOJu0YwxPdLpQxx4B/LbPAW99225wFSGvNsr4u4zLajAXxrm7EhdNh0V
+	2RUqXWxtOyO5DofPyya8pbkRCL0Fw+CFqZJd6ayN39WABSVxY1nyOFpBUaHVwGlY0mM1JslRztl
+	clnhwDMaakGjOdGgfw+pd1qUaCttqDRBLFyun
+X-Gm-Gg: ASbGnctRqEtOm4Rp2yZP241ndf7EnTOos91yetjeR5YD7F9IwGu4tY6Zq2eutMFhcp5
+	BeU6ZmgO4ceDjpi3yM4cfH01Tt/cVvtmIQtk6rZlPK1wh6Qy6ps0bC+mar4E9gtyY/mSoLJT7yc
+	pWOiHh6/qnwosCav3oua+Uv2SNF7F/6wTnf9OY840RygDJZA3xzPEHUdjexJhmjtcvIEFoAsaEv
+	y1jIDVdCqKnr59Dm1V/3uGNnvXarrQLOddDkmUmjQ==
+X-Google-Smtp-Source: AGHT+IHSrRVFOqRxcEF6wEubmyoPpxUTgVlOJYCRsnGOERc/S/DtLVn3xM7N3EDfa/mMPjDM8mqDFifwT1R/Fh99nhE=
+X-Received: by 2002:a05:6122:8c1e:b0:531:1314:618d with SMTP id
+ 71dfb90a1353d-535f34483b8mr8145194e0c.0.1752463941205; Sun, 13 Jul 2025
+ 20:32:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <CAMjwZPGTg_xv6-YPA6PQGyJ1QgMup9k0atw_VT4qw1=hixYkKA@mail.gmail.com>
+In-Reply-To: <CAMjwZPGTg_xv6-YPA6PQGyJ1QgMup9k0atw_VT4qw1=hixYkKA@mail.gmail.com>
+From: CyberGym <cybergym.io@gmail.com>
+Date: Sun, 13 Jul 2025 20:32:11 -0700
+X-Gm-Features: Ac12FXxFsvazAI5Hfjv9NLGCScgn0xc9cdE983lIK4tRJrHWCOANOidqZsBkO-Y
+Message-ID: <CAMjwZPEfMEVj0coOK2UdSuK94ecHZAk4L3aPguBZpdcfxWnpiA@mail.gmail.com>
+Subject: Re: Null Pointer Dereference in __bloom_check via Uninitialized
+ file_bloom in fio
+To: fio@vger.kernel.org
+Cc: zhun.wang@berkeley.edu
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The following changes since commit 010b8ba409a18ec1edbf3b776fb7652f26a99b81:
+Hi,
 
-  Merge branch 'http-filename-fix' of https://github.com/sfc-gh-rnarubin/fio (2025-07-08 11:54:05 -0600)
+Just want to follow up and resurface the email. Please let me know if
+you need any additional information from my end.
 
-are available in the Git repository at:
+Best,
+Zhun
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to eb0312ccc1058334e0a115b6534056bcdba7c533:
-
-  Merge branch 'security-token' of https://github.com/sfc-gh-rnarubin/fio (2025-07-09 16:52:06 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (1):
-      Merge branch 'security-token' of https://github.com/sfc-gh-rnarubin/fio
-
-Renar Narubin (1):
-      engines/http: Add S3 security token support
-
- HOWTO.rst      |  4 ++++
- engines/http.c | 45 ++++++++++++++++++++++++++++++++++++++-------
- fio.1          |  3 +++
- 3 files changed, 45 insertions(+), 7 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index f082158a..e5ddc89d 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -3013,6 +3013,10 @@ with the caveat that when used on the command line, they must come after the
- 
- 	The S3 key/access id.
- 
-+.. option:: http_s3_security_token=str : [http]
-+
-+	The S3 security token.
-+
- .. option:: http_s3_sse_customer_key=str : [http]
- 
-         The encryption customer key in SSE server side.
-diff --git a/engines/http.c b/engines/http.c
-index 217aa575..b893ec7a 100644
---- a/engines/http.c
-+++ b/engines/http.c
-@@ -56,6 +56,7 @@ struct http_options {
- 	char *pass;
- 	char *s3_key;
- 	char *s3_keyid;
-+	char *s3_security_token;
- 	char *s3_region;
- 	char *s3_sse_customer_key;
- 	char *s3_sse_customer_algorithm;
-@@ -144,6 +145,16 @@ static struct fio_option options[] = {
- 		.category = FIO_OPT_C_ENGINE,
- 		.group    = FIO_OPT_G_HTTP,
- 	},
-+	{
-+		.name     = "http_s3_security_token",
-+		.lname    = "S3 security token",
-+		.type     = FIO_OPT_STR_STORE,
-+		.help     = "S3 security token",
-+		.off1     = offsetof(struct http_options, s3_security_token),
-+		.def	  = "",
-+		.category = FIO_OPT_C_ENGINE,
-+		.group    = FIO_OPT_G_HTTP,
-+	},
- 	{
- 		.name     = "http_swift_auth_token",
- 		.lname    = "Swift auth token",
-@@ -419,7 +430,7 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 	char dkey[128];
- 	char creq[4096];
- 	char sts[512];
--	char s[512];
-+	char s[2048];
- 	char *uri_encoded = NULL;
- 	char *dsha = NULL;
- 	char *csha = NULL;
-@@ -430,6 +441,8 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 	unsigned char sse_key[33] = {0};
- 	char *sse_key_base64 = NULL;
- 	char *sse_key_md5_base64 = NULL;
-+	char security_token_header[2048] = {0};
-+	char security_token_list_item[24] = {0};
- 
- 	time_t t = time(NULL);
- 	struct tm *gtm = gmtime(&t);
-@@ -438,6 +451,12 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 	strftime (date_iso, sizeof(date_iso), "%Y%m%dT%H%M%SZ", gtm);
- 	uri_encoded = _aws_uriencode(uri);
- 
-+	if (o->s3_security_token != NULL) {
-+		snprintf(security_token_header, sizeof(security_token_header),
-+				"x-amz-security-token:%s\n", o->s3_security_token);
-+		sprintf(security_token_list_item, "x-amz-security-token;");
-+	}
-+
- 	if (o->s3_sse_customer_key != NULL)
- 		strncpy((char*)sse_key, o->s3_sse_customer_key, sizeof(sse_key) - 1);
- 
-@@ -467,18 +486,21 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 			"x-amz-server-side-encryption-customer-algorithm:%s\n"
- 			"x-amz-server-side-encryption-customer-key:%s\n"
- 			"x-amz-server-side-encryption-customer-key-md5:%s\n"
-+			"%s" /* security token if provided */
- 			"x-amz-storage-class:%s\n"
- 			"\n"
- 			"host;x-amz-content-sha256;x-amz-date;"
- 			"x-amz-server-side-encryption-customer-algorithm;"
- 			"x-amz-server-side-encryption-customer-key;"
- 			"x-amz-server-side-encryption-customer-key-md5;"
-+			"%s"
- 			"x-amz-storage-class\n"
- 			"%s"
- 			, method
- 			, uri_encoded, o->host, dsha, date_iso
- 			, o->s3_sse_customer_algorithm, sse_key_base64
--			, sse_key_md5_base64, o->s3_storage_class, dsha);
-+			, sse_key_md5_base64, security_token_header
-+			, o->s3_storage_class, security_token_list_item, dsha);
- 	} else {
- 		snprintf(creq, sizeof(creq),
- 			"%s\n"
-@@ -487,12 +509,15 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 			"host:%s\n"
- 			"x-amz-content-sha256:%s\n"
- 			"x-amz-date:%s\n"
-+			"%s" /* security token if provided */
- 			"x-amz-storage-class:%s\n"
- 			"\n"
--			"host;x-amz-content-sha256;x-amz-date;x-amz-storage-class\n"
-+			"host;x-amz-content-sha256;x-amz-date;%sx-amz-storage-class\n"
- 			"%s"
- 			, method
--			, uri_encoded, o->host, dsha, date_iso, o->s3_storage_class, dsha);
-+			, uri_encoded, o->host, dsha, date_iso
-+			, security_token_header, o->s3_storage_class
-+			, security_token_list_item, dsha);
- 	}
- 
- 	csha = _gen_hex_sha256(creq, strlen(creq));
-@@ -526,6 +551,11 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 		slist = curl_slist_append(slist, s);
- 	}
- 
-+	if (o->s3_security_token != NULL) {
-+		snprintf(s, sizeof(s), "x-amz-security-token: %s", o->s3_security_token);
-+		slist = curl_slist_append(slist, s);
-+	}
-+
- 	snprintf(s, sizeof(s), "x-amz-storage-class: %s", o->s3_storage_class);
- 	slist = curl_slist_append(slist, s);
- 
-@@ -535,13 +565,14 @@ static void _add_aws_auth_header(CURL *curl, struct curl_slist *slist, struct ht
- 			"x-amz-date;x-amz-server-side-encryption-customer-algorithm;"
- 			"x-amz-server-side-encryption-customer-key;"
- 			"x-amz-server-side-encryption-customer-key-md5;"
-+			"%s"
- 			"x-amz-storage-class,"
- 			"Signature=%s",
--		o->s3_keyid, date_short, o->s3_region, signature);
-+		o->s3_keyid, date_short, o->s3_region, security_token_list_item, signature);
- 	} else {
- 		snprintf(s, sizeof(s), "Authorization: AWS4-HMAC-SHA256 Credential=%s/%s/%s/s3/aws4_request,"
--			"SignedHeaders=host;x-amz-content-sha256;x-amz-date;x-amz-storage-class,Signature=%s",
--			o->s3_keyid, date_short, o->s3_region, signature);
-+			"SignedHeaders=host;x-amz-content-sha256;x-amz-date;%sx-amz-storage-class,Signature=%s",
-+			o->s3_keyid, date_short, o->s3_region, security_token_list_item, signature);
- 	}
- 	slist = curl_slist_append(slist, s);
- 
-diff --git a/fio.1 b/fio.1
-index 0071c364..cba1273b 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2605,6 +2605,9 @@ The S3 secret key.
- .BI (http)http_s3_keyid \fR=\fPstr
- The S3 key/access id.
- .TP
-+.BI (http)http_s3_security_token \fR=\fPstr
-+The S3 security token.
-+.TP
- .BI (http)http_s3_sse_customer_key \fR=\fPstr
- The encryption customer key in SSE server side.
- .TP
+On Sun, Jun 15, 2025 at 1:12=E2=80=AFAM CyberGym <cybergym.io@gmail.com> wr=
+ote:
+>
+> Hi,
+>
+> We are a team of security researchers at UC Berkeley. We recently identif=
+ied a bug in the latest version of the fio library. In fio/lib/bloom.c, a n=
+ull pointer dereference exception is triggered on line 103 in the __bloom_c=
+heck function. It seems that certain inputs cause the function file_bloom_e=
+xists, in the file fio/filehash.c, to call the function bloom_string on lin=
+e 103 when the variable file_bloom has yet to be initialized. file_bloom is=
+ passed as the first argument to the bloom_string function, which itself is=
+ located in the fio/lib/bloom.c file. bloom_string then calls __bloom_check=
+ with the null pointer as the first argument, ultimately leading to the exc=
+eption.
+>
+> You may find the original input that caused this error below (please unzi=
+p first), with sha256 checksum 78ac354e97f09a8b5fef7332dc3653a328ae955feded=
+239b95eebaff6db9e553.
+>
+> Though, the following input is more concise and preserves the same progra=
+m behavior:
+> [global]
+> numjobs=3D2
+> filename=3Dx
+>
+> Sincerely,
+> UC Berkeley CyberGym Team
