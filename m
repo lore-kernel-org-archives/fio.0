@@ -1,65 +1,65 @@
-Received: from mail-il1-f178.google.com (mail-il1-f178.google.com [209.85.166.178])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 421B1244673
-	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 17:37:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F24211E7C38
+	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 18:28:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753292233; cv=none; b=ikHdCRnQjdkElhnTrMK4hfzT601HVVtWW8m75QFwONgiXLhSgvSlubM8cdkmQXUCKbBtLvYmYM/sqA2FBpLqr4Wo8WryojRezKkX4LlAPav2d3fiMeoP9wKX1KzkUdMfhGKp6EpeZiEYFlzF28KmmceTrZkGePiuIiXmaOYGGqI=
+	t=1753295337; cv=none; b=vB55MlG47AhT8cs/Ajs3Hd9ZumKjGGTbH5CtWmqsB5ZWZqcqpPRKe5NqD41rsuZMXpPjDZn7TuCta5lXjOAfBvNijQUxG+d36TepVtKX70zYrmcVlQkUikgYaVCZjmpi7qZpvkwFhyR+BZQqxAUEBwdP/ru+IxXZnrogHYW+9o0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753292233; c=relaxed/simple;
-	bh=Zaulz08RaapZ05nywo7XzX8a3qhNIM2UPkTnoniZ6iE=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=kr7k1Nvxgf6DF3jJAtT+9xYePg0HvhRmLgb3DORi+XoKxxqzCLdFfBsD97JWQ3Q9NFBKdzMYUqHKD5LMXqLYJVSXwscW9/B37bRrKQdugQ5un088QhNd3b847iyBmWb4f7VYYsG15Br/7Yy1R8LrMLzaXMGo+dfjg9cCT+T6sy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=LTcah5gz; arc=none smtp.client-ip=209.85.166.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1753295337; c=relaxed/simple;
+	bh=iQ58LDDXG/dYToXuG381RspuNkdZRc2ZHp8vBEQkV5Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KdQse9p/mF9Rc2tXd3R5GEquWt0Q6oMmyDsdmDFkO2yORX0/tIr0eCg4ty3PuAgi7HXwAu/E9BUUAHLybxI5Q34NR1IKch4gAO5Lkfr1aRT/HYDuOv3p+cjbiu6MK1A+sYg+7+tfPe/Mej/EhAWnrKkvo8lPiWnrGccdex+rSN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LamB1qy7; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="LTcah5gz"
-Received: by mail-il1-f178.google.com with SMTP id e9e14a558f8ab-3dc9e7d10bdso414265ab.2
-        for <fio@vger.kernel.org>; Wed, 23 Jul 2025 10:37:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LamB1qy7"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6fafdd322d3so1565746d6.3
+        for <fio@vger.kernel.org>; Wed, 23 Jul 2025 11:28:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1753292229; x=1753897029; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=cFW75KPcZHyA1OK+wTZgydGm3N4jV1LwYoEA32ZOoMk=;
-        b=LTcah5gzaN8bq33eCeOUTUgq8EIBhbT3cOxYOHKAISH6q5p68ct9cLBqfS4TE2WJ8I
-         pZckrENwfgoM+19qI6pgIAvot4eXlWY5VH43tjjPpZcJ2iOqDjZXDmETgf+il0kKSyYQ
-         yMU7lGXIW/YQjl99Z4sGZ7D5WnHYkBsoUmbwjq7bbubxxSg3gDmM/qTkCfXRDthWZNOb
-         0MmrnQiSD844nsQ1idpsBB7HtN9fY7ZtwNt4VHNRf+wLPWXKeuW7jeZEg3I+WteCr9/8
-         d8IsZkW2x4cPHzr6dFPjpeju0dS1oOtxspQu7bO9XMxOi3eA2cVyLnWK77zXFqQwALZa
-         7HLg==
+        d=gmail.com; s=20230601; t=1753295335; x=1753900135; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=BW0oKeML6vO0nkLBe3DNI2/taW/aRj/LyyXDKqfwzIg=;
+        b=LamB1qy7y8dDWn1S8H79f8drXfP2QqaU50ho6vnMSE1ygE4BA6NIeui4I8s9IrTOTT
+         +b2+7SEDAkKZXoJvysoZwg8dgzz1fv6kZimlfkQomTIchu7J4FXaEdwZTGAtGj7sEjLY
+         LvAbIqCJhc2AXYWcZ6dykbMdv1eI+J9P4CZV0bSPTIkfMvGJ5CdNhHrUij88Rk0DwUsi
+         5ymAtrHpHSntzM8JgGS6aRc0HCZR2jXSoCzOiy3FZHRv1Rf0EGLycS1/oTyOgr+1L/st
+         vrIGNph5GEdXThaMEpM3hxP7gidKM/p2XO5a+mSrtdxq40NdFi/zBVbqPA/3CXNbNJVE
+         M/Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753292229; x=1753897029;
-        h=content-transfer-encoding:in-reply-to:content-language:references
-         :cc:to:from:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1753295335; x=1753900135;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=cFW75KPcZHyA1OK+wTZgydGm3N4jV1LwYoEA32ZOoMk=;
-        b=uxI07Z5zpi64TMVNGk3M1ChuxzOuwvKQDH63WGdzlOAu5ve2NfVtHvMQHRT2k/x+C9
-         VWHzTnMH4bDIoCLcNfLRnqVu1Baen2AZzHcpWr/w5HRtZ2tK/AtYlxbfE3G2CkEfYIQI
-         JctorRCL38FI9h5VD511gkVtH37MeG30ffxsdV+IPQfhnW1jmIBiVjaqr/EJkG4ERKVi
-         n40lpE3i9ROQBGyho2bay3bZQE2EJL4dfxSGdo7ALlnpWsc30f7S3wPwxFIgrE2hTZ5a
-         Bibs6dQedBPrEWOJHLLC/gvkocqosx1laG0jx1XLKA9at6OR7fphxRtFsLA85+Mzbg1z
-         G4CQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUeuDBkFnpeoMxRXtXeOcndbAXwouriHxJr7hClZ6HIPPbM2LRmgiE+NQS77JEGlFNbwl4=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx9PwIci8DV0vmc2rNs4QnqY9SE5wmrmevsxeqLKQ1cum9lj8KT
-	U0eHsbO/WDPRhvSMueofcNv1pVFpqguJZ2OYdLxBMHgavRzJFxZyf1PmzBboMP/6hSg=
-X-Gm-Gg: ASbGncvsD9CvbtNzgJJ0JYd8Z15+6EG345UepJROrK5v+gmVkO2uN2N/zMMuzSpQ9T0
-	ILahLmQbL//PbG7rDAiQzhgOvZNmTbxD0rgzfl0585nlZa5yJeyMW2SDc+WSLMjokU7R5gSZDsB
-	lWFv59BetRf00ssOmciU8KUEVbbyoRWAZ9jfMgy5W3ad72T0s4uWb042hGGhWj0DEKfztiMXUJ9
-	gTt2Fzr2vKjmnrxxU5kK/XBHJhjl3sI1CxfwoXk45EAgyjWpbkhcj6yB1klckyiIRYqfJJ9em8a
-	IzhHba3zBuhjIylbGfj0xkt8MoRdL42F2OXkefoSzrnm+Pq7FuOnC5uRai2GlngnHiFzIqytZg8
-	eUp8OQ05FlDBJLk5yIA==
-X-Google-Smtp-Source: AGHT+IGMqQ648y8CBYSuKGX3KwTWVhUQxy/HeLVLxAg0PUKr8i9QP6gPyRJ51im9RR+pj3lTLD7frA==
-X-Received: by 2002:a05:6e02:12c9:b0:3dc:804b:2e74 with SMTP id e9e14a558f8ab-3e3355c9439mr63784655ab.19.1753292227162;
-        Wed, 23 Jul 2025 10:37:07 -0700 (PDT)
-Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-5084c8042f4sm3245821173.57.2025.07.23.10.37.06
+        bh=BW0oKeML6vO0nkLBe3DNI2/taW/aRj/LyyXDKqfwzIg=;
+        b=qKCN09P5n0ma9NxeZzxkua3ukOsvaar4vBNMQ5rxHhtwkkAm6Hl+hjwvIcFtbSTKD8
+         MN4ofGWxxoK9yojROjZwCl08su82OclwY7T2OnczpsAsGoUg/+Mw6Mg247eoDl9rxgSX
+         m4SHVtdi4QYbQrCyYQVDrAZlK0i1uj9HlIPAt1U7BuIpww2A1fVrtrW7kTJTnn3+CkpL
+         TySbmVNLiZ2kqNTtFtkhbByC6hEaEtwBFFWbjI1tFZAM+y2AQLPAkksOOhpHNc9/aOFf
+         HQ9jsoWLKi0j2hJb2yRc3RmqDBlHIHpqurLlBFUsLX/Qgq989ErHXkNfBTqJz3fkwx/Y
+         ELFA==
+X-Forwarded-Encrypted: i=1; AJvYcCWC5DrKkrT1HvO/9Chkh9eJRxHl8DAj3GZr3crQSR/QkbRlLog6AO1Ul3y0rQ0F+vfDipY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyGo1wkWgAj4f3ZPweCNYZrN0phECtWtsSB1am71Clqz85CTUcg
+	lyuHflXei7hf/Fi0PTl5EvayoUJ1NseJJdw9IttznYas5Rqu7VOz/prT
+X-Gm-Gg: ASbGnctlxx8cJEUiOjQ5U3QBO0P9cB5vVuD0F6laHJaaqDRf2Yg/MJT5pn8en1Ig5G2
+	+ii84qTqdRWJoImfHjc/KZf1igQWWbh8hN1l6cWtvwIyWcIjIJLlTEr4siV5CnHU63PN3DIn5+8
+	Ea4SWBH7Ge1GnEvz/fe/RnGEoBpD296fS2oLn521LJlEalX1BZGZrbUAPLtWLex10QUmIjdYL1Y
+	zzBfPdmpx3CoaKespzPB07BOYAVsC6P9TeXslx4mo5EyIhgo/Xu1CCzKhZ1s8b9y5514mM6Rw5B
+	GcfVP9Fwk4USikaDna4wcWhyZ4x94d4zED9y4FYV82JuUKqocKPx6hb6omlyvvZ9vx4FMiN4+Lf
+	OysRbg0AXqNCmyWS4yoO9yc5lx82pxLYOj30liU47/2MvYsTKPNf3jvPVcuCLOOKVX309NT8=
+X-Google-Smtp-Source: AGHT+IGWwWO3l6BLcZ5dNihiCr8tgeoyEbUFCV/CFux8eLCpt+cdxxayQ7KuWPprPb2Bw3VXbrhiFw==
+X-Received: by 2002:a05:6214:2aa7:b0:705:2799:caa6 with SMTP id 6a1803df08f44-70700588ff3mr47793536d6.15.1753295334545;
+        Wed, 23 Jul 2025 11:28:54 -0700 (PDT)
+Received: from [192.168.1.211] (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-7051b8e3ea0sm67131786d6.31.2025.07.23.11.28.53
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Jul 2025 10:37:06 -0700 (PDT)
-Message-ID: <e548d5f8-9ebe-46cf-9f43-79be601d2057@kernel.dk>
-Date: Wed, 23 Jul 2025 11:37:05 -0600
+        Wed, 23 Jul 2025 11:28:53 -0700 (PDT)
+Message-ID: <0f56a2e4-81a9-4e4c-9120-b88e9cd1c0c6@gmail.com>
+Date: Wed, 23 Jul 2025 14:28:53 -0400
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -68,47 +68,51 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 1/2] engines/io_uring: support r/w with metadata
-From: Jens Axboe <axboe@kernel.dk>
-To: Vincent Fu <vincentfu@gmail.com>, anuj1072538@gmail.com,
- hch@infradead.org, joshi.k@samsung.com, anuj20.g@samsung.com,
- fio@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, anuj1072538@gmail.com, hch@infradead.org,
+ joshi.k@samsung.com, anuj20.g@samsung.com, fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@samsung.com>
 References: <cover.1753282479.git.vincent.fu@samsung.com>
  <67829b031f25595387d7dce10fa0355d85fbebae.1753282479.git.vincent.fu@samsung.com>
  <15cb4581-7067-40fa-9a1b-8883c9993d2c@kernel.dk>
+ <e548d5f8-9ebe-46cf-9f43-79be601d2057@kernel.dk>
 Content-Language: en-US
-In-Reply-To: <15cb4581-7067-40fa-9a1b-8883c9993d2c@kernel.dk>
-Content-Type: text/plain; charset=UTF-8
+From: Vincent Fu <vincentfu@gmail.com>
+In-Reply-To: <e548d5f8-9ebe-46cf-9f43-79be601d2057@kernel.dk>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
->> +	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
->> +		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
->> +		struct nvme_cmd_ext_io_opts ext_opts = {0};
->> +
->> +		if (data->pi_type) {
->> +			if (o->pi_act)
->> +				ext_opts.io_flags |= NVME_IO_PRINFO_PRACT;
->> +
->> +			ext_opts.io_flags |= o->prchk;
->> +			ext_opts.apptag = o->apptag;
->> +			ext_opts.apptag_mask = o->apptag_mask;
->> +		}
->> +		fio_nvme_generate_guard(io_u, &ext_opts);
->> +	}
+On 7/23/25 1:37 PM, Jens Axboe wrote:
+>>> +	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
+>>> +		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
+>>> +		struct nvme_cmd_ext_io_opts ext_opts = {0};
+>>> +
+>>> +		if (data->pi_type) {
+>>> +			if (o->pi_act)
+>>> +				ext_opts.io_flags |= NVME_IO_PRINFO_PRACT;
+>>> +
+>>> +			ext_opts.io_flags |= o->prchk;
+>>> +			ext_opts.apptag = o->apptag;
+>>> +			ext_opts.apptag_mask = o->apptag_mask;
+>>> +		}
+>>> +		fio_nvme_generate_guard(io_u, &ext_opts);
+>>> +	}
+>>
+>> Ehh a strcmp() in the hot path?! First of all, that's a big no-no.
+>> Secondly, if this really was required, you'd add something to put that
+>> strcmp() in the slow path and flag it. Lastly, thankfully this should be
+>> much better as:
+>>
+>> 	if (td->io_ops == &ioengine_uring ...)
+>>
+>> instead.
 > 
-> Ehh a strcmp() in the hot path?! First of all, that's a big no-no.
-> Secondly, if this really was required, you'd add something to put that
-> strcmp() in the slow path and flag it. Lastly, thankfully this should be
-> much better as:
+> Eh I guess dynamically loaded engines would need special treatment. I'll
+> take a look. In any case, strcmp() is just too ugly to live, actually
+> quite a few in there and the io_uring engine is the only one that thinks
+> this is necessary.
 > 
-> 	if (td->io_ops == &ioengine_uring ...)
-> 
-> instead.
 
-Eh I guess dynamically loaded engines would need special treatment. I'll
-take a look. In any case, strcmp() is just too ugly to live, actually
-quite a few in there and the io_uring engine is the only one that thinks
-this is necessary.
+Thanks for the feedback. How about doing a strcmp at ioengine init time 
+and setting a flag that we can check in the hot path?
 
--- 
-Jens Axboe
+Vincent
