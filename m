@@ -1,65 +1,65 @@
-Received: from mail-il1-f179.google.com (mail-il1-f179.google.com [209.85.166.179])
+Received: from mail-il1-f178.google.com (mail-il1-f178.google.com [209.85.166.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BADD20F079
-	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 17:23:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 421B1244673
+	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 17:37:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753291419; cv=none; b=r1EXcdMunmlJZCJRZqdVBYeP9Sg4ZaFfHJ3g/RU1zR5R/zJXt4cUVG5xM9/cOhu150lGGY5JQrpQLxAIufndmKykvLqCaW990QbK/JOvvRnto+H+RorT9lAtOk/uOdzoOvnQyrSh7UCtSCInmpSlQmIC71KnA03On999tXCiCrg=
+	t=1753292233; cv=none; b=ikHdCRnQjdkElhnTrMK4hfzT601HVVtWW8m75QFwONgiXLhSgvSlubM8cdkmQXUCKbBtLvYmYM/sqA2FBpLqr4Wo8WryojRezKkX4LlAPav2d3fiMeoP9wKX1KzkUdMfhGKp6EpeZiEYFlzF28KmmceTrZkGePiuIiXmaOYGGqI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753291419; c=relaxed/simple;
-	bh=8x1HfKLg9WhxKjXTfE6dP35KYtqcrCPDPwsFM1Y4u9g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SK/y4pxSYLuMUv7TOzB/ChCvKCEwxuDItGuISnt5sPfDdCQJI4UoQ1EbcX+Ajj7v/avEu9kmWjp/m6PiDkTPhtAqOmKNC2NcKREaBWNLceo+6YQLuuFf/iLCf1ARvQGEZZ3MaQxZl5n4b6SND8jNSuQeSRogPP89NE5qHyhDk8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=oSFODI7F; arc=none smtp.client-ip=209.85.166.179
+	s=arc-20240116; t=1753292233; c=relaxed/simple;
+	bh=Zaulz08RaapZ05nywo7XzX8a3qhNIM2UPkTnoniZ6iE=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=kr7k1Nvxgf6DF3jJAtT+9xYePg0HvhRmLgb3DORi+XoKxxqzCLdFfBsD97JWQ3Q9NFBKdzMYUqHKD5LMXqLYJVSXwscW9/B37bRrKQdugQ5un088QhNd3b847iyBmWb4f7VYYsG15Br/7Yy1R8LrMLzaXMGo+dfjg9cCT+T6sy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=LTcah5gz; arc=none smtp.client-ip=209.85.166.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="oSFODI7F"
-Received: by mail-il1-f179.google.com with SMTP id e9e14a558f8ab-3de1875bf9dso413325ab.2
-        for <fio@vger.kernel.org>; Wed, 23 Jul 2025 10:23:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="LTcah5gz"
+Received: by mail-il1-f178.google.com with SMTP id e9e14a558f8ab-3dc9e7d10bdso414265ab.2
+        for <fio@vger.kernel.org>; Wed, 23 Jul 2025 10:37:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1753291415; x=1753896215; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hoM8c9p2obruyw7x1OUD08ugGvmv/O4B+QovOsBBmSU=;
-        b=oSFODI7FBrDwPJ4v5ekuNSMA5f+xPrH1f6/mNdno2Zj4E8lglfXAvTVEYXXCQizbot
-         X/cwWGJBajsqL5iPGnXSps3JuCuq3iPQR33gSbsEUp6Z24TeMsUGBlMVywOo+xGnItuA
-         QdLmJfHbnD+9sZOu7zTGVO2CZ6K5nGGV9fy967LdJ5wrDWda1oZcSMbE23FoyfcgHhJK
-         2vWtPySO6VYeGSd4nub0oxIZ/hL2q9i2mT6oDqaejkUl53uScBFw5XbmdxWWoJEE9Biz
-         0paif5oWezGcOGnqP1lisKckg7jyI5ZYk3t3+3FrjpLmsQJ77KNExnICkwWrRW2HAZpb
-         loIg==
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1753292229; x=1753897029; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=cFW75KPcZHyA1OK+wTZgydGm3N4jV1LwYoEA32ZOoMk=;
+        b=LTcah5gzaN8bq33eCeOUTUgq8EIBhbT3cOxYOHKAISH6q5p68ct9cLBqfS4TE2WJ8I
+         pZckrENwfgoM+19qI6pgIAvot4eXlWY5VH43tjjPpZcJ2iOqDjZXDmETgf+il0kKSyYQ
+         yMU7lGXIW/YQjl99Z4sGZ7D5WnHYkBsoUmbwjq7bbubxxSg3gDmM/qTkCfXRDthWZNOb
+         0MmrnQiSD844nsQ1idpsBB7HtN9fY7ZtwNt4VHNRf+wLPWXKeuW7jeZEg3I+WteCr9/8
+         d8IsZkW2x4cPHzr6dFPjpeju0dS1oOtxspQu7bO9XMxOi3eA2cVyLnWK77zXFqQwALZa
+         7HLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753291415; x=1753896215;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1753292229; x=1753897029;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:from:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=hoM8c9p2obruyw7x1OUD08ugGvmv/O4B+QovOsBBmSU=;
-        b=cYqjOpFkZwNV45mZkdNgbgbX3GIGsVpmFw1Ggk1xN0ccSvAsQmbqfwcl+UltELQflc
-         mEK9TnEDMM7tVloLnQq9IrssUQx1ToR0wc1EvS5Tz4w9MMnO7eZfnxUTCVdTqQg9WvVu
-         ztELMHl8/9KK+FlgLhOmB56JtNLfO6xenCcKdUTyzoDCEXZ5W4P3vfDf4YNID/1hzLl/
-         5k+x8OZLFc19AYBXZz+VEQPZTxd/aVT8psAodoz33V3WkLvOgBGJeKb6VwB6vRq9Zu2E
-         xEx4WG4A87RyVkJvAZT/bBmq4dpdYcKbn8miKSzN88B9iV+yZNwLh/+HsXq5chGMfJmR
-         Yizg==
-X-Forwarded-Encrypted: i=1; AJvYcCVpz7to5gQMtj8zu1OjOZKrY4xNnLD1dN1knDAlxclRRxRo4kbW9i+7DZWxUGFHz9E+698=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYIugKHznnS3Pq+zQPeW9mR3zgCjxyBmO/EBfRey9yBMWu6hX7
-	KqDKzfLBfLkyMZvS5IuDb1RkluoCtpTTb5YbKspH7B8bEI+BHS3pM3E5zoBmMsLMjtY=
-X-Gm-Gg: ASbGncufUasIcua8A2767taAf9oFTNv52gZQhH4dlM0jTvQd4BL9fJ1SZ6qkIrjJSV2
-	0QxtYDO68Hqx0WHwjDwFlYf+iWdwq1toeqOM2K38x8iLg6q1ae4pvPEIhSXcL0rHI+YuAk4uaDo
-	+nLhCQjHMCHIjQjJHKbHAVFucdG4/4MzmlOsjDLAlQ+v2sN24b0MkXMviCeHShBuz2Aa4K8wH/u
-	e497LO0VXmBUh5aIRojip96jyrqn8Oo/z7/MzDknqZMkhVjI1Q9s6KuFDDSwpcC9h+/+3Fe2da6
-	mgA/XkKfsJwohJlG0R6JQFXlvhz7god8xooxsPgnKcq4ykjqKDu/AHaX/Fq03yjvgq0iYN4bK9l
-	J7LLuQfSVm7yXzuFE/Q==
-X-Google-Smtp-Source: AGHT+IFaAebrThKaqXa5aepggrfLDUiT3Sd/sXxrPzceOyrDa6VRUwvTwgvoQ0NxxY1W8XE3UA4hVw==
-X-Received: by 2002:a92:cd8d:0:b0:3df:460a:ec3c with SMTP id e9e14a558f8ab-3e3355d0264mr72965695ab.22.1753291414008;
-        Wed, 23 Jul 2025 10:23:34 -0700 (PDT)
+        bh=cFW75KPcZHyA1OK+wTZgydGm3N4jV1LwYoEA32ZOoMk=;
+        b=uxI07Z5zpi64TMVNGk3M1ChuxzOuwvKQDH63WGdzlOAu5ve2NfVtHvMQHRT2k/x+C9
+         VWHzTnMH4bDIoCLcNfLRnqVu1Baen2AZzHcpWr/w5HRtZ2tK/AtYlxbfE3G2CkEfYIQI
+         JctorRCL38FI9h5VD511gkVtH37MeG30ffxsdV+IPQfhnW1jmIBiVjaqr/EJkG4ERKVi
+         n40lpE3i9ROQBGyho2bay3bZQE2EJL4dfxSGdo7ALlnpWsc30f7S3wPwxFIgrE2hTZ5a
+         Bibs6dQedBPrEWOJHLLC/gvkocqosx1laG0jx1XLKA9at6OR7fphxRtFsLA85+Mzbg1z
+         G4CQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUeuDBkFnpeoMxRXtXeOcndbAXwouriHxJr7hClZ6HIPPbM2LRmgiE+NQS77JEGlFNbwl4=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx9PwIci8DV0vmc2rNs4QnqY9SE5wmrmevsxeqLKQ1cum9lj8KT
+	U0eHsbO/WDPRhvSMueofcNv1pVFpqguJZ2OYdLxBMHgavRzJFxZyf1PmzBboMP/6hSg=
+X-Gm-Gg: ASbGncvsD9CvbtNzgJJ0JYd8Z15+6EG345UepJROrK5v+gmVkO2uN2N/zMMuzSpQ9T0
+	ILahLmQbL//PbG7rDAiQzhgOvZNmTbxD0rgzfl0585nlZa5yJeyMW2SDc+WSLMjokU7R5gSZDsB
+	lWFv59BetRf00ssOmciU8KUEVbbyoRWAZ9jfMgy5W3ad72T0s4uWb042hGGhWj0DEKfztiMXUJ9
+	gTt2Fzr2vKjmnrxxU5kK/XBHJhjl3sI1CxfwoXk45EAgyjWpbkhcj6yB1klckyiIRYqfJJ9em8a
+	IzhHba3zBuhjIylbGfj0xkt8MoRdL42F2OXkefoSzrnm+Pq7FuOnC5uRai2GlngnHiFzIqytZg8
+	eUp8OQ05FlDBJLk5yIA==
+X-Google-Smtp-Source: AGHT+IGMqQ648y8CBYSuKGX3KwTWVhUQxy/HeLVLxAg0PUKr8i9QP6gPyRJ51im9RR+pj3lTLD7frA==
+X-Received: by 2002:a05:6e02:12c9:b0:3dc:804b:2e74 with SMTP id e9e14a558f8ab-3e3355c9439mr63784655ab.19.1753292227162;
+        Wed, 23 Jul 2025 10:37:07 -0700 (PDT)
 Received: from [192.168.1.116] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-5084ca6183asm3129519173.130.2025.07.23.10.23.33
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-5084c8042f4sm3245821173.57.2025.07.23.10.37.06
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 23 Jul 2025 10:23:33 -0700 (PDT)
-Message-ID: <15cb4581-7067-40fa-9a1b-8883c9993d2c@kernel.dk>
-Date: Wed, 23 Jul 2025 11:23:32 -0600
+        Wed, 23 Jul 2025 10:37:06 -0700 (PDT)
+Message-ID: <e548d5f8-9ebe-46cf-9f43-79be601d2057@kernel.dk>
+Date: Wed, 23 Jul 2025 11:37:05 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -68,176 +68,47 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 1/2] engines/io_uring: support r/w with metadata
+From: Jens Axboe <axboe@kernel.dk>
 To: Vincent Fu <vincentfu@gmail.com>, anuj1072538@gmail.com,
  hch@infradead.org, joshi.k@samsung.com, anuj20.g@samsung.com,
  fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@samsung.com>
 References: <cover.1753282479.git.vincent.fu@samsung.com>
  <67829b031f25595387d7dce10fa0355d85fbebae.1753282479.git.vincent.fu@samsung.com>
-From: Jens Axboe <axboe@kernel.dk>
+ <15cb4581-7067-40fa-9a1b-8883c9993d2c@kernel.dk>
 Content-Language: en-US
-In-Reply-To: <67829b031f25595387d7dce10fa0355d85fbebae.1753282479.git.vincent.fu@samsung.com>
+In-Reply-To: <15cb4581-7067-40fa-9a1b-8883c9993d2c@kernel.dk>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 7/23/25 11:04 AM, Vincent Fu wrote:
-> @@ -436,6 +502,27 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
->  				sqe->len = 1;
->  			}
->  		}
-> +		if (o->md_per_io_size) {
-> +			struct io_uring_attr_pi *pi_attr = io_u->pi_attr;
-> +			struct nvme_data *data = FILE_ENG_DATA(io_u->file);
-> +
-> +			sqe->attr_type_mask = IORING_RW_ATTR_FLAG_PI;
-> +			sqe->attr_ptr = (__u64)(uintptr_t)pi_attr;
-> +			pi_attr->addr = (__u64)(uintptr_t)io_u->mmap_data;
-> +			pi_attr->len = o->md_per_io_size;
-> +			pi_attr->app_tag = o->apptag;
-> +			pi_attr->flags = 0;
-> +			if (strstr(o->pi_chk, "GUARD") != NULL)
-> +				pi_attr->flags |= IO_INTEGRITY_CHK_GUARD;
-> +			if (strstr(o->pi_chk, "REFTAG") != NULL) {
-> +				__u64 slba = get_slba(data, io_u->offset);
-> +
-> +				pi_attr->flags |= IO_INTEGRITY_CHK_REFTAG;
-> +				pi_attr->seed = (__u32)slba;
-> +			}
-> +			if (strstr(o->pi_chk, "APPTAG") != NULL)
-> +				pi_attr->flags |= IO_INTEGRITY_CHK_APPTAG;
-> +		}
+>> +	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
+>> +		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
+>> +		struct nvme_cmd_ext_io_opts ext_opts = {0};
+>> +
+>> +		if (data->pi_type) {
+>> +			if (o->pi_act)
+>> +				ext_opts.io_flags |= NVME_IO_PRINFO_PRACT;
+>> +
+>> +			ext_opts.io_flags |= o->prchk;
+>> +			ext_opts.apptag = o->apptag;
+>> +			ext_opts.apptag_mask = o->apptag_mask;
+>> +		}
+>> +		fio_nvme_generate_guard(io_u, &ext_opts);
+>> +	}
+> 
+> Ehh a strcmp() in the hot path?! First of all, that's a big no-no.
+> Secondly, if this really was required, you'd add something to put that
+> strcmp() in the slow path and flag it. Lastly, thankfully this should be
+> much better as:
+> 
+> 	if (td->io_ops == &ioengine_uring ...)
+> 
+> instead.
 
-I'd move these out-of-line whenever possible. It both improves
-readability, but also conveys that this isn't necessarily the normal/hot
-path.
-
-> @@ -590,6 +678,19 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
->  			io_u->error = -cqe->res;
->  		else
->  			io_u->resid = io_u->xfer_buflen - cqe->res;
-> +		return io_u;
-> +	}
-> +
-> +	if (o->md_per_io_size) {
-> +		struct nvme_data *data;
-> +		int ret;
-> +
-> +		data = FILE_ENG_DATA(io_u->file);
-> +		if (data->pi_type && (io_u->ddir == DDIR_READ) && !o->pi_act) {
-> +			ret = fio_nvme_pi_verify(data, io_u);
-> +			if (ret)
-> +				io_u->error = ret;
-> +		}
->  	}
-
-Ditto
-
-> +	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
-> +		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
-> +		struct nvme_cmd_ext_io_opts ext_opts = {0};
-> +
-> +		if (data->pi_type) {
-> +			if (o->pi_act)
-> +				ext_opts.io_flags |= NVME_IO_PRINFO_PRACT;
-> +
-> +			ext_opts.io_flags |= o->prchk;
-> +			ext_opts.apptag = o->apptag;
-> +			ext_opts.apptag_mask = o->apptag_mask;
-> +		}
-> +		fio_nvme_generate_guard(io_u, &ext_opts);
-> +	}
-
-Ehh a strcmp() in the hot path?! First of all, that's a big no-no.
-Secondly, if this really was required, you'd add something to put that
-strcmp() in the slow path and flag it. Lastly, thankfully this should be
-much better as:
-
-	if (td->io_ops == &ioengine_uring ...)
-
-instead.
-
-> @@ -1347,12 +1464,20 @@ static int fio_ioring_init(struct thread_data *td)
->  	/* io_u index */
->  	ld->io_u_index = calloc(td->o.iodepth, sizeof(struct io_u *));
->  
-> +	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
-> +		if (o->apptag_mask != 0xffff) {
-> +			log_err("fio: io_uring with metadata requires an apptag_mask of 0xffff\n");
-> +			return 1;
-> +		}
-> +	}
-
-Same, though this is at least slow path. But people copy-paste wonky
-code like that all the time...
-
->  	 * metadata buffer for nvme command.
->  	 * We are only supporting iomem=malloc / mem=malloc as of now.
->  	 */
-> -	if (!strcmp(td->io_ops->name, "io_uring_cmd") &&
-> -	    (o->cmd_type == FIO_URING_CMD_NVME) && o->md_per_io_size) {
-> +	if ((!strcmp(td->io_ops->name, "io_uring_cmd") &&
-> +	    (o->cmd_type == FIO_URING_CMD_NVME) && o->md_per_io_size) ||
-> +	    (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size)) {
->  		md_size = (unsigned long long) o->md_per_io_size
->  				* (unsigned long long) td->o.iodepth;
->  		md_size += page_mask + td->o.mem_align;
-
-And I'm starting to see where this is coming from. If you are so
-inclined, please do a cleanup patch first getting rid of these strcmp()
-calls.
-
->  static int fio_ioring_open_file(struct thread_data *td, struct fio_file *f)
->  {
->  	struct ioring_data *ld = td->io_ops_data;
->  	struct ioring_options *o = td->eo;
->  
-> +	if (o->md_per_io_size) {
-> +		struct nvme_data *data = NULL;
-> +		__u64 nlba = 0;
-> +		int ret;
-> +
-> +		data = FILE_ENG_DATA(f);
-> +		if (data == NULL) {
-> +			data = calloc(1, sizeof(struct nvme_data));
-> +			ret = fio_get_pi_info(f, &nlba, o->pi_act, data);
-> +			if (ret) {
-> +				free(data);
-> +				return ret;
-> +			}
-> +
-> +			FILE_SET_ENG_DATA(f, data);
-> +		}
-> +	}
-
-Out of line please...
-
-> diff --git a/engines/nvme.c b/engines/nvme.c
-> index 37a31e2f..4b3d3860 100644
-> --- a/engines/nvme.c
-> +++ b/engines/nvme.c
-> @@ -8,22 +8,6 @@
->  #include "../crc/crc-t10dif.h"
->  #include "../crc/crc64.h"
->  
-> -static inline __u64 get_slba(struct nvme_data *data, __u64 offset)
-> -{
-> -	if (data->lba_ext)
-> -		return offset / data->lba_ext;
-> -
-> -	return offset >> data->lba_shift;
-> -}
-> -
-> -static inline __u32 get_nlb(struct nvme_data *data, __u64 len)
-> -{
-> -	if (data->lba_ext)
-> -		return len / data->lba_ext - 1;
-> -
-> -	return (len >> data->lba_shift) - 1;
-> -}
-> -
-
-Various bits like this, please do a prep patch first moving things
-around.
+Eh I guess dynamically loaded engines would need special treatment. I'll
+take a look. In any case, strcmp() is just too ugly to live, actually
+quite a few in there and the io_uring engine is the only one that thinks
+this is necessary.
 
 -- 
 Jens Axboe
