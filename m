@@ -1,191 +1,242 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC55018C928
-	for <fio@vger.kernel.org>; Sat, 19 Jul 2025 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E19E146BF
+	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752926412; cv=none; b=HIkYp6u/LWvjvjU2yXnwNDzQ3byoCCPGpn2bUnkwubULRZ3Wyjsl+uS2eYPCqoElDpHT8wxf0UujNxeV77/uounbXeZYvdNMSiQ848zYJxRU8ONpCVZi+K35Suo5VW+G+1nfA7zjtP5lcKZKd2DQ8baEVhjl+KEMo8YG0CjwhiQ=
+	t=1753272014; cv=none; b=dapOfYj4Bg/qoF13kShje+GvOAnDYThL2iRpSDEDBui+5NLX91B50tdqzHOhww36KqnwsfZKocdZWcmyUDd5qrp40IXgSjmN2cCk/Am+sLhxBieyTHhfb/8Z66ebBt5sfVuRj8zzRyjCoqvGhphDeNGQaX6D2F2ermrCyGFE/kU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752926412; c=relaxed/simple;
-	bh=YvF+X6JgNcWIEAxzAQAdUyMZ/4UIG6sco4GIlEynybM=;
-	h=Subject:From:To:Message-Id:Date; b=dxlSVHsZ2zrCG5Qc6EM+X5IKx2MZvyScUOgRO+4sQ9vEeXpWPAf4VS3cOPCVkmhL0sBN1EaMZjEplRMQj5eEiZM9B+nzMB3YtVBAXeTjgSQH7o9XPndUcq4KxIQafLOU6XJTtX+tEHYq6ZAlVhpfRCQLR/eyE7VFKYM0qmM+0/k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=nulRu4A6; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1753272014; c=relaxed/simple;
+	bh=7IlYb5cKdR/e0kha1rrJEwIxl5qkW8X7auddgSKFEC8=;
+	h=Subject:From:To:Message-Id:Date; b=DjLyeOcLoi+yRNM+Wsh39jL4OfpGUZX+Eh/xespJkuWEo6a0cx1wI0x3BCe5c52cRZkbkq22pFVs8nc9UvSO8aZeKBWQJFkSdwiV94NXTZqZnaY3Trjk1+5SqdH1QvQq+MDz97NyOVsQwzwfb2YfAyOT+9cfE7XjDBvMEatJ/1U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QiEQsNsh; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="nulRu4A6"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QiEQsNsh"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=desiato.20200630; h=Date:Message-Id:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=haivQvxkpt2y3iBUimN42kNeVGjWnNp5BPVGUV+c4MA=; b=nulRu4A6HvaFcpAQeXTrJx/ltX
-	v2LBREQS6WITtyucSMDNBnavxbC2zysKUjFJiHGNGxt9pUS0FzJCx/2nwNeFnwSRIKzy4BXbJJo+B
-	7uZOsryyizdGeZlGsZaYDo+Xla6jD+/UBUNtv8V+TAuezZBtnJNgov5K+VQiADSvAUz5doItZSysc
-	MEZnotv5LxtzTfoLpyxqUEvUTkhysKdIqheKBtQXduN+7y7xHHpKnIl4CuLMAEv+QCKIQtr7HuvFi
-	ZMRXlEJgMS/1+BYL0PXhG6DuxBV2o98XGEaDrk2bkOiVmKhTCQ9Y88NOsTfYFUP3y+VWc8EXH7ouW
-	2Kolrt/w==;
+	bh=8Ofis37Xa8Ccaa7O1RLIAlXM4kYPgHCTzQMSn9c3tc4=; b=QiEQsNshAWGBbySk8plfNne8Qz
+	5FrJYwve/qEnlGqVhEIpzgbduAVfFnUunVq8u7nTqgrXE8J0nK1lBiF4Rp7KIfnGrrfgOYX9Y/P+S
+	pzU72GhfD66SkymR0smZEgo5/pGIVNQc5UFnF40jGVk/IUJiRgVMxCUEw5huviUP38WkVoOQKLDxm
+	ODMSApMHhvpJ2hsZMErCoCtcVpek0+/9cZNRgnt707OWTMekmr3nbIYNXcUhbGJ1aar3G/7h4N6rO
+	cJ3GRBoClYrYVssRMfyMZTO/9L5VuR/eCnTT37ia3J2yBEk9d7CRtpBfjV1faOkMbtz3yV6eMU32R
+	tStqFB/w==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1ud6EX-0000000E3fn-0jGD
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1ueY8j-0000000BSm6-08zf
 	for fio@vger.kernel.org;
-	Sat, 19 Jul 2025 12:00:05 +0000
+	Wed, 23 Jul 2025 12:00:05 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 1B3021BC0155; Sat, 19 Jul 2025 06:00:02 -0600 (MDT)
+	id 2B3451BC015E; Wed, 23 Jul 2025 06:00:02 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20250719120002.1B3021BC0155@kernel.dk>
-Date: Sat, 19 Jul 2025 06:00:02 -0600 (MDT)
+Message-Id: <20250723120002.2B3451BC015E@kernel.dk>
+Date: Wed, 23 Jul 2025 06:00:02 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit 34fa726e0ae0236c36fb1409bddeab2bab7839d2:
+The following changes since commit 60c19edf22e4a81fe0320370c2386c5b42127dc0:
 
-  Merge branch 'fsync-get-io-u-from-freelist' of https://github.com/jeongjonghwi/fio (2025-07-16 11:59:46 -0400)
+  Merge branch 'fix/io_uring-cq-reap' of https://github.com/calebsander/fio (2025-07-18 12:38:12 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 60c19edf22e4a81fe0320370c2386c5b42127dc0:
+for you to fetch changes up to 258e96aa863a48c86439a1dac54da7703252ee70:
 
-  Merge branch 'fix/io_uring-cq-reap' of https://github.com/calebsander/fio (2025-07-18 12:38:12 -0600)
+  Merge branch 'filetype-option' of https://github.com/struschev/fio (2025-07-22 09:47:31 -0400)
 
 ----------------------------------------------------------------
-Caleb Sander Mateos (7):
-      Revert "engines/io_uring: update getevents max to reflect previously seen events"
-      engines/io_uring: consolidate fio_ioring_cqring_reap() arguments
-      engines/io_uring: remove loop over CQEs in fio_ioring_cqring_reap()
-      engines/io_uring: return unsigned from fio_ioring_cqring_reap()
-      engines/io_uring: simplify getevents control flow
-      arch: add atomic_store_relaxed()
-      engines/io_uring: relax CQ head atomic store ordering
+Sergey Truschev (1):
+      fio: add filetype option
 
-Jens Axboe (1):
-      Merge branch 'fix/io_uring-cq-reap' of https://github.com/calebsander/fio
+Vincent Fu (1):
+      Merge branch 'filetype-option' of https://github.com/struschev/fio
 
- arch/arch.h        |  5 +++++
- engines/io_uring.c | 46 +++++++++++++++++++++++-----------------------
- 2 files changed, 28 insertions(+), 23 deletions(-)
+ HOWTO.rst        | 16 ++++++++++++++++
+ cconv.c          |  2 ++
+ filesetup.c      |  5 ++++-
+ fio.1            | 22 ++++++++++++++++++++++
+ options.c        | 16 ++++++++++++++++
+ server.h         |  2 +-
+ thread_options.h |  3 ++-
+ 7 files changed, 63 insertions(+), 3 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/arch/arch.h b/arch/arch.h
-index 7e294ddf..437736f8 100644
---- a/arch/arch.h
-+++ b/arch/arch.h
-@@ -53,6 +53,8 @@ extern unsigned long arch_flags;
- #define atomic_load_acquire(p)					\
- 	std::atomic_load_explicit(p,				\
- 			     std::memory_order_acquire)
-+#define atomic_store_relaxed(p, v)				\
-+	std::atomic_store_explicit((p), (v), std::memory_order_relaxed)
- #define atomic_store_release(p, v)				\
- 	std::atomic_store_explicit(p, (v),			\
- 			     std::memory_order_release)
-@@ -67,6 +69,9 @@ extern unsigned long arch_flags;
- #define atomic_load_acquire(p)					\
- 	atomic_load_explicit((_Atomic typeof(*(p)) *)(p),	\
- 			     memory_order_acquire)
-+#define atomic_store_relaxed(p, v)				\
-+	atomic_store_explicit((_Atomic typeof(*(p)) *)(p), (v),	\
-+			      memory_order_relaxed)
- #define atomic_store_release(p, v)				\
- 	atomic_store_explicit((_Atomic typeof(*(p)) *)(p), (v),	\
- 			      memory_order_release)
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index c87e1cd4..87018f84 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -674,25 +674,26 @@ static char *fio_ioring_cmd_errdetails(struct thread_data *td,
- 	return msg;
- }
+diff --git a/HOWTO.rst b/HOWTO.rst
+index e5ddc89d..55ebc388 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -854,6 +854,22 @@ Target file/device
+ 	generated filenames (with a directory specified) with the source of the
+ 	client connecting. To disable this behavior, set this option to 0.
  
--static int fio_ioring_cqring_reap(struct thread_data *td, unsigned int events,
--				   unsigned int max)
-+static unsigned fio_ioring_cqring_reap(struct thread_data *td, unsigned int max)
- {
- 	struct ioring_data *ld = td->io_ops_data;
- 	struct io_cq_ring *ring = &ld->cq_ring;
--	unsigned head, reaped = 0;
-+	unsigned head = *ring->head;
-+	unsigned available = atomic_load_acquire(ring->tail) - head;
- 
--	head = *ring->head;
--	do {
--		if (head == atomic_load_acquire(ring->tail))
--			break;
--		reaped++;
--		head++;
--	} while (reaped + events < max);
--
--	if (reaped)
--		atomic_store_release(ring->head, head);
-+	if (!available)
-+		return 0;
- 
--	return reaped;
-+	available = min(available, max);
-+	/*
-+	 * The CQ consumer index is advanced before the CQEs are actually read.
-+	 * This is generally unsafe, as it lets the kernel reuse the CQE slots.
-+	 * However, the CQ is sized large enough for the maximum iodepth and a
-+	 * new SQE won't be submitted until the CQE is processed, so the CQE
-+	 * slot won't actually be reused until it has been processed.
-+	 */
-+	atomic_store_relaxed(ring->head, head + available);
-+	return available;
- }
- 
- static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
-@@ -706,14 +707,15 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
- 	int r;
- 
- 	ld->cq_ring_off = *ring->head;
--	do {
--		r = fio_ioring_cqring_reap(td, events, max);
-+	for (;;) {
-+		r = fio_ioring_cqring_reap(td, max - events);
- 		if (r) {
- 			events += r;
--			max -= r;
-+			if (events >= min)
-+				return events;
++.. option:: filetype=str
 +
- 			if (actual_min != 0)
- 				actual_min -= r;
--			continue;
- 		}
++	Assume that all files defined in a job are of this type. By default fio
++	will do :manpage:`stat(2)` for each file to know its file type. For huge
++	filesets it might be a bottleneck, so the option can be used to skip the
++	huge number of syscalls. The file types are:
++
++		**none**
++			Unset. The default.
++		**file**
++			Regular file.
++		**block**
++			Block device file.
++		**char**
++			Char device file.
++
+ .. option:: opendir=str
  
- 		if (!o->sqpoll_thread) {
-@@ -724,12 +726,10 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
- 					continue;
- 				r = -errno;
- 				td_verror(td, errno, "io_uring_enter");
--				break;
-+				return r;
- 			}
- 		}
--	} while (events < min);
--
--	return r < 0 ? r : events;
-+	}
- }
+         Recursively open any files below directory `str`. This accepts only a
+diff --git a/cconv.c b/cconv.c
+index d2faf83e..4e72ae16 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -172,6 +172,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->create_fsync = le32_to_cpu(top->create_fsync);
+ 	o->create_on_open = le32_to_cpu(top->create_on_open);
+ 	o->create_only = le32_to_cpu(top->create_only);
++	o->filetype = le32_to_cpu(top->filetype);
+ 	o->end_fsync = le32_to_cpu(top->end_fsync);
+ 	o->pre_read = le32_to_cpu(top->pre_read);
+ 	o->sync_io = le32_to_cpu(top->sync_io);
+@@ -436,6 +437,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->create_fsync = cpu_to_le32(o->create_fsync);
+ 	top->create_on_open = cpu_to_le32(o->create_on_open);
+ 	top->create_only = cpu_to_le32(o->create_only);
++	top->filetype = cpu_to_le32(o->filetype);
+ 	top->end_fsync = cpu_to_le32(o->end_fsync);
+ 	top->pre_read = cpu_to_le32(o->pre_read);
+ 	top->sync_io = cpu_to_le32(o->sync_io);
+diff --git a/filesetup.c b/filesetup.c
+index 50406c69..a94d3b38 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -1833,7 +1833,10 @@ int add_file(struct thread_data *td, const char *fname, int numjob, int inc)
+ 	/* can't handle smalloc failure from here */
+ 	assert(f->file_name);
  
- static inline void fio_ioring_cmd_nvme_pi(struct thread_data *td,
-@@ -884,7 +884,7 @@ static int fio_ioring_commit(struct thread_data *td)
- 			continue;
- 		} else {
- 			if (errno == EAGAIN || errno == EINTR) {
--				ret = fio_ioring_cqring_reap(td, 0, ld->queued);
-+				ret = fio_ioring_cqring_reap(td, ld->queued);
- 				if (ret)
- 					continue;
- 				/* Shouldn't happen */
+-	get_file_type(f);
++	if (td->o.filetype)
++		f->filetype = td->o.filetype;
++	else
++		get_file_type(f);
+ 
+ 	switch (td->o.file_lock_mode) {
+ 	case FILE_LOCK_NONE:
+diff --git a/fio.1 b/fio.1
+index cba1273b..5bcb1d46 100644
+--- a/fio.1
++++ b/fio.1
+@@ -635,6 +635,28 @@ To avoid collisions between networked clients, fio defaults to prefixing any
+ generated filenames (with a directory specified) with the source of the
+ client connecting. To disable this behavior, set this option to 0.
+ .TP
++.BI filetype \fR=\fPstr
++Assume that all files defined in a job are of this type. By default fio will do
++\fBstat\fR\|(2) for each file to know its file type. For huge filesets it might
++be a bottleneck, so the option can be used to skip the huge number of syscalls.
++The file types are:
++.RS
++.RS
++.TP
++.B none
++Unset. The default.
++.TP
++.B file
++Regular file.
++.TP
++.B block
++Block device file.
++.TP
++.B char
++Char device file.
++.RE
++.RE
++.TP
+ .BI opendir \fR=\fPstr
+ Recursively open any files below directory \fIstr\fR. This accepts only a
+ single directory and unlike related options, colons appearing in the path must
+diff --git a/options.c b/options.c
+index cfece3fe..6295a616 100644
+--- a/options.c
++++ b/options.c
+@@ -1954,6 +1954,22 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.category = FIO_OPT_C_FILE,
+ 		.group	= FIO_OPT_G_FILENAME,
+ 	},
++	{
++		.name   = "filetype",
++		.lname  = "file_type",
++		.type   = FIO_OPT_STR,
++		.off1   = offsetof(struct thread_options, filetype),
++		.help   = "Assume all files defined in a job are of this type",
++		.def    = "none",
++		.group  = FIO_OPT_G_IO_BASIC,
++		.category = FIO_OPT_C_FILE,
++		.posval = {
++			  { .ival = "none",  .oval = 0 },
++			  { .ival = "file",  .oval = FIO_TYPE_FILE },
++			  { .ival = "block", .oval = FIO_TYPE_BLOCK },
++			  { .ival = "char",  .oval = FIO_TYPE_CHAR },
++		},
++	},
+ 	{
+ 		.name	= "directory",
+ 		.lname	= "Directory",
+diff --git a/server.h b/server.h
+index 713fd8e4..f0b15a22 100644
+--- a/server.h
++++ b/server.h
+@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
+ };
+ 
+ enum {
+-	FIO_SERVER_VER			= 111,
++	FIO_SERVER_VER			= 112,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
+diff --git a/thread_options.h b/thread_options.h
+index 6c9dd80a..1b26ab58 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -127,6 +127,7 @@ struct thread_options {
+ 
+ 	unsigned int nr_files;
+ 	unsigned int open_files;
++	unsigned int filetype;
+ 	enum file_lock_mode file_lock_mode;
+ 
+ 	unsigned int odirect;
+@@ -461,6 +462,7 @@ struct thread_options_pack {
+ 
+ 	uint32_t nr_files;
+ 	uint32_t open_files;
++	uint32_t filetype;
+ 	uint32_t file_lock_mode;
+ 
+ 	uint32_t odirect;
+@@ -519,7 +521,6 @@ struct thread_options_pack {
+ 
+ 	struct zone_split zone_split[DDIR_RWDIR_CNT][ZONESPLIT_MAX];
+ 	uint32_t zone_split_nr[DDIR_RWDIR_CNT];
+-	uint32_t pad2;
+ 
+ 	fio_fp64_t zipf_theta;
+ 	fio_fp64_t pareto_h;
