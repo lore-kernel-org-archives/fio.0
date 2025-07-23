@@ -1,64 +1,64 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A24A3170A26
-	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 17:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8CA86328
+	for <fio@vger.kernel.org>; Wed, 23 Jul 2025 17:05:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753290356; cv=none; b=H7ws4bIDTlymWFaEmPCBnu7+XfQ2RhZpf6oPQLvugPzHD8EbKu4bVFFYF9+ZllyWwHljYmKP6EidVRnjJPLY1/vV8z53o4bJqhjR6uwoxTXdMcRilrUEf/sAqQtJ/f1oJ+gDR832jzPGekSFMmG6xn94KxCw9/yyhzKLszU7uME=
+	t=1753290356; cv=none; b=gaZXOMn+t4sBdFXI5WnnNy5o77VtsSjbqnzr1+QK9JQbWnF3i9lwS8wbfERZssROTqJSF4hgHoR9dK/xiydF+lRBvPomWIl8DCYuHr/TmpFMB2MsFhA38ZAnwkftyS0HuISacroa9aCAVjDCK5hs3IKHJDlPILYUXGb0ZZBCuaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1753290356; c=relaxed/simple;
-	bh=O+KFKDrPUIF2UbCV1mUBLUnUsDlSPejmSaUkoslRqnI=;
+	bh=5hU767KSVAZrqOCdfMom9BO0uhqrm11PciBL8lPC8pI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FxU2UKb3Pwzc6vYBOesT/LEbJiExg7wzWV8Ml4Wfge5G7+4soUYvsE582XCsHzj5tpiTkrW8skD7U/JKIlYJR+zNGm2rFlF+E8j3M5in2YuYrv1Hvsnbx5mrvlyU6BNgHvabvYCwwssmLw99HwKQ8B5CrMpwrJ14mBBz1Rn82D8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f4U6rqXT; arc=none smtp.client-ip=209.85.222.177
+	 MIME-Version; b=UZJGOHRr/9qL1sgpsEzPmXySdhyDjVHD2JxZpwVgiKW8XlS/eDvFMaiMgqV3YwSJcMAV50xaNS63ZZ1mQhaPu0Dz+FnWjmttMpBeqqEgCjroTGStfVUGyMPaemA+DMo3sF4qgbl1xsg/SPuoIBpDgJq5iGjZm+HteUv2pIuRatU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gW35qEbd; arc=none smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f4U6rqXT"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7d5d1feca18so12349285a.2
-        for <fio@vger.kernel.org>; Wed, 23 Jul 2025 10:05:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gW35qEbd"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-7e1f3b95449so121637885a.1
+        for <fio@vger.kernel.org>; Wed, 23 Jul 2025 10:05:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753290352; x=1753895152; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753290354; x=1753895154; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YW7RIdHUGUV5KaHtNNcsoT4BCGaTH96o4Rnu6LnR6gE=;
-        b=f4U6rqXTMRKyGfH7A91h4keNcYZx5xUBzrSNryazBD/HEeyIwo3USTFqaYiaUj7lNp
-         6UyFYdhVMLTyEM4fpZ17HICppqgSgMLmbZ0mnB9iTq0wjMldhPwUphh9DpdCyBgVyHqR
-         62sgw5nbXBaSGw9KNTbiQVA3uH1Q46FK5YQDWbJju53azOMSMv0vsIutVcTgIN3fLfD1
-         g+jIoA4cnfmKXk0PSKnW8IkIxkGJGAyD5kcDjhQq8VoDgvFlIUoIgff8GIvDcAXKQwc/
-         y7Nnda3hbFXtLs9KL6B8OaZF/1ZbvF2AfEH2P9q1sxSd442wnjRvwdY8pQaegW559CL1
-         fj2A==
+        bh=3eb9oWDW587rFkJHfW0hQakiCOY4UTSJjXEhXcs44m0=;
+        b=gW35qEbdHCwOPCe/srCOD5vZSouqLoCJPgDNMtHJNhxOg2qui8rhJV+UX2i8EmZBdi
+         AaSANcAiPfdsmE4FY99/9pXcgKYlnE8jFzs7bE5CQG6KrwhPeIkKf2m+xtA/duVsTwLs
+         dnnb4NlRZvlvHspL5GWnNUGd9ufAxUnusGWDbIyr4E1LL5wAx7mhX+iy/jrH/MIKrMY+
+         ZaZ94m/JKWdR9bUJDRo6zhX5IqjTmYy63gcPg+S6tskMYeM5+K00bWjQf3Jxm5S/XtjO
+         9gjrRsq448rpAcMMXqFoPNidF0L9WypzDHjKgamqefEQoGo5thkdEJ60b5VPKsdJ4vqc
+         ZAiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753290352; x=1753895152;
+        d=1e100.net; s=20230601; t=1753290354; x=1753895154;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YW7RIdHUGUV5KaHtNNcsoT4BCGaTH96o4Rnu6LnR6gE=;
-        b=BdfWMCl8zJs4JDQ/yFmr/gBOCRgF+wik9h2U8Iu4kMbzAaE9W4+Nescmvh8MYAY0ZL
-         JHCtxVd4tKj22iXh8LolOgM8vpZVr3V5a+aMxuJjfc9Lh/6W0yic7a4bxMvR1a1UPuxp
-         WsA0VIjZLiDAIT0yT3wnVnLMGyZ8TX8RfEEQiXlMBgtU7B/8DQ68hE6UY7yyQZkgyizA
-         mmgMeYGaUDBsHjHmFaRWkqgXcAUownFt8UOO8syOau73Mrk+CC4Vru/v0MT54xCWRszS
-         ZWJaMxosthe5YqNXrMwTCpihcAolpSTQh6lNMJpoNTfNqd+FujoQaZaWq56huILRw6/n
-         eT/w==
-X-Forwarded-Encrypted: i=1; AJvYcCXK5FzA3LRA+aSY0FlSIvZsUBXOi2FftiBPouTLjsWiB+Pj7GiZzulSMWRcQ+rjk9I8zmA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxFnvw6RURHMx5hIxjUP3yapJjQgKpeTzsCU6n1Ao0iaQ+VDY+X
-	odqAdoSZwz4hzpe569LNKJC9GPZMWv0U6PUbuKc4BfpDJuzmFvxgN7gL
-X-Gm-Gg: ASbGncudmPm9pni/Iokspx/kuIxIe8cZkNeQYZ+Kn2hIZ4SMXZr8A5RvtvVT4uKLJtc
-	Mklbb0D//HoZB9XdB82BoUhneLYYYO0p55hsjGb6JXioQROOuLZecNYUfi5sWoVCjbg41zAKn3A
-	2DISx/QNSJ3P/Kj7JPGoM3w/fGV2KqIVKK414HNsdDwayo8zOWucuELP8/tzlXEquz5lEfUtmUn
-	sIpXhcdYm+Htswp2GsXNJc+X6lMFcttKZjcD7igdfihtb+64xX6bNQvOO6YfItWqEFyHOFWz3Ee
-	UG9KG5a5XwrzrNE40l2pbyV1zZRH7B88wnD43A3XTZckGgdhaOXWEkp32qsolk4PRYe8ZrUPCJK
-	r5EGZ5OmB4fMw5IvTGN2gCP8FKFkH/BtcjsAhCml3zgGiHgpRrot1O79EavsROqYDiW9QnnSNNb
-	wolriCKtW9
-X-Google-Smtp-Source: AGHT+IFJ5ZTmd7AaM3jUBCRUjK4a9hVWs14IvFgT1kJ4lVC347SqCkBDdLCdkmPd0YkxErUfUHdnmg==
-X-Received: by 2002:a05:620a:a488:b0:7e3:380a:b8b2 with SMTP id af79cd13be357-7e62a0fff15mr488219385a.23.1753290351458;
-        Wed, 23 Jul 2025 10:05:51 -0700 (PDT)
+        bh=3eb9oWDW587rFkJHfW0hQakiCOY4UTSJjXEhXcs44m0=;
+        b=X0Iea98HJjAyuJT7Uj6pAkHO5TfRAadi3kQmiN3ccDFEJR0aFkaBA5a3Oxc3axxHZE
+         9AdAFNJ5DBvNmf6OQHAhWdhqxTHDHICAqyukoRIWquVZZi+y4q6gPUmTu/WhhkcNi0uC
+         vp+nmIPuQgRsJ1JTSxEf3mNlry1XsphdafAMbezYbWaSTEwOl3HgE3e5qv5o5xPaFJlc
+         00iXOcthEbKIbsGeTfcCBTDRQThZzUfOZIVYpAmvcKABV19YuxFHqpWY9IftNqloTEgk
+         qPDLzx3m6ta1JJzVny6fw5jdnbGI9RriAx4Ze+SkonTdR9W+HuGxQDsMHAiIr5AODrTk
+         dJzw==
+X-Forwarded-Encrypted: i=1; AJvYcCVKFHtl3mPxNztmEx74oVXpM2OuBG/n/8s268Uc986sqcFZieQ5O1jgdW53hQkUGS/izQw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz1qtbBZ9XIUUURXxMfA2z/Us5aClV/sdhz+ipGBbsje4ubM0yO
+	Lu2d2kIyasJlztybqUQ1GoHJRiOBtuduLUsA642GEsii+BGUTupTYGWI
+X-Gm-Gg: ASbGnctemsCuFS/sX20PDO8PpwZj5HjW/7aupUXNBJVPdjOJV7JZOvLzw0kAoUfddAo
+	sPGxNb3bVFKP+XLKCFjLx1hnjLWSUhKD/jmxMNtQ9hF95S/OMfsKM3Ig1bZg/blkG7suuJlSp9k
+	P+JNn1tOrFAcSir3nV3nxmR+NC671p9DWWMX5a6PKQK3ZXYZ7DgmEj1/kSgB2PGeWeyxQlf25UK
+	T6/QVCoPk54Cilf0wY5LDaHb0WJS719VdkFqLP2dlaiqv2611LoPVJPtAWFWv9MMTtpCvsfVt/d
+	+oUTjOonGmn8Y4botoWSeOIo7lfNOuMHPtBYYI7VXlWr5QX5GNtJuTrupZXtAL8clUqv8OLy5RJ
+	qtBTuaPqiRHFse/5Om7OJCHCuJx82LHZQFyNIuGEPCC4a6x7XxDDNA/0bjQyg3xdfP71RpCtknV
+	vC3imvoT06
+X-Google-Smtp-Source: AGHT+IEm5jBsqyzBJHbRzV1glOznp62gGPL6ohxqYwO5i0+1Ylps0pGENtOvv9ZQYhb668TaXcbltw==
+X-Received: by 2002:a05:620a:438b:b0:7e0:e2d7:e03 with SMTP id af79cd13be357-7e62a8af300mr451489585a.7.1753290353163;
+        Wed, 23 Jul 2025 10:05:53 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
-        by smtp.googlemail.com with ESMTPSA id af79cd13be357-7e356cbfad9sm675482785a.110.2025.07.23.10.05.50
+        by smtp.googlemail.com with ESMTPSA id af79cd13be357-7e356cbfad9sm675482785a.110.2025.07.23.10.05.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 23 Jul 2025 10:05:50 -0700 (PDT)
+        Wed, 23 Jul 2025 10:05:52 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
 X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
 To: anuj1072538@gmail.com,
@@ -68,9 +68,9 @@ To: anuj1072538@gmail.com,
 	anuj20.g@samsung.com,
 	fio@vger.kernel.org
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 1/2] engines/io_uring: support r/w with metadata
-Date: Wed, 23 Jul 2025 13:04:56 -0400
-Message-ID: <67829b031f25595387d7dce10fa0355d85fbebae.1753282479.git.vincent.fu@samsung.com>
+Subject: [PATCH 2/2] t/io_uring_pi: test script for io_uring PI
+Date: Wed, 23 Jul 2025 13:04:57 -0400
+Message-ID: <bfd3869a5446ecfdbc4096e1d893df382bf31b98.1753282479.git.vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <cover.1753282479.git.vincent.fu@samsung.com>
 References: <cover.1753282479.git.vincent.fu@samsung.com>
@@ -82,495 +82,429 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use the new IOCTL to query block devices for metadata support. Then use
-the new io_uring capability to send read and write commands with
-metadata.
+Test io_uring metadata support on NVMe devices.
+Limited to direct=1 and metadata in a separate buffer.
 
-Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- engines/io_uring.c  | 241 +++++++++++++++++++++++++++++++++++++++++---
- engines/nvme.c      |  35 +++----
- engines/nvme.h      |  18 ++++
- io_u.h              |   1 +
- os/linux/io_uring.h |  15 +++
- 5 files changed, 273 insertions(+), 37 deletions(-)
+ t/io_uring_pi.py | 408 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 408 insertions(+)
+ create mode 100644 t/io_uring_pi.py
 
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 87018f84..180db5b5 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -30,6 +30,71 @@
- 
- #include <sys/stat.h>
- 
-+#ifndef IO_INTEGRITY_CHK_GUARD
-+/* flags for integrity meta */
-+#define IO_INTEGRITY_CHK_GUARD		(1U << 0) /* enforce guard check */
-+#define IO_INTEGRITY_CHK_REFTAG		(1U << 1) /* enforce ref check */
-+#define IO_INTEGRITY_CHK_APPTAG		(1U << 2) /* enforce app check */
-+#endif /* IO_INTEGRITY_CHK_GUARD */
+diff --git a/t/io_uring_pi.py b/t/io_uring_pi.py
+new file mode 100644
+index 00000000..bd92edfd
+--- /dev/null
++++ b/t/io_uring_pi.py
+@@ -0,0 +1,408 @@
++#!/usr/bin/env python3
 +
-+#ifndef FS_IOC_GETLBMD_CAP
-+/* Protection info capability flags */
-+#define	LBMD_PI_CAP_INTEGRITY		(1 << 0)
-+#define	LBMD_PI_CAP_REFTAG		(1 << 1)
++"""
++# io_uring_pi.py
++#
++# Test metadata support using the io_uring ioengine.
++#
++# USAGE
++# See python3 io_uring_pi.py --help
++#
++# EXAMPLES (THIS IS A DESTRUCTIVE TEST!!)
++# python3 t/io_uring_pi.py --dut /dev/nvme1n1 -f ./fio
++#
++# REQUIREMENTS
++# Python 3.6
++#
++"""
 +
-+/* Checksum types for Protection Information */
-+#define LBMD_PI_CSUM_NONE		0
-+#define LBMD_PI_CSUM_IP			1
-+#define LBMD_PI_CSUM_CRC16_T10DIF	2
-+#define LBMD_PI_CSUM_CRC64_NVME		4
++import os
++import sys
++import json
++import time
++import locale
++import logging
++import argparse
++import itertools
++import subprocess
++from pathlib import Path
++from fiotestlib import FioJobCmdTest, run_fio_tests
++from fiotestcommon import SUCCESS_NONZERO
 +
-+/*
-+ * Logical block metadata capability descriptor
-+ * If the device does not support metadata, all the fields will be zero.
-+ * Applications must check lbmd_flags to determine whether metadata is
-+ * supported or not.
-+ */
-+struct logical_block_metadata_cap {
-+	/* Bitmask of logical block metadata capability flags */
-+	__u32	lbmd_flags;
-+	/*
-+	 * The amount of data described by each unit of logical block
-+	 * metadata
-+	 */
-+	__u16	lbmd_interval;
-+	/*
-+	 * Size in bytes of the logical block metadata associated with each
-+	 * interval
-+	 */
-+	__u8	lbmd_size;
-+	/*
-+	 * Size in bytes of the opaque block tag associated with each
-+	 * interval
-+	 */
-+	__u8	lbmd_opaque_size;
-+	/*
-+	 * Offset in bytes of the opaque block tag within the logical block
-+	 * metadata
-+	 */
-+	__u8	lbmd_opaque_offset;
-+	/* Size in bytes of the T10 PI tuple associated with each interval */
-+	__u8	lbmd_pi_size;
-+	/* Offset in bytes of T10 PI tuple within the logical block metadata */
-+	__u8	lbmd_pi_offset;
-+	/* T10 PI guard tag type */
-+	__u8	lbmd_guard_tag_type;
-+	/* Size in bytes of the T10 PI application tag */
-+	__u8	lbmd_app_tag_size;
-+	/* Size in bytes of the T10 PI reference tag */
-+	__u8	lbmd_ref_tag_size;
-+	/* Size in bytes of the T10 PI storage tag */
-+	__u8	lbmd_storage_tag_size;
-+	__u8	pad;
-+};
 +
-+#define FS_IOC_GETLBMD_CAP			_IOWR(0x15, 2, struct logical_block_metadata_cap)
-+#endif /* FS_IOC_GETLBMD_CAP */
++NUMBER_IOS = 8192
++BS_LOW = 1
++BS_HIGH = 16
 +
- enum uring_cmd_type {
- 	FIO_URING_CMD_NVME = 1,
- };
-@@ -73,6 +138,7 @@ struct ioring_data {
- 
- 	struct io_u **io_u_index;
- 	char *md_buf;
-+	char *pi_attr;
- 
- 	int *fds;
- 
-@@ -436,6 +502,27 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 				sqe->len = 1;
- 			}
- 		}
-+		if (o->md_per_io_size) {
-+			struct io_uring_attr_pi *pi_attr = io_u->pi_attr;
-+			struct nvme_data *data = FILE_ENG_DATA(io_u->file);
++class DifDixTest(FioJobCmdTest):
++    """
++    NVMe DIF/DIX test class.
++    """
 +
-+			sqe->attr_type_mask = IORING_RW_ATTR_FLAG_PI;
-+			sqe->attr_ptr = (__u64)(uintptr_t)pi_attr;
-+			pi_attr->addr = (__u64)(uintptr_t)io_u->mmap_data;
-+			pi_attr->len = o->md_per_io_size;
-+			pi_attr->app_tag = o->apptag;
-+			pi_attr->flags = 0;
-+			if (strstr(o->pi_chk, "GUARD") != NULL)
-+				pi_attr->flags |= IO_INTEGRITY_CHK_GUARD;
-+			if (strstr(o->pi_chk, "REFTAG") != NULL) {
-+				__u64 slba = get_slba(data, io_u->offset);
++    def setup(self, parameters):
++        """Setup a test."""
 +
-+				pi_attr->flags |= IO_INTEGRITY_CHK_REFTAG;
-+				pi_attr->seed = (__u32)slba;
-+			}
-+			if (strstr(o->pi_chk, "APPTAG") != NULL)
-+				pi_attr->flags |= IO_INTEGRITY_CHK_APPTAG;
-+		}
- 		sqe->rw_flags = 0;
- 		if (!td->o.odirect && o->uncached)
- 			sqe->rw_flags |= RWF_DONTCACHE;
-@@ -565,6 +652,7 @@ static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u)
- static struct io_u *fio_ioring_event(struct thread_data *td, int event)
- {
- 	struct ioring_data *ld = td->io_ops_data;
-+	struct ioring_options *o = td->eo;
- 	struct io_uring_cqe *cqe;
- 	struct io_u *io_u;
- 	unsigned index;
-@@ -590,6 +678,19 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
- 			io_u->error = -cqe->res;
- 		else
- 			io_u->resid = io_u->xfer_buflen - cqe->res;
-+		return io_u;
-+	}
++        fio_args = [
++            "--name=io_uring_pi",
++            "--ioengine=io_uring",
++            "--direct=1",
++            f"--filename={self.fio_opts['filename']}",
++            f"--rw={self.fio_opts['rw']}",
++            f"--bsrange={self.fio_opts['bsrange']}",
++            f"--output={os.path.basename(self.filenames['output'])}",
++            f"--md_per_io_size={self.fio_opts['md_per_io_size']}",
++            "--pi_act=0",
++            f"--pi_chk={self.fio_opts['pi_chk']}",
++            f"--apptag={self.fio_opts['apptag']}",
++            f"--apptag_mask={self.fio_opts['apptag_mask']}",
++        ]
++        for opt in ['fixedbufs', 'nonvectored', 'force_async', 'registerfiles',
++                    'sqthread_poll', 'sqthread_poll_cpu', 'hipri', 'nowait',
++                    'time_based', 'runtime', 'verify', 'io_size', 'offset', 'number_ios',
++                    'output-format']:
++            if opt in self.fio_opts:
++                option = f"--{opt}={self.fio_opts[opt]}"
++                fio_args.append(option)
 +
-+	if (o->md_per_io_size) {
-+		struct nvme_data *data;
-+		int ret;
++        super().setup(fio_args)
 +
-+		data = FILE_ENG_DATA(io_u->file);
-+		if (data->pi_type && (io_u->ddir == DDIR_READ) && !o->pi_act) {
-+			ret = fio_nvme_pi_verify(data, io_u);
-+			if (ret)
-+				io_u->error = ret;
-+		}
- 	}
- 
- 	return io_u;
-@@ -802,6 +903,21 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
- 		o->cmd_type == FIO_URING_CMD_NVME)
- 		fio_ioring_cmd_nvme_pi(td, io_u);
- 
-+	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
-+		struct nvme_data *data = FILE_ENG_DATA(io_u->file);
-+		struct nvme_cmd_ext_io_opts ext_opts = {0};
 +
-+		if (data->pi_type) {
-+			if (o->pi_act)
-+				ext_opts.io_flags |= NVME_IO_PRINFO_PRACT;
++TEST_LIST = [
++#
++# Write data with pi_act=0 and then read the data back
++#
++    {
++        # Write workload with variable IO sizes
++        # pi_act=0
++        "test_id": 101,
++        "fio_opts": {
++            "rw": 'write',
++            "number_ios": NUMBER_IOS,
++            "output-format": "json",
++            "apptag": "0x8888",
++            "apptag_mask": "0xFFFF",
++            "pi_act": 0,
++            },
++        "pi_chk": "GUARD,REFTAG,APPTAG",
++        "bs_low": BS_LOW,
++        "bs_high": BS_HIGH,
++        "test_class": DifDixTest,
++    },
++    {
++        # Read workload with fixed small IO size
++        # pi_act=0
++        "test_id": 102,
++        "fio_opts": {
++            "rw": 'read',
++            "number_ios": NUMBER_IOS,
++            "output-format": "json",
++            "apptag": "0x8888",
++            "apptag_mask": "0xFFFF",
++            "pi_act": 0,
++            },
++        "pi_chk": "GUARD,REFTAG,APPTAG",
++        "bs_low": BS_LOW,
++        "bs_high": BS_LOW,
++        "test_class": DifDixTest,
++    },
++    {
++        # Read workload with variable IO size
++        # pi_act=0
++        "test_id": 103,
++        "fio_opts": {
++            "rw": 'read',
++            "number_ios": NUMBER_IOS,
++            "output-format": "json",
++            "apptag": "0x8888",
++            "apptag_mask": "0xFFFF",
++            "pi_act": 0,
++            },
++        "pi_chk": "GUARD,REFTAG,APPTAG",
++        "bs_low": BS_LOW,
++        "bs_high": BS_HIGH,
++        "test_class": DifDixTest,
++    },
++    {
++        # Read workload with variable IO size
++        # trigger apptag mismatch error
++        # pi_act=0
++        "test_id": 104,
++        "fio_opts": {
++            "rw": 'read',
++            "number_ios": NUMBER_IOS,
++            "output-format": "json",
++            "apptag": "0xA888",
++            "apptag_mask": "0xFFFF",
++            "pi_act": 0,
++            },
++        "pi_chk": "GUARD,REFTAG,APPTAG",
++        "bs_low": BS_LOW,
++        "bs_high": BS_HIGH,
++        "success": SUCCESS_NONZERO,
++        "test_class": DifDixTest,
++    },
++    {
++        # Read workload with variable IO size
++        # fails because apptag mask must be 0xFFFF
++        # pi_act=0
++        "test_id": 105,
++        "fio_opts": {
++            "rw": 'read',
++            "number_ios": NUMBER_IOS,
++            "output-format": "json",
++            "apptag": "0xF888",
++            "apptag_mask": "0x0FFF",
++            "pi_act": 0,
++            },
++        "pi_chk": "GUARD,REFTAG,APPTAG",
++        "bs_low": BS_LOW,
++        "bs_high": BS_HIGH,
++        "success": SUCCESS_NONZERO,
++        "test_class": DifDixTest,
++    },
++]
 +
-+			ext_opts.io_flags |= o->prchk;
-+			ext_opts.apptag = o->apptag;
-+			ext_opts.apptag_mask = o->apptag_mask;
-+		}
-+		fio_nvme_generate_guard(io_u, &ext_opts);
-+	}
 +
- 	tail = *ring->tail;
- 	ring->array[tail & ld->sq_ring_mask] = io_u->index;
- 	atomic_store_release(ring->tail, tail + 1);
-@@ -920,6 +1036,7 @@ static void fio_ioring_cleanup(struct thread_data *td)
- 		fio_cmdprio_cleanup(&ld->cmdprio);
- 		free(ld->io_u_index);
- 		free(ld->md_buf);
-+		free(ld->pi_attr);
- 		free(ld->iovecs);
- 		free(ld->fds);
- 		free(ld->dsm);
-@@ -1347,12 +1464,20 @@ static int fio_ioring_init(struct thread_data *td)
- 	/* io_u index */
- 	ld->io_u_index = calloc(td->o.iodepth, sizeof(struct io_u *));
- 
-+	if (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size) {
-+		if (o->apptag_mask != 0xffff) {
-+			log_err("fio: io_uring with metadata requires an apptag_mask of 0xffff\n");
-+			return 1;
-+		}
-+	}
++def get_lbafs(args):
++    """
++    Determine which LBA formats to use. Use either the ones specified on the
++    command line or if none are specified query the device and use all lba
++    formats with metadata.
++    """
++    lbaf_list = []
++    id_ns_cmd = f"sudo nvme id-ns --output-format=json {args.dut}".split(' ')
++    id_ns_output = subprocess.check_output(id_ns_cmd)
++    lbafs = json.loads(id_ns_output)['lbafs']
++    if args.lbaf:
++        for lbaf in args.lbaf:
++            lbaf_list.append({'lbaf': lbaf, 'ds': 2 ** lbafs[lbaf]['ds'],
++                              'ms': lbafs[lbaf]['ms'], })
++            if lbafs[lbaf]['ms'] == 0:
++                print(f'Error: lbaf {lbaf} has metadata size zero')
++                sys.exit(1)
++    else:
++        for lbaf_num, lbaf in enumerate(lbafs):
++            if lbaf['ms'] != 0:
++                lbaf_list.append({'lbaf': lbaf_num, 'ds': 2 ** lbaf['ds'],
++                                  'ms': lbaf['ms'], })
 +
- 	/*
- 	 * metadata buffer for nvme command.
- 	 * We are only supporting iomem=malloc / mem=malloc as of now.
- 	 */
--	if (!strcmp(td->io_ops->name, "io_uring_cmd") &&
--	    (o->cmd_type == FIO_URING_CMD_NVME) && o->md_per_io_size) {
-+	if ((!strcmp(td->io_ops->name, "io_uring_cmd") &&
-+	    (o->cmd_type == FIO_URING_CMD_NVME) && o->md_per_io_size) ||
-+	    (!strcmp(td->io_ops->name, "io_uring") && o->md_per_io_size)) {
- 		md_size = (unsigned long long) o->md_per_io_size
- 				* (unsigned long long) td->o.iodepth;
- 		md_size += page_mask + td->o.mem_align;
-@@ -1363,6 +1488,12 @@ static int fio_ioring_init(struct thread_data *td)
- 			free(ld);
- 			return 1;
- 		}
-+		ld->pi_attr = calloc(ld->iodepth, sizeof(struct io_uring_attr_pi));
-+		if (!ld->pi_attr) {
-+			free(ld->md_buf);
-+			free(ld);
-+			return 1;
-+		}
- 	}
- 	parse_prchk_flags(o);
- 
-@@ -1429,22 +1560,23 @@ static int fio_ioring_io_u_init(struct thread_data *td, struct io_u *io_u)
- 	struct ioring_data *ld = td->io_ops_data;
- 	struct ioring_options *o = td->eo;
- 	struct nvme_pi_data *pi_data;
--	char *p;
-+	char *p, *q;
- 
- 	ld->io_u_index[io_u->index] = io_u;
- 
--	if (!strcmp(td->io_ops->name, "io_uring_cmd")) {
--		p = PTR_ALIGN(ld->md_buf, page_mask) + td->o.mem_align;
--		p += o->md_per_io_size * io_u->index;
--		io_u->mmap_data = p;
--
--		if (!o->pi_act) {
--			pi_data = calloc(1, sizeof(*pi_data));
--			pi_data->io_flags |= o->prchk;
--			pi_data->apptag_mask = o->apptag_mask;
--			pi_data->apptag = o->apptag;
--			io_u->engine_data = pi_data;
--		}
-+	p = PTR_ALIGN(ld->md_buf, page_mask) + td->o.mem_align;
-+	p += o->md_per_io_size * io_u->index;
-+	io_u->mmap_data = p;
-+	q = ld->pi_attr;
-+	q += (sizeof(struct io_uring_attr_pi) * io_u->index);
-+	io_u->pi_attr = q;
++    return lbaf_list
 +
-+	if (!o->pi_act) {
-+		pi_data = calloc(1, sizeof(*pi_data));
-+		pi_data->io_flags |= o->prchk;
-+		pi_data->apptag_mask = o->apptag_mask;
-+		pi_data->apptag = o->apptag;
-+		io_u->engine_data = pi_data;
- 	}
- 
- 	return 0;
-@@ -1463,11 +1595,90 @@ static void fio_ioring_io_u_free(struct thread_data *td, struct io_u *io_u)
- 	}
- }
- 
-+static int fio_get_pi_info(struct fio_file *f, __u64 *nlba, __u32 pi_act,
-+			     struct nvme_data *data)
-+{
-+	struct logical_block_metadata_cap md_cap;
-+	int ret;
-+	int fd, err = 0;
 +
-+	fd = open(f->file_name, O_RDONLY);
-+	if (fd < 0)
-+		return -errno;
++def get_guard_pi(lbaf_list, args):
++    """
++    Find out how many bits of guard protection information are associated with
++    each lbaf to be used. If this is not available assume 16-bit guard pi.
++    Also record the bytes of protection information associated with the number
++    of guard PI bits.
++    """
++    nvm_id_ns_cmd = f"sudo nvme nvm-id-ns --output-format=json {args.dut}".split(' ')
++    try:
++        nvm_id_ns_output = subprocess.check_output(nvm_id_ns_cmd)
++    except subprocess.CalledProcessError:
++        print(f"Non-zero return code from {' '.join(nvm_id_ns_cmd)}; " \
++                "assuming all lbafs use 16b Guard Protection Information")
++        for lbaf in lbaf_list:
++            lbaf['guard_pi_bits'] = 16
++    else:
++        elbafs = json.loads(nvm_id_ns_output)['elbafs']
++        for elbaf_num, elbaf in enumerate(elbafs):
++            for lbaf in lbaf_list:
++                if lbaf['lbaf'] == elbaf_num:
++                    lbaf['guard_pi_bits'] = 16 << elbaf['pif']
 +
-+	ret = ioctl(fd, FS_IOC_GETLBMD_CAP, &md_cap);
-+	if (ret < 0) {
-+		err = -errno;
-+		log_err("%s: failed to query protection information capabilities; error %d\n", f->file_name, errno);
-+		goto out;
-+	}
++    # For 16b Guard Protection Information, the PI requires 8 bytes
++    # For 32b and 64b Guard PI, the PI requires 16 bytes
++    for lbaf in lbaf_list:
++        if lbaf['guard_pi_bits'] == 16:
++            lbaf['pi_bytes'] = 8
++        else:
++            lbaf['pi_bytes'] = 16
 +
-+	if (!(md_cap.lbmd_flags & LBMD_PI_CAP_INTEGRITY)) {
-+		log_err("%s: Protection information not supported\n", f->file_name);
-+		err = -ENOTSUP;
-+		goto out;
-+	}
 +
-+	/* Currently we don't support storage tags */
-+	if (md_cap.lbmd_storage_tag_size) {
-+		log_err("%s: Storage tag not supported\n", f->file_name);
-+		err = -ENOTSUP;
-+		goto out;
-+	}
++def get_capabilities(args):
++    """
++    Determine what end-to-end data protection features the device supports.
++    """
++    caps = { 'pil': [], 'pitype': [], 'elba': [] }
++    id_ns_cmd = f"sudo nvme id-ns --output-format=json {args.dut}".split(' ')
++    id_ns_output = subprocess.check_output(id_ns_cmd)
++    id_ns_json = json.loads(id_ns_output)
 +
-+	data->lba_size = md_cap.lbmd_interval;
-+	data->lba_shift = ilog2(data->lba_size);
-+	data->ms = md_cap.lbmd_size;
-+	data->pi_size = md_cap.lbmd_pi_size;
-+	data->pi_loc = !(md_cap.lbmd_pi_offset);
++    mc = id_ns_json['mc']
++    if mc & 1:
++        caps['elba'].append(1)
++    if mc & 2:
++        caps['elba'].append(0)
 +
-+	/* Assume Type 1 PI if reference tags supported */
-+	if (md_cap.lbmd_flags & LBMD_PI_CAP_REFTAG)
-+		data->pi_type = NVME_NS_DPS_PI_TYPE1;
-+	else
-+		data->pi_type = NVME_NS_DPS_PI_TYPE3;
++    dpc = id_ns_json['dpc']
++    if dpc & 1:
++        caps['pitype'].append(1)
++    if dpc & 2:
++        caps['pitype'].append(2)
++    if dpc & 4:
++        caps['pitype'].append(3)
++    if dpc & 8:
++        caps['pil'].append(1)
++    if dpc & 16:
++        caps['pil'].append(0)
 +
-+	switch (md_cap.lbmd_guard_tag_type) {
-+	case LBMD_PI_CSUM_CRC16_T10DIF:
-+		data->guard_type = NVME_NVM_NS_16B_GUARD;
-+		break;
-+	case LBMD_PI_CSUM_CRC64_NVME:
-+		data->guard_type = NVME_NVM_NS_64B_GUARD;
-+		break;
-+	default:
-+		log_err("%s: unsupported checksum type %d\n", f->file_name, md_cap.lbmd_guard_tag_type);
-+		err = -ENOTSUP;
-+		goto out;
-+	}
++    for _, value in caps.items():
++        if len(value) == 0:
++            logging.error("One or more end-to-end data protection features unsupported: %s", caps)
++            sys.exit(-1)
 +
-+out:
-+	close(fd);
-+	return err;
-+}
++    return caps
 +
- static int fio_ioring_open_file(struct thread_data *td, struct fio_file *f)
- {
- 	struct ioring_data *ld = td->io_ops_data;
- 	struct ioring_options *o = td->eo;
- 
-+	if (o->md_per_io_size) {
-+		struct nvme_data *data = NULL;
-+		__u64 nlba = 0;
-+		int ret;
 +
-+		data = FILE_ENG_DATA(f);
-+		if (data == NULL) {
-+			data = calloc(1, sizeof(struct nvme_data));
-+			ret = fio_get_pi_info(f, &nlba, o->pi_act, data);
-+			if (ret) {
-+				free(data);
-+				return ret;
-+			}
++def format_device(args, lbaf, pitype, pil, elba):
++    """
++    Format device using specified lba format with specified pitype, pil, and
++    elba values.
++    """
 +
-+			FILE_SET_ENG_DATA(f, data);
-+		}
-+	}
++    format_cmd = f"sudo nvme format {args.dut} --lbaf={lbaf['lbaf']} " \
++                 f"--pi={pitype} --pil={pil} --ms={elba} --force"
++    logging.debug("Format command: %s", format_cmd)
++    format_cmd = format_cmd.split(' ')
++    format_cmd_result = subprocess.run(format_cmd, capture_output=True, check=False,
++                                       encoding=locale.getpreferredencoding())
 +
- 	if (!ld || !o->registerfiles)
- 		return generic_open_file(td, f);
- 
-diff --git a/engines/nvme.c b/engines/nvme.c
-index 37a31e2f..4b3d3860 100644
---- a/engines/nvme.c
-+++ b/engines/nvme.c
-@@ -8,22 +8,6 @@
- #include "../crc/crc-t10dif.h"
- #include "../crc/crc64.h"
- 
--static inline __u64 get_slba(struct nvme_data *data, __u64 offset)
--{
--	if (data->lba_ext)
--		return offset / data->lba_ext;
--
--	return offset >> data->lba_shift;
--}
--
--static inline __u32 get_nlb(struct nvme_data *data, __u64 len)
--{
--	if (data->lba_ext)
--		return len / data->lba_ext - 1;
--
--	return (len >> data->lba_shift) - 1;
--}
--
- static void fio_nvme_generate_pi_16b_guard(struct nvme_data *data,
- 					   struct io_u *io_u,
- 					   struct nvme_cmd_ext_io_opts *opts)
-@@ -421,14 +405,9 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 	return 0;
- }
- 
--void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
--		      struct nvme_cmd_ext_io_opts *opts)
-+void fio_nvme_generate_guard(struct io_u *io_u, struct nvme_cmd_ext_io_opts *opts)
- {
- 	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
--	__u64 slba;
--
--	slba = get_slba(data, io_u->offset);
--	cmd->cdw12 |= opts->io_flags;
- 
- 	if (data->pi_type && !(opts->io_flags & NVME_IO_PRINFO_PRACT)) {
- 		if (data->guard_type == NVME_NVM_NS_16B_GUARD)
-@@ -436,6 +415,18 @@ void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 		else if (data->guard_type == NVME_NVM_NS_64B_GUARD)
- 			fio_nvme_generate_pi_64b_guard(data, io_u, opts);
- 	}
-+}
++    # Sometimes nvme-cli may format the device successfully but fail to
++    # rescan the namespaces after the format. Continue if this happens but
++    # abort if some other error occurs.
++    if format_cmd_result.returncode != 0:
++        if 'failed to rescan namespaces' not in format_cmd_result.stderr \
++                or 'Success formatting namespace' not in format_cmd_result.stdout:
++            logging.error(format_cmd_result.stdout)
++            logging.error(format_cmd_result.stderr)
++            print("Unable to format device; skipping this configuration")
++            return False
 +
-+void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
-+		      struct nvme_cmd_ext_io_opts *opts)
-+{
-+	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
-+	__u64 slba;
++    logging.debug(format_cmd_result.stdout)
++    return True
 +
-+	slba = get_slba(data, io_u->offset);
-+	cmd->cdw12 |= opts->io_flags;
 +
-+	fio_nvme_generate_guard(io_u, opts);
- 
- 	switch (data->pi_type) {
- 	case NVME_NS_DPS_PI_TYPE1:
-diff --git a/engines/nvme.h b/engines/nvme.h
-index 60b38d7f..4371eb5b 100644
---- a/engines/nvme.h
-+++ b/engines/nvme.h
-@@ -438,6 +438,8 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
- 		      struct nvme_cmd_ext_io_opts *opts);
- 
-+void fio_nvme_generate_guard(struct io_u *io_u, struct nvme_cmd_ext_io_opts *opts);
++def parse_args():
++    """Parse command-line arguments."""
 +
- int fio_nvme_pi_verify(struct nvme_data *data, struct io_u *io_u);
- 
- int fio_nvme_get_zoned_model(struct thread_data *td, struct fio_file *f,
-@@ -476,4 +478,20 @@ static inline bool fio_nvme_pi_ref_escape(__u8 *reftag)
- 	return memcmp(reftag, ref_esc, sizeof(ref_esc)) == 0;
- }
- 
-+static inline __u64 get_slba(struct nvme_data *data, __u64 offset)
-+{
-+	if (data->lba_ext)
-+		return offset / data->lba_ext;
++    parser = argparse.ArgumentParser()
++    parser.add_argument('-d', '--debug', help='Enable debug messages', action='store_true')
++    parser.add_argument('-f', '--fio', help='path to file executable (e.g., ./fio)')
++    parser.add_argument('-a', '--artifact-root', help='artifact root directory')
++    parser.add_argument('-s', '--skip', nargs='+', type=int,
++                        help='list of test(s) to skip')
++    parser.add_argument('-o', '--run-only', nargs='+', type=int,
++                        help='list of test(s) to run, skipping all others')
++    parser.add_argument('--dut', help='target device to test '
++                        '(e.g., /dev/nvme1n1). WARNING: THIS IS A DESTRUCTIVE TEST', required=True)
++    parser.add_argument('-l', '--lbaf', nargs='+', type=int,
++                        help='list of lba formats to test')
++    args = parser.parse_args()
 +
-+	return offset >> data->lba_shift;
-+}
++    return args
 +
-+static inline __u32 get_nlb(struct nvme_data *data, __u64 len)
-+{
-+	if (data->lba_ext)
-+		return len / data->lba_ext - 1;
 +
-+	return (len >> data->lba_shift) - 1;
-+}
++def difdix_test(test_env, args, lbaf, pitype):
++    """
++    Adjust test arguments based on values of lbaf, and pitype.  Then run
++    the tests.
++    """
++    for test in TEST_LIST:
++        test['force_skip'] = False
 +
- #endif
-diff --git a/io_u.h b/io_u.h
-index 178c1229..2d20a2b2 100644
---- a/io_u.h
-+++ b/io_u.h
-@@ -145,6 +145,7 @@ struct io_u {
- #endif
- 		void *mmap_data;
- 	};
-+	void *pi_attr;
- };
- 
- /*
-diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
-index b3876381..7b099902 100644
---- a/os/linux/io_uring.h
-+++ b/os/linux/io_uring.h
-@@ -70,6 +70,10 @@ struct io_uring_sqe {
- 			__u64	addr3;
- 			__u64	__pad2[1];
- 		};
-+		struct {
-+			__u64	attr_ptr; /* pointer to attribute information */
-+			__u64	attr_type_mask; /* bit mask of attributes */
-+		};
- 		/*
- 		 * If the ring is initialized with IORING_SETUP_SQE128, then
- 		 * this field is used for 80 bytes of arbitrary command data
-@@ -78,6 +82,17 @@ struct io_uring_sqe {
- 	};
- };
- 
-+/* sqe->attr_type_mask flags */
-+#define IORING_RW_ATTR_FLAG_PI	(1U << 0)
-+/* PI attribute information */
-+struct io_uring_attr_pi {
-+		__u16	flags;
-+		__u16	app_tag;
-+		__u32	len;
-+		__u64	addr;
-+		__u64	seed;
-+		__u64	rsvd;
-+};
- enum {
- 	IOSQE_FIXED_FILE_BIT,
- 	IOSQE_IO_DRAIN_BIT,
++        blocksize = lbaf['ds']
++        # Set fio blocksize parameter at runtime
++        test['fio_opts']['md_per_io_size'] = lbaf['ms'] * test['bs_high']
++
++        test['fio_opts']['bsrange'] = f"{blocksize * test['bs_low']}-{blocksize * test['bs_high']}"
++
++        # Set fio pi_chk parameter at runtime. If the device is formatted
++        # with Type 3 protection information, this means that the reference
++        # tag is not checked and I/O commands may throw an error if they
++        # are submitted with the REFTAG bit set in pi_chk. Make sure fio
++        # does not set pi_chk's REFTAG bit if the device is formatted with
++        # Type 3 PI.
++        if 'pi_chk' in test:
++            if pitype == 3 and 'REFTAG' in test['pi_chk']:
++                test['fio_opts']['pi_chk'] = test['pi_chk'].replace('REFTAG','')
++                logging.debug("Type 3 PI: dropping REFTAG bit")
++            else:
++                test['fio_opts']['pi_chk'] = test['pi_chk']
++
++        logging.debug("Test %d: pi_act=%d, bsrange=%s, md_per_io_size=%d", test['test_id'],
++                      test['fio_opts']['pi_act'], test['fio_opts']['bsrange'],
++                      test['fio_opts']['md_per_io_size'])
++
++    return run_fio_tests(TEST_LIST, test_env, args)
++
++
++def main():
++    args = parse_args()
++
++    if args.debug:
++        logging.basicConfig(level=logging.DEBUG)
++    else:
++        logging.basicConfig(level=logging.INFO)
++
++    artifact_root = args.artifact_root if args.artifact_root else \
++        f"io_uring_pi-test-{time.strftime('%Y%m%d-%H%M%S')}"
++    os.mkdir(artifact_root)
++    print(f"Artifact directory is {artifact_root}")
++
++    if args.fio:
++        fio_path = str(Path(args.fio).absolute())
++    else:
++        fio_path = os.path.join(os.path.dirname(__file__), '../fio')
++    print(f"fio path is {fio_path}")
++
++    lbaf_list = get_lbafs(args)
++    get_guard_pi(lbaf_list, args)
++    caps = get_capabilities(args)
++    print("Device capabilities:", caps)
++
++    for test in TEST_LIST:
++        test['fio_opts']['filename'] = args.dut
++    test_env = {
++              'fio_path': fio_path,
++              'fio_root': str(Path(__file__).absolute().parent.parent),
++              'artifact_root': artifact_root,
++              'basename': 'io_uring_pi',
++              }
++
++    total = { 'passed':  0, 'failed': 0, 'skipped': 0 }
++
++    try:
++        for lbaf, pil, pitype in itertools.product(lbaf_list, caps['pil'], caps['pitype']):
++            if lbaf['ms'] == 0:
++                continue
++
++            print("\n")
++            print("-" * 120)
++            print(f"lbaf: {lbaf}, pil: {pil}, pitype: {pitype}")
++            print("-" * 120)
++
++            if not format_device(args, lbaf, pitype, pil, 0):
++                print("Formatting failed")
++                continue
++
++            test_env['artifact_root'] = \
++                os.path.join(artifact_root, f"lbaf{lbaf['lbaf']}pil{pil}pitype{pitype}")
++            os.mkdir(test_env['artifact_root'])
++
++            passed, failed, skipped = difdix_test(test_env, args, lbaf, pitype)
++
++            total['passed'] += passed
++            total['failed'] += failed
++            total['skipped'] += skipped
++
++    except KeyboardInterrupt:
++        pass
++
++    print(f"\n\n{total['passed']} test(s) passed, {total['failed']} failed, " \
++            f"{total['skipped']} skipped")
++    sys.exit(total['failed'])
++
++
++if __name__ == '__main__':
++    main()
 -- 
 2.47.2
 
