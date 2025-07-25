@@ -1,64 +1,64 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B27DC2F003B
-	for <fio@vger.kernel.org>; Fri, 25 Jul 2025 17:58:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDF02EFD91
+	for <fio@vger.kernel.org>; Fri, 25 Jul 2025 17:58:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753466331; cv=none; b=NEQTgjleD0bZm9Bh7/kyto5OxR/n0sYH6NVjoKTJveHG7PD+3xEIjf+WqDepsgZZNa7W67ulxyrKv4rY6QEII1Zx/lc98E8xvb6AzzhrCBTN0OUyKdMi/egEGnoqpXr6xCTkJza+L0r9F0sjaHDGbXrauwRswAAsL7wCIu+mKHc=
+	t=1753466337; cv=none; b=ceKQdNrGRpm/F4K14incmWyO3W1frv+fQaF+bZtd+DZpBY4sNK06jut6KRqz5kbimYClVgoD0J6VODKR2IT6/h/xmWX02MWlegJnOkH3wz4z9RBP7ULVSbJfk1GBW6ZqqZqP5uvdhTD/Zh+tjeOY+vzHzcrO/vURuLQGLSMheyg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753466331; c=relaxed/simple;
-	bh=EEPcLdVYrwZRPBDn6Q51dVZL8bjIlg26SB3BhIb75Pc=;
+	s=arc-20240116; t=1753466337; c=relaxed/simple;
+	bh=3k11z75eLQGT1cPuGMOrdF0chy9Ty8/xX2kVYmmn3p8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EuVZY12MgvNO362/HZaNnvRgyhRaNPIJmYs6xEPlY04P6WE6Hs73FsZgl2HgBxmWyti4CZeP4IKbKYzi3dGfhuQcgP04EK9teM3YXK4BXcJUap+ZTm/fw3dUvZu8ctNO/NUwc6CDtLZNLIIHCS4DPWctmYTMW1vrj2ptq0jkDz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TiuMie6p; arc=none smtp.client-ip=209.85.219.51
+	 MIME-Version; b=HDsyfVTAiVr4yqrR5/JBA+/tchxiNJmXsnKdSv6Ce+vxKVC1ezUlOzJZkKjEah78+ynoc3LKKQW+EDcbsK9uroadOe83ceQ2wA2QxVOmlDFVgWmt2McIa8MTGp/m8kkzdyIZz03IoAg5TJ3kA365zSX6nq1gFPOQw3D8mSoyt2g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dLYBenZ6; arc=none smtp.client-ip=209.85.219.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TiuMie6p"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-7071b24ee93so13146886d6.2
-        for <fio@vger.kernel.org>; Fri, 25 Jul 2025 10:58:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dLYBenZ6"
+Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-6fad3400ea3so17597496d6.0
+        for <fio@vger.kernel.org>; Fri, 25 Jul 2025 10:58:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753466328; x=1754071128; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753466333; x=1754071133; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nuQxRTnvqU3fjqQVEUPY+n0wIOs7pynyXGw6/MuD+I8=;
-        b=TiuMie6p6riQhSSlJJyP6j/w5KHv6DRWKf1cWyCSXLXcBxy7r+5vxBFq7Y7UucyH6c
-         jH79TRB2aQxUzEeapc+PwLJ25bd5f4reEoRqLosfZTlBr5ypwZknQqlBoiQm/j/QiG7+
-         uqXuERdjASmNWijXxLPfrlSvGUsvipJt/+0cAOTcZ9jXDgx63Yi2HaR/D6rQ0D3V31RQ
-         kpW2wGETzg1fl6bdniF+pBrB3oF27t3eRGv2Mq64BKpqL9do+25tCphu45wgmbmndh3W
-         MKS6uhAnxJ6IAErr7jI/b7nyTG1E+C+QtuBGczISyYerrk4B7+h/7ZN0e6o/Y1MA/TLn
-         BpNQ==
+        bh=23EjLI7aTqfnbicMJvpW6IaViTd/yg370nmRVxyQBaU=;
+        b=dLYBenZ6Y3V7FS+Ut5/w29J1yKTDYPVy2uiuB1FWNn5p571+6M4UfN/GTt2ytQJN2D
+         8bK0bxo6UCq9BWCZEHUvtJJYn9K1akYGTEwvJ/sbplZtSbphFogRW284OcUtdDyx437h
+         g3OnpNDwftlKG/0roLpvpIcMjzkOS4ljNqQtO8nEYGIH1yOSz3vthyXWMVmnH+gO2dyu
+         TodN7NWZkSnoIz4rMz11NbW3eH3/owrf4msGfn0e2dMyMz5cSuf5dgykMuQ1XcRPqCdd
+         /PR9BemAJbwe8uMxQtYGW+lirWrwFDE8DRDqeH7sokECbMJ6MjPpIDJng+2OKv487Llc
+         idHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753466328; x=1754071128;
+        d=1e100.net; s=20230601; t=1753466333; x=1754071133;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nuQxRTnvqU3fjqQVEUPY+n0wIOs7pynyXGw6/MuD+I8=;
-        b=DxrAfhhMtcwtcUKbYKNM3dz974hKyXc9Zmo0WfWFiT6PDo78JKFu2i8ZjWba3ddjGo
-         Kokt85fhmnn0IpKv/BYIaBkdsBim/Ge/d1wbeVLPD3AFOybKvr+0Y+g3LxC9vtyD68SU
-         b36yrWXxB78DKD2xqr7Q3bs9R1fIzOfw9yC17B+l0WZOn4lZQom4xARWcVupWuTXCA4A
-         ebgykMTowVEXJAzE3wWq3x6940hd31qgX0UAeWqNF04M5UyhHUNxJPMOmArXUYKc399n
-         x/cmgNwio2uI18e4XLJvRuQuSg24BHplolLqZGV4Bo9tJQPhuNvlk3hzQH558bXQsUac
-         K8zA==
-X-Forwarded-Encrypted: i=1; AJvYcCVH5SSOneaelEt5MaFzN13fRG32riUK+L81StRRXqMkSjujlEoOOPkvYqwRG4v+HoSC3Gk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxO1xAVY11RP6qjQeBw/ljhV/xH7sGWCg1OwGxN2QWJHAsHAw9y
-	g+0EaVPXeXGb8vyOLFepsbyOsn18f3Fe8Y8XBpKWzwTzwmCmXdDkG6Ys
-X-Gm-Gg: ASbGncsybqdYBRczGGygNYFjqcMgbFTvG1oQylB+9KaeM86KVNAs967+wtTsekzZqVO
-	FJobaLT/+A/kFBPBgERC0lm2ZsfLIu+7vcyGr/gT6fEbhmyk7jdgrEV7ApL8dQvJ0poofeJwj5J
-	PsKmOLu2DTk1NU8hyCiUoohdgkhA3nS6qLsojG+PKVg0GjZnZxxYDqA8ch+1E/eg8cKoDHJQUHW
-	Blv0tQVIpitrEtpS5oZvxdQP7JmRFBYmtq4ToumI/ZHuH7H50Xy4caYBSn8Us71AoIFsrPEItNM
-	j9b0tcGBho22tsMJnarRLDEPMjowI1xoe8jKjG5c8YFcBatyAMSQsjBBdLUX1KfdDKfZ2t0hXek
-	WNYscJiL9hawMQ4LLWDM1VJ/fVHqisB4xqPtvrxHrtEZxtLiDesijYuhDdymjuMak3929TZBPMt
-	041xK9DvTQ
-X-Google-Smtp-Source: AGHT+IFWclgBJzxf9l7oXE4wxGFjW8GyJwv5BAAnHmY7JWGQO0a3jFNocaNXppS+dJ/gFLYVLBEKdw==
-X-Received: by 2002:a05:6214:21e7:b0:706:c5df:e75b with SMTP id 6a1803df08f44-707205ee969mr32664826d6.43.1753466328392;
-        Fri, 25 Jul 2025 10:58:48 -0700 (PDT)
+        bh=23EjLI7aTqfnbicMJvpW6IaViTd/yg370nmRVxyQBaU=;
+        b=SOmPwxaaqOp+84h6cB31BXkwH8W3fzDgrG5jyBr3f3J48IxC+mEaomPpj9/XEebxxT
+         0Bu2IoVNj3S536ACItmxRy/o2iT7C3yqhalt4QIPmL5nh7qIaq3JyA9FuGl4R4cge5kS
+         PjQ+xxK94unuTQ9ZqiJVqlyLbNodFEVUnQmPiTBawnYnmc2ipak5Wi13zfKglg6ayNV9
+         +fh4Xkriq9UyscMNCbMVmkvDVfyLPs9oIdymUAd4z5zhUk2fc38LIJ8RC8IU6KJCWKea
+         sFYOb1nwNVlUcfsXxkTasgHc3o/2a8QOI4QRCzgeq39m7O9SnefPrQD0TmjXQ4lIxNgA
+         YHhw==
+X-Forwarded-Encrypted: i=1; AJvYcCVk0chHT3/8sAORdpvJlVvwWkY5JN7j1S57fB8Hz3z558Hjp0UI55fquPZ23aBnFvqAiC4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxHGSiUBd8wCRiLwCQjmkWI6r3Uv1t9NQfaaK2kZXPS+UZqFw2k
+	e67t/aGuj+ojplUmx3X+7ggBPgOuGxrB3OjvBkvG08L3KbjCGr2BR0hh
+X-Gm-Gg: ASbGncsOFjtreCviTfBfp6afiC0ctassBjU+8RtTzt/DsbTLwSkOQTFXHOw3JfhfrtE
+	PqXFZHoy05ce3xfSzypDdfINI4xFhO1c69/w1pMfDjl+jX8ZyIMuEbIroootglrdbh7RyVGJEDL
+	YmlfFzXXlJAvjm4GQEDmovv7gX0XVOnVrqc4R/MdzFjLFqY03EhkeXrLFIgQ57S1TaSNLoT26fk
+	xXS4Yotbtdl0DiQtDAQ7s2Yv0y33C78gyzM9uxQ4NL1ejgJrcyjlpYFR0Qu96eryUZQ2IyFAkJB
+	6zG4ry+mi+fyzzR3VbcPt7k0egSIXXVyxB5TgyktfIplOeUC23reFPozrDa579GAgDYev6KQFs7
+	G1L6dnRYM8h/QyfWBYiTimVPU6vyrl+rbpd7jydwhRyjbdF6YFXk7GrGRXCUL3KQkz3Ja150FPx
+	TD4XLPYExB
+X-Google-Smtp-Source: AGHT+IF0MirVhd+6ZOaiyI4qbugrxcM5C3vWI7g2FqqLgJ/E5kaZpw394YctwOvhhNI+FxP/XbRJxA==
+X-Received: by 2002:a05:6214:2688:b0:6fa:8c15:75c1 with SMTP id 6a1803df08f44-7072051a1f7mr39526596d6.2.1753466332964;
+        Fri, 25 Jul 2025 10:58:52 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
-        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-70729c8ab8asm2839186d6.94.2025.07.25.10.58.47
+        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-70729c8ab8asm2839186d6.94.2025.07.25.10.58.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Jul 2025 10:58:47 -0700 (PDT)
+        Fri, 25 Jul 2025 10:58:52 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
 X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
 To: axboe@kernel.dk,
@@ -71,9 +71,9 @@ To: axboe@kernel.dk,
 	ankit.kumar@samsung.com,
 	martin.petersen@oracle.com
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 2/7] engines/nvme: move inline functions from .c to .h file
-Date: Fri, 25 Jul 2025 13:57:58 -0400
-Message-ID: <20250725175808.2632-3-vincent.fu@samsung.com>
+Subject: [PATCH 3/7] engines/nvme: refactor filling protection information
+Date: Fri, 25 Jul 2025 13:57:59 -0400
+Message-ID: <20250725175808.2632-4-vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250725175808.2632-1-vincent.fu@samsung.com>
 References: <20250725175808.2632-1-vincent.fu@samsung.com>
@@ -85,71 +85,71 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Move two inline helper functions from C source file to header file. In
-later patches we will need to use these helper functions outside of
-nvme.c.
+Factor out of fio_nvme_pi_fill() the code that generates and fills in
+the Guard Protection Information field. This is so that later patches
+can use this code without filling in the fields in the NVMe command.
 
 No functional change intended.
 
 Signed-off-by: Anuj Gupta <anuj20.g@samsung.com>
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- engines/nvme.c | 16 ----------------
- engines/nvme.h | 16 ++++++++++++++++
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ engines/nvme.c | 19 +++++++++++++------
+ engines/nvme.h |  2 ++
+ 2 files changed, 15 insertions(+), 6 deletions(-)
 
 diff --git a/engines/nvme.c b/engines/nvme.c
-index 37a31e2f..1e142e8d 100644
+index 1e142e8d..4b3d3860 100644
 --- a/engines/nvme.c
 +++ b/engines/nvme.c
-@@ -8,22 +8,6 @@
- #include "../crc/crc-t10dif.h"
- #include "../crc/crc64.h"
- 
--static inline __u64 get_slba(struct nvme_data *data, __u64 offset)
--{
--	if (data->lba_ext)
--		return offset / data->lba_ext;
--
--	return offset >> data->lba_shift;
--}
--
--static inline __u32 get_nlb(struct nvme_data *data, __u64 len)
--{
--	if (data->lba_ext)
--		return len / data->lba_ext - 1;
--
--	return (len >> data->lba_shift) - 1;
--}
--
- static void fio_nvme_generate_pi_16b_guard(struct nvme_data *data,
- 					   struct io_u *io_u,
- 					   struct nvme_cmd_ext_io_opts *opts)
-diff --git a/engines/nvme.h b/engines/nvme.h
-index 60b38d7f..0fef54e9 100644
---- a/engines/nvme.h
-+++ b/engines/nvme.h
-@@ -476,4 +476,20 @@ static inline bool fio_nvme_pi_ref_escape(__u8 *reftag)
- 	return memcmp(reftag, ref_esc, sizeof(ref_esc)) == 0;
+@@ -405,14 +405,9 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+ 	return 0;
  }
  
-+static inline __u64 get_slba(struct nvme_data *data, __u64 offset)
-+{
-+	if (data->lba_ext)
-+		return offset / data->lba_ext;
-+
-+	return offset >> data->lba_shift;
+-void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+-		      struct nvme_cmd_ext_io_opts *opts)
++void fio_nvme_generate_guard(struct io_u *io_u, struct nvme_cmd_ext_io_opts *opts)
+ {
+ 	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
+-	__u64 slba;
+-
+-	slba = get_slba(data, io_u->offset);
+-	cmd->cdw12 |= opts->io_flags;
+ 
+ 	if (data->pi_type && !(opts->io_flags & NVME_IO_PRINFO_PRACT)) {
+ 		if (data->guard_type == NVME_NVM_NS_16B_GUARD)
+@@ -420,6 +415,18 @@ void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+ 		else if (data->guard_type == NVME_NVM_NS_64B_GUARD)
+ 			fio_nvme_generate_pi_64b_guard(data, io_u, opts);
+ 	}
 +}
 +
-+static inline __u32 get_nlb(struct nvme_data *data, __u64 len)
++void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
++		      struct nvme_cmd_ext_io_opts *opts)
 +{
-+	if (data->lba_ext)
-+		return len / data->lba_ext - 1;
++	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
++	__u64 slba;
 +
-+	return (len >> data->lba_shift) - 1;
-+}
++	slba = get_slba(data, io_u->offset);
++	cmd->cdw12 |= opts->io_flags;
 +
- #endif
++	fio_nvme_generate_guard(io_u, opts);
+ 
+ 	switch (data->pi_type) {
+ 	case NVME_NS_DPS_PI_TYPE1:
+diff --git a/engines/nvme.h b/engines/nvme.h
+index 0fef54e9..4371eb5b 100644
+--- a/engines/nvme.h
++++ b/engines/nvme.h
+@@ -438,6 +438,8 @@ int fio_nvme_uring_cmd_prep(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+ void fio_nvme_pi_fill(struct nvme_uring_cmd *cmd, struct io_u *io_u,
+ 		      struct nvme_cmd_ext_io_opts *opts);
+ 
++void fio_nvme_generate_guard(struct io_u *io_u, struct nvme_cmd_ext_io_opts *opts);
++
+ int fio_nvme_pi_verify(struct nvme_data *data, struct io_u *io_u);
+ 
+ int fio_nvme_get_zoned_model(struct thread_data *td, struct fio_file *f,
 -- 
 2.47.2
 
