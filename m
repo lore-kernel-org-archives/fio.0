@@ -1,62 +1,64 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DA82BDC33
-	for <fio@vger.kernel.org>; Fri, 25 Jul 2025 17:58:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 112962F002B
+	for <fio@vger.kernel.org>; Fri, 25 Jul 2025 17:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753466324; cv=none; b=UyozW/Q+WxC3WZJUzcs3LOJi4kiyqi589/w8KzgxNt1pZgE6OFqLtsbIW92qC6WBQ5XrfSo0puyc7ENdIYSEIn7QaxmdATtynxgwvU0Od7y1Qdc2D5f8AjHCj28xlhuJeKOMnkRIoBVIaj6LtYDkk82ykK/o9SBCcgb80uN51oU=
+	t=1753466328; cv=none; b=gsGYAeHTKr0IRjw4eIuLmfrKJxZm9Pe8r5DGeLI1YgAtla7BIre9/3Ch/ntZJOQLK5CN/gIOoqfcy6H8IUcHP6EEwGzOtqe39/XolJ+nOaO/l/2Vw5MTI7gQQnJ89nhaz3l0rlcyPO689m+OfH3nKHu0vx0W8oWIwbTH9Yd6iVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753466324; c=relaxed/simple;
-	bh=TImaXEN6pwMROLTXh4r71cxUZXNIjbO5uaX4YTNsLYA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UzTn1VuhItl2X5H14tYIp5RHCnvkcHXfKUB78PP/EtrsfcWC2Dnh1lQu7Ezgz8LMUqb+xX+AOICXo+etjfICfJzD2pbqzNn5LWXggtcW9iZ+ZUsnjVf9r9YfYPrNfxsKcgR8qCSrkA/e+fSgsqZ4i53vY/BARSWcautWN7uiXGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TSloaCRX; arc=none smtp.client-ip=209.85.219.46
+	s=arc-20240116; t=1753466328; c=relaxed/simple;
+	bh=pEnWMI/13i+rOWARL8ahAH5koTMWDmfBlrzbFNmOeGQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=cvqTo9qPGjnSSzeoOwvg/Hmj2hnmOSD6/hntecoMCFoFYFI1pFx1lg7+1HPe6x9N8KHzPqefWeflHhQwyGOLhaAq6Fl4BhLBIVXW9qfNPba/05VHJjh9VoaYmSuSDwPtrMWOApzwi48UCza3J6mxtvosb3oU8zBIL3SKXzBGDQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WCeGfNAU; arc=none smtp.client-ip=209.85.160.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TSloaCRX"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-7072628404dso7429966d6.2
-        for <fio@vger.kernel.org>; Fri, 25 Jul 2025 10:58:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WCeGfNAU"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-4ab92d06ddeso33289581cf.3
+        for <fio@vger.kernel.org>; Fri, 25 Jul 2025 10:58:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753466320; x=1754071120; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=a5AqjsWhg1jZzVn3CZokwNiIhDL/HMtzkE8yi1a3v/4=;
-        b=TSloaCRXf3oKG4Z6snNxz+OBr9hh1sUv+kfPmbxtbndk2LXoQ9addV64zfOLtVNLDM
-         U1lPvk03f5x1sfqBzzQqO+EkCkqy5bMmJKDsi3oWMhGk6cBfVnzudeuTkEw6UEBAMphe
-         hZ+XEjCOYIShH4xM1g5AdRbsl8fQR9TcqS87ENJH9Ae5qbtTTDWaM43wBufRfFbX30AI
-         il+xCECy+gMPIlZHaXlCRLeygV3SX90SB8oTMaNK+XkHIwGh8kOTBc3kh2B9oPQOocps
-         e7Dzy/G6aliMHg5gnANZbTDsF+HSX2kZ7Ah7+MvhmgGkTb6V3IHnIfGoTLcLyZGAtzDy
-         LBOg==
+        d=gmail.com; s=20230601; t=1753466325; x=1754071125; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CFmkRtioacTBxIXA0sH+B5y01DTdzGqyCSZ4lfWo8+Q=;
+        b=WCeGfNAUmpqxiJMOZj1J/697spKnOODwtRFE7s3R6A6fqZJCpLBvEiFSSZwXSHkLjC
+         78/3DN0+GrqC/Rx7aGWSKqs0xH8nmmb6j6VHB+ARSi96I4Y+Wy13bjr2xU3p4LrDIcs1
+         FjXBxytaFTRcqXOmnjBeq9OYTcS6IeVWtyW1kvXKTOXwdV8mw7ugVdywVREi0CDCVv9N
+         fTMnZMSmW9cNVn0fm2Y6y3TsFWBniKD+V58Bzuz2E3cXr1a8spdNfaaYqwbX77NcwwV1
+         O+cOeXuTx3wQRsWdrnrWE6ajPG/P19iRitLr0NY/1HjWOBg/Iju0SdEUPC1N+WDIi8TE
+         93bA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753466320; x=1754071120;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=a5AqjsWhg1jZzVn3CZokwNiIhDL/HMtzkE8yi1a3v/4=;
-        b=gCZgikjIind/KDD3Eg02mtozcHpsT5nnn2EFRC6qy07oKSK3vM0YlrMxrugLaVJWkM
-         +uySLt77KjYF3m0Lh2VaDxrgj0d1ToAqIVtSOSu10pXcJL5xqaaCuN9mVvHSG10oXel/
-         ceExdQ3cpJUuQllOJAFOv1h4xipUvECZtMhpYW+8+26bktaAXsGekQjRexuGcLsCZ/c6
-         24TN78K9hpD0zlrsPYhouZtKr0XpliJ6en53CdH9TzS2JkGBAGvoIeav9qxHmqQNDsWK
-         jDJViQ3RffSYDIBtt+qbQpE+QWUPRaHQvBo04vn/ItpQK7E/HIPNRoDjB9LX3VBpKAEp
-         mz1A==
-X-Forwarded-Encrypted: i=1; AJvYcCXQPVoY9XllhOk6MSnUvJDvracUSbqVQh0ssuZlly5Q5mOHvANofleu5++96Z+Mrcq+y74=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy8SR7d+ES/dEElQqwnaYaHKQoVlUBSMWzq7MwLWhijKhKiH+18
-	LbcUdZGSMxyJy5c/iQeDTvibnwh8ZWtN4q56kqsMPB5tJMMC+iAOZ3f7
-X-Gm-Gg: ASbGncudTcWUBAarIgkUuyp9Y9aiAWsdVmezWPf+tdWW+XmTa/V05Cwv1PRx375yMbm
-	E03RlHfM+YwxGW7RY2q/OPnk2Zr1ZoawdXe8Q56WHjYOBzksAq9p9Wb/6M9rHA7DMhRqcGU08HL
-	ZMauOUgauU6t+v82yU+kZRtl1gN+x/UcVCVAIGQcSbLc5qG2/CSwJUoovXi3Ba8PeH6Fta7d60M
-	R/B5mk9L9TZGQC/ANvkwq6xFYuPeMFJlfOn1w73SBbPEvWKMVxE0IOed6SNJyPkmeUy7yXpJvOT
-	GrZ6YebDnrhN0ODDrgNY9a3+1OUEIPGOTXs33xCXuQpV/PWCifMCq/vDc5AZXhiS5207IiRoBX1
-	aAjRqipaQqNskcw26iQD5Q7WjnR/EhB2JmnBaoD21Or0PfJ6W8eWpzoVjqfpXqC3I9XH9ZLh2Kf
-	89Fq+di8la
-X-Google-Smtp-Source: AGHT+IHmwaK4XhEXDVgEkiopGfR1n2H+fZ9pAHPoeQT1EecKTkrj8HFg06zHI9XKTATaeF9w5OP0fw==
-X-Received: by 2002:a05:6214:500d:b0:702:d418:1484 with SMTP id 6a1803df08f44-707205ef609mr39367496d6.43.1753466320375;
-        Fri, 25 Jul 2025 10:58:40 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753466325; x=1754071125;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CFmkRtioacTBxIXA0sH+B5y01DTdzGqyCSZ4lfWo8+Q=;
+        b=LqvwzG3rCHVZhTWxMZSChVDSNru8rkoBgVf8w4l1m28ah3xUi23N/M3wPbS5IBl0DC
+         SWdVlpTSoyUXJNP9JMAecNCedL8Vz3via/VYtH25vbwOx/BuutBRh+/A+1sTMkOcD8yn
+         gKUeJV+hTaKaqBzOAFRKgXZDi/tkmvPpdzy4zxpjv87eo0cACaiPOKXNPL5iLHA2b/Wc
+         NZEYAYmewS7/wsQd2sPgtnnYXbV0ijBVSwi/lG/gBRWBWEsdUxWKOQtOYtwLdETqf7yK
+         vT4v1JsThJLTTetA113k7mp3XBnrDF3eSmDiCRlajsnb1+Vrks43CBQW2B7GrrHkRCIg
+         ACJQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVGcEK3po4xTtZRHMf98MiMWkyxNB58LYFnv0sG7Tte8AO1EI0aZNSmVlzU1jH90lIBURc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0+AAC1D4ivkezQZLoRLRqBKC9EOeTYFxAFphWiqoD+OjPL+3w
+	o5J5YqZVkre7tTgNVOBdQ4YDKBKKUjQnQUSnec1g9li4BUtWm33/z8t0
+X-Gm-Gg: ASbGncuDpWxeArSocJ5G5OMwmwvntBsbO00ycbafeRATUwcNLJ7A0rBXmVrcXCFsLKf
+	+onHREBm/lHV7QrvpUa0A7fiw8E8XcOwRS0bZrgThp0wisfNK7iT2X2hEgmyHps4h+OKwCjOcdL
+	4y6aEwURMNk4gmN8aEjwNgOhUv1O4Yh1gAuHZfSbpZ09vAaLAdMo+6ymW2b8/RtJrDIFsNUv9mG
+	rixPSNFhZrSPgztIHAZOdS5iu5+v5rnyznG2tehAhARUOiw2Muw69R1wFbll08AwVjLyFPYAIjH
+	8JYf57Bp2EoTlreY/GmiWANPmllLtAe6ElRj84BYqoGiyObIYzQhRfcIDk2CVl6005KZmGSLS8H
+	gCo2gHQ0q/l/9pOISHHPgdkPy2elImXaTiUEW73NHJdq/0MglzOHc3kbws//C5d0CvZWkKDw9Oe
+	HRgARHMEPt
+X-Google-Smtp-Source: AGHT+IHCvLSeDQIA9MOlP1n41PPChqLhxOD50t7afbRZUxv4IJe6jotEWt9ehluHciDm3atzGKvu9w==
+X-Received: by 2002:a05:6214:404:b0:6fd:a382:f86f with SMTP id 6a1803df08f44-707205c1e57mr40984496d6.34.1753466324775;
+        Fri, 25 Jul 2025 10:58:44 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
-        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-70729c8ab8asm2839186d6.94.2025.07.25.10.58.39
+        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-70729c8ab8asm2839186d6.94.2025.07.25.10.58.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Jul 2025 10:58:39 -0700 (PDT)
+        Fri, 25 Jul 2025 10:58:44 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
 X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
 To: axboe@kernel.dk,
@@ -69,10 +71,12 @@ To: axboe@kernel.dk,
 	ankit.kumar@samsung.com,
 	martin.petersen@oracle.com
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH v2 0/7] io_uring r/w with metadata
-Date: Fri, 25 Jul 2025 13:57:56 -0400
-Message-ID: <20250725175808.2632-1-vincent.fu@samsung.com>
+Subject: [PATCH 1/7] engines/io_uring: store ioengine id in ioengine data
+Date: Fri, 25 Jul 2025 13:57:57 -0400
+Message-ID: <20250725175808.2632-2-vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.47.2
+In-Reply-To: <20250725175808.2632-1-vincent.fu@samsung.com>
+References: <20250725175808.2632-1-vincent.fu@samsung.com>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -81,65 +85,85 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series adds support for io_uring read and write operations for
-block devices with metadata.
+To reduce pointer chasing in the hot path just store whether we are
+using the io_uring or io_uring_cmd ioengine in the ioengine data.
 
-Patches 1-5 are refactors and cleanups to prepare for the new feature.
-Patch 6 adds the actual support for read and write operations with metadata.
-Patch 7 adds a test script for this feature using NVMe devices.
+Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
+---
+ engines/io_uring.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-This code has been tested using the kernel below:
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/vfs/vfs.git
-branch: vfs-6.17.integrity
-
-The new feature has passed testing under the following settings:
-
-QEMU NVMe device 512B data size; 8B, 16B, 64B metadata size; 16b Guard PI
-QEMU NVMe device 4K data size; 16B, 64B metadata size, 64b Guard PI
-
-I have not been able to run the following tests due to platform
-issues:
-
-QEMU NVMe device 4K data size; 16B, 64B metadata size; 16b Guard PI
-   nvme format fails
-scsi-debug device 
-   module is loaded with dif=1,2,or 3 but PI support is not detected
-
-Would appreciate help anyone can provide for the missing test setups.
-
-This series has passed regression testing with fio's automated tests:
-https://github.com/vincentkfu/fio/actions/runs/16526902163
-https://github.com/vincentkfu/fio/actions/runs/16526978984
-
-These patches are available as a branch in my fork of fio:
-https://github.com/vincentkfu/fio/commits/pi-block-v2/
-
-Changes compared to v1:
- - Added patch 1 to store ioengine id in ioengine data
- - Move refactoring changes from original feature patch to prep patches
-   (Jens)
- - Added patch 4 to simplify io_u_free
- - Added patch 5 to fill in guard generation options at init time
- - Move metadata-specific code out of line to separate functions (Jens)
-
-Vincent Fu (7):
-  engines/io_uring: store ioengine id in ioengine data
-  engines/nvme: move inline functions from .c to .h file
-  engines/nvme: refactor filling protection information
-  engines/io_uring: simplify io_u_free
-  engines/io_uring: fill in guard generation options at init time
-  engines/io_uring: support r/w with metadata
-  t/io_uring_pi: test script for io_uring PI
-
- engines/io_uring.c  | 315 +++++++++++++++++++++++++++++-----
- engines/nvme.c      |  35 ++--
- engines/nvme.h      |  18 ++
- io_u.h              |   1 +
- os/linux/io_uring.h |  15 ++
- t/io_uring_pi.py    | 408 ++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 731 insertions(+), 61 deletions(-)
- create mode 100644 t/io_uring_pi.py
-
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 5bbcc97a..231c47df 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -97,6 +97,8 @@ struct ioring_data {
+ 	struct nvme_dsm *dsm;
+ 	uint32_t cdw12_flags[DDIR_RWDIR_CNT];
+ 	uint8_t write_opcode;
++
++	bool is_uring_cmd_eng;
+ };
+ 
+ struct ioring_options {
+@@ -136,12 +138,6 @@ static const int fixed_ddir_to_op[2] = {
+ 	IORING_OP_WRITE_FIXED
+ };
+ 
+-static int fio_ioring_cmd_prep(struct thread_data *td, struct io_u *io_u);
+-static inline bool is_uring_cmd_eng(struct thread_data *td)
+-{
+-	return td->io_ops->prep == fio_ioring_cmd_prep;
+-}
+-
+ static int fio_ioring_sqpoll_cb(void *data, unsigned long long *val)
+ {
+ 	struct ioring_options *o = data;
+@@ -804,7 +800,7 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
+ 	if (ld->cmdprio.mode != CMDPRIO_MODE_NONE)
+ 		fio_ioring_cmdprio_prep(td, io_u);
+ 
+-	if (o->cmd_type == FIO_URING_CMD_NVME && is_uring_cmd_eng(td))
++	if (o->cmd_type == FIO_URING_CMD_NVME && ld->is_uring_cmd_eng)
+ 		fio_ioring_cmd_nvme_pi(td, io_u);
+ 
+ 	tail = *ring->tail;
+@@ -1372,6 +1368,8 @@ static int fio_ioring_init(struct thread_data *td)
+ 
+ 	ld = calloc(1, sizeof(*ld));
+ 
++	ld->is_uring_cmd_eng = (td->io_ops->prep == fio_ioring_cmd_prep);
++
+ 	/*
+ 	 * The internal io_uring queue depth must be a power-of-2, as that's
+ 	 * how the ring interface works. So round that up, in case the user
+@@ -1388,7 +1386,7 @@ static int fio_ioring_init(struct thread_data *td)
+ 	 * We are only supporting iomem=malloc / mem=malloc as of now.
+ 	 */
+ 	if (o->cmd_type == FIO_URING_CMD_NVME && o->md_per_io_size &&
+-	    is_uring_cmd_eng(td)) {
++	    ld->is_uring_cmd_eng) {
+ 		md_size = (unsigned long long) o->md_per_io_size
+ 				* (unsigned long long) td->o.iodepth;
+ 		md_size += page_mask + td->o.mem_align;
+@@ -1417,7 +1415,7 @@ static int fio_ioring_init(struct thread_data *td)
+ 	 * in zbd mode where trim means zone reset.
+ 	 */
+ 	if (td_trim(td) && td->o.zone_mode == ZONE_MODE_ZBD &&
+-	    is_uring_cmd_eng(td)) {
++	    ld->is_uring_cmd_eng) {
+ 		td->io_ops->flags |= FIO_ASYNCIO_SYNC_TRIM;
+ 	} else {
+ 		dsm_size = sizeof(*ld->dsm);
+@@ -1431,7 +1429,7 @@ static int fio_ioring_init(struct thread_data *td)
+ 		}
+ 	}
+ 
+-	if (is_uring_cmd_eng(td))
++	if (ld->is_uring_cmd_eng)
+ 		return fio_ioring_cmd_init(td, ld);
+ 	return 0;
+ }
 -- 
 2.47.2
 
