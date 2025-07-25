@@ -1,64 +1,64 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7CD2EFDBE
-	for <fio@vger.kernel.org>; Fri, 25 Jul 2025 17:58:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 002E92EFDBE
+	for <fio@vger.kernel.org>; Fri, 25 Jul 2025 17:58:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753466338; cv=none; b=PWcXQDHH95H/ElMbSOM19Jfpg0XLtV/OailtdHtEAKH1A7QtyK2w8WJZAkZmJ0Q1Vjlf79EzL4Hg1/yTPu/F0Iv15KxhJCqkCgPwntxjnOjnMM8gOspyiwPJxdYs6HJt29TLRgpT5PkzzGAvmYrghNlwHHRCktOJKWPNCbhjc78=
+	t=1753466340; cv=none; b=hY9yGj652jEalJHHiTHPvlW7hX+obBY61GWsmP2vZ4b/0d1l5Osr66EFR4mz41PltkoiFPO0CFcdFTltBIyOpVMNNYsesfTDRpEAAhchbEf66a/0+93G9fiMq7Ja0yFzjFTjlG61omOI3pqdJlKOo9YcLP/KHNBcGN9hiU3KZA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753466338; c=relaxed/simple;
-	bh=+y/MUh23BvD1oI5AROWXK7GiDQwFNjGy9pXl/LlYNJA=;
+	s=arc-20240116; t=1753466340; c=relaxed/simple;
+	bh=OytCSC9kwCWVRLZdb0e+MPm0wo2SRFkIvj0sEuErBiA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Kvg2p+gr1FHMrTupkqBBVD/YZO2QhXZqe1wr/G81RIHWIrBQZkA2yFTm4nI9z2FdB42vUsL54rwUxlYqKsano5DEU2Wcm595vOqZviPE47pFa+S33JUTg7p2ndaBzneq/+v8L9wfvk9pV+ULJI2xZhgx9AtNZ5rUuFmNU4KPsoc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P1X44ZFW; arc=none smtp.client-ip=209.85.222.176
+	 MIME-Version; b=QjQks/WHlPh/VRlEP3/E8NaL/KER1I+libSo5NKEZfUB+2jAVuKAll0alghhfawZj1NkZYtjo8fyIdboclNPitKqicjvymL5aLhUVHYqDOOulC75L7+nm4Q/nUB4MehREsEnRwQIQsMZYSzdyrcJWwxow7hxlXz0pRNpd26YlGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TU6E9nr5; arc=none smtp.client-ip=209.85.219.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P1X44ZFW"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-7e182e4171bso237687385a.3
-        for <fio@vger.kernel.org>; Fri, 25 Jul 2025 10:58:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TU6E9nr5"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-6fad4e6d949so10230866d6.0
+        for <fio@vger.kernel.org>; Fri, 25 Jul 2025 10:58:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753466336; x=1754071136; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753466338; x=1754071138; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YI/ac5y/m8sCFIcfyiN88j747pRMaRTvNwzf7UUaAtI=;
-        b=P1X44ZFWeW5m3SAc14ZkXiOhR6zGQ9wFeWGcu0UYV1boPTKLthi2RPTVTofkQeleLT
-         R+pNWLL3d1MAjUARZR5gTr3jLg8jBOFVvwtUkHImSIpwd56mVGRRdPtWsud2PiGagquH
-         N0HMughSqbiOaRrYm5AzdSoPyCbvwhp2OVvhZdhH8of33n7QlFz0FGoBHVRgQlYc1Y5m
-         K1fbOs3V6D4iLipyfAcjJ9JIDq8/AdavGqCoXDHRoSXv/TlYwhr58i6qQeR7c8hST47l
-         EMk+xXUkP85HJW2OmDGuzC3YToBgZwR5UFSMS9wMVs2xf+OmhbAZ2a8rg0BXrY5F8v5b
-         blig==
+        bh=xHTOQMo6SGYSiFiOd5zCnEnPWjp13PIsmCidWDt0a+w=;
+        b=TU6E9nr5n5o15LW4wOurzdU+Zgi/6biW5MgIrEm1Rcr3jWkBhXQUQvofcZ6im216vi
+         fkbEdJMqXZoeTHYTS7xoryEhfynTho6spgPrtFBKygAxaBssh4ky0f1FugGT7Mav2Dw0
+         JqA26pt9Q/QCHmJCqVBPFFcLvIXl/AZd6KzVURPH4hW4m2zrlGcVdgfs5c6uVpaxRimD
+         /NLW54Ei4y+tr7VJLevlu0z6y2g4LeTYpQ0CN0EV5V/VSct/d9XiWIw5DI8PYtjfBtD0
+         /qKyrJkNIwX3BM/aWqDCg/edVGjxUcasZvEsLlFPjsetdQT+SH/yPP5iuwUJx3cF3dL4
+         kb8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753466336; x=1754071136;
+        d=1e100.net; s=20230601; t=1753466338; x=1754071138;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YI/ac5y/m8sCFIcfyiN88j747pRMaRTvNwzf7UUaAtI=;
-        b=Ttt8ahdADNSGRmt3fgidFjYcr0gLrl+CUHnKZbkrcij242T/HQATrS1JUN5/FwzDfM
-         XlCJonGPSJ3RFwInISmdpBcwCfWKdmGxQ8L4NCEen007iieb/84gkw40/Cq6lCJJmUnC
-         RQ5mLpHpeyIR3ZxbAtDj4b0Tl7ms5gQIj81q+FAanRiYiOqmv07sGjDD8LDfE2XLrPGM
-         OcCsBwrwGNQsCJ8sNbtx+pG0LHyF5X082MenfdyCyQKGcnXlJlQAkmd4Qd32mTLRQyPO
-         /x/7elQNZDz6DPFxdYvZ8zOcKFkRMgh8h+aOeiowaZvpoWM45pPX3usLZXg2/RMYkR/q
-         la/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCXdX9X2SyOujA7fbaZ4sv8cKjGu+WshWW8F/BOGeR3+VO9RWvos4g/Z4NmvrzAoZ8Eev9M=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwEnCaPEiiI3wFhDRHwsAC6BEVuAldqQS3xAg3oP1kDTOqOqU9J
-	RuK6VL8qPN5bD2YCvQqEEXTZEhWnkO0kh1ulKG0+O9NMhAnetavIGto/
-X-Gm-Gg: ASbGncumce51oRmMAhTopmGD/yZHjIfMX1jMVPHTgemkuUuIOdRibZH0LreqaasD+D6
-	qid9Tw0q9IDH8dAGsExxwkTUNkngG56RFiw/HjlC78ggYtbul/Y/qG/rekr9esTW5UZgmoC7BTz
-	UDlshMCVxJ0v/phTjkpeS3vC8hsLUv9JJLHMrZAMID6eyZw3OUmt4UUPFVk7aJiMPRgXaQtIjIM
-	vt/qbjiULKx/MjN28CtFOuZsSWMrMMYirVRfwaGgOjUj9b5mphl+nHf2IebFAZNfQCO1JN31Gxg
-	K2YxSTFFDB47h25mrkO/2veOV1jdCv+Ibf/ImxQGT09iEyOcJQe3i/wUFph/gCCEyplaV0msrAA
-	QEZEf2Fala6dqoM6zCaCb85UAYPTx6Ec70lf70+5BEsHjlMaU7/0WYnzbwbiVIuHbbnIJeT1WpE
-	YNv+9Q2jlF
-X-Google-Smtp-Source: AGHT+IGxSHG/dNBWUdYTHX808rvdN+s5hXeHpohSQpjzX/RonVtAm2O4ddxxIFVC6vp7BdGJ5W0Iqw==
-X-Received: by 2002:a05:6214:252f:b0:6fb:6775:4fb8 with SMTP id 6a1803df08f44-7072053f19fmr37425146d6.13.1753466335469;
-        Fri, 25 Jul 2025 10:58:55 -0700 (PDT)
+        bh=xHTOQMo6SGYSiFiOd5zCnEnPWjp13PIsmCidWDt0a+w=;
+        b=oIbtDMRBXGGrbeFxUA6bRtn4pYAp3Jnd2KL/sA3YT32s7tpMaIL4msZ1GFFEdne7ZW
+         3SIq4mc8KaESG54/8Qka6LCT2sWAWOnZQ48P4/fghDZs1wgKvyMJ4rU2+1vb7VycZJpg
+         UaIh5JEHvFPJdlozWvtgkf5LkszXsa68N5WrixlGjmztorl1TXmSK03daYDaIoL251Hw
+         aztmAoy5w/iTnStH7rmVqVwUlQ7Cc8KBUZW2UawWmCEWGHrDojxGmD2yxNWZhdmn6PfP
+         eNS2FO9TOqV2ENhZ14uy8FzwibELhzWeZNGSW9Og1YjL2bmkLlRnLlohGh1pQ5wa0E6B
+         e6OQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXGLFN91E00aCS58z2D0eKcoSTaf2TRVxbH8TQXFxSD9vi9Tg8ToJtLX3Q+dFFbuU5uXZ4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBFNY2mlsmikikO+5Ot4DZfODDXchWncDOrmRa2aSyb3+0ptE+
+	C1qoEpTBBMK6JO6/Ycb6zBIgzZs3gDBCKgLbX8z4kt7WWNE50V2BfW2k
+X-Gm-Gg: ASbGncvOVqYhIHh9cWl1vzg42ROKRtaa8mlmBYMwXGXFcNziCsINqG+5mvyzrEKJFtJ
+	uK/99Jq/p/iVyaVKMCBEGpWeEa7dPirtvMvnd7iqshVRFIXWVXSuDuK5xGPrhRX9TfUYASkf7WX
+	KK6THo8jMim5x9xQ+VrHl6mbi3bGlugtTs5TNa7x1UvJ8Wd+6ot0rRInUN0gsxHjJFpESjHkQf1
+	QzD3ZAb0R8ScaI8tLglzAkgsu6nEEjugrkcls9qUbW4bCtYrcmGU2ZdyhLXAaKkKPpPDRnWEr4+
+	wg3C/SrcXlB1pyHGV7wmQ+ejShbn1xuCY5vIOBQcadQjhPq+PQTUaZWC8BkxI/6U111qiOxFpH+
+	fdmXVE1kAplAz0VXCsBysv8gosGcRAL1soDLZyIPeftVlnsZfBDUNPCj7LvXk15/hn5CDtQoPna
+	bwLotrnfl7
+X-Google-Smtp-Source: AGHT+IE3Jn73oUfDuqoW8f4F+Bxaz9uSyn076Ha31TZGQMyML6kwzB5K7CBgL0qtg8iC9F7nRrrYfg==
+X-Received: by 2002:ad4:5ce5:0:b0:702:d822:9376 with SMTP id 6a1803df08f44-707204ee8efmr39470886d6.12.1753466337537;
+        Fri, 25 Jul 2025 10:58:57 -0700 (PDT)
 Received: from fio-dev.vincentfu.org. (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
-        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-70729c8ab8asm2839186d6.94.2025.07.25.10.58.54
+        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-70729c8ab8asm2839186d6.94.2025.07.25.10.58.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Jul 2025 10:58:54 -0700 (PDT)
+        Fri, 25 Jul 2025 10:58:56 -0700 (PDT)
 From: Vincent Fu <vincentfu@gmail.com>
 X-Google-Original-From: Vincent Fu <vincent.fu@samsung.com>
 To: axboe@kernel.dk,
@@ -71,9 +71,9 @@ To: axboe@kernel.dk,
 	ankit.kumar@samsung.com,
 	martin.petersen@oracle.com
 Cc: Vincent Fu <vincent.fu@samsung.com>
-Subject: [PATCH 4/7] engines/io_uring: simplify io_u_free
-Date: Fri, 25 Jul 2025 13:58:00 -0400
-Message-ID: <20250725175808.2632-5-vincent.fu@samsung.com>
+Subject: [PATCH 5/7] engines/io_uring: fill in guard generation options at init time
+Date: Fri, 25 Jul 2025 13:58:01 -0400
+Message-ID: <20250725175808.2632-6-vincent.fu@samsung.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250725175808.2632-1-vincent.fu@samsung.com>
 References: <20250725175808.2632-1-vincent.fu@samsung.com>
@@ -85,42 +85,83 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Just free the buffer unconditionally. If the pointer is null nothing
-will happen, so no harm is done.
+The protection information check flags, apptag, and apptag mask are
+fixed for every single operation in a job. So we should just set these
+values at init time instead of populating this structure anew for every
+single IO.
 
-This lets us also use this function for the io_uring ioengine when it
-gains the ability to handle metadata which will happen in a subsequent
-patch.
-
-No functional change intended.
+Any uses of this structure are guarded by the device's protection
+information type, so it is not a problem to fill in this structure even
+when the device is formatted with Type 0 PI (no protection).
 
 Signed-off-by: Vincent Fu <vincent.fu@samsung.com>
 ---
- engines/io_uring.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ engines/io_uring.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
 diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 231c47df..c054a98f 100644
+index c054a98f..4c72298d 100644
 --- a/engines/io_uring.c
 +++ b/engines/io_uring.c
-@@ -1468,14 +1468,10 @@ static int fio_ioring_io_u_cmd_init(struct thread_data *td, struct io_u *io_u)
+@@ -99,6 +99,8 @@ struct ioring_data {
+ 	uint8_t write_opcode;
  
- static void fio_ioring_io_u_free(struct thread_data *td, struct io_u *io_u)
+ 	bool is_uring_cmd_eng;
++
++	struct nvme_cmd_ext_io_opts ext_opts;
+ };
+ 
+ struct ioring_options {
+@@ -738,11 +740,8 @@ static inline void fio_ioring_cmd_nvme_pi(struct thread_data *td,
+ 					  struct io_u *io_u)
  {
+ 	struct ioring_data *ld = td->io_ops_data;
 -	struct ioring_options *o = td->eo;
--
--	if (o->cmd_type == FIO_URING_CMD_NVME) {
--		struct nvme_pi *pi = io_u->engine_data;
-+	struct nvme_pi *pi = io_u->engine_data;
+ 	struct nvme_uring_cmd *cmd;
+ 	struct io_uring_sqe *sqe;
+-	struct nvme_cmd_ext_io_opts ext_opts = {0};
+-	struct nvme_data *data = FILE_ENG_DATA(io_u->file);
  
--		free(pi);
--		io_u->engine_data = NULL;
+ 	if (io_u->ddir == DDIR_TRIM)
+ 		return;
+@@ -750,15 +749,7 @@ static inline void fio_ioring_cmd_nvme_pi(struct thread_data *td,
+ 	sqe = &ld->sqes[(io_u->index) << 1];
+ 	cmd = (struct nvme_uring_cmd *)sqe->cmd;
+ 
+-	if (data->pi_type) {
+-		if (o->pi_act)
+-			ext_opts.io_flags |= NVME_IO_PRINFO_PRACT;
+-		ext_opts.io_flags |= o->prchk;
+-		ext_opts.apptag = o->apptag;
+-		ext_opts.apptag_mask = o->apptag_mask;
 -	}
-+	free(pi);
-+	io_u->engine_data = NULL;
+-
+-	fio_nvme_pi_fill(cmd, io_u, &ext_opts);
++	fio_nvme_pi_fill(cmd, io_u, &ld->ext_opts);
  }
  
- static int fio_ioring_open_file(struct thread_data *td, struct fio_file *f)
+ static inline void fio_ioring_cmdprio_prep(struct thread_data *td,
+@@ -1355,6 +1346,7 @@ static int fio_ioring_init(struct thread_data *td)
+ 	unsigned int dsm_size;
+ 	unsigned long long md_size;
+ 	int ret, i;
++	struct nvme_cmd_ext_io_opts *ext_opts;
+ 
+ 	/* sqthread submission requires registered files */
+ 	if (o->sqpoll_thread)
+@@ -1399,6 +1391,12 @@ static int fio_ioring_init(struct thread_data *td)
+ 		}
+ 	}
+ 	parse_prchk_flags(o);
++	ext_opts = &ld->ext_opts;
++	if (o->pi_act)
++		ext_opts->io_flags |= NVME_IO_PRINFO_PRACT;
++	ext_opts->io_flags |= o->prchk;
++	ext_opts->apptag = o->apptag;
++	ext_opts->apptag_mask = o->apptag_mask;
+ 
+ 	ld->iovecs = calloc(ld->iodepth, sizeof(struct iovec));
+ 
 -- 
 2.47.2
 
