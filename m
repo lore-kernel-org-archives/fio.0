@@ -1,109 +1,85 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA24E23ABB4
-	for <fio@vger.kernel.org>; Thu, 31 Jul 2025 16:20:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCDBC2222CB
+	for <fio@vger.kernel.org>; Thu, 31 Jul 2025 17:34:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753978822; cv=none; b=sygoOdC7pxDKkH1jDZ+wyXKRArnJsUXgQDwvN2iYYdcJRJUCM/pIIb5aE9xdP2qfKunD/7IqSVQcGsGlIZPEzZT9wY9kxZ3aDKY9D1mx5mMoSSigP+P7i4vvLR6Fe76A9mZ3UKiDvESyIRuqgPBmdh8G48lgvyYlGHLPczUDaV0=
+	t=1753983274; cv=none; b=uwm9yjZDA7xRcEAn5MKVPqsHv+VGwmiyuf1+trXk1Sw9+KXHxI4+dYE1zI68Ngpjg02iETr8i2uP5mcVf+f6+GssDtFhxTpiFPRtfJHxwzGHY9A0WUiZGJ9Wg3bFEN7wazVfQ6aJw74P07TgLiw3U9K+zts35czYrBZe5PJL8Nc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753978822; c=relaxed/simple;
-	bh=HsxtOiWEEsVrjdjVD2qZD4S1oxGi2HYlOaS2XILInwg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=VyScGZiJlAbyeC5PFKQex0Oen3PDrn7dKqgA4DUF0plBxLgRfB1CxG0Bo7PfzTqHp2PZm5wXA8RcFwLtUjHDx+0SPLnQy5CKc4WbTUrEF7JUMUWVabHxwZlRy4K8lRjyQnEjYiiMpuQRZ/GTsxMGZJ1oDRn/+8EDGz5zVZeVeTc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bGPAPGpC; arc=none smtp.client-ip=209.85.222.169
+	s=arc-20240116; t=1753983274; c=relaxed/simple;
+	bh=dpq/7g+L/eZLGb1EI+V/mroRTOD8nD4YSQeHz3rd1HI=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=IG/4p8GiLX3j0iifKJTnWtabFkiDJm0a8Z9P8YaBSAXdybAiApZsPbeO3/N1HsrHP8SqnNLtyciB4SSq+CkMYg+W6dZfT8fdWnnSXxEl6rBME3sCx5UChc08v33jZzwJ1GqC0kulgt6t8Yq73+4tVaualQmTZZotnvgrDZRiCoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FFmojb5n; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bGPAPGpC"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-7e1d89fcc31so107274185a.1
-        for <fio@vger.kernel.org>; Thu, 31 Jul 2025 09:20:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FFmojb5n"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2406fe901c4so5576345ad.1
+        for <fio@vger.kernel.org>; Thu, 31 Jul 2025 10:34:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753978820; x=1754583620; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=q8YrBmTyN1rTDXsQGCmZgHuYr4/hbiuKjLRLao5aHdA=;
-        b=bGPAPGpCH3vqH1U+SLf2aFlFvdQWfR3gW624lIAFa8TxPAPyXFUqUtgcZW7PfhrFqW
-         tXHYRFppU5pQ5tWYPnyxpbDMCLnBCNn8h9eDaWhliX+YMhMG93eMQqRCilQNYFzKCazt
-         RnEn4I5EQFmcuXDwiVJ8yMtzPE9T7itBLZKzNdpDgNBNf0zmJfQ/MzbqDhOWmRSgPGqs
-         rwhcqCoktzsaTiEFJUM/VqX7mMKAfF6QDccaBST4f6pIM3c4BIWfz7Ggc7DvhH57//bO
-         OWdi9zgh7ypkxH3OdjlByBQ6qSERAdqPkuv8JaaRFwT6FpQz7rKasnTenk1Hb7YIURE3
-         AnMQ==
+        d=gmail.com; s=20230601; t=1753983272; x=1754588072; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=dpq/7g+L/eZLGb1EI+V/mroRTOD8nD4YSQeHz3rd1HI=;
+        b=FFmojb5nvNA+RY1dvf02TUy3+uDTmyvAxq+1kaKyhFV28rrTS1tcHgrYP3QtBjMMHz
+         7NxoXo2SYP04sq5IBNz63UZY7Ge+Idf+ktGD3oZ13ITiG973gZfDJkAFQlfSrFSGqAih
+         6dyFKNa+OuJThbWu0p7PTyFqw8kpIFbyM2MozoiPD5TwzQVYx8OjkueYh67ai3Dg8dcl
+         QKdqfsXvcXHls2tLdNCSJzYl9mYjcYUrT8L29KiTVX0XCAeGp7fTV03ckprgWnIKvhso
+         32/oa4jZzRSxLH4XYLv7r1axLLuNCxPvxXfw0pcbyhbBHavWYhvEhX71Bz9VIHsAHBig
+         cjEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753978820; x=1754583620;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1753983272; x=1754588072;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=q8YrBmTyN1rTDXsQGCmZgHuYr4/hbiuKjLRLao5aHdA=;
-        b=KElrWnPuVPrZd0NhoycPM3nKDGdpifa7u+ibnp/5Z6AA3KMr9PQ4dd34VNzxrLNv8p
-         J+nD+S+gAIWCUfik5l4kQA+VWHv1/QpLLj9X/d/esRcBWPFAOT/dVpIe0rYdixzHgput
-         Eaa66aI7myca+vhVQRAiuqAuaKwTH2B2IYRTt7TFDU2ZgYqS9MJ/xFDFQ2flNlL2L+y7
-         fzBCNn8h2kGCjiogH2mN1UyOrgYyDlO1SRcuM8sX8B9uTA12dh0MfAlAke80RdBaUcms
-         4JXhwqE84Y1Q1E0HJpstzneXHmzSxa6JYtWhcxYbeAkpa2JpODYmnSW5pA/9rKiD0RuH
-         ZPdg==
-X-Forwarded-Encrypted: i=1; AJvYcCXr4mU6G9oWS67X2bXnRYeKY3J3oKtfwE7JYf9M3V4eg0DFIFHe10muHFj3LYNpeSnkejo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzTcNuUB0IJXSCX0PA2z3S54RtOxQYeWs68pIweDHcHVPmAyB8l
-	gH3xkY6WYJV4+AFN9cw+XUNvojdylbQ1RXN3x2rGiTU8xWyUXX195fpx
-X-Gm-Gg: ASbGncuUWKwj8NpwJqrtfLv0uwfTFPMtk4+H4sL1La5547py8A75FXcT1HohEOBNI0E
-	dm0oytvmPDZspdc3weRj1/UNspn3fqqQv9m2tn1D/h64AEp6qT7uOTca4GyJpJSKrIe3WuvyjWt
-	NRBEcnp2/u3y0ikBJpWWyyzUipernLGDnSM3twQEyFRjQeq21nnClUjmfWEIvc/j+cJquYSYPEa
-	lGWb2iVtoJPiSiWx+CfUNogT6909ksjTIy9m6nwyhT3oKnDw4gbMVyq7QfDBQystUUSFwhCi1oK
-	vboewhYfR+WwA7rsnzE/PZ/IPbZ+ArZvHZkKLHJKNQuMGsOe2IUhxErhtk/16AlUDJke+PbnzKk
-	9/JEoElLDUoh4bd9ApOtJfPP9fh+Ida0GjQml53vv8rKqI1tips7oLjfqh2OlyzUUa5by+KM=
-X-Google-Smtp-Source: AGHT+IFiBgP19gH1lGR9kkakTitkKABsmURzq89a3l/2rfTAywNmZxVoVhh2/2N9CMxr/FNdWg4lnQ==
-X-Received: by 2002:a05:620a:ac1a:b0:7e6:252b:9b48 with SMTP id af79cd13be357-7e66ef7f4camr951773785a.11.1753978819380;
-        Thu, 31 Jul 2025 09:20:19 -0700 (PDT)
-Received: from [192.168.1.211] (pool-72-66-106-13.washdc.fios.verizon.net. [72.66.106.13])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7e67f706406sm100732985a.49.2025.07.31.09.20.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 31 Jul 2025 09:20:18 -0700 (PDT)
-Message-ID: <4b0299d7-e4a3-40ec-ad6c-5bd25330c50e@gmail.com>
-Date: Thu, 31 Jul 2025 12:20:17 -0400
+        bh=dpq/7g+L/eZLGb1EI+V/mroRTOD8nD4YSQeHz3rd1HI=;
+        b=tXEDlAlO4wGvRhsAvle25cyIbHBm+3HWhuY3/rkmJcaJkI3ovktasr/Gq9cxrXmZHC
+         fsTzKu/oD8ZHiXqfr6MZl7lhNu1Yf71IxzpaEuoCtbGLJipDrfPGST0usBN5GxEWrk2F
+         EfO5OhS12HRRcRK9/AkGXOeu6lXXgEHuYB+QMG7XQCoU2OZZW70YrLwuxS1FK6RPKf+T
+         XJe3GhYSLRTPVD/Rw0Od3KGhLzPbttQ53lf4vw5cEJQyF1izkImxpgw9yQ4MV/m/NmO2
+         uhqswRUtBNt2O4FC1M4mB+OlLEb/zg6BzaQnfknKI7Ir5bxqU601uGinRin2ZLMrXqwe
+         XqVw==
+X-Gm-Message-State: AOJu0Yy88U/LMpfReXbpoiGLHZ45fqx6LZf90lpvy7lX+NQ4yVM/vTFd
+	U0YQwXse/ke0YFww95cfqfM8aKMqdibzAv3YijwxfNKAJ8ibGbCBaneHE6MA
+X-Gm-Gg: ASbGncsK+45/crbGwArLs57jC1CL2V5oIC3hsaDaTch5nS9UDCUg8M5taGHJ3cbkKg9
+	ebvr56/EriQBAbgzBCxJjvBGFFJ9Veq1hUVZufC2CA1XPKs0CBnRlucupwbg49HyhiiK4xMCm0u
+	3UARr5BUcvT51GL8ATz5/SBhbPoU0TcSFU60OkF8dcuQBEarX1DMFjFtzsW2m/jYmHGyUcsimEo
+	MLH8J3PHP2gCIGEia2NMRJT9XNh0lYxXEzXgQewH+vAZhCF9SvmuHtD5Qo1nZ0CY2wkFeBIoxhP
+	Aev9LwVfuryVBQFLrD1vgbUXxIEDmzW6Aaw6xL715ICxcO/YOnN1ZKtimAzyX1T0TGGQ3wPZUQa
+	meh8UAIrgKROend0zM0218s73bVMKfq8D4cXkKcQPH6jcFWlQ2UeAphaRojScZU5G+lnqQFqHnc
+	MwBRCw8FK3xrGEhAVjfOOhgqIU
+X-Google-Smtp-Source: AGHT+IGYBSO6VZT9DAlHmec/MNNvXoH+cLwCVQtPY50+jPcxFnrur4Dgyv4lwr6OOVnUGbl7lNysLA==
+X-Received: by 2002:a17:902:fc48:b0:240:5549:708e with SMTP id d9443c01a7336-24096b58964mr103911025ad.46.1753983271718;
+        Thu, 31 Jul 2025 10:34:31 -0700 (PDT)
+Received: from pkrvmjbmru5nbw0.2fvbbrm5ht2erfgp2g5ajppu1b.phxx.internal.cloudapp.net ([172.182.201.163])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-241d1ef65d2sm23033905ad.31.2025.07.31.10.34.31
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Jul 2025 10:34:31 -0700 (PDT)
+Date: Thu, 31 Jul 2025 10:34:31 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="===============5895245494588416844=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] filesetup: make longest_existing_path() static and
- const-correct
-To: Tomas Winkler <tomas.winkler@sandisk.com>, fio@vger.kernel.org,
- Jens Axboe <axboe@kernel.dk>
-References: <20250731122011.539660-1-tomas.winkler@sandisk.com>
-Content-Language: en-US
-From: Vincent Fu <vincentfu@gmail.com>
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_1/2=5D_filesetup=3A_make_longest=5Fexisting=5Fpath=28=29_static_and_const-correct?=
 In-Reply-To: <20250731122011.539660-1-tomas.winkler@sandisk.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+References: <20250731122011.539660-1-tomas.winkler@sandisk.com>
+Message-ID: <175398327071.2702.10905516177775066660@pkrvmjbmru5nbw0.2fvbbrm5ht2erfgp2g5ajppu1b.phxx.internal.cloudapp.net>
+
+--===============5895245494588416844==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-On 7/31/25 8:20 AM, Tomas Winkler wrote:
-> Mark longest_existing_path() as static since it is only used within
-> filesetup.c. Also, declare the 'path' parameter as const char *
-> because it is not modified within the function.
-> 
-> Signed-off-by: Tomas Winkler tomas.winkler@sandisk.com
-> ---
->   filesetup.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/filesetup.c b/filesetup.c
-> index a94d3b38..bcbd871e 100644
-> --- a/filesetup.c
-> +++ b/filesetup.c
-> @@ -1002,7 +1002,8 @@ uint64_t get_start_offset(struct thread_data *td, struct fio_file *f)
->   /*
->    * Find longest path component that exists and return its length
->    */
-> -int longest_existing_path(char *path) {
-> +static int longest_existing_path(const char *path)
-> +{
->   	char buf[PATH_MAX];
->   	bool done;
->   	char *buf_pos;
 
-Applied. Thanks. Next time when you post more than one patch please 
-include a cover letter.
+The result of fio's continuous integration tests was: success
 
-Vincent
+For more details see https://github.com/fiotestbot/fio/actions/runs/16652224455
+
+--===============5895245494588416844==--
