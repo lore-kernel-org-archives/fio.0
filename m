@@ -1,108 +1,136 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC4F27CCCD
-	for <fio@vger.kernel.org>; Sat,  9 Aug 2025 14:28:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0F871B2186
+	for <fio@vger.kernel.org>; Sun, 10 Aug 2025 12:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754749718; cv=none; b=kppyigKkn1RfeIMEGbIuEkxjPUqOgyg4C8vZAZfRw9Pkh8+uAigvqk6vq5/g777Qc8cItDLl/E8gDyHATL8+hM6ermipLLGEC2e8k0WxjBa/DyNThE/+WqvX3ZB7bthaUePbk5nR60cMBWEZQD2WpsDabF9S5KgBcitYkwy/ils=
+	t=1754827211; cv=none; b=rreSLr4gZQet5U7A8C+Z5Wjm2XMyY+VgfOh71obQXR/c5eBd/2yRCXz27ggHuIhDRv29GXN7iGx+a3T6Z2wWJW+l1m08W4J2HVVRG94Vfxwd8tM5WzkGEjeD4e1CivYpX31QcOyRGmU2KwrAVKQwv2puKEe+iD18NNT9IQsl4as=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754749718; c=relaxed/simple;
-	bh=P4GAi2ePyIkvpM+dhVk1fQyhQJjN9UIT/jxHjyIlNIo=;
-	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=MKiuX3lva2yP2r+Seb8SZM/bRYpWiqL+opuctAcODMMxLo8IeGjfa89J0n8AZJoDvBRXShY8VPq3FFwHkFW0mypHlXvahvP/3CLr6WYY302+RgwyKT/HG3ww9ABL6A/zsNzYSpaNlOxxinTYKe89x1V9wdbfFQW7aioAoH2oEIY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=cfab0jr0; arc=none smtp.client-ip=209.85.210.174
+	s=arc-20240116; t=1754827211; c=relaxed/simple;
+	bh=O7OwjwoVsOzPNzBucJNjKVv8WkQOjagAM39de6IbF3Q=;
+	h=Subject:From:To:Message-Id:Date; b=aKgeWK5y+FAAMzLM0b9QeQWFSOzh6u/tc6oXJfYAtZWIGC40rw20qOVCgWPyvxzCRLEPn3JzYl+ljJG6o7KdZCl947hLTJ8n/mupaJkGn7MCUB+MsHY6j1JWXwXB3KTnO9Th+55W4vVfQtpL8ZQuwBimYqZPlj3PQDLgNZKzBuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=FOuWY7+z; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="cfab0jr0"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-76bc5e68e26so2975373b3a.0
-        for <fio@vger.kernel.org>; Sat, 09 Aug 2025 07:28:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1754749713; x=1755354513; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:to:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=hffU8oY4OQEfxzNI0qePacJ7+zKFTT15YqUIAtV3CRM=;
-        b=cfab0jr09UW3w0a5Z/KsFw3AWvq/ojfgYLXAv8fBBgD8DbN2e34xgFPwCwCzkxtZBq
-         0qi+VLLk7dq+4j9uREMS6pa2AmMYOOHuh+/wPdyG/EYqrDDTloXCu2AO0UKFowA7lTFV
-         9toq7Otuj71XpUbPxZIjRBMdr60IRjIzRyHzG0F5+Zw1BYndC6y6d6A0YVbSsshAcVMl
-         9Hy/Vy8z+oqAGytnJO+9B+ACgWluo0tAaV6eOXf4cDA3ymiAhTS4SZ6vxkZjdJQ1t2hq
-         t97oT4o1fKEtF9sGn2aO45UzKQUZBTK6kEX+JtgyhfwLsozUrcVCE3MaEu6yZ/k4/oGu
-         JA9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754749713; x=1755354513;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hffU8oY4OQEfxzNI0qePacJ7+zKFTT15YqUIAtV3CRM=;
-        b=Zs0DqkD+AsL5lUIZb8qEZ9iqb5Cywi9hxyhADWxCyAZYneN+uLQ9wQBocfKpSGqXNP
-         sdn4gampwquePOz8a6FgwMEzQ0rT1Gj0fm6eaZuQUgZRkDmtfSAOatyJwXsh3lSq51qg
-         bzqL0kOXZSsnk5M+4NPfXs50wZo+fze0OO+QB0npSz8RZREaAKaiKwhwd6soseUunKYq
-         hgDgwjQ33dqUivyYYjFZ9aieVuI+lH5s7Im33CkrogAIES33pj+n9B6xtmjTl0jDR6VW
-         D2pJxB68fD/+1IhhoNv8Ruyl52uODtJB1hseF0d405VChfStgmuNJ6Qo+6U96I6osup5
-         zb3g==
-X-Gm-Message-State: AOJu0YwqKs6umJetUFgQnfA5AUKPy5pDlf+xl8MUn/M+3qIx1AZv3yUP
-	1zCZxkMeD4w46etQRKaTP8iE/S4FWAPkp5eS253k5VHo3XCDWl/jiL5pbWjrDEiv1AnmIHWEiVn
-	3JK22
-X-Gm-Gg: ASbGncuWjld/xKJxKcl58UySbvJaO3lzcGICNXXT+g/UaqklN2qg6lJHZdrFHBVIP9J
-	1XGRvt6eJiLjuua2YIWj7BoUJY4PE5Jelz/QEWJjqTb/POdJ7A/0riIpk6o0STh/k4zeIDKYjSE
-	kZr25cSxCZDPlz+vEPkcMGyFWtDyuLr34W8y800+qwk40OZ8ThFMVm+77sdxCIQ6AR9rk8gF6Nm
-	gItgvdC/9211J8p0FShmsfKE4GndF3xg0Y5r/swjFhxemuvD8vKnyth4YsrbGUUV5We8e1/6rnV
-	Qe09+er8tL3Qe5e9smd0CcA4Oiy57xfzeHeVJufrA85HTSOP1q/LTGdyL8f7dGvx5Tf8tACU5mL
-	QTIy9JNgY0beMDvk=
-X-Google-Smtp-Source: AGHT+IEAXKtyaIq2fGsh1oPGwaXnKAQBhOMaz32yBJvUoV1OAceqlM+0jt/Y0SS087ZLLHnW59uaww==
-X-Received: by 2002:a05:6a00:990:b0:76c:35c0:c81a with SMTP id d2e1a72fcca58-76c461938ccmr10093608b3a.18.1754749712684;
-        Sat, 09 Aug 2025 07:28:32 -0700 (PDT)
-Received: from [127.0.0.1] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-76bccfbd22csm22774301b3a.65.2025.08.09.07.28.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Aug 2025 07:28:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="FOuWY7+z"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=CnKYgPJe8/ZNRPFCAm/HKrDhVy6zvQ1Clq5EMf6yw2Q=; b=FOuWY7+zFox9AVUYOeHd6Iq8cG
+	ZJenOq+ebOegUIXlME6Q2h7KHYbfcS8EQb+/Oend4of+NTWGUX56bT0uEIYifW+yZr/F2z/Zm7jiF
+	aMPSdEFnsM0EttwM6VWe42JwRJP1Dv5JhL7hDwh6KHQluW1Pkp1hTZJsvI3m4FtNezL0qm09IEz+C
+	sUAIV8KJC8VI2ro3EWFGvCbKlrayNyPQ+YFy91FbmLAeGKuI1ON43L+uIORAu+F0sAX4rfiHcPtex
+	tXzKmuybbGVjV2L0Fa586G/tgBvtMpnhfiDUG5bbDuHnZl9x3xjSvSJ6R875qZRCDCv424mdTEs8z
+	o/jlF8OQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1ul4iZ-00000008Rrf-26jB
+	for fio@vger.kernel.org;
+	Sun, 10 Aug 2025 12:00:04 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 539271BC0178; Sun, 10 Aug 2025 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-To: fio@vger.kernel.org, Vincent Fu <vincentfu@gmail.com>, 
- Riley Thomasson <riley.thomasson@gmail.com>, 
- Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-In-Reply-To: <20250809011555.948564-1-shinichiro.kawasaki@wdc.com>
-References: <20250809011555.948564-1-shinichiro.kawasaki@wdc.com>
-Subject: Re: [PATCH 0/2] verify: fix issues of verify state handling
- improvement
-Message-Id: <175474971142.643727.4390148010932341386.b4-ty@kernel.dk>
-Date: Sat, 09 Aug 2025 08:28:31 -0600
+To: <fio@vger.kernel.org>
+X-Mailer: mail (GNU Mailutils 3.7)
+Message-Id: <20250810120001.539271BC0178@kernel.dk>
+Date: Sun, 10 Aug 2025 06:00:01 -0600 (MDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.3-dev-2ce6c
 
+The following changes since commit f95cf49e1d2a8d2babb8aa385fb902d927533644:
 
-On Sat, 09 Aug 2025 10:15:53 +0900, Shin'ichiro Kawasaki wrote:
-> Recently, verify state handling was improved through GitHub PR 1951 [1].
-> My thank goes to Riley Thomasson. The work provided the fundamental fix
-> for the out-of-order write completion issue :)
-> 
-> However, I observed the work introduced two issues. The first issue is
-> unbalanced calls of log_inflight() and invalidate_inflight() during
-> write failures, which leads to fio run stops by aborts. The second issue
-> is verify state file data structure change without file version
-> increment. This patch series addresses these two issues by two patches
-> respectively.
-> 
-> [...]
+  crc: use ISA-L for crc64 NVMe if available (2025-08-07 10:54:04 -0400)
 
-Applied, thanks!
+are available in the Git repository at:
 
-[1/2] verify: fix write tracking in error cases
-      commit: 1e6ca399f8b5062fcb4be3b043b7355a0617afb6
-[2/2] verify: bump up verify state file version
-      commit: a52833b3295f0fae160eb3d4937a371756d6d929
+  git://git.kernel.dk/fio.git master
 
-Best regards,
--- 
-Jens Axboe
+for you to fetch changes up to a52833b3295f0fae160eb3d4937a371756d6d929:
 
+  verify: bump up verify state file version (2025-08-09 08:27:59 -0600)
 
+----------------------------------------------------------------
+Shin'ichiro Kawasaki (2):
+      verify: fix write tracking in error cases
+      verify: bump up verify state file version
 
+ backend.c      |  2 ++
+ io_u.c         | 11 +++++++++--
+ verify-state.h |  2 +-
+ 3 files changed, 12 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index 922309a0..858506c4 100644
+--- a/backend.c
++++ b/backend.c
+@@ -449,6 +449,7 @@ int io_queue_event(struct thread_data *td, struct io_u *io_u, int *ret,
+ 	case FIO_Q_COMPLETED:
+ 		if (io_u->error) {
+ 			*ret = -io_u->error;
++			invalidate_inflight(td, io_u);
+ 			clear_io_u(td, io_u);
+ 		} else if (io_u->resid) {
+ 			long long bytes = io_u->xfer_buflen - io_u->resid;
+@@ -467,6 +468,7 @@ int io_queue_event(struct thread_data *td, struct io_u *io_u, int *ret,
+ 				if (!from_verify)
+ 					unlog_io_piece(td, io_u);
+ 				td_verror(td, EIO, "full resid");
++				invalidate_inflight(td, io_u);
+ 				clear_io_u(td, io_u);
+ 				break;
+ 			}
+diff --git a/io_u.c b/io_u.c
+index 6d0f32a8..78dbac9c 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -869,9 +869,16 @@ void put_io_u(struct thread_data *td, struct io_u *io_u)
+ 		__td_io_u_unlock(td);
+ }
+ 
++static inline void io_u_clear_inflight_flags(struct thread_data *td,
++					      struct io_u *io_u)
++{
++	io_u_clear(td, io_u, IO_U_F_FLIGHT | IO_U_F_BUSY_OK |
++		   IO_U_F_PATTERN_DONE);
++}
++
+ void clear_io_u(struct thread_data *td, struct io_u *io_u)
+ {
+-	io_u_clear(td, io_u, IO_U_F_FLIGHT);
++	io_u_clear_inflight_flags(td, io_u);
+ 	put_io_u(td, io_u);
+ }
+ 
+@@ -2090,7 +2097,7 @@ static void io_completed(struct thread_data *td, struct io_u **io_u_ptr,
+ 	dprint_io_u(io_u, "complete");
+ 
+ 	assert(io_u->flags & IO_U_F_FLIGHT);
+-	io_u_clear(td, io_u, IO_U_F_FLIGHT | IO_U_F_BUSY_OK | IO_U_F_PATTERN_DONE);
++	io_u_clear_inflight_flags(td, io_u);
+ 	invalidate_inflight(td, io_u);
+ 
+ 	if (td->o.zone_mode == ZONE_MODE_ZBD && td->o.recover_zbd_write_error &&
+diff --git a/verify-state.h b/verify-state.h
+index c055008e..d8997ace 100644
+--- a/verify-state.h
++++ b/verify-state.h
+@@ -41,7 +41,7 @@ struct all_io_list {
+ 	struct thread_io_list state[0];
+ };
+ 
+-#define VSTATE_HDR_VERSION	0x04
++#define VSTATE_HDR_VERSION	0x05
+ 
+ struct verify_state_hdr {
+ 	uint64_t version;
