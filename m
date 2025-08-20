@@ -1,92 +1,82 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from esa.hc6817-7.iphmx.com (esa.hc6817-7.iphmx.com [216.71.152.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3988E2E7178
-	for <fio@vger.kernel.org>; Wed, 20 Aug 2025 12:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A50D217659
+	for <fio@vger.kernel.org>; Wed, 20 Aug 2025 13:04:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.152.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755691211; cv=none; b=dM2s3kq7xeVdCTevcAA90mTwi2xd52aL9hNbB6imREeMB41mLYZbVc9QiwXVuYKhbGqDPnJsJs2ZIt6GdSzCT50AmSlVwr/ohsMnpPMbXmMkF8rA1OamvH4X60hdWrMn4ThP0GzfG7+sbSUUfEU2u0tlwBSCvWEOvsY7xtQVX+k=
+	t=1755695075; cv=none; b=StzFhFFEW2wfm8fJqRsB1qcB5Lz9ITDKvr9rSR/zPmIcy4vxVekN2lq+Yo6c0RB0RqeiqG22HCD03coPrIBRQm3TXvPTlbZ/aLYXbCb8iBB6O9Sw29nk9+GFBWytCycnb20dLEABrr7lRE0OCMP3qjAy6uo3u0YwYvRdaNNE6Ag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755691211; c=relaxed/simple;
-	bh=wg4AsteT7uyqOMZJFbfZlTfXBa5OPC3H46hLxCIvsI4=;
-	h=Subject:From:To:Message-Id:Date; b=gljJbZPu8jnf+7ibMhJHAoLVvNkpxjNRGJwb7HWssFJL5CuVlp40GFu5pVxfpb/6HPe6VtYrJjCLyMHzFaqLqxi9d/PpaGSTmMPZxLhHhP1OsuykzbVcIsPb5w9drOecYKGe5wvY3V68+bgFKA/KqY+0GW3KPvF7h7IavalVt1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ZImumnKW; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1755695075; c=relaxed/simple;
+	bh=99pOlJkvtrYqRilrtl9McZS83S4ht/yOvxPI8jkp8Xc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ws1JefOgdk9NejDuNb9idnzzi+Dci4Xe5bzlKHFJOCKPAW8yGBQsyVt4R4bD0z4mJ+KuubhvE8/pf6c71Vk4Dn9Gd1Pd8dyRsFZKnmmtCyMuKvNfgV2b+mYRGYbZ4wNa4ubu9OG06SJBVb8wRxLQRX5ZhvykS9DgmM7qnkhlSRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sandisk.com; spf=pass smtp.mailfrom=sandisk.com; dkim=pass (2048-bit key) header.d=sandisk.com header.i=@sandisk.com header.b=i8ToSWZG; arc=none smtp.client-ip=216.71.152.95
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=sandisk.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sandisk.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ZImumnKW"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Date:Message-Id:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=e8DHrYD2Me659+O89bwAGcNezp4eHMTqWIzvql6iRzo=; b=ZImumnKWaKcinaZ9+9B6ONiwX2
-	KbwJ8ea7Xph5KVl+6WnGi0U0BdfoXPb3fFtXKLz4qJic5B2qIpC45QXsPBI35R9+b1Im+guOAd24o
-	LnB9kqzD+Vq0I4SqoOz3GDLF5maT/NrFwNNP995SFHJk7APsEKAZjJZGpmORFl0cUvWqUVhIMC5Mz
-	TXKWD5NCf3UqjefuPCQsCDOK1ozGxBhBf46ktM0zwxHkIRVFK2gGD30y+o59BHUL1PcVZZPH1T3ZF
-	eO+aJeNFlxC+gpAbliU3jKeadhWV950rmeLs04LgKnZn8NAJVgW/dCyyuzsit87vEgcRvNlOw/Yl2
-	7MVXiX7w==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1uohU3-00000005w8K-3smQ
-	for fio@vger.kernel.org;
-	Wed, 20 Aug 2025 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id C182E1BC0166; Wed, 20 Aug 2025 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-X-Mailer: mail (GNU Mailutils 3.7)
-Message-Id: <20250820120001.C182E1BC0166@kernel.dk>
-Date: Wed, 20 Aug 2025 06:00:01 -0600 (MDT)
+	dkim=pass (2048-bit key) header.d=sandisk.com header.i=@sandisk.com header.b="i8ToSWZG"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=sandisk.com; i=@sandisk.com; q=dns/txt;
+  s=dkimnew.sandisk.com; t=1755695074; x=1787231074;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=99pOlJkvtrYqRilrtl9McZS83S4ht/yOvxPI8jkp8Xc=;
+  b=i8ToSWZGBVyP4Cag+WOtm7Ap31Qn6aj35E5a9HjAots1De8ZswItt6Ev
+   wgPY8yNP12QbQJmD3XKz9qKqoxbew+LO1xIyuiV7EMeRVi4Ju7+usA1gO
+   Djd01CeqKWZNfqGD7luwUtEJdic57bC3fkgJsLBwnRqg44PDhVAaA/YFD
+   4gsTOVUSRogAg0+aWsJ8C4WphKupf9ypEAQFRA6VO4VqsEDmBOKgWq80O
+   8eT4LHV1jp8QkjX9NdtYo6vgJZF5xAtbBmA+ssmM76cjuAnuu0ijhEapH
+   GOIVjBXI3+HNp3zAsdtQJb5ndTyytZ728OXnji2KqkWj/khkGZ6GoNAMd
+   A==;
+X-CSE-ConnectionGUID: 3t+opUtLRt63qbFXrHXCzA==
+X-CSE-MsgGUID: HZ1N3i4/QwunKqwAZKvnqA==
+Received: from unknown (HELO uls-op-esaep01.corp.sandisk.com) ([129.253.192.43])
+  by ob1.hc6817-7.iphmx.com with ESMTP; 20 Aug 2025 06:03:27 -0700
+IronPort-SDR: 68a5c79f_5Eor/aFBJxczSgTCwPJRCI0c/o+h/h1o7duVIIAwaXv2B6+
+ xNBb0YlHCHKcEpUSDG4MXCt0Y6l21ffmYPNJkYg==
+Received: from unknown (HELO uls-op-esaip01.corp.sandisk.com) ([10.15.0.10])
+  by uls-op-esaep01.corp.sandisk.com with ESMTP; 20 Aug 2025 06:03:27 -0700
+SanDiskIronportException: Internal
+Received: from ulssdxvpxsnip.corp.sandisk.com (HELO WDAP-HWJc7y5WZG.wdc.com) ([10.9.34.160])
+  by uls-op-esaip01.corp.sandisk.com with ESMTP; 20 Aug 2025 06:03:25 -0700
+From: Tomas Winkler <tomas.winkler@sandisk.com>
+To: Jens Axboe <axboe@kernel.dk>,
+	Vincent Fu <vincentfu@gmail.com>
+Cc: fio@vger.kernel.org,
+	Tomas Winkler <tomas.winkler@sandisk.com>
+Subject: [PATCH 0/3] fio: fix static and const correctness
+Date: Wed, 20 Aug 2025 16:03:18 +0300
+Message-ID: <20250820130321.73376-1-tomas.winkler@sandisk.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The following changes since commit 7664dccc0b2e3de04a0fd6f0be63402716c5f6b7:
+Fix static and const correctness issues across fio.
+Mark functions as static when they are not used outside their compilation unit,
+and add const qualifiers to input-only parameters. This reduces symbol exposure,
+clarifies function contracts.
 
-  Merge branch 'http-range-header' of https://github.com/sfc-gh-rnarubin/fio (2025-08-18 13:53:46 -0400)
+Tomas Winkler (3):
+  stat: make stat.c static and const-correct
+  engines/http: make fio_http_getevents static
+  engines: make engines static-correct
 
-are available in the Git repository at:
+ engines/cpu.c  |   4 +-
+ engines/exec.c |   6 +--
+ engines/http.c |   2 +-
+ engines/nvme.c |   4 +-
+ engines/sg.c   |   2 +-
+ stat.c         | 100 ++++++++++++++++++++++++-------------------------
+ stat.h         |  24 ++++++------
+ steadystate.c  |   4 +-
+ steadystate.h  |   4 +-
+ 9 files changed, 75 insertions(+), 75 deletions(-)
 
-  git://git.kernel.dk/fio.git master
+-- 
+2.43.0
 
-for you to fetch changes up to efaeeea4a8b04e1c315943684aabd84f3198256b:
-
-  Merge branch 'fix-install-paths' of https://github.com/kubo326/fio (2025-08-19 11:09:24 -0400)
-
-----------------------------------------------------------------
-Kubo Saburo (1):
-      Makefile: fix man and share install paths on macOS
-
-Vincent Fu (1):
-      Merge branch 'fix-install-paths' of https://github.com/kubo326/fio
-
- Makefile | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/Makefile b/Makefile
-index f3a80882..ec6249f3 100644
---- a/Makefile
-+++ b/Makefile
-@@ -484,14 +484,8 @@ endif
- prefix = $(INSTALL_PREFIX)
- bindir = $(prefix)/bin
- libdir = $(prefix)/lib/fio
--
--ifeq ($(CONFIG_TARGET_OS), Darwin)
--mandir = /usr/share/man
--sharedir = /usr/share/fio
--else
--mandir = $(prefix)/man
-+mandir = $(prefix)/share/man
- sharedir = $(prefix)/share/fio
--endif
- 
- all: $(PROGS) $(T_TEST_PROGS) $(UT_PROGS) $(SCRIPTS) $(ENGS_OBJS) FORCE
- 
