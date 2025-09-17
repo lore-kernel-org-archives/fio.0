@@ -1,112 +1,85 @@
-Received: from mail-il1-f173.google.com (mail-il1-f173.google.com [209.85.166.173])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A17D23161B8
-	for <fio@vger.kernel.org>; Wed, 17 Sep 2025 13:20:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24FC6328965
+	for <fio@vger.kernel.org>; Wed, 17 Sep 2025 13:35:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758115217; cv=none; b=VKAUmRdGOkDA9HbLPKc0J3MC8bOVwgBqtZsexpUfhpQTJxF1fKsKHtOiy6a+UuLBLe7/dcVG6YV1HWgJ3k1uPj4GFb0XuQ/tmwuzGJxnhRrGARB9BqiZZVKAZ1D7lHCpS8pzqU/mV7xonYM60gb6g1vLFCFLi4QAcrST1Z51Ibo=
+	t=1758116129; cv=none; b=SZHL914bB9tshpVsFcm618I/ch5rwCk43nWrhdmeRqSlPasrx8RPfqO4MjqLwTB5QucAcoPzsDZH/iol2DBdylCZ70lwZKhpW3fHJAMFPeH9bNzuLEXI9KP3h/XA87gyUvMNzAmnm9RoZTGmWvZF+stBLze2nHG51JnTw3c23vg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758115217; c=relaxed/simple;
-	bh=X3jpTaX3GIxW3MPL2CGKgvgbbmDAokJF387lvI1F7Zo=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=jhjkxIZ2j1KwwKpnHVVQyCOBwxMGk2rYbhYebVWhk8QEoVskmIAuoq+W1Sn4Cxy5u8C9IjRGftc/+LkZs5NdUeENoA50mqVyW9Mr3pOEo9wDdPXDbaRALRQHk1wj/7+DSsuRecwbeMQEmi2OY9SEsWUeYyzzz4tWRNbX97R1/LU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=lavQoNzb; arc=none smtp.client-ip=209.85.166.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1758116129; c=relaxed/simple;
+	bh=a0Mx5uBBo79h8+dNfmiy9XKqtsw9amE/rLFD8aNDT+o=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=hegledZWd4tmBoKZO2+6ObDuiMkCrj5+YhiCS31+zhdnIruXZ0pXuFIrSWUQj0nA9WvIZLw36vShLsXzGehktM0m2/w9o/r5La7dFcT3784ffujr6KykhBMR9U+ZuOd+GHbxlFBdbwcQt2PRS8SRcH80v+EvMRYcpWjhjEYrPIQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k5BD+UrZ; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="lavQoNzb"
-Received: by mail-il1-f173.google.com with SMTP id e9e14a558f8ab-4240111d446so39953105ab.3
-        for <fio@vger.kernel.org>; Wed, 17 Sep 2025 06:20:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k5BD+UrZ"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8117aef2476so672369985a.1
+        for <fio@vger.kernel.org>; Wed, 17 Sep 2025 06:35:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1758115211; x=1758720011; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uOs6npMIJLRxGsoOmozW68z5Yujnp5NW0/HA358XBKE=;
-        b=lavQoNzbr6APh8+k8g4jY+eCjxInG10jpGHdG01wB2OY9VV/j9h5sGbLIDNjieZQ6c
-         0z3KHQ6in11naOJN/kfwE/K/ePrsXycwDd1FIx+WEJiMQf2ee2SqEUuZkXtCTpW5qBpq
-         5wvtWiFm5+8RINFRnTO4QasHJNbBSXqxQ+eA+6K/fMMccAzCBp+JJfou+b1iO+p2LoRH
-         XIDa6kthnM3NcXC5GogKdW1VHL7ufeShzm7rZV5MuNCVe6/pfuKFsp3z1/anpNQBeYky
-         At/SM3KIKF75qK92xYN95BRxU8LyIOQvZDAKVt9KeSwjzM5u7x+Hh/uh+d3Gv80Qm0hm
-         zCkw==
+        d=gmail.com; s=20230601; t=1758116127; x=1758720927; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=a0Mx5uBBo79h8+dNfmiy9XKqtsw9amE/rLFD8aNDT+o=;
+        b=k5BD+UrZEG1mVl4YCikBGz55orCueuAeYAsGPD+Vj7QgLms/04vVfeWucODd2/PIhs
+         BTFqO8YsYe+IFrlIAwJYoyg7cIjXzW/rQAstR/l0GpiAu8aLdq8CrehMXqBy+JCSW10w
+         6qXztHCwDfghJTkcIUcl7DEkJe88QjCECuSBKDmF5nhONaJCvIukJ8soPNJDgI9vqtlW
+         d4l1/fXCflj4X5Xc7IJ3IMvtGAwIL7hRNwkNDEtHoCpIcwh5liK8id1FpzAVu1+sS8E/
+         Ip12duQ3zjseG143iSBfZWUTxvS85ZUss4DWUmwW6Q9h4bMbotZ4JuvSSQllNy3G8GiR
+         EinA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758115211; x=1758720011;
-        h=content-transfer-encoding:mime-version:date:message-id:subject
-         :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uOs6npMIJLRxGsoOmozW68z5Yujnp5NW0/HA358XBKE=;
-        b=rnu3/V1ETucNQ2Aw8KGboOsF97p8OILincyRE313uiqJ8Gaj0GYUrT5fdHJlqkqWCJ
-         wKyfwKPmG60DKwWRFASP4YOvwHrk4wuvd0+wDUfNzuebA4kSxnhVy1Q30UvsHNWCbAD1
-         BsQsDmmiMKvhXococUIJ7WBRd5S9mAZyO5+4DriA22vP1N9liTxXyefbGxHJI3gMByLs
-         MrSFdUCBgbc9I3sMSe+BvOcrrysqdTtKjYNLx1bRxmBu4LqktHWEnliYYEl++tWO8aEc
-         JdhuxPFAcUL4gf+h9mHJ4wHz5UYuicNflo4N3/b3vivr2VYR7qoLTBKiUqzW0WNsIt9g
-         wpLQ==
-X-Gm-Message-State: AOJu0YzZ/EQggDDM/2t/nInC76vQ2gwfGuF6z2MrqJxBNxHAf11cBR0h
-	mT4SI4Va8ERzXbBk7wg0uf9/tsaHpSopdw1Zcx7kBq9yCAHjtjvPADtC3XGYyzfkJS4=
-X-Gm-Gg: ASbGnculg/mNCQH2fPdZxuCh5UOqGz6i+LSzqzC6RovsFhlAMfhXLR9qpr/4KgqciQ/
-	byBRC/KVoLJ50v2rsTD+yIqtV5AyeWRDqXgF/EYa4YOTMM3KlWbTQjDOBl6aIk2RrtABzfiNyI+
-	9E2yO3WPW9Z8tb5YJMqXn5/4mFhOYOz0UHrNL4wyfmDEF2a7MfZfFIMH+cxhZU2oA12bP60iL93
-	PWY2Z3NTFOoScnDzS5XeosieAhAf9L7imM/mNw9GyQw/y2880RnaN2GXbwOlgMHt1m4/u8vBJEz
-	7wZy5TcstLV00jFYSBMTEjDY89JRasMnjTL1hLpACf1Suzc/eC22DS+FHlfHK9QQTfD9UBNU4WY
-	zWhAUntI9ps6DZg==
-X-Google-Smtp-Source: AGHT+IF3yCmpwlrg2ZQqIAQK1ZMe3zCZvouL0ElcxKK5Y/YC66+ncYYGjCa9dAuoVmPkkd3Omfa9pg==
-X-Received: by 2002:a92:cd8c:0:b0:424:2b1:409d with SMTP id e9e14a558f8ab-4241a537fc8mr24937265ab.28.1758115210494;
-        Wed, 17 Sep 2025 06:20:10 -0700 (PDT)
-Received: from [127.0.0.1] ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-4237e5e3212sm61469805ab.44.2025.09.17.06.20.09
+        d=1e100.net; s=20230601; t=1758116127; x=1758720927;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=a0Mx5uBBo79h8+dNfmiy9XKqtsw9amE/rLFD8aNDT+o=;
+        b=DEqot2g495IdOThMzVp0MGuUKk0qlwwK7Yzk+eTPMdauNUtawLpgup6gkDvDOLNL0E
+         OgEgkTXrH7of3oeXHmYkoTxG4sqaTAeW0AjWHJZ9dVUor3U0OnvJ/ku5w66WB7C4aPrE
+         Z6172gqQ2yJlUUnPuy4W0S1kvGEiFXrVxv0JDzuM//jGNuGXJLctBAxY9vBB0Y4r0ZEw
+         se29JChCDiJA9kzRIyGl8IuQIqd+4YxpCwSCCxEOQB7mfnnxrtVqPVYkhyhAQvtPRlIv
+         I1dk9VxqAjxMB2b0eUDsCozW2xAeLJor5o6Y2b76+3JdW4eFlmn/XnGE5NhNLm260YfN
+         8PJQ==
+X-Gm-Message-State: AOJu0YwMB8L/PvAd6ZXQLq3lVwP7yRgZBqzqZEsHeoTLeHWFS79VSBhR
+	ATHhkVlJWH0XdC665RKeJl7p5oCc7NdN/TeC3g4TysIdRVcStRS6LCQMHUg8HYM=
+X-Gm-Gg: ASbGncs3Qpkb2aJPbQotu7l9skjM4Zn/GqfhT8RwlscqaB2QtkzR5XVv+FGR6FUi1WD
+	0noOvQ7NEfAw8kNFEHcrRr+1sr1Z33JQw83tUBujZEViKW+Ex4UKBBTGwySBD32xNKS64I202UQ
+	WAWVJwQDO24Q+PP3p2hSsLBo2APfxJQF0PQqOD9w7H84cN649DGV0zOpXGL00q03HvXjyyJMku9
+	xXaXCiEGF1kSJl/1uL3WVVAf57FqGlQV3hhVZZEgIexA2LQLEhq0joG3b00YltrU/v+6/ve20iu
+	a5ydliP1l7SfBqyfymXqs/Hu3ooHPQLJIcF6lkIjF/fF+1+tU9856WcjabziY4r5fvxZSBazPGQ
+	GFUBlL/4l6RrY9pnnj2YvcZs3qt0HzfdEFYrInCooANq23ktHtkF854bYhabnD/RX/SLf2YUskX
+	/lq3FITiyI1twqbfBZ
+X-Google-Smtp-Source: AGHT+IGSF0S3SqedDtVKYdA8UvNOqOhg1O3gpYTvWsi3eHhh5zJZK+A6SZGXpW9GniEqDWDRzwtbgA==
+X-Received: by 2002:a05:620a:1a89:b0:829:538a:e41e with SMTP id af79cd13be357-83109e982cdmr211976085a.4.1758116126435;
+        Wed, 17 Sep 2025 06:35:26 -0700 (PDT)
+Received: from runnervmmq7i7.blvezttv0b3ejdl4gomqurzhhe.cx.internal.cloudapp.net ([20.161.67.211])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-820cf8c8b87sm1132411285a.68.2025.09.17.06.35.26
+        for <fio@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Sep 2025 06:20:10 -0700 (PDT)
-From: Jens Axboe <axboe@kernel.dk>
-To: fio@vger.kernel.org, vincentfu@gmail.com, 
- Xiaobing Li <xiaobing.li@samsung.com>
-Cc: asml.silence@gmail.com, kun.dou@samsung.com, peiwei.li@samsung.com, 
- joshi.k@samsung.com, xue01.he@samsung.com
-In-Reply-To: <20250917065838.6204-1-xiaobing.li@samsung.com>
-References: <CGME20250917070310epcas5p37da73fbce2e0571548a0d840e20a445f@epcas5p3.samsung.com>
- <20250917065838.6204-1-xiaobing.li@samsung.com>
-Subject: Re: [PATCH v2] t/io_uring: Vectored fixed buffer test support for
- nvme passthrough path
-Message-Id: <175811520966.364972.15867321524808339056.b4-ty@kernel.dk>
-Date: Wed, 17 Sep 2025 07:20:09 -0600
+        Wed, 17 Sep 2025 06:35:26 -0700 (PDT)
+Date: Wed, 17 Sep 2025 06:35:26 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="===============7447493889687389091=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v2=5D_t/io=5Furing=3A_Vectored_fixed_buffer_test_support_for_nvme_passthrough_path?=
+In-Reply-To: <20250917065838.6204-1-xiaobing.li@samsung.com>
+References: <20250917065838.6204-1-xiaobing.li@samsung.com>
+Message-ID: <175811612569.2717.14055919629818473049@runnervmmq7i7.blvezttv0b3ejdl4gomqurzhhe.cx.internal.cloudapp.net>
+
+--===============7447493889687389091==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.14.3-dev-2ce6c
 
 
-On Wed, 17 Sep 2025 06:58:38 +0000, Xiaobing Li wrote:
-> The current kernel NVMe passthrough path already supports vectored IO
-> when using fixed buffers, but fio has not yet adapted it. This patch
-> aims to add a corresponding test interface in fio.
-> 
-> Test results:
-> 
-> taskset -c 1 t/io_uring -b512 -d64 -c2 -s2 -p1 -F1 -B1 -O0 -n1 -V1 -u1 -r4 /dev/ng1n1
-> submitter=0, tid=6179, file=/dev/ng1n1, nfiles=1, node=-1
-> polled=1, fixedbufs=1, register_files=1, buffered=1, QD=64
-> Engine=io_uring, sq_ring=64, cq_ring=64
-> IOPS=289.78K, BW=141MiB/s, IOS/call=1/1
-> IOPS=294.68K, BW=143MiB/s, IOS/call=1/1
-> IOPS=295.26K, BW=144MiB/s, IOS/call=1/1
-> Exiting on timeout
-> Maximum IOPS=295.26K
-> 
-> [...]
+The result of fio's continuous integration tests was: cancelled
 
-Applied, thanks!
+For more details see https://github.com/fiotestbot/fio/actions/runs/17790127749
 
-[1/1] t/io_uring: Vectored fixed buffer test support for nvme passthrough path
-      commit: 80d72cb05a6c54ea1b256dcd69e3e4fdc9294f4f
-
-Best regards,
--- 
-Jens Axboe
-
-
-
+--===============7447493889687389091==--
