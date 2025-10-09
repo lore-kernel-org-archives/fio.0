@@ -1,91 +1,84 @@
-Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49DD11B4F1F
-	for <fio@vger.kernel.org>; Thu,  9 Oct 2025 02:39:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.153.144
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FDBB23BCE3
+	for <fio@vger.kernel.org>; Thu,  9 Oct 2025 03:39:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759977573; cv=none; b=UgcxdKRcHIi503/iEj4eDekr7L+mO4mEXmBQT9sh0ls33ZigsrNz+M/ClJmQOYfbcIZXcttqFOWHwfCKpEpsbfTB9yrKO4FGTmvGVyEbfSUzdOedVd21ugCuhRj7dKtSG6PDHsHXZrdv2pqxF66cVx2/zA3Lxz6TvLj8EawaoDI=
+	t=1759981143; cv=none; b=hTrRGK2Wurx7uPYkXgQpHuP5YEM05azJ7acEzvfN38YprW0qWfzvC+LkxdT3/N0O4HehyVsANCsz5EwMWmBPMpysEupKgpQvYhWLroLI5NoiFLQhs5LTkHJkPela9oDzfseHelTeEuFSfUxZvFwoLItTs8x3jJATGZ+MbpmjHeI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759977573; c=relaxed/simple;
-	bh=QGfHnZZYHNiFC+tQ4hjrfJqZNfaImPKtQNEp9uaf2X4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RKnTU7aoASAT44QBBDtQcTLWO7yza539FA/Bh6gp5GlXPQEgmJyVeYYcQaiA7A/4hOAq7nzBg/UysJvn3+AeYILauzSPt7fSM0p51yIAmiMpVZnimE/clojWGhc7bmBcB1A/H2fDSrQyFKI9mULvpcvdTG8ikE2nhbJ/uVsS1wE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=Nbt5Nf+O; arc=none smtp.client-ip=216.71.153.144
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1759981143; c=relaxed/simple;
+	bh=NlotR8RLIl6FF12kvLmZnw+7S6+NFqIKDseKSldcweM=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=D/i2ZHRI4L3bpqxsUIVyjpjwsSnCztWN4trQ1OsaZPhZa5nDC2VEYcyNnGRpCMdGL/Eo3T0YYVFkfxTNyPNJF7v4+qzkgFtMI4JLBg6WI/4kZ+nf7v8BQLs+kBeTrFPyWYgqnIkmm3C+EgN8p3tHY/beLjglFcBwQ636Z6EiHNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dRyCTo8k; arc=none smtp.client-ip=209.85.210.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="Nbt5Nf+O"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1759977572; x=1791513572;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=QGfHnZZYHNiFC+tQ4hjrfJqZNfaImPKtQNEp9uaf2X4=;
-  b=Nbt5Nf+OAV6GepY0Nng6GrdFM/5aN4GjUV3PluwbUjHXAVgeDDxiTSIu
-   XnBk2XzDSRuHt85Q0oMHQhUA3jldE8M8fGfguF+z7ulPg7iEuYRk57wUM
-   vafZs/I36qKfxFIllFHb4puyg7nd43GnttDdwBKddCNbvv0Kltmn4wmBe
-   NsW31gf9KR73FJZL38jWpt9jc9QPawAkAphSyHWrdZ2Zx/pfE2sKRq1ie
-   x1Y8HB9FE84dSDRYYJXluyh02ueyak+1RRrYkLDxg9uFG7aZC24B61wG6
-   yVTtatRrKBgyk3fcMnRrNbAAx8ibEe/RC2X6kAIBxBv7yl2QE3t2nVgLk
-   A==;
-X-CSE-ConnectionGUID: 082heOxqS5GxDTnsV7zdrQ==
-X-CSE-MsgGUID: YA8iCr3vToaTlur/b1AFDA==
-X-IronPort-AV: E=Sophos;i="6.19,215,1754928000"; 
-   d="scan'208";a="132880596"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep03.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 09 Oct 2025 10:39:32 +0800
-IronPort-SDR: 68e72064_6bnNUVxknCIi40cgzDJ/kOk/KZ5/NHFGWuod0MVRKIJ3v7G
- KGR+pnBxRGAAnYvafFqbS8+PUqU1cO5fc5FEe1Q==
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Oct 2025 19:39:32 -0700
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 08 Oct 2025 19:39:31 -0700
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 2/2] stat: report zone reset count in json output format
-Date: Thu,  9 Oct 2025 11:39:28 +0900
-Message-ID: <20251009023928.1634382-3-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20251009023928.1634382-1-shinichiro.kawasaki@wdc.com>
-References: <20251009023928.1634382-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dRyCTo8k"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-794e300e20dso428148b3a.1
+        for <fio@vger.kernel.org>; Wed, 08 Oct 2025 20:39:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1759981141; x=1760585941; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=NlotR8RLIl6FF12kvLmZnw+7S6+NFqIKDseKSldcweM=;
+        b=dRyCTo8kxH2KJnRut+tBvQMTaApnxvJpK6JAuN02yVw4sGjqoXSQ6u4E9O+1i5/Hjw
+         qa7rxzkaUSqzL7sZhkUHeK57B3eeaecmdPlfpvwMihwO/OuUWy2P0f4XnzJ3U+QTGjkj
+         0IobR59g0eHGpOzvMhgQ+nXPF7pBIjoNsFHUybc9PzYDry5tMPT2d0mCR8rzgualfWjF
+         GF0bCkv1ReF9+fQvPSqY4m34ypz/4evyr1N2GuNQkSZwyDrCTuvRtNYC8oL0ECRZyFjt
+         VscF/si+qsw4QLaEgzfGvsmcpQ1peqLj/7oESFUke/mim9+S5wLh68BNsPZ2xbfq6S3R
+         vb3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1759981141; x=1760585941;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NlotR8RLIl6FF12kvLmZnw+7S6+NFqIKDseKSldcweM=;
+        b=RAvLzC8HyR2UitpwQDbZ9hBI8BNNPsLVbIbCjWV0GxH/PJpT6XKssGSVDBv6E34ExH
+         Yb5dzxln3EjFeomgW0A+rgKKL2o3j+SNB6Pc2JL4J2RSs3bEBVNv5qSzmkCdvxDIyxNn
+         8PSYkaPr6FWZgK3KOk35EmoX1DMgGMomF0WN7VJz0syWdDTB4GPqQ3le3UE8UTfDCGju
+         BGnQe+OrcHAn4iOAyyLyzEuv/GDQhNEshntnDKw1JSil8fLWNZPdTrHUKLFNf34dHqu2
+         mpnzp2X2vos+nHUUglfgcZQndX7sTpxCjxVrZ2wZhwBBFzGj1MLXzXy0dMB6R43Aaj+7
+         NnpQ==
+X-Gm-Message-State: AOJu0Yx2x/YyQ5b4DK7CUWg2MwA65E3tY2pEUkBiLI7QNE6hvfvP/523
+	/1hl9QHs8dH9+gvbRuGDV/eTJ0mg/iWbKDEvCmhdfq+Ls+3hagflW99n7dZT
+X-Gm-Gg: ASbGncskKQQJ9aaZwXcSP+7PhlxQbvlpHgkgDRmMdW/iNRPcEImetOJdihwPGN+Cwql
+	oUtJeTQmxD+30zNV11qai1RuLepxXvYRsC+wqNfBt3YuYWeVVyt3AidsAdzMt1fGfm3X6pM4edU
+	MnCaWayNzuCOWSRsbqE1fpA9r1PsQvHWhNN4Ai4sBCLJLZF1PXIpjU7Q4NuxHnGB+5Z9cYT1ulU
+	S5j/f6U/wLHzXgDEz+PsxzX1Rg+v0zo1g8rrgQ7L7L1m4/nrqi+4y2ckYUFjUAEXTl04jP9EXI6
+	mrb9bCEH/L/hyOQ4pqisjx/sDR52Z1oMYANfew2bawrbKrPaBNol6JvNuBuJgZn50+5lx8tmyKU
+	t1zenadTSR7iPIBBpZVxsNyE82ecl9+0xhC+kEY+IJH8sIw==
+X-Google-Smtp-Source: AGHT+IF8Z7yZATKXJfaLN17TgFdBFU8En8+L9b+O395Hq0aEmnaUd728BfqLDYxDf3vkR0S1KgdgXA==
+X-Received: by 2002:a05:6a20:a124:b0:243:78a:82cc with SMTP id adf61e73a8af0-32da8fcccbdmr6633009637.25.1759981141021;
+        Wed, 08 Oct 2025 20:39:01 -0700 (PDT)
+Received: from [10.1.0.86] ([128.24.161.180])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b51101e17sm5044470a91.10.2025.10.08.20.39.00
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Oct 2025 20:39:00 -0700 (PDT)
+Date: Wed, 08 Oct 2025 20:39:00 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="===============0360697002442412500=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v2_0/2=5D_stat=3A_improve_zone_reset_count_reporting?=
+In-Reply-To: <20251009023928.1634382-1-shinichiro.kawasaki@wdc.com>
+References: <20251009023928.1634382-1-shinichiro.kawasaki@wdc.com>
+Message-ID: <175998114000.2754.4015645201934691969@runnervmwhb2z>
 
-When --output-format=json option is specified, fio currently does not
-report the zone reset count even when zbd zonemode is specified. To
-report it, add the new item "zone_resets" to the json output format.
+--===============0360697002442412500==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- stat.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/stat.c b/stat.c
-index 76b74b3c..a67d3551 100644
---- a/stat.c
-+++ b/stat.c
-@@ -1946,6 +1946,10 @@ static struct json_object *show_thread_status_json(struct thread_stat *ts,
- 		json_object_add_value_array(data, "bw", bw);
- 	}
- 
-+	if (ts->count_zone_resets)
-+		json_object_add_value_int(root, "zone_resets",
-+					  ts->nr_zone_resets);
-+
- 	return root;
- }
- 
--- 
-2.49.0
+The result of fio's continuous integration tests was: success
 
+For more details see https://github.com/fiotestbot/fio/actions/runs/18364283776
+
+--===============0360697002442412500==--
