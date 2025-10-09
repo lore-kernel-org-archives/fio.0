@@ -1,84 +1,104 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FDBB23BCE3
-	for <fio@vger.kernel.org>; Thu,  9 Oct 2025 03:39:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC93E2C0279
+	for <fio@vger.kernel.org>; Thu,  9 Oct 2025 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759981143; cv=none; b=hTrRGK2Wurx7uPYkXgQpHuP5YEM05azJ7acEzvfN38YprW0qWfzvC+LkxdT3/N0O4HehyVsANCsz5EwMWmBPMpysEupKgpQvYhWLroLI5NoiFLQhs5LTkHJkPela9oDzfseHelTeEuFSfUxZvFwoLItTs8x3jJATGZ+MbpmjHeI=
+	t=1760011213; cv=none; b=ZlT8ndZDE9QMAL3nnoXclXFBsLpkkmApPGxrIlfjxqO/hqbasEIQi4z0ja049aI5M154xk2G9lS6fsoGZeDlz864Lh+lG+ewNhgZrhNf11a6CM2K15hj727wWqC4mYymP2yxIuc1Whvhec3s7hpxA+kuRaMFDkv6sZxNYMdwUlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1759981143; c=relaxed/simple;
-	bh=NlotR8RLIl6FF12kvLmZnw+7S6+NFqIKDseKSldcweM=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=D/i2ZHRI4L3bpqxsUIVyjpjwsSnCztWN4trQ1OsaZPhZa5nDC2VEYcyNnGRpCMdGL/Eo3T0YYVFkfxTNyPNJF7v4+qzkgFtMI4JLBg6WI/4kZ+nf7v8BQLs+kBeTrFPyWYgqnIkmm3C+EgN8p3tHY/beLjglFcBwQ636Z6EiHNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dRyCTo8k; arc=none smtp.client-ip=209.85.210.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1760011213; c=relaxed/simple;
+	bh=Uf5ySB0jcs+b/6I4DQMonL+Anwt0jOzIeGvXKPfO7XQ=;
+	h=Subject:From:To:Date:Message-Id; b=t4jfuQHj8m5PS2idIdmHGrTc3Xsc0Mzh0Rou9HHJANRCvT5QAviDSTDeu0TSv2QQdsXWYnniWpgqvRXhjQSrh3/FYMkgj2tqcP9tw3izyg/oepbEBKHSu/JRfFs7Jx271wcg3bP/+Tby7nx80l5YMmsiTq2NolrFteuJfpxl4J0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Fdjs1YQc; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dRyCTo8k"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-794e300e20dso428148b3a.1
-        for <fio@vger.kernel.org>; Wed, 08 Oct 2025 20:39:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1759981141; x=1760585941; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=NlotR8RLIl6FF12kvLmZnw+7S6+NFqIKDseKSldcweM=;
-        b=dRyCTo8kxH2KJnRut+tBvQMTaApnxvJpK6JAuN02yVw4sGjqoXSQ6u4E9O+1i5/Hjw
-         qa7rxzkaUSqzL7sZhkUHeK57B3eeaecmdPlfpvwMihwO/OuUWy2P0f4XnzJ3U+QTGjkj
-         0IobR59g0eHGpOzvMhgQ+nXPF7pBIjoNsFHUybc9PzYDry5tMPT2d0mCR8rzgualfWjF
-         GF0bCkv1ReF9+fQvPSqY4m34ypz/4evyr1N2GuNQkSZwyDrCTuvRtNYC8oL0ECRZyFjt
-         VscF/si+qsw4QLaEgzfGvsmcpQ1peqLj/7oESFUke/mim9+S5wLh68BNsPZ2xbfq6S3R
-         vb3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1759981141; x=1760585941;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=NlotR8RLIl6FF12kvLmZnw+7S6+NFqIKDseKSldcweM=;
-        b=RAvLzC8HyR2UitpwQDbZ9hBI8BNNPsLVbIbCjWV0GxH/PJpT6XKssGSVDBv6E34ExH
-         Yb5dzxln3EjFeomgW0A+rgKKL2o3j+SNB6Pc2JL4J2RSs3bEBVNv5qSzmkCdvxDIyxNn
-         8PSYkaPr6FWZgK3KOk35EmoX1DMgGMomF0WN7VJz0syWdDTB4GPqQ3le3UE8UTfDCGju
-         BGnQe+OrcHAn4iOAyyLyzEuv/GDQhNEshntnDKw1JSil8fLWNZPdTrHUKLFNf34dHqu2
-         mpnzp2X2vos+nHUUglfgcZQndX7sTpxCjxVrZ2wZhwBBFzGj1MLXzXy0dMB6R43Aaj+7
-         NnpQ==
-X-Gm-Message-State: AOJu0Yx2x/YyQ5b4DK7CUWg2MwA65E3tY2pEUkBiLI7QNE6hvfvP/523
-	/1hl9QHs8dH9+gvbRuGDV/eTJ0mg/iWbKDEvCmhdfq+Ls+3hagflW99n7dZT
-X-Gm-Gg: ASbGncskKQQJ9aaZwXcSP+7PhlxQbvlpHgkgDRmMdW/iNRPcEImetOJdihwPGN+Cwql
-	oUtJeTQmxD+30zNV11qai1RuLepxXvYRsC+wqNfBt3YuYWeVVyt3AidsAdzMt1fGfm3X6pM4edU
-	MnCaWayNzuCOWSRsbqE1fpA9r1PsQvHWhNN4Ai4sBCLJLZF1PXIpjU7Q4NuxHnGB+5Z9cYT1ulU
-	S5j/f6U/wLHzXgDEz+PsxzX1Rg+v0zo1g8rrgQ7L7L1m4/nrqi+4y2ckYUFjUAEXTl04jP9EXI6
-	mrb9bCEH/L/hyOQ4pqisjx/sDR52Z1oMYANfew2bawrbKrPaBNol6JvNuBuJgZn50+5lx8tmyKU
-	t1zenadTSR7iPIBBpZVxsNyE82ecl9+0xhC+kEY+IJH8sIw==
-X-Google-Smtp-Source: AGHT+IF8Z7yZATKXJfaLN17TgFdBFU8En8+L9b+O395Hq0aEmnaUd728BfqLDYxDf3vkR0S1KgdgXA==
-X-Received: by 2002:a05:6a20:a124:b0:243:78a:82cc with SMTP id adf61e73a8af0-32da8fcccbdmr6633009637.25.1759981141021;
-        Wed, 08 Oct 2025 20:39:01 -0700 (PDT)
-Received: from [10.1.0.86] ([128.24.161.180])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-33b51101e17sm5044470a91.10.2025.10.08.20.39.00
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Oct 2025 20:39:00 -0700 (PDT)
-Date: Wed, 08 Oct 2025 20:39:00 -0700 (PDT)
-Content-Type: multipart/mixed; boundary="===============0360697002442412500=="
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Fdjs1YQc"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=aOcq9tW94l9ui5IFErf/rVzEH52yB0uujO0NFW9SR08=; b=Fdjs1YQcO/KVlH7oVAFMpFRlDR
+	sl+lbUzGp1j+wUa66AjqvoORW+W9PFlZ5Xgsg0CrHHnTh+UGip7yGVFHy3Jzy4IzZND1dWCvy/8Kb
+	/UTu5f9kowHBRf2aKQI1PPQUmWSHvCj8U1OSWsGVQmsKMY3hGQzVvmo02DeslIw+UHbXV1iY5met/
+	5mZqTrx25byagx+De1rSABuiK/bu5KV19yqnyCC2Pq4SUoQ512HIFH3MGy6oCYtO0bGoBAViBdpsY
+	0a+XQxSrblDiNv+krYj+LVdS0VNOGa5sVcmxhX61TcsioGxJLnlWnW3OF2ZxQFBH04Ylo/Q66sXr0
+	CVlruVGw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1v6pJV-00000001QgV-00Gj
+	for fio@vger.kernel.org;
+	Thu, 09 Oct 2025 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 327DF1BC0144; Thu,  9 Oct 2025 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Thu,  9 Oct 2025 06:00:02 -0600
+Message-Id: <20251009120002.327DF1BC0144@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH_v2_0/2=5D_stat=3A_improve_zone_reset_count_reporting?=
-In-Reply-To: <20251009023928.1634382-1-shinichiro.kawasaki@wdc.com>
-References: <20251009023928.1634382-1-shinichiro.kawasaki@wdc.com>
-Message-ID: <175998114000.2754.4015645201934691969@runnervmwhb2z>
 
---===============0360697002442412500==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+The following changes since commit 925a31571d2d28c319a20b70d37513463b7fad30:
 
+  Merge branch 'uncached_doc' of https://github.com/Panky-codes/fio (2025-10-05 14:25:54 -0600)
 
-The result of fio's continuous integration tests was: success
+are available in the Git repository at:
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/18364283776
+  git://git.kernel.dk/fio.git master
 
---===============0360697002442412500==--
+for you to fetch changes up to ed31254c1bb4e88d1b3812c06212b50dcba795bc:
+
+  Merge branch 'fix-includes' of https://github.com/betonmischer86/fio (2025-10-08 08:15:36 -0600)
+
+----------------------------------------------------------------
+Jens Axboe (1):
+      Merge branch 'fix-includes' of https://github.com/betonmischer86/fio
+
+Valeriy Kosikhin (1):
+      test, memcpy: reorder #includes
+
+ crc/test.c   | 2 +-
+ lib/memcpy.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/crc/test.c b/crc/test.c
+index b57f07a4..8102297e 100644
+--- a/crc/test.c
++++ b/crc/test.c
+@@ -3,10 +3,10 @@
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#include "../os/os.h"
+ #include "../gettime.h"
+ #include "../fio_time.h"
+ #include "../lib/rand.h"
+-#include "../os/os.h"
+ 
+ #include "../crc/md5.h"
+ #include "../crc/crc64.h"
+diff --git a/lib/memcpy.c b/lib/memcpy.c
+index a5521343..61eb63b5 100644
+--- a/lib/memcpy.c
++++ b/lib/memcpy.c
+@@ -5,9 +5,9 @@
+ 
+ #include "memcpy.h"
+ #include "rand.h"
++#include "../os/os.h"
+ #include "../fio_time.h"
+ #include "../gettime.h"
+-#include "../os/os.h"
+ 
+ #define BUF_SIZE	32 * 1024 * 1024ULL
+ 
