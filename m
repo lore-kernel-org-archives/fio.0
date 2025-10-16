@@ -1,149 +1,157 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1779E26CE37
-	for <fio@vger.kernel.org>; Sat, 11 Oct 2025 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5492330C62B
+	for <fio@vger.kernel.org>; Thu, 16 Oct 2025 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760184017; cv=none; b=XkWgiv1TBt9xIsqrm6Wz014rNbTOU3SctmvMIMc8/zb+ow41fwR+YxeINURvrDMgLOaUvg6jWtszhvTOPcPjrs0Cpa8Z9h6gxhn/z8oxroLDE0etDIKjJZLJDjwgCAJCqlf+bxTZr3I3Kr7v8e2Cgb33iIQPPvSwLy7QZXWwswY=
+	t=1760616017; cv=none; b=J7YHutsWvEG4I7OU/zy6METGy9cQ8aALX1Yv9mzzn9wHpvf1Z1orwStoyg6EJ9euh1yJLQ8sTuWTN10uTEQbT2Yw20jNwOoLEa7E+u2moDuljO2P6DAb4ZeqN+dVrcAsnv8b7oRJD4IZFuQ1pNhx7ZJrxrv/y91TZFyaA20Ks2o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760184017; c=relaxed/simple;
-	bh=nS+5ft1RiNuGJ3CLZAe9bL54S6c5TnQSCwfZdKiVdMc=;
-	h=Subject:From:To:Date:Message-Id; b=iUdG1Wpt5BKSjlkLqcWrZDM2SmSPJGrdbJi4TtQVLTDr7OY0ETxWlhJmKR+EdkC8D78OZ/1OY1qZAuTORsmwg27e+G5w1tCl2qo8cGBN+PO9yhhxwqE8GZk7HvpLshObrqcMn8+BbxKlpy9kSG+3AQkgXAl//Dzl5EkPpjfCo8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=j5pNMsR4; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1760616017; c=relaxed/simple;
+	bh=6xRpVInC047gWLhMSeAFkPq5iEii9Cu8ZJBE1FG1eME=;
+	h=Subject:From:To:Date:Message-Id; b=uq0pBh3Ar1YxlVcXq84VIxQD5GyLNkPMkBNWO9luwXmFHlLbPoxAuaxLp+X9546qFB4zd7c0bcpp11tgBmaOGqJ4grhrhDPPe/N7wyPProzugZemcUKCvFwEKMl+jv1XZYo5ijKO1bYuGGda107MIICBD1E4folILOnLm0j35iQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=c14SsflI; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="j5pNMsR4"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="c14SsflI"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=wRrVTO6mGcnNBGb97eimLOqLo8XyapKjrv0tvdi8lzg=; b=j5pNMsR4xXazOFhi2Y2qbuh/du
-	XV0EUPrR5Ii/lZMQFipVflH4HwNV0dA2kKaZ4VZP4p3xHX2YliASiHgXDexi0LjvkaEdmIhAEgIQO
-	e9JHy7emktc4jYvy55ojjuI/dVtgYy0oqROCN/gVaEVx6gcHZ4Gp1FTTfwYYyVyl/aXl1p97JRtaF
-	26egARwgacdASeQZ9KJlQkr9CR+KGPRC4KmMdbc0zL/R5fIejXB3QlwSHVS9ATht6Eck3uwO1Uh/D
-	dI03/GRQgycELVgDjJjE4H31wp8pFC6nVZTKoBx5vDmtQ0NrfsMEyNqvb7CvWWJ7RCziOxePl0ggR
-	cHVmYJwA==;
+	bh=cDfddP2e06MSvWejgKrx014gqv2le3TQeMSpkoTidtU=; b=c14SsflIM6L50kIaSKFJSkM6tK
+	S4okwBkOHJkz+DyOG3PSTmMKDZlRk6RRhiAg7Q1yXYwomChCbwW4bFLtgil5gBGsOUuonZFUTTMZP
+	mj6J2eNRupe7ZOeoY1xChaG82hqb8kiT8dMILoMXxv03h67xAkYIOKv1UD+B9QVOnLDOe4oThqH57
+	zvBu81TDqk20lOPxb10KT/46ffGP9nTAlGmq42ibF1zlXxt0qNW9262YZrO9l7TdCYj5DWe4gOtFF
+	VhERAkEteh9E6rbvdXMZE6rQebRL/JX6ujEDKgjYrszVBz4NplRB6AQjjIELIphQDU+ve6PuhdfLN
+	pEQ8DX3Q==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1v7YGZ-0000000CwUD-2zvx
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1v9MeK-00000006ipt-3TjV
 	for fio@vger.kernel.org;
-	Sat, 11 Oct 2025 12:00:05 +0000
+	Thu, 16 Oct 2025 12:00:06 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 49FDB1BC014B; Sat, 11 Oct 2025 06:00:01 -0600 (MDT)
+	id D00331BC0155; Thu, 16 Oct 2025 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Sat, 11 Oct 2025 06:00:01 -0600
-Message-Id: <20251011120001.49FDB1BC014B@kernel.dk>
+Date: Thu, 16 Oct 2025 06:00:01 -0600
+Message-Id: <20251016120001.D00331BC0155@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit b9b306b542afb8a3059c2035fb2034a89e4660d1:
+The following changes since commit ae3475defe994e855f912d4b8dadf69c479b9ca2:
 
-  stat: report zone reset count in json output format (2025-10-09 13:16:51 -0600)
+  memory: fix typo in cuda < 13 cuCtxCreate() (2025-10-10 14:56:44 -0600)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to ae3475defe994e855f912d4b8dadf69c479b9ca2:
+for you to fetch changes up to 7272fd82813a65e3d72ef5c543c7473ec411f4cd:
 
-  memory: fix typo in cuda < 13 cuCtxCreate() (2025-10-10 14:56:44 -0600)
+  t/io_uring: use IORING_SETUP_NO_SQARRAY if available (2025-10-15 08:12:57 -0600)
 
 ----------------------------------------------------------------
 Jens Axboe (2):
-      Merge branch 'new-cuda-ctx-params' of https://github.com/maxime-peim/fio
-      memory: fix typo in cuda < 13 cuCtxCreate()
+      os/linux: sync io_uring.h header for setup flags
+      t/io_uring: use IORING_SETUP_NO_SQARRAY if available
 
-Maxime Peim (1):
-      memory: add cuda 13 support
-
- configure | 24 ++++++++++++++++++++++++
- memory.c  |  7 +++++++
- 2 files changed, 31 insertions(+)
+ os/linux/io_uring.h | 26 ++++++++++++++++++++++++++
+ t/io_uring.c        | 15 +++++++++++----
+ 2 files changed, 37 insertions(+), 4 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/configure b/configure
-index 3209e225..43e20ca9 100755
---- a/configure
-+++ b/configure
-@@ -180,6 +180,7 @@ libhdfs="no"
- devdax="no"
- pmem="no"
- cuda="no"
-+cuda13="no"
- libcufile="no"
- disable_lex=""
- disable_pmem="no"
-@@ -2810,6 +2811,26 @@ EOF
- fi
- print_config "libcufile" "$libcufile"
+diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
+index 7b099902..10cb3c4c 100644
+--- a/os/linux/io_uring.h
++++ b/os/linux/io_uring.h
+@@ -162,6 +162,32 @@ enum {
+  */
+ #define IORING_SETUP_DEFER_TASKRUN	(1U << 13)
  
-+##########################################
-+# cuda 13 probe
-+if test "$cuda" != "no" || test "$libcufile" != "no"; then
-+cat > $TMPC << EOF
-+#include <cuda.h>
++/*
++ * Application provides the memory for the rings
++ */
++#define IORING_SETUP_NO_MMAP		(1U << 14)
 +
-+int main(int argc, char **argv)
-+{
-+  cuCtxCreate(NULL, NULL, 0, NULL);
-+  return 0;
-+}
-+EOF
-+  if compile_prog "" "-lcuda" "cuda13"; then
-+    cuda13="yes"
-+  else
-+    cuda13="no"
-+  fi
-+  print_config "cuda>=13" "$cuda13"
-+fi
++/*
++ * Register the ring fd in itself for use with
++ * IORING_REGISTER_USE_REGISTERED_RING; return a registered fd index rather
++ * than an fd.
++ */
++#define IORING_SETUP_REGISTERED_FD_ONLY	(1U << 15)
 +
- ##########################################
- # check for cc -march=native
- build_native="no"
-@@ -3305,6 +3326,9 @@ fi
- if test "$libcufile" = "yes" ; then
-   output_sym "CONFIG_LIBCUFILE"
- fi
-+if test "$cuda13" = "yes" ; then
-+  output_sym "CONFIG_CUDA13"
-+fi
- if test "$dfs" = "yes" ; then
-   output_sym "CONFIG_DFS"
- fi
-diff --git a/memory.c b/memory.c
-index 2fdca657..29d93930 100644
---- a/memory.c
-+++ b/memory.c
-@@ -215,6 +215,9 @@ static int alloc_mem_cudamalloc(struct thread_data *td, size_t total_mem)
- #ifdef CONFIG_CUDA
- 	CUresult ret;
- 	char name[128];
-+#ifdef CONFIG_CUDA13
-+	CUctxCreateParams ctx_params = {};
-+#endif
++/*
++ * Removes indirection through the SQ index array.
++ */
++#define IORING_SETUP_NO_SQARRAY		(1U << 16)
++
++/* Use hybrid poll in iopoll process */
++#define IORING_SETUP_HYBRID_IOPOLL	(1U << 17)
++
++/*
++ * Allow both 16b and 32b CQEs. If a 32b CQE is posted, it will have
++ * IORING_CQE_F_32 set in cqe->flags.
++ */
++#define IORING_SETUP_CQE_MIXED		(1U << 18)
++
+ enum {
+ 	IORING_OP_NOP,
+ 	IORING_OP_READV,
+diff --git a/t/io_uring.c b/t/io_uring.c
+index 2a5d0c81..9da5cc9e 100644
+--- a/t/io_uring.c
++++ b/t/io_uring.c
+@@ -439,6 +439,7 @@ static int io_uring_setup(unsigned entries, struct io_uring_params *p)
+ 	p->flags |= IORING_SETUP_COOP_TASKRUN;
+ 	p->flags |= IORING_SETUP_SINGLE_ISSUER;
+ 	p->flags |= IORING_SETUP_DEFER_TASKRUN;
++	p->flags |= IORING_SETUP_NO_SQARRAY;
+ retry:
+ 	ret = syscall(__NR_io_uring_setup, entries, p);
+ 	if (!ret)
+@@ -456,6 +457,10 @@ retry:
+ 		p->flags &= ~IORING_SETUP_DEFER_TASKRUN;
+ 		goto retry;
+ 	}
++	if (errno == EINVAL && p->flags & IORING_SETUP_NO_SQARRAY) {
++		p->flags &= ~IORING_SETUP_NO_SQARRAY;
++		goto retry;
++	}
  
- 	ret = cuInit(0);
- 	if (ret != CUDA_SUCCESS) {
-@@ -250,7 +253,11 @@ static int alloc_mem_cudamalloc(struct thread_data *td, size_t total_mem)
- 	dprint(FD_MEM, "dev_id = [%d], device name = [%s]\n", \
- 	       td->gpu_dev_id, name);
+ 	return ret;
+ }
+@@ -941,9 +946,14 @@ static int setup_ring(struct submitter *s)
+ 	sring->ring_mask = ptr + p.sq_off.ring_mask;
+ 	sring->ring_entries = ptr + p.sq_off.ring_entries;
+ 	sring->flags = ptr + p.sq_off.flags;
+-	sring->array = ptr + p.sq_off.array;
+ 	sq_ring_mask = *sring->ring_mask;
  
-+#ifdef CONFIG_CUDA13
-+	ret = cuCtxCreate(&td->cu_ctx, &ctx_params, CU_CTX_MAP_HOST, td->cu_dev);
-+#else
- 	ret = cuCtxCreate(&td->cu_ctx, CU_CTX_MAP_HOST, td->cu_dev);
-+#endif
- 	if (ret != CUDA_SUCCESS) {
- 		log_err("fio: failed to create cuda context: %d\n", ret);
- 		return 1;
++	if (!(p.flags & IORING_SETUP_NO_SQARRAY)) {
++		sring->array = ptr + p.sq_off.array;
++		for (i = 0; i < p.sq_entries; i++)
++			sring->array[i] = i;
++	}
++
+ 	if (p.flags & IORING_SETUP_SQE128)
+ 		len = 2 * p.sq_entries * sizeof(struct io_uring_sqe);
+ 	else
+@@ -969,9 +979,6 @@ static int setup_ring(struct submitter *s)
+ 	cring->cqes = ptr + p.cq_off.cqes;
+ 	cq_ring_mask = *cring->ring_mask;
+ 
+-	for (i = 0; i < p.sq_entries; i++)
+-		sring->array[i] = i;
+-
+ 	s->per_file_depth = INT_MAX;
+ 	if (s->nr_files)
+ 		s->per_file_depth = (depth + s->nr_files - 1) / s->nr_files;
