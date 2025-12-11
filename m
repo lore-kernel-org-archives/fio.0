@@ -1,58 +1,58 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2C2205E02
-	for <fio@vger.kernel.org>; Wed, 10 Dec 2025 23:05:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A1291DE8BE
+	for <fio@vger.kernel.org>; Thu, 11 Dec 2025 21:34:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765407909; cv=none; b=RL4mVlnXiw2IjlanrVzs6bMLn4lShw27L+u8rOcGGHvRv+doHug2luwv9O1K8kBj5cnsFexV3UpNC3nwwIz5tQngFEM53pLay2SdI0Hdvu/aMfMCf6eI/tBpwHrIrAK/eU+l3vK1iq7PElbFQOOxi8xvKBiXMW1gYPWL1f0K1H0=
+	t=1765488877; cv=none; b=u21irI4GfPhG8DnApaijUty69d42xyh0GctNyvdW5fV4TSIJMew5s72aaD+Cy2+2TFhcDcz9JlgPzVqsI5crMOQp1rAlb1v4ZY73JL3AWLxoTU6wwVqW0F2+NVBTkO5nlVLYeXm9FmOG0GBAeLYCo7MNXzMSwic5DpbPDKQiubQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765407909; c=relaxed/simple;
-	bh=m/3DT+y5Z8NLWWM0/2uEFcaJPmIQNKYAoP7iYRmBfsc=;
+	s=arc-20240116; t=1765488877; c=relaxed/simple;
+	bh=RBQEIEMecJOlgcRAIFUKfVoXHXm/i0VvMXh0bQyAhiU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=q9fR6CA8KJky+/UFT6kFFJ59deF608wp57IpE2OPOLyU3RVQaU5DG6A48aJCBODHLDv7dOpmo8Fe9mymTai+2jrR2WBjgD8alRPMXpHGEfwVYWpsnDcVv5Z4dtu6dZvawr4GUZZI5ROvqx5VrNBsZKKhSoY3OQ20F0EQp7Klmmg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G08oEvXC; arc=none smtp.client-ip=209.85.218.52
+	 To:Cc:Content-Type; b=DE7dqYwC+CQwh2MwnA34h3QgZCwQb6PQ5TXjGYyhxLXFlwn2Lm1x21SOFVcgW6Yl1zPKtK2OPI4bm1oVv6Txnu5SYIuEwjxRmSYu8vbStDuz14ffXIk/h/UE5VCidsPLLp8hY9BWwKXo/aIstQR8HRlbrU8oYZ0ssHzSeOu5PCY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=inRrk4Qy; arc=none smtp.client-ip=209.85.218.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G08oEvXC"
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-b7bd8b170e0so39293666b.3
-        for <fio@vger.kernel.org>; Wed, 10 Dec 2025 15:05:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="inRrk4Qy"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-b7ce5d6627dso118329566b.2
+        for <fio@vger.kernel.org>; Thu, 11 Dec 2025 13:34:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1765407906; x=1766012706; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1765488874; x=1766093674; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=m/3DT+y5Z8NLWWM0/2uEFcaJPmIQNKYAoP7iYRmBfsc=;
-        b=G08oEvXCFkI5rEhuSxlwtZSSZgckxKgYG18DYVHcacga8QE0UcPrKxRU3xeV3je1CJ
-         fTEa9GRQYOwbheTQW6rulotKqNetMpMYGtaEjZ5KbAUeWaIZtMtbKTIKxyCwUSsDJzGD
-         Knh2tvkcz7UKEjyv1dw+iYKPHpm9+7gnc8lLpoTOLwmc2e0qh4mOe9rB68gxZzt6OQog
-         cS2YGIGmBcMGJ89VmKglvt2qQ2kr36ssUWveJH6as1i+jGn+Viz8ZZ3FdPHFacdqQG5k
-         YQLMhA+px8VVbYlbi1N0+n0m2mhUiidXiEx3NqWfCxjTI8yUYjiztMu03tWgZLw76Ba3
-         OX8Q==
+        bh=RBQEIEMecJOlgcRAIFUKfVoXHXm/i0VvMXh0bQyAhiU=;
+        b=inRrk4QyJsPw0QS2cbqLVMtlL1fa0aqB7DolSx5lxyp/aDTQOioV3avpDoA8tnNzJP
+         AStex/RIdUO33GuJfuKRwCDu+Rga1fe2d6sHdA2a8Hsuyj2eYGk+FeLF36QdntQbg0u+
+         /3DcqE4VAAdrf74eNJ1DqVvSKOXITcdTQLBNYeTjlGXbaWSRbN7Irim7nUGQ+keXNLWy
+         6m2eeBvTzHtUMpevnMfhCf7rPnkvk+tnwfOkigYOeaIvWX7i7BgOiIGNIprPqEWJ/qwW
+         KfZ2i5MDWSZTuAHeVQyjOXJ0Wa9vbGh394GJNbtllUblhZ1Q2jENwr5h8QVI3N/6rnSX
+         g+Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1765407906; x=1766012706;
+        d=1e100.net; s=20230601; t=1765488874; x=1766093674;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=m/3DT+y5Z8NLWWM0/2uEFcaJPmIQNKYAoP7iYRmBfsc=;
-        b=Vu5A+4BfHjUIs38t50PAyL93sw+jX9Vz0JI3CCZe1lkurdqCnRBXx5qsTlD9ACf66q
-         vveZ+PwPxSHdxtfow7+ZvIR2DntvgkENudy9vy61m+m/LhEIjDB23C9+HSCWKOy3xT+i
-         ArvHQX4uxGNitnOV/U9ZrvvTTXGwddGSa2JskF3UtRqFqPkUlsZGKiQyNdLXvQkzWMdy
-         0ajJzEsEdkGqibotJZnmN5vlg0XVcabie56FuwtbwOysehLXtlLUQJ/SpazmlKFo9/fJ
-         lLq2/xZ+eJHuMnLx2zO7T2FDwNhMuWbOz07rUK8FuSQS91S162/Wu4aLo/RRFEf1BuPY
-         ADDw==
-X-Gm-Message-State: AOJu0YwANEwnh7AsN9hqeMiipfOfqvhNhoBTjGwUWHnjYX8qByt2D6Zw
-	TlmkGF8oHNP1+m3rCwMaWuYgIwvfM9puY96J68pfEIBt/42+P9R1DXLTyNWB5jm2p8jZ7JiENKQ
-	7FrleKVsk3jnK7tR8VqHUyQAY6SCrvZEn/8KI
-X-Gm-Gg: AY/fxX7Z7t+UQN+EJSemYvVJS//K1PBWtZhT5ihTM0PHu4d2fbljYqqNuSyIgUGNczU
-	tyPqys1DD5trO+IbF1CcgzcFZUg9wWh1Efij0CwCRIa0HTfs5i5f1er1P3btuCxIFV+wue/eM+D
-	G2fbQ5Yg9ZbRrIpTbzOuYdP83kDO6TpsXd4jMhGDXK6O6f5rAx4WLDuWDIBjt+Yw5otGbpuX7Nw
-	4qh318cvWqyCOlDhe6nXVcQql/jTPpM8/h7n/oJpb+2Vxu80wTC9ikc5g2mL/A+8THg2g==
-X-Google-Smtp-Source: AGHT+IHTS/BSL4KxEUJjfSQ1xI794LvNN8lIxw99SBFhbo07fcv3MRAoVkjBJ+hB1bsl3J7fvPtSHVSdSthefP7XS34=
-X-Received: by 2002:a17:907:808:b0:b72:6d3e:848f with SMTP id
- a640c23a62f3a-b7ce8247fcemr399471166b.19.1765407905671; Wed, 10 Dec 2025
- 15:05:05 -0800 (PST)
+        bh=RBQEIEMecJOlgcRAIFUKfVoXHXm/i0VvMXh0bQyAhiU=;
+        b=SL7/1ttp+HPN9Nb5tOB890tdkqay1JkJi2WgfVdXebB5LvSY6w64PsS3sSB4FD4dfG
+         gOhDXC3lqn6DxkYP0OdDL3DvHLomOU7Skk0ZSE+4meRZ+2UOAUtV2MceHMcCGFTzFZOl
+         v/NJpywEWTkd+CyT9HZ8ymPWVQItOZGk12BnnvrAZXZ0UlnTvbHwn/jw/guUtwYCzboc
+         +Tgn8AxJyN5VpEdy71b535EwFqjKYmFxbjxKzu2SxFdAWW0VHhl16M2+cqMjMk4WUczE
+         N4d0MSYkXU3vL21BQEZ9v8r7FegTZfY5Kquml6xoL7yw0oe+0jjOFaHx01yImEOnJCP6
+         8Lwg==
+X-Gm-Message-State: AOJu0YxxjwLfG3I0sKfZXrGP9yiztfbmhe5n6WvJ3iRSyj4WaxkDn8W2
+	3DSze3q7/UAV162AqoD9wrGNihvyLi9F3Cw1DcgXwGzO4kdUCFvO3xC8oRnXKhws7fWHjWnAbIn
+	ubzisMlbpWDjn7ZURKBsIai2zojuDypGWDtFH
+X-Gm-Gg: AY/fxX7rz8TPx9VxGhI1F2fT5ankukrIPvKV5bHGwFBKvIRWoF3Vhw3o22a9ouyEbsc
+	A4wc9jfe26gZDl4E4blPN0L7IwBPaoXPQm/BL6aWQloUYtfz9pb9ZK4RWtXZojh0l0xRGT6gluM
+	qETYPU+HRrAwTzbcPxNKByxjTkxJ0SRegQMLfeeG23a/5FgCxvPINLO8XoSQuEOUC3bV42CR081
+	kfBNGKZorsydyF3t46aeXtKigVZRAiGmV1NPQMufwcHSP4XcSAS5LnV4Tc2YSGFOUg+VQ==
+X-Google-Smtp-Source: AGHT+IHgNjbORgga8lVPnBeq8AXuYQJly36/pekDmh/OE6K01RX2kEcy96txexP+/KcNVZa1rZzd5gfMZD7sRfCaNSU=
+X-Received: by 2002:a17:907:6e8f:b0:b53:e871:f0ea with SMTP id
+ a640c23a62f3a-b7ce8509118mr847436266b.56.1765488874152; Thu, 11 Dec 2025
+ 13:34:34 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -60,67 +60,74 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <CAAJpEdjfZgqpyYDH4TWS3siCRca5rgy+Dj-a7dqCSaX0BObrjw@mail.gmail.com>
-In-Reply-To: <CAAJpEdjfZgqpyYDH4TWS3siCRca5rgy+Dj-a7dqCSaX0BObrjw@mail.gmail.com>
+ <CALjAwxjyNHgvA65V_5njhXKK=QiRsgFE5XHzr2qOdoxZcfQ39A@mail.gmail.com> <CAAJpEdidxLSJJ2AQ8ExECLOGpxXWO_wOTOzN04q62TKsVnHKig@mail.gmail.com>
+In-Reply-To: <CAAJpEdidxLSJJ2AQ8ExECLOGpxXWO_wOTOzN04q62TKsVnHKig@mail.gmail.com>
 From: Sitsofe Wheeler <sitsofe@gmail.com>
-Date: Wed, 10 Dec 2025 23:04:39 +0000
-X-Gm-Features: AQt7F2prL3ZwxytdrJUnaFnzJXy2rIdYIgK7_i5a-BhGKDCEgOXJ3eUxAeiswLk
-Message-ID: <CALjAwxjyNHgvA65V_5njhXKK=QiRsgFE5XHzr2qOdoxZcfQ39A@mail.gmail.com>
+Date: Thu, 11 Dec 2025 21:34:07 +0000
+X-Gm-Features: AQt7F2ouJF2IWkdbCXt9qdObxDEmwIVFsSojVfebUsFSQbl23ZMtf0LewmM5y70
+Message-ID: <CALjAwxg-==Q7VQcVOHkqXBS-EnWLUkanuxVYfLYs1AD8pc_Kdg@mail.gmail.com>
 Subject: Re: fdatasync behaviour in macOS
 To: Anil Sharma <asharmaanil@gmail.com>
 Cc: fio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi Anil,
 
-On Wed, 10 Dec 2025 at 06:07, Anil Sharma <asharmaanil@gmail.com> wrote:
+On Thu, 11 Dec 2025 at 03:28, Anil Sharma <asharmaanil@gmail.com> wrote:
 >
-> I am using fio to benchmark serial fsync in macOS. From what I could unde=
-rstand, both fsync and fdatasync are linked to F_FULLSYNC in macOS. But the=
- output is very different. fsync=3D1 can only get 110 tps where fdatasync=
-=3D1 option can get 5.5K tps. Which seems like we are only writing to OS Pa=
-ge Cache.
+> I think the confusing point for me was that I assumed for darwin fdatasyn=
+c is mapped to the way fio handle fsync option and not OS's implementation =
+(In documentation we mention when not supported it maps to fsync) and fsync=
+ option internally is mapped to fcntl(..., F_FULLFSYNC). I think other user=
+s might have similar understanding,
+
+That's a fair point; doing a quick "git grep -C 5 DDIR_DATASYNC" shows
+there are many ioengines that treat calls for fsync and fdatasync the
+same way but do_io_u_sync() in io_u.c does not. There are at least two
+ways to look at this: the documentation is wrong and needs updating
+(i.e. lack of fdatasync() MAY fallback to fsync()) or the code is
+wrong and needs updating :-)
+
+> either we can disable the support of fdatasync option for darwin by eithe=
+r printing the warning and map to OS's fsync implementation or fail early.
 >
-> Question:
-> Can we get a confirmation whether the fdatasync option is mapped to F_FUL=
-LSYNC?
+> In general, fsync implementation in Darwin is not POSIX standard; we can'=
+t do much about it.
 
-fio's fdatasync call is currently (as fio fio 3.41) *not* mapped to
-fcntl(..., F_FULLFSYNC) on macOS and if we read fio's source we can
-confirm this:
+Technically the macOS's fsync() implementation *is* POSIX compliant (I
+guess because macOS keeps achieving UNIX compliance this follows).
+macOS defines _POSIX_SYNCHRONIZED_IO as -1 so strictly speaking it is
+allowed to have an fsync() that doesn't flush the drive buffers (see
+https://pubs.opengroup.org/onlinepubs/9799919799/ for POSIX's
+wording). One can debate whether this is in the spirit of a POSIX
+compliant fsync() but it matches the letter of it. There are other
+OSes that "weak" fsync() behaviour (FreeBSD won't flush drive buffers
+on fsync() unless ZFS is being used or you do some extra filesystem
+specific configuration).
 
-If you look at https://github.com/axboe/fio/blob/fio-3.41/io_u.c#L2463-L247=
-4
-you can see what fio uses to do fsync depends on whether
-CONFIG_FCNTL_SYNC is defined. In that block you can see the call to
-fdatasync *only* depends on whether CONFIG_FDATASYNC is defined and it
-will never be mapped to fcntl(..., F_FULLFSYNC). Over in configure you
-can see the probe for fcntl(..., F_FULLFSYNC) in
-https://github.com/axboe/fio/blob/fio-3.41/configure#L706-L723 and the
-probe for fdatasync(...) over in
-https://github.com/axboe/fio/blob/fio-3.41/configure#L1252-L1268 . If
-you check the config.log on macOS you can see that "Compiling test
-case fcntl(F_FULLFSYNC)" and "Compiling test case fdatasync" both
-succeed leading to CONFIG_FCNTL_SYNC and CONFIG_FDATASYNC both being
-defined (see https://github.com/axboe/fio/blob/fio-3.41/configure#L3075-L30=
-77
-and https://github.com/axboe/fio/blob/fio-3.41/configure#L3380-L3382
-for where these symbols are output).
+> But I would have assumed in any platform both fsync and fdatasync options=
+ will provide similar durability guarantees. So, intuitively fsync and fdat=
+async both can map Darwin's fsync implementation. There could be a separate=
+ option f_fullfsync =3D int only supported for darwin. Which makes it clear=
+ when running benchmarks for specific durability guarantee.
 
-> Please let me know if this needs to go in github issues.
+You can see Jens' introducing the fsync() -> fcntl(..., F_FULLFSYNC)
+mapping in https://github.com/axboe/fio/commit/a04e0665cb5d3a545ab1dbe2d2b7=
+c150b404735d
+so my guess is if such an option were introduced it would have to
+default to off. I pretty much agree that doing one of the following
+would be an improvement:
+- If CONFIG_FDATASYNC is defined map fdatasync to fcntl(..., F_FULLFSYNC)
+- Change the #ifdef CONFIG_FDATASYNC before fdatasync to #if
+defined(CONFIG_FDATASYNC) && !defined(CONFIG_FDATASYNC)
+- Introduce a ffullfsync option (name to be bikeshedded) if
+CONFIG_FDATASYNC is defined and if the ffullfsync option is disabled
+use the "real" fsync()/fdatasync() otherwise use fcntl(...,
+F_FULLFSYNC) for both fsync()/fdatasync()
 
-Hmm it's not something I personally will work on (although I can 't
-speak for others) so it's one of those things where a well formed
-patch/PR would be more useful but there's some debate as to whether
-it's worth it. It's well known that fsync() alone on macOS doesn't
-trigger *drive* cache flushes (unlike Linux) so I don't think it's a
-surprise that fdatasync() has the same behaviour as fsync()...
-However, I can see how fio's remapping of just fsync and not fdatasync
-is surprising. I guess the question is: does it make sense to even use
-fdatasync=3D1 with fio on macOS if it's just going to do the same
-heavyweight fcntl(..., F_FULLFSYNC) work as the current fsync() ->
-fcntl(..., F_FULLFSYNC) mapping or should it just be disabled
-entirely?
+Again, if someone (I'm not volunteering ;-) were to submit a non-ugly
+patch/PR cleaning everything up then it could be reviewed.
 
---=20
+--
 Sitsofe
