@@ -1,47 +1,88 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5B7B1A5B8B
-	for <fio@vger.kernel.org>; Wed, 17 Dec 2025 16:17:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9345E3A1E67
+	for <fio@vger.kernel.org>; Wed, 17 Dec 2025 16:17:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765988272; cv=none; b=Zdzck4Uyu2MSWlR29iPks0nPGYO8otj8tQCP7cDa6MKtz6qF5ucBNpzqrvZTV5mXmzgFh9gip3VuUK6VUDC6BdsWpgudYQ7CEGvwgcjU2BcEn3J6sruhezOlxFdMMOsAurZxBoVSgk1WOUCB0HwZwjinlH59NhINf0Mgt7yT660=
+	t=1765988280; cv=none; b=LeIr4AWp8XyCLMEUg4Nbkb32rl5bVr1sTsv2wSQ/BVM2bnINbsRiyJzjgShkn0CETZTItJbt4ASVryGXKnpfGjkrW2PPybhQLBXCQqE2F0shnMoEe9CdOhASsZcyGuzAKUv7zFRJcLB2CIST75dhqs/8vh+Noekbtd/n11ysYyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765988272; c=relaxed/simple;
-	bh=zMUjDfTRIOzn4VBl1sp0d1FkOrN+x5HoCDXitE6ygcQ=;
+	s=arc-20240116; t=1765988280; c=relaxed/simple;
+	bh=1jEh+A04vEve22PzSJM4qwokUPcqYFjG0yuJ2yJot/Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=koEW3Jy0doGPsssC3lORH2Jhrhrvsdvm7Dc1LTn7ppJy8bZ1ewRWjo4FuSkFzZLtZSLW6BUqXX4kPlinaytDpOv1p9fA3v1QrAlK/7iIjz9ZqHChqy9FBwuCD1W5N9VSaXO25HnpipaS0eegUGQfqjKKOrDf/qa8Hn2mYZC477s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=LuPQ2yQNpqY7WBC7a/+NrW1rs8uJvAwCPxyM+7YmWekw2PslxpiqMhGCq7Qb5kXE+X3gd11teubq8hPOL6wRjR5VpX9HsoFgkjSDMvaAUswK0VqyJ/iKcP0qR9Dm+KdH+u6vhJG2FU1AEZnad2DFfCN/eL4WFZPrQ4n6SOqCTPk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=MmYLOftQ; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=h1ohiPOk; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=RwZgy0Ir; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=GElMUggW; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="MmYLOftQ";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="h1ohiPOk";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="RwZgy0Ir";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="GElMUggW"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 6807D5BCF9;
-	Wed, 17 Dec 2025 16:17:27 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D952B5BD00;
+	Wed, 17 Dec 2025 16:17:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1765988247; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oBxBiZA4ktnAHHmm+FgszbEqaUl9JaWMAiptVjn/mfU=;
+	b=MmYLOftQwDmZF+bN/R18pzkCcm3V3jAW+ccpYs86BwkIXvr4UFuHRAI7S3vCrws2jTcYZz
+	Z6NO2u+6JRPcfIaqiGr9a+lm8sHCbmDgesSRFk/N742XDi3vLOjYP+Z2vrfs5V3oQPfCAm
+	uhE6u4JXpiNrbdmuiVCxEgcZOtHOfUw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1765988247;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oBxBiZA4ktnAHHmm+FgszbEqaUl9JaWMAiptVjn/mfU=;
+	b=h1ohiPOkDnYeIqfS4CKgmhglXYI1qPPpiyI/qwnd+rACJ+JFkc5K/AM/A5PZXt5AYu5sth
+	HCzz5OrgQP1/yCDw==
 Authentication-Results: smtp-out2.suse.de;
 	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1765988246; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oBxBiZA4ktnAHHmm+FgszbEqaUl9JaWMAiptVjn/mfU=;
+	b=RwZgy0IrZq0mqUdo2VLwStnS0gpR/i0fAoFRZAcgI3quwa3dkdbbT3ATpiMbwZCxyT/lrt
+	79RLeGN2PZGZT9nPHXGqjmlyg5oIqMmSyALOxHko/4UZNsQUJbAmdBU2Xe/zbPAGexVtA3
+	/OFzGU4oTiXd/esTlYaJHhnp3MR8cFI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1765988246;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=oBxBiZA4ktnAHHmm+FgszbEqaUl9JaWMAiptVjn/mfU=;
+	b=GElMUggWkVjYhynRzoljOovN/4WCmvdj0X5bShUjNMYvIBiCZbaHhc5n0Lq8sJCkTbbIj1
+	Mi3qMLbmvWJdczCw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 589D93EA65;
-	Wed, 17 Dec 2025 16:17:27 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C63483EA68;
+	Wed, 17 Dec 2025 16:17:26 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 35mXFZfXQmkBcQAAD6G6ig
-	(envelope-from <jack@suse.cz>); Wed, 17 Dec 2025 16:17:27 +0000
+	id aaBCMJbXQmn2cAAAD6G6ig
+	(envelope-from <jack@suse.cz>); Wed, 17 Dec 2025 16:17:26 +0000
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 45AA0A09E1; Wed, 17 Dec 2025 17:17:22 +0100 (CET)
+	id 2EF34A0927; Wed, 17 Dec 2025 17:17:22 +0100 (CET)
 From: Jan Kara <jack@suse.cz>
 To: fio@vger.kernel.org
 Cc: Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>,
 	Jan Kara <jack@suse.cz>
-Subject: [PATCH 5/5] Add option to specify ramp period by amount of IO
-Date: Wed, 17 Dec 2025 17:17:15 +0100
-Message-ID: <20251217161722.6357-5-jack@suse.cz>
+Subject: [PATCH 2/5] td: Initialize ramp_period_over based on options
+Date: Wed, 17 Dec 2025 17:17:12 +0100
+Message-ID: <20251217161722.6357-2-jack@suse.cz>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251217160217.15533-1-jack@suse.cz>
 References: <20251217160217.15533-1-jack@suse.cz>
@@ -52,188 +93,106 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
-X-Rspamd-Queue-Id: 6807D5BCF9
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Score: -4.00
+X-Spamd-Result: default: False [-6.80 / 50.00];
+	REPLY(-4.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.998];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_TLS_LAST(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.dk,gmail.com,suse.cz];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_EQ_ENVFROM(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo];
+	FROM_HAS_DN(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	RCVD_COUNT_THREE(0.00)[3];
+	RCPT_COUNT_THREE(0.00)[4];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 X-Spam-Level: 
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Spam-Flag: NO
-X-Rspamd-Action: no action
+X-Spam-Score: -6.80
 
-In some cases the ramp up period is not easy to define by amount of
-time. This is for example a case of buffered writes measurement where we
-want to start measuring only once dirty throttling kicks in. The time
-until dirty throttling kicks in depends on dirty limit (easy to figure
-out) and speed of writes to the page cache (difficult to know in
-advance). Add option ramp_size which determines the ramp up period by
-the amount of IO written (either by each job or by each group when group
-reporting is enabled).
+Instead of checking whether ramp_time is specified each time we need to
+check whether we are in the ramp period, initialize ramp_period_over
+based on the ramp_time option. This will simplify things more
+significantly later when ramp up period can be defined in a different
+way.
 
 Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- HOWTO.rst        |  7 +++++++
- fio.1            |  6 ++++++
- options.c        | 11 +++++++++++
- thread_options.h |  2 ++
- time.c           | 50 ++++++++++++++++++++++++++++++++++++++++++++++--
- 5 files changed, 74 insertions(+), 2 deletions(-)
+ fio_time.h |  1 +
+ init.c     |  2 ++
+ time.c     | 10 ++++++++--
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 9f55a73bde05..49ebae6275a6 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -715,6 +715,13 @@ Time related parameters
- 	:option:`runtime` is specified.  When the unit is omitted, the value is
- 	given in seconds.
+diff --git a/fio_time.h b/fio_time.h
+index 30de7aca4fb1..c67c9450f484 100644
+--- a/fio_time.h
++++ b/fio_time.h
+@@ -29,6 +29,7 @@ extern void fill_start_time(struct timespec *);
+ extern void set_genesis_time(void);
+ extern bool ramp_period_over(struct thread_data *);
+ extern bool in_ramp_period(struct thread_data *);
++extern void td_ramp_period_init(struct thread_data *);
+ extern void fio_time_init(void);
+ extern void timespec_add_msec(struct timespec *, unsigned int);
+ extern void set_epoch_time(struct thread_data *, clockid_t, clockid_t);
+diff --git a/init.c b/init.c
+index cf66ac2c51f1..8b7728907c7f 100644
+--- a/init.c
++++ b/init.c
+@@ -1676,6 +1676,8 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
  
-+.. option:: ramp_size=size
-+
-+	If set, fio will wait until the workload does given amount of IO before
-+	logging any performance numbers. Similar considerations apply as for
-+	``ramp_time`` option. When the unit is omitted, the value is given in
-+	megabytes.
-+
- .. option:: clocksource=str
+ 	init_thread_stat_min_vals(&td->ts);
  
- 	Use the given clocksource as the base of timing. The supported options are:
-diff --git a/fio.1 b/fio.1
-index 9c4ff08c86ad..88e97518f853 100644
---- a/fio.1
-+++ b/fio.1
-@@ -497,6 +497,12 @@ thus it will increase the total runtime if a special timeout or
- \fBruntime\fR is specified. When the unit is omitted, the value is
- given in seconds.
- .TP
-+.BI ramp_size \fR=\fPsize
-+If set, fio will wait until the workload does given amount of IO before
-+logging any performance numbers. Similar considerations apply as for
-+\fBramp_time\fR option. When the unit is omitted, the value is given in
-+megabytes.
-+.TP
- .BI clocksource \fR=\fPstr
- Use the given clocksource as the base of timing. The supported options are:
- .RS
-diff --git a/options.c b/options.c
-index 8e3de528bbbb..d050a1f6a417 100644
---- a/options.c
-+++ b/options.c
-@@ -3093,6 +3093,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_GENERAL,
- 		.group	= FIO_OPT_G_RUNTIME,
- 	},
-+	{
-+		.name	= "ramp_size",
-+		.lname	= "Ramp size",
-+		.type	= FIO_OPT_STR_VAL,
-+		.off1	= offsetof(struct thread_options, ramp_size),
-+		.minval = 1,
-+		.help	= "Amount of data transferred before measuring performance",
-+		.interval = 1024 * 1024,
-+		.category = FIO_OPT_C_GENERAL,
-+		.group	= FIO_OPT_G_RUNTIME,
-+	},
- 	{
- 		.name	= "clocksource",
- 		.lname	= "Clock source",
-diff --git a/thread_options.h b/thread_options.h
-index 3abce7318ce2..b4dd8d7acd49 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -212,6 +212,7 @@ struct thread_options {
- 	unsigned long long start_delay_high;
- 	unsigned long long timeout;
- 	unsigned long long ramp_time;
-+	unsigned long long ramp_size;
- 	unsigned int ss_state;
- 	fio_fp64_t ss_limit;
- 	unsigned long long ss_dur;
-@@ -546,6 +547,7 @@ struct thread_options_pack {
- 	uint64_t start_delay_high;
- 	uint64_t timeout;
- 	uint64_t ramp_time;
-+	uint64_t ramp_size;
- 	uint64_t ss_dur;
- 	uint64_t ss_ramp_time;
- 	uint32_t ss_state;
++	td_ramp_period_init(td);
++
+ 	/*
+ 	 * td->>ddir_seq_nr needs to be initialized to 1, NOT o->ddir_seq_nr,
+ 	 * so that get_next_offset gets a new random offset the first time it
 diff --git a/time.c b/time.c
-index 2709d5b9784a..d2a201bb262c 100644
+index 9625e8cd92af..f90f2d9044fc 100644
 --- a/time.c
 +++ b/time.c
-@@ -125,11 +125,57 @@ bool ramp_period_enabled = false;
+@@ -112,7 +112,7 @@ uint64_t utime_since_genesis(void)
  
- int ramp_period_check(void)
+ bool in_ramp_period(struct thread_data *td)
  {
-+	uint64_t group_bytes = 0;
-+	int prev_groupid = -1;
-+	bool group_ramp_period_over = false;
-+
- 	for_each_td(td) {
- 		if (td->ramp_period_state != RAMP_RUNNING)
- 			continue;
--		if (utime_since_now(&td->epoch) >= td->o.ramp_time)
-+
-+		if (td->o.ramp_time &&
-+		    utime_since_now(&td->epoch) >= td->o.ramp_time) {
- 			td->ramp_period_state = RAMP_FINISHING;
-+			continue;
-+		}
-+
-+		if (td->o.ramp_size) {
-+			int ddir;
-+			const bool needs_lock = td_async_processing(td);
-+
-+			if (!td->o.group_reporting ||
-+			    (td->o.group_reporting &&
-+			     td->groupid != prev_groupid)) {
-+				group_bytes = 0;
-+				prev_groupid = td->groupid;
-+				group_ramp_period_over = false;
-+			}
-+
-+			if (needs_lock)
-+				__td_io_u_lock(td);
-+
-+			for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
-+				group_bytes += td->io_bytes[ddir];
-+
-+			if (needs_lock)
-+				__td_io_u_unlock(td);
-+
-+			if (group_bytes >= td->o.ramp_size) {
-+				td->ramp_period_state = RAMP_FINISHING;
-+				/*
-+				 * Mark ramp up for all threads in the group as
-+ 				 * done.
-+				 */
-+				if (td->o.group_reporting &&
-+				    !group_ramp_period_over) {
-+					group_ramp_period_over = true;
-+					for_each_td(td2) {
-+						if (td2->groupid == td->groupid)
-+							 td2->ramp_period_state = RAMP_FINISHING;
-+					} end_for_each();
-+				}
-+			}
-+		}
- 	} end_for_each();
+-	return td->o.ramp_time && !td->ramp_period_over;
++	return !td->ramp_period_over;
+ }
  
- 	return 0;
-@@ -175,7 +221,7 @@ bool ramp_period_over(struct thread_data *td)
+ static bool parent_update_ramp(struct thread_data *td)
+@@ -130,7 +130,7 @@ static bool parent_update_ramp(struct thread_data *td)
  
- void td_ramp_period_init(struct thread_data *td)
+ bool ramp_period_over(struct thread_data *td)
  {
--	if (td->o.ramp_time) {
-+	if (td->o.ramp_time || td->o.ramp_size) {
- 		td->ramp_period_state = RAMP_RUNNING;
- 		ramp_period_enabled = true;
- 	} else {
+-	if (!td->o.ramp_time || td->ramp_period_over)
++	if (td->ramp_period_over)
+ 		return true;
+ 
+ 	if (utime_since_now(&td->epoch) >= td->o.ramp_time) {
+@@ -153,6 +153,12 @@ bool ramp_period_over(struct thread_data *td)
+ 	return false;
+ }
+ 
++void td_ramp_period_init(struct thread_data *td)
++{
++	if (!td->o.ramp_time)
++		td->ramp_period_over = true;
++}
++
+ void fio_time_init(void)
+ {
+ 	int i;
 -- 
 2.51.0
 
