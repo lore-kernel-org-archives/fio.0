@@ -1,91 +1,124 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C425E35971C
-	for <fio@vger.kernel.org>; Wed, 17 Dec 2025 13:00:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBDCA28641E
+	for <fio@vger.kernel.org>; Wed, 17 Dec 2025 16:17:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765976414; cv=none; b=IdPBjI55oebK1LxoX6mphMGzyqLrHy6r8fxQExPgA1qnhzVsUMESmKEYWdVHiH+S+LpG9eoKFip9TajYf32j0O883qn/AMlrgMIfdnvtz4CmL9JYgBrmU5ELFqrvNi+H0LdX2J0fIfMvqnwkKp7OqoRHVfzOOa4DCSBjtuzOuNU=
+	t=1765988253; cv=none; b=Xv5hRHuZOaKYSkraZ0HA7r4zYyMz6ocMp5ZzuhioRUF/Ug3R4xiUVxR7A5yDKNyWZSCCb4XxxsWzlOLGt006R77mKCv5Eg4Z2VZUj0kKbPzk6jPr889Hv/sDiAfAv2qAC9W+7suJmo/81AKesYnaixSSl4oT1rKYSSHkDTog1zI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765976414; c=relaxed/simple;
-	bh=lT5Bik7itejwAXGymVuQiUtHlWnkVN4M8/219gV/eXQ=;
-	h=Subject:From:To:Date:Message-Id; b=gPPFShKyP/lZx8e7unZYRnK1K6eNE7XKeBsbqgkeBOqY5MLq9uDmHt6NcvxVpNq35znLkmNG0u3kP0TWQ4VIQAh88bj5wkaEjHaezmtKm2fhWKyREN5J66fzKxowwntrksusv9M+Z5UHeT5POc9tIp7n8dTtFsKFest6TuaMPJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ItWkqkVW; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1765988253; c=relaxed/simple;
+	bh=M5Yq4vZusQiVtPhYso2/k3DgzNqudNKeG8aVxMoszK0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dcMNP62ZCS7cx/I/n3RmxQN9zWRP8KMnWdzznEGonXYZXHfitd3kVG1fFY4vRGlg4x2Uzu48sl/SejjZIBtlbumuTRTuHgcABiSVmxGFQ3rsog2AONXkIp9ggDXe1v4Pd4n+FMuSP4twowRCIcC2Y05pQFoTxN8YD7cnir/JIs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=3CapqFQc; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=50ElZ9eC; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=3CapqFQc; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=50ElZ9eC; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ItWkqkVW"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=mO3z5nBvi7HrcPVFTN3knQ2nAfRhSunJFnrUmJbFhHw=; b=ItWkqkVWAiY4zbirjODtgfej48
-	pqkntm52hVvusiCkK6HSLoXVbIpJxrr+lqfh8iIbqovvPFHG7WaifhPLOedsNr3q9g2hw7nCx5vec
-	x66o782PC2CupKMggqxjebs3P3Gx0lXW5ue09Shmh8rhYPN4/VBhPHz3uBlCM57eZjxMKGXXn/h3L
-	N+DvzYelHxn9nAMXQ4ekp3ZWfMwKK/okZrXhZyd/rS39v8i4WoDhtpK3qVi/4H2bY2Yc9MS5vgpO6
-	iiAnsfN0SdYPwfEhHbHqsJhwWlF3JnrM/EbKnmk/7iBObsm27zJCkW9ZepVPywzygCNM06YfbzE0M
-	5MIA+krQ==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vVr8S-00000004jGi-0p2K
-	for fio@vger.kernel.org;
-	Wed, 17 Dec 2025 13:00:08 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 27A951BC0192; Wed, 17 Dec 2025 06:00:02 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Wed, 17 Dec 2025 06:00:02 -0700
-Message-Id: <20251217130002.27A951BC0192@kernel.dk>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="3CapqFQc";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="50ElZ9eC";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="3CapqFQc";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="50ElZ9eC"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id BD9F55BCFF;
+	Wed, 17 Dec 2025 16:17:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1765988246; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MoxxI9/SAH3emqvba1T7wP4yRGjubxK2SCliHEZbIoo=;
+	b=3CapqFQc6V5YOF1NZcKWmr9Rhkc0jZGAS8lKzRHP30ZIPTrJ2PyPRPpjJzPCyZnGximr8w
+	BExeY8P22NpL/yxXoUFJKZfXPhZLn+29ddHbQvEDQOhefs0lIYMdzX11Us3lpMSS7ueXXs
+	QZimpxQea4ZUzV1yYIEyWY6J3O0X8Mo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1765988246;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MoxxI9/SAH3emqvba1T7wP4yRGjubxK2SCliHEZbIoo=;
+	b=50ElZ9eCnPoXCwHHXzyoXu9l4CLl/gfFBeehi+P4Pk8qX2LpGBXIGjUORPmMSIglizYBlW
+	IBZEL7za4oWEvvBg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1765988246; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MoxxI9/SAH3emqvba1T7wP4yRGjubxK2SCliHEZbIoo=;
+	b=3CapqFQc6V5YOF1NZcKWmr9Rhkc0jZGAS8lKzRHP30ZIPTrJ2PyPRPpjJzPCyZnGximr8w
+	BExeY8P22NpL/yxXoUFJKZfXPhZLn+29ddHbQvEDQOhefs0lIYMdzX11Us3lpMSS7ueXXs
+	QZimpxQea4ZUzV1yYIEyWY6J3O0X8Mo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1765988246;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=MoxxI9/SAH3emqvba1T7wP4yRGjubxK2SCliHEZbIoo=;
+	b=50ElZ9eCnPoXCwHHXzyoXu9l4CLl/gfFBeehi+P4Pk8qX2LpGBXIGjUORPmMSIglizYBlW
+	IBZEL7za4oWEvvBg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AEF8A3EA65;
+	Wed, 17 Dec 2025 16:17:26 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 70OzKpbXQmnscAAAD6G6ig
+	(envelope-from <jack@suse.cz>); Wed, 17 Dec 2025 16:17:26 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+	id 22DEFA07B6; Wed, 17 Dec 2025 17:17:22 +0100 (CET)
+From: Jan Kara <jack@suse.cz>
+To: fio@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>,
+	Vincent Fu <vincentfu@gmail.com>,
+	Jan Kara <jack@suse.cz>
+Subject: [PATCH 0/5] Add support for specifying ramp up period by amount of IO
+Date: Wed, 17 Dec 2025 17:17:10 +0100
+Message-ID: <20251217160217.15533-1-jack@suse.cz>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FREEMAIL_CC(0.00)[kernel.dk,gmail.com,suse.cz];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_COUNT_THREE(0.00)[3];
+	RCVD_TLS_LAST(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCPT_COUNT_THREE(0.00)[4];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Level: 
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
 
-The following changes since commit 9af9614ba9578a61f08d0b780441d122790d4fed:
+Hello!
 
-  Merge branch 'baloo/push-lxolyxxkxkpv' of https://github.com/baloo/fio (2025-12-13 23:29:10 -0700)
+In some cases the ramp up period is not easy to define by amount of time. This
+is for example a case of buffered writes measurement where we want to start
+measuring only once dirty throttling kicks in. The time until dirty throttling
+kicks in depends on dirty limit (easy to figure out) and speed of writes to the
+page cache (difficult to know in advance). This patch series adds to fio an
+option to specify ramp up period in terms of amount to IO - i.e., the ramp up
+period finishes once given amount of IO is done.
 
-are available in the Git repository at:
+Please consider including this feature in fio, it would help us make some
+testing we do more reliable. Thanks!
 
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 3a4c1dd89241f5aff2835047a166dde19ae796b3:
-
-  Merge branch 'fix/prchk-segfault' of https://github.com/calebsander/fio (2025-12-16 13:10:09 -0500)
-
-----------------------------------------------------------------
-Caleb Sander Mateos (1):
-      io_uring: don't segfault if pi_chk isn't specified
-
-Vincent Fu (1):
-      Merge branch 'fix/prchk-segfault' of https://github.com/calebsander/fio
-
- engines/io_uring.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index bc29d3d8..6c3eb43c 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -1593,11 +1593,11 @@ static int fio_ioring_io_u_init(struct thread_data *td, struct io_u *io_u)
- 		pi_attr->len = o->md_per_io_size;
- 		pi_attr->app_tag = o->apptag;
- 		pi_attr->flags = 0;
--		if (strstr(o->pi_chk, "GUARD") != NULL)
-+		if (o->prchk & NVME_IO_PRINFO_PRCHK_GUARD)
- 			pi_attr->flags |= IO_INTEGRITY_CHK_GUARD;
--		if (strstr(o->pi_chk, "REFTAG") != NULL)
-+		if (o->prchk & NVME_IO_PRINFO_PRCHK_REF)
- 			pi_attr->flags |= IO_INTEGRITY_CHK_REFTAG;
--		if (strstr(o->pi_chk, "APPTAG") != NULL)
-+		if (o->prchk & NVME_IO_PRINFO_PRCHK_APP)
- 			pi_attr->flags |= IO_INTEGRITY_CHK_APPTAG;
- 	}
- 
+								Honza
