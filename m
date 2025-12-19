@@ -1,89 +1,90 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E94320CA8
-	for <fio@vger.kernel.org>; Fri, 19 Dec 2025 13:43:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36FD63203A0
+	for <fio@vger.kernel.org>; Fri, 19 Dec 2025 13:43:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766151797; cv=none; b=gAMofPIQke/PYwOGXzrwwx02qa1khoYtNSgBI63UUri8zK6u3HZp2xTJEpbZ1iXfjeZBQcBJqYRgl01OW/Jlqf6P4WpS0+o9VCrl47qZ1AtbXc3ZLiUVhsf8K7HfqQkLWlpPLPFVTdDcu9hULC7fSpoFVarReJzDzXBoHKADFco=
+	t=1766151802; cv=none; b=rDon2GXKtK9uFouLPo+Q0l1dCezQHl1EjhgDvef5HTAwWi/pxq+WhPIXceUO41/gWK/aXh1noP2M4TcLr5dPR+JkW170aoXpXRF/pZabPFtLJgtQPxrRy2HDapgKNlJlsppgtg6F9R2k7YjMyO8DR0WNFxnxC0koVCqJpHkkjG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766151797; c=relaxed/simple;
-	bh=GABBJrjvj/BOYCAl2lKX5DRVajAoBBws+gfY9SiG6G4=;
+	s=arc-20240116; t=1766151802; c=relaxed/simple;
+	bh=Ir+Ma514mF2UXaeXp0K/CWX2zRq+UBlYJ0O7x1wHHX0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YGgBejVlsLASBU6hlVVAoLYBH6ilJwHuUqvKhixLoDj2AZES5l8EK3C0WVikGvKcb0xICb3YmZ/5xAQgyqByJQI+Ke5iyAAU37bOYW/3iJaQpabBMr3NDgy8JrM0C/XmR5U+VsrybnGn07lV4NV/I1/StKgj6pTe/jhCdfcmNL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Fl/F20+I; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=bdw9W6aN; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Fl/F20+I; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=bdw9W6aN; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=Gi6i5F5BJ5TvCtFK8+3DKZfPJ8G+aPx22pye9WvFgi7+4kOX3Sk4GwDyO4wCLz7SE7E+DtPcZrhzOp4NDKkteq81OXrrvHbPVvs2Bx2HGjBjpUKWKynC220PRnDD/2ylDyX42GPi8hZ8WJQduWMiDa1m++JnWIwdcOHSR85+O1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Z7JReLNv; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=bZGd1GfW; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=E6hvwgLo; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=V4YtqeYk; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Fl/F20+I";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="bdw9W6aN";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Fl/F20+I";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="bdw9W6aN"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Z7JReLNv";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="bZGd1GfW";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="E6hvwgLo";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="V4YtqeYk"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 4C8945BD3A;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7E4D333789;
 	Fri, 19 Dec 2025 13:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1766151783; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1766151784; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UPpJA45NJSM0ZJxxB16u24rOoBXzQdd+QiG83INwCYY=;
-	b=Fl/F20+I0m8U54TFbD7PFNNlmguko4C0FzYxLL1o34eS1sIy+9u+BRRDLBhfXRBioXBU0Q
-	lkiGv1yoYvQcjaYiZvbDOfq23ThwCCU9Vt73si43lrhrNXaSUS9HGZTPd9tSB62fQu0xGd
-	omdrQQ5NUmv4BO2YMrnTyGmmTTL5AXQ=
+	bh=xKksyLeQsYGYsw7WF390/UIk3Od/0U6yD6VAhaQ6nus=;
+	b=Z7JReLNv6U2nDHu7JtZSOXVREtQWXb/lspwjxOx80SWH+6etoVuIlQaIHeAPnQrys4s8Q9
+	03sp53JNCLoqwcMyuFyrciuDC502tfGuG0JZuxH6Qb4IGV7paAXb7Ohn9+dTb+seb9F3vb
+	72VhJodGuBkJTR8mQiA2iAUTN/RTYtU=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1766151783;
+	s=susede2_ed25519; t=1766151784;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UPpJA45NJSM0ZJxxB16u24rOoBXzQdd+QiG83INwCYY=;
-	b=bdw9W6aN2ARQ5OARWcsyWYXJJrqlEeKJScj6Z7sH07GjFoLfcUWtABNZ4m7qg0+MjOYolo
-	ZMmwEhHCPYGgbfDw==
-Authentication-Results: smtp-out2.suse.de;
-	none
+	bh=xKksyLeQsYGYsw7WF390/UIk3Od/0U6yD6VAhaQ6nus=;
+	b=bZGd1GfWc5Nzc+Vs2Ef2QEluMSxnjx7j1uINP4XiVsiFywx2FY0ZBSDgWuB8IdrIfpTnho
+	xL4gANzOSuuFyFDg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=E6hvwgLo;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=V4YtqeYk
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
 	t=1766151783; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UPpJA45NJSM0ZJxxB16u24rOoBXzQdd+QiG83INwCYY=;
-	b=Fl/F20+I0m8U54TFbD7PFNNlmguko4C0FzYxLL1o34eS1sIy+9u+BRRDLBhfXRBioXBU0Q
-	lkiGv1yoYvQcjaYiZvbDOfq23ThwCCU9Vt73si43lrhrNXaSUS9HGZTPd9tSB62fQu0xGd
-	omdrQQ5NUmv4BO2YMrnTyGmmTTL5AXQ=
+	bh=xKksyLeQsYGYsw7WF390/UIk3Od/0U6yD6VAhaQ6nus=;
+	b=E6hvwgLoe/wVYZHJrTLbc98Qj04SF5ytWw/poRarFkRLanMCityJDlxBIKGlfp00v9FN6p
+	CdFR1sTw91DsDa5zYNzRxkfEdAoEzCI6EDZ3Qthed9+DoZdTRxn3A/QU9sWol7VcsZLTWz
+	X7OSKkkbl95lfgbi5mch47FEIf5XNkM=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
 	s=susede2_ed25519; t=1766151783;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=UPpJA45NJSM0ZJxxB16u24rOoBXzQdd+QiG83INwCYY=;
-	b=bdw9W6aN2ARQ5OARWcsyWYXJJrqlEeKJScj6Z7sH07GjFoLfcUWtABNZ4m7qg0+MjOYolo
-	ZMmwEhHCPYGgbfDw==
+	bh=xKksyLeQsYGYsw7WF390/UIk3Od/0U6yD6VAhaQ6nus=;
+	b=V4YtqeYka58rGU5ehwynNX2HMJ+VUejGRuP/lYeYTPdq+s1PPuz/dfdtukQW6RvAIPwgVv
+	5XtNrVKDpN/gFcAA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3BB013EA66;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6DB933EA69;
 	Fri, 19 Dec 2025 13:43:03 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id QKBFDmdWRWmiMQAAD6G6ig
+	id m7feGmdWRWmvMQAAD6G6ig
 	(envelope-from <jack@suse.cz>); Fri, 19 Dec 2025 13:43:03 +0000
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id E8F81A0918; Fri, 19 Dec 2025 14:42:47 +0100 (CET)
+	id 0ED8DA0A30; Fri, 19 Dec 2025 14:42:48 +0100 (CET)
 From: Jan Kara <jack@suse.cz>
 To: Vincent Fu <vincentfu@gmail.com>
 Cc: Jens Axboe <axboe@kernel.dk>,
 	fio@vger.kernel.org,
 	Jan Kara <jack@suse.cz>,
 	Damien Le Moal <dlemoal@kernel.org>
-Subject: [PATCH v2 1/5] time: rename in_ramp_time() and ramp_time_over()
-Date: Fri, 19 Dec 2025 14:42:35 +0100
-Message-ID: <20251219134247.14195-1-jack@suse.cz>
+Subject: [PATCH v2 5/5] Add option to specify ramp period by amount of IO
+Date: Fri, 19 Dec 2025 14:42:39 +0100
+Message-ID: <20251219134247.14195-5-jack@suse.cz>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20251219133853.8548-1-jack@suse.cz>
 References: <20251219133853.8548-1-jack@suse.cz>
@@ -94,241 +95,307 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
+X-Spamd-Result: default: False [-3.01 / 50.00];
 	BAYES_HAM(-3.00)[100.00%];
 	MID_CONTAINS_FROM(1.00)[];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.995];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
 	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RCVD_COUNT_THREE(0.00)[3];
+	FREEMAIL_TO(0.00)[gmail.com];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
 	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com];
 	ARC_NA(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
 	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_THREE(0.00)[3];
 	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCPT_COUNT_FIVE(0.00)[5];
 	FROM_EQ_ENVFROM(0.00)[];
 	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_FIVE(0.00)[5];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,suse.cz:mid,imap1.dmz-prg2.suse.org:helo];
 	RCVD_TLS_LAST(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:email,suse.cz:dkim,suse.cz:mid];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DWL_DNSWL_BLOCKED(0.00)[suse.cz:dkim];
+	DKIM_TRACE(0.00)[suse.cz:+];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Level: 
+X-Rspamd-Queue-Id: 7E4D333789
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
 
-Rename in_ramp_time() and ramp_time_over() to in_ramp_period() and
-ramp_period_over() respectively. We will be adding other not time-based
-methods for determining whether the load is ramping up so the old names
-would be confusing.
+In some cases the ramp up period is not easy to define by amount of
+time. This is for example a case of buffered writes measurement where we
+want to start measuring only once dirty throttling kicks in. The time
+until dirty throttling kicks in depends on dirty limit (easy to figure
+out) and speed of writes to the page cache (difficult to know in
+advance). Add option ramp_size which determines the ramp up period by
+the amount of IO written (either by each job or by each group when group
+reporting is enabled).
 
 Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
 Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- backend.c  | 12 ++++++------
- eta.c      |  6 +++---
- fio.h      |  2 +-
- fio_time.h |  4 ++--
- io_u.c     |  4 ++--
- stat.c     |  2 +-
- time.c     | 14 +++++++-------
- 7 files changed, 22 insertions(+), 22 deletions(-)
+ HOWTO.rst        | 10 ++++++++
+ cconv.c          |  2 ++
+ fio.1            |  9 +++++++
+ fio_time.h       |  2 +-
+ init.c           |  5 ++--
+ options.c        | 10 ++++++++
+ server.h         |  2 +-
+ thread_options.h |  2 ++
+ time.c           | 65 +++++++++++++++++++++++++++++++++++++++++++++---
+ 9 files changed, 100 insertions(+), 7 deletions(-)
 
-diff --git a/backend.c b/backend.c
-index 13c77552a1ed..1e4c4a38369c 100644
---- a/backend.c
-+++ b/backend.c
-@@ -298,7 +298,7 @@ static inline void update_ts_cache(struct thread_data *td)
+diff --git a/HOWTO.rst b/HOWTO.rst
+index 9f55a73bde05..af01f8f626f3 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -715,6 +715,16 @@ Time related parameters
+ 	:option:`runtime` is specified.  When the unit is omitted, the value is
+ 	given in seconds.
  
- static inline bool runtime_exceeded(struct thread_data *td, struct timespec *t)
- {
--	if (in_ramp_time(td))
-+	if (in_ramp_period(td))
- 		return false;
- 	if (!td->o.timeout)
- 		return false;
-@@ -1031,7 +1031,7 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
- 	for (i = 0; i < DDIR_RWDIR_CNT; i++)
- 		bytes_done[i] = td->bytes_done[i];
++.. option:: ramp_size=size
++
++	If set, fio will wait until the job does given amount of IO before
++	logging any performance numbers. When ``group_reporting`` is enabled,
++	the logging starts when all jobs in the group together perform given
++	amount of IO. Similarly to ``ramp_time`` this is useful for letting
++	performance to settle before logging results and will increase the total
++	runtime if a special timeout or :option:`runtime` is specified. When
++	the unit is omitted, the value is given in bytes.
++
+ .. option:: clocksource=str
  
--	if (in_ramp_time(td))
-+	if (in_ramp_period(td))
- 		td_set_runstate(td, TD_RAMP);
- 	else
- 		td_set_runstate(td, TD_RUNNING);
-@@ -1162,7 +1162,7 @@ static void do_io(struct thread_data *td, uint64_t *bytes_done)
- 			else
- 				io_u->end_io = verify_io_u;
- 			td_set_runstate(td, TD_VERIFYING);
--		} else if (in_ramp_time(td))
-+		} else if (in_ramp_period(td))
- 			td_set_runstate(td, TD_RAMP);
- 		else
- 			td_set_runstate(td, TD_RUNNING);
-@@ -1232,7 +1232,7 @@ reap:
- 		    !td_ioengine_flagged(td, FIO_NOIO))
- 			continue;
- 
--		if (!in_ramp_time(td) && should_check_rate(td)) {
-+		if (!in_ramp_period(td) && should_check_rate(td)) {
- 			if (check_min_rate(td, &comp_time)) {
- 				if (exitall_on_terminate || td->o.exitall_error)
- 					fio_terminate_threads(td->groupid, td->o.exit_what);
-@@ -1240,7 +1240,7 @@ reap:
- 				break;
- 			}
- 		}
--		if (!in_ramp_time(td) && td->o.latency_target)
-+		if (!in_ramp_period(td) && td->o.latency_target)
- 			lat_target_check(td);
- 	}
- 
-@@ -2673,7 +2673,7 @@ reap:
- 			if (td->runstate != TD_INITIALIZED)
- 				continue;
- 
--			if (in_ramp_time(td))
-+			if (in_ramp_period(td))
- 				td_set_runstate(td, TD_RAMP);
- 			else
- 				td_set_runstate(td, TD_RUNNING);
-diff --git a/eta.c b/eta.c
-index 16109510067b..947752b9dc17 100644
---- a/eta.c
-+++ b/eta.c
-@@ -274,12 +274,12 @@ static unsigned long thread_eta(struct thread_data *td)
- 			uint64_t ramp_time = td->o.ramp_time;
- 
- 			t_eta = __timeout + start_delay;
--			if (!td->ramp_time_over) {
-+			if (!td->ramp_period_over) {
- 				t_eta += ramp_time;
- 			}
- 			t_eta /= 1000000ULL;
- 
--			if ((td->runstate == TD_RAMP) && in_ramp_time(td)) {
-+			if ((td->runstate == TD_RAMP) && in_ramp_period(td)) {
- 				unsigned long ramp_left;
- 
- 				ramp_left = mtime_since_now(&td->epoch);
-@@ -522,7 +522,7 @@ static bool calc_thread_status(struct jobs_eta *je, int force)
- 
- 	any_td_in_ramp = false;
- 	for_each_td(td) {
--		any_td_in_ramp |= in_ramp_time(td);
-+		any_td_in_ramp |= in_ramp_period(td);
- 	} end_for_each();
- 	if (write_bw_log && rate_time > bw_avg_time && !any_td_in_ramp) {
- 		calc_rate(unified_rw_rep, rate_time, io_bytes, rate_io_bytes,
-diff --git a/fio.h b/fio.h
-index 037678d182b8..87c20803a929 100644
---- a/fio.h
-+++ b/fio.h
-@@ -417,7 +417,7 @@ struct thread_data {
- 	struct timespec terminate_time;
- 	unsigned int ts_cache_nr;
- 	unsigned int ts_cache_mask;
--	bool ramp_time_over;
-+	bool ramp_period_over;
- 
- 	/*
- 	 * Time since last latency_window was started
+ 	Use the given clocksource as the base of timing. The supported options are:
+diff --git a/cconv.c b/cconv.c
+index e7bbfc53bc64..0c4a3f2d21e6 100644
+--- a/cconv.c
++++ b/cconv.c
+@@ -258,6 +258,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
+ 	o->start_delay_high = le64_to_cpu(top->start_delay_high);
+ 	o->timeout = le64_to_cpu(top->timeout);
+ 	o->ramp_time = le64_to_cpu(top->ramp_time);
++	o->ramp_size = le64_to_cpu(top->ramp_size);
+ 	o->ss_dur = le64_to_cpu(top->ss_dur);
+ 	o->ss_ramp_time = le64_to_cpu(top->ss_ramp_time);
+ 	o->ss_state = le32_to_cpu(top->ss_state);
+@@ -636,6 +637,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
+ 	top->start_delay_high = __cpu_to_le64(o->start_delay_high);
+ 	top->timeout = __cpu_to_le64(o->timeout);
+ 	top->ramp_time = __cpu_to_le64(o->ramp_time);
++	top->ramp_size = __cpu_to_le64(o->ramp_size);
+ 	top->ss_dur = __cpu_to_le64(top->ss_dur);
+ 	top->ss_ramp_time = __cpu_to_le64(top->ss_ramp_time);
+ 	top->ss_state = cpu_to_le32(top->ss_state);
+diff --git a/fio.1 b/fio.1
+index 9c4ff08c86ad..3ee154ed98f1 100644
+--- a/fio.1
++++ b/fio.1
+@@ -497,6 +497,15 @@ thus it will increase the total runtime if a special timeout or
+ \fBruntime\fR is specified. When the unit is omitted, the value is
+ given in seconds.
+ .TP
++.BI ramp_size \fR=\fPsize
++If set, fio will wait until the job does given amount of IO before
++logging any performance numbers. When \fBgroup_reporting\fR is enabled,
++the logging starts when all jobs in the group together perform given
++amount of IO. Similarly to \fBramp_time\fR this is useful for letting
++performance to settle before logging results and will increase the total
++runtime if a special timeout or \fBruntime\fR is specified. When
++the unit is omitted, the value is given in bytes.
++.TP
+ .BI clocksource \fR=\fPstr
+ Use the given clocksource as the base of timing. The supported options are:
+ .RS
 diff --git a/fio_time.h b/fio_time.h
-index 969ad68d5b9c..30de7aca4fb1 100644
+index 54dad8c7812e..ef107c50dc50 100644
 --- a/fio_time.h
 +++ b/fio_time.h
-@@ -27,8 +27,8 @@ extern uint64_t usec_spin(unsigned int);
- extern uint64_t usec_sleep(struct thread_data *, unsigned long);
- extern void fill_start_time(struct timespec *);
- extern void set_genesis_time(void);
--extern bool ramp_time_over(struct thread_data *);
--extern bool in_ramp_time(struct thread_data *);
-+extern bool ramp_period_over(struct thread_data *);
-+extern bool in_ramp_period(struct thread_data *);
+@@ -34,7 +34,7 @@ extern void set_genesis_time(void);
+ extern int ramp_period_check(void);
+ extern bool ramp_period_over(struct thread_data *);
+ extern bool in_ramp_period(struct thread_data *);
+-extern void td_ramp_period_init(struct thread_data *);
++extern int td_ramp_period_init(struct thread_data *);
  extern void fio_time_init(void);
  extern void timespec_add_msec(struct timespec *, unsigned int);
  extern void set_epoch_time(struct thread_data *, clockid_t, clockid_t);
-diff --git a/io_u.c b/io_u.c
-index ec3f668cae49..be0a0555098f 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2106,7 +2106,7 @@ static void file_log_write_comp(const struct thread_data *td, struct fio_file *f
+diff --git a/init.c b/init.c
+index 8b7728907c7f..7c5124fc9a6c 100644
+--- a/init.c
++++ b/init.c
+@@ -1676,8 +1676,6 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
  
- static bool should_account(struct thread_data *td)
- {
--	return ramp_time_over(td) && (td->runstate == TD_RUNNING ||
-+	return ramp_period_over(td) && (td->runstate == TD_RUNNING ||
- 					   td->runstate == TD_VERIFYING);
- }
+ 	init_thread_stat_min_vals(&td->ts);
  
-@@ -2333,7 +2333,7 @@ int io_u_queued_complete(struct thread_data *td, int min_evts)
-  */
- void io_u_queued(struct thread_data *td, struct io_u *io_u)
- {
--	if (!td->o.disable_slat && ramp_time_over(td) && td->o.stats) {
-+	if (!td->o.disable_slat && ramp_period_over(td) && td->o.stats) {
- 		if (td->parent)
- 			td = td->parent;
- 		add_slat_sample(td, io_u);
-diff --git a/stat.c b/stat.c
-index a67d35514d1a..c7c0f2f4a3ef 100644
---- a/stat.c
-+++ b/stat.c
-@@ -3626,7 +3626,7 @@ static int add_iops_samples(struct thread_data *td, struct timespec *t)
+-	td_ramp_period_init(td);
+-
+ 	/*
+ 	 * td->>ddir_seq_nr needs to be initialized to 1, NOT o->ddir_seq_nr,
+ 	 * so that get_next_offset gets a new random offset the first time it
+@@ -1705,6 +1703,9 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 	if (setup_rate(td))
+ 		goto err;
  
- static bool td_in_logging_state(struct thread_data *td)
- {
--	if (in_ramp_time(td))
-+	if (in_ramp_period(td))
- 		return false;
++	if (td_ramp_period_init(td))
++		goto err;
++
+ 	if (o->write_lat_log) {
+ 		struct log_params p = {
+ 			.td = td,
+diff --git a/options.c b/options.c
+index 8e3de528bbbb..62beb69266f0 100644
+--- a/options.c
++++ b/options.c
+@@ -3093,6 +3093,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 		.category = FIO_OPT_C_GENERAL,
+ 		.group	= FIO_OPT_G_RUNTIME,
+ 	},
++	{
++		.name	= "ramp_size",
++		.lname	= "Ramp size",
++		.type	= FIO_OPT_STR_VAL,
++		.off1	= offsetof(struct thread_options, ramp_size),
++		.minval = 1,
++		.help	= "Amount of data transferred before measuring performance",
++		.category = FIO_OPT_C_GENERAL,
++		.group	= FIO_OPT_G_RUNTIME,
++	},
+ 	{
+ 		.name	= "clocksource",
+ 		.lname	= "Clock source",
+diff --git a/server.h b/server.h
+index 139f84b1c319..09e6663e4dde 100644
+--- a/server.h
++++ b/server.h
+@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
+ };
  
- 	switch(td->runstate) {
+ enum {
+-	FIO_SERVER_VER			= 114,
++	FIO_SERVER_VER			= 116,
+ 
+ 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
+ 	FIO_SERVER_MAX_CMD_MB		= 2048,
+diff --git a/thread_options.h b/thread_options.h
+index 3abce7318ce2..b4dd8d7acd49 100644
+--- a/thread_options.h
++++ b/thread_options.h
+@@ -212,6 +212,7 @@ struct thread_options {
+ 	unsigned long long start_delay_high;
+ 	unsigned long long timeout;
+ 	unsigned long long ramp_time;
++	unsigned long long ramp_size;
+ 	unsigned int ss_state;
+ 	fio_fp64_t ss_limit;
+ 	unsigned long long ss_dur;
+@@ -546,6 +547,7 @@ struct thread_options_pack {
+ 	uint64_t start_delay_high;
+ 	uint64_t timeout;
+ 	uint64_t ramp_time;
++	uint64_t ramp_size;
+ 	uint64_t ss_dur;
+ 	uint64_t ss_ramp_time;
+ 	uint32_t ss_state;
 diff --git a/time.c b/time.c
-index 7f85c8de3bcb..9625e8cd92af 100644
+index 2709d5b9784a..386c76fc31d0 100644
 --- a/time.c
 +++ b/time.c
-@@ -110,31 +110,31 @@ uint64_t utime_since_genesis(void)
- 	return utime_since_now(&genesis);
- }
+@@ -125,11 +125,57 @@ bool ramp_period_enabled = false;
  
--bool in_ramp_time(struct thread_data *td)
-+bool in_ramp_period(struct thread_data *td)
+ int ramp_period_check(void)
  {
--	return td->o.ramp_time && !td->ramp_time_over;
-+	return td->o.ramp_time && !td->ramp_period_over;
- }
++	uint64_t group_bytes = 0;
++	int prev_groupid = -1;
++	bool group_ramp_period_over = false;
++
+ 	for_each_td(td) {
+ 		if (td->ramp_period_state != RAMP_RUNNING)
+ 			continue;
+-		if (utime_since_now(&td->epoch) >= td->o.ramp_time)
++
++		if (td->o.ramp_time &&
++		    utime_since_now(&td->epoch) >= td->o.ramp_time) {
+ 			td->ramp_period_state = RAMP_FINISHING;
++			continue;
++		}
++
++		if (td->o.ramp_size) {
++			int ddir;
++			const bool needs_lock = td_async_processing(td);
++
++			if (!td->o.group_reporting ||
++			    (td->o.group_reporting &&
++			     td->groupid != prev_groupid)) {
++				group_bytes = 0;
++				prev_groupid = td->groupid;
++				group_ramp_period_over = false;
++			}
++
++			if (needs_lock)
++				__td_io_u_lock(td);
++
++			for (ddir = 0; ddir < DDIR_RWDIR_CNT; ddir++)
++				group_bytes += td->io_bytes[ddir];
++
++			if (needs_lock)
++				__td_io_u_unlock(td);
++
++			if (group_bytes >= td->o.ramp_size) {
++				td->ramp_period_state = RAMP_FINISHING;
++				/*
++				 * Mark ramp up for all threads in the group as
++				 * done.
++				 */
++				if (td->o.group_reporting &&
++				    !group_ramp_period_over) {
++					group_ramp_period_over = true;
++					for_each_td(td2) {
++						if (td2->groupid == td->groupid)
++							 td2->ramp_period_state = RAMP_FINISHING;
++					} end_for_each();
++				}
++			}
++		}
+ 	} end_for_each();
  
- static bool parent_update_ramp(struct thread_data *td)
- {
- 	struct thread_data *parent = td->parent;
- 
--	if (!parent || parent->ramp_time_over)
-+	if (!parent || parent->ramp_period_over)
- 		return false;
- 
- 	reset_all_stats(parent);
--	parent->ramp_time_over = true;
-+	parent->ramp_period_over = true;
- 	td_set_runstate(parent, TD_RAMP);
+ 	return 0;
+@@ -173,14 +219,27 @@ bool ramp_period_over(struct thread_data *td)
  	return true;
  }
  
--bool ramp_time_over(struct thread_data *td)
-+bool ramp_period_over(struct thread_data *td)
+-void td_ramp_period_init(struct thread_data *td)
++int td_ramp_period_init(struct thread_data *td)
  {
--	if (!td->o.ramp_time || td->ramp_time_over)
-+	if (!td->o.ramp_time || td->ramp_period_over)
- 		return true;
+-	if (td->o.ramp_time) {
++	if (td->o.ramp_time || td->o.ramp_size) {
++		if (td->o.ramp_time && td->o.ramp_size) {
++			td_verror(td, EINVAL, "job rejected: cannot specify both ramp_time and ramp_size");
++			return 1;
++		}
++		/* Make sure options are consistent within reporting group */
++		for_each_td(td2) {
++			if (td->groupid == td2->groupid &&
++			    td->o.ramp_size != td2->o.ramp_size) {
++				td_verror(td, EINVAL, "job rejected: inconsistent ramp_size within reporting group");
++				return 1;
++			}
++		} end_for_each();
+ 		td->ramp_period_state = RAMP_RUNNING;
+ 		ramp_period_enabled = true;
+ 	} else {
+ 		td->ramp_period_state = RAMP_DONE;
+ 	}
++	return 0;
+ }
  
- 	if (utime_since_now(&td->epoch) >= td->o.ramp_time) {
--		td->ramp_time_over = true;
-+		td->ramp_period_over = true;
- 		reset_all_stats(td);
- 		reset_io_stats(td);
- 		td_set_runstate(td, TD_RAMP);
+ void fio_time_init(void)
 -- 
 2.51.0
 
