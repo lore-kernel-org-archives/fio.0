@@ -1,109 +1,87 @@
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91CCD3176E4
-	for <fio@vger.kernel.org>; Fri,  9 Jan 2026 02:37:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99ADE246766
+	for <fio@vger.kernel.org>; Fri,  9 Jan 2026 09:19:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767926240; cv=none; b=gsAbxInJgtMpsyJWpppeSBeUZRn4QFGyS6LKBiRdfyx3Ge2A1k9BEwKbucvnyuaTnthOIo3nGRrOfZsLDQUWehEU+Frk5stYKwEypiM2HjMTAZEhntm0me9jDomEpHCNL3fPV5XwlndW6Sy3ZT1bSC/ACXCWVBEEyWqtSRwMfsY=
+	t=1767950352; cv=none; b=J0LHl3fXJQXIzMk/QShQVoaGEcXZFRNPY5/MGvFBn8GtTuUQ+xuDJueE5ZXMmLNF7ICtGoZHESU0l2eQkgOfKBfeAQH7bAaIcnNF2qyEZzQh6cxHS9EEo3L3ay6gAH3i7bIYKEpcsORIAzMh1+0CjbTgW+SXrQ4Z/jHuj3icaFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767926240; c=relaxed/simple;
-	bh=Qet0c2eyxEmt/GtqmovHBCa8RqVVq1jx9LLQCf4PlLs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=c2j799q2K/eLCnakVfDr1tIZ5P4W7fM0heeFGSA4psF9NSvl4R2TsWpMGOpsTzu2JsNmzC0sFGLcCl05n+uRDPrq/Rqi6Wo2O2Fz/yaVoKE8L3L177nBHvdL4J62zp6qcPPTj7c9l2YKJoOYNFoaubhzMqMHPh19JQlwl4C0JM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=dA8vd8oc; arc=none smtp.client-ip=216.71.154.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1767950352; c=relaxed/simple;
+	bh=wdNJ1Xu1BPi3vJMWop1yr8vVzxBhqol2M4KPuqIQO+A=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=dRyLgUoad5n2QKoyLRyDbRANIoGN8xdYyQbdB18XyHAVqhKR02FEjGqnr7bh5W/bxcrGyfhAfuDC6PVJwIIk13SNn07+fj2PuOiujopY+m69wLKkNfQ75B7kFSSO7vTLghGB8kjELGzV0I+aYX/AzK5qX4jZ4neNK3BydLcNzJA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EzWs4i68; arc=none smtp.client-ip=74.125.82.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="dA8vd8oc"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1767926236; x=1799462236;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Qet0c2eyxEmt/GtqmovHBCa8RqVVq1jx9LLQCf4PlLs=;
-  b=dA8vd8ocUH3gc0rqKtwadyer0mpkVn9L7v3JYd1qkVgv9ApO9VaN3u0z
-   Cov1VLZve1QJpv9txB2ExtsqrddWTTGJY+P6uJwB7q8e8ha2iNGquydsL
-   YhHhKMR5dGi+rRiZvVpfmpQ26wmGILg4Fvjdx1EeAZzO/bd2qhBiCQ5M1
-   TISZNLO7hSbNjMDKdPFgz9WqSgvKYh8V3FnZa8TPETO5QCfUWlE2y5i/Y
-   UnZrcgDxIsuMrbFCyI1gqjajwJJW4s58vEsRWk1vBhsxmYbs2FYCgFsG1
-   /EqBiypZLUgmvdNIUd7yLCcl+39/Ly75aDRu1IyMNn5prd/ytElTWZ6pe
-   A==;
-X-CSE-ConnectionGUID: FtPcH38bSGKR+XrJXbaVTw==
-X-CSE-MsgGUID: vNea9rHtTzy+kvuShGpNIw==
-X-IronPort-AV: E=Sophos;i="6.21,211,1763395200"; 
-   d="scan'208";a="137774576"
-Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 09 Jan 2026 10:36:08 +0800
-IronPort-SDR: 69606999_c83ZID6lVIPsJzXaYuvhpteP115k8vSaGc0POqfhVydbkjQ
- E1Cbz71d5HoMko8r4vlXvXOVZDE13qykDPkmt5w==
-Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Jan 2026 18:36:10 -0800
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 08 Jan 2026 18:36:09 -0800
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 04/12] zbd: fix write zone accounting
-Date: Fri,  9 Jan 2026 11:35:55 +0900
-Message-ID: <20260109023603.2848421-5-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
-References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EzWs4i68"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-11df4458a85so1804089c88.1
+        for <fio@vger.kernel.org>; Fri, 09 Jan 2026 01:19:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1767950350; x=1768555150; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=wdNJ1Xu1BPi3vJMWop1yr8vVzxBhqol2M4KPuqIQO+A=;
+        b=EzWs4i68E3kEayjWFSsXgrbnhmXK/DALYwGOsUv7vgphCKyuk8Ej1q5QB90R44n6e1
+         HNEh2S7hcI2Zd/whrAZSuUHkaUQhrYiMF4jRIS0zU8Sa0wY/V1S7yRWyaj7HC1e9PMsi
+         Vpw8MHtp+QAO4M6en8xINS0aASi3bXlDnvGlFT/uRhG90Wkvm+YJrXl5K8hAFjQe6OyD
+         qHVn7GmqjOl7+8KrP14nW8FjRmvaGgSKCTHvyBicwaKWZVpDtxQl+Lcgzpfp/9YON++J
+         IWQuFVCSIEi5tINEbKhl/AVZCkTyj+La4voFO9DZb3Wo5jD9GF76z8aaiNTcmIxx++9a
+         M7JQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1767950350; x=1768555150;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wdNJ1Xu1BPi3vJMWop1yr8vVzxBhqol2M4KPuqIQO+A=;
+        b=UvzUZZlqdvOtMyppkeph6GlRRb7eUXQjo48IDNWQBm29qxWu/ttIs2fBuQ/z2Esdgd
+         6a2kxSLAFtlhWYwZqotSORTCVlKjVCEoq4HIZ+aP15VCtZnMrhc4QomBSyaET26CpRFg
+         DDdUmcAgTogS34Xu/UeYRUlXJ/QMLaofFbjAwx6hqe9e8+FlCMj4CglJESVTISlpw2Rc
+         CfmCLlNxpHVjo0GVa4G8kenmeDvMIIUb/AMWQu+mkkVsRKWrQGhn+0yZ2HAbvz+vSQcn
+         AeIUwnir9z6Ya15krUzdwkRgEIMupQsb1O6r/QAwitWOnJFUAubRhfZCqu2Bo0PtMumi
+         GP+g==
+X-Gm-Message-State: AOJu0Yw9GhFZSO+BcqnRIO2lofPRSI3c39/d7QD8/fqA2d95qPh+5wHY
+	WU0PyVSTK6OFujfvuGtE3BV7BhLBu5JEEOESvvZZbXE1chg6aMf8BDkcYullv1I=
+X-Gm-Gg: AY/fxX56aQEJUcANMN3+0/HOHLN3FeIXh9FIOhBAj7/NZQ+gGGfZSJ0zNqP2aX60d/5
+	REu2TlzB7QYUEM0sRs+zgOAX4ccdr46bYXhYHhARd8hCaipmhRRV4vn33jpNF98ZROHYdfmwYWt
+	2miA95x/+HJZhnqn4sBzLyGWqsml3sdFAaP79vyt6Zgf5x0rSLHNSXLmeQjYfytEOQbR3RSzx3o
+	u4qwcMAmuSPgjgP4SDwVYiKiwUfCOwK4MPd7kstYshoguI7PtTxIixAP3kJXE4kNchHh+rQR3RS
+	OX9Zowz3lhEtIFlQWOrXUuGDtAfUESQdpNyqHi8K62Qd65zBUZmlPGaMCyTinD0SYX+VxOAKpLi
+	hGnW4Do3VvfYd7CUXOFPF75Kl/Z4aCADX7khoRgFUJdpA12yiCqLfjMqTaXY6Z4p9eBtglftkK7
+	oBipjpUFGoQ1LVpdvuLdoZVpb9nHqSYpoWZ/MQDAcw9H3oq3AZneIyzavhKgbicUgboxM8kX1Lg
+	L26xfHmex8oAx3nvuE=
+X-Google-Smtp-Source: AGHT+IGh6qV25GraVxz5uIhGPi7N8TpESzf/GJXiMXEEJDVRjKyNGVACayDo6+okQ4uR1ih3sv6GGA==
+X-Received: by 2002:a05:7022:e08:b0:11b:4351:2687 with SMTP id a92af1059eb24-121f8ad0889mr8476613c88.17.1767950350441;
+        Fri, 09 Jan 2026 01:19:10 -0800 (PST)
+Received: from runnervmi13qx.slnpmp3h1bderar5ewl3lqggrf.yx.internal.cloudapp.net ([52.161.59.145])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-121f243f384sm16240268c88.6.2026.01.09.01.19.09
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 09 Jan 2026 01:19:10 -0800 (PST)
+Date: Fri, 09 Jan 2026 01:19:10 -0800 (PST)
+Content-Type: multipart/mixed; boundary="===============6553157021421965971=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_00/12=5D_zbd=3A_fix_problems_of_random_write_with_unaligned_block_size?=
+In-Reply-To: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
+References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
+Message-ID: <176795034928.2774.11757970908180874735@runnervmi13qx.slnpmp3h1bderar5ewl3lqggrf.yx.internal.cloudapp.net>
 
-Currently, zbd_convert_to_write_zones() calls io_u_quiesce() when the
-number of write target zones hits one of the limits of write zones. This
-wait by io_u_quiesce() significantly degrade the performance. However,
-when the io_u_quiesce() is removed, the test case 58 of
-t/zbd/test-zbd-support fails with null_blk devices that have a
-max_active_zones limit set.
+--===============6553157021421965971==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-The failure cause is an incorrect write target zone accounting in
-zbd_convert_to_write_zones(). This function checks the current write
-target zones, and selects one of them as the next write target zone.
-After the zone selection, it locks the zone. But when the zone is
-locked, another job might have removed the zone from the write target
-zones array. This caused an incorrect zone accounting and the test case
-failure.
 
-To avoid the incorrect zone accounting, call zbd_write_zone_get() after
-the selected zone gets locked. If the zone is removed from the write
-target zones array, the function adds the zone back to the array.
+The result of fio's continuous integration tests was: cancelled
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- zbd.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+For more details see https://github.com/fiotestbot/fio/actions/runs/20839657240
 
-diff --git a/zbd.c b/zbd.c
-index 9d5a3bc3..e5f4c8f6 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1661,7 +1661,12 @@ retry:
- 		z = zbd_get_zone(f, zone_idx);
- 
- 		zone_lock(td, f, z);
--		if (zbd_zone_remainder(z) > 0)
-+		/*
-+		 * The zone might be already removed from zbdi->write_zones[] by
-+		 * other jobs at this moment. Even if the zone has remainder,
-+		 * call zbd_write_zone_get() to ensure that it is in the array.
-+		 */
-+		if (zbd_zone_remainder(z) > 0 && zbd_write_zone_get(td, f, z))
- 			goto out;
- 		pthread_mutex_lock(&zbdi->mutex);
- 	}
--- 
-2.49.0
-
+--===============6553157021421965971==--
