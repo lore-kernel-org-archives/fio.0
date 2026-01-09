@@ -1,56 +1,56 @@
 Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6DC93164A9
-	for <fio@vger.kernel.org>; Fri,  9 Jan 2026 02:37:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401E93164D9
+	for <fio@vger.kernel.org>; Fri,  9 Jan 2026 02:37:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767926237; cv=none; b=T/mqiIeRVoESvvmV/wXp+jBkPyK2P7pwbBKHfDv9MY/5Ya/G+iA45pdqvt3MT+VmXfIRhkk9hmAK4J1aIJCJTb3ZsftkoW0tTxpPflkznPNu/GH6gh1ePaci7hs6UhBe/0WVQggPjr9y+HdwVRDOuwqvKmo7WnuI2h4Gomqhg0w=
+	t=1767926237; cv=none; b=aj/6g+/yAOUVHpzH6lFA5HleX+UdJsaEkBj9keNgJdqQLKlcTH0ox2OteJaFnn3+W1b7PgrtptCSs5xgA+7S0TPDW6m+PqfI9efWKLE7Aehefw2I+InxLIF0ZBUVot1mKApxkGUGC7xigHVmN1ZoWQfKeFU5m2pmq0Qv37x75lk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1767926237; c=relaxed/simple;
-	bh=9WSLIr1ZGax1kudTBqi2s899tAbgWVuuuyaCesvMr7U=;
+	bh=LqgiKMvcMuf0sgeQLocPiKoRXbd1LatSXeKTPx9qCBI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sqBsyTbAgV+lFdWag6UiYFsln0ttAzyiB5jhtEhAqV6zdCNggfZulXW5DFIB2b/hkHIfZDO0K2Q9s+6IhBxXEqNN4j3jOL8GZl6KU8KhABZLn3n0J8O2vnU168XsnRU7I9mCWya1MQ0BLuoyL9ctjSy/qaVvjAKhrNLq0De09lw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=AicDBWG/; arc=none smtp.client-ip=216.71.154.45
+	 MIME-Version; b=IUe4UYZESVLronnv/NaGwMl+SKhb9XFCz+7/uli64UcSUkwQdKKQSHlcSV55ZXTgdLjmEh5n7/KfegvVaanKirIZH1irA/fX75HZwdY5PQaJMUjjxcsjxonJbo19t4BwlexAjo+dd41TMhXZIouOCegKXY9sw7Eb1JEeqruDnng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=XwUenauT; arc=none smtp.client-ip=216.71.154.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="AicDBWG/"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="XwUenauT"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1767926234; x=1799462234;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=9WSLIr1ZGax1kudTBqi2s899tAbgWVuuuyaCesvMr7U=;
-  b=AicDBWG/jBY88F3RCXQfydSYK4EGAgvtQcNRdCiKZkAVTJMqC+eQtVQZ
-   YoYT/uukrmg2ZxZO4t8MvYtbWUHlEMplSBu3S7O8o8ArbEzkml54r4H5Z
-   D6Z2or6YsdcvU3/Xmx2lCTYbB0++el+HLIe59AAcXC8v3BLkG/yiV9Zkw
-   g8luIeVIMzfh5y9iSz1K21r6zbVCTR0gaD8JvpG2M/5vh5TbKo9LPJNQ3
-   tuqVsD4DsEZ1srUbUHRUT5mz2zCda0Tkuw1eyQtUJqqHi0KLq9ci+SAZB
-   X1UqyVeMgoDPTkNiDbXtIBTu8AnEz201EqYMCmB0R5l5R0D1jPYOC03uP
+  bh=LqgiKMvcMuf0sgeQLocPiKoRXbd1LatSXeKTPx9qCBI=;
+  b=XwUenauTeyGS3jTHQGaUf/r8xk4gmv8Ogy751y8plB6jF6eYU2hOMivH
+   WEwJFz3R/S+yWTP23PdAFmA1oFLbDHxvYdRs7S3NnNtvtoEn6AY3V8jIT
+   Cr6TUB0iB9HbqJfbQvXXCmwO/Xb2TPT8WlRJZXD0ab3zvx0B4Nai02o/d
+   se6M327Wbhui5zscKQ2mo73IwwbidhAq7e1RADdq+uS+3PapqofgZe7wY
+   oVCeHjB7aSu+6kPYCeHpGhPnRzKpZ1PKqwx5do7EDHFHEYq3xQU4cGoRH
+   cp+UTzTdZW7ZIFhCInLvcqJqVUjj3ajFUlFlQVdH7MeNNqMMKkLmYg06m
    A==;
-X-CSE-ConnectionGUID: 31GeL5q3RMKW1Eh5W45rqA==
-X-CSE-MsgGUID: ZQCc3e28T5S4T/7ybWmHkg==
+X-CSE-ConnectionGUID: NwrbLrH1Sd67xzBHED9waA==
+X-CSE-MsgGUID: 6gZA2wu2Q0G0noznMtCpcQ==
 X-IronPort-AV: E=Sophos;i="6.21,211,1763395200"; 
-   d="scan'208";a="137774573"
+   d="scan'208";a="137774574"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 09 Jan 2026 10:36:04 +0800
-IronPort-SDR: 69606996_bT/Yh+49v9eKAFsT+2fkFmpTyuN3rd0Fq9/iSVPJwr1RU39
- fqeqUrg1sszvzvD1GyfMy7VZj4AfhpgyzmEVgvA==
+  by ob1.hgst.iphmx.com with ESMTP; 09 Jan 2026 10:36:05 +0800
+IronPort-SDR: 69606997_j4rac/RKFkV6DM29tGHfi/VQu2pOQFiZEQOcuzjNtut88zs
+ 6ZYz8jQlSKogvKUU+F81U+WpfKg+LjdPThHra5g==
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Jan 2026 18:36:06 -0800
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Jan 2026 18:36:08 -0800
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 08 Jan 2026 18:36:06 -0800
+  by uls-op-cesaip01.wdc.com with ESMTP; 08 Jan 2026 18:36:07 -0800
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 01/12] zbd: fix zone selection of random writes
-Date: Fri,  9 Jan 2026 11:35:52 +0900
-Message-ID: <20260109023603.2848421-2-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 02/12] zbd: set norandommap=1 when zonemode=zbd is specified
+Date: Fri,  9 Jan 2026 11:35:53 +0900
+Message-ID: <20260109023603.2848421-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
 References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
@@ -62,57 +62,49 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In zonemode=zbd, random write workloads targeting zoned block devices
-with max write zones limits such as max_open_zones can not do write
-operations to randomly chosen offset because of the zoned block device
-constraint of writing at write pointers. To adjust the offsets to valid
-positions, fio calls the function zbd_convert_to_write_zone(). This
-function checks the current write target zones as the next offset
-candidates but may fail depending on the conditions of those zones.
-In such cases, the function waits for zone condition changes before
-retrying.
+The random map functionality relies on the minimum block size to manage
+the map of written blocks, in order to ensure that all blocks are
+written with a random workload. This is normally fine, but in the case
+of a zoned block devices being written with a minimum block size that is
+not aligned with the zone size or the write pointer position at workload
+start, the last blocks of a zone can only be written using a write
+operation with a size smaller than the minimum block size. This
+conflicts with the random map operation.
 
-However, the retry logic begins with the zone where the previous attempt
-ended, and selects the zones that were previously write target.
-Consequently, the same zones are repeatedly chosen for writing,
-resulting in writes concentrating on certain zones despite the workload
-specifying random write.
-
-To ensure proper zone selection for random writes, modify
-zbd_convert_to_write_zone() to retry the zone selection based on the
-original offset provided to the function. The local variable 'zb' keeps
-the reference to the zone corresponding to the original offset. Use 'zb'
-at the retry attempt start.
+In preparation for supporting writing a zone remainder smaller than the
+minimum block size without using a zone finish operation, disable the
+random map feature by setting norandommap=1 when zonemode=zbd is
+specified.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- zbd.c | 13 +++++++++++++
+ init.c | 13 +++++++++++++
  1 file changed, 13 insertions(+)
 
-diff --git a/zbd.c b/zbd.c
-index 7a66b665..b71f842c 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -1643,6 +1643,19 @@ choose_other_zone:
+diff --git a/init.c b/init.c
+index 76e1a86d..9320bca8 100644
+--- a/init.c
++++ b/init.c
+@@ -665,6 +665,19 @@ static int fixup_options(struct thread_data *td)
+ 		ret |= 1;
  	}
  
- retry:
-+	/*
-+	 * For random writes, retry from the zone chosen at the beginning using
-+	 * the initial io_u random offset.
-+	 */
-+	if (td_random(td)) {
-+		zone_unlock(z);
-+		zone_lock(td, f, zb);
-+		if (zbd_write_zone_get(td, f, zb))
-+			return zb;
-+		z = zb;
-+		zone_idx = zbd_zone_idx(f, z);
++	if (o->zone_mode == ZONE_MODE_ZBD) {
++		if (fio_option_is_set(o, norandommap)) {
++			if (o->norandommap == 0) {
++				log_err("fio: zonemode=zbd requires norandommap=1\n");
++				ret |= 1;
++			}
++			/* if == 1, OK */
++		} else {
++			dprint(FD_ZBD, "fio: zonemode=zbd sets norandommap=1\n");
++			o->norandommap = 1;
++		}
 +	}
 +
- 	/* Zone 'z' is full, so try to choose a new zone. */
- 	for (i = f->io_size / zbdi->zone_size; i > 0; i--) {
- 		zone_idx++;
+ 	if (o->zone_mode == ZONE_MODE_STRIDED && !o->zone_size) {
+ 		log_err("fio: --zonesize must be specified when using --zonemode=strided.\n");
+ 		ret |= 1;
 -- 
 2.49.0
 
