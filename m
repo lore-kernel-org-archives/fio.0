@@ -1,56 +1,56 @@
 Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA983164C5
-	for <fio@vger.kernel.org>; Fri,  9 Jan 2026 02:36:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DECB73168E5
+	for <fio@vger.kernel.org>; Fri,  9 Jan 2026 02:36:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767926177; cv=none; b=lhcNYjBbWd7C2n79OHT1UoUgF+odvK8ZKI486wh/gDSqu9oCkBCAR/ytMr9z7FXBN5nhRt/5gZX2e0GsQELtTVn/3Zc1u+RB4YiXO+h1sB9tpi+bG3U6n4F6Q6feBTv7uFogS3aNL3f2I75rXA5niF4tQLez/vwKtqfWeJLwztk=
+	t=1767926178; cv=none; b=OP4sGfZVTfk+MTAnZ3KXtAHkat9uq2v/1Zhg+wnE9eqaEtJm+7bjg2hdIm9YqxTtjU0tNUKNsTeK2/xumc7sHBPfEd039hKFlKrnLuZ/VQvatGu2/rZFAGAf9SwrAK60UaET3Pb81lHzO07s/Jzp3bPsnUmkGJ9rVFi/DqwJZEo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767926177; c=relaxed/simple;
-	bh=RXb3AO7eJ7WHLo/8PnDXN8JPRS0VGm0w+J+utmZNNX0=;
+	s=arc-20240116; t=1767926178; c=relaxed/simple;
+	bh=YBOBb3YRBDCOGcV47kxXa6zqMvU26q8AeZZNF2+bP4o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=N8WIwJqQl9xmWYluZXj24dIpBmK2pca5ad+xQEIaS6cMDCeBLBs52jZP8jaH8NyvSdCWAteUttJlKq43DmJToZRJgxcKx0YQ435iiD/qNJxMgYIOZ3svrolGJQQ1hbW1CCex6I05XVGt4Xz2bMdTkNAKSOMR40DBAFaU4IkFSxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=eC9YXbSU; arc=none smtp.client-ip=216.71.154.45
+	 MIME-Version; b=TWS9KlmFHO0seb0jl2YrapgGJfpB3p1I7tVm4WuF2s6W8YjtL5fzqs1vdCNPsP1qnbbeJt+koxvyBKemGn+iscJrWsCOH+cl+yI39vJiBkxeOMjNFWQHbuDXb+HUt15JfBkvN5kxx6C/fuRgQkhw9ZFmi2A2i5JgGiK+10mztMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=AsSU2CcO; arc=none smtp.client-ip=216.71.154.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="eC9YXbSU"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="AsSU2CcO"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1767926174; x=1799462174;
+  t=1767926175; x=1799462175;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=RXb3AO7eJ7WHLo/8PnDXN8JPRS0VGm0w+J+utmZNNX0=;
-  b=eC9YXbSUbPKcBqYOxb10bFF5ztVESw9i5voBJCbS3GsOskvv+sq6jhz8
-   eEdhkTGq5HSpGkXjRnPGA0Hg2xLPbojQLKJ2de0v68Daxp3t6g70knLzo
-   NxXFp2wlp/9rlO+YJwsZiyLytVsqYUZ/Wi/nPAjf2Adjo8m7MUt3uqrNh
-   F5vSQnaB0/Yy9acS+u+NLkNgiDzEdj+Umb6tNKhhGU4N65DPbjd73k3+d
-   TcWOsbaYWtKe8zEZE5Gou6QVy5E88XEPeD7gsgci5Q/oCWV3fz+1J7lRo
-   IpFxMBF90/E9vfA9YTX1L0QzWLwiJaZIZEa0l8IxkkM022TsYAxpuW7jJ
-   w==;
-X-CSE-ConnectionGUID: KY42uN6NSDm4PWBgsgS9Ig==
-X-CSE-MsgGUID: GqPz2VpeSxK9WhCkZhz7LA==
+  bh=YBOBb3YRBDCOGcV47kxXa6zqMvU26q8AeZZNF2+bP4o=;
+  b=AsSU2CcOlEayorb+Wd6DUwj77FL7BskhW+Yd9Zr3Q5ex4kTMS+80K4gl
+   9hzqWKEo0iDTPpk1exEQ8bef6zBAKIpa5krJNC2oT1S2waDIVXRVmm2EX
+   wMUFT5iuhyyohVe6vdDmwxnaDIysk0o2ROrZH6Ru9aVfqaceq2jvQuiB9
+   etaZUOW5ub0cN62WKpDW9OH3FYjHpO/aKgTCSJccCYeSUKw3HvcfSUYnX
+   BovfiK4C1v3KjYliC96QIfzXqNHSXfxObBBvatUicC4HQ9XRhSGN4X7Oe
+   U2vabROg/qBwCy0VDuzpbDKGox/ZqwoELlxg/PnxPVPkJwSNDUoFOO8Dy
+   g==;
+X-CSE-ConnectionGUID: k/2+jvh+SoihFga6i+GfPQ==
+X-CSE-MsgGUID: BlquX2D7QpqMWmqCM9bNOg==
 X-IronPort-AV: E=Sophos;i="6.21,211,1763395200"; 
-   d="scan'208";a="137774586"
+   d="scan'208";a="137774587"
 Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
-  by ob1.hgst.iphmx.com with ESMTP; 09 Jan 2026 10:36:14 +0800
-IronPort-SDR: 6960699f_LxHew/E1qzJikSWWAST6Df3E94TdAXF3UIpK+11LpHAVRPD
- 0IJnjhbVczMAjc76et07q0VhLed+yOmwAWFrBbQ==
+  by ob1.hgst.iphmx.com with ESMTP; 09 Jan 2026 10:36:15 +0800
+IronPort-SDR: 696069a0_UMT6jlrLLyTW90RaZVT8fuSlf2BJxu9K8sGt7824XjyRBAu
+ cZNEXB2Hja23NXmZ3PB1Wb5TwkZ+112koSBEwNQ==
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Jan 2026 18:36:16 -0800
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 08 Jan 2026 18:36:17 -0800
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 08 Jan 2026 18:36:15 -0800
+  by uls-op-cesaip01.wdc.com with ESMTP; 08 Jan 2026 18:36:16 -0800
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 10/12] t/zbd: avoid test case 14 failure due to no randam map
-Date: Fri,  9 Jan 2026 11:36:01 +0900
-Message-ID: <20260109023603.2848421-11-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 11/12] t/zbd: avoid test case 33 failure due to zone end remainder
+Date: Fri,  9 Jan 2026 11:36:02 +0900
+Message-ID: <20260109023603.2848421-12-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
 References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
@@ -62,43 +62,29 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The recent change disabled the random map feature in zonemode=zbd. Then
-random writes for conventional zones may have overlap. This made the
-test case 14 fail. To avoid the failure, modify the test case to count
-the number of overlaps.
+The recent change introduced the writes to small remainder areas at zone
+ends. This changed the number of writes of the test case 33, and made
+the test case fail. To avoid the failure, modify the test condition of
+the test case.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- t/zbd/test-zbd-support | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ t/zbd/test-zbd-support | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 40f1de90..e7a711b9 100755
+index e7a711b9..c3ccb559 100755
 --- a/t/zbd/test-zbd-support
 +++ b/t/zbd/test-zbd-support
-@@ -637,7 +637,7 @@ test13() {
- 
- # Random write to conventional zones.
- test14() {
--    local off size
-+    local off size nr_overlaps
- 
-     if ! result=($(first_online_zone "$dev")); then
- 	echo "Failed to determine first online zone"
-@@ -650,10 +650,11 @@ test14() {
- 
-     run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
- 		    --zonemode=zbd --zonesize="${zone_size}" --do_verify=1 \
--		    --verify=md5 --offset=$off --size=$size\
-+		    --verify=md5 --offset=$off --size=$size --debug=io \
- 		    >>"${logfile}.${test_number}" 2>&1 || return $?
-+    nr_overlaps=$(grep "iolog: overlap" --count "${logfile}.${test_number}")
-     check_written $((size)) || return $?
--    check_read $((size)) || return $?
-+    check_read $((size - nr_overlaps * 16 * 1024)) || return $?
+@@ -977,7 +977,7 @@ test33() {
+     run_fio_on_seq "$(ioengine "psync")" --iodepth=1 --rw=write	\
+ 		   --size=$size --io_size=$io_size --bs=$bs	\
+ 		   >> "${logfile}.${test_number}" 2>&1 || return $?
+-    check_written $((io_size / bs * bs)) || return $?
++    check_written $((io_size)) || return $?
  }
  
- # Sequential read on a mix of empty and full zones.
+ # Test repeated async write job with verify using two unaligned block sizes.
 -- 
 2.49.0
 
