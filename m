@@ -1,276 +1,253 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from mx0b-001ed902.pphosted.com (mx0b-001ed902.pphosted.com [205.220.174.83])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A373311966
-	for <fio@vger.kernel.org>; Mon, 12 Jan 2026 13:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63A0A2B2D7
+	for <fio@vger.kernel.org>; Mon, 12 Jan 2026 20:23:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.174.83
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768222810; cv=none; b=UBr8gPDOoOyT1QUY4F6Ky/Vkt6NmaAUFY5CfEM/+R3pfVl/iAAjeZqoyCKgQbJXAHcpYl40cuW5TTELzD1BepuTW9OcoBW0I1VC7Zko9nyqN2+CjM49+X+Lny7Z7dF0CJ1xaAZAAWKOr0p9cSRUYoqbvEBt9QOp0zFIiqktqg9o=
+	t=1768249412; cv=none; b=n5fS87zaX9rq1ZD8nyj5WJO1sAFnqj+X9KvryODPVJOKTJeluiDwvTcdb+p0Yt5ZHDWJ4V2TvD1bbk/W3LC0NQ7dSzTzAk3LrlNlZhBhVuztx1LkyD+NgAEiQvThATk6rJRBUsAkM0ex8+slwnpdwZ4l3vpDBJfTD775IquxP9w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768222810; c=relaxed/simple;
-	bh=uJzpyrxORsJeJN+zeIVGoHh3PYoFkeEQh9B4a1RJYNM=;
-	h=Subject:From:To:Date:Message-Id; b=t1gKBTz2uF65ix0XDl5d856Y27jNrHbXXiPvXexGBNAcEOXn2wunH1pzbap6jRqfJ3/ut3s9SknP1WNGXrc62GEzEbeYC5OoLng7rhO2Q2vztAO1163EZmOm0mxzRvTr9/rqjWUYcQ8hBa+n2MR3BZum5VshZxWTYZpVoo5G8do=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=GFhl5VZy; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1768249412; c=relaxed/simple;
+	bh=nQeGxU2KPZb/CnqND+jh9Ja3d04ofBw7r6po2+mVQUc=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=C+AI7+Kg4lLCxyPox6C9Ckf4Rn5vXB+choUbhWvZgKiP4ZR4UPTdaBA9c3/PNbtVUkOmMYYWkPGPasO7YamTtq+X8qOpWadCMYx9ZiLAqWAi7AhjpGA04o1aamiMaGiEkQwLdyZEV+kttoYyrSdkJLB8ga9eGwYupO7Fn6a7UK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=dropbox.com; spf=pass smtp.mailfrom=dropbox.com; dkim=pass (1024-bit key) header.d=dropbox.com header.i=@dropbox.com header.b=PPSsTWeh; arc=none smtp.client-ip=205.220.174.83
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=dropbox.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dropbox.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GFhl5VZy"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=o46WJb83LAOMwspeO9A5gmPGJJYCfI6bwuMeA6TN7Wo=; b=GFhl5VZy1FIUdf+GbvzP8SEFLk
-	KhFu/OfPdn1PGS0bl9mw3Sb6EHHhFcl1wRuBSW1WCgwdXr79AeIywSVq3QAUEUAn8s15+U4EbN8Fz
-	kKlDkpl8CLWVSpqjGK/T6HhzzUeogtiGi7YoZvOBR+laurStGtVPD9sJYlA6f7pqo6/SCcrQzkMmD
-	sm0Cw4YSQwVm+WSlgs4gJlt6oXoIeqLkc7szUZqy/eeGJGm4dZMIS7tk/Zs0rvuFgN+vSPbOTrM5D
-	6wOxle8iJPags/7hEt5RS38FzIt+IfBxxvAkhxUu5fpjzw7kx7wgbVB8w+QSBi8lsbp5g4LVTOlKJ
-	vqeOvCMQ==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vfHWg-00000000jHZ-0vkC
-	for fio@vger.kernel.org;
-	Mon, 12 Jan 2026 13:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 820D61BC0145; Mon, 12 Jan 2026 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Mon, 12 Jan 2026 06:00:01 -0700
-Message-Id: <20260112130001.820D61BC0145@kernel.dk>
+	dkim=pass (1024-bit key) header.d=dropbox.com header.i=@dropbox.com header.b="PPSsTWeh"
+Received: from pps.filterd (m0324676.ppops.net [127.0.0.1])
+	by mx0b-001ed902.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60CKEZqu661633
+	for <fio@vger.kernel.org>; Mon, 12 Jan 2026 20:21:38 GMT
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com [209.85.210.71])
+	by mx0b-001ed902.pphosted.com (PPS) with ESMTPS id 4bm1jt9j7u-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=OK)
+	for <fio@vger.kernel.org>; Mon, 12 Jan 2026 20:21:37 +0000 (GMT)
+Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-7cdcd09efc6so21267941a34.0
+        for <fio@vger.kernel.org>; Mon, 12 Jan 2026 12:21:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=dropbox.com; s=corp; t=1768249297; x=1768854097; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=APqE0dg0n9p2yGm4NPXIGwsC8F4rFlrE7WKSrTceA2I=;
+        b=PPSsTWeh4GAXx/d9ueo8Dsbw/dQYqRO4s2CNE7aSr0IC87/Q7SCNNcGgpaT11Qxme5
+         B662er9mVCQHIUXblNuz24sQGDBx3grOHFZevWtvJbbREP+she/+S30uFCtuIfN7JZvH
+         cLDXVggZZAQv7P7bpJ4Mxxr9Ipjiejr81D2c4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768249297; x=1768854097;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=APqE0dg0n9p2yGm4NPXIGwsC8F4rFlrE7WKSrTceA2I=;
+        b=hZzwuSY+3xwdiUNvvMK7KQf54MPqjostuHVadmpsbJWvQAUNOePtpxFltKj0sMAm86
+         hECKb6WuUpsNz6sQjp6hFHLYuoMr814qsnrUkHpAlQ0X9Qp9iBwFWDdqlN2CXsTICkPb
+         GLYrBiYfhT+cZrf4vq+4FCcdsuA4RQmqo0U4v0jNkSEE3e9GumfJD0Gjglel6FanSsX2
+         ZX2i8U35lUxxZLAu18LnKYACS8/A0ldeMSa9goQKuHYhpQ4aABBChflfnqk7M6Mtz3T6
+         vw9zkEX4/c6fSiu/EVkxx54j86yTa3QqtbvNLkt1E0o3D3iWkBOGiNyelQef9Y0vl0O9
+         k5fw==
+X-Gm-Message-State: AOJu0Yzjwnp2ImLvElHXGLsKfIJEtJeswiUB26Q8S4fktAy8xlqnIs1O
+	d2vIclbt70/UFths/eriXDI3Zc0rCngVrTYiMkFs3MNmz+nEAUXkVwODK5DUpYyzS+M1pj1v57b
+	yWo44zLR7AcxePyNIbwdtqcwobVf41fUQ4H001xie0VVeI8kOFS4rItX40gHOfk2XfxPGk1IRMn
+	XW30u+rnnEPBcAlCRrr3Sz5oyoWbA0ItpxQDm3qg==
+X-Gm-Gg: AY/fxX4cWnQ3MbmBfTEx2YLDKGoNNLw0KALXQeT8/YjGWfJTo9SB+mjt9zSsokF0sss
+	fUKmOxDw1GTbn2bzefZPgvjUVOiNCVH4oeCrSJCkzECsOYTwPqyLApeVjy14cVFOksWQV+AhBqh
+	SINX/1XKjcrvBfLh8OtJApKvt9p6Xnq2sR8+luqMMxX+w2hY8Y4coY3Xx/0jphieRd4cA=
+X-Received: by 2002:a4a:e249:0:b0:65f:5bc0:7b2f with SMTP id 006d021491bc7-65f5bc07d10mr6141851eaf.46.1768249296871;
+        Mon, 12 Jan 2026 12:21:36 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHlhpZDReDcfHTxlcnKRtBv5gtmBx8v6o7Y17B0rvg2C87D2UOQwJAvuPWEnq/mk3MzpUksLfm2XFpWAecWYwc=
+X-Received: by 2002:a4a:e249:0:b0:65f:5bc0:7b2f with SMTP id
+ 006d021491bc7-65f5bc07d10mr6141842eaf.46.1768249296507; Mon, 12 Jan 2026
+ 12:21:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+From: Vishal Jose Mannanal <vishaljm@dropbox.com>
+Date: Mon, 12 Jan 2026 12:21:25 -0800
+X-Gm-Features: AZwV_QjFgjXRcfGHlPOMbJwnfDJlWD_4PkCv_VYXg59ved17rFX-XFjUDF6dino
+Message-ID: <CAOUciekiQpCBKAkAmnNF_3P_tJyL0uTGZdpq8eYY1V0Obrm8mA@mail.gmail.com>
+Subject: [PATCH] fio: Add ZBD support to io_uring engines
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk, Eric Shobe <shobe@dropbox.com>
+Content-Type: multipart/mixed; boundary="0000000000003199080648369f7d"
+X-Authority-Analysis: v=2.4 cv=Wu8m8Nfv c=1 sm=1 tr=0 ts=696557d1 cx=c_pps
+ a=OI0sxtj7PyCX9F1bxD/puw==:117 a=vUbySO9Y5rIA:10 a=kC_G02pF9r0A:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=-B9z25BF-Yht86Hq5W0A:9 a=QEXdDO2ut3YA:10
+ a=BL7qrvUWpmR5OOvcvWYA:9 a=lcECZwdxs1qYi60n:21 a=MyqjuCZlkaYFs_EvEhUA:9
+ a=B2y7HmGcmWMA:10 a=Z1Yy7GAxqfX1iEi80vsk:22
+X-Proofpoint-GUID: L_n6FE_xC2viII1NBK9opgmfjiusDzVX
+X-Proofpoint-ORIG-GUID: L_n6FE_xC2viII1NBK9opgmfjiusDzVX
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTEyMDE2OSBTYWx0ZWRfX2tzTz8siH1OS
+ KY8EL/Ym1ZI0S8ejRUMT5iTcgyfAm4oiOz6Bf9X5DjqW05E/3jUB9JuFBur0zX+FDOwSXvbBAZQ
+ WgbERLEB8h/BYmJkJGNRfzvt1Mk2XhIreR1YKy9k4yZ97C4IRWQ5ronRDYfMsmRlirW7DtD7ypX
+ +Tew4ptN+balg9g5eJZzfK1Q/fLW+HcAHKTmCz6o/5ilxPCeVFjilHZNDsBu6F84u/KbyqPtq+j
+ maXJvBbrutivgMrzCUB45u9JzErPcUS6iFqj/hSC+RPwICLcTwLf6DhpeCUlLeTVwykPIJ3JwVr
+ q+/AK+6HoUUgXuZwVZWfEPtoh9zZEnTwDH39KU2sSwouC3ODjgoo0m1fKK2navaQk6cOQyQhBpT
+ lPzqXDx/8YkfTQ2hlce/sxIox9zFUh2hTGRE/wbrRc7rMDIMGU5kbfE5JaTLNGE89jB3twsYd7Y
+ 1Qv0Ucb1kQqo/cwhMog==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
+ definitions=2026-01-12_06,2026-01-09_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 clxscore=1011 priorityscore=1501 lowpriorityscore=0
+ impostorscore=0 malwarescore=0 phishscore=0 suspectscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2512120000 definitions=main-2601120169
 
-The following changes since commit 6ff32768ff322a269f87cd515ecfb218400f22bf:
+--0000000000003199080648369f7d
+Content-Type: multipart/alternative; boundary="0000000000003199060648369f7b"
 
-  Add option to specify ramp period by amount of IO (2026-01-07 14:01:53 -0500)
+--0000000000003199060648369f7b
+Content-Type: text/plain; charset="UTF-8"
 
-are available in the Git repository at:
+Hi Jens and fio maintainers,
 
-  git://git.kernel.dk/fio.git master
+We've been working with zoned block devices (ZBD) and noticed that the
+io_uring engines don't support zonemode=zbd, which prevents leveraging
+io_uring's performance benefits for zone testing workloads in SMR (Shingled
+Magnetic Recording) drives. This finding came from our analysis, while
+testing the integration of io_uring into the Dropbox storage stack. An
+io_uring patch enabling ZBD support will follow shortly.
 
-for you to fetch changes up to adeceb86edb28070cbae79dd38b5ec7354271063:
+The attached patch adds ZBD hooks to both io_uring and io_uring_cmd
+engines. The implementation is straightforward, where it delegates to the
+existing blkzoned and nvme helper functions, maintaining consistency with
+other engines.
 
-  Merge branch 'sync-fileop' of https://github.com/struschev/fio (2026-01-11 13:05:54 -0700)
+What this enables:
 
-----------------------------------------------------------------
-Jens Axboe (3):
-      t/io_uring: enable setting an opcode and register opcode filter
-      Merge branch 'patch-1' of https://github.com/CookiePLMonster/fio
-      Merge branch 'sync-fileop' of https://github.com/struschev/fio
+   - Zone operations (report, reset, finish, max_open_zones tracking)
+   - Proper write pointer management
+   - Support for both traditional SMR/ZAC and NVMe ZNS devices
 
-Sergey Truschev (1):
-      fio: add sync capability for file operations
+I've tested this on SMR drives with the io_uring engine and it works well.
+The io_uring_cmd part should work for ZNS devices as it reuses the existing
+fio_nvme_* implementations.
 
-Silent (1):
-      windows: fix Y2038 bug caused by 32 bit truncation
+Sample fio job:
 
- engines/falloc.c         | 20 +++++++++++-------
- engines/fileoperations.c |  2 ++
- engines/ftruncate.c      | 11 +++++-----
- os/windows/posix.c       |  2 +-
- t/io_uring.c             | 54 ++++++++++++++++++++++++++++++++++++++++++++++--
- 5 files changed, 73 insertions(+), 16 deletions(-)
+> [zbd-test]
+> ioengine=io_uring
+> direct=1
+> bs=128k
+> zonemode=zbd
+> filename=/dev/sdg
 
----
 
-Diff of recent changes:
+Thanks,
+Vishal Jose Mannanal
+Dropbox Inc.
 
-diff --git a/engines/falloc.c b/engines/falloc.c
-index 290b980f..5bd5aa54 100644
---- a/engines/falloc.c
-+++ b/engines/falloc.c
-@@ -76,14 +76,18 @@ static enum fio_q_status fio_fallocate_queue(struct thread_data *td,
- 
- 	fio_ro_check(td, io_u);
- 
--	if (io_u->ddir == DDIR_READ)
--		flags = FALLOC_FL_KEEP_SIZE;
--	else if (io_u->ddir == DDIR_WRITE)
--		flags = 0;
--	else if (io_u->ddir == DDIR_TRIM)
--		flags = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
--
--	ret = fallocate(f->fd, flags, io_u->offset, io_u->xfer_buflen);
-+	if (io_u->ddir != DDIR_SYNC) {
-+		if (io_u->ddir == DDIR_READ)
-+			flags = FALLOC_FL_KEEP_SIZE;
-+		else if (io_u->ddir == DDIR_WRITE)
-+			flags = 0;
-+		else if (io_u->ddir == DDIR_TRIM)
-+			flags = FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE;
-+
-+		ret = fallocate(f->fd, flags, io_u->offset, io_u->xfer_buflen);
-+	} else {
-+		ret = do_io_u_sync(td, io_u);
-+	}
- 
- 	if (ret)
- 		io_u->error = errno;
-diff --git a/engines/fileoperations.c b/engines/fileoperations.c
-index e5303359..ce3e7c39 100644
---- a/engines/fileoperations.c
-+++ b/engines/fileoperations.c
-@@ -264,6 +264,8 @@ static int invalidate_do_nothing(struct thread_data *td, struct fio_file *f)
- 
- static enum fio_q_status queue_io(struct thread_data *td, struct io_u *io_u)
- {
-+	if (io_u->ddir == DDIR_SYNC && do_io_u_sync(td, io_u))
-+		io_u->error = errno;
- 	return FIO_Q_COMPLETED;
- }
- 
-diff --git a/engines/ftruncate.c b/engines/ftruncate.c
-index d1757b79..70211e07 100644
---- a/engines/ftruncate.c
-+++ b/engines/ftruncate.c
-@@ -15,16 +15,17 @@ static enum fio_q_status fio_ftruncate_queue(struct thread_data *td,
- 					     struct io_u *io_u)
- {
- 	struct fio_file *f = io_u->file;
--	int ret;
-+	int ret = 0;
- 
- 	fio_ro_check(td, io_u);
- 
--	if (io_u->ddir != DDIR_WRITE) {
-+	if (io_u->ddir == DDIR_WRITE)
-+		ret = ftruncate(f->fd, io_u->offset);
-+	else if (io_u->ddir == DDIR_SYNC)
-+		ret = do_io_u_sync(td, io_u);
-+	else
- 		io_u->error = EINVAL;
--		return FIO_Q_COMPLETED;
--	}
- 
--	ret = ftruncate(f->fd, io_u->offset);
- 	if (ret)
- 		io_u->error = errno;
- 
-diff --git a/os/windows/posix.c b/os/windows/posix.c
-index 4c692a1e..ca3ee389 100644
---- a/os/windows/posix.c
-+++ b/os/windows/posix.c
-@@ -297,7 +297,7 @@ void Time_tToSystemTime(time_t dosTime, SYSTEMTIME *systemTime)
- 	LONGLONG jan1970;
- 	SYSTEMTIME tempSystemTime;
- 
--	jan1970 = Int32x32To64(dosTime, 10000000) + 116444736000000000;
-+	jan1970 = (dosTime * 10000000LL) + 116444736000000000LL;
- 	utcFT.dwLowDateTime = (DWORD)jan1970;
- 	utcFT.dwHighDateTime = jan1970 >> 32;
- 
-diff --git a/t/io_uring.c b/t/io_uring.c
-index 9da5cc9e..0a04af4e 100644
---- a/t/io_uring.c
-+++ b/t/io_uring.c
-@@ -148,6 +148,7 @@ static int use_sync = 0;	/* use preadv2 */
- static int numa_placement = 0;	/* set to node of device */
- static int vectored = 0;	/* use vectored IO */
- static int pt = 0;		/* passthrough I/O or not */
-+static int restriction = 0;	/* for testing restriction filter */
- 
- static unsigned long tsc_rate;
- 
-@@ -883,6 +884,39 @@ static int setup_aio(struct submitter *s)
- #endif
- }
- 
-+static int io_uring_register_restrictions(struct submitter *s)
-+{
-+	struct io_uring_restriction res[8] = { };
-+	int ret;
-+
-+	res[0].opcode = IORING_RESTRICTION_SQE_OP;
-+	res[0].sqe_op = IORING_OP_NOP;
-+	res[1].opcode = IORING_RESTRICTION_SQE_OP;
-+	res[1].sqe_op = IORING_OP_READ;
-+	res[2].opcode = IORING_RESTRICTION_SQE_OP;
-+	res[2].sqe_op = IORING_OP_READV;
-+	res[3].opcode = IORING_RESTRICTION_SQE_OP;
-+	res[3].sqe_op = IORING_OP_READ_FIXED;
-+
-+	res[4].opcode = IORING_RESTRICTION_REGISTER_OP;
-+	res[4].sqe_op = IORING_REGISTER_BUFFERS;
-+	res[5].opcode = IORING_RESTRICTION_REGISTER_OP;
-+	res[5].sqe_op = IORING_REGISTER_ENABLE_RINGS;
-+	res[6].opcode = IORING_RESTRICTION_REGISTER_OP;
-+	res[6].sqe_op = IORING_REGISTER_RING_FDS;
-+	res[7].opcode = IORING_RESTRICTION_REGISTER_OP;
-+	res[7].sqe_op = IORING_REGISTER_FILES;
-+
-+	ret = syscall(__NR_io_uring_register, s->ring_fd,
-+			IORING_REGISTER_RESTRICTIONS, res, 8);
-+	if (ret) {
-+		fprintf(stderr, "IORING_REGISTER_RESTRICTIONS: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return syscall(__NR_io_uring_register, s->ring_fd, IORING_REGISTER_ENABLE_RINGS, NULL, 0);
-+}
-+
- static int setup_ring(struct submitter *s)
- {
- 	struct io_sq_ring *sring = &s->sq_ring;
-@@ -907,6 +941,8 @@ static int setup_ring(struct submitter *s)
- 		p.flags |= IORING_SETUP_SQE128;
- 		p.flags |= IORING_SETUP_CQE32;
- 	}
-+	if (restriction)
-+		p.flags |= IORING_SETUP_R_DISABLED;
- 
- 	fd = io_uring_setup(depth, &p);
- 	if (fd < 0) {
-@@ -915,6 +951,15 @@ static int setup_ring(struct submitter *s)
- 	}
- 	s->ring_fd = s->enter_ring_fd = fd;
- 
-+	if (restriction) {
-+		/* enables rings too */
-+		ret = io_uring_register_restrictions(s);
-+		if (ret) {
-+			fprintf(stderr, "Failed to set restrictions\n");
-+			return ret;
-+		}
-+	}
-+
- 	if (fixedbufs) {
- 		struct rlimit rlim;
- 
-@@ -1510,11 +1555,13 @@ static void usage(char *argv, int status)
- 		" -X <bool> : Use registered ring %d\n"
- 		" -P <bool> : Automatically place on device home node %d\n"
- 		" -V <bool> : Vectored IO, default %d\n"
-+		" -e <bool> : Set restriction filter on opcodes %d\n"
- 		" -u <bool> : Use nvme-passthrough I/O, default %d\n",
- 		argv, DEPTH, BATCH_SUBMIT, BATCH_COMPLETE, BS, polled,
- 		fixedbufs, register_files, nthreads, !buffered, do_nop,
- 		stats, runtime == 0 ? "unlimited" : runtime_str, random_io, aio,
--		use_sync, register_ring, numa_placement, vectored, pt);
-+		use_sync, register_ring, numa_placement, vectored, restriction,
-+		pt);
- 	exit(status);
- }
- 
-@@ -1573,7 +1620,7 @@ int main(int argc, char *argv[])
- 	if (!do_nop && argc < 2)
- 		usage(argv[0], 1);
- 
--	while ((opt = getopt(argc, argv, "d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:R:X:S:P:V:u:h?")) != -1) {
-+	while ((opt = getopt(argc, argv, "e:d:s:c:b:p:B:F:n:N:O:t:T:a:r:D:R:X:S:P:V:u:h?")) != -1) {
- 		switch (opt) {
- 		case 'a':
- 			aio = !!atoi(optarg);
-@@ -1657,6 +1704,9 @@ int main(int argc, char *argv[])
- 		case 'u':
- 			pt = !!atoi(optarg);
- 			break;
-+		case 'e':
-+			restriction = !!atoi(optarg);
-+			break;
- 		case 'h':
- 		case '?':
- 		default:
+--0000000000003199060648369f7b
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Jens and fio maintainers,<br><br>We&#39;ve been working=
+ with zoned block devices (ZBD) and noticed that the io_uring engines don&#=
+39;t support zonemode=3Dzbd, which prevents leveraging io_uring&#39;s perfo=
+rmance benefits for zone testing workloads in=C2=A0SMR (Shingled Magnetic R=
+ecording) drives. This finding came from our analysis, while testing the in=
+tegration of io_uring into the Dropbox storage stack. An io_uring patch ena=
+bling ZBD support will follow shortly.<br><br>The attached patch adds ZBD h=
+ooks to both io_uring and io_uring_cmd engines. The implementation is strai=
+ghtforward, where it delegates to the existing blkzoned and nvme helper fun=
+ctions, maintaining consistency with other engines.<br><br>What this enable=
+s:<div><ul><li>Zone operations (report, reset, finish, max_open_zones track=
+ing)</li><li>Proper write pointer management</li><li>Support for both tradi=
+tional SMR/ZAC and NVMe ZNS devices</li></ul>I&#39;ve tested this on SMR dr=
+ives with the io_uring engine and it works well. The io_uring_cmd part shou=
+ld work for ZNS devices as it reuses the existing fio_nvme_* implementation=
+s.</div><div><br></div><div>Sample fio job:<br><blockquote class=3D"gmail_q=
+uote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,2=
+04);padding-left:1ex">[zbd-test]<br>ioengine=3Dio_uring<br>direct=3D1<br>bs=
+=3D128k<br>zonemode=3Dzbd<br>filename=3D/dev/sdg</blockquote></div><div><br=
+></div><div>Thanks,<br>Vishal Jose Mannanal<br>Dropbox Inc.</div></div>
+
+--0000000000003199060648369f7b--
+--0000000000003199080648369f7d
+Content-Type: application/octet-stream; name="io_uring_zbd_support.patch"
+Content-Disposition: attachment; filename="io_uring_zbd_support.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_mkblrsmj0>
+X-Attachment-Id: f_mkblrsmj0
+
+RnJvbTogVmlzaGFsIEpvc2UgTWFubmFuYWwgPHZpc2hhbGptQGRyb3Bib3guY29tPgpEYXRlOiBU
+aHUsIDExIEphbiAyMDI2IDE2OjMwOjAwICswMDAwClN1YmplY3Q6IFtQQVRDSF0gQWRkIFpCRCAo
+Wm9uZWQgQmxvY2sgRGV2aWNlKSBzdXBwb3J0IHRvIGlvX3VyaW5nIGVuZ2luZXMKClRoaXMgcGF0
+Y2ggYWRkcyBjb21wcmVoZW5zaXZlIFpCRCBzdXBwb3J0IHRvIGJvdGggaW9fdXJpbmcgYW5kIGlv
+X3VyaW5nX2NtZAplbmdpbmVzLCBlbmFibGluZyB0aGVtIHRvIHdvcmsgd2l0aCB6b25lbW9kZT16
+YmQgZm9yIGJvdGggdHJhZGl0aW9uYWwgem9uZWQKYmxvY2sgZGV2aWNlcyBsaWtlIFNNUiAoU2hp
+bmdsZWQgTWFnbmV0aWMgUmVjb3JkaW5nKSBhbmQgTlZNZSBaTlMgKFpvbmVkIE5hbWVzcGFjZSkg
+ZGV2aWNlcy4KCkNoYW5nZXMgaW5jbHVkZToKLSBaQkQgZnVuY3Rpb24gaW1wbGVtZW50YXRpb25z
+IGZvciB6b25lIG1hbmFnZW1lbnQgb3BlcmF0aW9ucwotIEludGVncmF0aW9uIHdpdGggZXhpc3Rp
+bmcgYmxrem9uZWQgYW5kIE5WTWUgWk5TIGludGVyZmFjZXMgIAotIFN1cHBvcnQgZm9yIHpvbmUg
+cmVwb3J0aW5nLCByZXNldCwgZmluaXNoLCBhbmQgd3JpdGUgcG9pbnRlciBvcGVyYXRpb25zCi0g
+UHJvcGVyIHpvbmVkIG1vZGVsIGRldGVjdGlvbiBmb3IgYm90aCBkZXZpY2UgdHlwZXMKClNpZ25l
+ZC1vZmYtYnk6IFZpc2hhbCBKb3NlIE1hbm5hbmFsIDx2aXNoYWxqbUBkcm9wYm94LmNvbT4KLS0t
+CiBlbmdpbmVzL2lvX3VyaW5nLmMgfCAxMjYgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdlZCwgMTI2IGluc2VydGlvbnMoKykKCmRp
+ZmYgLS1naXQgYS9lbmdpbmVzL2lvX3VyaW5nLmMgYi9lbmdpbmVzL2lvX3VyaW5nLmMKaW5kZXgg
+MTIzNDU2Ny4uYWJjZGVmZyAxMDA2NDQKLS0tIGEvZW5naW5lcy9pb191cmluZy5jCisrKyBiL2Vu
+Z2luZXMvaW9fdXJpbmcuYwpAQCAtMjYsNiArMjYsNyBAQAogI2luY2x1ZGUgIi4uL2xpYi90eXBl
+cy5oIgogI2luY2x1ZGUgIi4uL29zL2xpbnV4L2lvX3VyaW5nLmgiCiAjaW5jbHVkZSAiY21kcHJp
+by5oIgorI2luY2x1ZGUgInpiZC5oIgogI2luY2x1ZGUgIm52bWUuaCIKIAogI2luY2x1ZGUgPHN5
+cy9zdGF0Lmg+CkBAIC0xNjUyLDYgKzE2NTMsMTI1IEBAIHN0YXRpYyBpbnQgZmlvX2lvcmluZ19j
+bWRfZ2V0X2ZpbGVfc2l6ZShzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLAogCXJldHVybiBnZW5lcmlj
+X2dldF9maWxlX3NpemUodGQsIGYpOwogfQogCitzdGF0aWMgaW50IGZpb19pb3JpbmdfZ2V0X3pv
+bmVkX21vZGVsKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsCisJCQkJICAgICAgc3RydWN0IGZpb19m
+aWxlICpmLAorCQkJCSAgICAgIGVudW0gemJkX3pvbmVkX21vZGVsICptb2RlbCkKK3sKKwlyZXR1
+cm4gYmxrem9uZWRfZ2V0X3pvbmVkX21vZGVsKHRkLCBmLCBtb2RlbCk7Cit9CisKK3N0YXRpYyBp
+bnQgZmlvX2lvcmluZ19yZXBvcnRfem9uZXMoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwKKwkJCQkg
+ICBzdHJ1Y3QgZmlvX2ZpbGUgKmYsIHVpbnQ2NF90IG9mZnNldCwKKwkJCQkgICBzdHJ1Y3QgemJk
+X3pvbmUgKnpiZHosCisJCQkJICAgdW5zaWduZWQgaW50IG5yX3pvbmVzKQoreworCXJldHVybiBi
+bGt6b25lZF9yZXBvcnRfem9uZXModGQsIGYsIG9mZnNldCwgemJkeiwgbnJfem9uZXMpOworfQor
+CitzdGF0aWMgaW50IGZpb19pb3JpbmdfcmVzZXRfd3Aoc3RydWN0IHRocmVhZF9kYXRhICp0ZCwg
+c3RydWN0IGZpb19maWxlICpmLAorCQkJICAgICAgIHVpbnQ2NF90IG9mZnNldCwgdWludDY0X3Qg
+bGVuZ3RoKQoreworCXJldHVybiBibGt6b25lZF9yZXNldF93cCh0ZCwgZiwgb2Zmc2V0LCBsZW5n
+dGgpOworfQorCitzdGF0aWMgaW50IGZpb19pb3JpbmdfZ2V0X21heF9vcGVuX3pvbmVzKHN0cnVj
+dCB0aHJlYWRfZGF0YSAqdGQsCisJCQkJCSBzdHJ1Y3QgZmlvX2ZpbGUgKmYsCisJCQkJCSB1bnNp
+Z25lZCBpbnQgKm1heF9vcGVuX3pvbmVzKQoreworCXJldHVybiBibGt6b25lZF9nZXRfbWF4X29w
+ZW5fem9uZXModGQsIGYsIG1heF9vcGVuX3pvbmVzKTsKK30KKworc3RhdGljIGludCBmaW9faW9y
+aW5nX2ZpbmlzaF96b25lKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVjdCBmaW9fZmlsZSAq
+ZiwKKwkJCQkgIHVpbnQ2NF90IG9mZnNldCwgdWludDY0X3QgbGVuZ3RoKQoreworCXJldHVybiBi
+bGt6b25lZF9maW5pc2hfem9uZSh0ZCwgZiwgb2Zmc2V0LCBsZW5ndGgpOworfQorCitzdGF0aWMg
+aW50IGZpb19pb3JpbmdfbW92ZV96b25lX3dwKHN0cnVjdCB0aHJlYWRfZGF0YSAqdGQsIHN0cnVj
+dCBmaW9fZmlsZSAqZiwKKwkJCQkgICBzdHJ1Y3QgemJkX3pvbmUgKnosIHVpbnQ2NF90IGxlbmd0
+aCwKKwkJCQkgICBjb25zdCBjaGFyICpidWYpCit7CisJcmV0dXJuIGJsa3pvbmVkX21vdmVfem9u
+ZV93cCh0ZCwgZiwgeiwgbGVuZ3RoLCBidWYpOworfQorCitzdGF0aWMgaW50IGZpb19pb3Jpbmdf
+Y21kX2dldF96b25lZF9tb2RlbChzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLAorCQkJCQkgIHN0cnVj
+dCBmaW9fZmlsZSAqZiwKKwkJCQkJICBlbnVtIHpiZF96b25lZF9tb2RlbCAqbW9kZWwpCit7CisJ
+cmV0dXJuIGZpb19udm1lX2dldF96b25lZF9tb2RlbCh0ZCwgZiwgbW9kZWwpOworfQorCitzdGF0
+aWMgaW50IGZpb19pb3JpbmdfY21kX3JlcG9ydF96b25lcyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRk
+LAorCQkJCSAgICAgICBzdHJ1Y3QgZmlvX2ZpbGUgKmYsIHVpbnQ2NF90IG9mZnNldCwKKwkJCQkg
+ICAgICAgc3RydWN0IHpiZF96b25lICp6YmR6LAorCQkJCSAgICAgICB1bnNpZ25lZCBpbnQgbnJf
+em9uZXMpCit7CisJcmV0dXJuIGZpb19udm1lX3JlcG9ydF96b25lcyh0ZCwgZiwgb2Zmc2V0LCB6
+YmR6LCBucl96b25lcyk7Cit9CisKK3N0YXRpYyBpbnQgZmlvX2lvcmluZ19jbWRfcmVzZXRfd3Ao
+c3RydWN0IHRocmVhZF9kYXRhICp0ZCwgc3RydWN0IGZpb19maWxlICpmLAorCQkJCSAgIHVpbnQ2
+NF90IG9mZnNldCwgdWludDY0X3QgbGVuZ3RoKQoreworCXJldHVybiBmaW9fbnZtZV9yZXNldF93
+cCh0ZCwgZiwgb2Zmc2V0LCBsZW5ndGgpOworfQorCitzdGF0aWMgaW50IGZpb19pb3JpbmdfY21k
+X2dldF9tYXhfb3Blbl96b25lcyhzdHJ1Y3QgdGhyZWFkX2RhdGEgKnRkLAorCQkJCQkgICAgIHN0
+cnVjdCBmaW9fZmlsZSAqZiwKKwkJCQkJICAgICB1bnNpZ25lZCBpbnQgKm1heF9vcGVuX3pvbmVz
+KQoreworCXJldHVybiBmaW9fbnZtZV9nZXRfbWF4X29wZW5fem9uZXModGQsIGYsIG1heF9vcGVu
+X3pvbmVzKTsKK30KKwogc3RhdGljIHN0cnVjdCBpb2VuZ2luZV9vcHMgaW9lbmdpbmVfdXJpbmcg
+PSB7CiAJLm5hbWUJCQk9ICJpb191cmluZyIsCiAJLnZlcnNpb24JCT0gRklPX0lPT1BTX1ZFUlNJ
+T04sCkBAIC0xNjcwLDYgKzE3OTAsMTIgQEAgc3RhdGljIHN0cnVjdCBpb2VuZ2luZV9vcHMgaW9l
+bmdpbmVfdXJpbmcgPSB7CiAJLm9wZW5fZmlsZQkJPSBmaW9faW9yaW5nX29wZW5fZmlsZSwKIAku
+Y2xvc2VfZmlsZQkJPSBmaW9faW9yaW5nX2Nsb3NlX2ZpbGUsCiAJLmdldF9maWxlX3NpemUJCT0g
+Z2VuZXJpY19nZXRfZmlsZV9zaXplLAorCS5nZXRfem9uZWRfbW9kZWwJPSBmaW9faW9yaW5nX2dl
+dF96b25lZF9tb2RlbCwKKwkucmVwb3J0X3pvbmVzCQk9IGZpb19pb3JpbmdfcmVwb3J0X3pvbmVz
+LAorCS5yZXNldF93cAkJPSBmaW9faW9yaW5nX3Jlc2V0X3dwLAorCS5nZXRfbWF4X29wZW5fem9u
+ZXMJPSBmaW9faW9yaW5nX2dldF9tYXhfb3Blbl96b25lcywKKwkuZmluaXNoX3pvbmUJCT0gZmlv
+X2lvcmluZ19maW5pc2hfem9uZSwKKwkubW92ZV96b25lX3dwCQk9IGZpb19pb3JpbmdfbW92ZV96
+b25lX3dwLAogCS5vcHRpb25zCQk9IG9wdGlvbnMsCiAJLm9wdGlvbl9zdHJ1Y3Rfc2l6ZQk9IHNp
+emVvZihzdHJ1Y3QgaW9yaW5nX29wdGlvbnMpLAogfTsKQEAgLTE2OTIsNiArMTgxOCw5IEBAIHN0
+YXRpYyBzdHJ1Y3QgaW9lbmdpbmVfb3BzIGlvZW5naW5lX3VyaW5nX2NtZCA9IHsKIAkub3Blbl9m
+aWxlCQk9IGZpb19pb3JpbmdfY21kX29wZW5fZmlsZSwKIAkuY2xvc2VfZmlsZQkJPSBmaW9faW9y
+aW5nX2NtZF9jbG9zZV9maWxlLAogCS5nZXRfZmlsZV9zaXplCQk9IGZpb19pb3JpbmdfY21kX2dl
+dF9maWxlX3NpemUsCisJLmdldF96b25lZF9tb2RlbAk9IGZpb19pb3JpbmdfY21kX2dldF96b25l
+ZF9tb2RlbCwKKwkucmVwb3J0X3pvbmVzCQk9IGZpb19pb3JpbmdfY21kX3JlcG9ydF96b25lcywK
+KwkucmVzZXRfd3AJCT0gZmlvX2lvcmluZ19jbWRfcmVzZXRfd3AsCisJLmdldF9tYXhfb3Blbl96
+b25lcwk9IGZpb19pb3JpbmdfY21kX2dldF9tYXhfb3Blbl96b25lcywKIAkub3B0aW9ucwkJPSBv
+cHRpb25zLAogCS5vcHRpb25fc3RydWN0X3NpemUJPSBzaXplb2Yoc3RydWN0IGlvcmluZ19vcHRp
+b25zKSwKIAkuZmRwX2ZldGNoX3J1aHMJCT0gZmlvX2lvcmluZ19jbWRfZmV0Y2hfcnVocywg
+--0000000000003199080648369f7d--
