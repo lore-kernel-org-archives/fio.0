@@ -1,244 +1,160 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 171E154652
-	for <fio@vger.kernel.org>; Fri, 16 Jan 2026 13:00:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6227C31AA81
+	for <fio@vger.kernel.org>; Sat, 17 Jan 2026 13:00:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768568422; cv=none; b=WSfUiArKqtDwvBvpgzs2Dq37Ev4Kp7RWdHWHOJdprc4sr46yOuCfofY+Y6f6jB5+62qjQjasqtCivGG/JbldgK5hhxrsSXVGqLnjWb7JKgkUNl1JdOj6cEjYLiDwINQ3yU24UKxVwOSjpmvN68KbniK7PbcJs77zpRGaZRcd+6I=
+	t=1768654813; cv=none; b=O2MqJc2iIuh+xg8ogc8en73nauWD6HBxeLHZRp0jE8bhe4Vear5UjCoV3fShI+dlPUTqqN2GJO0ZPPNf+Zc96oMD+l5xJPgvXItiwlyJYZFaYiRMSz6vufAW7QUgCQCZmfEtUkHwkOwbqFQXvrhBdzNmI7B6Fqx9HyHmDWW7BBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768568422; c=relaxed/simple;
-	bh=RqeJ8LbQEiMU6xAd19Tx71FIRYahYnaKW/o1Abvsgiw=;
-	h=Subject:From:To:Date:Message-Id; b=fxiZ0fMANqTkWTvj2Eo8WJ1VPjNP8eB1JPM/upOL4vJGwDcdS5OtD2D2Oa3/qOeRUk4uRpv4Yunznq7JI4CO9awZkvyKjU76PlGWd0QjtnILwPW5SCm+VqHfBW/P3cSljriX+DgyLzxPnl1iZ8qJqAVArHDRgK4cScQl3iE5Qys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=SIXjRuGS; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1768654813; c=relaxed/simple;
+	bh=PDmEjXrV4ergZLy8dqpEKLH0m4kwGje6zgv8a9ZDsXY=;
+	h=Subject:From:To:Date:Message-Id; b=gAeKzX4VukCQi4DzGdcg7pGXK64BYqaAwVL87VgbBwXXO28qcrsk70MKn5SgkRcmH7jeWk8iCY1BuuO8HE3iAsFC1vLbtqzHLO78+hEE3obB2i9+VfoDYsDwXYt79oon2kACll9Wxt/uj1MrFeinzGqM2/sBC8QFCsNrLIvnGhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rzkhrvdb; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="SIXjRuGS"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rzkhrvdb"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
 	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=achR+YqnSak3P3abPKPbBM6jWAC4o6MQPESCP2yvGQA=; b=SIXjRuGSWS+cvfV9aWedqpr5/Z
-	ryRIyTrptnf/DGSN8qHzJf9ZAUh1HY1ro9uNHhyswT0wwMtQpnb1J7u7A7BaKxb2jsvVJXJ42YmbQ
-	KffDEEnicBMM555hCxIFJewa87mLB5O7oCCRyy3sjsQ1PfcLKtLSHVbyA9IwntA1TX3m98JJXrrWX
-	7JsxhRimIxshx3ze/Ty56G4sYgzMLcJdV/oqRN9kQSdUh10klZ60Ei/E9AWeh80C69coIjuUXVCQa
-	Bb8EtDd4MRppw+jy2ixQxFVoIp9YR5VvFA17FXff9A5jVPKxwUYGCKFq7cKuB2+1Ila0ovCwNyB3g
-	n0o03rAA==;
+	bh=DJFATLnnfTVRzXrpJccxg/V+nlHH4e273b00Vg3IE9c=; b=rzkhrvdbdH+OvwrkFJLquKX9/y
+	NpQr3x4y6n3fSu4s802D5tvHk5Hs/cWKBA5XdMxFbUQxetNm1/aVfiKsxbsxSrpfilw7ytzyiWr7p
+	HZTP90Nv4WjeT114g+mtreL1INjl+oiPOSWL71ZKYGsTfGz8xBqKyTxeKWr6AbckRjLS/JPt9lAha
+	fFVFhN7BykuyLk875YFZYo35tY7n6bJzyeBez1UNmB5RNZqSFWPSisHMutffaDGqc7EUcZWY07yYM
+	koUvdLdAssNhNbpo3Hh72EPx/1Y7rLBm40WCqpNGrO2jhQ2hwdYBRnwYGeRd+Vnt2BAdCvXdcjoi/
+	iO2+aIeA==;
 Received: from [96.43.243.2] (helo=kernel.dk)
 	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vgjQu-00000009N2t-3Bpx
+	id 1vh5uQ-0000000AmWW-2j3C
 	for fio@vger.kernel.org;
-	Fri, 16 Jan 2026 13:00:08 +0000
+	Sat, 17 Jan 2026 13:00:06 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id C58051BC0147; Fri, 16 Jan 2026 06:00:01 -0700 (MST)
+	id D12E81BC0144; Sat, 17 Jan 2026 06:00:01 -0700 (MST)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Fri, 16 Jan 2026 06:00:01 -0700
-Message-Id: <20260116130001.C58051BC0147@kernel.dk>
+Date: Sat, 17 Jan 2026 06:00:01 -0700
+Message-Id: <20260117130001.D12E81BC0144@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit adeceb86edb28070cbae79dd38b5ec7354271063:
+The following changes since commit 1d282baecd689f4409449d5e5238b30990cec377:
 
-  Merge branch 'sync-fileop' of https://github.com/struschev/fio (2026-01-11 13:05:54 -0700)
+  fio: make sure that child process output is comitted (2026-01-15 17:35:13 +0000)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 1d282baecd689f4409449d5e5238b30990cec377:
+for you to fetch changes up to e2d1cce0f1c5617467f95ac2154212179451ba85:
 
-  fio: make sure that child process output is comitted (2026-01-15 17:35:13 +0000)
+  test: add test for switching to tausworthe64 (2026-01-15 21:02:38 -0500)
 
 ----------------------------------------------------------------
-Vincent Fu (6):
-      init: make fdp_state rand generator always 32 bits
-      init: make trim_state always a 32-bit random generator
-      fio: rename random_state to offset_state
-      fio: improve comment for offset_state
-      filesetup: switch to tausworthe64 for real if limits exceeded
-      fio: make sure that child process output is comitted
+Vincent Fu (2):
+      init: move random seed debug prints
+      test: add test for switching to tausworthe64
 
- backend.c   |  6 ++++++
- filesetup.c |  1 +
- fio.h       |  5 +++--
- init.c      | 23 ++++++++++++++++++++---
- io_u.c      |  4 ++--
- verify.c    | 18 +++++++++---------
- 6 files changed, 41 insertions(+), 16 deletions(-)
+ init.c             |  4 ++--
+ t/run-fio-tests.py |  8 ++++++++
+ t/t64-switch.sh    | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 53 insertions(+), 2 deletions(-)
+ create mode 100755 t/t64-switch.sh
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index 1e4c4a38..7eb5ca2b 100644
---- a/backend.c
-+++ b/backend.c
-@@ -2515,6 +2515,9 @@ reap:
- 		}
- 	} end_for_each();
- 
-+	/* make sure child processes have empty stream buffers before fork */
-+	log_info_flush();
-+
- 	/* start idle threads before io threads start to run */
- 	fio_idle_prof_start();
- 
-@@ -2607,6 +2610,9 @@ reap:
- 					int ret;
- 
- 					ret = (int)(uintptr_t)thread_main(fd);
-+					/* _exit() does not flush buffers, so
-+					 * do it ourselves */
-+					log_info_flush();
- 					_exit(ret);
- 				} else if (__td_index == fio_debug_jobno)
- 					*fio_debug_jobp = pid;
-diff --git a/filesetup.c b/filesetup.c
-index 1e5f2fa7..a766c39a 100644
---- a/filesetup.c
-+++ b/filesetup.c
-@@ -1515,6 +1515,7 @@ static int check_rand_gen_limits(struct thread_data *td, struct fio_file *f,
- 			 "random_generator= option to get rid of this "
- 			 "warning.\n");
- 		td->o.random_generator = FIO_RAND_GEN_TAUSWORTHE64;
-+		init_rand_offset_seed(td);
- 		return 0;
- 	}
- 
-diff --git a/fio.h b/fio.h
-index fdd36fa4..e0b7c13c 100644
---- a/fio.h
-+++ b/fio.h
-@@ -403,9 +403,9 @@ struct thread_data {
- 	int64_t last_thinktime_blocks;
- 
- 	/*
--	 * State for random io, a bitmap of blocks done vs not done
-+	 * State for random offsets
- 	 */
--	struct frand_state random_state;
-+	struct frand_state offset_state;
- 
- 	struct timespec start;	/* start of this loop */
- 	struct timespec epoch;	/* time job was started */
-@@ -677,6 +677,7 @@ extern void fio_options_dup_and_init(struct option *);
- extern char *fio_option_dup_subs(const char *);
- extern void fio_options_mem_dupe(struct thread_data *);
- extern void td_fill_rand_seeds(struct thread_data *);
-+extern void init_rand_offset_seed(struct thread_data *);
- extern void add_job_opts(const char **, int);
- extern int ioengine_load(struct thread_data *);
- extern bool parse_dryrun(void);
 diff --git a/init.c b/init.c
-index 76e1a86d..8a0d8c20 100644
+index 8a0d8c20..5a982b53 100644
 --- a/init.c
 +++ b/init.c
-@@ -1134,6 +1134,23 @@ static void init_rand_file_service(struct thread_data *td)
- 	}
- }
- 
-+/*
-+ * Separate initialization of the random generator for offsets in case we need
-+ * to re-initialize it if we discover later on that the combination of filesize
-+ * and block size exceeds the limits of the default random generator.
-+ */
-+void init_rand_offset_seed(struct thread_data *td)
-+{
-+	bool use64;
-+
-+	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64)
-+		use64 = true;
-+	else
-+		use64 = false;
-+
-+	init_rand_seed(&td->offset_state, td->rand_seeds[FIO_RAND_BLOCK_OFF], use64);
-+}
-+
- void td_fill_rand_seeds(struct thread_data *td)
- {
- 	uint64_t read_seed = td->rand_seeds[FIO_RAND_BS_OFF];
-@@ -1173,7 +1190,7 @@ void td_fill_rand_seeds(struct thread_data *td)
- 		init_rand_file_service(td);
- 
- 	init_rand_seed(&td->file_size_state, td->rand_seeds[FIO_RAND_FILE_SIZE_OFF], use64);
--	init_rand_seed(&td->trim_state, td->rand_seeds[FIO_RAND_TRIM_OFF], use64);
-+	init_rand_seed(&td->trim_state, td->rand_seeds[FIO_RAND_TRIM_OFF], false);
- 	init_rand_seed(&td->delay_state, td->rand_seeds[FIO_RAND_START_DELAY], use64);
- 	init_rand_seed(&td->poisson_state[0], td->rand_seeds[FIO_RAND_POISSON_OFF], 0);
- 	init_rand_seed(&td->poisson_state[1], td->rand_seeds[FIO_RAND_POISSON2_OFF], 0);
-@@ -1183,7 +1200,7 @@ void td_fill_rand_seeds(struct thread_data *td)
- 	init_rand_seed(&td->prio_state, td->rand_seeds[FIO_RAND_PRIO_CMDS], false);
- 	init_rand_seed(&td->dedupe_working_set_index_state, td->rand_seeds[FIO_RAND_DEDUPE_WORKING_SET_IX], use64);
- 
--	init_rand_seed(&td->random_state, td->rand_seeds[FIO_RAND_BLOCK_OFF], use64);
-+	init_rand_offset_seed(td);
- 
- 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
- 		struct frand_state *s = &td->seq_rand_state[i];
-@@ -1194,7 +1211,7 @@ void td_fill_rand_seeds(struct thread_data *td)
- 	init_rand_seed(&td->buf_state, td->rand_seeds[FIO_RAND_BUF_OFF], use64);
- 	frand_copy(&td->buf_state_prev, &td->buf_state);
- 
--	init_rand_seed(&td->fdp_state, td->rand_seeds[FIO_RAND_FDP_OFF], use64);
-+	init_rand_seed(&td->fdp_state, td->rand_seeds[FIO_RAND_FDP_OFF], false);
- 	init_rand_seed(&td->sprandom_state, td->rand_seeds[FIO_RAND_SPRANDOM_OFF], false);
- }
- 
-diff --git a/io_u.c b/io_u.c
-index be0a0555..ac9a1c7d 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -110,11 +110,11 @@ static int __get_next_rand_offset(struct thread_data *td, struct fio_file *f,
- 	if (td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE ||
- 	    td->o.random_generator == FIO_RAND_GEN_TAUSWORTHE64) {
- 
--		r = __rand(&td->random_state);
-+		r = __rand(&td->offset_state);
- 
- 		dprint(FD_RANDOM, "off rand %llu\n", (unsigned long long) r);
- 
--		*b = lastb * (r / (rand_max(&td->random_state) + 1.0));
-+		*b = lastb * (r / (rand_max(&td->offset_state) + 1.0));
- 	} else {
- 		uint64_t off = 0;
- 
-diff --git a/verify.c b/verify.c
-index 20c49a94..e2011a0f 100644
---- a/verify.c
-+++ b/verify.c
-@@ -1682,18 +1682,18 @@ struct all_io_list *get_all_io_list(int save_mask, size_t *sz)
- 		s->depth = cpu_to_le32((uint32_t) td->o.iodepth);
- 		s->numberio = cpu_to_le64((uint64_t) atomic_load_acquire(&td->inflight_issued));
- 		s->index = cpu_to_le64((uint64_t) __td_index);
--		if (td->random_state.use64) {
--			s->rand.state64.s[0] = cpu_to_le64(td->random_state.state64.s1);
--			s->rand.state64.s[1] = cpu_to_le64(td->random_state.state64.s2);
--			s->rand.state64.s[2] = cpu_to_le64(td->random_state.state64.s3);
--			s->rand.state64.s[3] = cpu_to_le64(td->random_state.state64.s4);
--			s->rand.state64.s[4] = cpu_to_le64(td->random_state.state64.s5);
-+		if (td->offset_state.use64) {
-+			s->rand.state64.s[0] = cpu_to_le64(td->offset_state.state64.s1);
-+			s->rand.state64.s[1] = cpu_to_le64(td->offset_state.state64.s2);
-+			s->rand.state64.s[2] = cpu_to_le64(td->offset_state.state64.s3);
-+			s->rand.state64.s[3] = cpu_to_le64(td->offset_state.state64.s4);
-+			s->rand.state64.s[4] = cpu_to_le64(td->offset_state.state64.s5);
- 			s->rand.state64.s[5] = 0;
- 			s->rand.use64 = cpu_to_le64((uint64_t)1);
- 		} else {
--			s->rand.state32.s[0] = cpu_to_le32(td->random_state.state32.s1);
--			s->rand.state32.s[1] = cpu_to_le32(td->random_state.state32.s2);
--			s->rand.state32.s[2] = cpu_to_le32(td->random_state.state32.s3);
-+			s->rand.state32.s[0] = cpu_to_le32(td->offset_state.state32.s1);
-+			s->rand.state32.s[1] = cpu_to_le32(td->offset_state.state32.s2);
-+			s->rand.state32.s[2] = cpu_to_le32(td->offset_state.state32.s3);
- 			s->rand.state32.s[3] = 0;
- 			s->rand.use64 = 0;
+@@ -1236,12 +1236,12 @@ static int setup_random_seeds(struct thread_data *td)
  		}
+ 	}
+ 
+-	td_fill_rand_seeds(td);
+-
+ 	dprint(FD_RANDOM, "FIO_RAND_NR_OFFS=%d\n", FIO_RAND_NR_OFFS);
+ 	for (int i = 0; i < FIO_RAND_NR_OFFS; i++)
+ 		dprint(FD_RANDOM, "rand_seeds[%d]=%" PRIu64 "\n", i, td->rand_seeds[i]);
+ 
++	td_fill_rand_seeds(td);
++
+ 	return 0;
+ }
+ 
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index 457d7f8c..b3321312 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -1131,6 +1131,14 @@ TEST_LIST = [
+         'success':          SUCCESS_DEFAULT,
+         'requirements':     [Requirements.linux, Requirements.libaio],
+     },
++    {
++        'test_id':          1020,
++        'test_class':       FioExeTest,
++        'exe':              't/t64-switch.sh',
++        'parameters':       ['{fio_path}'],
++        'success':          SUCCESS_DEFAULT,
++        'requirements':     [Requirements.not_windows],
++    },
+ ]
+ 
+ 
+diff --git a/t/t64-switch.sh b/t/t64-switch.sh
+new file mode 100755
+index 00000000..94b12754
+--- /dev/null
++++ b/t/t64-switch.sh
+@@ -0,0 +1,43 @@
++#!/usr/bin/env bash
++#
++# Make sure that Fio actually does switch to the tausworthe64 random generator
++# when it detects that the combination of block size and file size exceeds the
++# limits of the default 32-bit random generator.
++#
++# Do this by counting the number of times offsets occurring more than once are
++# touched. The default random generator should produce more duplicate offsets
++# than the tausworthe64 random generator.
++#
++# Count offsets by parsing Fio's debug output. Use grep and cut to obtain a
++# list of offsets, sort them, and count how many times offsets ocurring more
++# than once are touched.
++#
++# Calculate the ratio of tausworthe32 duplicates to tausworthe64 duplicates. I
++# am arbitrarily using a minimum ratio of 10 as the criteria for a passing
++# test.
++#
++# Usage:
++# t64-switch [FIO [COUNT]]
++#
++
++FIO=${1:-fio}
++COUNT=${2:-1000000}
++
++t32=$(${FIO} --name=test --ioengine=null --filesize=1T --bs=1 --rw=randread --debug=io --number_ios=${COUNT} --norandommap --randrepeat=0 --random_generator=tausworthe | grep complete: | cut -d '=' -f 2 | cut -d ',' -f 1 | sort -g | uniq -D | wc -l | tr -d ' ')
++t64=$(${FIO} --name=test --ioengine=null --filesize=1T --bs=1 --rw=randread --debug=io --number_ios=${COUNT} --norandommap --randrepeat=0 | grep complete: | cut -d '=' -f 2 | cut -d ',' -f 1 | sort -g | uniq -D | wc -l | tr -d ' ')
++if [ $t64 -gt 0 ]; then
++	let ratio=$t32/$t64
++else
++	let ratio=$t32
++fi
++
++echo tausworthe32: $t32
++echo tausworthe62: $t64
++echo ratio: $ratio
++
++if [ $ratio -ge 10 ]; then
++	echo result: pass
++else
++	echo result: fail
++	exit 1
++fi
