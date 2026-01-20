@@ -1,160 +1,99 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6227C31AA81
-	for <fio@vger.kernel.org>; Sat, 17 Jan 2026 13:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4ABEA362142
+	for <fio@vger.kernel.org>; Tue, 20 Jan 2026 17:16:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768654813; cv=none; b=O2MqJc2iIuh+xg8ogc8en73nauWD6HBxeLHZRp0jE8bhe4Vear5UjCoV3fShI+dlPUTqqN2GJO0ZPPNf+Zc96oMD+l5xJPgvXItiwlyJYZFaYiRMSz6vufAW7QUgCQCZmfEtUkHwkOwbqFQXvrhBdzNmI7B6Fqx9HyHmDWW7BBs=
+	t=1768929387; cv=none; b=Q4MoyosOQXuykKkx/p6utShcjXUux+F0ixEWfUPgIp858mJUK4Z0QDPmFg2Pz+VAlFZPtMx5p/YOTKvYPHYzSkP2gXcyD2Sd57pXxSNW6j1IrEUh2pJjWhci3tRkAcpVzoKHuW5KCce78dR6iS5UgqbAbchqbof4Htk1FtUUdPU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768654813; c=relaxed/simple;
-	bh=PDmEjXrV4ergZLy8dqpEKLH0m4kwGje6zgv8a9ZDsXY=;
-	h=Subject:From:To:Date:Message-Id; b=gAeKzX4VukCQi4DzGdcg7pGXK64BYqaAwVL87VgbBwXXO28qcrsk70MKn5SgkRcmH7jeWk8iCY1BuuO8HE3iAsFC1vLbtqzHLO78+hEE3obB2i9+VfoDYsDwXYt79oon2kACll9Wxt/uj1MrFeinzGqM2/sBC8QFCsNrLIvnGhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=rzkhrvdb; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1768929387; c=relaxed/simple;
+	bh=zXx1phCPnfy13NKaQ7N4Ujnb9A5S6zYGy9lP4e1lyNE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=hmxvg9KvvfPJIm1OY8wpKDHzpYaqrqKInx9+4c5rqfbOmAeg3gMcmyRcRMFeKm7PM5SQ0UFh2iQlM5lFtvpz5dqpK4ryWONijWK2EqMQiCh5EvZsnT0xxpshspEQNPVY2tljV+l/bpA0ZwfFwJdcweGu0o0T+22K0zuTwKcjtTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=ZI69CYf4; arc=none smtp.client-ip=209.85.210.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="rzkhrvdb"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=DJFATLnnfTVRzXrpJccxg/V+nlHH4e273b00Vg3IE9c=; b=rzkhrvdbdH+OvwrkFJLquKX9/y
-	NpQr3x4y6n3fSu4s802D5tvHk5Hs/cWKBA5XdMxFbUQxetNm1/aVfiKsxbsxSrpfilw7ytzyiWr7p
-	HZTP90Nv4WjeT114g+mtreL1INjl+oiPOSWL71ZKYGsTfGz8xBqKyTxeKWr6AbckRjLS/JPt9lAha
-	fFVFhN7BykuyLk875YFZYo35tY7n6bJzyeBez1UNmB5RNZqSFWPSisHMutffaDGqc7EUcZWY07yYM
-	koUvdLdAssNhNbpo3Hh72EPx/1Y7rLBm40WCqpNGrO2jhQ2hwdYBRnwYGeRd+Vnt2BAdCvXdcjoi/
-	iO2+aIeA==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vh5uQ-0000000AmWW-2j3C
-	for fio@vger.kernel.org;
-	Sat, 17 Jan 2026 13:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id D12E81BC0144; Sat, 17 Jan 2026 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Sat, 17 Jan 2026 06:00:01 -0700
-Message-Id: <20260117130001.D12E81BC0144@kernel.dk>
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="ZI69CYf4"
+Received: by mail-ot1-f49.google.com with SMTP id 46e09a7af769-7cfccba483eso1797529a34.0
+        for <fio@vger.kernel.org>; Tue, 20 Jan 2026 09:16:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1768929382; x=1769534182; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YHfw7NvC3qyrYBKHk4WQ+arwy7r+C0HFpDPYfT6lC9c=;
+        b=ZI69CYf4bewMmo6FGq8yAbP83APZjURcTuQbCYpwa+lrSJQprpBKKtat4+wTFAaj3I
+         6KwkXp7UegI3lBXzcqOdz2B9a+VV3kFi9QhiYLBcP+7DkM2tFD/XLd41qHiY84XwcFby
+         HuvR1Wro18K/RSmJa+eC172O9HBWPkzE96LHM3JkwrwhzFvV5ypVvYXnXO1kvkAhcpZQ
+         ZVC03XFN3yUEKG5yeLeVGetylw9F1SjIWBNjI9uOb0TkQxewOLS7UoYEwu2VJy+dvsl7
+         eALIF3gxcChc9zO2C0HekqSpZO9dus+qkSDCqP9E5yALg4xDpuyLYIXnqYAmuuHAJwKI
+         Hwvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768929382; x=1769534182;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=YHfw7NvC3qyrYBKHk4WQ+arwy7r+C0HFpDPYfT6lC9c=;
+        b=XyP1AyOwtCP1eFL4JPB/93I+v/t/e1I8Rv+OPRp0QrBf0GusPW1W1FF+6+bhflZPjw
+         HMNXNQTtUMONM7Xy/GqgW0AgFLHOd54san10ZlWueHNZywOWtJ9fwpwxAE5/C1JEktFh
+         8IaCxn+ZJP0WMXpKYbh1pWCRJri9suwpOzWIIWhMQLOsEvbKkMrisWgSli9Lm7589Pgj
+         /23CZdqTC68HK7dl9TsbLp7WECfLRN0D4Ja156RAN7scuWeLS1pATt5QrgQDzXfDc03C
+         HunPsRzU2I0SAWPlbd3sVk6OBEQMisrziHD/OqEPyacBilaGH9k4WSjxt0L195fAUzkc
+         9RnQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXHKaKntizQ1a7y2MkYDqKn98qKTUgtCTcmpVsZZMz/Aqgo5tb4nnaQ0eYcA+GMJPQdPeI=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyXO/jkkSTb7oiF4thCBTWeBjRae0Q8ncW5ydq31As447O81uFG
+	+YHSJpPAetoMwwCOwwX6aNGC/vrXUAI58xdIz7/4QiDLCSYrmn6ZwFHT1S5FVqFNpdBEtpy+pZS
+	7kd9vVaY=
+X-Gm-Gg: AY/fxX5i0IPwIvcfqIBzHmaq7kqOx7aBsio4wbN+I6rbmS2j1mAVpPGfmaYM7j6r91Z
+	toz7l9u+VMFmZxEy1DbwOCR/azBzEEe82LIt4zAXwPOqUeqDkHCKR6jLS+sENhGyjBXIajTlUba
+	E80fNVP76zaLD4LSKpGqGtLZ5yg2UjG9/QYdPYPrEqRdE4+uH3YsihQ3qSbJNnY5XZ9FzFp2/h5
+	m78TGCLVbgmcu3mQZMhjsJBgHmcGr/t39u+iUdAki9JPf2gHv/kucUDVPqQRPtyEEtNXMf8YD+Z
+	m2iKO6Krl4ArvdXWllUHlVHdlZmq+srbLf9d+/CQJ7Us21jLPRDkF+CZd+jHe+Fl7ppYq6gLr4+
+	2sHu1NExEVRAD8JeN5uHqPioJZXkXX8dz0iBVnUWNa17/MU6X4ZZZXemo+y9eIjham1I+QpJt1V
+	L0RPASANYFgV+XLXL4KjqgRNd4aZKL6Hw/o48Ke4Oc8PGnpiuhDzOcbsd/7ekv+Vd7Sfog
+X-Received: by 2002:a05:6830:370e:b0:7c5:31b6:435c with SMTP id 46e09a7af769-7cfdee919a7mr6375035a34.29.1768929382443;
+        Tue, 20 Jan 2026 09:16:22 -0800 (PST)
+Received: from [192.168.1.102] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7cfdf0d915dsm8714778a34.4.2026.01.20.09.16.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 20 Jan 2026 09:16:21 -0800 (PST)
+Message-ID: <182c42a6-ae80-4288-a3fa-dfa2014ad56a@kernel.dk>
+Date: Tue, 20 Jan 2026 10:16:20 -0700
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] fio: Add ZBD support to io_uring engines
+To: Vishal Jose Mannanal <vishaljm@dropbox.com>, fio@vger.kernel.org
+Cc: Eric Shobe <shobe@dropbox.com>
+References: <CAOUciekiQpCBKAkAmnNF_3P_tJyL0uTGZdpq8eYY1V0Obrm8mA@mail.gmail.com>
+ <CAOUcie=b9ZegmFFa0XKubpXyVwCXMYSO9fup25tQ=CHRbSX4dA@mail.gmail.com>
+ <CAOUciekYyR6eenpEgzrt2siFXmSbqn4GhSRVvsNA_jWdSxAf+A@mail.gmail.com>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <CAOUciekYyR6eenpEgzrt2siFXmSbqn4GhSRVvsNA_jWdSxAf+A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The following changes since commit 1d282baecd689f4409449d5e5238b30990cec377:
+On 1/20/26 9:28 AM, Vishal Jose Mannanal wrote:
+> Hi Jens et al.,
+> 
+> Can we go ahead and approve and merge the following PR:
+> https://github.com/axboe/fio/pull/2035
+> <https://github.com/axboe/fio/pull/2035> ?
 
-  fio: make sure that child process output is comitted (2026-01-15 17:35:13 +0000)
+No merged.
 
-are available in the Git repository at:
+> Meanwhile, I will work on posting the liburing-zbd changes upstream
+> and adding examples in liburing after that. This will take some time.
 
-  git://git.kernel.dk/fio.git master
+Sounds good!
 
-for you to fetch changes up to e2d1cce0f1c5617467f95ac2154212179451ba85:
-
-  test: add test for switching to tausworthe64 (2026-01-15 21:02:38 -0500)
-
-----------------------------------------------------------------
-Vincent Fu (2):
-      init: move random seed debug prints
-      test: add test for switching to tausworthe64
-
- init.c             |  4 ++--
- t/run-fio-tests.py |  8 ++++++++
- t/t64-switch.sh    | 43 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 53 insertions(+), 2 deletions(-)
- create mode 100755 t/t64-switch.sh
-
----
-
-Diff of recent changes:
-
-diff --git a/init.c b/init.c
-index 8a0d8c20..5a982b53 100644
---- a/init.c
-+++ b/init.c
-@@ -1236,12 +1236,12 @@ static int setup_random_seeds(struct thread_data *td)
- 		}
- 	}
- 
--	td_fill_rand_seeds(td);
--
- 	dprint(FD_RANDOM, "FIO_RAND_NR_OFFS=%d\n", FIO_RAND_NR_OFFS);
- 	for (int i = 0; i < FIO_RAND_NR_OFFS; i++)
- 		dprint(FD_RANDOM, "rand_seeds[%d]=%" PRIu64 "\n", i, td->rand_seeds[i]);
- 
-+	td_fill_rand_seeds(td);
-+
- 	return 0;
- }
- 
-diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
-index 457d7f8c..b3321312 100755
---- a/t/run-fio-tests.py
-+++ b/t/run-fio-tests.py
-@@ -1131,6 +1131,14 @@ TEST_LIST = [
-         'success':          SUCCESS_DEFAULT,
-         'requirements':     [Requirements.linux, Requirements.libaio],
-     },
-+    {
-+        'test_id':          1020,
-+        'test_class':       FioExeTest,
-+        'exe':              't/t64-switch.sh',
-+        'parameters':       ['{fio_path}'],
-+        'success':          SUCCESS_DEFAULT,
-+        'requirements':     [Requirements.not_windows],
-+    },
- ]
- 
- 
-diff --git a/t/t64-switch.sh b/t/t64-switch.sh
-new file mode 100755
-index 00000000..94b12754
---- /dev/null
-+++ b/t/t64-switch.sh
-@@ -0,0 +1,43 @@
-+#!/usr/bin/env bash
-+#
-+# Make sure that Fio actually does switch to the tausworthe64 random generator
-+# when it detects that the combination of block size and file size exceeds the
-+# limits of the default 32-bit random generator.
-+#
-+# Do this by counting the number of times offsets occurring more than once are
-+# touched. The default random generator should produce more duplicate offsets
-+# than the tausworthe64 random generator.
-+#
-+# Count offsets by parsing Fio's debug output. Use grep and cut to obtain a
-+# list of offsets, sort them, and count how many times offsets ocurring more
-+# than once are touched.
-+#
-+# Calculate the ratio of tausworthe32 duplicates to tausworthe64 duplicates. I
-+# am arbitrarily using a minimum ratio of 10 as the criteria for a passing
-+# test.
-+#
-+# Usage:
-+# t64-switch [FIO [COUNT]]
-+#
-+
-+FIO=${1:-fio}
-+COUNT=${2:-1000000}
-+
-+t32=$(${FIO} --name=test --ioengine=null --filesize=1T --bs=1 --rw=randread --debug=io --number_ios=${COUNT} --norandommap --randrepeat=0 --random_generator=tausworthe | grep complete: | cut -d '=' -f 2 | cut -d ',' -f 1 | sort -g | uniq -D | wc -l | tr -d ' ')
-+t64=$(${FIO} --name=test --ioengine=null --filesize=1T --bs=1 --rw=randread --debug=io --number_ios=${COUNT} --norandommap --randrepeat=0 | grep complete: | cut -d '=' -f 2 | cut -d ',' -f 1 | sort -g | uniq -D | wc -l | tr -d ' ')
-+if [ $t64 -gt 0 ]; then
-+	let ratio=$t32/$t64
-+else
-+	let ratio=$t32
-+fi
-+
-+echo tausworthe32: $t32
-+echo tausworthe62: $t64
-+echo ratio: $ratio
-+
-+if [ $ratio -ge 10 ]; then
-+	echo result: pass
-+else
-+	echo result: fail
-+	exit 1
-+fi
+-- 
+Jens Axboe
