@@ -1,362 +1,127 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE2E34921A1
-	for <fio@vger.kernel.org>; Wed, 21 Jan 2026 13:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D16413AA1B2
+	for <fio@vger.kernel.org>; Wed, 21 Jan 2026 16:12:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769000411; cv=none; b=ftijPcUrizRmraUYx755Z/tqjueXRlvQupx4o+i8+hpjtT3HFBy1ftbQ8+BVwYx6csmmDII/F8IEKF/MjdeqLHi+y+hQOsK9Hr9FfbQsirry7eCKLsBiPxL6j+S9ud0uplrHJBP2tRY2EjO4B79SdmH312xQk90zMAC+RSnxlG0=
+	t=1769011977; cv=none; b=bVYTbKslA6Ci27CKi6QEyzyc5EcYLaAPgaqh19La94ti+QispqiZKQOtDkDIoY1ogNgF93IeO8cJy85cvlbnZjYHebesKktpi6r2XSskXBAHPpIfcG7DCZjs8mR3SvxqM+zBEID7F8zxj7u3u7lXvgS39tPvfy63T/8fJMveVBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769000411; c=relaxed/simple;
-	bh=a/tSBpY3AtwT0l6zkb8HM99ZGkGd0a48DRj6NY2F4Ok=;
-	h=Subject:From:To:Date:Message-Id; b=iJiMF7n834e3YYJL3BEw/DfIgshu8Q1STPRgK/b4uPDtTCf0I5BVx7/vZ6kR4ZxxqwU2xiWicn8393t9fi+2LHI05jWUnvLhZIdD29W5GVn0mkJOZUiFBwzWleZ7bjLj3zM5TbBXuk8+ICI0MWYqHb5PNs0/3DEIRqlNBk/rdtA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=GuREf+LC; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1769011977; c=relaxed/simple;
+	bh=wjunn4+x2QEs4HRrQcozT7INn2DM0lGSHIZkmkDz3T0=;
+	h=From:Content-Type:Mime-Version:Subject:Message-Id:Date:To; b=fY7m58FO6dli3+dXdpwW7NOOaq4FmJT6zo4jMSWYqgTJrmqIcTjTiL0IIwW4CNntq5oMKQWkez6k+RLeZfbQM044PmPPgrxVVJlbfXGIRIFgLj/Ddb7AOVruXhQnjTPa7suLkOBMf3/77ijah/MCp/T5F23h6a3HS/HPG9ry4cc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=web_rene@gmx.de header.b=B7DprpPj; arc=none smtp.client-ip=212.227.15.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GuREf+LC"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=ue6Emzz41kib9CTm3OT02eVbsW971tOqBUe101ZJ13g=; b=GuREf+LCCC5ytF3MYLC3QIePNq
-	oO9/WVcNpdY/kr8G2puZwuw9+tih6YAyUinDTy2WjuY43AcrLiPzdFKPv/6ZSSt/1Y/uaPUeuXsc+
-	hoqfBgFGlTfwBCbjVtW/gNDqPcwfXR/+zHB4cF5fdW38B/EG2QiAZSmzBqkVAbNJi1+S7S/kLojOS
-	KmXZpG5zYcQZVXDcXW4z2D8Y2v4FzQiqaTFmajKjnuKq19V6PRE0ttyeHVZSdZLPN/uxb7epYUFz0
-	r0NGeBPwRMZZlP+4u54pJgpdM8XaFJoXvn4mmiVOysxjQ4+SyHVvzEUnZT6+TD6hCaOPUMrstjsNB
-	fiowkAjw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1viXoa-0000000GNHa-2B37
-	for fio@vger.kernel.org;
-	Wed, 21 Jan 2026 13:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 50D881BC0159; Wed, 21 Jan 2026 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Wed, 21 Jan 2026 06:00:01 -0700
-Message-Id: <20260121130001.50D881BC0159@kernel.dk>
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=web_rene@gmx.de header.b="B7DprpPj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
+	s=s31663417; t=1769011972; x=1769616772; i=web_rene@gmx.de;
+	bh=wjunn4+x2QEs4HRrQcozT7INn2DM0lGSHIZkmkDz3T0=;
+	h=X-UI-Sender-Class:From:Content-Type:Content-Transfer-Encoding:
+	 Mime-Version:Subject:Message-Id:Date:To:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=B7DprpPj61VMTlrfjkQSpSm3V+gwEtN4JbYodiTseQyt/wLsykroDtIZuDLxaPin
+	 UbF3QRQLP/jPoKcsCPdkyfqoI7f9lrX3r1f4RQU1bzTdtObQVlZzQXjmaLbyiRv4P
+	 m2KVrYvQY2jOdny5SsUoDmkXurmq5GuQlkDIs4J6FEHpPmL/7IFoPdZDHX+/Ty4GZ
+	 u9RXV/C5F70SAq8Ymo0x02dI4MyCKNTzPTPf0Ujts/JHcuGUVFnQeNDajfeIelsum
+	 g64AGz2QMf4eRGFr/Q0siDQOvvFelcip+KsPACdzFpDjrbOP1B3d02E2KfK1Kohad
+	 l26wKOvW8mCzQLnrjg==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from smtpclient.apple ([82.98.92.2]) by mail.gmx.net (mrgmx004
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MkHQh-1wBHkT3ZsX-00jWdF for
+ <fio@vger.kernel.org>; Wed, 21 Jan 2026 17:12:52 +0100
+From: =?utf-8?Q?Ren=C3=A9_Weber?= <web_rene@gmx.de>
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.300.41.1.7\))
+Subject: unsubscribe
+Message-Id: <06147D4A-0A9E-4DD1-8A2E-8925CDDF1EB7@gmx.de>
+Date: Wed, 21 Jan 2026 17:12:42 +0100
+To: fio@vger.kernel.org
+X-Mailer: Apple Mail (2.3864.300.41.1.7)
+X-Provags-ID: V03:K1:ZERa9FlHooR9e2d4TQ7b1fFyd4rLsiRtrfouAayLek2mwuLvAot
+ fWrUpze+uKvv8xH00z1dE+YJ8BQeW9O/iRdtyCJ6uGc25x6hGHyI4vr3i99xzQfDLzKgfmn
+ 4rnUJ+IOt7YYO3ZSR+OQPcOEKcmxa5g9VLMM5z56aFZHETMNrsy3TZ9DwD1GYNfu5uNYgy3
+ 6yy8Qj8eVFRlY3u6HejDA==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:qvPyhouHGs8=;r5Og4XVUfxuc04Z5K9VzDjYWsS0
+ D3i7zFcjfcWZ1Z1mfyX12uCvT+l1Sv7TQrBjx3MwvaGRqZ4UJzmzKPdRW/pkwT0WB/9/argoS
+ GrtQBU5NtMRe2WTKA6lcHzURkXNHQn4zkbKWVNeAfAfcsQly93pf4nRQ2FVqV4o+skcxAZLTn
+ 0zu6yctVtFo6xcnsn3+oE0cB67LCVMVpOynybvdueLY0Bg4r5Td6gF98YKJjsgJStutPeN2o0
+ UBEbi1IJLPUMmY3duUKNOKd5H4Pfh9axGGf7fNIKA/CXcG9uH/OrwJDB1+vAvkSZTf3RcC7ST
+ UiWJdj0IkbyUdEq0nwCwnc+qp+ZPJSiRTwUotUDTk/xpDF+PzuTuQ3nRHc8KKu3dd2Da1cSvz
+ QN+WSgSrTKQEi0DqsGOWlqnffKMDqflHU4A6GIVbK5k9xXSed10aUukPEIXqagGOs+/76CxKY
+ vHSnHkCASmWV3PT6PPWY5Os1rM4hTFexpXX0uok9loZ6mnpsbyNjHbMMPZuqMGc+foAQwVAyo
+ p3kV0sDD+Wf1oQ6l07Z8DeZHjKl3KerKQSa/OUicWKE9JFtzRQelMImSIDFX0IfmL5TtmE8UC
+ FwG48yBHj21aVookJubWoomK6gypjUXQuTZLsA7W1KEJiZSf31ltluj68Kj1cdPbw/N21k3k8
+ /E24cbiMTguRrkUFvoZViRs4hAr192TlUm7x/MOdOPsmZsydMCVWV0hO9e6xv6v1KbnOJwg9q
+ j6jpHM84CSlXjL9R3toFErjjYvWf4tZYgqvlldhhLDjs5jwlrOUuZhoGNUFaJHYtb7jdRWu+f
+ oIQo+ueTutAp9WRLkChGffeciK3WRVpkvgL6HYDqo2SzoSrDmgmCPuca67n1gDeaOiNfxZOiY
+ RFwhqcWSmqISOVcAIQyDGZxmsHwOho6lakrUjZCzU9QzUBoPsfMbhR5Dy8iFUXxC92gUNqhd6
+ 5WjI7Hn078Q8Xm9W0CL+V/SURMS/r+JkU/HGR/BvQM7NO3PWUIbSd4sqdaPTMYPY+ZTY4ASbI
+ ReJV5bEm/KV3CnAs6Y6L+GGk3jZyUpyC4206Ob+Aa5OUkMcM18dTZWW/2/xKsml7k9RmTxj8u
+ dlHVUa3zfvWxZ6dNNYQ0TJyhJv/J7mSfTQHrz/GKSVauepnB2D28Nf79wU6XPRGcccZkVzLi1
+ SFhUg9E/TkPa6blDYvHbdHI2TuNK+jEo3WmBYb3Voy4+BY9cGczFDXTTMb7eeWvto492RUTlO
+ DSvXMCEnk1a9/UeertE1b0ynJEIxB4s4AC2CRYVQHPylEks9WUImbJ0KK4dp70OEJn0HdfrtL
+ CttsMghdJOoYLGdoWXWojwdeHeoIm/gL3aOYjKZ3HScAwmg6PExidBO301vj8RoCPgoMzyvlV
+ VZ7TEg5Vvx7ewx6CLNKa/zrHoOEePjASEYDYUtrKefMbkSBCUBOjJWWu47uF/XhV6r44ZXroS
+ PCwApj71qaU1ChXWdlJnWqISvt/w+E01OYq6KxUaABQ2Iu1xbf8+/vaR6NZG9hYykRtaLUuOX
+ ST/z6wsua9rQ3DiddaWbFA917sTcVEZ0P8TUMIL3y4ioLOqhYb8P/CUBYAytTLWUn35UPZIcQ
+ pC91ynzCAtqiFqgh1qhVAlFscdtlGUW/NnFRGaCugrEulDFwZK1kMYrRGoxV8qu2GLqM3foLi
+ tZUlQvtDGk7T5jOvOc9zvjW7GiZidXulaMUQx8IimPqfyNDWTV73iQHbeCifawpYHbuvLOmeQ
+ vNUKi++nQV1L4A8zdU7Z2ehj/zOkWxllFs7A698AFfFBhh8KFOZFqzjtcGhPa8ZzvHo3z874C
+ TahHMlpq4RUMlju5BRNlGBEHsFBWdKJBcyd1HsEFYlDaUVisRy2BB7pW9yFFuAoOaNgBaa4y3
+ OrI8w8VqyrUJYkY9URQlqeZfGBAfEqec//DhUQj71wxYrReV9nB7w3e+byqQzLqph8H5b2xml
+ roinWPKV8Ld2iCLBr35Tn+hwUxzc2zT3qYDlh6ayxioWfQtbbWW5P1v4CaSki+534NDMlPdQt
+ MTtKI8RlEfRive8uzy48dIvUetVTBWYciySdh5H+lqUuaTC9UXqgVwM/BELfmBRCd35IkX/0U
+ 5hjT6tqpU0drQEauNBaf1kEWV3CFyb0y/RD3unKsM0u40qGNN5U2NDmLYiXY4jBF3uttnZj0J
+ lcNmSHjXrUbKhyRD33lcHEy7OvuOp9C19XU0qXUULnthzuDG6oHt5YMGtAqXtxu6IEnfyKrPi
+ 1jbaEYO0m9Bvtn1PT0hUqI97KpInBicdOKWC+6t3CW66oU8e3IClNpag0ZRROMZ/LuAkFI+Oe
+ a4iA4nSmXpd3RQVQYZyml5QeIzt4EaXbQP9l2rVHwnFS/7q8GKcFfHnop9APeHjMs/lELQMTU
+ 1OhkUsay2HQ+klaFCe9DBDsJ+Jvw+z+BeasdqBU242/eA0+xVqULJ3sPh3Fj1nhzlyjDYct81
+ iqbj6h/j9b/WoZgNrr36Cbn5xqlSFNruQhu6SH5WN+ngbh+U/+96hfEWkBqSRIIJG4V+vX7Rw
+ vT8LoRHwe4hBv0LIZiDh0W7iZRJn0ee2Eirtk2sqO/m7ejL3ukUg2hwgRRglM2BohRYhYD0T7
+ vrFNBuwpOMEZcjF1ik4H99nxDc4jbCm+K48iLeSm09okkx48st5t091bdTMjB2aaZEvPHJBnu
+ ODauH1HyZlUF5/xarJH/0gb4BEw6jbkW/KVUc0yVpOEf+TSZnNv//4fZbjH3ZlcKZswMiyYhX
+ HbUFafsIcbUfptCM7OXPl5VbcGHnElVGIQhVDGJd8ATCMZgMdDZOQkCVRRrFkveo5ap8nq4T2
+ 2dtbxobLR0YfRAAcE2q5MbvQQPgfoobEKHBZZifuB89ne3J5IsPaXUJHwHW14xrFY08aTcYtY
+ NePGBZP1BSAnp0i5N0g91ZAlZTGkM4yC9uoDUTCjEN+3+raeIF5rLshkVWdAJNAapo6ZoOyAt
+ n4t3CJMNfgy8RVytupR5yE1BvQh0O70a4KgaF0fKDjmEPNJ0Ie0g7MkimjtbDwuZl4VXSuZ0F
+ b0i4gNjot5/HWnPLfaR0rycxHa4OcO9J18P5Rxj1b3uSClQ3E7fQe0pCqoCIsu2mMgnA8NpEv
+ OU9QLcAOvSDWTEJu0aw5W9gtcGhf9hYSPW6Dh9z04jqUkyeMkwOMLabBaCDVdjFjOVXbxDa2q
+ irh15wny4raww/tjyI02umoN4rZgc+BoXRfE0pbULZ272347yRahyHJMc486fIoFv37tj1EcJ
+ 1f6zdD3Z9YEuOtaoITVadkwvMDN955WwSkxBywX47RJNQ86I99JE2ySgG/yhlVAhqozIW7Xfe
+ 1yEG5J8i8bwj7rI0VkfmmqIu5b5k7C96Ce/Udx3AAeiYXk9aBeoJeCJ87Chbr5s+uf5DF5ZrS
+ FBGIt8usga6l173aIbMek9BhAez2D2yIF6u65jdBxkgvOtzgpGFjuF+VfGtjD+1Q6Gf0T2NQO
+ HhgNe/67Llsa9uZTsJ6A4VLVH8pUhBPZSv7l4zdzNnynFIV5WGsXxA2w31L7nd0NU6LLG6guq
+ MeO6BARrTxtjyPSDF5plTRVeRr1k3OokhWvyi+Ia+Jqs9aA06YQskpjb9AvPIlzSbiLFvIXGg
+ ezzTUFwWJq3F2tjYEIvfoEAdbAJ4Q7VGYtxK8PT85KXmnWcJMN+9qv60xjOS2E5TE/O/ik5rq
+ FUwEn0MDsKgAHosRNB3ejGBk1GIsgDw6/GpWtP+fonu9syLxsganty4gLR10lVrkiJZkQ7DV0
+ 45Phx8gQuxsLFYz3mEPJZTNUBObTQ982PcprBmOJ5/sXev53h1euOXZcfGN0oH0mbPJZ9EQjQ
+ lFhDe8TvNEDwqgMuPnC2IJM5Mhpywj74rxDFBN6FLuBE/4qhvcsGs83irxog2r6SbGYZ76+De
+ EwTRBoFskfftaU/9vLsw7k++B7JtbvPWTPeUi12VCoS2guy9WBRfkJauVYhrVuuHlWED2dJky
+ N09gSNkSKuvE/DaqMPQ1m3Us1HSCdNeFy4c12Q01IXRVutLH/cmbJQ4S6dPof+l/3ux1J5a0S
+ i+29vTkHNPCeM5oA6MyNP2qY7qiOfC04/t390wuMo45L7zbD9Vv6PvDjiw2/zgrg4vWKve4aK
+ XJcYTnkPRj2Kr1mZYLEQjetAkK6XLt97eLDpLKmMX0gBJo20tZ6kgGW4S58I9Zi4bPvRcyYR1
+ I22n+7vOE6viiTpfadm6jmqweYUMnynhIYClEbAlYWACx+5ElPVvjDvEgXzMcAhpZQthXsPhW
+ AO2f14vqMaThiLWjN2Zrmg85TbE/Xl9oWL6FfuAvjWYatv8dWbv7JtWYpSzjOCSgTMQiKX6PR
+ XEBFwVK6BXEVxzhjd73rzs0cuKo71RbodtjFQnCeumlFRbd+A9PtCre+I4H7bODhOPjSjFaLQ
+ RZ3iI/volOFTm4aZniUFrrRMZV1LmUHiEzyhElEywhVU3kLLRtPJWHowRnsDi+8U1Pbp02a8S
+ fBNiDQYSNFDdqAiFYsCyI7Px8EHZg/OC4o6Th3vyr3o/LApVYiMju4w4lRCxT1ACRnFJzLd4j
+ JNfgy8P91xy1B5cs7hPYCKyqJAEp6qL92B1v2il4ufAeaFgodCJExZFv0ac1vKkrCUxI2hyYe
+ k9rL77eZfXJqtcYoyEJf27kgriPPeFyZJgQ2kIrKobY8EtgKLNxN0VtN2+3Z55GV9X4HkTP7U
+ R2hAz/pF/MYGX9nPM8bmTgu9fOepJ4VHSTNyw8sHyvoQ00r6hWiWUCTFr0Zz4SpXx/XZzo1Hb
+ BByyaIoi+jKzcNEkwF0Wh5DnU8A4kzZSiRBlCM+/HgQvfHj/xmBHgWh46eYyokEnPw6DBzmf0
+ a8UtCHqstTMKAoLywbNk/ZzfrHXn7mHVEWi41gPNWo9oTrt5E01Fz3M8+xN4UqmeUqWofSkLk
+ RWZfxOHObbzKVA7otWSmvc3it3wnx2/s37RbEm66TwNaIDlDcEU36zL4DekA3JmPOKU5LDwaP
+ eYq0CUIBwnYbjA==
 
-The following changes since commit e2d1cce0f1c5617467f95ac2154212179451ba85:
-
-  test: add test for switching to tausworthe64 (2026-01-15 21:02:38 -0500)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to bfe306e16932382069d4c4de3eb0bae9de1e9b09:
-
-  Fixups for rbd luks support (2026-01-20 12:56:59 -0700)
-
-----------------------------------------------------------------
-David Mohren (1):
-      engines/rbd: add support for LUKS encryption
-
-Jens Axboe (3):
-      Merge branch 'io_uring_zbc_support' of https://github.com/mannanal/fio
-      Merge branch 'rbd-encryption-support' of https://github.com/Greenpepper15/fio
-      Fixups for rbd luks support
-
-Vishal Jose Mannanal (1):
-      Add ZBD (Zoned Block Device) support to io_uring engine
-
- HOWTO.rst          | 16 ++++++++++
- configure          | 25 ++++++++++++++++
- engines/io_uring.c | 47 +++++++++++++++++++++++++++++
- engines/rbd.c      | 86 ++++++++++++++++++++++++++++++++++++++++++++++++++++--
- fio.1              | 13 +++++++++
- 5 files changed, 185 insertions(+), 2 deletions(-)
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index b1642cf0..fb607aa4 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2891,6 +2891,22 @@ with the caveat that when used on the command line, they must come after the
-         Touching all objects affects ceph caches and likely impacts test results.
-         Enabled by default.
- 
-+.. option:: rbd_encryption_format=str : [rbd]
-+
-+		Specifies the encryption format of the RBD image. Supported values are
-+		``luks1`` and ``luks2``. If set, :option:`rbd_encryption_passphrase`
-+		must also be specified. Note that the image must have been
-+		previously formatted using :command:`rbd encryption format <image>`;
-+		the fio rbd engine will only attempt to load the encryption
-+		context, not format the image. The RBD encryption feature is
-+		disabled by default. Support for this feature requires librbd
-+		version 16.2 (Ceph Pacific) or later.
-+
-+.. option:: rbd_encryption_passphrase=str : [rbd]
-+
-+		The passphrase used to unlock the encrypted RBD image. Required if
-+		:option:`rbd_encryption_format` is set.
-+
- .. option:: pool=str :
- 
-    [rbd,rados]
-diff --git a/configure b/configure
-index 64e58b65..dca87255 100755
---- a/configure
-+++ b/configure
-@@ -2011,6 +2011,28 @@ fi
- print_config "rbd_invalidate_cache" "$rbd_inval"
- fi
- 
-+##########################################
-+# check for rbd_encryption_load()
-+if test "$rbd_encryption" != "yes" ; then
-+  rbd_encryption="no"
-+fi
-+if test "$rbd" = "yes" ; then
-+cat > $TMPC << EOF
-+#include <rbd/librbd.h>
-+
-+int main(int argc, char **argv)
-+{
-+  rbd_image_t image;
-+
-+  return rbd_encryption_load(image, RBD_ENCRYPTION_FORMAT_LUKS1, 0, 0);
-+}
-+EOF
-+if compile_prog "" "-lrbd -lrados" "rbd_encryption"; then
-+    rbd_encryption="yes"
-+fi
-+  print_config "rbd_encryption_load" "$rbd_encryption"
-+fi
-+
- ##########################################
- # Check whether we have setvbuf
- if test "$setvbuf" != "yes" ; then
-@@ -3221,6 +3243,9 @@ fi
- if test "$rbd_inval" = "yes" ; then
-   output_sym "CONFIG_RBD_INVAL"
- fi
-+if test "$rbd_encryption" = "yes" ; then
-+  output_sym "CONFIG_RBD_ENCRYPTION"
-+fi
- if test "$setvbuf" = "yes" ; then
-   output_sym "CONFIG_SETVBUF"
- fi
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 6c3eb43c..5c416bc5 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -1883,6 +1883,47 @@ static int fio_ioring_cmd_get_file_size(struct thread_data *td,
- 	return generic_get_file_size(td, f);
- }
- 
-+static int fio_ioring_get_zoned_model(struct thread_data *td,
-+				      struct fio_file *f,
-+				      enum zbd_zoned_model *model)
-+{
-+	return blkzoned_get_zoned_model(td, f, model);
-+}
-+
-+static int fio_ioring_report_zones(struct thread_data *td,
-+				   struct fio_file *f, uint64_t offset,
-+				   struct zbd_zone *zbdz,
-+				   unsigned int nr_zones)
-+{
-+	return blkzoned_report_zones(td, f, offset, zbdz, nr_zones);
-+}
-+
-+static int fio_ioring_reset_wp(struct thread_data *td, struct fio_file *f,
-+			       uint64_t offset, uint64_t length)
-+{
-+	return blkzoned_reset_wp(td, f, offset, length);
-+}
-+
-+static int fio_ioring_get_max_open_zones(struct thread_data *td,
-+					 struct fio_file *f,
-+					 unsigned int *max_open_zones)
-+{
-+	return blkzoned_get_max_open_zones(td, f, max_open_zones);
-+}
-+
-+static int fio_ioring_finish_zone(struct thread_data *td, struct fio_file *f,
-+				  uint64_t offset, uint64_t length)
-+{
-+	return blkzoned_finish_zone(td, f, offset, length);
-+}
-+
-+static int fio_ioring_move_zone_wp(struct thread_data *td, struct fio_file *f,
-+				   struct zbd_zone *z, uint64_t length,
-+				   const char *buf)
-+{
-+	return blkzoned_move_zone_wp(td, f, z, length, buf);
-+}
-+
- static int fio_ioring_cmd_get_zoned_model(struct thread_data *td,
- 					  struct fio_file *f,
- 					  enum zbd_zoned_model *model)
-@@ -1954,6 +1995,12 @@ static struct ioengine_ops ioengine_uring = {
- 	.open_file		= fio_ioring_open_file,
- 	.close_file		= fio_ioring_close_file,
- 	.get_file_size		= generic_get_file_size,
-+	.get_zoned_model	= fio_ioring_get_zoned_model,
-+	.report_zones		= fio_ioring_report_zones,
-+	.reset_wp		= fio_ioring_reset_wp,
-+	.get_max_open_zones	= fio_ioring_get_max_open_zones,
-+	.finish_zone		= fio_ioring_finish_zone,
-+	.move_zone_wp		= fio_ioring_move_zone_wp,
- 	.options		= options,
- 	.option_struct_size	= sizeof(struct ioring_options),
- };
-diff --git a/engines/rbd.c b/engines/rbd.c
-index 2f25889a..ab4b679b 100644
---- a/engines/rbd.c
-+++ b/engines/rbd.c
-@@ -40,6 +40,8 @@ struct rbd_options {
- 	char *pool_name;
- 	char *client_name;
- 	int busy_poll;
-+	char *encryption_format;
-+    char *encryption_passphrase;
- };
- 
- static struct fio_option options[] = {
-@@ -89,6 +91,24 @@ static struct fio_option options[] = {
- 		.category	= FIO_OPT_C_ENGINE,
- 		.group		= FIO_OPT_G_RBD,
- 	},
-+	{
-+        .name     = "rbd_encryption_format",
-+        .lname    = "RBD Encryption Format",
-+        .type     = FIO_OPT_STR_STORE,
-+        .off1     = offsetof(struct rbd_options, encryption_format),
-+        .help     = "RBD Encryption Format (luks1, luks2)",
-+        .category = FIO_OPT_C_ENGINE,
-+        .group    = FIO_OPT_G_RBD,
-+    },
-+    {
-+        .name     = "rbd_encryption_passphrase",
-+        .lname    = "RBD Encryption Passphrase",
-+        .type     = FIO_OPT_STR_STORE,
-+        .off1     = offsetof(struct rbd_options, encryption_passphrase),
-+        .help     = "Passphrase for unlocking the RBD image",
-+        .category = FIO_OPT_C_ENGINE,
-+        .group    = FIO_OPT_G_RBD,
-+    },
- 	{
- 		.name = NULL,
- 	},
-@@ -134,6 +154,65 @@ failed:
- 
- }
- 
-+#ifdef CONFIG_RBD_ENCRYPTION
-+static bool _fio_rbd_setup_encryption(struct rbd_data *rbd, struct rbd_options *options)
-+{
-+	rbd_encryption_format_t fmt;
-+	void *opts_ptr = NULL;
-+	size_t opts_size = 0;
-+	int r;
-+
-+	rbd_encryption_luks1_format_options_t luks1_opts;
-+	rbd_encryption_luks2_format_options_t luks2_opts;
-+
-+	if (!options->encryption_format)
-+		return true; // No encryption requested
-+
-+	if (!options->encryption_passphrase) {
-+		log_err("rbd_encryption_passphrase is required when a rbd_encryption_format is specified.\n");
-+		return false;
-+	}
-+
-+	if (!strcmp(options->encryption_format, "luks2")) {
-+		fmt = RBD_ENCRYPTION_FORMAT_LUKS2;
-+		memset(&luks2_opts, 0, sizeof(luks2_opts));
-+		luks2_opts.passphrase = options->encryption_passphrase;
-+		luks2_opts.passphrase_size = strlen(options->encryption_passphrase);
-+		opts_ptr = &luks2_opts;
-+		opts_size = sizeof(luks2_opts);
-+	} else if (!strcmp(options->encryption_format, "luks1")) {
-+		fmt = RBD_ENCRYPTION_FORMAT_LUKS1;
-+		memset(&luks1_opts, 0, sizeof(luks1_opts));
-+		luks1_opts.passphrase = options->encryption_passphrase;
-+		luks1_opts.passphrase_size = strlen(options->encryption_passphrase);
-+		opts_ptr = &luks1_opts;
-+		opts_size = sizeof(luks1_opts);
-+	} else {
-+		log_err("rbd_encryption_load failed. Unknown rbd_encryption_format: %s\n", options->encryption_format);
-+		return false;
-+	}
-+	r = rbd_encryption_load(rbd->image, fmt, opts_ptr, opts_size);
-+	if (r < 0) {
-+		log_err("rbd_encryption_load failed.\n");
-+		return false;
-+	}
-+	return true;
-+}
-+#else
-+static bool _fio_rbd_setup_encryption(struct rbd_data *rbd, struct rbd_options *options)
-+{
-+	if (options->encryption_format) {
-+		int major, minor, extra;
-+        rbd_version(&major, &minor, &extra);
-+
-+        log_err("rbd encryption requested but not supported by this librbd version (%d.%d.%d).\n",
-+                major, minor, extra);
-+        return false;
-+    }
-+	return true;
-+}
-+#endif
-+
- #ifdef CONFIG_RBD_POLL
- static bool _fio_rbd_setup_poll(struct rbd_data *rbd)
- {
-@@ -251,12 +330,15 @@ static int _fio_rbd_connect(struct thread_data *td)
- 		}
- 	}
- 
-+	if (!_fio_rbd_setup_encryption(rbd, o))
-+		goto failed_post_open;
-+
- 	if (!_fio_rbd_setup_poll(rbd))
--		goto failed_poll;
-+		goto failed_post_open;
- 
- 	return 0;
- 
--failed_poll:
-+failed_post_open:
- 	rbd_close(rbd->image);
- 	rbd->image = NULL;
- failed_open:
-diff --git a/fio.1 b/fio.1
-index 3ee154ed..071ad0e9 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2637,6 +2637,19 @@ During initialization, touch (create if do not exist) all objects (files).
- Touching all objects affects ceph caches and likely impacts test results.
- Enabled by default.
- .TP
-+.BI (rbd)rbd_encryption_format \fR=\fPstr
-+Specifies the encryption format of the RBD image. Supported values are
-+`luks1' and `luks2'. If set, \fBrbd_encryption_passphrase\fR must
-+also be specified. Note that the image must have been previously formatted
-+using `rbd encryption format <image>'; the fio rbd engine will only
-+attempt to load the encryption context, not format the image.
-+The RBD encryption feature is disabled by default.
-+Support for this feature requires librbd version 16.2 (Ceph Pacific) or later.
-+.TP
-+.BI (rbd)rbd_encryption_passphrase \fR=\fPstr
-+The passphrase used to unlock the encrypted RBD image. Required if
-+\fBrbd_encryption_format\fR is set.
-+.TP
- .BI (http)http_host \fR=\fPstr
- Hostname to connect to.  HTTP port 80 is used automatically when the value 
- of the \fBhttps\fP parameter is \fBoff\fP, and HTTPS port 443 if it is \fBon\fP.
+unsubscribe
