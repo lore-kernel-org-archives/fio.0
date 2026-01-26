@@ -1,434 +1,94 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D629326F291
-	for <fio@vger.kernel.org>; Mon, 26 Jan 2026 06:22:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 722A921ABC9
+	for <fio@vger.kernel.org>; Mon, 26 Jan 2026 06:55:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769408540; cv=none; b=kDIjlSzchyc771+5RTzXumrDFrgDsfOYt62EcW6IylD7ecb8i6u5ceKrCpuvrxDHiV/XxtQbYsry45cniJHLWNb17MU70Yl6m81KMVHnaFcW3ADzaDtkZs8yIooqIQWQ8FBrSYcu44X932oYoteM8OxRHZ9zY1i5KicSYYAkvoQ=
+	t=1769410527; cv=none; b=gI4pHYYPsWaJEy+yXDAaLx7XZOq+jvMhV0oj20N/wMFKnmMI3sC3DIVyC7nqS6Cni2FrMiHBhITOYTbD01SCi8iR+WCA3V3iPwB6GUSGDGPoN2ZfNbrIFBeEmEkxlOJJwrRa73YlxiBXQCVhVUpDHoL2xGHiez3POqecTLdsVzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769408540; c=relaxed/simple;
-	bh=cI4D/o/4xs0LFbaUjXjBS1YczIPPvE8orG0SuqTeuBs=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=e49AH7DlmeWt51KIcHjgX+mLdWqtgH3jgT5fy0rzt9AvXHLKzljuC+1pwoZ4sI6HpzioEAY81vgnpkTXtmmbrnCVYPNHsIKvIBIDjlhP+y7qrjfO4/jiF1XxEdWNhNgXBHN0oN8UFwwGJkNJLwG1dXYSn81eNE4t713awX/MS2c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kBEsOpx7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769410527; c=relaxed/simple;
+	bh=X1Ehh4y2ZbUnwECLvewZLYpoCU1CXDYkQeh9jDIel+M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=ua7q8mMiMDJMQq0xfqHfQLtw3MSWzz2fIbgVe7fG34OTS5niyPLKUoeXQWbvPjxuJGvPXm52/ETSrc+tfy0XZ5dx21v3tW8uMKtPwZ/1+5UihwnOm/0kva2gMLd1rmnKpSRV5NgSKzbVFStJYcBLJB5VhUgdguxnqDBhmcLIay8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XYhlnnfu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kBEsOpx7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12BD5C116C6;
-	Mon, 26 Jan 2026 06:22:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XYhlnnfu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EF85C116C6;
+	Mon, 26 Jan 2026 06:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769408540;
-	bh=cI4D/o/4xs0LFbaUjXjBS1YczIPPvE8orG0SuqTeuBs=;
-	h=From:To:Subject:Date:From;
-	b=kBEsOpx7MEBJv6kdzC+mDCTnVeZFASvJ+9+xV7+gefDkFf5TBUDK0RRp2we+YcqRU
-	 7SMNupNFQEuKW4fvbqIYwjqep33cKmqvFU4ysI4o/gGDU0XqRf1g9/SyMN9X1Ky3eI
-	 UXpjCA7WpJ1zzFwq0EW8WQQjPDxDmQJIwT4AWGjgDnN3ClGU077GsU+JYqLj5usFGH
-	 Vplw2aMlYJYz+8Jbnt2QaPBXJgLBL3IjPKsK32zXoOrpQsafptdWfKVjlZDAWBBfsY
-	 0y5F7NWoCLxmuEX8EJlM+ajenTdVuPM8P8Oz4KZMGkCT9y5Mq/08oBudnAiHYQxdvc
-	 H0sQI9o5yGBtg==
-From: Damien Le Moal <dlemoal@kernel.org>
-To: fio@vger.kernel.org,
-	Vincent Fu <vincentfu@gmail.com>,
-	Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH v2] Introduce the end_syncfs option
-Date: Mon, 26 Jan 2026 15:17:21 +0900
-Message-ID: <20260126061721.270448-1-dlemoal@kernel.org>
-X-Mailer: git-send-email 2.52.0
+	s=k20201202; t=1769410527;
+	bh=X1Ehh4y2ZbUnwECLvewZLYpoCU1CXDYkQeh9jDIel+M=;
+	h=Date:Subject:To:References:From:In-Reply-To:From;
+	b=XYhlnnful+3ujHRhXBFlAh2IT6w04nIHqaRv1Ily3rqObRZ0wbPfzAGOrWGFckbHH
+	 gwHLLv6+y2/Z5KysbiPHdhp4b+wlBfi6lar3VMz/8JGow7zgqkf5YYp+M+KRYjR4Ah
+	 w3ZsoqcZRHiFBd/ic/rZ/0XU7sS3DalgqPVG1muCrx1x02Hevfs+jvWw3XTHzJL+2+
+	 RbM1ojnsZOeC938m+BaOsnjzC4a8UJksVe7ygc54qkInsH1uHd8QmC3a4uwzBHwAR1
+	 61IyOckQNVCN2TrlQf98DyxYIHsCkCcuIxxtgtiIFsZSY5zT9F7GkbWzlD75ngYC3A
+	 WakNDiD64FaOw==
+Message-ID: <67f30e83-bab6-4e44-9f3d-f5d5a2056203@kernel.org>
+Date: Mon, 26 Jan 2026 15:50:28 +0900
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/12] zbd: fix problems of random write with unaligned
+ block size
+To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>
+References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
+Content-Language: en-US
+From: Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-When benchmarking a file system file writes with buffered I/Os, the
-options fsync, fsync_on_close and end_fsync allow for accounting for all
-performance with the file data safely written to media. All these
-options can be used in different scenarios to emulate applications use
-of the fsync() system call.
+On 1/9/26 11:35 AM, Shin'ichiro Kawasaki wrote:
+> When random write workload runs with zonemode=zbd and block size
+> unaligned to the zone size or the initial write pointer position, two
+> problems are observed. The first one is write target zone selection.
+> When one zone is filled by the write workload, the same zone is selected
+> as the next write target. This results in writes concentrating on
+> certain zones despite the workload specifies random write.
+> 
+> The second problem is write performance. The writes with unaligned block
+> size leaves small remainder areas at the end of write target zones. To
+> free up the zone resource, current fio does zone finish operations to
+> the zones with the small remainder. Fio also calls io_u_quiesce() to
+> prepare for the zone finish operation and the write target zone
+> switching. These zone finish operation and io_u_quiesce() calls
+> significantly degrade the random write performance.
+> 
+> This series address these problems. The first patch addresses the write
+> target zone selection problem. The following four patches address the
+> performance problem. Next three patches clean up the code by removing
+> the zone finish operation. The last four patches adjust documentation
+> and the test set for the changes in the series.
+> 
+> Shin'ichiro Kawasaki (12):
+>   zbd: fix zone selection of random writes
+>   zbd: set norandommap=1 when zonemode=zbd is specified
+>   zbd: write zone remainders smaller than minimum block size
+>   zbd: fix write zone accounting
+>   zbd: remove io_u_quiesce() at write target zone switch
+>   zbd: remove zbd_finish_zone()
+>   oslib: remove blkzoned_finish_zone()
+>   ioengine: remove finish_zone()
+>   doc: explain norandommap restriction and small remainder of
+>     zonemode=zbd
+>   t/zbd: avoid test case 14 failure due to no randam map
+>   t/zbd: avoid test case 33 failure due to zone end remainder
+>   t/zbd: avoid test case 71 failure due to zone end remainder
 
-However, these different possibilities all involve the fsync() system
-call which implies that when called the written files are always open.
-Depending on the file system, this characteristic is very limiting. E.g.
-the XFS file system optimizes data placement of closed files to the same
-block group in order to generate a write command pattern that is very
-sequential and localized (tight packing). The use of fio existing sync
-option variants thus does not allow measuring the performance benefits
-of this optimization. Furthermore, the option end_fsync applies to all
-files of a job, causing a loop to open, fsync() and close each written
-file. For benchmarks with a very large number of files (e.g. a long
-run), this is very ineficient and slow, and often causes the performance
-results to much lower than expected.
+For the series:
 
-Solve this by introducing the end_syncfs option. If enabled, this option
-results in a call to the syncfs() system call when a job completes. This
-allows syncing all written files with a single system call and also
-avoids the need to reopen all written files. This is thus much faster
-than using end_fsync, and also enables file system writeback
-optimizations that rely on the files being written back to be closed.
+Tested-by Damien Le Moal <dlemoal@kernel.org>
 
-The syncfs() system call is supported by Linux only. This support is
-detected in the configure script and if detected, the CONFIG_SYNCFS
-configuration option defined. When not supported, the helpers.c file
-defines the syncfs() function to return an error.
 
-Like other sync variants, end_syncfs causes issuing an io_u when a job
-completes so that the time taken to write back all written files is
-accounted for in the final performance statistics. The io_u data
-direction DDIR_SYNCFS is defined to control this and used in the
-fio_file_syncfs() function in backend.c
-
-Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
----
-Changes from v1:
- - Rebase on latest code to have the correct server version change.
-
- HOWTO.rst        |  7 +++++++
- backend.c        | 37 ++++++++++++++++++++++++++++++++-----
- cconv.c          |  2 ++
- configure        | 21 +++++++++++++++++++++
- fio.1            |  6 ++++++
- helpers.c        |  8 ++++++++
- helpers.h        |  3 +++
- io_ddir.h        |  1 +
- io_u.c           | 11 +++++++++--
- options.c        | 10 ++++++++++
- server.h         |  2 +-
- thread_options.h |  5 ++++-
- zbd.c            |  1 +
- 13 files changed, 105 insertions(+), 9 deletions(-)
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index d566c18e7064..061bc4a684cc 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -1494,6 +1494,13 @@ I/O type
- 	If true, :manpage:`fsync(2)` file contents when a write stage has completed.
- 	Default: false.
- 
-+.. option:: end_syncfs=bool
-+
-+        Equivalent to :option:`end_fsync` but instead of executing
-+        :manpage:`fsync(2)` for each file of a write stage, execute
-+        :manpage:`syncfs(2)` to synchronize all written files with a single
-+        system call when a write stage has completed.  Default: false.
-+
- .. option:: fsync_on_close=bool
- 
- 	If true, fio will :manpage:`fsync(2)` a dirty file on close.  This differs
-diff --git a/backend.c b/backend.c
-index 7eb5ca2b72d8..a52962cab37e 100644
---- a/backend.c
-+++ b/backend.c
-@@ -226,7 +226,8 @@ static bool check_min_rate(struct thread_data *td, struct timespec *now)
-  * Helper to handle the final sync of a file. Works just like the normal
-  * io path, just does everything sync.
-  */
--static bool fio_io_sync(struct thread_data *td, struct fio_file *f)
-+static bool fio_io_sync(struct thread_data *td, struct fio_file *f,
-+			enum fio_ddir ddir)
- {
- 	struct io_u *io_u = __get_io_u(td);
- 	enum fio_q_status ret;
-@@ -234,7 +235,7 @@ static bool fio_io_sync(struct thread_data *td, struct fio_file *f)
- 	if (!io_u)
- 		return true;
- 
--	io_u->ddir = DDIR_SYNC;
-+	io_u->ddir = ddir;
- 	io_u->file = f;
- 	io_u_set(td, io_u, IO_U_F_NO_FILE_PUT);
- 
-@@ -273,18 +274,34 @@ static int fio_file_fsync(struct thread_data *td, struct fio_file *f)
- 	int ret, ret2;
- 
- 	if (fio_file_open(f))
--		return fio_io_sync(td, f);
-+		return fio_io_sync(td, f, DDIR_SYNC);
- 
- 	if (td_io_open_file(td, f))
- 		return 1;
- 
--	ret = fio_io_sync(td, f);
-+	ret = fio_io_sync(td, f, DDIR_SYNC);
- 	ret2 = 0;
- 	if (fio_file_open(f))
- 		ret2 = td_io_close_file(td, f);
- 	return (ret || ret2);
- }
- 
-+static int fio_file_syncfs(struct thread_data *td, struct fio_file *f)
-+{
-+	int ret;
-+
-+	if (fio_file_open(f))
-+		return fio_io_sync(td, f, DDIR_SYNCFS);
-+
-+	if (td_io_open_file(td, f))
-+		return 1;
-+
-+	ret = fio_io_sync(td, f, DDIR_SYNCFS);
-+	td_io_close_file(td, f);
-+
-+	return ret;
-+}
-+
- static inline void __update_ts_cache(struct thread_data *td)
- {
- 	fio_gettime(&td->ts_cache, NULL);
-@@ -593,7 +610,7 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 	for_each_file(td, f, i) {
- 		if (!fio_file_open(f))
- 			continue;
--		if (fio_io_sync(td, f))
-+		if (fio_io_sync(td, f, DDIR_SYNC))
- 			break;
- 		if (file_invalidate_cache(td, f))
- 			break;
-@@ -1280,6 +1297,16 @@ reap:
- 								f->file_name);
- 			}
- 		}
-+
-+		if (td->o.end_syncfs) {
-+			td_set_runstate(td, TD_FSYNCING);
-+
-+			for_each_file(td, f, i) {
-+				if (fio_file_syncfs(td, f))
-+					log_err("fio: end_syncfs failed\n");
-+				break;
-+			}
-+		}
- 	} else {
- 		if (td->o.io_submit_mode == IO_MODE_OFFLOAD)
- 			workqueue_flush(&td->io_wq);
-diff --git a/cconv.c b/cconv.c
-index 0c4a3f2d21e6..17d1200d6883 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -174,6 +174,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 	o->create_only = le32_to_cpu(top->create_only);
- 	o->filetype = le32_to_cpu(top->filetype);
- 	o->end_fsync = le32_to_cpu(top->end_fsync);
-+	o->end_syncfs = le32_to_cpu(top->end_syncfs);
- 	o->pre_read = le32_to_cpu(top->pre_read);
- 	o->sync_io = le32_to_cpu(top->sync_io);
- 	o->write_hint = le32_to_cpu(top->write_hint);
-@@ -443,6 +444,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->create_only = cpu_to_le32(o->create_only);
- 	top->filetype = cpu_to_le32(o->filetype);
- 	top->end_fsync = cpu_to_le32(o->end_fsync);
-+	top->end_syncfs = cpu_to_le32(o->end_syncfs);
- 	top->pre_read = cpu_to_le32(o->pre_read);
- 	top->sync_io = cpu_to_le32(o->sync_io);
- 	top->write_hint = cpu_to_le32(o->write_hint);
-diff --git a/configure b/configure
-index dca872557425..5b0cabcaa504 100755
---- a/configure
-+++ b/configure
-@@ -1327,6 +1327,24 @@ if compile_prog "" "" "sync_file_range"; then
- fi
- print_config "sync_file_range" "$sync_file_range"
- 
-+##########################################
-+# syncfs() probe
-+if test "$syncfs" != "yes" ; then
-+  syncfs="no"
-+fi
-+cat > $TMPC << EOF
-+#include <stdio.h>
-+#include <unistd.h>
-+int main(int argc, char **argv)
-+{
-+  return syncfs(0);
-+}
-+EOF
-+if compile_prog "" "" "syncfs"; then
-+  syncfs="yes"
-+fi
-+print_config "syncfs" "$syncfs"
-+
- ##########################################
- # ASharedMemory_create() probe
- if test "$ASharedMemory_create" != "yes" ; then
-@@ -3129,6 +3147,9 @@ fi
- if test "$sync_file_range" = "yes" ; then
-   output_sym "CONFIG_SYNC_FILE_RANGE"
- fi
-+if test "$syncfs" = "yes" ; then
-+  output_sym "CONFIG_SYNCFS"
-+fi
- if test "$ASharedMemory_create" = "yes" ; then
-   output_sym "CONFIG_ASHAREDMEMORY_CREATE"
- fi
-diff --git a/fio.1 b/fio.1
-index 4ecfc658e005..5682cc75be8f 100644
---- a/fio.1
-+++ b/fio.1
-@@ -1284,6 +1284,12 @@ will be done. Default: false.
- If true, \fBfsync\fR\|(2) file contents when a write stage has completed.
- Default: false.
- .TP
-+.BI end_syncfs \fR=\fPbool
-+Equivalent to \fBend_fsync\fR but instead of executing \fBfsync\fR\|(2) for
-+each file of a write stage, execute \fBsyncfs\fR\|(2) to synchronize all
-+written files with a single system call when a write stage has completed.
-+Default: false.
-+.TP
- .BI fsync_on_close \fR=\fPbool
- If true, fio will \fBfsync\fR\|(2) a dirty file on close. This differs
- from \fBend_fsync\fR in that it will happen on every file close, not
-diff --git a/helpers.c b/helpers.c
-index ab9d706da879..d340a2351f29 100644
---- a/helpers.c
-+++ b/helpers.c
-@@ -26,6 +26,14 @@ int sync_file_range(int fd, uint64_t offset, uint64_t nbytes,
- }
- #endif
- 
-+#ifndef CONFIG_SYNCFS
-+int syncfs(int fd)
-+{
-+	errno = ENOSYS;
-+	return -1;
-+}
-+#endif
-+
- #ifndef CONFIG_POSIX_FADVISE
- int posix_fadvise(int fd, off_t offset, off_t len, int advice)
- {
-diff --git a/helpers.h b/helpers.h
-index 4ec0f0525612..f6670b88ffef 100644
---- a/helpers.h
-+++ b/helpers.h
-@@ -11,6 +11,9 @@ extern int posix_fallocate(int fd, off_t offset, off_t len);
- extern int sync_file_range(int fd, uint64_t offset, uint64_t nbytes,
- 					unsigned int flags);
- #endif
-+#ifndef CONFIG_SYNCFS
-+extern int syncfs(int fd);
-+#endif
- extern int posix_fadvise(int fd, off_t offset, off_t len, int advice);
- 
- #endif /* FIO_HELPERS_H_ */
-diff --git a/io_ddir.h b/io_ddir.h
-index 280c1e796a26..2254cd687be4 100644
---- a/io_ddir.h
-+++ b/io_ddir.h
-@@ -8,6 +8,7 @@ enum fio_ddir {
- 	DDIR_SYNC = 3,
- 	DDIR_DATASYNC,
- 	DDIR_SYNC_FILE_RANGE,
-+	DDIR_SYNCFS,
- 	DDIR_WAIT,
- 	DDIR_LAST,
- 	DDIR_INVAL = -1,
-diff --git a/io_u.c b/io_u.c
-index ac9a1c7df079..742a181c141c 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -2445,6 +2445,11 @@ void io_u_fill_buffer(struct thread_data *td, struct io_u *io_u,
- 	fill_io_buffer(td, io_u->buf, min_write, max_bs);
- }
- 
-+static int do_syncfs(const struct thread_data *td, struct fio_file *f)
-+{
-+	return syncfs(f->fd);
-+}
-+
- static int do_sync_file_range(const struct thread_data *td,
- 			      struct fio_file *f)
- {
-@@ -2476,9 +2481,11 @@ int do_io_u_sync(const struct thread_data *td, struct io_u *io_u)
- 		ret = io_u->xfer_buflen;
- 		io_u->error = EINVAL;
- #endif
--	} else if (io_u->ddir == DDIR_SYNC_FILE_RANGE)
-+	} else if (io_u->ddir == DDIR_SYNC_FILE_RANGE) {
- 		ret = do_sync_file_range(td, io_u->file);
--	else {
-+	} else if (io_u->ddir == DDIR_SYNCFS) {
-+		ret = do_syncfs(td, io_u->file);
-+	} else {
- 		ret = io_u->xfer_buflen;
- 		io_u->error = EINVAL;
- 	}
-diff --git a/options.c b/options.c
-index f526f5eb72d6..3af22b6c4ca7 100644
---- a/options.c
-+++ b/options.c
-@@ -4610,6 +4610,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_FILE,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	= "end_syncfs",
-+		.lname	= "End sync FS",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct thread_options, end_syncfs),
-+		.help	= "Include sync of FS at the end of job",
-+		.def	= "0",
-+		.category = FIO_OPT_C_FILE,
-+		.group	= FIO_OPT_G_INVALID,
-+	},
- 	{
- 		.name	= "unlink",
- 		.lname	= "Unlink file",
-diff --git a/server.h b/server.h
-index 09e6663e4dde..a1e71a446e98 100644
---- a/server.h
-+++ b/server.h
-@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 116,
-+	FIO_SERVER_VER			= 117,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index b4dd8d7acd49..0f23b803f45d 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -138,6 +138,7 @@ struct thread_options {
- 	unsigned int create_on_open;
- 	unsigned int create_only;
- 	unsigned int end_fsync;
-+	unsigned int end_syncfs;
- 	unsigned int pre_read;
- 	unsigned int sync_io;
- 	unsigned int write_hint;
-@@ -525,6 +526,8 @@ struct thread_options_pack {
- 	uint32_t exitall_error;
- 
- 	uint32_t sync_file_range;
-+	uint32_t end_syncfs;
-+	uint32_t pad;
- 
- 	struct zone_split zone_split[DDIR_RWDIR_CNT][ZONESPLIT_MAX];
- 	uint32_t zone_split_nr[DDIR_RWDIR_CNT];
-@@ -623,7 +626,7 @@ struct thread_options_pack {
- 	uint32_t lat_percentiles;
- 	uint32_t slat_percentiles;
- 	uint32_t percentile_precision;
--	uint32_t pad;
-+	uint32_t pad2;
- 	fio_fp64_t percentile_list[FIO_IO_U_LIST_MAX_LEN];
- 
- 	uint8_t read_iolog_file[FIO_TOP_STR_MAX];
-diff --git a/zbd.c b/zbd.c
-index 7a66b665cd65..08c537d7a5c1 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -2310,6 +2310,7 @@ retry:
- 		/* fall-through */
- 	case DDIR_DATASYNC:
- 	case DDIR_SYNC_FILE_RANGE:
-+	case DDIR_SYNCFS:
- 	case DDIR_WAIT:
- 	case DDIR_LAST:
- 	case DDIR_INVAL:
 -- 
-2.52.0
-
+Damien Le Moal
+Western Digital Research
