@@ -1,94 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 722A921ABC9
-	for <fio@vger.kernel.org>; Mon, 26 Jan 2026 06:55:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52236225397
+	for <fio@vger.kernel.org>; Mon, 26 Jan 2026 07:29:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769410527; cv=none; b=gI4pHYYPsWaJEy+yXDAaLx7XZOq+jvMhV0oj20N/wMFKnmMI3sC3DIVyC7nqS6Cni2FrMiHBhITOYTbD01SCi8iR+WCA3V3iPwB6GUSGDGPoN2ZfNbrIFBeEmEkxlOJJwrRa73YlxiBXQCVhVUpDHoL2xGHiez3POqecTLdsVzQ=
+	t=1769412577; cv=none; b=Jb1wG4Z/U72586AcCKaavk5Ngp8HzSbF7p4RuHJ99cezOOKEH+amp9BE/QKMtY+C+4pgrJ3bEpguNKDrnWYWYYQ+POZ2STZ1HhSuxtMIp1Oo9I8NUYQCcw9n2CX43ZhWRgcrwl0/spuMp4mlYij28p9jqpMUz3EejMc1xwKIXGA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769410527; c=relaxed/simple;
-	bh=X1Ehh4y2ZbUnwECLvewZLYpoCU1CXDYkQeh9jDIel+M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=ua7q8mMiMDJMQq0xfqHfQLtw3MSWzz2fIbgVe7fG34OTS5niyPLKUoeXQWbvPjxuJGvPXm52/ETSrc+tfy0XZ5dx21v3tW8uMKtPwZ/1+5UihwnOm/0kva2gMLd1rmnKpSRV5NgSKzbVFStJYcBLJB5VhUgdguxnqDBhmcLIay8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XYhlnnfu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769412577; c=relaxed/simple;
+	bh=b2JvrE/naZBqiymORqtGeA2jmZaFVI9CS4ejb4aD/S8=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=qt75/q4/+NaPQUHr198uXyeAUNvF7U1xzLx0vLNLLPuBs//+oichNO0snx/EBNaZJsZ04Sw0W42QvZti248f/6k4F1fPu4gW9MzNKxiOzZs0A3wGGcDPqtJpxsJOu/7y7YqdgsDHeX+CfjjTTQtsSTaaDOhZqTgO6wCVTGAsA4c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h/7InQh4; arc=none smtp.client-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XYhlnnfu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EF85C116C6;
-	Mon, 26 Jan 2026 06:55:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769410527;
-	bh=X1Ehh4y2ZbUnwECLvewZLYpoCU1CXDYkQeh9jDIel+M=;
-	h=Date:Subject:To:References:From:In-Reply-To:From;
-	b=XYhlnnful+3ujHRhXBFlAh2IT6w04nIHqaRv1Ily3rqObRZ0wbPfzAGOrWGFckbHH
-	 gwHLLv6+y2/Z5KysbiPHdhp4b+wlBfi6lar3VMz/8JGow7zgqkf5YYp+M+KRYjR4Ah
-	 w3ZsoqcZRHiFBd/ic/rZ/0XU7sS3DalgqPVG1muCrx1x02Hevfs+jvWw3XTHzJL+2+
-	 RbM1ojnsZOeC938m+BaOsnjzC4a8UJksVe7ygc54qkInsH1uHd8QmC3a4uwzBHwAR1
-	 61IyOckQNVCN2TrlQf98DyxYIHsCkCcuIxxtgtiIFsZSY5zT9F7GkbWzlD75ngYC3A
-	 WakNDiD64FaOw==
-Message-ID: <67f30e83-bab6-4e44-9f3d-f5d5a2056203@kernel.org>
-Date: Mon, 26 Jan 2026 15:50:28 +0900
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h/7InQh4"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2b70abe3417so9704728eec.0
+        for <fio@vger.kernel.org>; Sun, 25 Jan 2026 23:29:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769412575; x=1770017375; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=b2JvrE/naZBqiymORqtGeA2jmZaFVI9CS4ejb4aD/S8=;
+        b=h/7InQh4SD4T3dz8WpncX8YTdYVb9NRNJG3kLmBNiao5PkMzdwduArpGs7hasQw+MB
+         jHxaqDKmQ33AIyYqx9n26tGXtav8yAqpgYpOwDljpUPbO7pZTbLbG4WQ9WFkdJVHKK+Q
+         CYVl1uQlgZuQupLkgUzDkJRlJrkFH4bam/ioO75skKlVECL9fwWN1aAk1wlLfPUed+pA
+         DkkMIZUN6VLuGUI86E7PEYcTdqNGfijO56Hyp979igI6Y2FD9JHLcZ2Po03hwxa1fSvN
+         M/TXGlli0xUNhlMxuddyIIGcH74125kgFCBwz4bfmhNuZEj5BxlEclMMEj77LEEL5xZN
+         naOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769412575; x=1770017375;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=b2JvrE/naZBqiymORqtGeA2jmZaFVI9CS4ejb4aD/S8=;
+        b=QfPpHYGNmaD3C9Zjx32WR3xk+VXA95VUjdiGQNuL9C4rbwyQWG45uc/MSvbEc1GnOS
+         4rCyeVigx7hesYs1kRlyfTbZieNQOLwm/AUCHtQOmtug9zKTZdcEhZunzXfOJWgtGu4/
+         JKeYb+JrnfaMk24Mh7ij76J9okPN3N7/7gNxPANM3rgazhGLpCIDar11Rx9zLiTahxCx
+         x/zavH8OiHCk90qW7uaamwNQASCEW7LpDw4HXIj+PmO46R44rLflH1hx2rmYRt4KsVc0
+         yasv0Q/ernqgJdXgHu+uNeHCbWPVIKYP1YYP/IScyMPXtzayv5Gt/ykqyOD8oHB8lf5H
+         4mnQ==
+X-Gm-Message-State: AOJu0YzPqAeMj1cH+IhEgxD8qivqfhre7i7FVi8GulrhHUZ0y2YmSp24
+	bm6nsNz0yyU0gf8oNPJoOaAMcPXl/+MHyXbNi2Pah/Jw/67ftqLJkk4A+9P+
+X-Gm-Gg: AZuq6aI6yC3Goce3WQvtdmV2dDGlHg5cT8Gwyd1gywvd35rMwkQEzPOi89IZx6nXRwb
+	D22UDZ+gtLa9uu1kpQFLOABjE50+QmowQn9iLNow6+N8RKevuYR3wBTw16pxxi7VHOf+mTZEBfW
+	xfZ6coDDozneDO6ydv4+tI5GayD1nli0vG/AeOgowhqmHuhOvYqvvauEcLxTokV4e6x04uNti9Q
+	xep3gCBCgIc2NJ8x9kH6yjYfg/FzkVCgPLd4f2mpnWmG2MQmuO5gvtXc3DxPyMgktZUVRSfEZmm
+	E0cCwll+fQXJPG/szqohyxoOG6k0Z7ScUMFUH50RLWPv4HjeaTHXyrwvBtFprROOqEvHcNU8CGD
+	QVOwa9YhAaXVW8gbFM5MkZBltm0vR8zGxAMCqLioRl0Ps3CWNievPJSbVDGNjRWPwPfL8l7Pci8
+	wCy6fXKWF7wcsxWS6D5JnRwqhKjrlieipqifZ5Oo5Ezh9pgJo6n/JWhYGITV46vAd2Mrt+aebNO
+	OJsBgdhdg8=
+X-Received: by 2002:a05:7300:80c2:b0:2b7:2664:aeae with SMTP id 5a478bee46e88-2b764813484mr1553665eec.37.1769412575024;
+        Sun, 25 Jan 2026 23:29:35 -0800 (PST)
+Received: from runnervmymu0l.si5vesnirltutgysy1tpxjbuwf.dx.internal.cloudapp.net ([172.184.220.145])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2b73a9e1dcesm12361850eec.17.2026.01.25.23.29.34
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 25 Jan 2026 23:29:34 -0800 (PST)
+Date: Sun, 25 Jan 2026 23:29:34 -0800 (PST)
+Content-Type: multipart/mixed; boundary="===============5847149885700066229=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 00/12] zbd: fix problems of random write with unaligned
- block size
-To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
- Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>
-References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
-From: Damien Le Moal <dlemoal@kernel.org>
-Organization: Western Digital Research
-In-Reply-To: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
-Content-Type: text/plain; charset=UTF-8
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v2=5D_Introduce_the_end=5Fsyncfs_option?=
+In-Reply-To: <20260126061721.270448-1-dlemoal@kernel.org>
+References: <20260126061721.270448-1-dlemoal@kernel.org>
+Message-ID: <176941257387.2826.16498352510281868989@runnervmymu0l.si5vesnirltutgysy1tpxjbuwf.dx.internal.cloudapp.net>
+
+--===============5847149885700066229==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-On 1/9/26 11:35 AM, Shin'ichiro Kawasaki wrote:
-> When random write workload runs with zonemode=zbd and block size
-> unaligned to the zone size or the initial write pointer position, two
-> problems are observed. The first one is write target zone selection.
-> When one zone is filled by the write workload, the same zone is selected
-> as the next write target. This results in writes concentrating on
-> certain zones despite the workload specifies random write.
-> 
-> The second problem is write performance. The writes with unaligned block
-> size leaves small remainder areas at the end of write target zones. To
-> free up the zone resource, current fio does zone finish operations to
-> the zones with the small remainder. Fio also calls io_u_quiesce() to
-> prepare for the zone finish operation and the write target zone
-> switching. These zone finish operation and io_u_quiesce() calls
-> significantly degrade the random write performance.
-> 
-> This series address these problems. The first patch addresses the write
-> target zone selection problem. The following four patches address the
-> performance problem. Next three patches clean up the code by removing
-> the zone finish operation. The last four patches adjust documentation
-> and the test set for the changes in the series.
-> 
-> Shin'ichiro Kawasaki (12):
->   zbd: fix zone selection of random writes
->   zbd: set norandommap=1 when zonemode=zbd is specified
->   zbd: write zone remainders smaller than minimum block size
->   zbd: fix write zone accounting
->   zbd: remove io_u_quiesce() at write target zone switch
->   zbd: remove zbd_finish_zone()
->   oslib: remove blkzoned_finish_zone()
->   ioengine: remove finish_zone()
->   doc: explain norandommap restriction and small remainder of
->     zonemode=zbd
->   t/zbd: avoid test case 14 failure due to no randam map
->   t/zbd: avoid test case 33 failure due to zone end remainder
->   t/zbd: avoid test case 71 failure due to zone end remainder
 
-For the series:
+The result of fio's continuous integration tests was: success
 
-Tested-by Damien Le Moal <dlemoal@kernel.org>
+For more details see https://github.com/fiotestbot/fio/actions/runs/21349020694
 
-
--- 
-Damien Le Moal
-Western Digital Research
+--===============5847149885700066229==--
