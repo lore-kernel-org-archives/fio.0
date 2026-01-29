@@ -1,298 +1,223 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37412350A2C
-	for <fio@vger.kernel.org>; Wed, 28 Jan 2026 13:00:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5939E1ADFE4
+	for <fio@vger.kernel.org>; Thu, 29 Jan 2026 18:43:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769605212; cv=none; b=t3ddxh6SrFXdb7Rq+4Ay+pc0W8aWfN8wDAOoieoJAey+BONeVmq22FqTFq/13SIaZP4m0sgfAQfiwvGro4wtbvLO1Dag5OXc3Q/eQe9lh/OOB2G+2/Zr9TNsujefFBhXVn5r4/3a6Xk0m1fWB2Y96CnZ53muB2Ay6JBVyxnfQPo=
+	t=1769712194; cv=none; b=kZAL7W3nHYD3FQ93iJNU5gdYvGkNeFrPSyzuAQrfbM8ja2q//a6PlOn2chKTE5qAKOm2bi/VoLJIPRBKCwpIk6NV/q/1HoNuOta6PsIVSmw+rfT8dft16T2HEZRvKoladzTv4wzBgPe5cQNoSGxpRbXcu3s9vx7VfNCmxjyNlLU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769605212; c=relaxed/simple;
-	bh=fMTJafaEhqgBt+HXUZO40R9qYZad73/5GPCMv4W6xfA=;
-	h=Subject:From:To:Date:Message-Id; b=lDx/H2t1wENJXJcRg495TNsX6oeq7XiP7osuY2z71RgMcBWOJpo7EBmA181qNxmcnt5c8s6PzHzPM4BCcAhKqXtWMHlpHG7mFx7l5peXfoLAZ2Hrg1Obr4HYho6TStjYG1a1fLLMq3Tf/CecNrFYMIJ1fttTOewAKyLa2qmcDTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=esENohPN; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1769712194; c=relaxed/simple;
+	bh=v3u6rZzv04Ozte6hHFzgftSNZoxEv5nLZZ4HzVC+2zU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=QbVvXRA+OI3WZQKXNLIQDSbStsifvPp9jg4o18L7NSUnH4tvGERMqFYTF2DOk4A9EPHxicGCNZP1HckqKmGQYzyyZbCVHyOqjd4T74jxYlEJQPLpdbOtQ9O3RWHpJXtNvolsB+86RpF8gAzxHfIFtxKrir0xaGm3gAaQLuHDp6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZGtRpe5/; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="esENohPN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=HaQEPXClWoyeSODBx2rtJRc2PdkdlxjCgYDMUYof0rU=; b=esENohPN0PJAyLMHsbQGcwNxuM
-	0t6vpGx2xgrInIsNcT1tGzK+exWGcvxdYXzNRTbsDSls8+wNLb4BKTKq9Q4xvdqqA+zjIuv2R7tjz
-	QtbkPyMC+oipwzcKm+OI4+V4Uk58YMqo4nNUq07qhHPeFOVmvmkUEbJoL5Fm6Y3nfAKsXO4ffW8Nh
-	yLYBB8yZhyEL1A9Eh3Cf63aI/rMDPSXeKxHUMXY+te7Q9+5MQaqv9mldX/IC3rjZ0bZKCD7tux8Ae
-	1q13KrmFfafniKSDZEjHWvmFPtyjzTHHru7rhsRusPeyQ0kHNfBfbVfHJj73PdTTHmL3zbRTIokXj
-	4MkX8CXg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vl59S-00000009371-2UZ8
-	for fio@vger.kernel.org;
-	Wed, 28 Jan 2026 13:00:06 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 80BE31BC0192; Wed, 28 Jan 2026 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Wed, 28 Jan 2026 06:00:01 -0700
-Message-Id: <20260128130001.80BE31BC0192@kernel.dk>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZGtRpe5/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1769712192;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=wtR0Cwd66yVFVMCrqAXmiG+71//1fY03v7B3n1bdamM=;
+	b=ZGtRpe5/3qqamrsvIcuQo/sbbhDLYUUcL4gzZMgesPceACC6QqL0ZmI4vMj+5t1XnIqMQ/
+	RtZVr7OsSIUV8EVTBn1i1DS7KK8Mq6aq3v6BOPZDaGHj+LAMjUHsCnoyb53Qjj/JxOg6Dv
+	ChXI7Nc6p/qMwqrMEFOu8Tx3Y4tTlt0=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-201-b3bzjVesPpC3f846P0i90Q-1; Thu,
+ 29 Jan 2026 13:43:09 -0500
+X-MC-Unique: b3bzjVesPpC3f846P0i90Q-1
+X-Mimecast-MFC-AGG-ID: b3bzjVesPpC3f846P0i90Q_1769712188
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 68A291956046;
+	Thu, 29 Jan 2026 18:43:08 +0000 (UTC)
+Received: from h1.redhat.com (unknown [10.22.89.167])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2ABAA3001DB7;
+	Thu, 29 Jan 2026 18:43:07 +0000 (UTC)
+From: Nico Pache <npache@redhat.com>
+To: fio@vger.kernel.org
+Cc: axboe@kernel.dk,
+	vincentfu@gmail.com,
+	npache@redhat.com,
+	david@kernel.org,
+	willy@infradead.org
+Subject: [RFC 1/2] page_fault: add mmap-backed ioengine for anonymous faults
+Date: Thu, 29 Jan 2026 11:43:00 -0700
+Message-ID: <20260129184302.34887-2-npache@redhat.com>
+In-Reply-To: <20260129184302.34887-1-npache@redhat.com>
+References: <20260129184302.34887-1-npache@redhat.com>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-The following changes since commit e2e90ae52be17877d61bb58cf50e9781810d3d49:
+Introduce a new ioengine that mmaps anonymous memory and copies data
+on read/write to trigger page faults. This allows us to leverage FIOs
+powerful framework for MM related testing, and will ideally allow us to
+quickly expand testing, by leveraging previously FS related fio scripts.
 
-  Merge branch 'issue_1499' of https://github.com/gautammenghani/fio (2026-01-23 12:55:48 -0500)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 2d953029b289b778e18c9418f7d596bd12232215:
-
-  Merge branch 'job-process-comm' of https://github.com/robertbaldyga/fio (2026-01-28 05:22:30 -0700)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      engines/io_uring: don't flag iowait for GET_EVENTS if feasible
-      Merge branch 'job-process-comm' of https://github.com/robertbaldyga/fio
-
-Robert Baldyga (1):
-      Add option to specify job process comm
-
- HOWTO.rst           |  5 +++++
- backend.c           |  9 +++++++++
- cconv.c             |  3 +++
- configure           |  3 +++
- engines/io_uring.c  |  9 ++++++---
- fio.1               |  4 ++++
- options.c           | 11 +++++++++++
- os/linux/io_uring.h |  2 ++
- server.h            |  2 +-
- thread_options.h    |  2 ++
- 10 files changed, 46 insertions(+), 4 deletions(-)
-
+Signed-off-by: Nico Pache <npache@redhat.com>
 ---
+ Makefile                |   2 +-
+ engines/page_fault.c    | 105 ++++++++++++++++++++++++++++++++++++++++
+ examples/page_fault.fio |   9 ++++
+ 3 files changed, 115 insertions(+), 1 deletion(-)
+ create mode 100644 engines/page_fault.c
+ create mode 100644 examples/page_fault.fio
 
-Diff of recent changes:
+diff --git a/Makefile b/Makefile
+index 0337e8fe..099e2f94 100644
+--- a/Makefile
++++ b/Makefile
+@@ -57,7 +57,7 @@ SOURCE :=	$(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
+ 		smalloc.c filehash.c profile.c debug.c engines/cpu.c \
+ 		engines/mmap.c engines/sync.c engines/null.c engines/net.c \
+ 		engines/ftruncate.c engines/fileoperations.c \
+-		engines/exec.c \
++		engines/exec.c engines/page_fault.c \
+ 		server.c client.c iolog.c backend.c libfio.c flow.c cconv.c \
+ 		gettime-thread.c helpers.c json.c idletime.c td_error.c \
+ 		profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
+diff --git a/engines/page_fault.c b/engines/page_fault.c
+new file mode 100644
+index 00000000..e0a3c9e5
+--- /dev/null
++++ b/engines/page_fault.c
+@@ -0,0 +1,105 @@
++#include "ioengines.h"
++#include "fio.h"
++#include <sys/mman.h>
++
++struct fio_page_fault_data {
++    void *mmap_ptr;
++    size_t mmap_sz;
++    off_t mmap_off;
++};
++
++static int fio_page_fault_init(struct thread_data *td)
++{
++    size_t total_io_size;
++    struct fio_page_fault_data *fpd = calloc(1, sizeof(*fpd));
++    if (!fpd)
++        return 1;
++    
++    total_io_size = td->o.size;
++    fpd->mmap_sz = total_io_size;
++    fpd->mmap_off = 0;
++    fpd->mmap_ptr = mmap(NULL, total_io_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
++    if (fpd->mmap_ptr == MAP_FAILED)
++    {
++        free(fpd);
++        return 1;
++    }
++
++    FILE_SET_ENG_DATA(td->files[0], fpd);
++	return 0;
++}
++
++static int fio_page_fault_prep(struct thread_data *td, struct io_u *io_u)
++{
++	return 0;
++}
++
++static enum fio_q_status fio_page_fault_queue(struct thread_data *td, struct io_u *io_u)
++{
++    void * mmap_head;
++    struct fio_page_fault_data *fpd = FILE_ENG_DATA(io_u->file);
++    if (!fpd)
++        return 1;
++
++    if (io_u->offset + io_u->buflen > fpd->mmap_sz)
++        return 1;
++
++    mmap_head = fpd->mmap_ptr + io_u->offset;
++    switch (io_u->ddir)
++    {
++        case DDIR_READ:
++            for (size_t i = 0; i < io_u->buflen; i++)
++            {
++                ((unsigned char *)(io_u->xfer_buf))[i] = ((unsigned char *)(mmap_head))[i];
++            }
++            break;
++        case DDIR_WRITE:
++            for (size_t i = 0; i < io_u->buflen; i++)
++            {
++                ((unsigned char *)(mmap_head))[i] = ((unsigned char *)(io_u->xfer_buf))[i];
++            }
++            break;
++        default:
++            return 1;
++    }
++
++	return FIO_Q_COMPLETED;
++}
++
++static int fio_page_fault_open_file(struct thread_data *td, struct fio_file *f)
++{
++	return 0;
++}
++
++static int fio_page_fault_close_file(struct thread_data *td, struct fio_file *f)
++{
++	struct fio_page_fault_data *fpd = FILE_ENG_DATA(f);
++	if (!fpd)
++		return 1;
++    if (fpd->mmap_ptr && fpd->mmap_sz)
++        munmap(fpd->mmap_ptr, fpd->mmap_sz);
++	free(fpd);
++	return 0;
++}
++
++static struct ioengine_ops ioengine = {
++	.name		= "page_fault",
++	.version	= FIO_IOOPS_VERSION,
++	.init		= fio_page_fault_init,
++	.prep		= fio_page_fault_prep,
++	.queue		= fio_page_fault_queue,
++	.open_file	= fio_page_fault_open_file,
++	.close_file	= fio_page_fault_close_file,
++	.get_file_size	= generic_get_file_size,
++	.flags		= FIO_SYNCIO | FIO_NOEXTEND | FIO_DISKLESSIO,
++};
++
++static void fio_init fio_page_fault_register(void)
++{
++	register_ioengine(&ioengine);
++}
++
++static void fio_exit fio_page_fault_unregister(void)
++{
++	unregister_ioengine(&ioengine);
++}
+\ No newline at end of file
+diff --git a/examples/page_fault.fio b/examples/page_fault.fio
+new file mode 100644
+index 00000000..9001f570
+--- /dev/null
++++ b/examples/page_fault.fio
+@@ -0,0 +1,9 @@
++[global]
++bs=4k
++
++[page_fault]
++ioengine=page_fault
++size=2g
++rw=randrw
++rwmixread=50
++verify=crc32c
+\ No newline at end of file
+-- 
+2.52.0
 
-diff --git a/HOWTO.rst b/HOWTO.rst
-index d566c18e..fcb8a914 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -3744,6 +3744,11 @@ Threads, processes and job synchronization
- 	(meaning no forward references). Second, if a job is being referenced as a
- 	waitee, it must have a unique name (no duplicate waitees).
- 
-+.. option:: comm=str
-+
-+	Set the job process comm to the specified string. See man :manpage:`prctrl(2)`.
-+	Note: This option is currently supported only on Linux.
-+
- .. option:: nice=int
- 
- 	Run the job with the given nice value. See man :manpage:`nice(2)`.
-diff --git a/backend.c b/backend.c
-index 7eb5ca2b..3a000464 100644
---- a/backend.c
-+++ b/backend.c
-@@ -31,6 +31,11 @@
- #include <math.h>
- #include <pthread.h>
- 
-+#ifdef CONFIG_LINUX
-+#include <linux/prctl.h>
-+#include <sys/prctl.h>
-+#endif
-+
- #include "fio.h"
- #include "smalloc.h"
- #include "verify.h"
-@@ -1758,6 +1763,10 @@ static void *thread_main(void *data)
- 
- 	fio_local_clock_init();
- 
-+#ifdef CONFIG_LINUX
-+	prctl(PR_SET_NAME, o->comm);
-+#endif
-+
- 	dprint(FD_PROCESS, "jobs pid=%d started\n", (int) td->pid);
- 
- 	if (is_backend)
-diff --git a/cconv.c b/cconv.c
-index 0c4a3f2d..3d7b3d14 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -34,6 +34,7 @@ static void free_thread_options_to_cpu(struct thread_options *o)
- 	free(o->opendir);
- 	free(o->ioengine);
- 	free(o->mmapfile);
-+	free(o->comm);
- 	free(o->read_iolog_file);
- 	free(o->write_iolog_file);
- 	free(o->merge_blktrace_file);
-@@ -81,6 +82,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 	string_to_cpu(&o->opendir, top->opendir);
- 	string_to_cpu(&o->ioengine, top->ioengine);
- 	string_to_cpu(&o->mmapfile, top->mmapfile);
-+	string_to_cpu(&o->comm, top->comm);
- 	string_to_cpu(&o->read_iolog_file, top->read_iolog_file);
- 	string_to_cpu(&o->write_iolog_file, top->write_iolog_file);
- 	string_to_cpu(&o->merge_blktrace_file, top->merge_blktrace_file);
-@@ -396,6 +398,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	string_to_net(top->opendir, o->opendir);
- 	string_to_net(top->ioengine, o->ioengine);
- 	string_to_net(top->mmapfile, o->mmapfile);
-+	string_to_net(top->comm, o->comm);
- 	string_to_net(top->read_iolog_file, o->read_iolog_file);
- 	string_to_net(top->write_iolog_file, o->write_iolog_file);
- 	string_to_net(top->merge_blktrace_file, o->merge_blktrace_file);
-diff --git a/configure b/configure
-index dca87255..9927976e 100755
---- a/configure
-+++ b/configure
-@@ -3075,6 +3075,9 @@ if test "$bigendian" = "yes" ; then
- else
-   output_sym "CONFIG_LITTLE_ENDIAN"
- fi
-+if test "$targetos" = "Linux" ; then
-+  output_sym "CONFIG_LINUX"
-+fi
- if test "$zlib" = "yes" ; then
-   output_sym "CONFIG_ZLIB"
- fi
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index 5c416bc5..0ea3aba1 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -194,6 +194,8 @@ struct ioring_options {
- 	enum uring_cmd_type cmd_type;
- };
- 
-+static unsigned int enter_flags = IORING_ENTER_GETEVENTS;
-+
- static const int ddir_to_op[2][2] = {
- 	{ IORING_OP_READV, IORING_OP_READ },
- 	{ IORING_OP_WRITEV, IORING_OP_WRITE }
-@@ -825,8 +827,7 @@ static int fio_ioring_getevents(struct thread_data *td, unsigned int min,
- 		}
- 
- 		if (!o->sqpoll_thread) {
--			r = io_uring_enter(ld, 0, actual_min,
--						IORING_ENTER_GETEVENTS);
-+			r = io_uring_enter(ld, 0, actual_min, enter_flags);
- 			if (r < 0) {
- 				if (errno == EAGAIN || errno == EINTR)
- 					continue;
-@@ -979,7 +980,7 @@ static int fio_ioring_commit(struct thread_data *td)
- 		unsigned start = *ld->sq_ring.head;
- 		long nr = ld->queued;
- 
--		ret = io_uring_enter(ld, nr, 0, IORING_ENTER_GETEVENTS);
-+		ret = io_uring_enter(ld, nr, 0, enter_flags);
- 		if (ret > 0) {
- 			fio_ioring_queued(td, start, ret);
- 			io_u_mark_submit(td, ret);
-@@ -1182,6 +1183,8 @@ retry:
- 		return ret;
- 	}
- 
-+	if (p.features & IORING_FEAT_NO_IOWAIT)
-+		enter_flags |= IORING_ENTER_NO_IOWAIT;
- 	ld->ring_fd = ret;
- 
- 	fio_ioring_probe(td);
-diff --git a/fio.1 b/fio.1
-index 4ecfc658..014916ea 100644
---- a/fio.1
-+++ b/fio.1
-@@ -3454,6 +3454,10 @@ limitations. First, the waitee must be defined prior to the waiter job
- (meaning no forward references). Second, if a job is being referenced as a
- waitee, it must have a unique name (no duplicate waitees).
- .TP
-+.BI comm \fR=\fPstr
-+Set the job process comm to the specified string. See man \fBprctrl\fR\|(2).
-+Note: This option is currently supported only on Linux.
-+.TP
- .BI nice \fR=\fPint
- Run the job with the given nice value. See man \fBnice\fR\|(2).
- .\" ignore blank line here from HOWTO as it looks normal without it
-diff --git a/options.c b/options.c
-index f526f5eb..fe22df01 100644
---- a/options.c
-+++ b/options.c
-@@ -4034,6 +4034,17 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_RWMIX,
- 	},
-+#ifdef CONFIG_LINUX
-+	{
-+		.name	= "comm",
-+		.lname	= "Job process comm",
-+		.type	= FIO_OPT_STR_STORE,
-+		.off1	= offsetof(struct thread_options, comm),
-+		.help	= "Process comm of this job",
-+		.category = FIO_OPT_C_GENERAL,
-+		.group	= FIO_OPT_G_DESC,
-+	},
-+#endif
- 	{
- 		.name	= "nice",
- 		.lname	= "Nice",
-diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
-index 10cb3c4c..cadcadae 100644
---- a/os/linux/io_uring.h
-+++ b/os/linux/io_uring.h
-@@ -374,6 +374,7 @@ struct io_cqring_offsets {
- #define IORING_ENTER_SQ_WAIT		(1U << 2)
- #define IORING_ENTER_EXT_ARG		(1U << 3)
- #define IORING_ENTER_REGISTERED_RING	(1U << 4)
-+#define IORING_ENTER_NO_IOWAIT		(1U << 7)
- 
- /*
-  * Passed in for io_uring_setup(2). Copied back with updated info on success
-@@ -406,6 +407,7 @@ struct io_uring_params {
- #define IORING_FEAT_NATIVE_WORKERS	(1U << 9)
- #define IORING_FEAT_RSRC_TAGS		(1U << 10)
- #define IORING_FEAT_CQE_SKIP		(1U << 11)
-+#define IORING_FEAT_NO_IOWAIT		(1U << 17)
- 
- /*
-  * io_uring_register(2) opcodes and arguments
-diff --git a/server.h b/server.h
-index 09e6663e..a1e71a44 100644
---- a/server.h
-+++ b/server.h
-@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 116,
-+	FIO_SERVER_VER			= 117,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index b4dd8d7a..4a52f981 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -252,6 +252,7 @@ struct thread_options {
- 	unsigned int iolog;
- 	unsigned int rwmixcycle;
- 	unsigned int rwmix[DDIR_RWDIR_CNT];
-+	char *comm;
- 	unsigned int nice;
- 	unsigned int ioprio;
- 	unsigned int ioprio_class;
-@@ -585,6 +586,7 @@ struct thread_options_pack {
- 	uint32_t iolog;
- 	uint32_t rwmixcycle;
- 	uint32_t rwmix[DDIR_RWDIR_CNT];
-+	uint8_t comm[FIO_TOP_STR_MAX];
- 	uint32_t nice;
- 	uint32_t ioprio;
- 	uint32_t ioprio_class;
