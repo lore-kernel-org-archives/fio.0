@@ -1,275 +1,129 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 834D51ADFE4
-	for <fio@vger.kernel.org>; Thu, 29 Jan 2026 18:43:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769712198; cv=none; b=aR4db1aXXEIrIP/gUaUwhUf/utlDEuxEITfClqRme24mkXxfUsM59JAEWv4PthYr5c1jBj1uFPxdxDpQ+MRxrd0b/rIVNesk1KvKa5i6IVqRMwy0GY0XkY+MqmjC3T9V4Y95JGsyrh+wym2lPeE4hsYHvaENafoCY7XMtXXs5/4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769712198; c=relaxed/simple;
-	bh=u3AhWwK8l2yrba7uEJCrOB+1OsOptQQ+r0gQ62CZghI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t893LTk42E0IY3G1nJt4xnF4ThIjXODodhYa0Eb2cE6oG76+51nzb5El44iz70h+GoJ7t017OSFiuYH9sGSY7ULwJNewyeosATPufx0WvaClzr9q9siptspRLrZ19Qh6IgIt3EY7lxyYzc0LSsM/iRdAwlxqfpb+8j8rAQ88Bfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RmavaXoz; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EC3C2FFFB6
+	for <fio@vger.kernel.org>; Fri, 30 Jan 2026 20:02:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769803324; cv=pass; b=g05SCxQhLMDphMTLwqR60TSMkeNdw4glDc0wtoOkA+9uCnt+FZKy7B50OJbavHAJbocIeOvOU9oIugVXSU0UCqIpZ5wU6oE3BQmjGXaCmjSh+K7k92e4MN7Y09GNvF1n0b6ANmLhqKo2VJIkjEonpfzUpRlTGTZUU3FR4dGo60s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769803324; c=relaxed/simple;
+	bh=pA/BsTO2eybF6ZRNcP8L5RU62qSddF5p5oQ1ykJava4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CTYUeeM44YIXLvylNgzqd1tNG6093Os9zoUKJmwyf23AjAFRFhY4+sB2Ri0J+czHPMgFAb5NCZZLJP3rnvAemQvk91llyHV18QYY5aDLyDywf8pZtGNDShWCeZ7mAQYxHPz0Jxa1p8+gmU28imHo60XSj+bo1p8JoXDnSbdvisA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K4x0RzB2; arc=pass smtp.client-ip=209.85.208.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RmavaXoz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769712196;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZAhKRSxyIAjkAI3KnePqeZmyDOpkP8/d66S+7zQ7+TU=;
-	b=RmavaXozzc2l6/vShgOT5GePeOq3O3xCjkSrQinb3pTeqGMp095sQoOXAEF0ujessqAShr
-	LBqCaO4g8wM8ECFCGPChsASNILurU4al+OwfbPw34qs3cUzOW21ddAcV0s5EHVY2MaQzeg
-	UpSKypk6wqeH4AQidP/ifvHGVSWp/Rc=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-161-sQimmCeqOquoBXjkZlJDoQ-1; Thu,
- 29 Jan 2026 13:43:11 -0500
-X-MC-Unique: sQimmCeqOquoBXjkZlJDoQ-1
-X-Mimecast-MFC-AGG-ID: sQimmCeqOquoBXjkZlJDoQ_1769712190
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EE5F919560A5;
-	Thu, 29 Jan 2026 18:43:09 +0000 (UTC)
-Received: from h1.redhat.com (unknown [10.22.89.167])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B5C543000218;
-	Thu, 29 Jan 2026 18:43:08 +0000 (UTC)
-From: Nico Pache <npache@redhat.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk,
-	vincentfu@gmail.com,
-	npache@redhat.com,
-	david@kernel.org,
-	willy@infradead.org
-Subject: [RFC 2/2] page_fault: add hugepage_delay option for delayed MADV_HUGEPAGE
-Date: Thu, 29 Jan 2026 11:43:01 -0700
-Message-ID: <20260129184302.34887-3-npache@redhat.com>
-In-Reply-To: <20260129184302.34887-1-npache@redhat.com>
-References: <20260129184302.34887-1-npache@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K4x0RzB2"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-38319cbc8fbso21440441fa.1
+        for <fio@vger.kernel.org>; Fri, 30 Jan 2026 12:02:02 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769803321; cv=none;
+        d=google.com; s=arc-20240605;
+        b=FOJkaCz4uyCh0CU+QHMwrhz2HgjAnA0xhYdF7ULEjyRrie5baH57wr3vIOpoDTOu/A
+         qk66hLdjTw7LAO6KScZHefkp+kLDegsTAG/wx4GsndeCCnMzAPWLA++9Lo1rXoonAVU6
+         ncdiUPrDdGWDMu0dsZQF2bj3YLpWGSYahPDhQzx56RICfs8vxYnNkKK8EZdBIsf1x5Ej
+         a6ldNM1nS8ixhvFSYE4VOvxwV7aeV1dvQsU4cgN4Gz+2TqafyaJxpbfxmIWeJDUt3isR
+         iFKJ2mXVdrY7ttpoH5By3UtyDvCuHu+9eimtmlek/O0Q1jdOjl1I/8sN/6ORGfCf0dI3
+         06pQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=0FCogIko4WmoPnhRdlsNVeyIoQZOAsPdxe0vA7h7T6Y=;
+        fh=taGlRrOqqf7R71nb5PzI3OXVPEWk3t8O2YxviStmVqk=;
+        b=EUyjJfmxFFxRkaPVe8DUamXjvzgB8r0rxymnms4OIx3h3Sp2dKHwCb6RNg/Ijeng8B
+         iBL3AFVJYLszLG4qrY6WGPHOwSnYftVUI+oaJI4uPE6HdUBgpBL73KUyURkF6s23Dbpn
+         5xh9wywCC81hFMdWfr9I9oxPJcB9YyS2RCzfrA1AlxXxYjU0/ELmervoNKRF+TAVlV2G
+         PA7bB38tSpT1EQw10BQE9JWke92iPFGruWib06tuh9NDNHHHwi7hn7o8SVa+cMVH6u4o
+         kmGhBcun9LNB07iYiWB1RHy6uVPQmbFdTToGv3O350yNm2UNPdae4u8xWUHzZzZ4IK3Y
+         ymDw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769803321; x=1770408121; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0FCogIko4WmoPnhRdlsNVeyIoQZOAsPdxe0vA7h7T6Y=;
+        b=K4x0RzB2COLdaSk6DGGj2iZYhflxw3XbebWYfzIoLGhtCxWz5jTpxEmq61RR+54N2w
+         W468vhWCHlwgk+Rh0v3V4oZ2d6sOVw2dyCLv/+cA3KAM1UE1xtixIGObvwymCwaAEl36
+         lvnHdV/3T9W+5wTC1nO4rbOpywNpzi7ozupRumXoUrbZR07/NAxdkjlfWIO7TQmmmt1k
+         fqcbspsZf5jlULMk0Q0rmoY1/E3PpFldA9gx4fWF82mJJbrzEhju3CyrMbY7EQo5+mr3
+         R+1nOhNK6/I0arnXV6ANclKT5RpJEIp4UNHmHfOMJH6RbEMh4WpjTAlIXSNRI5TwuD9Y
+         Xb1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769803321; x=1770408121;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=0FCogIko4WmoPnhRdlsNVeyIoQZOAsPdxe0vA7h7T6Y=;
+        b=ZRpbOLHHWYjDtU4TMRZY7OguIRw1pjLhvxBRuapx2kBvzWqZUcmWz0UESvNk64N9IM
+         lS4TJeon46j9wYA1G48vo3Pfb15eVSffBfD9hoyHzg32OMOU1YxdG0kZEB4ufgrktm5v
+         P0D0emrAPD93KKWHe7Cglr3ae0M6MxZnpb406PwD2zt42ldvzDPOFknUQ884lIMVZCer
+         z6JNJjLhwfXWkX2ymKrG8UlxRL8cgo9VEFjgE3opOEuDdjIEGsDTEkLKUSdRt5LT39lO
+         eUY39/m9zM6ohZZqZ8okGPcH0Z2qd4d0jazG/PHHkU7Ei3Do8KRS0b6Y2xzA0wS8OKdO
+         /R4A==
+X-Gm-Message-State: AOJu0YxfMCJspALwp2vcVhI7oFMaiNJwonsixD5wuuPkNrrjaDvlr3OY
+	edN6jJ8KiPv4Qao0IVQh/x7+h4bcZR1dPMo9i9XZrzvOgDLL5bnsXBoD48qQwXts3LC6pI825d6
+	6AgTTz8dHbcfM2XBJ0S7k9lwehyouDlw=
+X-Gm-Gg: AZuq6aIEbuJE2f8t8O1Hub7pcnU3HvXbFzLrbdTQ7tfP3vVQn1FRlhr5qsYFX8H0xeA
+	Rtdlsw1mB8UZgZhcHJ4ckeQtI8ep3mUGZNhBVFqDQq+G6PUADaWve4u/BziIkXO66vIaBe/e8qb
+	dlTG75yQPLOWyLw5CVI8Fw8j1e+dWqd8a1ZfODvYchA4KrKPxCCY62irnGtA/AfOfXPFkM8ABvD
+	YVTVwqRv6CYg6uJ/rgoUo0SMQErIsPtaIv33UZ/yB2bHzkpFSorQMJwyfkz1Yv0IieWCA==
+X-Received: by 2002:a05:651c:1501:b0:37f:d484:59b8 with SMTP id
+ 38308e7fff4ca-38646524548mr14888851fa.7.1769803320988; Fri, 30 Jan 2026
+ 12:02:00 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+References: <20260109023603.2848421-1-shinichiro.kawasaki@wdc.com>
+ <20260109023603.2848421-3-shinichiro.kawasaki@wdc.com> <CAOp=CXnX9zorei7vwO54OvxBeFEjsKzgKXZaLqDOmu24-X9bbw@mail.gmail.com>
+ <aXgleDJ44YFYDQeF@shinmob>
+In-Reply-To: <aXgleDJ44YFYDQeF@shinmob>
+From: Vincent Fu <vincentfu@gmail.com>
+Date: Fri, 30 Jan 2026 15:01:48 -0500
+X-Gm-Features: AZwV_QgAZ0jX3PIL-kmEvIGjUITeUND9nf4RB93H9egsvP5YVSu2WegqYaUK5lo
+Message-ID: <CAOp=CXmUB1cf6AgMPqLAVXaKCLxy+B56918MzTGUDtGR1QXTbw@mail.gmail.com>
+Subject: Re: [PATCH 02/12] zbd: set norandommap=1 when zonemode=zbd is specified
+To: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, 
+	Damien Le Moal <dlemoal@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Introduce hugepage_delay to map with MADV_NOHUGEPAGE first, then
-madvise MADV_HUGEPAGE after a configurable delay via a helper thread.
-This makes khugepaged candidates reproducible for page_fault tests.
+On Tue, Jan 27, 2026 at 12:05=E2=80=AFAM Shinichiro Kawasaki
+<shinichiro.kawasaki@wdc.com> wrote:
+>
+> Vincent, thanks for the comments.
+>
+> On Jan 26, 2026 / 20:39, Vincent Fu wrote:
+ [...]
+> >
+> > Perhaps you could instead emit a warning when a random job is run with
+> > a random map and then condition the relevant changes in later patches
+> > on the absence of a random map.
+>
+> Actually, I thought about other options as follows to seek for a better
+> solution:
+>
+> 1) Leave the current remainder handling with zone finish operation, and a=
+dd the
+>    new handling with simple writes. Choose one of the two handlings by a =
+new
+>    option, and ensure norandommap=3D1 only for the handling with simple w=
+rites.
+>     -> This can keep the current behavior with norandommap=3D1 workloads,=
+ but it
+>        comes with the zone finish operation that shows bad performance. I
+>        thought this leaves complexity for users and in the code.
 
-Signed-off-by: Nico Pache <npache@redhat.com>
----
- cconv.c              |  3 ++
- engines/page_fault.c | 94 ++++++++++++++++++++++++++++++++++++++++----
- options.c            | 10 +++++
- thread_options.h     |  3 ++
- 4 files changed, 103 insertions(+), 7 deletions(-)
+The above is my preferred solution. It preserves backward
+compatibility albeit at the cost of additional complexity.
 
-diff --git a/cconv.c b/cconv.c
-index 0c4a3f2d..4fafbf83 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -242,6 +242,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 	o->random_center.u.f = fio_uint64_to_double(le64_to_cpu(top->random_center.u.i));
- 	o->random_generator = le32_to_cpu(top->random_generator);
- 	o->hugepage_size = le32_to_cpu(top->hugepage_size);
-+	o->hugepage_delay = le32_to_cpu(top->hugepage_delay);
- 	o->rw_min_bs = le64_to_cpu(top->rw_min_bs);
- 	o->thinkcycles = le32_to_cpu(top->thinkcycles);
- 	o->thinktime = le32_to_cpu(top->thinktime);
-@@ -494,6 +495,8 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->random_center.u.i = __cpu_to_le64(fio_double_to_uint64(o->random_center.u.f));
- 	top->random_generator = cpu_to_le32(o->random_generator);
- 	top->hugepage_size = cpu_to_le32(o->hugepage_size);
-+	top->hugepage_delay = cpu_to_le32(o->hugepage_delay);
-+	top->hugepage_delay_pad = 0;
- 	top->rw_min_bs = __cpu_to_le64(o->rw_min_bs);
- 	top->thinkcycles = cpu_to_le32(o->thinkcycles);
- 	top->thinktime = cpu_to_le32(o->thinktime);
-diff --git a/engines/page_fault.c b/engines/page_fault.c
-index e0a3c9e5..1724d553 100644
---- a/engines/page_fault.c
-+++ b/engines/page_fault.c
-@@ -1,20 +1,65 @@
- #include "ioengines.h"
- #include "fio.h"
-+#include <errno.h>
-+#include <pthread.h>
- #include <sys/mman.h>
-+#include <time.h>
- 
- struct fio_page_fault_data {
-     void *mmap_ptr;
-     size_t mmap_sz;
-     off_t mmap_off;
-+#ifdef CONFIG_HAVE_THP
-+    pthread_t mmap_thread;
-+    pthread_mutex_t mmap_lock;
-+    pthread_cond_t mmap_cond;
-+    int mmap_thread_exit;
-+    int mmap_thread_started;
-+    unsigned int hugepage_delay;
-+#endif
- };
- 
-+#ifdef CONFIG_HAVE_THP
-+static void *mmap_delay_thread(void *data)
-+{
-+    struct fio_page_fault_data *fpd = data;
-+    struct timespec req;
-+    int ret;
-+
-+    clock_gettime(CLOCK_REALTIME, &req);
-+    req.tv_sec += fpd->hugepage_delay / 1000;
-+    req.tv_nsec += (fpd->hugepage_delay % 1000) * 1000000;
-+    if (req.tv_nsec >= 1000000000) {
-+        req.tv_sec++;
-+        req.tv_nsec -= 1000000000;
-+    }
-+
-+    pthread_mutex_lock(&fpd->mmap_lock);
-+    while (!fpd->mmap_thread_exit) {
-+        ret = pthread_cond_timedwait(&fpd->mmap_cond, &fpd->mmap_lock, &req);
-+        if (ret == ETIMEDOUT)
-+            break;
-+    }
-+
-+    if (!fpd->mmap_thread_exit) {
-+        dprint(FD_MEM, "fio: madvising hugepage\n");
-+        ret = madvise(fpd->mmap_ptr, fpd->mmap_sz, MADV_HUGEPAGE);
-+        if (ret < 0)
-+            log_err("fio: madvise hugepage failed: %d\n", errno);
-+    }
-+    pthread_mutex_unlock(&fpd->mmap_lock);
-+
-+    return NULL;
-+}
-+#endif
-+
- static int fio_page_fault_init(struct thread_data *td)
- {
-     size_t total_io_size;
-     struct fio_page_fault_data *fpd = calloc(1, sizeof(*fpd));
-     if (!fpd)
-         return 1;
--    
-+
-     total_io_size = td->o.size;
-     fpd->mmap_sz = total_io_size;
-     fpd->mmap_off = 0;
-@@ -25,6 +70,26 @@ static int fio_page_fault_init(struct thread_data *td)
-         return 1;
-     }
- 
-+    if (td->o.hugepage_delay) {
-+#ifdef CONFIG_HAVE_THP
-+        fpd->hugepage_delay = td->o.hugepage_delay;
-+        madvise(fpd->mmap_ptr, fpd->mmap_sz, MADV_NOHUGEPAGE);
-+
-+        pthread_mutex_init(&fpd->mmap_lock, NULL);
-+        pthread_cond_init(&fpd->mmap_cond, NULL);
-+        fpd->mmap_thread_exit = 0;
-+        if (pthread_create(&fpd->mmap_thread, NULL, mmap_delay_thread, fpd)) {
-+            log_err("fio: failed to create mmap delay thread\n");
-+            pthread_cond_destroy(&fpd->mmap_cond);
-+            pthread_mutex_destroy(&fpd->mmap_lock);
-+            fpd->hugepage_delay = 0;
-+            fpd->mmap_thread_started = 0;
-+        } else {
-+            fpd->mmap_thread_started = 1;
-+        }
-+#endif
-+    }
-+
-     FILE_SET_ENG_DATA(td->files[0], fpd);
- 	return 0;
- }
-@@ -73,12 +138,27 @@ static int fio_page_fault_open_file(struct thread_data *td, struct fio_file *f)
- 
- static int fio_page_fault_close_file(struct thread_data *td, struct fio_file *f)
- {
--	struct fio_page_fault_data *fpd = FILE_ENG_DATA(f);
--	if (!fpd)
--		return 1;
--    if (fpd->mmap_ptr && fpd->mmap_sz)
--        munmap(fpd->mmap_ptr, fpd->mmap_sz);
--	free(fpd);
-+    struct fio_page_fault_data *fpd = FILE_ENG_DATA(f);
-+
-+    if (fpd) {
-+#ifdef CONFIG_HAVE_THP
-+        if (fpd->mmap_thread_started) {
-+            pthread_mutex_lock(&fpd->mmap_lock);
-+            fpd->mmap_thread_exit = 1;
-+            pthread_cond_signal(&fpd->mmap_cond);
-+            pthread_mutex_unlock(&fpd->mmap_lock);
-+            pthread_join(fpd->mmap_thread, NULL);
-+            pthread_cond_destroy(&fpd->mmap_cond);
-+            pthread_mutex_destroy(&fpd->mmap_lock);
-+            fpd->mmap_thread_started = 0;
-+        }
-+#endif
-+
-+        if (fpd->mmap_ptr && fpd->mmap_sz)
-+            munmap(fpd->mmap_ptr, fpd->mmap_sz);
-+        free(fpd);
-+    }
-+
- 	return 0;
- }
- 
-diff --git a/options.c b/options.c
-index f526f5eb..5f8c53cd 100644
---- a/options.c
-+++ b/options.c
-@@ -5490,6 +5490,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_GENERAL,
- 		.group	= FIO_OPT_G_INVALID,
- 	},
-+	{
-+		.name	= "hugepage_delay",
-+		.lname	= "Hugepage delay",
-+		.type	= FIO_OPT_INT,
-+		.off1	= offsetof(struct thread_options, hugepage_delay),
-+		.help	= "For mmap, map with MADV_NOHUGEPAGE then MADV_HUGEPAGE after delay (in ms)",
-+		.def	= "0",
-+		.category = FIO_OPT_C_GENERAL,
-+		.group	= FIO_OPT_G_INVALID,
-+	},
- 	{
- 		.name	= "flow_id",
- 		.lname	= "I/O flow ID",
-diff --git a/thread_options.h b/thread_options.h
-index b4dd8d7a..f288664f 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -203,6 +203,7 @@ struct thread_options {
- 	unsigned int perc_rand[DDIR_RWDIR_CNT];
- 
- 	unsigned int hugepage_size;
-+	unsigned int hugepage_delay;
- 	unsigned long long rw_min_bs;
- 	unsigned int fsync_blocks;
- 	unsigned int fdatasync_blocks;
-@@ -539,6 +540,8 @@ struct thread_options_pack {
- 	uint32_t perc_rand[DDIR_RWDIR_CNT];
- 
- 	uint32_t hugepage_size;
-+	uint32_t hugepage_delay;
-+	uint32_t hugepage_delay_pad;
- 	uint64_t rw_min_bs;
- 	uint32_t fsync_blocks;
- 	uint32_t fdatasync_blocks;
--- 
-2.52.0
+We do have many other situations where some technical knowledge and
+complexity is required to maximize performance.
 
+Vincent
