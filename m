@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63D1432B9B4
-	for <fio@vger.kernel.org>; Fri,  6 Feb 2026 16:41:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B1DE32B999
+	for <fio@vger.kernel.org>; Fri,  6 Feb 2026 16:41:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770396067; cv=none; b=V2krveIxMi2EB23qu2INTVKJ5yQzfKNRiaWhiVH/nxJZRMCX0mlyamUJJ4N4INlkLUmoTsNQGz9nQLbBNYrcV+80gbhIJudRu+xhQE/Cc3Va0BdB5J9dn1EJEEblPCqRmwhTQQBj5xUVx6acTcYljH2ru1X5UvFqgJx1gpFYQ7g=
+	t=1770396069; cv=none; b=tkzL+hONs4xgXfKV6qMp13N3OyjOQoPXL7YrukZAYCUjQ3ACPFzevMviUrPyFfgnBrKCHHt6gyXV1jAYuof+aHAWStZtSgWe6dwiNwYYvqotq8mAqka4SK1JXX7hI0+ighwV6RNVKEr5h6zWGfsGkM25gzDeP4++VEjhzAc/9lI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770396067; c=relaxed/simple;
-	bh=pEN7Q1H+1l9ss/11D18/F1bSDVex+rG0FxpgMYezgzE=;
+	s=arc-20240116; t=1770396069; c=relaxed/simple;
+	bh=klil/y+oCR8zB4gefR74RRfkOIEERlgnNfQmI8bCVUg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=A8iZRd4ZFKQ71B2Hlu20kjKS2mlIANUAkOQo1xL8lA6dppH/Mu9XNZh3N0m41IVpjuHqipJEnswkkInNPZXm56giCSYkR8BjShnjh1rAHfIrTwiNLQm2DvclF8cu+eNwH/Y1ZHq4DEAZvhLXh8bf4TVKs5+vdS2HDwBfMGX1DgU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tO5+FC5O; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=mWHyXFRfjIKLDlNRqArn+D0vnrx6oqhLtx7ykxKZTgnn6zWwCxCLVsaqax1tO0tsVEybV4C4e0OMMPKco/xtxJusjNCsZ32psi9QjQklRDWq0TuvEZ9pSAxUWiMZaPlPGnGPJqG0S2HArgkRyio5aioH/kdRZWY/LXnNsVOCcR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BmKoyO08; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tO5+FC5O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A612BC116C6;
-	Fri,  6 Feb 2026 16:41:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BmKoyO08"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD4BC19423;
+	Fri,  6 Feb 2026 16:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770396067;
-	bh=pEN7Q1H+1l9ss/11D18/F1bSDVex+rG0FxpgMYezgzE=;
+	s=k20201202; t=1770396068;
+	bh=klil/y+oCR8zB4gefR74RRfkOIEERlgnNfQmI8bCVUg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=tO5+FC5OrlC5EwpNybeiGy5TqorsAVgaxdrckE3gH7/Ve7H4r2bb5dWJtBlFL0NkI
-	 e2kl0LrTigcZiALeYK9lRWfEedkjBJHUt1ZI9wt40U/T1DTGJqzyAhpUuNUOuf+O8n
-	 1kS6c7eFxb1y7cj8bfB6cQiX6FQrURJdWEr4tED8wsaww7d1xNt2RYry0T4Qd1cIR0
-	 lZ/hcdlEFQAOG9uiDCgE6ISYl5EuaP6yEMFZ5pOkiLh6uR2XRehBrTdZ+JomE4zNMg
-	 rtESP+F0D1/u1W+duXltLJwGmOyb/5hV4CtzgVsQK0aSATcq+qaMgIdYvVLFYzl46z
-	 k01XiJK5vjCvQ==
+	b=BmKoyO08+R0eikCKGvXMH/LiER8a26bxBp7hdwZ8uIqCeIniatoPZfporCwXQkRwF
+	 RdH2FWh3Sgu9LKG2GatCj121OpA2KNudQkuIYAllIHeUvY2kq0uCwsczMeXmOV0F2C
+	 4AREpMQucMveyRjGcaVQNIazP6sKkZ84/Fl7Wy8XFhFplsZDIqMUo7kEU1ZBbUU1ZL
+	 HUxJ74+67QjocOboGmwA8LrLuHawllb7i2I/DD3lwMWMoRhgAvG/zv7KZbjre8jAT7
+	 qS62QU5jWdCz6MGuzmbbol189p0L8s7zmY9Z58bx7WQiPM7lvknu79liVG2v00mYIj
+	 0BKFxEzqPCdcw==
 From: Niklas Cassel <cassel@kernel.org>
 To: Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincent.fu@samsung.com>
@@ -33,9 +33,9 @@ Cc: fio@vger.kernel.org,
 	Damien Le Moal <dlemoal@kernel.org>,
 	Jorgen S Hansen <jorgen.hansen@wdc.com>,
 	Niklas Cassel <cassel@kernel.org>
-Subject: [PATCH 1/3] fio: Fix error string not matching errno
-Date: Fri,  6 Feb 2026 17:40:56 +0100
-Message-ID: <20260206164058.3105327-2-cassel@kernel.org>
+Subject: [PATCH 2/3] io_u: Fix inconsistent handling of non-fatal errors with option error_dump
+Date: Fri,  6 Feb 2026 17:40:57 +0100
+Message-ID: <20260206164058.3105327-3-cassel@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260206164058.3105327-1-cassel@kernel.org>
 References: <20260206164058.3105327-1-cassel@kernel.org>
@@ -47,83 +47,72 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When using --error_dump=1 together with --continue_on_error=io and
---ignore_error=62, we can get an inconsistent error in the summary line
- produced by __show_run_stats():
+Commit 8b28bd413759 ("backend: Add configurable non fatal error list")
+added an early return in io_u_log_error() for non-fatal errors.
 
-Before patch:
-test: (groupid=0, jobs=1): err= 5 (file:io_u.c:2012, func=io_u error, error=Timer expired): pid=30925: Thu Feb  5 09:15:15 2026
-...
-  IO depths    : 1=0.8%, 2=1.6%, 4=3.3%, 8=6.6%, 16=13.1%, 32=74.6%, >=64=0.0%
-     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
-     complete  : 0=0.0%, 4=98.9%, 8=0.0%, 16=0.0%, 32=1.1%, 64=0.0%, >=64=0.0%
-     issued rwts: total=0,122,0,0 short=0,0,0,0 dropped=0,0,0,0
-     errors    : total=4, first_error=62/<Timer expired>
-     latency   : target=0, window=0, percentile=100.00%, depth=32
+This early return is performed if the error is a non-fatal error, and if
+error_dump is not set.
 
-The string for errno "err= 5" is incorrectly printed as "Timer expired".
-(The correct string for "err= 5" is "Input/output error".)
+Looking at the help text for the error_dump option:
+"If set dump every error even if it is non fatal, true by default.
+If disabled only fatal error will be dumped."
 
-There is thus a mismatch between the errno and the verbose string for the
-errno.
+So this commit made sure that, if error dump is NOT set:
+For a non-fatal error, io_u_log_error() will return early and will thus:
+1) NOT print an error to the log
+2) NOT call td_verror()
 
-This problem is this code in __td_verror():
+However, if error dump is set, io_u_log_error() will not do an early
+return, instead it will log the non-fatal error and then call td_verror().
 
-td->error = ____e;
-if (!td->first_error)
-	nowarn_snprintf(td->verror, ..);
+It is clear that the intention is for a non-fatal error to not set
+td->error. (If error_dump is used it should _log_ the non-fatal error.)
 
-I.e. td->error (errno) is updated unconditionally, while td->verror (the
-verbose error string), is updated only if td->first_error is not set.
+Thus, fix the code such that if error_dump is set, for a non-fatal error,
+we:
+1) print an error to the log
+2) NOT call td_verror()
 
-Thus, if you get a non-fatal error, it will set td->error and td->error.
-Later, for a non-fatal error, io_completed() will call update_error_count()
-which sets td->first_error, followed by td_clear_error() which will clear
-td->error.
+This will make the behavior in io_u_log_error() consistent.
+If error_dump is set, we will log the non-fatal error, but regardless of
+error_dump being set or not, we do NOT call td_verror() (which would set
+td->error) for a non-fatal error, since that was obviously the intention
+of commit 8b28bd413759 ("backend: Add configurable non fatal error list").
 
-Thus a second error (fatal or non-fatal) will set td->error, but since
-td->first_error is now set, it will not update td->verror.
-
-Since td->verror contains the string representation of the errno stored in
-td->error, these two struct members should obviously always be updated at
-the same time.
-
-If you look at the example print above, you can see that there is another
-print: first_error=62/<Timer expired>
-
-Which prints td->first_error, and does not even use td->verror. Instead
-show_thread_status_normal() calls strerror(td->first_error) to get the
-error string for td->first_error.
-
-There is thus absolutely no reason to not set td->verror every time
-td->error is set.
-
-Remove the useless guard such that the error string will always correspond
-to errno.
-
-Fixes: f2bba1820a56 ("Add a 'continue_on_error' option to fio")
+Fixes: 8b28bd413759 ("backend: Add configurable non fatal error list")
 Signed-off-by: Niklas Cassel <cassel@kernel.org>
 ---
- fio.h | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ io_u.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/fio.h b/fio.h
-index e0b7c13c..65c68d4b 100644
---- a/fio.h
-+++ b/fio.h
-@@ -542,10 +542,9 @@ enum {
- 		if ((td)->error)					\
- 			break;						\
- 		(td)->error = ____e;					\
--		if (!(td)->first_error)					\
--			nowarn_snprintf(td->verror, sizeof(td->verror),	\
--					"file:%s:%d, func=%s, error=%s", \
--					__FILE__, __LINE__, (func), (msg)); \
-+		nowarn_snprintf(td->verror, sizeof(td->verror),		\
-+				"file:%s:%d, func=%s, error=%s",	\
-+				__FILE__, __LINE__, (func), (msg));	\
- 	} while (0)
+diff --git a/io_u.c b/io_u.c
+index ac9a1c7d..653a700c 100644
+--- a/io_u.c
++++ b/io_u.c
+@@ -1985,8 +1985,14 @@ err_put:
+ static void __io_u_log_error(struct thread_data *td, struct io_u *io_u)
+ {
+ 	enum error_type_bit eb = td_error_type(io_u->ddir, io_u->error);
++	bool non_fatal_error = td_non_fatal_error(td, eb, io_u->error);
  
+-	if (td_non_fatal_error(td, eb, io_u->error) && !td->o.error_dump)
++	/*
++	 * Non-fatal errors (errors that should be ignored), are normally not
++	 * dumped to the log, unless td->o.error_dump. Regardless, non-fatal
++	 * errors should never call td_verror() to set td->error.
++	 */
++	if (non_fatal_error && !td->o.error_dump)
+ 		return;
+ 
+ 	log_err("fio: io_u error%s%s: %s: %s offset=%llu, buflen=%llu\n",
+@@ -2008,7 +2014,7 @@ static void __io_u_log_error(struct thread_data *td, struct io_u *io_u)
+ 		}
+ 	}
+ 
+-	if (!td->error)
++	if (!td->error && !non_fatal_error)
+ 		td_verror(td, io_u->error, "io_u error");
+ }
  
 -- 
 2.53.0
