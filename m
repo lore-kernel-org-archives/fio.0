@@ -1,56 +1,56 @@
 Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28C6E2F7ADE
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4962E7161
 	for <fio@vger.kernel.org>; Mon, 16 Feb 2026 08:00:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.141.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771228850; cv=none; b=dSBULlk1DBQ0HRsewGzyhqnDgcp51pxoXCl3rUZAIhc3p2vc6gxt+pekI2Fe5xr/AtB6/lczHIjx8k3s7a+rXrSFTcYn8u1H9jPjJUhMIIqr5fcK5yTdFlwA97C+6yMetRmsRsemDkLa0nLhncRJ3P/1BxE3bEUZQmsahlVNZbw=
+	t=1771228850; cv=none; b=Fna2kTt49VJulW6KvhNoggtJCAZWEwT+G35dlAs+RTd2KjRSfpf8ypv4G20UbrlZTnMY8Dg4jQvqTydKzS/9LvE+z5VgDNZ2JiwJhPxwwNSIQWRYQ6grFHiFtTPd+FsSaxAgcSKs0D5Anco+DvzGcQE++Atn38jl+EhR8YZsE8A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1771228850; c=relaxed/simple;
-	bh=cCd27TDpZ8AzCp3PjI8YUppBeqY1OaqQsjCs6fJvhOA=;
+	bh=FAKXsKtUj0GKo0IF3B/AEuRNJ1lY0v2iCWmC4eksZU0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QxI2fYF598WR9TrZ4mnRtWxYSV3D5xJVdJ9LDqRpAdDVB4NuVXgwzUwgjgWINDd6ADT3fK4psJNMy7TeV1vSMXXp00uJ8/fbcl9x4fMgLjXxs0FWeqLZo3oZdeREDaP36vqaQ6U7I0J2cAIucOphrPrqIUBBOpQwuBEcIMg/D4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=hJmiapjS; arc=none smtp.client-ip=68.232.141.245
+	 MIME-Version; b=ItyjOTUXzA4Es4y76q2a+5G5OYqmQZ1opMNbWum0zgXHrnEzvWUnUNgGENEZC+vaB0yRvRqp02lXmU/c/6kELoeSuKXJSbTViINoIrZR/nuF8wuXg8AjkSOv2I8EHqQgMOnHOiMC/DtEgt+8fssCe2rANh/whZZbuXA+lbTMqRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=TeFCbWtD; arc=none smtp.client-ip=68.232.141.245
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="hJmiapjS"
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="TeFCbWtD"
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
   t=1771228849; x=1802764849;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=cCd27TDpZ8AzCp3PjI8YUppBeqY1OaqQsjCs6fJvhOA=;
-  b=hJmiapjSNaiw0fQPBe/uzkEpXaiiBveRerreir5ENCwJF/L2i5F06JrC
-   tuG31K8PQKXDFaGUpJ45Y5VJwUfUC11EQrJewSM2gazynyh7whZPir6H0
-   LLF+uHfe12st6l4zbSvzoL632q0iUNxSjxZ2dYDyAgPWWb6E7FRAg/m+L
-   2yaAgII+SCtC8fQqrMWhcOtDOZR3Jlwr7Nf1tx4mw+fPUaSKmIZOAIHPw
-   hOv87eVcL+kuYkDz6K6JeL+JrYWyaidzcu9qVZAGkOsmfLmDRwM1jpZ63
-   23/l82WH5PfYqBYThszvEQ3NDCLUyg17tQTjzZy7JZwGdtweil64ci63o
-   g==;
-X-CSE-ConnectionGUID: pDumnqDnTpC800yrAiqw2A==
-X-CSE-MsgGUID: OHr/iUMZTjWPymzATo2CBw==
+  bh=FAKXsKtUj0GKo0IF3B/AEuRNJ1lY0v2iCWmC4eksZU0=;
+  b=TeFCbWtDhJ3nhmMJWUJkfGThqfXEWGjVmHnljygh82GdGx6Z9NY/vFGm
+   1bKKg3zBLb/FML8BmVoPcSttjHyJJHeFUE+MDFTpZHHNuOQe2oMuAzAhl
+   j8PXCBaa/lg7E4GW+lrKSbv82aA1Ki0J6/GgteSvZZnwX0ygTFJi8kn92
+   xK9FxiJYdNDnhKkRj5+QA5ceS1/KIxlYN592PiYJ1Q3scFEnNuUWY+rAX
+   tVFJ6LkCY+x39l6eOsRtSDG8h7yrV6UyenIED1m7odA5LFqSHO8qeIFG/
+   64de/+1aWNlUMqtm0i1NkFcNOeHl4plwCtybrEk8kU36w27T0hZ20b91P
+   w==;
+X-CSE-ConnectionGUID: zs/4F0LlT8KMirB7OKTrDg==
+X-CSE-MsgGUID: 7cW+X7MMSQS1475lnxwHzg==
 X-IronPort-AV: E=Sophos;i="6.21,293,1763395200"; 
-   d="scan'208";a="140812880"
+   d="scan'208";a="140812884"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep03.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 16 Feb 2026 15:59:42 +0800
-IronPort-SDR: 6992ce6e_AdhN3p02782RZ2xXeZDAfCak01EFvADc1M2hWHV0O1PvlJE
- QUIhKb4YxCuidql9tNQIKH8HLpB4WVxoug3tpdw==
+  by ob1.hgst.iphmx.com with ESMTP; 16 Feb 2026 15:59:44 +0800
+IronPort-SDR: 6992ce70_qYDDEz8yb2f1JdkF+jzT/e6K0ZkZmCeJP1HBehmuWVJQMhV
+ zQq5Jzs4KUzUs56RWkdtNdxyjAuaoRa2sd+jzSg==
 Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
-  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 15 Feb 2026 23:59:42 -0800
+  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 15 Feb 2026 23:59:45 -0800
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip01.wdc.com with ESMTP; 15 Feb 2026 23:59:42 -0800
+  by uls-op-cesaip01.wdc.com with ESMTP; 15 Feb 2026 23:59:44 -0800
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v2 3/8] zbd: introduce write_zone_remainder option
-Date: Mon, 16 Feb 2026 16:59:31 +0900
-Message-ID: <20260216075936.3318729-4-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 5/8] t/zbd: add -m option to enable write_zone_remainder option
+Date: Mon, 16 Feb 2026 16:59:33 +0900
+Message-ID: <20260216075936.3318729-6-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20260216075936.3318729-1-shinichiro.kawasaki@wdc.com>
 References: <20260216075936.3318729-1-shinichiro.kawasaki@wdc.com>
@@ -62,299 +62,123 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When the specified block size is not aligned with the zone size or the
-write pointer positions at workload start, write workloads create
-unwritten remainder areas at the ends of zones. These remainder areas
-leave zones in the open condition. This disrupts the intended write
-target zone selection.
-
-Previous commits e1a1b59b0b9b ("zbd: finish zones with remainder smaller
-than minimum write block size") and e2e29bf6f830 ("zbd: finish zone when
-all random write target zones have small remainder") attempted to solve
-this problem by issuing zone finish operation for zones with small
-remainders. However, this approach caused performance degradation due to
-two reasons. First, the zone finish operation requires substantial
-execution time. Second, zone finish operation requires to wait for in-
-flight writes from other jobs to complete, which is done by calling
-io_u_quiesce() before the zone finish operation.
-
-To avoid the performance degradation, introduce the new option named
-"write_zone_remainder". When the option is specified, issue writes to
-the remainder areas instead of issuing zone finish operation. The write
-operation makes the zones in the full condition in the same manner as
-the zone finish operation, freeing up the zone resource of the device
-and enabling writing to other zones. Also when the option is set, skip
-the io_u_quiesce() which was required before the zone finish operation.
-The performance benefit by eliminating the waits on in-flight writes are
-particularly significant in asynchronous I/O workloads, where the write
-operations to the remainder areas are managed as part of queued I/Os.
-
-The drawback of this approach is that writing these remainders requires
-write sizes smaller than the minimum block size. As a result, when using
-the write_zone_remainder option, the random map feature must be disabled
-using the norandommap=1 option, which is automatically done when the
-option is specified.
+The previous commit introduced the option write_zone_remainder. To
+confirm the option works as expected, introduce the new option -m
+to the test scripts test-zbd-support and run-tests-against-nullb.
 
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- cconv.c          |  2 ++
- init.c           | 13 +++++++++++
- options.c        | 10 ++++++++
- server.h         |  2 +-
- thread_options.h |  2 ++
- zbd.c            | 61 +++++++++++++++++++++++++++++++-----------------
- 6 files changed, 68 insertions(+), 22 deletions(-)
+ t/zbd/run-tests-against-nullb |  6 ++++++
+ t/zbd/test-zbd-support        | 30 ++++++++++++++++++++++++++++++
+ 2 files changed, 36 insertions(+)
 
-diff --git a/cconv.c b/cconv.c
-index 9f82c724..56cf6dbe 100644
---- a/cconv.c
-+++ b/cconv.c
-@@ -275,6 +275,7 @@ int convert_thread_options_to_cpu(struct thread_options *o,
- 	o->max_open_zones = __le32_to_cpu(top->max_open_zones);
- 	o->ignore_zone_limits = le32_to_cpu(top->ignore_zone_limits);
- 	o->recover_zbd_write_error = le32_to_cpu(top->recover_zbd_write_error);
-+	o->write_zone_remainder = le32_to_cpu(top->write_zone_remainder);
- 	o->lockmem = le64_to_cpu(top->lockmem);
- 	o->offset_increment_percent = le32_to_cpu(top->offset_increment_percent);
- 	o->offset_increment = le64_to_cpu(top->offset_increment);
-@@ -656,6 +657,7 @@ void convert_thread_options_to_net(struct thread_options_pack *top,
- 	top->max_open_zones = __cpu_to_le32(o->max_open_zones);
- 	top->ignore_zone_limits = cpu_to_le32(o->ignore_zone_limits);
- 	top->recover_zbd_write_error = cpu_to_le32(o->recover_zbd_write_error);
-+	top->write_zone_remainder = cpu_to_le32(o->write_zone_remainder);
- 	top->lockmem = __cpu_to_le64(o->lockmem);
- 	top->ddir_seq_add = __cpu_to_le64(o->ddir_seq_add);
- 	top->file_size_low = __cpu_to_le64(o->file_size_low);
-diff --git a/init.c b/init.c
-index 130158cb..5cfbdd75 100644
---- a/init.c
-+++ b/init.c
-@@ -665,6 +665,19 @@ static int fixup_options(struct thread_data *td)
- 		ret |= 1;
- 	}
- 
-+	if (o->zone_mode == ZONE_MODE_ZBD && o->write_zone_remainder) {
-+		if (fio_option_is_set(o, norandommap)) {
-+			if (o->norandommap == 0) {
-+				log_err("fio: write_zone_remainder=1 requires norandommap=1\n");
-+				ret |= 1;
-+			}
-+			/* if == 1, OK */
-+		} else {
-+			dprint(FD_ZBD, "fio: override norandommap=1 for write_zone_remainder=1\n");
-+			o->norandommap = 1;
-+		}
-+	}
-+
- 	if (o->zone_mode == ZONE_MODE_STRIDED && !o->zone_size) {
- 		log_err("fio: --zonesize must be specified when using --zonemode=strided.\n");
- 		ret |= 1;
-diff --git a/options.c b/options.c
-index f592bc24..61d405f0 100644
---- a/options.c
-+++ b/options.c
-@@ -3939,6 +3939,16 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
- 		.category = FIO_OPT_C_IO,
- 		.group	= FIO_OPT_G_ZONE,
- 	},
-+	{
-+		.name	= "write_zone_remainder",
-+		.lname	= "Fill remainders of zones by write instead of zone finish operion",
-+		.type	= FIO_OPT_BOOL,
-+		.off1	= offsetof(struct thread_options, write_zone_remainder),
-+		.def	= 0,
-+		.help	= "When block size is unaligned, zones have small remainder write areas at ends. Fill them by write instead of zone finish operations for better performance.",
-+		.category = FIO_OPT_C_IO,
-+		.group	= FIO_OPT_G_ZONE,
-+	},
- 	{
- 		.name   = "fdp",
- 		.lname  = "Flexible data placement",
-diff --git a/server.h b/server.h
-index e0a921b8..589e8bea 100644
---- a/server.h
-+++ b/server.h
-@@ -51,7 +51,7 @@ struct fio_net_cmd_reply {
- };
- 
- enum {
--	FIO_SERVER_VER			= 118,
-+	FIO_SERVER_VER			= 119,
- 
- 	FIO_SERVER_MAX_FRAGMENT_PDU	= 1024,
- 	FIO_SERVER_MAX_CMD_MB		= 2048,
-diff --git a/thread_options.h b/thread_options.h
-index 3e66d477..506f1233 100644
---- a/thread_options.h
-+++ b/thread_options.h
-@@ -399,6 +399,7 @@ struct thread_options {
- 	unsigned int job_max_open_zones;
- 	unsigned int ignore_zone_limits;
- 	unsigned int recover_zbd_write_error;
-+	unsigned int write_zone_remainder;
- 	fio_fp64_t zrt;
- 	fio_fp64_t zrf;
- 
-@@ -728,6 +729,7 @@ struct thread_options_pack {
- 	int32_t max_open_zones;
- 	uint32_t ignore_zone_limits;
- 	uint32_t recover_zbd_write_error;
-+	uint32_t write_zone_remainder;
- 
- 	uint32_t log_entries;
- 	uint32_t log_prio;
-diff --git a/zbd.c b/zbd.c
-index c511b709..3d51478b 100644
---- a/zbd.c
-+++ b/zbd.c
-@@ -86,18 +86,21 @@ static inline uint64_t zbd_zone_remainder(struct fio_zone_info *z)
- 
- /**
-  * zbd_zone_full - verify whether a minimum number of bytes remain in a zone
-- * @f: file pointer.
-+ * @td: FIO thread data
-  * @z: zone info pointer.
-  * @required: minimum number of bytes that must remain in a zone.
-  *
-  * The caller must hold z->mutex.
-  */
--static bool zbd_zone_full(const struct fio_file *f, struct fio_zone_info *z,
-+static bool zbd_zone_full(const struct thread_data *td, struct fio_zone_info *z,
- 			  uint64_t required)
- {
-+	if (!z->has_wp)
-+		return false;
-+	if (td->o.write_zone_remainder)
-+		return zbd_zone_remainder(z) == 0;
- 	assert((required & 511) == 0);
--
--	return z->has_wp && required > zbd_zone_remainder(z);
-+	return required > zbd_zone_remainder(z);
+diff --git a/t/zbd/run-tests-against-nullb b/t/zbd/run-tests-against-nullb
+index f1cba355..628e41a3 100755
+--- a/t/zbd/run-tests-against-nullb
++++ b/t/zbd/run-tests-against-nullb
+@@ -23,6 +23,7 @@ usage()
+ 	echo -e "\t-o <max_open_zones> Specify MaxOpen value, (${set_max_open} by default)."
+ 	echo -e "\t-n <#number of runs> Set the number of times to run the entire suite "
+ 	echo -e "\t   or an individual section/test."
++	echo -e "\t-m Pass -m option to test-zbd-support to enable write_zone_remainder."
+ 	echo -e "\t-q Quit t/zbd/test-zbd-support run after any failed test."
+ 	echo -e "\t-r Remove the /dev/nullb0 device that may still exist after"
+ 	echo -e "\t   running this script."
+@@ -426,6 +427,7 @@ dev_size=1024
+ dev_blocksize=4096
+ set_max_open=8
+ set_extra_max_active=2
++write_zone_remainder=0
+ zbd_test_opts=()
+ num_of_runs=1
+ test_case=0
+@@ -438,6 +440,7 @@ while (($#)); do
+ 		-L) list_only=1; shift;;
+ 		-r) cleanup_nullb; exit 0;;
+ 		-n) num_of_runs="${2}"; shift; shift;;
++		-m) write_zone_remainder=1; shift;;
+ 		-t) test_case="${2}"; shift; shift;;
+ 		-q) quit_on_err=1; shift;;
+ 		-h) usage; break;;
+@@ -491,6 +494,9 @@ while ((run_nr <= $num_of_runs)); do
+ 		if ((quit_on_err)); then
+ 			zbd_test_opts+=("-q")
+ 		fi
++		if ((write_zone_remainder)); then
++			zbd_test_opts+=("-m")
++		fi
+ 		section$section_number
+ 		configure_nullb
+ 		rc=$?
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 40f1de90..01fb4dd3 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -13,6 +13,7 @@ usage() {
+ 	echo -e "\t-l Test with libzbc ioengine"
+ 	echo -e "\t-r Reset all zones before test start"
+ 	echo -e "\t-w Reset all zones before executing each write test case"
++	echo -e "\t-m Write zone remainder instead of zone finish operation"
+ 	echo -e "\t-o <max_open_zones> Run fio with max_open_zones limit"
+ 	echo -e "\t-t <test #> Run only a single test case with specified number"
+ 	echo -e "\t-s <test #> Start testing from the case with the specified number"
+@@ -202,6 +203,30 @@ has_max_open_zones() {
+ 	return 1
  }
  
- static void zone_lock(struct thread_data *td, const struct fio_file *f,
-@@ -629,7 +632,7 @@ static bool zbd_write_zone_get(struct thread_data *td, const struct fio_file *f,
- 	 * Skip full zones with data verification enabled because resetting a
- 	 * zone causes data loss and hence causes verification to fail.
- 	 */
--	if (td->o.verify != VERIFY_NONE && zbd_zone_full(f, z, min_bs))
-+	if (td->o.verify != VERIFY_NONE && zbd_zone_full(td, z, min_bs))
- 		return false;
- 
- 	return __zbd_write_zone_get(td, f, z);
-@@ -1513,14 +1516,16 @@ static struct fio_zone_info *zbd_convert_to_write_zone(struct thread_data *td,
- 	struct fio_zone_info *z;
- 	uint32_t zone_idx, new_zone_idx;
- 	int i;
--	bool wait_zone_write;
-+	bool wait_zone_write = false;
- 	bool in_flight;
- 	bool should_retry = true;
- 	bool need_zone_finish;
- 
- 	assert(is_valid_offset(f, io_u->offset));
- 
--	if (zbd_zone_remainder(zb) > 0 && zbd_zone_remainder(zb) < min_bs) {
-+	/* If the first selected zone has remainder, finish it */
-+	if (!td->o.write_zone_remainder && zbd_zone_remainder(zb) > 0 &&
-+	    zbd_zone_remainder(zb) < min_bs) {
- 		pthread_mutex_lock(&f->zbd_info->mutex);
- 		zbd_write_zone_put(td, f, zb);
- 		pthread_mutex_unlock(&f->zbd_info->mutex);
-@@ -1619,13 +1624,18 @@ examine_zone:
- 	}
- 
- choose_other_zone:
--	/* Check if number of write target zones reaches one of limits. */
--	wait_zone_write =
--		zbdi->num_write_zones == f->max_zone - f->min_zone ||
--		(zbdi->max_write_zones &&
--		 zbdi->num_write_zones == zbdi->max_write_zones) ||
--		(td->o.job_max_open_zones &&
--		 td->num_write_zones == td->o.job_max_open_zones);
-+	/*
-+	 * When zones have small remainder at zone ends, zone finish operations
-+	 * may take some time. In this case, check if number of write target
-+	 * zones reaches one of limits to wait for the zone finish operations.
-+	 */
-+	if (!td->o.write_zone_remainder)
-+		wait_zone_write =
-+			zbdi->num_write_zones == f->max_zone - f->min_zone ||
-+			(zbdi->max_write_zones &&
-+			 zbdi->num_write_zones == zbdi->max_write_zones) ||
-+			(td->o.job_max_open_zones &&
-+			 td->num_write_zones == td->o.job_max_open_zones);
- 
- 	pthread_mutex_unlock(&zbdi->mutex);
- 
-@@ -1681,8 +1691,10 @@ retry:
- 
- 	/* Check whether the write fits in any of the write target zones. */
- 	pthread_mutex_lock(&zbdi->mutex);
--	need_zone_finish = true;
-+	need_zone_finish = !td->o.write_zone_remainder;
- 	for (i = 0; i < zbdi->num_write_zones; i++) {
-+		uint64_t remainder;
++has_zone_writes() {
++	local has_zonemode_zbd=0
++	local has_write=0
++	local word
 +
- 		zone_idx = zbdi->write_zones[i];
- 		if (zone_idx < f->min_zone || zone_idx >= f->max_zone)
- 			continue;
-@@ -1692,7 +1704,10 @@ retry:
- 		z = zbd_get_zone(f, zone_idx);
- 
- 		zone_lock(td, f, z);
--		if (zbd_zone_remainder(z) >= min_bs) {
++	while (($# > 1)); do
++		if [[ ${1} =~ "--zonemode=zbd" ]]; then
++			has_zonemode_zbd=1
++		fi
++		if [[ ${1} =~ "--rw=" ]]; then
++			word=${1}
++			word=${word/--rw=/}
++			if [[ $word =~ w ]]; then
++				has_write=1
++			fi
++		fi
++		shift
++	done
++	if ((has_zonemode_zbd && has_write)); then
++		return 0
++	fi
++	return 1
++}
 +
-+		remainder = zbd_zone_remainder(z);
-+		if ((td->o.write_zone_remainder && remainder > 0) ||
-+		    (!td->o.write_zone_remainder && remainder >= min_bs)) {
- 			/*
- 			 * The zone might be already removed from
- 			 * zbdi->write_zones[] by other jobs at this moment.
-@@ -2230,7 +2245,8 @@ retry:
- 			goto eof;
- 		}
+ run_fio() {
+     local fio opts
  
--		if (zbd_zone_remainder(zb) > 0 &&
-+		if (!td->o.write_zone_remainder &&
-+		    zbd_zone_remainder(zb) > 0 &&
- 		    zbd_zone_remainder(zb) < min_bs)
- 			goto retry;
+@@ -215,6 +240,9 @@ run_fio() {
+     if [[ -n ${max_open_zones_opt} ]] && ! has_max_open_zones "${opts[@]}"; then
+ 	    opts+=("--max_open_zones=${max_open_zones_opt}")
+     fi
++    if [[ -n ${write_zone_remainder} ]] && has_zone_writes "${opts[@]}"; then
++	    opts+=("--write_zone_remainder=1")
++    fi
+     { echo; echo "fio ${opts[*]}"; echo; } >>"${logfile}.${test_number}"
  
-@@ -2243,7 +2259,7 @@ retry:
- 		}
- 
- 		/* Reset the zone pointer if necessary */
--		if (zb->reset_zone || zbd_zone_full(f, zb, min_bs)) {
-+		if (zb->reset_zone || zbd_zone_full(td, zb, min_bs)) {
- 			if (td->o.verify != VERIFY_NONE) {
- 				/*
- 				 * Unset io-u->file to tell get_next_verify()
-@@ -2278,7 +2294,7 @@ retry:
- 		}
- 
- 		/* Make writes occur at the write pointer */
--		assert(!zbd_zone_full(f, zb, min_bs));
-+		assert(!zbd_zone_full(td, zb, min_bs));
- 		io_u->offset = zb->wp;
- 		if (!is_valid_offset(f, io_u->offset)) {
- 			td_verror(td, EINVAL, "invalid WP value");
-@@ -2294,10 +2310,13 @@ retry:
- 		 */
- 		new_len = min((unsigned long long)io_u->buflen,
- 			      zbd_zone_capacity_end(zb) - io_u->offset);
--		new_len = new_len / min_bs * min_bs;
-+		if ((td->o.write_zone_remainder && new_len > min_bs) ||
-+			!td->o.write_zone_remainder)
-+				new_len = new_len / min_bs * min_bs;
-+
- 		if (new_len == io_u->buflen)
- 			goto accept;
--		if (new_len >= min_bs) {
-+		if (td->o.write_zone_remainder || new_len >= min_bs) {
- 			io_u->buflen = new_len;
- 			dprint(FD_IO, "Changed length from %u into %llu\n",
- 			       orig_len, io_u->buflen);
+     "${dynamic_analyzer[@]}" "$fio" "${opts[@]}"
+@@ -1877,6 +1905,7 @@ reset_all_zones=
+ reset_before_write=
+ use_libzbc=
+ zbd_debug=
++write_zone_remainder=
+ max_open_zones_opt=
+ quit_on_err=
+ force_io_uring=
+@@ -1892,6 +1921,7 @@ while [ "${1#-}" != "$1" ]; do
+     -l) use_libzbc=1; shift;;
+     -r) reset_all_zones=1; shift;;
+     -w) reset_before_write=1; shift;;
++    -m) write_zone_remainder=1; shift;;
+     -t) tests+=("$2"); shift; shift;;
+     -o) max_open_zones_opt="${2}"; shift; shift;;
+     -s) start_test=$2; shift; shift;;
 -- 
 2.49.0
 
