@@ -1,133 +1,105 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05DC630E0EF
-	for <fio@vger.kernel.org>; Sat, 14 Feb 2026 13:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DC4A22D792
+	for <fio@vger.kernel.org>; Mon, 16 Feb 2026 07:59:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.141.245
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771074011; cv=none; b=m/Ouc9tKOjD0+9+8dvDvK8ivpefcx3oHwGjAsCLGj7OZtJ4ABWYsgNrUDYmsnskqlPdeBPJDnq3lD+xuccRl7HK6SasB0owG+LW/Vbe44xvVQZQ5LDcjhzQSR9IUBP8XwsmOhvZD7PZ5mIgVOyaqLukEwfjDyJmPcqCr6xHAGyc=
+	t=1771228787; cv=none; b=AHXDhtJz+kPeQdcF3jrZx5RpQjS84z/R0HLP88En9AiRMfK8dM+Mh+/NLTERb6r77irryJBlSjpE4ykzPQZTecHMOuKecV7wZ9gQYu6Z2esuM0aCcSx6ILf+2R5crGQx80Az3g9H25Yp3TrtkcbNrfOH00Y0+X01wsg+0iny0zI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771074011; c=relaxed/simple;
-	bh=t+RIaJdtje6Kb+vE4se2+K8LsFcEvORh5EpYQhg+2Tc=;
-	h=Subject:From:To:Date:Message-Id; b=XeSNmjT3w5o6sQ2k3thYHtPZSJG2MGEeQnDTyJUuk424/a1bw7wWv0wUmUS/dtXj/2ffo3kS24L9/N5IzS+C6hN0iwjKKsAQWijUkIYWeN4fJOXTsZc2Lvh64Iw5CRh2lkfriLNKhOlXcao75dw0tiwB4mTXyFJvmneiu9dV6HM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=M4MHpUwj; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1771228787; c=relaxed/simple;
+	bh=LrG98Z9enltYqKZCy7obqRKrw6e7abQCeXtZLyKPz38=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=c9dutGU9u2yMOj/UZsOK8ZeBD4VDltigjxZmo3YnSZ0Ii15P0KQf7ImkKzkCJhMr8oXoCLTHAH/to7VUDpghNj7DPP7TOEnWFoz0Qj614f+7XRQSIuxqPYb23qvBAXy45fvpAczL/AKu/BUr5AtCNge4j4a3Xl5oN9kn0Qo+AMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=A0hDMBbb; arc=none smtp.client-ip=68.232.141.245
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="M4MHpUwj"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=h2gMmK0SKQNCAGBk5OrjQ8cLCVm2FYCX1YkF25IXRIY=; b=M4MHpUwjKxD5Wriiklwi3z101H
-	vvi98nH1aGDcHhXtx5VFoP3WUbN2B8tLkqbSXlMMj4gupC1L4bo+BewL7Ft1KKrPRJG+3e2O4Hj2P
-	aGhVKPEUlA11fS15MB13+PH3YSLq5ckIv3SmutsZOoD14KwMiUXRvzuX7oyAJ4Aoufdl9S5H9sYN7
-	zWbMao3Yu0u6Qtr28nSVYhR9VDSxQeWaTjLq5MeBPjhwhIU//1Y3RhRuRAzVpxb54NuT9OMrJwFLc
-	HnywgfGM6U5aBONX+JcQmwnSG9DVCJL0qgHLUI+ntZFmGSv9JY+LCNoxEiM+a2lsUXYQz8dkx/pjs
-	hSfFHyGg==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1vrFFk-0000000D848-3zJN
-	for fio@vger.kernel.org;
-	Sat, 14 Feb 2026 13:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 70CE91BC016B; Sat, 14 Feb 2026 06:00:01 -0700 (MST)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Sat, 14 Feb 2026 06:00:01 -0700
-Message-Id: <20260214130001.70CE91BC016B@kernel.dk>
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="A0hDMBbb"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1771228786; x=1802764786;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=LrG98Z9enltYqKZCy7obqRKrw6e7abQCeXtZLyKPz38=;
+  b=A0hDMBbbpZ+tDFY0xE4B0WE0pqxhYdJjnyzIrKBvwPwaFEXn5pqFJOVV
+   KHvxo0ORTx3Fu28ONUcCTh2Aw6xGsaHcxqVOIGMQVWcgrhiSx3yPqyiyY
+   EB4B2hpOkzRgMb+psqV7wmPAPkwsGGjf2OJtRFnrASTWu+/TtUm7KJBZf
+   kXpzvBQrVAuDUkZqV6F0me/7B4McJTHyUxLc8vXfb03HguBpV92Euy9sO
+   RZXjF1J+GJb6vsD9dCNJqsS5s1oRlPrpo+T3GmJRGiQdL5ft0ZEAcNeic
+   WHl7d1/nHga+CY0fKq53iWqKb8foUnks/gqMRd9lGcnJh6Va2XBmcN/Eg
+   w==;
+X-CSE-ConnectionGUID: /wk99GgcRZCkbtMQMHGcjg==
+X-CSE-MsgGUID: HIepY1gySVaAeq0q+B1BOQ==
+X-IronPort-AV: E=Sophos;i="6.21,293,1763395200"; 
+   d="scan'208";a="140812887"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep03.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 16 Feb 2026 15:59:45 +0800
+IronPort-SDR: 6992ce72_YAoBholpA4UDeg4Qtqd00+A5FmWHZy0ZagP19/25WgFwtXq
+ AyRb7ey8dwXiYCTXwAkDUWQJnu/gB7p3BJaOqRg==
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 15 Feb 2026 23:59:46 -0800
+WDCIronportException: Internal
+Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
+  by uls-op-cesaip01.wdc.com with ESMTP; 15 Feb 2026 23:59:46 -0800
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: fio@vger.kernel.org,
+	Jens Axboe <axboe@kernel.dk>,
+	Vincent Fu <vincentfu@gmail.com>
+Cc: Damien Le Moal <dlemoal@kernel.org>,
+	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v2 6/8] t/zbd: avoid test case 14 failure with write_zone_remainder option
+Date: Mon, 16 Feb 2026 16:59:34 +0900
+Message-ID: <20260216075936.3318729-7-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20260216075936.3318729-1-shinichiro.kawasaki@wdc.com>
+References: <20260216075936.3318729-1-shinichiro.kawasaki@wdc.com>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The following changes since commit 05b2e9fe7722af4470139465a53c629c40936cb4:
+When -m option is provided for t/zbd/test-zbd-support, the option
+write_zone_remainder is specified to fio. In this case, the test case
+14 fails because the random map feature is disabled and then random
+writes for conventional zones may have overlap. To avoid the failure,
+modify the test case to count the number of overlaps.
 
-  fio: bump server version for new option (2026-02-10 07:36:17 -0500)
-
-are available in the Git repository at:
-
-  git://git.kernel.dk/fio.git master
-
-for you to fetch changes up to 1a04e5746c28316bd8a64825bf2b5739dc01c589:
-
-  stat: Remove duplicate space in __show_run_stats() (2026-02-13 11:44:32 -0500)
-
-----------------------------------------------------------------
-Niklas Cassel (3):
-      fio: Fix error string not matching errno
-      io_u: Fix inconsistent handling of non-fatal errors with option error_dump
-      stat: Remove duplicate space in __show_run_stats()
-
- fio.h  |  7 +++----
- io_u.c | 10 ++++++++--
- stat.c |  2 +-
- 3 files changed, 12 insertions(+), 7 deletions(-)
-
+Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
+ t/zbd/test-zbd-support | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-Diff of recent changes:
-
-diff --git a/fio.h b/fio.h
-index e0b7c13c..65c68d4b 100644
---- a/fio.h
-+++ b/fio.h
-@@ -542,10 +542,9 @@ enum {
- 		if ((td)->error)					\
- 			break;						\
- 		(td)->error = ____e;					\
--		if (!(td)->first_error)					\
--			nowarn_snprintf(td->verror, sizeof(td->verror),	\
--					"file:%s:%d, func=%s, error=%s", \
--					__FILE__, __LINE__, (func), (msg)); \
-+		nowarn_snprintf(td->verror, sizeof(td->verror),		\
-+				"file:%s:%d, func=%s, error=%s",	\
-+				__FILE__, __LINE__, (func), (msg));	\
- 	} while (0)
+diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
+index 01fb4dd3..e5a5f75b 100755
+--- a/t/zbd/test-zbd-support
++++ b/t/zbd/test-zbd-support
+@@ -665,7 +665,7 @@ test13() {
  
+ # Random write to conventional zones.
+ test14() {
+-    local off size
++    local off size nr_overlaps
  
-diff --git a/io_u.c b/io_u.c
-index ac9a1c7d..653a700c 100644
---- a/io_u.c
-+++ b/io_u.c
-@@ -1985,8 +1985,14 @@ err_put:
- static void __io_u_log_error(struct thread_data *td, struct io_u *io_u)
- {
- 	enum error_type_bit eb = td_error_type(io_u->ddir, io_u->error);
-+	bool non_fatal_error = td_non_fatal_error(td, eb, io_u->error);
+     if ! result=($(first_online_zone "$dev")); then
+ 	echo "Failed to determine first online zone"
+@@ -678,10 +678,11 @@ test14() {
  
--	if (td_non_fatal_error(td, eb, io_u->error) && !td->o.error_dump)
-+	/*
-+	 * Non-fatal errors (errors that should be ignored), are normally not
-+	 * dumped to the log, unless td->o.error_dump. Regardless, non-fatal
-+	 * errors should never call td_verror() to set td->error.
-+	 */
-+	if (non_fatal_error && !td->o.error_dump)
- 		return;
- 
- 	log_err("fio: io_u error%s%s: %s: %s offset=%llu, buflen=%llu\n",
-@@ -2008,7 +2014,7 @@ static void __io_u_log_error(struct thread_data *td, struct io_u *io_u)
- 		}
- 	}
- 
--	if (!td->error)
-+	if (!td->error && !non_fatal_error)
- 		td_verror(td, io_u->error, "io_u error");
+     run_one_fio_job "$(ioengine "libaio")" --iodepth=64 --rw=randwrite --bs=16K \
+ 		    --zonemode=zbd --zonesize="${zone_size}" --do_verify=1 \
+-		    --verify=md5 --offset=$off --size=$size\
++		    --verify=md5 --offset=$off --size=$size --debug=io \
+ 		    >>"${logfile}.${test_number}" 2>&1 || return $?
++    nr_overlaps=$(grep "iolog: overlap" --count "${logfile}.${test_number}")
+     check_written $((size)) || return $?
+-    check_read $((size)) || return $?
++    check_read $((size - nr_overlaps * 16 * 1024)) || return $?
  }
  
-diff --git a/stat.c b/stat.c
-index b999eb4b..620b4626 100644
---- a/stat.c
-+++ b/stat.c
-@@ -2604,7 +2604,7 @@ void __show_run_stats(void)
- 				ts->error = td->first_error;
- 				snprintf(ts->verror, sizeof(ts->verror), "%s",
- 					 td->verror);
--			} else  if (td->error) {
-+			} else if (td->error) {
- 				ts->error = td->error;
- 				snprintf(ts->verror, sizeof(ts->verror), "%s",
- 					 td->verror);
+ # Sequential read on a mix of empty and full zones.
+-- 
+2.49.0
+
