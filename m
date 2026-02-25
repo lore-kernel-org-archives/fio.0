@@ -1,86 +1,132 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53A4528A3FA
-	for <fio@vger.kernel.org>; Mon, 16 Feb 2026 09:10:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B860D3B531C
+	for <fio@vger.kernel.org>; Wed, 25 Feb 2026 13:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771233058; cv=none; b=MSfNxxMfStf7OGZxq91XsCQlnOMDd4et/lpVmG3w9I9TO03sI4CLX8eHNdyAqcRed9v+ppyb+bSaQrzD32Cx/b3ci3FLjcf55FgTfPVtwwC7yrIn/ZESriBX3MxnaVVCZxBUhBIKvQpjRAR89TVHl4+4laGQ05lSr55PE38JCLI=
+	t=1772024410; cv=none; b=cVgOmL50KmYQFtchhC9eOxmTazKO28Q2BtLh+MN37ljjMZN+WfT4L2lGnt0snZ4vKbaDip25lDH0Fu2ZCem/2x8XAGIh5Xf3VNECvoEq4yyk9dqlZeA1hDoJduvERWRHUJvy8vLS1zkxsT+289tFhOfC5NRANHZds6zc9Sj/1Aw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771233058; c=relaxed/simple;
-	bh=VkNgxPlRbibvch99GsB9rSD3untoFfhCGqDXE4rUzoM=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=mcqlDlmCbcZTp/YjnHBwwRpPXmv8Z5Ip50eVy1Dg0cC6f8H7nZF8eO/AJjFknUjWUWM24tlwfNQ8Pi+9UpAsVzcbP3uu1q3AK51iZBYQXnP7FGDdMg+znrHjuiyScQFeANK3hMpxTxad59ExR5CHA0arIM8R3lhZq7dbvwW3TaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZgCXzeDK; arc=none smtp.client-ip=209.85.222.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772024410; c=relaxed/simple;
+	bh=EzGKPDfj+qpZB4zYwUfRp4PNqbXJYzwxQUMtkMkgb4I=;
+	h=Subject:From:To:Date:Message-Id; b=MXCz4vRevtfm5Z6NlFkjr0vYeb+eq6x2jlym9s4+SELJr73su5dt/ELvaAUzEtgeZZQ0vckiTPUO/qm/ytSlH08MFO79kMOUib53KWH0d1mFh1gRkzBfo3u0EcOe+0AVMV66R7JYOjcdRl/QIlzXuAo2Ow4el5jbIv70jvN0+c0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=tkGUKGLN; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZgCXzeDK"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-8ca01dc7d40so311850385a.1
-        for <fio@vger.kernel.org>; Mon, 16 Feb 2026 01:10:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771233056; x=1771837856; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=VkNgxPlRbibvch99GsB9rSD3untoFfhCGqDXE4rUzoM=;
-        b=ZgCXzeDK42803IBtfY78VTNjII1WJwzkf4VQuuwKPjYTs/YrndYNA1Lobga3ZQzGEu
-         iwC7ltPEhHwVNxZsuSlqXljx0bIx2bN5DD6986z9TyhZVQchvYlyn1VHuQQfWpt6lKFP
-         1hvf05aFSvz5Utap7NkMvsa8WNx0EUkXOQwYntWjIpunInvwzBxjNpPHTsYfy3L1zxoN
-         zkgbhLEz5qkJLuUsE9lvqlNhZM9ZlWpg6nVnxsE/Os/h5Z9EXPJyxKnRvDyJ2H9VG4px
-         fZYAeiwbf0OBSaDKNxJU1BVZ0Niqt4HYaZ4/KIGL2Zo6PjI88W9ub2fiViijw5QyZGFH
-         eVsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771233056; x=1771837856;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=VkNgxPlRbibvch99GsB9rSD3untoFfhCGqDXE4rUzoM=;
-        b=U5Qcn3F3gmCHPpGZQZhgaV8kJjazhA2LINS9D1bQcjajPtG287bbsLs0N0kD2akD3r
-         LC7Q6BE6yIbIf68SBpOkBiquE/E/nGm7scewJ4uhuTvDq2or+lhfbQ3jTm751G5+JkGt
-         g+D9kKD+od6uxhsppeUFiB7AxOh49uW45TG4JgLMt3DfNugzc8lo0hDBY4PJpOSBi8tF
-         PW0/xx1rw/ltRzO9Tz5Hmu9dhhe6sLio5BOdobuNPp28p0jO3WaBxauqYFgdlVA56wmG
-         73KxAWvIH8fCUcrGL9lSsNxebJTTwNwvU6fVmkCneK4FVVIKbVusBH7kHu6cP7eCfJYt
-         LSWQ==
-X-Gm-Message-State: AOJu0YwkViaKlaGk19TMKZJrvwZReHcc0dnTljXTjlcbu9TasSKwTghb
-	k5hAPBYl6ClIOag5QfSCb779Tr3ZmFt3qJJAxhfx36CC3/kYkvfwkTosumV4
-X-Gm-Gg: AZuq6aLbB7PU63Mwct/Mi9zu2A800iux9Lj+HOCm/htnF14JZzY3V8MN7hQPaHuUM4Y
-	M7V8wmGIyxNsrbhH90higdjt+IajZ0qrcxrdxDBU5HT1S4t4dOp3L/si5eQVgrVLdnQBr7X5RF9
-	0EcX26nUqT15rVLwdSeFP07HFmYkn2RRRH343uK+PQuhYxun3OmRxNTFFrEcQeMyVkvcfI0SVJq
-	1tTFxBLkkDu6tQ4pX5T2gGSICXbczITJyUpxRst5iVTFTVHxeBuCyoxUbLI1/2Wf2Rmb8AmAMg/
-	cCvlkMZjQpSycl2YpZLPhHwAuqJoV4KiNYErMry1nZQNh4NHPxq4z1jfsyUWVj5654IrGRWmgdf
-	aLi7AlFoVRVi3mnIqw/U4tZNwRfr1HIDU0ZXafMVPI+tYvdVB5ME4cOSDDwtMrd2R77AlghvB32
-	wBF+YQpIR2eq3oGcFUOa9nyOABEebTx9KieGPrLr1BhAqURUn6/5zXrgHMmq/HLhzI9mMrNANT9
-	Qvd9A5mW73feTSavkJHrA==
-X-Received: by 2002:a05:620a:3705:b0:8b9:d540:5365 with SMTP id af79cd13be357-8cb422a6e1amr1232719085a.39.1771233056227;
-        Mon, 16 Feb 2026 01:10:56 -0800 (PST)
-Received: from runnervmjduv7.s1jfbgqwn2qebkyxgm3fhys44b.ex.internal.cloudapp.net ([64.236.142.145])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cb2b0ce73fsm1304474185a.11.2026.02.16.01.10.55
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Feb 2026 01:10:55 -0800 (PST)
-Date: Mon, 16 Feb 2026 01:10:55 -0800 (PST)
-Content-Type: multipart/mixed; boundary="===============3512818216119157735=="
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="tkGUKGLN"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=wvtZs/wz/Mz+tHZNY7P3kwj/qSMsNqjUpB9nLBjB0oQ=; b=tkGUKGLNG73+6vEvf6v+nlROEe
+	8i2f19rvLjuQfa69ta75NhsVEg9Q538VGcQWNJ0Pio3izwauWMsZPSAc9YKPX2dPA+z6sy8Uu+Cr/
+	mpGN58y0k6fTwecKSNAFmkvSOIvUtXzy2sj6ouL3KbkSbjSJ5F8belKM7SuQpi8drEfeRCbaqYqiK
+	hnqcBaso3CNL3VvgTmLYhNq45zj2xBWA5LlmPMULiQ3qcuvhZBM6wDa2IYBUWmy3B0wEEY47q+9g9
+	EpEsf5qbp6KJCxzpss9CTVIWyiFpLa4SrY4Q58whzlvUqQd9xP4MrYSiflMtNBQy+qLWVgUE+NfDh
+	QeoAMwiw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1vvEUn-000000014x4-0GiB
+	for fio@vger.kernel.org;
+	Wed, 25 Feb 2026 13:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id A205E1BC017F; Wed, 25 Feb 2026 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Wed, 25 Feb 2026 06:00:01 -0700
+Message-Id: <20260225130001.A205E1BC017F@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH_v2_0/8=5D_zbd=3A_fix_problems_of_random_write_with_unaligned_block_size?=
-In-Reply-To: <20260216075936.3318729-1-shinichiro.kawasaki@wdc.com>
-References: <20260216075936.3318729-1-shinichiro.kawasaki@wdc.com>
-Message-ID: <177123305533.2890.13284170254560857360@runnervmjduv7.s1jfbgqwn2qebkyxgm3fhys44b.ex.internal.cloudapp.net>
 
---===============3512818216119157735==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+The following changes since commit 1a04e5746c28316bd8a64825bf2b5739dc01c589:
 
+  stat: Remove duplicate space in __show_run_stats() (2026-02-13 11:44:32 -0500)
 
-The result of fio's continuous integration tests was: success
+are available in the Git repository at:
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/22055321799
+  git://git.kernel.dk/fio.git master
 
---===============3512818216119157735==--
+for you to fetch changes up to 411de8ecef63194adf805d4807b5dc3730571655:
+
+  Merge branch 'offload_stability' of https://github.com/tomas-winkler-sndk/fio (2026-02-24 08:03:09 -0700)
+
+----------------------------------------------------------------
+Chana Zaks (1):
+      time: fix ramp completion offload workers
+
+Jens Axboe (1):
+      Merge branch 'offload_stability' of https://github.com/tomas-winkler-sndk/fio
+
+Tomas Winkler (1):
+      libfio: fix crash when io_submit_mode=offload
+
+ libfio.c | 19 ++++++++++++++++---
+ time.c   |  9 +++++++++
+ 2 files changed, 25 insertions(+), 3 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/libfio.c b/libfio.c
+index 57f3f858..52afeafb 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -132,15 +132,28 @@ void clear_io_state(struct thread_data *td, int all)
+ 	clear_inflight(td);
+ }
+ 
+-void reset_all_stats(struct thread_data *td)
++/*
++ * Update thinktime block counter
++ */
++static void update_thinktime_blocks_counter(struct thread_data *td)
+ {
+ 	unsigned long long b;
+-	int i;
+ 
+-	reset_io_counters(td, 1);
++	/* an offload worker has no thinktime blocks counters initialized */
++	if (!td->thinktime_blocks_counter)
++		return;
+ 
+ 	b = ddir_rw_sum(td->thinktime_blocks_counter);
+ 	td->last_thinktime_blocks -= b;
++}
++
++void reset_all_stats(struct thread_data *td)
++{
++	int i;
++
++	reset_io_counters(td, 1);
++
++	update_thinktime_blocks_counter(td);
+ 
+ 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
+ 		td->io_bytes[i] = 0;
+diff --git a/time.c b/time.c
+index 386c76fc..71dc7b15 100644
+--- a/time.c
++++ b/time.c
+@@ -197,6 +197,15 @@ static bool parent_update_ramp(struct thread_data *td)
+ 
+ bool ramp_period_over(struct thread_data *td)
+ {
++	/*
++	 * In offload mode, ramp state is tracked on the parent job td.
++	 * The transition to RAMP_FINISHING is handled by the parent, so
++	 * propagate it here to ensure the worker advances to RAMP_DONE.
++	 */
++	if (td->o.io_submit_mode == IO_MODE_OFFLOAD && td->parent &&
++	    td->parent->ramp_period_state == RAMP_FINISHING)
++		td->ramp_period_state = RAMP_FINISHING;
++
+ 	if (td->ramp_period_state == RAMP_DONE)
+ 		return true;
+ 
