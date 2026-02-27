@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E1443563E1
-	for <fio@vger.kernel.org>; Fri, 27 Feb 2026 08:12:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25F583563E1
+	for <fio@vger.kernel.org>; Fri, 27 Feb 2026 08:12:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772179951; cv=none; b=dHM4yw4aIJxVshvb/iPtN9zBf3TRq71hJFeUW6AvF4OpjR0wswMy9RmR21+ysodJE9sMlIzfG2w1RMsPFGLLnjUlCUTLJcly3tYuRDamYyX/hNA0qcqVXdV9+jVTgi5TXHoD3IBFY17TnNmMKcsD5w74qY6GU9FY7lyiLEH8+eY=
+	t=1772179952; cv=none; b=QiO2XTc1CU7ldQ4cF/uTm3PuzbD5PMMdtHQGDn3E1mVQduDIB86QU6HQmZHRp/mTR+gANNIj36ZeOOgh7x8kgn3LR90GeC9fUa+m3AVOpnQdJ0YGh7NHLhHgcpzVAj5E4BUV2D8V7PV3dxbZhxeZ+wqx1qqAcMJPReXqiUGljRc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772179951; c=relaxed/simple;
-	bh=06F6TJDFoB0GSIedWwlZgVYaTIy3QRaGRStZwONrCyA=;
+	s=arc-20240116; t=1772179952; c=relaxed/simple;
+	bh=nyCpRO6Uat+K2NVikanpMOkHSEcKqcyUF38XfsnAOJ0=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=s6Ll5BtjYPDU5pDcyT+tC6VXu7NL0TOFcjTjvhbETMPC2kHMvo9U+CiTeYrPs84fpQ/DWhBD3zYJdJPMV3PtSC1NM1Mu1thVF134A69AyyP85tuxh8eU0L7QC4D5P6TXNt8x/cT1Y1Io64VfzKAdnGbo0/Bgw7eaXtrl9l04S0w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P5cl7gOM; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=JLJhTq3Z6E7HYh+69EqL1pV2EM8zQk5etHNCR0GCfuRrKcpxcuwyrx0mMzZNot2bJeZvRtFxYLuMVI9tqB0RLjEcp7dUKKMVYECmaiW4Wuj6x/hrm1LpUGjzGxGa630Mu6qcqq23hacgMiSYYiEkuXZCXAxipe/3zFwrqeJsczk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CFKtGv3V; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P5cl7gOM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA891C19422;
-	Fri, 27 Feb 2026 08:12:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CFKtGv3V"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70202C116C6;
+	Fri, 27 Feb 2026 08:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1772179951;
-	bh=06F6TJDFoB0GSIedWwlZgVYaTIy3QRaGRStZwONrCyA=;
+	bh=nyCpRO6Uat+K2NVikanpMOkHSEcKqcyUF38XfsnAOJ0=;
 	h=From:To:Subject:Date:In-Reply-To:References:From;
-	b=P5cl7gOM+1Y6dFEAn9G/5PUnwGYueR0ebaOb2c8YqSabHn42BV4vE3st5kOTgOMi+
-	 B3Fg5nT+aj2xGtSmJSXh1UwsXq0rk8DWw+8iLJAQT56YOj8ZPN0dBGWyUYljTKpIA+
-	 N+Dc8MfAJzTwVzOjbJUuThkczE8KcHgKlANbX39/ErnnrOaYW4GqU0dRgyuMHSj8NH
-	 CR/tP/+452QWMzlCZyXobF6EHg4K6Qw733skpaB2JfxPOWEOqsmSeLjWi29b4Ma2+n
-	 0Hb+29EdB46/n3vSOZzNUt1UZbjcFmOLcoy/7Q9ww3qa5mSA8LnBdBX8hdAkzJE998
-	 +CkpeZSp4jQlQ==
+	b=CFKtGv3VI6c3Zr8vIArmH3Yi9QmhvuNnHCZzHhH3cPYcChsBFPRymzlXV5xOExM9o
+	 H6c7+MoNdMLOk/RmAeCYGaPQnVWXsm7dvf4lLlBnc+NgjtueTFTpNfGBMh9czH1pj9
+	 yON1fvhSIG9aBCrEyDZ1ZSZ9asgLFyjhLM1av2HTS5w2/NpuGLTZRC+viNRdU9Fmns
+	 M0KdJKe6HxOU/ozeX//KJ12XZL3TnV/+NgI8MYQ9CyxcU8EoRr+9TWhRrUnLg9xuPM
+	 wgBle10fz/FExnBi/z/a0z+Vth4cRUhHmjq9MbMB44UVVuXiCgYG7TmlcxLezueM+o
+	 LuDk1FEvJmOPg==
 From: Damien Le Moal <dlemoal@kernel.org>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
-Subject: [PATCH v4 3/8] engines: libaio: add support for DDIR_SYNCFS
-Date: Fri, 27 Feb 2026 17:07:06 +0900
-Message-ID: <20260227080712.2422380-4-dlemoal@kernel.org>
+Subject: [PATCH v4 4/8] engines: io_uring: add support for DDIR_SYNCFS
+Date: Fri, 27 Feb 2026 17:07:07 +0900
+Message-ID: <20260227080712.2422380-5-dlemoal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260227080712.2422380-1-dlemoal@kernel.org>
 References: <20260227080712.2422380-1-dlemoal@kernel.org>
@@ -44,26 +44,32 @@ List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Flag the libaio engine with the FIO_ASYNCIO_SYNC_SYNCFS flag to indicate
-that the syncfs operation is supported, with synchronous processing.
-Modify fio_libaio_queue() to call do_io_u_syncfs() for an io_u that has
+Flag the io_uring engine with the FIO_ASYNCIO_SYNC_SYNCFS flag to
+indicate that the syncfs operation is supported, synchronously.
+Modify fio_ioring_queue() to call do_io_u_sync() for an io_u that has
 the DDIR_SYNCFS data direction.
 
 Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
 ---
- engines/libaio.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ engines/io_uring.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/engines/libaio.c b/engines/libaio.c
-index 0c207d60d94a..3242dadd4e0b 100644
---- a/engines/libaio.c
-+++ b/engines/libaio.c
-@@ -274,11 +274,14 @@ static enum fio_q_status fio_libaio_queue(struct thread_data *td,
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index 0ea3aba12e2c..d4dff3b8f275 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -890,12 +890,19 @@ static enum fio_q_status fio_ioring_queue(struct thread_data *td,
  	if (ld->queued == td->o.iodepth)
  		return FIO_Q_BUSY;
  
--	if (io_u->ddir == DDIR_TRIM) {
-+	if (io_u->ddir == DDIR_TRIM || io_u->ddir == DDIR_SYNCFS) {
+-	/* if async trim has been tried and failed, punt to sync */
+-	if (io_u->ddir == DDIR_TRIM && ld->async_trim_fail) {
++	/*
++	 * If this is a syncfs request, or if async trim has been tried and
++	 * failed, punt to sync.
++	 * */
++	if (io_u->ddir == DDIR_SYNCFS ||
++	    (io_u->ddir == DDIR_TRIM && ld->async_trim_fail)) {
  		if (ld->queued)
  			return FIO_Q_BUSY;
  
@@ -72,17 +78,19 @@ index 0c207d60d94a..3242dadd4e0b 100644
 +			do_io_u_trim(td, io_u);
 +		else
 +			do_io_u_sync(td, io_u);
+ 
  		io_u_mark_submit(td, 1);
  		io_u_mark_complete(td, 1);
- 		return FIO_Q_COMPLETED;
-@@ -456,6 +459,7 @@ FIO_STATIC struct ioengine_ops ioengine = {
- 	.name			= "libaio",
+@@ -2013,7 +2020,8 @@ static struct ioengine_ops ioengine_uring_cmd = {
  	.version		= FIO_IOOPS_VERSION,
- 	.flags			= FIO_ASYNCIO_SYNC_TRIM |
-+					FIO_ASYNCIO_SYNC_SYNCFS |
+ 	.flags			= FIO_NO_OFFLOAD | FIO_MEMALIGN | FIO_RAWIO |
  					FIO_ASYNCIO_SETS_ISSUE_TIME |
- 					FIO_ATOMICWRITES,
- 	.init			= fio_libaio_init,
+-					FIO_MULTI_RANGE_TRIM,
++					FIO_MULTI_RANGE_TRIM |
++					FIO_ASYNCIO_SYNC_SYNCFS,
+ 	.init			= fio_ioring_init,
+ 	.post_init		= fio_ioring_cmd_post_init,
+ 	.io_u_init		= fio_ioring_io_u_init,
 -- 
 2.53.0
 
