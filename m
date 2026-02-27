@@ -1,85 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5ADD3DA7C7
-	for <fio@vger.kernel.org>; Fri, 27 Feb 2026 06:01:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 966F033BBA4
+	for <fio@vger.kernel.org>; Fri, 27 Feb 2026 07:11:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772172062; cv=none; b=dx5M/Mk6YUcCKMfJtV8DEwPuXJOZgh9/mnDnxjR8mcw48U2N86ZPhDJGSvbyhqsC51HTELiAQ0b1Xd8+yym14vOb4qEjJxyyxztYfn6ZF5qPYUlVLevxTucWI/WUBKGoSmL9auIaaUtplUC85h8/QpwyKhjDbQ6juvrAxxpcM+w=
+	t=1772176282; cv=none; b=GShDCRjYGw1SpXZ3yHIP+CbYK2Pyz9z7pgXC4SNtNpmYWbeD0J+/oJ32ZwPTCuzM8SEawxWcYf1Z/uUdTmaFbBF33dPKsTRZJXFisCpP8Vjn7qSc3oUray1HiCF1dzL/HZ4Hvx5yUK7AkfWqegHvIxUWJWM6uOXItfzjC+LkCqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772172062; c=relaxed/simple;
-	bh=syyLibF3ON/dsVDPo39ctl+XfUP9Or1ZpSp22rOErQE=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MgxCUAkZAvsL6dxLfJxztFFXpHCRULJ11v+J+c0Ul4J29le0d1LyWnQkkphCws6lwOpsR/yhke8ApjF8TpmrpFR32ORIi6hi0wZZy2mhZeot/vv/pcxcqvX6bRyrDEjPDRWVq33J/X90v5+an9bU6IYGUV3YkCwxnZPFUAzQnHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FFG3SYjq; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772176282; c=relaxed/simple;
+	bh=LZWrXsGt92i2jNWCzZf5c1NqNbhN4VjR6hbKjqqSDc8=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=K7d48q0a1k6sX2pfdmBjciA33jTmWe65H+z/SWYUaoIiMHuGGrwq2xleW8ocVTvGo1AgPUpcqKWVdI+LWA84Bc+dc9WB7KWatLAZAG60WXrIQGoMYS8j2KGWkk/h+L+sjkyJbsA9dzKbpXjQEewl7BMwva8/4JMzEKcz+AMSeAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WPEKjW1k; arc=none smtp.client-ip=209.85.219.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FFG3SYjq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C2FC19422;
-	Fri, 27 Feb 2026 06:01:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772172061;
-	bh=syyLibF3ON/dsVDPo39ctl+XfUP9Or1ZpSp22rOErQE=;
-	h=From:To:Subject:Date:In-Reply-To:References:From;
-	b=FFG3SYjqag/Mwe23iVZpBcRaobRFQ47FbxWtLOZ3IClBbaf5HtzXaEJ3WblpOMQzY
-	 CW3+du6Pytn9CGWXtGM7xkJ4+whIk4ggmYBDqLQwJ2RY3G6qJIurtwOXgQm1/9lemm
-	 V9x/F4z2Eshk3eKGNuT40FDw+iT1gDveKYWsEStt+zTG2+t5G1fUhpMsZuzjm1710m
-	 1lNCXV6ID7RwKvHVYhFvrJedtBPIWqalPNM6lVh8grBbwJkATezjMnbEC9Ch8JG6YG
-	 H1sU7nUVp+Sqbgos2VC0SU8P+hDTcXmg35obetdbMl37WRl3L8S/CFvEw4XoMr9LA7
-	 w21EM3sjEoClg==
-From: Damien Le Moal <dlemoal@kernel.org>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Subject: [PATCH v3 8/8] engines: posixaio: add support for DDIR_SYNCFS
-Date: Fri, 27 Feb 2026 14:55:38 +0900
-Message-ID: <20260227055538.2334916-9-dlemoal@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260227055538.2334916-1-dlemoal@kernel.org>
-References: <20260227055538.2334916-1-dlemoal@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WPEKjW1k"
+Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-897002b7576so29278966d6.3
+        for <fio@vger.kernel.org>; Thu, 26 Feb 2026 23:11:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772176280; x=1772781080; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LZWrXsGt92i2jNWCzZf5c1NqNbhN4VjR6hbKjqqSDc8=;
+        b=WPEKjW1kaJa8bEF7/EeR3G3+jgGi6bQSa3dvIq+yWI1Ofa+0cunF8gZ0dACtNmcguG
+         tVoDuZmWTTcDRkO9OvlRFWc/pxBVk36AkbmrdAIpATJerpJWnN+cnHOy8hNm2wteoaSj
+         BkqE52r5UyqFRxzcoSIbFxvfApNK+2oJ6+yjTWSx9nfVcjz2PZXlHo/BmgUZhutsVymr
+         x3MwzKG/xBZFcgHbd33mYr8VLsQxbobwkm1jLEjTeRh9idqTLKG+TyZ920gCIpTgk/+p
+         zBXhtZQGsZgFMEypSz31hlEvzYE3M1nU/Sw3XXI4EG7glUJv6SN6CuKO2oKvZhMqZDti
+         LPHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772176280; x=1772781080;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LZWrXsGt92i2jNWCzZf5c1NqNbhN4VjR6hbKjqqSDc8=;
+        b=KIj0wLnhlD1BWqjTROOO2daeaWHHi1NJRKHLmhV4EPDHNBA0rafkoeP1gwifWFefs4
+         1QxgZhMja758ZwUXlI+uH4XxLdkr1TVizirjT3F9NE4yVdhq/+Ftgc+f3Ea2SNP+0nDD
+         1esqN90UkL709tJF57tkApNLLEYzrg5JeTV1QAdeAMarlyftKxlthFQ7pUBJutdXS8jY
+         v2hwDJ/arSQxc7xG42W2jkU94GA7GiZ5LEvIAZzOm6jvPpbcLMaD+gt+oMHScq05WB+J
+         aZ4VlGAjW6Eu+QCPGpomLdA9H1shLjdniOrtoAJfvd6D6noabeCuKcHeFMpE7yMw0+rZ
+         MLAA==
+X-Gm-Message-State: AOJu0Yzk1UdI/OLu4LtSUZaRoYOtYkrL5XaIDb1I+wRV4mlnDIgeh9q9
+	Kh6HOKD8G8slZ4jtwth2fimLcLUppXeHb7E7TY3U8KEvGFwccEn5YA7s68j0
+X-Gm-Gg: ATEYQzyoJWMbj3/evIVFcsqvlIEfH19EoOSo1FTuZeIL6Qhjpfh8edpPtHzk3ZyU/bb
+	UaZKJikp5x9cDux4OoLw4fwa/6KONCOBWBAru4RBUKZjtFdn6GNGzNh/QDLuUQYHP4wcvS0fryf
+	KpHb5G9jlVs5eI5Gn6sUVI4qSEyZ3eogRkLySwkILzc1Q2eaS3XnhybMqEptc2NfJleTb9J2gY4
+	TyE6WvKTWZ9eS9yDLMbls0Xesi6pR6YNBA5Y1nENBBCJSWr+kgGXwLvd/BMJNxKiJsVlze762nP
+	z4OXWUgNxRGglr8Y0xLvhY9pFbqZDpN6TcUIP3tC8uJ0ALbK6zAhsbgJPrTmoe023hcSZOWjZ0N
+	olaLwlwQ4ubUQW7mNdK/OS1+D36JpG2uYlU9fPzIFJHNw5Xag3LwjAgNaLjEHiINj/0K2piv2SY
+	m6cG4WKlLcSRrltQaQTNawkUwpoLAsEtyE6KdSPox4Agg1JiPwXlBmNv0RqxlU/L0EVz40W7XuD
+	l0FukBdGrQC/qJni11Y
+X-Received: by 2002:a05:6214:21e8:b0:899:aef1:139f with SMTP id 6a1803df08f44-899d1d56c9bmr28387516d6.2.1772176280213;
+        Thu, 26 Feb 2026 23:11:20 -0800 (PST)
+Received: from runnervmnay03.11pwefhiinsujo4kbf1egfxbic.ex.internal.cloudapp.net ([64.236.144.99])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cbbf678156sm463662685a.18.2026.02.26.23.11.19
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Feb 2026 23:11:20 -0800 (PST)
+Date: Thu, 26 Feb 2026 23:11:20 -0800 (PST)
+Content-Type: multipart/mixed; boundary="===============6804547403232544878=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v3_0/8=5D_Introduce_the_end=5Fsyncfs_option?=
+In-Reply-To: <20260227055538.2334916-1-dlemoal@kernel.org>
+References: <20260227055538.2334916-1-dlemoal@kernel.org>
+Message-ID: <177217627949.2936.4433595798401846609@runnervmnay03.11pwefhiinsujo4kbf1egfxbic.ex.internal.cloudapp.net>
 
-Flag the posixaio IO engine with FIO_ASYNCIO_SYNC_SYNCFS to indicate
-that it supports the syncfs operation, synchronously. Also change
-fio_posixaio_queue() to execute aio_fsync() only for sync operations
-that are not a syncfs, in which case, we directly call do_io_u_sync().
+--===============6804547403232544878==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Damien Le Moal <dlemoal@kernel.org>
----
- engines/posixaio.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/engines/posixaio.c b/engines/posixaio.c
-index 2d0ac9fcc369..828e535157a0 100644
---- a/engines/posixaio.c
-+++ b/engines/posixaio.c
-@@ -142,7 +142,10 @@ static enum fio_q_status fio_posixaio_queue(struct thread_data *td,
- 		return FIO_Q_COMPLETED;
- 	} else {
- #ifdef CONFIG_POSIXAIO_FSYNC
--		ret = aio_fsync(O_SYNC, aiocb);
-+		if (io_u->ddir != DDIR_SYNCFS)
-+			ret = aio_fsync(O_SYNC, aiocb);
-+		else
-+			ret = 0;
- #else
- 		if (pd->queued)
- 			return FIO_Q_BUSY;
-@@ -196,7 +199,8 @@ static int fio_posixaio_init(struct thread_data *td)
- static struct ioengine_ops ioengine = {
- 	.name		= "posixaio",
- 	.version	= FIO_IOOPS_VERSION,
--	.flags		= FIO_ASYNCIO_SYNC_TRIM,
-+	.flags		= FIO_ASYNCIO_SYNC_TRIM |
-+				FIO_ASYNCIO_SYNC_SYNCFS,
- 	.init		= fio_posixaio_init,
- 	.prep		= fio_posixaio_prep,
- 	.queue		= fio_posixaio_queue,
--- 
-2.53.0
+The result of fio's continuous integration tests was: failure
 
+For more details see https://github.com/fiotestbot/fio/actions/runs/22474967521
+
+--===============6804547403232544878==--
