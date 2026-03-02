@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B32C8430BB9
-	for <fio@vger.kernel.org>; Mon,  2 Mar 2026 03:47:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC3DB1F0E25
+	for <fio@vger.kernel.org>; Mon,  2 Mar 2026 04:41:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772423236; cv=none; b=ksf12Va7UyP9EwYD0IXU7aCXCPb8gNeL7PzJkNhGDg8+U8oTFjQpLW6BJgozmPF/iI3kFxUhsrWVWJRheSc5F5mQD8LKID5WR9LcsM69iVDZUArs0t3brpvuuKtJBO7x5YfI8sQ+KwjxgQyxljleA1tPySvDIo4I0uyryyyRadM=
+	t=1772426515; cv=none; b=PL13kNNv5MW3sYbmywn19XRNP9QX+zzrZMkE8Dv0rChF0uEbJDzH5T3clTo+hsFX7qlYA5KQuzVit8mDrDu2+dCyKg0Xvr/9e4Er5EVLN4CdcJOcPOvDjfxHqwgMgfrdyzJ6TxAsW7q2Phm6QNwkCGQe14w6CVkICCdQcZ41yv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772423236; c=relaxed/simple;
-	bh=eJIxLomTK86sK4sTWI0rq6k7LBzYcN9EN4wFzvCKXJA=;
+	s=arc-20240116; t=1772426515; c=relaxed/simple;
+	bh=fcRYR4a6jxr3XgjMBW9vNFEZzI9xovqZAmyb7cbN3hA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=GHdH0Vy9JcAMKHWbstFT0N1g79eINMBKhI1AybbFap3gjglY6nfsxAzwak5klAmcsmzVRtmTgusNtYx7N4dkecMcV2nILA1ToygTtKV+xS1aPy18AgWtveOquYp8Uqtld7VNzoT4HEKb5CMkEnqHF1eSJSwi2LREk746jnBW8Y0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lOjOm3KH; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=Tffzr5j2u79RFVj2IniydlK3IuJyKgqOTn3wRQomsOLVXZuVeXzHgI6FWlDJi7z68V/OEz7j8JWyhxxKlY28FiFO95U2zJRlYo9m4Ng5yc6OG/kVWeGWRxpbkHQ0OmsZ9yp7uFGyy9BTrOCfq290sgGkBcHN7Zp0f1nRLhjU1B0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PHFRpsQn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lOjOm3KH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E27B8C19423;
-	Mon,  2 Mar 2026 03:47:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PHFRpsQn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5015C2BC86;
+	Mon,  2 Mar 2026 04:41:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772423236;
-	bh=eJIxLomTK86sK4sTWI0rq6k7LBzYcN9EN4wFzvCKXJA=;
+	s=k20201202; t=1772426515;
+	bh=fcRYR4a6jxr3XgjMBW9vNFEZzI9xovqZAmyb7cbN3hA=;
 	h=Date:Subject:To:References:From:In-Reply-To:From;
-	b=lOjOm3KHCP64pz/GVpUCNBtx8CRw7DYWgb6lTvj2oyBO+6maZUYnZRSfA6n2oWlVj
-	 efpPTq4mGj2notxbWP+1N24v7fONJjSN4r2z3XqH1hVOK7YgDl59/6r1bja2/4R2hY
-	 7jug+l1Yi8Oc67/4h8MqQl6i/Ty0skw2/qiwqvqBUpvLitwnykY9eiVz6tjO+1eYlX
-	 TExw2FIgj9a7czXqegEFlz7ODvm7ff9D9zY06RtimmWWe1X/xYKlSkFg2GBKHxOcOC
-	 gapl6+hFFjrZyReru+av+Kp5cneGMFmxWKFWKO2ll6ZiPGtQjtyVKea98dnH6yqCkn
-	 QQv0fG0JsAxBQ==
-Message-ID: <35cc81d1-ef4e-4b21-88ea-6386075677c3@kernel.org>
-Date: Mon, 2 Mar 2026 12:41:49 +0900
+	b=PHFRpsQnaWp36he3/jv6atLX6f5uuII7iOFtRgI2hkpmOcFhjRTEv/PxCUnuhWARi
+	 YX9uZmK1fKVyQjbJVsaSRfcWUzS6xS8fprWJFm19RrZ+BGuU/+fJGqI+gCywP1TsAA
+	 Ow/TKYIH6u+5A3fz/aGPU6g+2hmAxHpqV9wv86H5IIcG8xrIhehBVSvnwfTDl9PGrp
+	 LUUrJ1lAlzgLDv4BHbttyjQIsRoeqVRCghyNPxpokRoQgssVfTKgovNQEqoh8fNTDG
+	 Adw2vvxKn/a2BvPL8YSAMgBOOtgeGUMrWJraXUvMlBZIXSs1kVjeNaUKTqH+JTMLVc
+	 +QpfwL4oqwX8g==
+Message-ID: <1d1f28e2-cdb0-42a4-ae7a-eaaccac3647b@kernel.org>
+Date: Mon, 2 Mar 2026 13:36:28 +0900
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -35,86 +35,63 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 2/8] zbd: fix write zone accounting
+Subject: Re: [PATCH v3 3/8] zbd: introduce write_zone_remainder option
 To: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>, fio@vger.kernel.org,
  Jens Axboe <axboe@kernel.dk>, Vincent Fu <vincentfu@gmail.com>
 References: <20260302022609.3526823-1-shinichiro.kawasaki@wdc.com>
- <20260302022609.3526823-3-shinichiro.kawasaki@wdc.com>
-Content-Language: en-US
+ <20260302022609.3526823-4-shinichiro.kawasaki@wdc.com>
 From: Damien Le Moal <dlemoal@kernel.org>
+Content-Language: en-US
 Organization: Western Digital Research
-In-Reply-To: <20260302022609.3526823-3-shinichiro.kawasaki@wdc.com>
+In-Reply-To: <20260302022609.3526823-4-shinichiro.kawasaki@wdc.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 3/2/26 11:26 AM, Shin'ichiro Kawasaki wrote:
-> Currently, zbd_convert_to_write_zones() calls io_u_quiesce() when the
-> number of write target zones hits one of the limits of write zones. This
-> wait by io_u_quiesce() significantly degrade the performance. While I
-> tried to remove the io_u_quiesce(), I observed that the test case 58 of
-> t/zbd/test-zbd-support failed with null_blk devices that have a
-> max_active_zones limit set.
+> When the specified block size is not aligned with the zone size or the
+> write pointer positions at workload start, write workloads create
+> unwritten remainder areas at the ends of zones. These remainder areas
+> leave zones in the open condition. This disrupts the intended write
+> target zone selection.
 > 
-> The failure cause is an incorrect write target zone accounting in
-> zbd_convert_to_write_zones(). This function checks the current write
-> target zones, and selects one of them as the next write target zone.
-> After the zone selection, it locks the zone. However, when the zone is
-> locked, another job such as a trim workload or a write workload with the
-> zone_reset_threshold option might have already reset the zone and
-> removed it from the write target zones array. This unexpected zone
-> removal from the array caused an incorrect zone accounting and the test
-> case failure.
+> Previous commits e1a1b59b0b9b ("zbd: finish zones with remainder smaller
+> than minimum write block size") and e2e29bf6f830 ("zbd: finish zone when
+> all random write target zones have small remainder") attempted to solve
+> this problem by issuing zone finish operation for zones with small
+> remainders. However, this approach caused performance degradation due to
+> two reasons. First, the zone finish operation requires substantial
+> execution time. Second, zone finish operation requires to wait for in-
+> flight writes from other jobs to complete, which is done by calling
+> io_u_quiesce() before the zone finish operation.
 > 
-> To avoid the incorrect zone accounting, call zbd_write_zone_get() after
-> the selected zone gets locked. If the zone is removed from the write
-> target zones array, the function adds the zone back to the array.
+> To avoid the performance degradation, introduce the new option named
+> "write_zone_remainder". When the option is specified, issue writes to
+> the remainder areas instead of issuing zone finish operation. The write
+> operation makes the zones in the full condition in the same manner as
+> the zone finish operation, freeing up the zone resource of the device
+> and enabling writing to other zones. Also when the option is set, skip
+> the io_u_quiesce() which was required before the zone finish operation.
+> The performance benefit by eliminating the waits on in-flight writes are
+> particularly significant in asynchronous I/O workloads, where the write
+> operations to the remainder areas are managed as part of queued I/Os.
 > 
+> The drawback of this approach is that writing these remainders requires
+> write sizes smaller than the minimum block size. As a result, when using
+> the write_zone_remainder option, the random map feature must be disabled
+> using the norandommap=1 option, which is automatically done when the
+> option is specified.
+> 
+> Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
 > Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-> ---
->  zbd.c | 13 +++++++++++--
->  1 file changed, 11 insertions(+), 2 deletions(-)
-> 
-> diff --git a/zbd.c b/zbd.c
-> index b71f842c..c511b709 100644
-> --- a/zbd.c
-> +++ b/zbd.c
-> @@ -1693,8 +1693,17 @@ retry:
->  
->  		zone_lock(td, f, z);
->  		if (zbd_zone_remainder(z) >= min_bs) {
-> -			need_zone_finish = false;
-> -			goto out;
-> +			/*
-> +			 * The zone might be already removed from
-> +			 * zbdi->write_zones[] by other jobs at this moment.
-> +			 * Even if the zone has remainder, call
-> +			 * zbd_write_zone_get() to ensure that it is in the
-> +			 * array.
-> +			 */
-> +			if (zbd_write_zone_get(td, f, z)) {
-> +				need_zone_finish = false;
-> +				goto out;
-> +			}
 
-Please change this to:
+[...]
 
-		if (zbd_zone_remainder(z) >= min_bs &&
-		    zbd_write_zone_get(td, f, z)) {
-			need_zone_finish = false;
-			goto out;
-		}
+>  enum {
+> -	FIO_SERVER_VER			= 118,
+> +	FIO_SERVER_VER			= 119,
 
-And move the comment block above the if. You could also improve the comment to
-explain why we look at "zbd_zone_remainder(z) >= min_bs"
-
-With that (and the much better commit message), feel free to add:
-
-Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
-
->  		}
->  		pthread_mutex_lock(&zbdi->mutex);
->  	}
-
+Note: this change will conflict with my patches proposing the addition of the
+end_syncfs option.
 
 -- 
 Damien Le Moal
