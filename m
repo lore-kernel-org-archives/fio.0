@@ -1,92 +1,86 @@
-Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8576A220698
-	for <fio@vger.kernel.org>; Tue,  3 Mar 2026 01:32:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.71.154.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 566CA3597B
+	for <fio@vger.kernel.org>; Tue,  3 Mar 2026 05:05:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772501533; cv=none; b=MWQXstD6MIRe5IpCOFqFsu1SBPMIiTpOnXq11Q7AW8eEVLurHFRo5X9EBO24QpzQJfbWGZQtULGHAnWAtAgLVWhn6wpvvbx22GzZqY6FrimQaRVESGt1OXSy9ydu3AoWD11mySIcmO/ADZemDmj24ToWYEjEpKtf7yymSmEjFR0=
+	t=1772514322; cv=none; b=jf6mEcV/4W1LqCvCrsnTXlPDWh2mRb0lf8oUe8ueLUxYKV23Efc7DECcYdm/wdsQEgMAQL+9eIb7okADnKf84RDCwBUVIud38pRvn/L2jojlkboQzjEmjkEf9dLDlK9p5wjpRqoYGw1LvIv8QlkXAd/zXaPHS3fSwpe42OX045E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772501533; c=relaxed/simple;
-	bh=be3Ur8EjE7IlbBoyqqEnXlFVZjlh58miCkBuk4j+95E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qh1h2xb798teWFWZL0qUQ7SxAp3ZUISRTp2/lKgy9Z/2oO8G1nZsezJjKhN2wCHH/gEfvIGISCoDKivuL4gEJ2IvZpfc22o3ZhEgTyn4GxRpO9vB8V3HOKYXeHJcBmtNc66tUE0IYINra3aomR5evIOqNWpxva233RR52lFXTUo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com; spf=pass smtp.mailfrom=wdc.com; dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b=NnnrAI7G; arc=none smtp.client-ip=216.71.154.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+	s=arc-20240116; t=1772514322; c=relaxed/simple;
+	bh=xHkvhRB0E8rgjl8FyuWVdDunPm7f6bC9utkZlVWlBu8=;
+	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
+	 References:Message-ID; b=f1hCu7Il+ZLO37bpnAYWi/E8q+cJMT5EPT5kMOpA415HccoKM4SlWF7m4tWhxjGypgRuvaWOLKmqgpQRljLvrMIDT7urOB9uJo/WUKH78JXuJrcjwNcmI08pTfOHaeRKLYFI3f8yOVyGPaXM/0bF94FEmtubV3bOHng0PCCdz4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MO1X3ZP2; arc=none smtp.client-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="NnnrAI7G"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1772501532; x=1804037532;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=be3Ur8EjE7IlbBoyqqEnXlFVZjlh58miCkBuk4j+95E=;
-  b=NnnrAI7GrAKMweRrTsD6U5FeGvmaAX69XtDOhxYvKEsJK1TIxL4SjSeh
-   pB9qvamGkL/KeQulGSclpibHxbRP4v9h9lJGF0nYhNpQ6n1vvZFBouV7W
-   tauEIFsdJWUaMpduB+OXvp1cwLw0/kYvCc4XeEN2dZ0Ye8xynYtkGjCu8
-   G47LN+YZY1vc0I8F/bCWFOVMIBOiZ8d0ld23RcIJ//BcX6UtmtBMNAqPK
-   e8FG2iKwe+juRBU17K460axy8iLrFOWipt0WwaNAS9S/yw1PJU7cxrzCk
-   fjntSffEArdNKuARaqwUqPsDBt6o8lF8mC+zzoWd35QnDGdUc7t5lYK7v
-   A==;
-X-CSE-ConnectionGUID: Z3q92aHyRvagY6aTs/XLug==
-X-CSE-MsgGUID: I/e7t4DMRVSQjKDBZYPgmg==
-X-IronPort-AV: E=Sophos;i="6.21,321,1763395200"; 
-   d="scan'208";a="140813534"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep03.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 03 Mar 2026 09:32:11 +0800
-IronPort-SDR: 69a63a1b_PmATfnzSurSDq8iKVas9CIQRnihCb9Eksvl55iBrNUNvbmM
- 7bQmT7siL0RTuMmZnOpyzjklKpdb2r5XvPXnFeA==
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep03.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 02 Mar 2026 17:32:11 -0800
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 02 Mar 2026 17:32:11 -0800
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: fio@vger.kernel.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Vincent Fu <vincentfu@gmail.com>
-Cc: Damien Le Moal <dlemoal@kernel.org>,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH v4 8/8] t/zbd: avoid test case 71 failure with write_zone_remainder option
-Date: Tue,  3 Mar 2026 10:31:59 +0900
-Message-ID: <20260303013159.3543787-9-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20260303013159.3543787-1-shinichiro.kawasaki@wdc.com>
-References: <20260303013159.3543787-1-shinichiro.kawasaki@wdc.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MO1X3ZP2"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-89a000f5adeso25129376d6.3
+        for <fio@vger.kernel.org>; Mon, 02 Mar 2026 21:05:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1772514320; x=1773119120; darn=vger.kernel.org;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=xHkvhRB0E8rgjl8FyuWVdDunPm7f6bC9utkZlVWlBu8=;
+        b=MO1X3ZP2zhMbb8aJLtDqYa+owTt05XRj0KzHKGcwt23vrseFtqaJacC2i4gvL4acfl
+         4ZTt6G1zeDsHzrSp9+83h3AdFqdIN9SUEeTviGttEp4hFAuiju7URq0ROQXP8H8+mK+q
+         2XUOJ55emU5/Qci1M4QJktMCae/FVMLW4POvwHAkuFgczfIxlJN2PmmpL8HNrTJTYclV
+         rj2eEBPCu8buY5Xyu6ObO0P0chtJXDNsNasbqyz7Lr1cwctCHpUkKiFEu8klO8+3BnKl
+         Nq0ujGctUlqjpFgfueXuSkTqKK61uiedT9hvl030L8NSqx+E59sz3LeBOU+iDv049Zwp
+         MFXg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772514320; x=1773119120;
+        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xHkvhRB0E8rgjl8FyuWVdDunPm7f6bC9utkZlVWlBu8=;
+        b=p6703Yt0jC6WPuxlIXCgGybxISb+1ZKM2C0Y9ji744ezw1LytO9u8znHt3dn0w6+x8
+         YjPU70R84LQyK3fmsp+hTq6ybWGMv70iD6u/ZC4uIdTRYEYq9Z2Ah8RgoCJa7s8n/5DT
+         wIeM+uWCGh5kC5wX6rS3MkEnfK6cpZvx0ta+XbEg/kc4jXKiO1NzmnirVPAzIptV9ZeM
+         YIORGmeVkbDDcy+Febj2VNRqztGVkP8qN9DUCZqbH4UhXn2coT5G0H+NXbMP7CvXHzm2
+         2wrOMMueGGIoIu7Sncb503d+ogz81iDzV12N8G9laqBFuMsS/IMkPkz5FZ19UI8WXFE7
+         1cRQ==
+X-Gm-Message-State: AOJu0YzOxmIUwWTbEajPwic4iQBQj5UP7F+tiZiw8JJaBZ5ri3Smz4Za
+	riD3B/X9ZeVwjE3MpgWqlaf5de2DZqNRkngdjLhlznXliX2AXO/tZjtf+dIO
+X-Gm-Gg: ATEYQzytBDiyVmnljvQbK3H8DO0SG6i+URfpmXhxeW4B7+tuYuJiE2pICiZgFgh9xHl
+	pLbwf3AbGhlghs8uQiv7ga0a2EgEziL+nvUVnpDudol0At/FIJJS/P1weAECUs8roNcnvbasKVO
+	w9gis/bT57kPGLkrtioLg9xFSv92VOjWR7oRjTHV9Zn185cwWXuEN19vM13mSnCgr+eSz6Ki6Gn
+	JgNqxNnkvKs6Xr09ZKam2Nd8iMQTfgl6URvVvGJtrHVi3WHIJytSOiECG2CyPtCmbnTRlF8ybWS
+	XKxY8rVq62SVM9VqmszJRzZODmB4SNNSCSjtUNNiBTA6o5dUgaHdpAyYiCtMAe2K0diYBB9t7bW
+	U0toKxh8tR3JTpK+30SpiJBg1aYOYwMu4KIQXHf58XpOHLwJV0cSitQhZF/XPY6f2CiM5kwOIh9
+	UYJr038A5IBahqwOhdrai2slxzKrBS1xra7lsLm9804wA5goALYWQkIwdaKGdkfWq8Dytx/+l36
+	bVtsO+T8cbjlFQLbOdvACg=
+X-Received: by 2002:a05:6214:529a:b0:89a:b94:3cbb with SMTP id 6a1803df08f44-89a0b9440e1mr9005016d6.22.1772514319914;
+        Mon, 02 Mar 2026 21:05:19 -0800 (PST)
+Received: from runnervmnay03.xbqmit5f5f2erozg2hxxbijevb.bx.internal.cloudapp.net ([172.174.223.242])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89a083a95fbsm13372956d6.38.2026.03.02.21.05.19
+        for <fio@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Mar 2026 21:05:19 -0800 (PST)
+Date: Mon, 02 Mar 2026 21:05:19 -0800 (PST)
+Content-Type: multipart/mixed; boundary="===============5862524193917957228=="
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: fiotestbot@gmail.com
+To: fio@vger.kernel.org
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v4_0/8=5D_zbd=3A_fix_problems_of_random_write_with_unaligned_block_size?=
+In-Reply-To: <20260303013159.3543787-1-shinichiro.kawasaki@wdc.com>
+References: <20260303013159.3543787-1-shinichiro.kawasaki@wdc.com>
+Message-ID: <177251431920.2966.16379380951101332102@runnervmnay03.xbqmit5f5f2erozg2hxxbijevb.bx.internal.cloudapp.net>
 
-When -m option is provided for t/zbd/test-zbd-support, the option
-write_zone_remainder is specified to fio. In this case, the test case
-71 fails because fio does writes to small remainder areas at zone ends
-and it changed the number of writes. To avoid the failure, modify the
-test condition of the test case.
+--===============5862524193917957228==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
----
- t/zbd/test-zbd-support | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/t/zbd/test-zbd-support b/t/zbd/test-zbd-support
-index 10fd6690..2c57de95 100755
---- a/t/zbd/test-zbd-support
-+++ b/t/zbd/test-zbd-support
-@@ -1768,7 +1768,8 @@ test71() {
- 			--max_open_zones=1 --debug=zbd \
- 		       >> "${logfile}.${test_number}" 2>&1 || return $?
- 
--	check_written $((zone_size * 8)) || return $?
-+	check_written $((zone_size * 8)) ||
-+		check_written $((zone_size * 8 + 4096)) || return $?
- }
- 
- set_nullb_badblocks() {
--- 
-2.49.0
+The result of fio's continuous integration tests was: success
 
+For more details see https://github.com/fiotestbot/fio/actions/runs/22607237700
+
+--===============5862524193917957228==--
