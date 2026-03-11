@@ -1,86 +1,105 @@
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54E132C2349
-	for <fio@vger.kernel.org>; Tue, 10 Mar 2026 22:17:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3414383C68
+	for <fio@vger.kernel.org>; Wed, 11 Mar 2026 07:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773181054; cv=none; b=Jq96zzRyY6EyF6ibI3alhkzVswwROdnylCKolKlqDr1FCUzNQtrV1cqE1HF8Pd/qsro+2liUGk3beEA41udtaZ81KVb/POiEGTDSZJ2VdvYDnfFO7tE98UeULB7+5MAPGqNEsMTGQgWUS2f0pjrsl2qkAkTOv2DdoZX+/XKkEao=
+	t=1773212847; cv=none; b=I2OtY0qAE/wQ/FnmHvbqlzwV/g8dKRJ/MK5MieHavgLlRFN39PBxsOAGpfx5xJ952+W7iYAvjp6zTol3u+MlFdYAh4xR/wkxUANo/mxBcAulGGd6WZhRdPwcm1WSCd5dqSNwvbhOSJaT6k8Z9n+nZFFPE9r6YsHrvUkJmEkjMnU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773181054; c=relaxed/simple;
-	bh=aQJQOVh8widZxpm4EdcYatepjSQEYg7T9zdZYxdR/YY=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=AWVLV7LYOORxtgxPlH5A8zKeRKjRAUoNN+S5QZrq+rkfGp3B9f/VLJilPg/plGDT+TnxDFC6ltpiVGMKuVkQnI91eXlgTrPaQpAbnBaOIiy4t7PZLbZz0101ZsAT50j+FoQ2F0Qsy4ypDSomyQ4XO2ApcZKKaHnAKHniPSX5+vc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WgNXrtLo; arc=none smtp.client-ip=74.125.82.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773212847; c=relaxed/simple;
+	bh=bPEYGEHzZO277KKZdNM5bnOT6UYBRuTJspuAuDjRYgs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=JGkmUI58isgNbJJ2NIabY+71IP7D+vHBbFYlzxa61xoNPNB4V2PzEZP1WYryCdxL7FdNj1kDSafGl+Jxz7zcuogot1LRg6JS5Fu0ltn56Q0+VttsJcqpVPFHffvsrXZmrZWdqxT7t/r59erkqpJpxX6ALkZCB0++FxdO4vJ5qVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fwHcISfC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WgNXrtLo"
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-12713e56abdso370684c88.1
-        for <fio@vger.kernel.org>; Tue, 10 Mar 2026 15:17:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773181052; x=1773785852; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aQJQOVh8widZxpm4EdcYatepjSQEYg7T9zdZYxdR/YY=;
-        b=WgNXrtLoe9w1V4+do7K7jr61bPlKAmpU+BUjwYoQ4HSC5+PfhaCQ3BhM7moQx1n0Hx
-         kTTfUl3gMojXK2HYyFyHgZvLhUCYTNqO/nMOU9EHoCJilc8zk7raX3plEX8tkcmx5/UY
-         31bDoDq/LuaBy/9h1FCyxVsoxrm101slcwLxVq8uK+sqwqTiiSWDtSDdYH04cgVXbuhb
-         xnVWH9MFRo6r1xjQj7Y+cJ2b50XDoDdOfaFAhI5afZpU7j6KlOMWEq0VLL7IeB67oJeC
-         o436N7E8O0T6CvF0rbV1UeBLfKImcjtnv4e1KE6O1vsePafElmM5UYguhldHkxcauTkg
-         iqdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773181052; x=1773785852;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=aQJQOVh8widZxpm4EdcYatepjSQEYg7T9zdZYxdR/YY=;
-        b=jufovYxvJVLicKdLVT4+/qN72j/rZY4Dq1cDQc3jDeZA+749HtDS2YMlyPhE9X1mmd
-         zjCBW1jOM6opLOLxPuHTWIkPfGl8BLmMEl/T34LnGOo+PpJEj6a9wTC2Wwl0QNVOddR8
-         SNBXnyvo3KfRWR4vpqE3CRD/7gAhiBf7o+T++8QPcuBt5KgoqkrJ4pJrYdm3swr+OKLP
-         vGUOfo1Eb2i3Yz4rHKE/x0+yv06TCfFlF2zfdF1MR8lF3AfRUSg7F8ALiMb38yrY0kLB
-         +49llN+3R0/yKmkQQma9oJdfvKZC/u15smSwhWj7Iq8DuLIjLatk5AXERrinKeoX8beE
-         Ctdw==
-X-Gm-Message-State: AOJu0YxWlE4C1QmWr/tfeMHC0hWM53m+SWfwdJDhHf1lHNViyRlhLmHO
-	wNWbMQBzDiS8nwRxXqc00GOku9m4zwdV1hT/rkV8gKosrnfwrtGvQ1GHbKpI
-X-Gm-Gg: ATEYQzx+sxgTyk3DVCnWP9p+H9hZ77ruybd4p9L47DtI+QKq1+DmhcO7CnTCtUHQ5D2
-	wKfWLokaZxJMkMx5/oAFldONzmPb63jtV55PgWfzFCpwNFkY6JY70Qyo3WiEemLydl6wbydaMJC
-	ZICfMeGF0b57hCgEgso1SkNa0Nzyc72oKl+A+31ecDWby4lfANsSulqEUMHxtwA6+cudXkZPNid
-	y4ivRp7NkWVfdBeFocVVqeGx0reJhw8Sm3XMhAsoNNV9doTOhh7HYoAR45tMK8IAtw8ocRYagL5
-	z68S5oZsEadfNlCd+cgnvpNz1qbTSZbzYEucD+YS2KsMFyYZ5etV+v91ZUYfeD39ZDqQcUvcKuV
-	/rTIOUv/j6PPjuIV57TBN9nR3r/o4qZTNIsALCKKgC3vg/YUTlbZ1W7V17lDXNKNLyd39d7ggsa
-	ZMaoyBXyTjjjmnux2/E2pkUp832nrSv6/928ryTKqXfZFxsTqzWASz7gELb3LBvky//+FERNHba
-	7wb1oJXAi+BG9QUmT4cxz8=
-X-Received: by 2002:a05:7022:238e:b0:11b:f271:835a with SMTP id a92af1059eb24-128dde07d15mr2388277c88.3.1773181052227;
-        Tue, 10 Mar 2026 15:17:32 -0700 (PDT)
-Received: from runnervm0kj6c.si5vesnirltutgysy1tpxjbuwf.dx.internal.cloudapp.net ([172.184.220.148])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-128e7c1ff96sm259622c88.8.2026.03.10.15.17.31
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Mar 2026 15:17:31 -0700 (PDT)
-Date: Tue, 10 Mar 2026 15:17:31 -0700 (PDT)
-Content-Type: multipart/mixed; boundary="===============5017639243086882667=="
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fwHcISfC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D28C2BCB1;
+	Wed, 11 Mar 2026 07:07:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773212846;
+	bh=bPEYGEHzZO277KKZdNM5bnOT6UYBRuTJspuAuDjRYgs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=fwHcISfCJr+vwVVFKIt8CaNBCYJztmCmgiycw57XIihvbt1Tvm4jAm2Lf+9L0SujP
+	 qsPLSbxgapscDj0MS8SJkCOxAkVT3oNQbIglzirAZ3HT1TDziK3eplk0SOECOuOuK3
+	 4LV/+eL/lBpoTJPh1vug1EqLXQ3LkQgexKl7YYol1i8bfRgr/SLHbgG471NyFeZMzo
+	 3r//1MNGCwXQxCR/iNkTzcPX6xqsV+ITkQamfO+jqd7bqdt3KRtk5C/QHKDjMZQfmE
+	 MXFRmWCpP8MTaia20nvwI5Ht/agaLLPa9TWbWXeO/SAdFDX+jpGQIpfml2dw/FS9++
+	 ndqIxIcGEEVPA==
+Message-ID: <af0e0227-5670-4c16-8f11-fc43abbe8da1@kernel.org>
+Date: Wed, 11 Mar 2026 08:07:23 +0100
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH=5D_backend=3A_correctly_handle_rate=5Fiops_combined_with_bssplit?=
-In-Reply-To: <20260310205804.477935-1-dmitry.fomichev@wdc.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] backend: correctly handle rate_iops combined with bssplit
+To: Dmitry Fomichev <dmitry.fomichev@wdc.com>, Jens Axboe <axboe@kernel.dk>,
+ Vincent Fu <vincentfu@gmail.com>, fio@vger.kernel.org
+Cc: Damien Le Moal <damien.lemoal@wdc.com>,
+ Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 References: <20260310205804.477935-1-dmitry.fomichev@wdc.com>
-Message-ID: <177318105067.2968.11646866370151995760@runnervm0kj6c.si5vesnirltutgysy1tpxjbuwf.dx.internal.cloudapp.net>
-
---===============5017639243086882667==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Content-Language: en-US
+From: Damien Le Moal <dlemoal@kernel.org>
+Organization: Western Digital Research
+In-Reply-To: <20260310205804.477935-1-dmitry.fomichev@wdc.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
+On 2026/03/10 21:58, Dmitry Fomichev wrote:
+> Currently, rate_iops does not produce the expected I/O rate with
+> workloads that use 'bssplit' option. Consider the following example
+> configuration -
+> 
+> [global]
+> direct=1
+> time_based
+> runtime=30s
+> ioengine=io_uring
+> thread=1
+> 
+> [bssplit_rate_iops_repro]
+> filename=/dev/sdX
+> rw=randread
+> iodepth=8
+> bs=64K
+> rate_iops=50
+> 
+> This works correctly and ~50 IOPS I/O rate is logged during the run.
+> 
+> If we replace 'bs=64K' with the following bssplit option -
+> 
+> bssplit=32ki/20:64ki/40:256ki/10:512ki/25:1mi/5
+> 
+> in the configuration above, then some incorrect (much lower) IOPS values
+> are observed to be in effect at run time.
+> 
+> This problem happens because fio, in order to derive the required
+> I/O rate from 'rate_iops' value provided by the user, simply multiplies
+> the IOPS value by the minimum block size (min_bs). Once bps I/O rate is
+> calculated this way, the processing for 'rate' and 'rate_iops' becomes
+> identical.
+> 
+> This works if the I/O issued has the uniform min_bs, as in case of using
+> 'bs=64K'. However, with 'bssplit' option in effect, fio may issue I/O
+> with sizes that are much different from min_bs. Yet the code in
+> usec_for_io() currently always calculates I/O issue delays based on
+> min_bs leading to incorrect IOPS being produced.
+> 
+> Fix this by modifying usec_for_io() function to check for
+> bssplit+rate_iops being in effect. For this case, derive the IOPS rate
+> from bps 'rate' member of thread data and then calculate the delay to
+> the next I/O using the IOPS value, not the bps rate.
+> 
+> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
 
-The result of fio's continuous integration tests was: success
+Looks good.
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/22924864499
+Reviewed-by: Damien Le Moal <dlemoal@kernel.org>
 
---===============5017639243086882667==--
+
+-- 
+Damien Le Moal
+Western Digital Research
