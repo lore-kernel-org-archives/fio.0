@@ -1,134 +1,150 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7648C1DF26E
-	for <fio@vger.kernel.org>; Thu, 12 Mar 2026 13:35:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4A83367F44
+	for <fio@vger.kernel.org>; Thu, 12 Mar 2026 14:38:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.175
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773322540; cv=pass; b=rYWxPyxev6rKCEVd1wRPscPg65QiV1zFFTvf15VNR9pn53xFGli67QVhwqPpRjrAt2BvZXPeFx8uX28nVDW9jsQvpRLNafWALuz4LZsOJwncdnxNZHNfArCBe2k3Q145I6MDFPIBlaopgOdJSD9VTnXchQyWvqSX8IVPd8pLaB4=
+	t=1773326287; cv=pass; b=sUhTzC10XSuDSwvzhhLwaFCHmRBjsJTiiTUBLF5NV+LX/pyo+AAbkD3PRShgkaJd4UBSMPpVLXFcVogGzyLY/ENorzn4zpfyKf0yoeR2ynNVHFOlAtSXoe8Vhav1CFwARbCF3Wl9G2kFMwALgbdJMMDFxfYFthGvvYO5Gm89GvE=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773322540; c=relaxed/simple;
-	bh=pO62/2un1pIt8ShRdoDVyTIOwhP8ERfLMfEFT1RLWGI=;
+	s=arc-20240116; t=1773326287; c=relaxed/simple;
+	bh=CODRsP7yMs/O0f8H+9vzaLj8yfx22N+frKhHnsY5NOI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Hl8RLsSeIttbcSkdCrgl9kqr2KA+gbfrQiUHOdXq6VEpP3aYwzm/hs2TKNwQs9Fj6j8sRgtOyyuN18rOyXlZaX+jZajOd30BAjxkSa6w2qICgMP1N8lbOsWSrIL+9JcgL4wlcQg1wBrBKk0bGvCRAyKKsdANLgxNrYHKTQBtwRg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e9GTJII8; arc=pass smtp.client-ip=209.85.208.169
+	 To:Cc:Content-Type; b=qpDTmY+v9gexHTId4mCB17Ir2DvkdkNGwecy6VE0MKK74vfBcH06Lxl1cfU2Ht7yWP9nNzcVyK4BZe/RYqCBSJ+oBx5OnSm3c0qDFXK9pgmB4frL6mkWFnEQslQPdGxAFt9UV+k2+xMge/uPX3+JH89fch9mVGH8aHfiy+P57mE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FxurI4O0; arc=pass smtp.client-ip=209.85.208.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e9GTJII8"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-38a694a3cf9so9416161fa.3
-        for <fio@vger.kernel.org>; Thu, 12 Mar 2026 06:35:39 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773322538; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FxurI4O0"
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-38a76ba6a78so6345951fa.0
+        for <fio@vger.kernel.org>; Thu, 12 Mar 2026 07:38:04 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773326283; cv=none;
         d=google.com; s=arc-20240605;
-        b=iVx70NGoZE4PJoUv3w7Xh6/WLIv/AMVWmCExl1G9i8xrbXW6xyMVEJ2NUyXsiWEA6+
-         jE9DAW9tOQtIow3SY6yswlXFVtiW+EFEvterrPR6Bj/QS0q90wLjy7yy6wq/sG/2KOkd
-         HL+kZHJ8+IMLD4QOiBSyd4CDsjCDRvQVm+17GRLqCFW6HSE3UqsULKeibCe/XmCOri6m
-         HK3ep6udZ81wcM3d3YDVEtcQXhMxkmcDmNkmvxT4srI7/uy3RlF9prVarcC8XzvQWsso
-         wwrtWdzNTpgQ5ND4Y4kRJglFAp9KjE23QoDZw/eDheLoj+bjfOYdj2D0zZwNmupw0RiL
-         l31w==
+        b=KDQboy3WJ9zFu32XcGiGLW5utRwUaJ5Ph0WZ9sPp1RACbUFTcQi7Cgpjqz3kjrFK8h
+         3DczdmH1CGRK3pDsj6V1CEliRMiz99ZNlhwJR4McelxHwZtbSrJOkxOZfrKQIcre2FD8
+         8XSuVdAHXRZUDBilS5UQhPZA0OhyYUGSQERvEUL5p58Tuz+PIFjalgc7AZ+n1L6aR7hk
+         icLVk8EyCewEiaD4VEEW20RKoUi3I1Bf5V3d5XVTEE505Fz5RujhQ1DaQPDxWx6LTyoV
+         hP3eHSCA0rYSFLRFCH7i0cESpB0upDbW14peOYI9VACvNMgZESzn3ndR3OfXJtr4pFAp
+         kZCg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=vWiEiixf/+VVQvN8nW03s/tkFhnte5EgBfVZrdhCh2w=;
-        fh=dJVWyUrEQEsYbkJp8onQmdtdVq9KfC6sbwE/XF+NE4I=;
-        b=VQQsWK6B7WP/Cgh6zj+y0Nb/LwiiDyEou24vuJ0ts0nvDflsF0lXUslHP6key9az2M
-         9JPImQCsGCne7lZ/IVV5vN9kCTxoZOe/Vbb7nSgomquV71Gpr15rbpXz558aRwpThfTw
-         Vnkzol1wZ1Qci5kcSXqh4jbfwZ6QRcj4xkhoENOqh/6lsY+1HsyTpQ5+TUPwCabA7yQC
-         ph5Yzz1twZiLREIn7Xo8hnfsJTwQ3YQ3Pnevi8WBDA3CJlSPeU99hoZlbh7y9vOHfXQo
-         QWwmK0UrH5G1+1U1gi7CMrkCkoBNc2x5v7h32N3wf8I4iaiya/tusZNvaqe518TRhZMx
-         Y9eg==;
+        bh=/KmTU5UENligpp7Fhe73ih+OE8kYsSUhjezRJ40ArV0=;
+        fh=nBltqKqfxTE99M5G9+1rlF/NG4SNbssOl7Ph2vbb53E=;
+        b=LYyj4lRkGNBrWq31OzRjeXOcljsMeSt2pCPg0pQZ/ftAG4VlhYeM35wQDUydnfPWsw
+         Y3qs/kuY/yLTEDl8tCcYzZBnY8GlmiOSZq6+FUTZpLxyrx4NPxjOsVkvZitGMh2YU/iE
+         6PsMRbhKE/WCH4FPQ9+k1g3Vc9pMu4Enq40xbGrj8QrOZI42b0dTWa/piYPuElIofxKt
+         wfjx5M2Vc8yrvjA5H3H5lly2kzkbHamB9LoChf8wUO9dV76fvZK9gGuoWXoz9Y2gw5fo
+         jaKt2kMK1KrKctXQrWnjK6FY3+EqyJmqy2apJGXriDXNKVBaLTqZYApqFWQZg+HEKiHj
+         m/Rw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773322538; x=1773927338; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1773326283; x=1773931083; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vWiEiixf/+VVQvN8nW03s/tkFhnte5EgBfVZrdhCh2w=;
-        b=e9GTJII8MGjEDRHaQOAp9eLdRV3IB1TJ/1NQ0TP9kfVPMgVFYgHHmADrYFjNOfm6iX
-         xApPdzq2r0mEnET7Qm8FINc3kmShFnGeY0+htNbEVK4Tz/fLdHWP0SbxvzFV35SBfgQG
-         w7VP3NzEAIuro7+P40JOvQqA2IwRPqqDSmHHfotbvCSl+RIEsmhDHRo2RWUbOcWUBCSG
-         /NHsP83IkmsLxE1v+d7VVqj9nw5LwF7HxGYzQ7fgPzWBkOJi/+BLjiip/AvzlsHacly7
-         YxgW0zdy8RUNOFiRDsc+UvLcPeoTgvq56Hfwwnt5BPVeLaYuwCTJ5iDEvPKyZqDDqdHR
-         EciA==
+        bh=/KmTU5UENligpp7Fhe73ih+OE8kYsSUhjezRJ40ArV0=;
+        b=FxurI4O0qfr2cf8SYOy8h/OPjE8Gv4CjWM6mzuCmG+HiAUSLJnaYI6jUKmDZXPtBwo
+         r1U+zUlL1SIr6xFMTu7TIqF1Vbjl5LNYfLBvWx5oxGyIMtfU5+mj60CIJ/Az/VVHDInV
+         ZLaFqbe/LSObujk3OXMNzXiAGZtK2eFcOlSJHW4LXo/RJMYCTPweyoQvnP4TcPCpxywI
+         hB74/0Zu6rxILg4IHpI205MMcEDANt70KQvUAbfC6bPZ4FhIDJXKzzkjPOzUc2ZYyT5n
+         jOOL/s53tzps0zhQH1L26hrAbGtrc7wiiNSzG96n1hJzXLjT7dd3lrRM+kWvEyfxN6So
+         oWtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773322538; x=1773927338;
+        d=1e100.net; s=20230601; t=1773326283; x=1773931083;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=vWiEiixf/+VVQvN8nW03s/tkFhnte5EgBfVZrdhCh2w=;
-        b=tJ1LvG+r+EIRUxv+6Tpa2DiEt4IDoYIPXe0Lu9zoAXFvHD19d73XdbRtDzwMw2Y8gQ
-         2TKT12lviKHHM5SMdiNG4OsGVhEWAvonZ440Nmt5elYoeXLEcwIioKMD0GeYUc1yW3Ow
-         7UQh8KCq1dMyxUSb/xmwW3uCASaGqG9iLUBYXMfuB+M1X429bhWqRISi+vlaujxKScVL
-         B6YiBvX55q2n3xWEPs5Fk/mi9nBx6+xsI5MDfOx7SPXc3wnSXdY9GhUZPWaVZmDNYWh9
-         eWl40mEUkBt5enuxo9aUlz8LLpXiPqWd934Goh6TdlGzWk+PhDG1aDjioVAH2Loe9tl1
-         WAgA==
-X-Forwarded-Encrypted: i=1; AJvYcCWJLgcGbvSbve4vS9gyTkRI3kTTOU0VNM1HmOApgj/bPbAhmYLHZH5WoaijkArKs2uR0Gw=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx85SNAjf53EBoctE/pV0cTQDc5e8NCJkVH/Aq/ua2lLvjYxX/F
-	l4lRTkcA0TeKjG1HFr2VcyUZ5ysFBYuJw5erKWOrjmQCvozE0dyDlf95CVlmd3RYVqSZhPt5RRW
-	hv2pK6IE+lDkt2Z+rJqb6FRhThx8qUlU=
-X-Gm-Gg: ATEYQzzOqEyt2zjLJv8lPznuwvlCmKlO4C7FP8CCboVgBGl0hCbU2fqvw3j8jXraZ9c
-	Oo9G4tPhmLkkU8DnTwVHmCkeJpI/7c3Wj+Vos+IzsAd8F5hCbPReFM/cilnajkbxfGDGrRWDoWb
-	sdZR6bxHuwniAVfh+tDTtFOrHVOMsJ57sCXA4/eSIaglQOlM/bJP0mkNOod/FlbfxPUHrqKDDth
-	gdUcE3tPgjwJefZatA2qkcg0TKGEfUrNXW2uUrjrRMKJjx8mcWcWbshevntAA3+D00UGVRFDX/9
-	Yy5+Bg==
-X-Received: by 2002:a05:651c:1987:b0:38a:4bd7:617f with SMTP id
- 38308e7fff4ca-38a67e5ddb7mr23769021fa.21.1773322537402; Thu, 12 Mar 2026
- 06:35:37 -0700 (PDT)
+        bh=/KmTU5UENligpp7Fhe73ih+OE8kYsSUhjezRJ40ArV0=;
+        b=UxIO0GuR1oCjMe+oHwj6DyzQgq4cGvDpy21KIQPG2S0HJ4+jd+pRQj+cZzDxtpubAF
+         v7r1Eob0rrNQrhOeoe246wpjsAapf6ZcCkkACFb9OInBGzXnwDGV4rPtRDyyFGhCtbHW
+         w9G9N3Ln3t4LRoeU0Q43ICfJamAgA5bZ4F60YOmpWTk7EdelV/LKCG5unB+DdvyIx4Rk
+         QX4UkQSbkqRso8GC3FIdVq/kL/L/uJdguZT7NDNvm+UrDBQO7Io0mwe5wkttCLePhLlL
+         0lRxXgYLVaEeNltXcd0d09gZA7Xdo3r/IqD+Tzz2JqTnX9iuYbGgkdcTVAj7aRF5cfEH
+         oXiQ==
+X-Gm-Message-State: AOJu0YwuuFF5lQgfjYyXlmr6STvaxiSLdR62U9IU6EKW4IIBsR4mT0at
+	P+hGmjj6obHU1akFBcNwxl51kJzy6hlDAwH3A2mAX+O/9hoJ8+bF9UQ8VeqOEGY7npCkYNbBBJk
+	9fta/NoN7RJiWQSnaGTNECwCRci1p+83ArrS8
+X-Gm-Gg: ATEYQzynOkbdC0vRAeJWnbzvDVsNvJRYE/ONuTelgAZRIHtfE5Wf51YD5MuHbm1Bi2s
+	9dsaJ1OlwWyiiFlwWIeSZuMRa/Is6dsEaVDAuPKy49+r7EPwzSLvTaCJuiblTv+KMKjzCzHbvub
+	XlziNAxtqdIkzAW1DPFaGuWyCnU8g9W5cU3LLBzsuZ7TF/l+8bmJFDxru2VSZ6pySdEfsHYsTjR
+	WZ6ZTT+ycfY3AJ647M1nKFsIu233AmHpMuxKNIaHkCZ+bReRCWQ50W06cHlhVP2rGxU+nrE2BYb
+	/2W9Dg==
+X-Received: by 2002:a2e:b896:0:b0:383:1d66:c1fa with SMTP id
+ 38308e7fff4ca-38a67ddefc0mr22416561fa.10.1773326282220; Thu, 12 Mar 2026
+ 07:38:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260311155114.198006-1-npache@redhat.com> <20260311155114.198006-3-npache@redhat.com>
-In-Reply-To: <20260311155114.198006-3-npache@redhat.com>
+References: <CA+kyTLJ7oyfzM08dH1Xdk_c2ub4hmX7aXTtxJr1YLWhjzTT99g@mail.gmail.com>
+In-Reply-To: <CA+kyTLJ7oyfzM08dH1Xdk_c2ub4hmX7aXTtxJr1YLWhjzTT99g@mail.gmail.com>
 From: Vincent Fu <vincentfu@gmail.com>
-Date: Thu, 12 Mar 2026 09:35:24 -0400
-X-Gm-Features: AaiRm529wFn1JjojVkfEiGq6rLFo1EIGN5-sfBsibMVtSP6LQPw2F6XThBBCVdg
-Message-ID: <CAOp=CXm0bB2MKjZoYuatyVMLwoiUrEUVR_yFpYU00Ouvyh3DhQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] Documentation: update the HOWTO to include the
- page_fault engine
-To: Nico Pache <npache@redhat.com>
-Cc: axboe@kernel.dk, fio@vger.kernel.org, jvozar@redhat.com, jjurca@redhat.com, 
-	jhladky@redhat.com, peterx@redhat.com, spetrovi@redhat.com, david@kernel.org
+Date: Thu, 12 Mar 2026 10:37:50 -0400
+X-Gm-Features: AaiRm51KtLvDyc9OLmj-pOlkLSsuTB_CRvdW5zc-eff-s-E0aXTKH0sIEdS4imI
+Message-ID: <CAOp=CX=qEYiGLUepFc5myXaUVZFv4CdPRt9g2WzVe-ARBr6_ng@mail.gmail.com>
+Subject: Re: fio parsing issue when trying to use latency_target and latency_window
+To: Mark Erdos <mark.erdos@gmail.com>
+Cc: fio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 11, 2026 at 11:52=E2=80=AFAM Nico Pache <npache@redhat.com> wro=
-te:
+On Thu, Mar 12, 2026 at 12:03=E2=80=AFAM Mark Erdos <mark.erdos@gmail.com> =
+wrote:
 >
-> Document the new page fault engine.
+> Hello,
 >
-> Signed-off-by: Nico Pache <npache@redhat.com>
-> ---
->  HOWTO.rst | 5 +++++
->  1 file changed, 5 insertions(+)
+> I am more and more convinced that this is a bug, but I will be the happie=
+st to learn if it isn't as it would be a shorter path to fix. I believe the=
+ below is some parsing bug or misinterpretation of the manual by me.
 >
-> diff --git a/HOWTO.rst b/HOWTO.rst
-> index e712ee2e..421e6408 100644
-> --- a/HOWTO.rst
-> +++ b/HOWTO.rst
-> @@ -2376,6 +2376,11 @@ I/O engine
->                         several instances to access the same device or fi=
-le
->                         simultaneously, but allow it for threads.
+> Using fio-3.41 now, but the experience is similar in fio-3.35 I used prio=
+r.
 >
-> +               **page_fault**
-> +                       I/O engine that uses an mmap region to simulate d=
-ata transfer by
-> +                       allocating anonymous memory and copying data on r=
-ead/write to
-> +                       intentionally trigger page faults.
-> +
->         File/directory operation engines define how the job operates file=
- or directory. The
->         following types are defined:
+> I am running an openshift KubeVirt VM environment with NVMe/TCP block sto=
+rage backend using portworx free CSI and Pure FlashArray. There is a master=
+ and 3 VMs as the fio workers.
+>
+> Output (attached):
+> It is definitely an issue that in the output "latency   : target=3D5000, =
+window=3D5000000, percentile=3D99.00%, depth=3D1" there are no time units u=
+sed, so it is difficult to know how my changes in the input affect the outp=
+ut.
+>
+> Input (attached):
+> Per the manual https://fio.readthedocs.io/en/latest/fio_doc.html#i-o-late=
+ncy, latency_target and latency_window both should be in microseconds if un=
+it is omitted. However, as in this example, input latency_target=3D5 produc=
+es in the output target=3D5000, while input latency_window=3D5000000 produc=
+es window=3D5000000 in the output. So the two are not handled the same. I t=
+ested using units usec, msec, us, ms, s, I was not able to find one that I =
+was sure about what is happening, especially as the output is void of unit =
+after the number. I can only indirectly infer, looking at the storage laten=
+cy from the storage GUI, but that is not very scientific and has not yielde=
+d yet.
+>
+> I found some reference here, https://github.com/axboe/fio/discussions/200=
+6, but it suggested the issue is solved. Not sure how to use, or not solved=
+.
+>
+> Can you please guide me or let me know if I should file a bug (or two) on=
+ git?
+>
+> Sincerely, thank you,
 >
 > --
-> 2.53.0
->
+> Mark
+> mark.erdos@gmail.com
 
-Please also make the same change to fio.1
+Would everything make sense if the output had these units?
+
+     latency   : target=3D5000ns, window=3D5000000us, percentile=3D90.00%, =
+depth=3D1
+
+Internally it looks like latency_target is stored as nsec and
+latency_window is stored as usec.
 
 Vincent
