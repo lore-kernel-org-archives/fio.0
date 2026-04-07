@@ -1,116 +1,99 @@
-Received: from mailer241.gate86.rs.smtp.com (mailer241.gate86.rs.smtp.com [74.91.86.241])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E4153A5E7B
-	for <fio@vger.kernel.org>; Tue,  7 Apr 2026 11:10:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.91.86.241
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08EE43B27F0
+	for <fio@vger.kernel.org>; Tue,  7 Apr 2026 12:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775560213; cv=none; b=otCWIUV4hXkbqDeJFCE0lFkpP6JsrmHsSxlq1nOpWcv43hMhxsRM8AwphhXH96mDs1OWrjiEEbMB9zPWZ1E9IKQHghyvHlAxd6DH/flUwPkNHD8hhLyA9lUiSd/xaubNcJUiuXY7RWLDnly4C6geEqHvffDhuEQeMQEYva9W5HY=
+	t=1775563209; cv=none; b=Spnu17L5p7SsiNlyhUAu7BGfN6WDoDkmayNeDXLrUSt5NVlTa5bUSnUQCiILMVgaHbyhz08zbytEh25JYoDG6epT7pxhgH/jB6N8GBRbPvf+XZLRWTGVwYJ05RKyKTrsq5xUSfIWA7tJVh70FJY7tjVCXzk+86OhHLxz7kfOTSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775560213; c=relaxed/simple;
-	bh=mnFKTG3ghjPFghjEm0CM6iFlaGRkO2USIB9qiiPvoRA=;
-	h=From:Subject:To:Content-Type:Date:Message-Id; b=PQFO0w6/KMnxhl4CqNkXVY5UZXJMQbkDRWL9K40q7/a1I0qxIhjQMXsWmkeSruFbMx1HOomKd4x8DoKGAUN5FvS3yxJFqNjUyYGjQe4waQdAYWN0fuqf+1rRci1ZaPcnwF1+XVdQibC7T0BY3kDu6VH23kuy/C0Br4SBpKWhTLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=computergamingpc.com; spf=fail smtp.mailfrom=computergamingpc.com; dkim=pass (2048-bit key) header.d=computergamingpc.com header.i=@computergamingpc.com header.b=XhbwtJ8b; dkim=pass (2048-bit key) header.d=smtpmessage.com header.i=@smtpmessage.com header.b=tnEImDo0; arc=none smtp.client-ip=74.91.86.241
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=computergamingpc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=computergamingpc.com
+	s=arc-20240116; t=1775563209; c=relaxed/simple;
+	bh=fwa4F+HvOh2eJPiRAD/3gPrl79kR4L3B26LKNskFajE=;
+	h=Subject:From:To:Date:Message-Id; b=Dd+PmqAbWWiUfiPDJkA2BWvolaWJq/HLry4R/gn9IhZ4l4LwzGpq0n9aEwWiZbyJ1D/yqprlucj5CiBwGgY1TMA3HJ1WO1D3W7mfr0s96gG9FFmD9tg4cYlMybfhMru4M7r0Ri6j4MNSYt4KV6irM0FK58h1WeGis4P3FDUh3Jo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HMggGov8; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=computergamingpc.com header.i=@computergamingpc.com header.b="XhbwtJ8b";
-	dkim=pass (2048-bit key) header.d=smtpmessage.com header.i=@smtpmessage.com header.b="tnEImDo0"
-X-Report-Abuse: SMTP.com is an email service provider. Our abuse team cares
- about your feedback. Please contact abuse@smtp.com for further investigation.
-Received: from [10.0.16.201] (unknown [10.138.12.33])
-	by mtl-mta02-out1 (Halon) with ESMTP
-	id 86bca80f-2a39-456e-8a33-c2fd1dff6938;
-	Tue, 07 Apr 2026 11:10:11 +0000 (UTC)
-Received: Received from 10.138.12.53 by Caffeine (s0-aws-app-swarm-manager-5)
- with SMTP id 2bc9a62d-9fc0-4b40-b303-a5940d768af9  for fio@vger.kernel.org;
-  Tue, 07 Apr 2026 11:09:49 +0000 (UTC)
-Feedback-ID: 9194450:SMTPCOM
-Received: from ObaTech (unknown [50.125.194.31])
-	by s0-aws-app-mta-in-2 (Halon) with ESMTPSA
-	id 2bc9a62d-9fc0-4b40-b303-a5940d768af9;
-	Tue, 07 Apr 2026 11:09:48 +0000 (UTC)
-From: "Computer Gaming pc" <sales@computergamingpc.com>
-Subject: Q2 Stock Update: Mobile, GPU & Storage Units
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HMggGov8"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=irOQAC7Idbu/qgUpFvT1QwYRZ7J4XvMOyX4F/aBin88=; b=HMggGov8Z7apXTQrUsdubpDXU0
+	SXaSLjHaYphzM4JQzC++NL4qqjJ8QuKMa3oo5V4tZ4eQ3wDezFiP2Na/vfES4zy19Q8TXdNZBz55S
+	iyCqZlTzWTF+zwIeusfGTtwX46WOyB8MLi29gNLcV08xvLHcZI7vjuYyDyWymjy6/vUU7D4GcJFSY
+	Q5sIFhYUMre8pa2zrM8P7iPYdYdfAq2e9Bf/u9tIE9eQCl0fiZ/YpoDTdy4YSRcEdsVo04kM47hbw
+	/lUXb7IPq5ldO2DfJddDmUVhJjezXwgMDoZ2BSXZEGHiI3JBINQg9lF1tLjC+QNqQWsLT4dL5ukqa
+	loNa2pYw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1wA56D-00000008CAD-1fIU
+	for fio@vger.kernel.org;
+	Tue, 07 Apr 2026 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id C03E01BC01B3; Tue,  7 Apr 2026 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Reply-To: <sales@computergamingpc.com>
-Date: Tue, 7 Apr 2026 12:09:50 +0100
-Priority: urgent
-X-Priority: 1
-Importance: high
-Message-Id: <20260704120949B7B5B44E9D-4908662223@computergamingpc.com>
-X-SMTPCOM-Sender-ID: 9194450
-X-SMTPCOM-Tracking-Number: 2bc9a62d-9fc0-4b40-b303-a5940d768af9
-X-SMTPCOM-Message-ID: 79753285-c575-42d8-a000-694352c4bc30
-X-SMTPCOM-Payload: 
- r-iAf_Mgr7luOKA1iMHvRjMv7lH41eCh_pwkcMnrrK-9zaFcMDhIPDP-Rh1dDI5BvhB43UT2NUmB672jX1IwFh4tkt77RjwuwC-kjIlzKUWlLyaVW1dQyb8LJs8rz4JbFnwO_ekTnvibKZJlTZW4r-VZEdvT5Ol0s2m6BlNksKgsKTkElUhe5AihDjUK3qvz
-List-Unsubscribe-Post: List-Unsubscribe=One-Click
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=computergamingpc.com; i=@computergamingpc.com; q=dns/txt; s=smtpkey;
- t=1775560204; h=feedback-id : from : subject : to : content-type :
- content-transfer-encoding : reply-to : date : message-id :
- list-unsubscribe : list-unsubscribe-post : from : subject : to : date;
- bh=mnFKTG3ghjPFghjEm0CM6iFlaGRkO2USIB9qiiPvoRA=;
- b=XhbwtJ8bpChdcdeC4PFGfiBy8McTUcMpvvH0zxKiyyhIq0b9eChrjtH/pOb4mDWEVMgrv
- e01WG5hWXoaBNx4dim4XSa/kKXyhAVftENyz0cUyLZlsYhYUjVEp8L4qrpLqGdc6ptpyXkq
- oiCG+WN8gnaw90SKIfpaqoLCUgEYujtn8s3+uDlp931vNHHu9bSX+SOIWynzbijrAXlcqR6
- syf2mwCJf70maClRLw9e2EclkXUlC5debVXsmNC4xgrLy9a43fdfnJiscoiwKnJlelKhq9k
- u3QpTdZPTHJ9TpZaIiXX8RQ8jYpYuiFZEnPM04yMoFol7dpeyqxgjbRgtm1g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=smtpmessage.com;
- i=@smtpmessage.com; q=dns/txt; s=smtpcustomer; t=1775560204;
- h=feedback-id : from : subject : to : content-type :
- content-transfer-encoding : reply-to : date : message-id :
- list-unsubscribe : list-unsubscribe-post : from : subject : to : date;
- bh=mnFKTG3ghjPFghjEm0CM6iFlaGRkO2USIB9qiiPvoRA=;
- b=tnEImDo0rb3o0p1TGFezYAKhyMFMEsGvRQ6M2L/09c6c/jQxFoBTLIzKZJXdt21KPreXP
- Xj1xaye+nswn/awA+VgVeMfWdXnwWj6LTAXZVtu02NBeAeFAsGuatQ2cO1kX9yq4Ayb5rcK
- FAGYRXWzHDQSx5rBckTNmo0gY3qaKoWRhEj1UYNnkb98TeU/FXLKR2g6Zx5fJdUkatg+k4F
- kL/Iy8uW/TnEcrKd8DdwMqj+Q1+bXurodKZeNFk5Vp0uLgrhOsogocXKnq5xpLcaivsVDf2
- i9AEInaPRV3y6lpYH52ES2cGMbT4euQx8bJVp1akXciXcrgs6JWC0stDUY8g==
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Tue,  7 Apr 2026 06:00:01 -0600
+Message-Id: <20260407120001.C03E01BC01B3@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-Dear Partner,
-We’re pleased to share a current snapshot of our available inventory for
-immediate dispatch.
+The following changes since commit d0218ba66e9dc8402f1ac366b964277a1f2f2797:
 
-Memory Modules
-* 32GB 2Rx4 PC4-2400T (Qty: 1,500) – $14
-* 32GB 2Rx4 PC4-3200AA (Qty: 1,500) – $15
-* 16GB 2Rx8 PC4-3200AA (Qty: 1,500) – $10
-* 128GB 4DRx4 DDR4 PC4-2933Y REG ECC LRDIMM (Qty: 980) – $70
-* 32GB Dual Rank x4 DDR4-2933 CAS-21 (Qty: 1,500) – $140
-* 64GB Dual Rank x4 DDR4-2933 CAS-21 (Qty: 1,200) – $350
-* 32GB Dual Rank x4 DDR4-3200 CAS-22 (Qty: 1,500) – $110
-* 64GB Dual Rank x4 DDR4-3200 CAS-22 (Qty: 1,100) – $350
+  Merge branch 'fix_statsem_deadlock' of https://github.com/RyanTedrick/fio (2026-04-01 09:08:08 -0600)
 
-Solid State Drives
-- SSD SATA 6G 3.84TB SFF (Qty: 450) – $350
-- SSD SAS 12G 960GB SFF (Qty: 470) – $300
-- SSD SAS 12G 1.92TB SFF (Qty: 560) – $150
-- SSD SAS 12G 3.84TB SFF (Qty: 560) – $350
-- SSD SATA 6G 1.92TB SFF (Qty: 450) – $150
-DDR Modules
-- DDR4 32GB 3200Mhz ECC RDimm 2Rx4 P00924-B21 (Qty: 600) – $100
-- DDR4 64GB 3200Mhz ECC RDimm 2Rx4 P00930-B21 (Qty: 500) – $350
-- DDR5 64GB 4800Mhz ECC RDimm 2Rx4 P43331-B21 (Qty: 500) – $550
-- DDR5 64GB 5600Mhz ECC RDimm 2Rx4 P64707-B21 (Qty: 500) – $550
-- DDR4 32GB 3200Mhz ECC RDimm 2Rx4 SK Hynix (Qty: 500) – $135
-- DDR4 64GB 3200Mhz ECC RDimm 2Rx4 SK Hynix (Qty: 500) – $450
-- DDR5 64GB 4800Mhz ECC RDimm 2Rx4 SK Hynix (Qty: 500) – $450
-- DDR5 64GB 5600Mhz ECC RDimm 2Rx4 Samsung (Qty: 500) – $550
+are available in the Git repository at:
 
-For quotes, availability, or inspection scheduling, please reach out
-directly:
-sales@computergamingpc.com
-Call or WhatsApp: +1(774) 559-1248 | +1 (641)232-4364
-Thank you for your continued partnership.
-Jason Denson
-Computer Gaming PC Trading
-2500 US-6, Iowa City, IA 52240, USA
-To unsubscribe from future updates, reply with “REMOVE” in the subject line. 
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to ab77643023f5d7e3c1b71a7576a564f368bf577a:
+
+  Fio 3.42 (2026-04-06 20:11:47 -0600)
+
+----------------------------------------------------------------
+Haeun Kim (1):
+      iolog: free io_piece log on thread cleanup
+
+Jens Axboe (2):
+      Merge branch 'ipo' of https://github.com/minwooim/fio
+      Fio 3.42
+
+ FIO-VERSION-GEN | 2 +-
+ backend.c       | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
+index f92f5a46..e5ada1de 100755
+--- a/FIO-VERSION-GEN
++++ b/FIO-VERSION-GEN
+@@ -1,7 +1,7 @@
+ #!/bin/sh
+ 
+ GVF=FIO-VERSION-FILE
+-DEF_VER=fio-3.41
++DEF_VER=fio-3.42
+ 
+ LF='
+ '
+diff --git a/backend.c b/backend.c
+index 4ce3d07f..230d7fd0 100644
+--- a/backend.c
++++ b/backend.c
+@@ -2209,6 +2209,7 @@ err:
+ 		verify_async_exit(td);
+ 
+ 	close_and_free_files(td);
++	prune_io_piece_log(td);
+ 	cleanup_io_u(td);
+ 	close_ioengine(td);
+ 	cgroup_shutdown(td, cgroup_mnt);
