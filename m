@@ -1,99 +1,107 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08EE43B27F0
-	for <fio@vger.kernel.org>; Tue,  7 Apr 2026 12:00:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C80C92EACF2
+	for <fio@vger.kernel.org>; Wed,  8 Apr 2026 01:20:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775563209; cv=none; b=Spnu17L5p7SsiNlyhUAu7BGfN6WDoDkmayNeDXLrUSt5NVlTa5bUSnUQCiILMVgaHbyhz08zbytEh25JYoDG6epT7pxhgH/jB6N8GBRbPvf+XZLRWTGVwYJ05RKyKTrsq5xUSfIWA7tJVh70FJY7tjVCXzk+86OhHLxz7kfOTSg=
+	t=1775611216; cv=none; b=QqCJqDPHGlHdcMf58K9s8yLK2/knN5DYjHeQ6t9gK6OMsJzKeCCd8q86qQqyScvo96a91SjV8pC4tX2diW/s6dSmeABrvCShFU0BB3cifWH+xGltxRxcZlEV+dLxWqRwKrymq85IIqBpUWaKjtO3H/0rhYWvilhkW2ySDhv/VPM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775563209; c=relaxed/simple;
-	bh=fwa4F+HvOh2eJPiRAD/3gPrl79kR4L3B26LKNskFajE=;
-	h=Subject:From:To:Date:Message-Id; b=Dd+PmqAbWWiUfiPDJkA2BWvolaWJq/HLry4R/gn9IhZ4l4LwzGpq0n9aEwWiZbyJ1D/yqprlucj5CiBwGgY1TMA3HJ1WO1D3W7mfr0s96gG9FFmD9tg4cYlMybfhMru4M7r0Ri6j4MNSYt4KV6irM0FK58h1WeGis4P3FDUh3Jo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=HMggGov8; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	s=arc-20240116; t=1775611216; c=relaxed/simple;
+	bh=1oU2I9oahfO1vIyAiEFN8NU74suIv78uy67xV9B4pfo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=RdjuwsegZGg28ELo2cSHLVoO2F3NetSHtWVQ4nP/x7gCPx2pAAxERFiM+XYFRYB8glWh64K5KBoq+JIz50UvTG5MbVFkAf/lrBZfbmtGN7J0pLkLLsnxrVgnCjoREQUecAQtgy/rcX7YOWRfYsAtoPBPXxLBp4dpkr/HVm2Og/E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BA47Ht+l; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="HMggGov8"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=irOQAC7Idbu/qgUpFvT1QwYRZ7J4XvMOyX4F/aBin88=; b=HMggGov8Z7apXTQrUsdubpDXU0
-	SXaSLjHaYphzM4JQzC++NL4qqjJ8QuKMa3oo5V4tZ4eQ3wDezFiP2Na/vfES4zy19Q8TXdNZBz55S
-	iyCqZlTzWTF+zwIeusfGTtwX46WOyB8MLi29gNLcV08xvLHcZI7vjuYyDyWymjy6/vUU7D4GcJFSY
-	Q5sIFhYUMre8pa2zrM8P7iPYdYdfAq2e9Bf/u9tIE9eQCl0fiZ/YpoDTdy4YSRcEdsVo04kM47hbw
-	/lUXb7IPq5ldO2DfJddDmUVhJjezXwgMDoZ2BSXZEGHiI3JBINQg9lF1tLjC+QNqQWsLT4dL5ukqa
-	loNa2pYw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1wA56D-00000008CAD-1fIU
-	for fio@vger.kernel.org;
-	Tue, 07 Apr 2026 12:00:05 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id C03E01BC01B3; Tue,  7 Apr 2026 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Tue,  7 Apr 2026 06:00:01 -0600
-Message-Id: <20260407120001.C03E01BC01B3@kernel.dk>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BA47Ht+l"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775611213;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Nhe2rdpeJJmTPtiTmgrveWPnh+c3PlFs9kFoRjfIOSM=;
+	b=BA47Ht+lhX/72aU0Ttf4JYo1QPBEIQtc+t/vyldklL5i+mVMIPOYaLEC9RLTA3zcpDFh/5
+	gDsSZ3MRG6xwyw1HIQfTPx8Doye/aesb0pNXDaStHHIRjX1RjLGSKD1YwqOtCvUM4SIStm
+	2wTmXqITt3Xl4D+OeOh7/XYycXM6T2Q=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-244-00znXrolMz-0849grASSbA-1; Tue,
+ 07 Apr 2026 21:20:12 -0400
+X-MC-Unique: 00znXrolMz-0849grASSbA-1
+X-Mimecast-MFC-AGG-ID: 00znXrolMz-0849grASSbA_1775611211
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9BE141800464;
+	Wed,  8 Apr 2026 01:20:10 +0000 (UTC)
+Received: from p1.redhat.com (unknown [10.22.76.19])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 99BF719560A6;
+	Wed,  8 Apr 2026 01:20:03 +0000 (UTC)
+From: Nico Pache <npache@redhat.com>
+To: vincentfu@gmail.com,
+	axboe@kernel.dk,
+	fio@vger.kernel.org
+Cc: jvozar@redhat.com,
+	jjurca@redhat.com,
+	jhladky@redhat.com,
+	peterx@redhat.com,
+	spetrovi@redhat.com,
+	npache@redhat.com,
+	david@kernel.org
+Subject: [PATCH v3 0/2] page_fault: add mmap-backed ioengine for anonymous faults
+Date: Tue,  7 Apr 2026 19:20:01 -0600
+Message-ID: <20260408012004.198115-1-npache@redhat.com>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-The following changes since commit d0218ba66e9dc8402f1ac366b964277a1f2f2797:
+This series introduces a new page_fault ioengine for Anonymous memory
+testing. This enables using fio’s existing framework and job files for
+memory management style workloads without relying on a filesystem. An
+example job file is included to demonstrate usage and lays the groundwork
+for how we plan on utilizing fio to test a number of MM related workloads.
 
-  Merge branch 'fix_statsem_deadlock' of https://github.com/RyanTedrick/fio (2026-04-01 09:08:08 -0600)
+The first patch adds the mmap‑backed ioengine that allocates anonymous
+memory and copies data on read/write to intentionally trigger faults.
 
-are available in the Git repository at:
+The second patch updates the documentation to guide usage of the new
+feature.
 
-  git://git.kernel.dk/fio.git master
+V3:
+- Correctly use clang-format to adhere to formatting conventions
+- check (and fail/warn) if user sets the start_offset
+- directly utilize io_ops_data as there is no files
+- updated error/print to follow proper format
+- Copy docs update to fio.1
 
-for you to fetch changes up to ab77643023f5d7e3c1b71a7576a564f368bf577a:
+V2: https://lore.kernel.org/fio/20260311155114.198006-1-npache@redhat.com/
+V1: https://lore.kernel.org/fio/20260129184302.34887-1-npache@redhat.com/
 
-  Fio 3.42 (2026-04-06 20:11:47 -0600)
+Signed-off-by: Nico Pache <npache@redhat.com>
 
-----------------------------------------------------------------
-Haeun Kim (1):
-      iolog: free io_piece log on thread cleanup
+Nico Pache (2):
+  page_fault: add mmap-backed ioengine for anonymous faults
+  Documentation: update the documentation to include the page_fault
+    engine
 
-Jens Axboe (2):
-      Merge branch 'ipo' of https://github.com/minwooim/fio
-      Fio 3.42
+ HOWTO.rst               |   5 ++
+ Makefile                |   2 +-
+ engines/page_fault.c    | 125 ++++++++++++++++++++++++++++++++++++++++
+ examples/page_fault.fio |  60 +++++++++++++++++++
+ fio.1                   |   5 ++
+ 5 files changed, 196 insertions(+), 1 deletion(-)
+ create mode 100644 engines/page_fault.c
+ create mode 100644 examples/page_fault.fio
 
- FIO-VERSION-GEN | 2 +-
- backend.c       | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+-- 
+2.53.0
 
----
-
-Diff of recent changes:
-
-diff --git a/FIO-VERSION-GEN b/FIO-VERSION-GEN
-index f92f5a46..e5ada1de 100755
---- a/FIO-VERSION-GEN
-+++ b/FIO-VERSION-GEN
-@@ -1,7 +1,7 @@
- #!/bin/sh
- 
- GVF=FIO-VERSION-FILE
--DEF_VER=fio-3.41
-+DEF_VER=fio-3.42
- 
- LF='
- '
-diff --git a/backend.c b/backend.c
-index 4ce3d07f..230d7fd0 100644
---- a/backend.c
-+++ b/backend.c
-@@ -2209,6 +2209,7 @@ err:
- 		verify_async_exit(td);
- 
- 	close_and_free_files(td);
-+	prune_io_piece_log(td);
- 	cleanup_io_u(td);
- 	close_ioengine(td);
- 	cgroup_shutdown(td, cgroup_mnt);
