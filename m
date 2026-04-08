@@ -1,323 +1,157 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C66113BB9F3
-	for <fio@vger.kernel.org>; Wed,  8 Apr 2026 12:00:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775649608; cv=none; b=fsuqIwDwIeusnLGaBD2R9nUzRvaBProW//MIa9NMRT+qt+SHVYaML1B+BDbdLFxF/PBhz4QMC/d1j0SNxq6QO+txxh70wLWG01VL7dyGWtufid/ktbY7qehEraEt2kkfDXPHbjqQfqsxAHeG4/56fwW9znClF6S8zviTn4HlBw8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775649608; c=relaxed/simple;
-	bh=lrqoaDGyt9uolrYd/g93KFqVFBTqkl80bUC3qAl9IRs=;
-	h=Subject:From:To:Date:Message-Id; b=OFqQRxGw/QriM17L/absu4e3fwO4WYNk+kbwSIyBewyzbFCm7WUiynSww8sVI35i29YOHPkvCP4+NR+eE+5O0tAFWbA8nAcPnzHcDUvodoO2sXrkEvcx+4fnKwkmIOFIJdxCbkxFgdWGU3X00QA0F5Sad/NlVl0kbDWtPLssEHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=fI3AWX50; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C502D332ECC
+	for <fio@vger.kernel.org>; Wed,  8 Apr 2026 13:23:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=170.10.133.124
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775654583; cv=pass; b=p/sak7XZKJZjCZgiwEYoUNCFSx2VFupWCpX5BHw/0VXjsvz+u+XVgF4Admmm5ZHqUWrlqvdQCgszfHnu4ZrcU1aQhx/UjK/zqW7Ngmg+y+qW4epkEw5O5z56EeFgwjmeHI1f+srnJ7+RulApsR1zCszlKd1k2hjDLkJ1LJd5Mjc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775654583; c=relaxed/simple;
+	bh=1NlVvPCp7yZLdwihA+bNUzxr4RnrXuD8iaRTvpYhboo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jjRrPzf6EYz1ur9h+ZjyL1D0Q3EagD+QcH4uMUQOkYWGlz+lYSz6WXt+GMRAbSk+8cH+6qnGnVDfr+PAtxMeumf7bh/gAYIRxQzAVQ4Tn+qc4c66+3/Qv9nhnTy6J77hh6oWOyqZERDhP2lytc3sh5nLVf3/2XLUzcBFHCikfoE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gU9on6iW; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=In4av0Qm; arc=pass smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="fI3AWX50"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
-	Content-Description:In-Reply-To:References;
-	bh=BGQ5d/lciZLKcIF03lSItcIpwaLD+uNvo7G8PwY2Mtk=; b=fI3AWX50P8QQ3wW/DZG1+DWJsQ
-	C+oPjavOtxO+xHNF1BOIFJt7wSKgYEtcPMPsIz+spnymQQswgSfkILEIM0k4Rv6W9zY9Keswkvp1V
-	WF8nPlgIzJguN/RbQ3XHgEI4cC5hTLUwxdI3u5ikEPmnQ2RcYfdFM1G6XRUjioOOHcbqIndKz+GWP
-	i0NhnK+5QG5sPEviORlJOioSS1T/kApf5s+/Nrcnv3iD4wDuwV/Qx5xavIVNOmXPQ/f9/XvP4fxZD
-	ciHAVoZue/cxwL66JEhpiD7JrVCM/O9SEFxzQAmhMfUnXn+3gxzSGj9LZP/1jZXGxUTx55B7yvI2T
-	8xjRk6Fw==;
-Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1wARZk-00000009zIL-0tJd
-	for fio@vger.kernel.org;
-	Wed, 08 Apr 2026 12:00:04 +0000
-Received: by kernel.dk (Postfix, from userid 1000)
-	id 45B621BC017F; Wed,  8 Apr 2026 06:00:01 -0600 (MDT)
-Subject: Recent changes (master)
-From: Jens Axboe <axboe@kernel.dk>
-To: <fio@vger.kernel.org>
-User-Agent: mail (GNU Mailutils 3.17)
-Date: Wed,  8 Apr 2026 06:00:01 -0600
-Message-Id: <20260408120001.45B621BC017F@kernel.dk>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gU9on6iW";
+	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="In4av0Qm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775654579;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BKhYmXf8RJm7m+LbrnGFgIJtf/wyuFierxap6ClRI1g=;
+	b=gU9on6iW68FwP5fGMajvKM86nQuE3cphvJYXrRHFWkBMgMnDOY9QbGNqp+puLl2VjYrFVW
+	cajlFwkOPQ5ac/nPFr2p2Of8dS9LHIBZ6uVhNuFQogpcUaehfzkWIyfRw0wv3JbZiiPBB6
+	Hhy8lUhxwxn5tLDEr4PGuqbJP+B8/3s=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-215-8DVI2WvJOMqkUKejFWKQ3g-1; Wed, 08 Apr 2026 09:21:42 -0400
+X-MC-Unique: 8DVI2WvJOMqkUKejFWKQ3g-1
+X-Mimecast-MFC-AGG-ID: 8DVI2WvJOMqkUKejFWKQ3g_1775654502
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-7982c3b7da7so74883137b3.1
+        for <fio@vger.kernel.org>; Wed, 08 Apr 2026 06:21:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775654502; cv=none;
+        d=google.com; s=arc-20240605;
+        b=AwsGxwO/lmW2D/YYUpO94t/PnUFAw2Ra1Tu7dMjRmW0h9P19S42Jx9hC0PYROax1Vr
+         B2RZpDskhQT9swnR+blZtXuhJbZMgdC1KeQh/jmfQM+SdzeTPFOelvenwUuaaAvP0UlI
+         3lxd6WrzptP46faMboSEnbQWtJOLpzRQ8M7A7Ms3p4gLdFTvhfjUeD3R/kkTDmlZzwaL
+         AhFca032y4lRHEauBnoYG7O3Px/mWZnZ45rk1+wM/mSltHgCrLg8taTksfL5q+1Ag+od
+         xssqLzh1jlBkx/XXv3xmSiA1OhbXqAGuajS2KpeCJ8Zb4oISrdw7P3QBnCfAo/Iud77h
+         /btQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=BKhYmXf8RJm7m+LbrnGFgIJtf/wyuFierxap6ClRI1g=;
+        fh=suu+GzAxzwltfA6ZtPT3FMjBnku+UKBsUacoU4Bqc6s=;
+        b=astWYz3+Sfa6CitsIWYi98IYCsTyzUZh83kBnR+OwmY+iG8g8fdwK1DtyNWOaA8Z9i
+         jBrqY+LliC+cr2CMd1Mw25YNQ/eXkr4IlO5jzry43vazB8pNT0xVZHMqgXpKo3G+jkUb
+         AFvA3ZUMTip7+DgIqpiodrK2c1sK3pL9C+fgnHGWHHf8AvbpxkfFAzHZfeIXWm/ciXPO
+         TCguhpDEpiKFTuPoU7YrHQszG0XVOU0kliIZadXMUnJ7qlcu8fxYV1PdKfiZRCf2svHL
+         R/q6nTxf6J2g2sYM5tWfXf9jp+P//+JvnM9J8gEwV0JgzzDOwbh9UCiy85I667Hvpmlp
+         SbnQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=redhat.com; s=google; t=1775654502; x=1776259302; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BKhYmXf8RJm7m+LbrnGFgIJtf/wyuFierxap6ClRI1g=;
+        b=In4av0Qm+YsknpNn0Q/K0gmUPwgdPkv+2YdFFiMsCklrOkbcZ8zGidhW0ziYIJdI88
+         i9fxzklAsgkCvsJ6Uqynk82GycvACRr1Zszn9fAUm0K09P1Uc0N7QTRM8aViqxkkfPhD
+         7EvX0z+VdNu3m1dQ7B21J39TWfNbCGYP/s5adzZu8e+IAgkDJD36RQwEellTkAAxW+UE
+         +iH7qc/BLtjn+3mYKnMUMf6ffncnodUk8aJN65uNwwyXtUONEGutwKvKhTkef6Pn5Eyv
+         uA/n/JdwcoUk5IbUox6t5eR6k+jn7EoG0zbT5o63v9GPkZubevowUJiL+QIEQP+bc/EN
+         ad5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775654502; x=1776259302;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=BKhYmXf8RJm7m+LbrnGFgIJtf/wyuFierxap6ClRI1g=;
+        b=BIZ2O3fEsXEc5FwysgkSvYggZ1KW0hc0kDtWfo4nVXQMtxoLrYn9ufj1B4HUjRxb2o
+         y+yU8tCZkD/IWe2/ludpr1vcEYL/Ro/kDh9qFq4Cvo9RAaFuqUyoeuqQiH3xuf2l2A4r
+         dw8KSA28sJPI/REgyLm/Sh+U1a5QQtBU+xcPO2CFI5EQa0ZxcuZ+Yac5T2pS3QtOPKKu
+         Rx0PnwP/6mA0Cze1ApIT60qH9eYBfZJuOdkEDkCj4U2znnKVWdvLwEqfOYQmismoweue
+         ouaa1I8tnHmWEgDEBGofW5Pfnn8RsUuQZABwQ2Ci7OVxK0oeyWdRP8Ib2w7myje1JawK
+         JD5g==
+X-Forwarded-Encrypted: i=1; AJvYcCVRMu3QPoQGOpOCRGE9IiqnHF4h7xbSh1UrKylsGC5JCqbDtOZ09Yc2Z1XIITAmW6xlOG8=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxwC8z30l6+SzbootFQyad8bRgX6WDLavGipgM6cwHuL6I5hthC
+	XD+Yi4Z5W4RqpJFa5Wvx2+9vaCgu2rMYBt6U1pioiE4Zsg8Kbz9wSM2LrT6nCBRI7kzhyQPJjqO
+	cUvEvXhKeLrp53nCCrCAU1RcPcdUkRJaxOkNPwGzBdKhqwfjWT5O+SCKBH8pYaT94XNUTLkBsyo
+	kEwjYp96sBWeJYPldUAi8Bdy9Ftx0a
+X-Gm-Gg: AeBDiev7ctEI0IUTbHPmOGa5uLpLxM8OzFXzIXLfF/qRQArukElFyXE/XohAhA1GkaC
+	+XeMDasDPzXZKxG/wtoh78a0s4Mp7/XeLfMkqXrPtCwUNh2DnMyqvV7TfPQ5pMpZMEGhakDoNTf
+	kDhhgsm8FFy3glYVnTj8e3aSWi/Fqgthmdy8kgCAFEWdnlG4EAQQcG02GDn8slaSoGd2LdQgdlQ
+	5GoDaxo
+X-Received: by 2002:a05:690e:c4d:b0:650:3064:4d20 with SMTP id 956f58d0204a3-6504872bc8fmr17284832d50.30.1775654501746;
+        Wed, 08 Apr 2026 06:21:41 -0700 (PDT)
+X-Received: by 2002:a05:690e:c4d:b0:650:3064:4d20 with SMTP id
+ 956f58d0204a3-6504872bc8fmr17284787d50.30.1775654501145; Wed, 08 Apr 2026
+ 06:21:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20260408012004.198115-1-npache@redhat.com> <177561370059.278381.14711080737139189772.b4-ty@b4>
+In-Reply-To: <177561370059.278381.14711080737139189772.b4-ty@b4>
+From: Nico Pache <npache@redhat.com>
+Date: Wed, 8 Apr 2026 07:21:27 -0600
+X-Gm-Features: AQROBzDh_xIwwCSeKZVD7t6CT5_G94jOR6iSSiY3YdMpM2w0hS_iz62xrAVtemY
+Message-ID: <CAA1CXcC+8B9TKFkZO_Wf5zznJGB_zLyXdYX3gZVtOMCTnCxn2A@mail.gmail.com>
+Subject: Re: [PATCH v3 0/2] page_fault: add mmap-backed ioengine for anonymous faults
+To: Jens Axboe <axboe@kernel.dk>
+Cc: vincentfu@gmail.com, fio@vger.kernel.org, jvozar@redhat.com, 
+	jjurca@redhat.com, jhladky@redhat.com, peterx@redhat.com, spetrovi@redhat.com, 
+	david@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The following changes since commit ab77643023f5d7e3c1b71a7576a564f368bf577a:
+On Tue, Apr 7, 2026 at 8:01=E2=80=AFPM Jens Axboe <axboe@kernel.dk> wrote:
+>
+>
+> On Tue, 07 Apr 2026 19:20:01 -0600, Nico Pache wrote:
+> > This series introduces a new page_fault ioengine for Anonymous memory
+> > testing. This enables using fio=E2=80=99s existing framework and job fi=
+les for
+> > memory management style workloads without relying on a filesystem. An
+> > example job file is included to demonstrate usage and lays the groundwo=
+rk
+> > for how we plan on utilizing fio to test a number of MM related workloa=
+ds.
+> >
+> > The first patch adds the mmap=E2=80=91backed ioengine that allocates an=
+onymous
+> > memory and copies data on read/write to intentionally trigger faults.
+> >
+> > [...]
+>
+> Applied, thanks!
 
-  Fio 3.42 (2026-04-06 20:11:47 -0600)
+Thank you! I have more ideas in mind but they will come in waves given
+my current workload. Please let me know if you spot any errors, bugs,
+or have suggestions for features to add.
 
-are available in the Git repository at:
+-- Nico
 
-  git://git.kernel.dk/fio.git master
+>
+> [1/2] page_fault: add mmap-backed ioengine for anonymous faults
+>       commit: f5ea7d9e1d7c07053f23e764b281a5e47bf01ba3
+> [2/2] Documentation: update the documentation to include the page_fault e=
+ngine
+>       commit: dceeff3a1dd87b5194c84845d77096b3cdb3cee3
+>
+> Best regards,
+> --
+> Jens Axboe
+>
+>
+>
 
-for you to fetch changes up to f4e93793cbe3e4703520a9d4e1d6596bb1b43c73:
-
-  Merge branch 'anon-fault' (2026-04-07 20:00:49 -0600)
-
-----------------------------------------------------------------
-Jens Axboe (2):
-      engines/page_fault: minor style cleanups
-      Merge branch 'anon-fault'
-
-Nico Pache (2):
-      page_fault: add mmap-backed ioengine for anonymous faults
-      Documentation: update the documentation to include the page_fault engine
-
- HOWTO.rst               |   5 ++
- Makefile                |   2 +-
- engines/page_fault.c    | 126 ++++++++++++++++++++++++++++++++++++++++++++++++
- examples/page_fault.fio |  60 +++++++++++++++++++++++
- fio.1                   |   5 ++
- 5 files changed, 197 insertions(+), 1 deletion(-)
- create mode 100644 engines/page_fault.c
- create mode 100644 examples/page_fault.fio
-
----
-
-Diff of recent changes:
-
-diff --git a/HOWTO.rst b/HOWTO.rst
-index 5e3266df..bb97ee22 100644
---- a/HOWTO.rst
-+++ b/HOWTO.rst
-@@ -2379,6 +2379,11 @@ I/O engine
- 			several instances to access the same device or file
- 			simultaneously, but allow it for threads.
- 
-+		**page_fault**
-+			I/O engine that uses an mmap region to simulate data transfer by
-+			allocating anonymous memory and copying data on read/write to
-+			intentionally trigger page faults.
-+
- 	File/directory operation engines define how the job operates file or directory. The
- 	following types are defined:
- 
-diff --git a/Makefile b/Makefile
-index 0337e8fe..099e2f94 100644
---- a/Makefile
-+++ b/Makefile
-@@ -57,7 +57,7 @@ SOURCE :=	$(sort $(patsubst $(SRCDIR)/%,%,$(wildcard $(SRCDIR)/crc/*.c)) \
- 		smalloc.c filehash.c profile.c debug.c engines/cpu.c \
- 		engines/mmap.c engines/sync.c engines/null.c engines/net.c \
- 		engines/ftruncate.c engines/fileoperations.c \
--		engines/exec.c \
-+		engines/exec.c engines/page_fault.c \
- 		server.c client.c iolog.c backend.c libfio.c flow.c cconv.c \
- 		gettime-thread.c helpers.c json.c idletime.c td_error.c \
- 		profiles/tiobench.c profiles/act.c io_u_queue.c filelock.c \
-diff --git a/engines/page_fault.c b/engines/page_fault.c
-new file mode 100644
-index 00000000..d6c32bcc
---- /dev/null
-+++ b/engines/page_fault.c
-@@ -0,0 +1,126 @@
-+/*
-+ * page_fault engine
-+ *
-+ * IO engine that reads/writes directly to/from anonymous memory
-+ * by triggering page faults.
-+ */
-+#include "fio.h"
-+#include "ioengines.h"
-+#include <sys/mman.h>
-+
-+struct fio_page_fault_data {
-+	void *mmap_ptr;
-+	size_t mmap_sz;
-+};
-+
-+static int fio_page_fault_init(struct thread_data *td)
-+{
-+	size_t total_io_size;
-+	struct fio_page_fault_data *fpd;
-+
-+	if (td->o.nr_files > 1) {
-+		log_err("fio: page_fault ioengine does not support multiple files\n");
-+		return 1;
-+	}
-+
-+	if (td->o.start_offset != 0) {
-+		log_err("fio: page_fault engine does not support start_offset\n");
-+		return 1;
-+	}
-+
-+	fpd = calloc(1, sizeof(*fpd));
-+	if (!fpd)
-+		return 1;
-+
-+	total_io_size = td->o.size;
-+	fpd->mmap_sz = total_io_size;
-+	fpd->mmap_ptr = mmap(NULL, total_io_size, PROT_READ | PROT_WRITE,
-+			     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-+	if (fpd->mmap_ptr == MAP_FAILED) {
-+		free(fpd);
-+		return 1;
-+	}
-+
-+	td->io_ops_data = fpd;
-+	return 0;
-+}
-+
-+static enum fio_q_status fio_page_fault_queue(struct thread_data *td,
-+					      struct io_u *io_u)
-+{
-+	struct fio_page_fault_data *fpd = td->io_ops_data;
-+	void *mmap_head;
-+
-+	if (!fpd) {
-+		io_u->error = EINVAL;
-+		return FIO_Q_COMPLETED;
-+	}
-+
-+	if (io_u->offset + io_u->buflen > fpd->mmap_sz) {
-+		io_u->error = EINVAL;
-+		return FIO_Q_COMPLETED;
-+	}
-+
-+	mmap_head = fpd->mmap_ptr + io_u->offset;
-+	switch (io_u->ddir) {
-+	case DDIR_READ:
-+		memcpy(io_u->xfer_buf, mmap_head, io_u->buflen);
-+		break;
-+	case DDIR_WRITE:
-+		memcpy(mmap_head, io_u->xfer_buf, io_u->buflen);
-+		break;
-+	case DDIR_SYNC:
-+	case DDIR_DATASYNC:
-+	case DDIR_SYNC_FILE_RANGE:
-+	case DDIR_SYNCFS:
-+		break;
-+	default:
-+		io_u->error = EINVAL;
-+		break;
-+	}
-+
-+	return FIO_Q_COMPLETED;
-+}
-+
-+static int fio_page_fault_open_file(struct thread_data *td, struct fio_file *f)
-+{
-+	return 0;
-+}
-+
-+static int fio_page_fault_close_file(struct thread_data *td, struct fio_file *f)
-+{
-+	return 0;
-+}
-+
-+static void fio_page_fault_cleanup(struct thread_data *td)
-+{
-+	struct fio_page_fault_data *fpd = td->io_ops_data;
-+
-+	if (!fpd)
-+		return;
-+	if (fpd->mmap_ptr && fpd->mmap_sz)
-+		munmap(fpd->mmap_ptr, fpd->mmap_sz);
-+	free(fpd);
-+}
-+
-+static struct ioengine_ops ioengine = {
-+	.name = "page_fault",
-+	.version = FIO_IOOPS_VERSION,
-+	.init = fio_page_fault_init,
-+	.cleanup = fio_page_fault_cleanup,
-+	.queue = fio_page_fault_queue,
-+	.open_file = fio_page_fault_open_file,
-+	.close_file = fio_page_fault_close_file,
-+	.get_file_size = generic_get_file_size,
-+	.flags = FIO_SYNCIO | FIO_NOEXTEND | FIO_DISKLESSIO,
-+};
-+
-+static void fio_init fio_page_fault_register(void)
-+{
-+	register_ioengine(&ioengine);
-+}
-+
-+static void fio_exit fio_page_fault_unregister(void)
-+{
-+	unregister_ioengine(&ioengine);
-+}
-diff --git a/examples/page_fault.fio b/examples/page_fault.fio
-new file mode 100644
-index 00000000..4a49fb7d
---- /dev/null
-+++ b/examples/page_fault.fio
-@@ -0,0 +1,60 @@
-+[global]
-+stonewall
-+ioengine=page_fault
-+size=5*1024*1024*$mb_memory/8 # 5/8 of the memory
-+bs=$pagesize
-+
-+[page_fault_write]
-+rw=write
-+
-+[page_fault_mixed]
-+rw=randrw
-+rwmixread=50
-+
-+[page_fault_process_storm]
-+size=8*1024*$pagesize
-+rw=randrw
-+rwmixread=50
-+numjobs=$ncpus
-+
-+[page_fault_mthp]
-+bsrange=16k-1M
-+blockalign=2M
-+rw=write
-+
-+[page_fault_seq_read]
-+rw=read
-+
-+[page_fault_rand_read]
-+rw=randread
-+
-+[page_fault_rand_write]
-+rw=randwrite
-+
-+[page_fault_warm]
-+rw=randrw
-+rwmixread=50
-+loops=3
-+
-+[page_fault_read_heavy]
-+rw=randrw
-+rwmixread=90
-+
-+[page_fault_write_heavy]
-+rw=randrw
-+rwmixread=10
-+
-+[page_fault_large_block]
-+bs=2M
-+blockalign=2M
-+rw=write
-+
-+[page_fault_cache_hot]
-+size=64*$pagesize
-+rw=randrw
-+rwmixread=50
-+loops=100
-+
-+[page_fault_pressure]
-+size=7*1024*1024*$mb_memory/8 # 7/8 of the memory
-+rw=write
-diff --git a/fio.1 b/fio.1
-index 664d7e3b..14ea6427 100644
---- a/fio.1
-+++ b/fio.1
-@@ -2168,6 +2168,11 @@ instance is used per process, so all jobs setting option \fBthread\fR will share
- a single instance (with one queue per thread) and must specify compatible
- options. Note that some drivers don't allow several instances to access the same
- device or file simultaneously, but allow it for threads.
-+.TP
-+.B page_fault
-+I/O engine that uses an mmap region to simulate data transfer by allocating
-+anonymous memory and copying data on read/write to intentionally trigger page
-+faults.
- .RE
- .P
- File/directory operation engines define how the job operates file or directory.
