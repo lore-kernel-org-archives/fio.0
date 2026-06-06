@@ -1,108 +1,148 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B9B8477E3B
-	for <fio@vger.kernel.org>; Wed,  3 Jun 2026 12:00:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 335D33859C3
+	for <fio@vger.kernel.org>; Sat,  6 Jun 2026 12:00:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780488011; cv=none; b=q2vjFir2no3cTLzaTKMURlxlGyq+P68MGNwvQR0AVvs7D2KPgbSqI51LB/yrNV9THkLED/cgpW4khwsszZoLbKKu87BFmJTMZbmX7knapGYlgt+ge1XMPHgF+0lPROuY/ncAl1f2C2INCJlyJKsqzlYs9twrsnI3Sdan9w6tJqs=
+	t=1780747216; cv=none; b=j2bv8DSlatuY2AiXN+kA04EXXJnw/tUOxxfBelbcXGCucAwnewyUZEjNnnuR6r++jbCHdKx+m41OhfSknL8vV0sjZsytGcyB94CT4OQ65CWj86d7+rcL8WqodQuSAf6eStztkZB3NG3XW/WXPNwg8hWVp9xbhPi0OeMazvGnZn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780488011; c=relaxed/simple;
-	bh=A2vRX8PcWj/D+6aMYZaiZaVBmVljcVi7LRyQRr8WYm4=;
-	h=Subject:From:To:Date:Message-Id; b=RCGNqP30UqFvi/VYo59PQrikdbjfHj66tAtSF0Ebrfwajo+dnbRpkU85VqMjNucpM8LTGDyAkvMafkbvX7iHfN/y98dO+U+2mvGujI0toDd7OSPSrHhSKkZx9B3r0cJSXSovG+EtDi6RX2doXs1psmj3fkTEHUoWQQn8Kf4T4gA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=e17dgXwe; arc=none smtp.client-ip=90.155.92.199
+	s=arc-20240116; t=1780747216; c=relaxed/simple;
+	bh=qqLzbTgoMvx8dSXH5j2sLczXOfcGQLf/9f5QlyypNPg=;
+	h=Subject:From:To:Date:Message-Id; b=Mphk09pLxHu719KaoyNanZJvd9ygzMgHCP57lDvHuVBdcTJU+Mv5qAA0u6Ut5FjNSr5p85leijh4alDYpP8B8QuGE9+hCw5u3nbUIc8I92k3rdH7tBxczrHktrh7VuWBMbE9ziMEKp3p2DAhiWBItLK+Q1c62rHvrZxjGKoomrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=G7q3kQrp; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="e17dgXwe"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="G7q3kQrp"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
 	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=ve9CbpwZmKMSMcrUPhAJLJinlkkwBqrSBlEHKxeln8o=; b=e17dgXweBH23wc0U/RvYFO2zQb
-	aqcWrSCgUt7EBhSwGPw8Owh5z4/lQeR0/nEppFPo5qcpYjcDe0cWH4bCVha+tPiwFKH3WAIV9do0y
-	Rn9xRAJu042cM6kBdaBwZ9UIVRWJkpKoYOUP7dodEO7wmJr+/PgrAVJin9Zo7zEvV/7DF03zdLYHe
-	kDBa8XSdn/41CEJkGItFmPkkF2cUhIEvjt8Z7dNzGeh7Ag0RFofY8q4qZp8Nu2y5JWK839/SSL6wn
-	a0CBrhecRRtrLkvOEQIE4/Jkabldu+O5ZPaE0/jllR5EfUt4P7S6pz+uI5O2u/y9JZwVYe/VkNjT5
-	ROsG6+pg==;
+	bh=lFfYSuubk72BzKlhUQPB9xuhJdfdtXb9W2ByVBn648Y=; b=G7q3kQrpaOsg1ps+VZKrSaWu5w
+	076l7LoAFTe2ULYf/JJ9QjLgWnK6AfFcnJMNN0ZV8mWH9LylZfnIgkBIuYRuX8jph1hBN5xGsvYjP
+	NTkrgjSSQg8hvedI0+bGNSyntSLP8jelNJyo8B0IuBHRnruTfUFCpT+frU3eO9fo4rhPMv2t0PbxC
+	EhDF9fot0zT8uA3eON+hAOPm8OjujjovSI58M+b0F3X9QF2Ja5FfyZx/qkYtz9UW2DqWuwD26KYn8
+	foYDl1tvYxVvHfYiApb8xp+7L7cPgDQAaiUWtJxgIp+mKD9k3g/OaqL9kweYfWA8+K0sPbYupCUIl
+	HdiqwOZw==;
 Received: from [96.43.243.2] (helo=kernel.dk)
 	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
-	id 1wUkGT-0000000C3lH-0ijV
+	id 1wVph7-0000000Gc9q-1km9
 	for fio@vger.kernel.org;
-	Wed, 03 Jun 2026 12:00:05 +0000
+	Sat, 06 Jun 2026 12:00:07 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 5BE3D1BC01B2; Wed,  3 Jun 2026 06:00:01 -0600 (MDT)
+	id 78CCD1BC0161; Sat,  6 Jun 2026 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Wed,  3 Jun 2026 06:00:01 -0600
-Message-Id: <20260603120001.5BE3D1BC01B2@kernel.dk>
+Date: Sat,  6 Jun 2026 06:00:01 -0600
+Message-Id: <20260606120001.78CCD1BC0161@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit e682f9b3406e35a28a87f39789e3a0c6138b30b4:
+The following changes since commit 5b476c918091ff15705f3cd26a6a30a2084cd880:
 
-  ci: add nvmept_write_mode.py to test harness (2026-06-01 14:38:22 -0400)
+  Merge branch 'master' of https://github.com/wangxp006/fio (2026-06-02 12:27:16 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to 5b476c918091ff15705f3cd26a6a30a2084cd880:
+for you to fetch changes up to 5e65f4f03c67016e09111c5cd7b2f5137c126106:
 
-  Merge branch 'master' of https://github.com/wangxp006/fio (2026-06-02 12:27:16 -0400)
+  Merge branch 'fix/metadata-io_uring-doc' of https://github.com/calebsander/fio (2026-06-05 15:34:26 -0600)
 
 ----------------------------------------------------------------
-Vincent Fu (1):
-      Merge branch 'master' of https://github.com/wangxp006/fio
+Caleb Sander Mateos (1):
+      doc: indicate that metadata options are supported with io_uring
 
-xiaopeng.wang (1):
-      blktrace: fix three bugs in merge_blktrace_iologs path
+Jens Axboe (1):
+      Merge branch 'fix/metadata-io_uring-doc' of https://github.com/calebsander/fio
 
- blktrace.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ HOWTO.rst | 8 ++++----
+ fio.1     | 8 ++++----
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/blktrace.c b/blktrace.c
-index ef9ce6bf..045c4eb6 100644
---- a/blktrace.c
-+++ b/blktrace.c
-@@ -664,7 +664,7 @@ static int read_trace(struct thread_data *td, struct blktrace_cursor *bc)
+diff --git a/HOWTO.rst b/HOWTO.rst
+index bb97ee22..6bf7b29d 100644
+--- a/HOWTO.rst
++++ b/HOWTO.rst
+@@ -2737,13 +2737,13 @@ with the caveat that when used on the command line, they must come after the
+ 	this option is specified, the option :option:`plids` or :option:`fdp_pli` will be
+ 	ignored.)
  
- read_skip:
- 	/* read an io trace */
--	ret = fread(&t, 1, sizeof(t), bc->f);
-+	ret = fread(t, 1, sizeof(*t), bc->f);
- 	if (ferror(bc->f)) {
- 		td_verror(td, errno, "read blktrace file");
- 		return ret;
-@@ -790,7 +790,9 @@ int merge_blktrace_iologs(struct thread_data *td)
- 	}
+-.. option:: md_per_io_size=int : [io_uring_cmd] [xnvme]
++.. option:: md_per_io_size=int : [io_uring] [io_uring_cmd] [xnvme]
  
- 	/* set iolog file to read from the newly merged file */
-+	free(td->o.read_iolog_file);
- 	td->o.read_iolog_file = td->o.merge_blktrace_file;
-+	td->o.merge_blktrace_file = NULL;
- 	ret = 0;
+         Size in bytes for separate metadata buffer per IO. For io_uring_cmd
+         these buffers are allocated using malloc regardless of what is set for
+         :option:`iomem`. Default: 0.
  
- err_file:
-@@ -799,10 +801,10 @@ err_file:
- 		fclose(bcs[i].f);
- 	}
- err_merge_buf:
--	free(merge_buf);
--err_out_file:
- 	fflush(merge_fp);
- 	fclose(merge_fp);
-+err_out_file:
-+	free(merge_buf);
- err_param:
- 	free(bcs);
+-.. option:: pi_act=int : [io_uring_cmd] [xnvme]
++.. option:: pi_act=int : [io_uring] [io_uring_cmd] [xnvme]
  
+ 	Action to take when nvme namespace is formatted with protection
+ 	information. If this is set to 1 and namespace is formatted with
+@@ -2759,7 +2759,7 @@ with the caveat that when used on the command line, they must come after the
+ 	it will use the default slower generator.
+ 	(see: https://github.com/intel/isa-l)
+ 
+-.. option:: pi_chk=str[,str][,str] : [io_uring_cmd] [xnvme]
++.. option:: pi_chk=str[,str][,str] : [io_uring] [io_uring_cmd] [xnvme]
+ 
+ 	Controls the protection information check. This can take one or more
+ 	of these values. Default: none.
+@@ -2772,7 +2772,7 @@ with the caveat that when used on the command line, they must come after the
+ 	**APPTAG**
+ 		Enables protection information checking of application tag field.
+ 
+-.. option:: apptag=int : [io_uring_cmd] [xnvme]
++.. option:: apptag=int : [io_uring] [io_uring_cmd] [xnvme]
+ 
+ 	Specifies logical block application tag value, if namespace is
+ 	formatted to use end to end protection information. Default: 0x1234.
+diff --git a/fio.1 b/fio.1
+index 14ea6427..1c572c3c 100644
+--- a/fio.1
++++ b/fio.1
+@@ -2485,12 +2485,12 @@ multiple devices in a job, all devices of the job will be affected by the scheme
+ this option is specified, the option \fBplids\fP or \fBfdp_pli\fP will be ignored.)
+ .RE
+ .TP
+-.BI (io_uring_cmd,xnvme)md_per_io_size \fR=\fPint
++.BI (io_uring,io_uring_cmd,xnvme)md_per_io_size \fR=\fPint
+ Size in bytes for separate metadata buffer per IO. For io_uring_cmd these
+ buffers are allocated using malloc regardless of what is set for \fBiomem\fR.
+ Default: 0.
+ .TP
+-.BI (io_uring_cmd,xnvme)pi_act \fR=\fPint
++.BI (io_uring,io_uring_cmd,xnvme)pi_act \fR=\fPint
+ Action to take when nvme namespace is formatted with protection information.
+ If this is set to 1 and namespace is formatted with metadata size equal to
+ protection information size, fio won't use separate metadata buffer or extended
+@@ -2504,7 +2504,7 @@ For 16 bit CRC generation fio will use isa-l if available otherwise it will
+ use the default slower generator.
+ (see: https://github.com/intel/isa-l)
+ .TP
+-.BI (io_uring_cmd,xnvme)pi_chk \fR=\fPstr[,str][,str]
++.BI (io_uring,io_uring_cmd,xnvme)pi_chk \fR=\fPstr[,str][,str]
+ Controls the protection information check. This can take one or more of these
+ values. Default: none.
+ .RS
+@@ -2521,7 +2521,7 @@ Enables protection information checking of application tag field.
+ .RE
+ .RE
+ .TP
+-.BI (io_uring_cmd,xnvme)apptag \fR=\fPint
++.BI (io_uring,io_uring_cmd,xnvme)apptag \fR=\fPint
+ Specifies logical block application tag value, if namespace is formatted to use
+ end to end protection information. Default: 0x1234.
+ .TP
