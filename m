@@ -1,79 +1,80 @@
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EA7137266D
-	for <fio@vger.kernel.org>; Mon,  6 Jul 2026 15:46:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D75A943C7D6
+	for <fio@vger.kernel.org>; Tue,  7 Jul 2026 18:23:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783352781; cv=pass; b=V2Agl84SECpgCDeZmp6K1vPlvpQcl/Pm4FlpmHSt1ydXwnkoaeYDWKKikf8JIkhVJoujjuKZwsjjw4G8j8GYKFlN8TiVczKabnJCsyz4tscHULPJuVBLbEvmkcFZZzgf1ekWl+iiUTUnPeYESEcNPrvnTxX6pZztthn8vK1sU6M=
+	t=1783448583; cv=pass; b=PVKUw6OR41K8V0Nh/wEDb7TVdy8VJlSgqzV0Gt3ayxwNK6MOJydP0J3mWitAxFcolBwf9WVeG7lsMUlPsUUHZGrh5QDnqAylvN7C/UPCtwj6wo3m7jN1npPNP3Yk2X9DDoh/j1E4zYEIq0/Th+fgFvJ7/pbNijUj6T10DDUebrs=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783352781; c=relaxed/simple;
-	bh=2SEKpaBTHFzp+0RJv7VkuOVYPQ7YezkJFu9RJ0srglI=;
+	s=arc-20240116; t=1783448583; c=relaxed/simple;
+	bh=J1QQNcep6uh0VKWNIxeVVJIRSZRi/MGYApydvQ/0lRE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JAfwvh6dvD0xqbrejJ0QrmzdM/VfAEuNMrKAI2uMzNpP5t7FQAaj0HjS1GAN6XlpPKwvg3Bn0KvMpk1kAC+SVSs2DOna65QE97YIx+wezTcqt5/aSYo4KIOfl0MO0yvGbNBqBeJfGDdKi0A8uQjCK2NKle6Mb7nJ+qpNojcxFKU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jalfap1u; arc=pass smtp.client-ip=209.85.208.174
+	 To:Content-Type; b=lKcqJzcpDMOmCckN9mE2ZmoSjJD6JyOy1aTNqkgSvyVc8YtAJKK/lGBjsfvxb2jBqEBeMiaVFGpKCU2l1sc9/exuxNVJcgF9sFqQ6cqlJEPq21GF3TnZp5DiGac2Wa36KyM2yllWbQLEyTgB58o3NTMpM+FV7Ykmuv/7aG9OfLo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MBG3FDKZ; arc=pass smtp.client-ip=209.85.208.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jalfap1u"
-Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-39af64026dcso25584711fa.1
-        for <fio@vger.kernel.org>; Mon, 06 Jul 2026 08:46:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783352778; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MBG3FDKZ"
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39c7050a48fso4864331fa.2
+        for <fio@vger.kernel.org>; Tue, 07 Jul 2026 11:23:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783448580; cv=none;
         d=google.com; s=arc-20260327;
-        b=PAjtv9+01Ee/rPP08JcAHXNPCHq6qyCE728cTdJxvghcYXUhKPlLAvYyLWPgrmxdVH
-         EX1zcWDwI/tVPrpHypUQlEpyoY/N02dvD069H7r0XJLgfSKZ9qAJ7tLr7lH/b17c3RyH
-         FuqJakdKp+4cMVNGJqU8jF9ZhoTBqXPi2QG8hEbRHpodwl5wz9XxfLSnpC/owf+sGF1y
-         kXZNml5XYUBiwKYmSpB0CP7YOiFvKlPa3aTBnwkQ9wikE9zmXMs0rk84poOF9LDJ8ABs
-         fnIuLQkaNZAqda1QvjCXmDCHE+vs5gf32oQGggy3nRd4l9m3kUGP3PFUOwVHBSwkjS4u
-         orkw==
+        b=CXQBTVb6CFTj4mKMM+eAm+1HKkBPdbNdKt4AyPg4F68JI1oE4SQ6Kp0dZfB7/ekTjR
+         h7GHs7uTcBr/rck9YMXbmFVK0xtrWNK68aWo7Fp/L0vdBNQilRmKVMX4O3sssox/9Cuz
+         pqCE1kVbWJx4K+thbh6Dr1eaA8D9XpLfXobwQOcv4qCoUpzJHG0jDmIpmU9GEtmlhrxM
+         6Yk0tZ65ofy5t+tZMtZHqYtu2h+J05v86eTavbJI1dHWe1Y82BWubxyu85a8t9GeJRDe
+         NJZyR33szGict7dVLgStXWp+W1FkTR/gh526eMpCdjSQg4RL1QeRbsmKjJbIAXa/fQIh
+         cd1A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=pmsVWA9+Afgfj7EDki3bnSj2oGKJnaVmK3ViGIbmu5Y=;
-        fh=xRZezKE7AS/L42XdpSvDT92YA7ZY7UgXg2iw2Tf6wxA=;
-        b=QAfvITdZBSqfhMmZzPvp1rYBSR5pQP6DuLwrWl3iDD2xgxX7OSqsY75ksXxQw0X4Ne
-         yzZb+WfpS2oDJlhA1SYmWIp0f2xxMZtA2OAbnqznlXoAeVR6Yxs2XJ04v44JTcOcFZO0
-         azy5HtwpP71jlwXTlpZS7uI3HPQ/VOlSa8IhKfIcH/PI7ADQLNOtMkdq1/HGa2ViLuR7
-         oyJzc5pPFVPV/8eTn0YneXG62kDR1IAKd7zyeqLmnOUvI9iDdTZpJhh8xhL3jfYQdzO2
-         JxFLO9jMmKPW6sEwP3heAd7VRnL4INeteoAJ65JBBS7IoT7bKMGo7ERrP3Hb5JJtaqaO
-         HVvA==;
+        bh=Me5ongFUaYhycjZ8bXhnyL9Ey4aTyfRjjswJ6V5WROY=;
+        fh=2Nm8zKwukH8ggRHWPIuA7y4xMjdzs3HgSU7QmjubHt4=;
+        b=kjQ7FuYhrU2Q6826R4Oib6JqjTlNdcYIF/XIO0vb0GgIFyMDlHG60VrceBY8RYFL7z
+         v5piuXwPXQUUKFT4uRQ4V7IBSeu3gGFO2hGRIzbRJTJTbzJL+m38GmKgvist235367tg
+         Uxx87WAlN7u5xrsoGnQQskr6br70JJLft1QL0qvjBT9oU1eO8lhSLxWWuBkiozUPH8WG
+         3lX1yG6BybxLSXVXfiLVE/ktGV9BC+Mliyc3SoBvGkd3F8lGTPUPuq+AHXawO81ql+Dg
+         3fYkLisduoUrqGdmzvwzkFcCV8gRssnSlpvmOBi6VoOqkN+vMYAn7k5W5C0CZPQ2nsgj
+         e1Sw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783352778; x=1783957578; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pmsVWA9+Afgfj7EDki3bnSj2oGKJnaVmK3ViGIbmu5Y=;
-        b=Jalfap1uR7Jt0dWqen2AUIRZYNJpBvqWT6TSj2+731bOG7ar33RRs4XYR/QrL1ELum
-         /3wLAPfVsnH6mocSqVcjv2h3Fnc4ivkWuWqWpvedgeEmjTAAJiA3VSF1WqrlYkdonnZy
-         yLAtzvTgdjsYt27fH6JCdqeYyAOgbtg6EW3nN1ctg+MEnI70PTY+VG2/43DMusR6zn3X
-         uaQ8Xv+SO9eMKHTGCCry3pa2MmyDHWM5iqhhUHvDZ6gJMxA1e+SgYVILbSbgtBIIKgzq
-         MFHQCoMPLBdWyoURsbbsY8AjRYpsMES3BPFH7A4Wp3B81PaNyc0ReO0slM/W8/x5JJVc
-         iTmg==
+        d=gmail.com; s=20251104; t=1783448580; x=1784053380; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=Me5ongFUaYhycjZ8bXhnyL9Ey4aTyfRjjswJ6V5WROY=;
+        b=MBG3FDKZzDl5CTJqM/e4lwCok5wBg8Df7bCa6ePtjZaTbnm45vl1aeM6hYxox8k/59
+         UkFnv0nbcKTEdx91v2QnDxch8UhcY/d+P2ucEp581wfIbPZ5w8hJ3NYzKEcPMKZWSyaD
+         yKz8S1qpFXCNv/Y6rCpwsnHquYx74vllzflQcT+234Wck810UP+i1ZWKZl9cUYDliGe+
+         glarKmQGuOclyDw0qEGjlvzzfX3OV6uu6iEDlhZ00eo/eeuzSa3ar7WKvHRuLbp7HsT0
+         z/uziWSZOWb5dKFKHSG0LFoR2qYabIQHStpy1riaIK+eMVoYqIwFoM2xzeSV7jBuw0ke
+         oQQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783352778; x=1783957578;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=pmsVWA9+Afgfj7EDki3bnSj2oGKJnaVmK3ViGIbmu5Y=;
-        b=A1W1x5EEpEClV3YaDXsSwa63wtrZKwUT357ycwMkA8ty3JwsFIgVrv66CdMOR3mdTA
-         XnW6cWhJwePp0xjERhpqGCOKfAxnWix3X14+S2+fXJwh4RERKY/aMrmmDRXXe3tQdJ5/
-         QadynpJKHEPC51cQHnjO9sZP/7tPcZX2BeB/BZQvZNUQgnufUq6BpDI8HLS0g3zLu6tU
-         aftbJrpC4m9GjP+q++ShfgQpwXxXXxw/JUAO7iwMwmMiVPy4PI2Kmu7ImqiaacFuYzIv
-         gBHBR3BNCQC434b0L+E4pVmyrg89RjrauKdgscncGByri8sFn5XUyf47rA02E1hOUYu/
-         beFg==
-X-Gm-Message-State: AOJu0YyWrg6PKG/5TjL/v0ECA0qJrZcYhnoC/B/Y57IgCE9GMB8Bt4Nr
-	CXp88TcPNkK8o6QZxka/7a40tQ2fqEg9SuZMEkjnpne+KeatTG83UL0z9UdQnRJ+Ov2KpIDXPKb
-	Tw4xCx+k2jNfoq6AexWE4NC/HaNnT0aA=
-X-Gm-Gg: AfdE7ckIj7iSnGeGwMzPThGPIsigVZNTx1IOLPik830uAql6cQ+yZEG9EPG/uRvK6y9
-	dznd0zQ/sJvKfL74CAf1PneZ8laupBHbJKxw9T3Fh3eaR78dRBH0u0OGem6WmxqTL71fBfRKs//
-	Z8Dz97V5zrS/PJSuC3gTglVH/Oxzclhi3Fvb8pi7FS691kQpmq3boVUITiAkVPR2Omeh+wYVcR3
-	aE1y5bvWmWwKzdAA7jjjr6oz/T1o6ykg3H33ReHamo5o621utoiUTQAHdPmJCcKqGKKjFshUcFV
-	R8QFGDoEY8lVibZn3Btde9We8LMd
-X-Received: by 2002:a2e:9893:0:b0:39b:7cd:e1c6 with SMTP id
- 38308e7fff4ca-39c6003bf90mr2254481fa.35.1783352777967; Mon, 06 Jul 2026
- 08:46:17 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783448580; x=1784053380;
+        h=content-transfer-encoding:content-type:to:subject:message-id:date
+         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Me5ongFUaYhycjZ8bXhnyL9Ey4aTyfRjjswJ6V5WROY=;
+        b=LwyjYwNBgUE686uiXSuDLiuSq/+etgX2d27+1vU7+F1NSmdJcbswC4VGn33NYdGNe5
+         SLRP4KiNegFsfZH+Y3ylUHYxS03F3dBhCFeFmCq4X7yDoqSApp0V7+T8xCVkwodM3/AC
+         lOypvMGz0473Q9ejHy/bvCor4HO2Fqc3J/CtqwUhcgTBKfk0XPvSYgfQPF2ISd/2Qk0r
+         uOjY2REnT1Onj3qoQxW1EIXr1ERMzoyn/szqR1Vv8q1YQFVbJPwYRQEl4c7QXvFjrxWG
+         e5LOHPe/94Y5rqhJuXio2UrKjp4ZCy+ifDg/cQvDu8kYEc4qlFG0bLD3lJysG8KjB9zt
+         AaJw==
+X-Forwarded-Encrypted: i=1; AHgh+RpZE1pCMmLBRwOw3mYNA66lw/vEwafJtsCSS/g8xC1ECD+4yRwgWQZRi4/2TTcNGnxWO9Y=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy08rs+AluTFPWLxMlVzJ/9HKbvTxeeQ2PXxIWNxuZ2V9rFPbRN
+	d8sXRbmdES7qn4H8n7zfF4YX1+Jnqnu0UCiE6VntxfLg8xkHrTr4fukp/t8phI86dbXCSryQKv1
+	DC1CYYVmTSODOqrFFUHOu8i3aV4tkLXiYsFFo
+X-Gm-Gg: AfdE7cn3pz0oMawOBX57V1CHUIObn7i7EhtLviyfrd7UGVIE5papOdWL/GlPpu06MOI
+	kYih9kP4DZDQgpT2c565RzYkOZvKqju7Ymy5xMUDFEtnAM+vIeFysSOU5b0MyplEx2Sw2ibSZqK
+	efsRSt7ejb4lbd599fxutpU9065nt/0eXHTkj1jXRj/+nWwK/zCWDNZqz2iLQ4NVQQyB8GVAejb
+	qBtgFrbRPu9GoF5L9gPRX83rCpsaFdhViBH2qrD362O9Sl5ebeCPAUNnsFjEZBD88LLsJhXAZvx
+	aKc0uBUGbhlvF9dWjlBjte58BDqT
+X-Received: by 2002:a2e:a99d:0:b0:39a:e3c7:6649 with SMTP id
+ 38308e7fff4ca-39c5ffdeddbmr17053411fa.28.1783448579735; Tue, 07 Jul 2026
+ 11:22:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -81,85 +82,84 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <PH3PPF87283933B8D3A50EAACC80498FE7887F52@PH3PPF87283933B.namprd10.prod.outlook.com>
-In-Reply-To: <PH3PPF87283933B8D3A50EAACC80498FE7887F52@PH3PPF87283933B.namprd10.prod.outlook.com>
+ <CAOp=CXkW4206EoW0AY-7xzvg+Zrwjjt6DiXfyL-UO8S+njK-Pw@mail.gmail.com> <PH3PPF87283933B9384B6F2149D5B66D4E587F12@PH3PPF87283933B.namprd10.prod.outlook.com>
+In-Reply-To: <PH3PPF87283933B9384B6F2149D5B66D4E587F12@PH3PPF87283933B.namprd10.prod.outlook.com>
 From: Vincent Fu <vincentfu@gmail.com>
-Date: Mon, 6 Jul 2026 11:46:05 -0400
-X-Gm-Features: AVVi8Ce73yqmAe_LHs7IUAABnpW8y-7sS_7MD3ZNqddyEAOtmjDkUExRi4hhtso
-Message-ID: <CAOp=CXkW4206EoW0AY-7xzvg+Zrwjjt6DiXfyL-UO8S+njK-Pw@mail.gmail.com>
+Date: Tue, 7 Jul 2026 14:22:47 -0400
+X-Gm-Features: AVVi8CfRSIvb767jFHttafvyAmCvoJwQaS4ix_nG05tHzsYXdvV3aF5KugS_jdQ
+Message-ID: <CAOp=CXnQo+hKaZqqijvdE5_-eLr74NG1zJApHJO4T1b1aTVWYg@mail.gmail.com>
 Subject: Re: Bug report - Trim QD1 using io_uring is hitting unreal clat values
-To: Alexa Mercado Sanchez <Alexa.Mercado@solidigm.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Daniel Fernandez <Daniel.Fernandez1@solidigm.com>, 
-	Adrian Tintas <Adrian.Tintas@solidigm.com>
+To: Alexa Mercado Sanchez <Alexa.Mercado@solidigm.com>, fio <fio@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 2, 2026 at 5:35=E2=80=AFPM Alexa Mercado Sanchez
+On Mon, Jul 6, 2026 at 1:44=E2=80=AFPM Alexa Mercado Sanchez
 <Alexa.Mercado@solidigm.com> wrote:
 >
+> Following your suggestions, I minimized the job and ran git bisect (good =
+fio-3.37, bad fio-3.42) with an automated build+run harness. It landed clea=
+nly and reproducibly on:
 >
-> Description
+> commit 980fb7f2d9981bbfe4a3158d6293308c76a6d77a
+> Author: Jens Axboe <axboe@kernel.dk>
+> Date:   Mon Sep 30 09:42:22 2024 -0600
 >
-> When performing a pure trim QD1 RND/SEQ operation using io_uring, clat/cl=
-at_hist/clat_ns entry in summary log seems faulty. I was able to reproduce =
-this issue with different drives on different environments with different b=
-lock sizes and in concurrency with another workload. If I switch the ioengi=
-ne to libaio, I obtain the expected latencies in ms, with io_uring we are h=
-itting latencies of 17 seconds across all the QoS buckets. I also tested on=
- older fio versions, 3.37 is not showing this behavior. The files I append =
-here are for both 3.42 (filenames starting with 342) latest branch and 3.37=
- (filenames starting with 337). All logs appended here were tested on the s=
-ame drive, same system. By opening the 342_clat_hist file appended, I reali=
-zed the histogram is just parsing a single massive data point at the last c=
-olumn of the histogram entries. I haven't seen this behavior in other opera=
-tions other than trims.
+>     engines/io_uring: add support for async TRIM
 >
+>     6.12 kernels and newer support async trim, which means the non-cmd pa=
+th
+>     no longer needs to quiesce the queue and issue a sync trim for a work=
+load
+>     that includes trim/discard requests.
 >
-> Environment
+>     The engine will assume the support is there, and if it gets -EINVAL w=
+hen
+>     trying an async trim, then it'll punt back to the using the sync trim
+>     again.
 >
-> Reproduced issue on two different environments
+>     Signed-off-by: Jens Axboe <axboe@kernel.dk>
 >
-> -    OS: rocky 8.5
->
-> -    Kernel: 5.15.24
->
->
-> -    OS: rocky 10.1
->
-> -    Kernel: 6.12.0-124.56.1.el10_1.x86_64
+>  engines/io_uring.c  | 37 +++++++++++++++++++++++++++++++------
+>  os/linux/io_uring.h |  5 ++++-
+>  2 files changed, 35 insertions(+), 7 deletions(-)
+> - Bisect found first bad commit
 >
 >
-> fio version
+> Minimal reproducer (QD1):
 >
-> 3.42
+> [trim_qd1]
+> ioengine=3Dio_uring
+> filename=3D/dev/nvmeXn1
+> rw=3Drandtrim
+> bs=3D128k
+> iodepth=3D1
+> direct=3D1
+> time_based=3D1
+> runtime=3D20
 >
+> Symptom: trim clat_ns.mean =E2=89=88 runtime/2 in seconds (min =E2=89=88 =
+ramp_time, max =E2=89=88 ramp_time+runtime, all IOs in one histogram bin), =
+while trim lat_ns.mean is correct (~195 =C2=B5s). So the completion latency=
+ is being computed against an unset/zero issue_time.
 >
-> Reproduction steps
+> Note on kernels: you couldn't reproduce on 6.6, but I see it on both 5.15=
+ and a RHEL10 6.12 build. I did some further debug and understood the diffe=
+rences in code better. On both of mine the async discard returns -EINVAL, s=
+o fio takes the punt-to-sync branch in fio_ioring_queue() (do_io_u_trim() =
+=E2=86=92 FIO_Q_COMPLETED). That path never stamps io_u->issue_time, wherea=
+s the normal ring path stamps it in fio_ioring_queued(). Since the engine s=
+ets FIO_ASYNCIO_SETS_ISSUE_TIME, the sync-trim completion ends up with a ze=
+ro issue time, which matches the observed clat. The real device latency (la=
+t) is unaffected.
 >
-> 1. Drive sequentially filled to run trim operations
->
-> 2. Run the appended trim_rnd_qd_1_128k_1w_itr6.fio
->
->
-> Thank you for your attention to this matter,
->
-> Alexa Mercado
-> SSD Power and Performance Lead Software Engineer
 
-I did some quick experiments on platforms with kernel 6.6 and 7.0 and
-could not reproduce this issue. Please do the following:
+(Resending this with the HTML stripped out so that it makes it to the
+mailing list)
 
-1. Simplify your job to the minimum set of options required to trigger the =
-issue
-2. Since you have a build that works well and one that manifests this
-issue, please do some more troubleshooting to narrow down the source
-of the issue. Try versions between 3.37 and 3.42. Even better use git
-bisect with multiple rounds of testing to pinpoint the exact commit
-that triggers this issue.
-
-Starting with kernel 6.12 the io_uring interface gained the ability to
-send async trim operations. Previously it was only possible to use the
-BLKDISCARD IOCTL for trim operations, so it is possible that something
-is going wrong with how Fio is handling this, but more troubleshooting
-is needed.
+With the help of the troubleshooting you did, I have committed a patch
+that should fix the issue. Please try the tip of the master branch and
+report back if there are any remaining problems.
+Also, next time please include the mailing list in your reply and
+avoid top posting.
 
 Vincent
