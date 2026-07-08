@@ -1,165 +1,224 @@
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D75A943C7D6
-	for <fio@vger.kernel.org>; Tue,  7 Jul 2026 18:23:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783448583; cv=pass; b=PVKUw6OR41K8V0Nh/wEDb7TVdy8VJlSgqzV0Gt3ayxwNK6MOJydP0J3mWitAxFcolBwf9WVeG7lsMUlPsUUHZGrh5QDnqAylvN7C/UPCtwj6wo3m7jN1npPNP3Yk2X9DDoh/j1E4zYEIq0/Th+fgFvJ7/pbNijUj6T10DDUebrs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783448583; c=relaxed/simple;
-	bh=J1QQNcep6uh0VKWNIxeVVJIRSZRi/MGYApydvQ/0lRE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=lKcqJzcpDMOmCckN9mE2ZmoSjJD6JyOy1aTNqkgSvyVc8YtAJKK/lGBjsfvxb2jBqEBeMiaVFGpKCU2l1sc9/exuxNVJcgF9sFqQ6cqlJEPq21GF3TnZp5DiGac2Wa36KyM2yllWbQLEyTgB58o3NTMpM+FV7Ykmuv/7aG9OfLo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MBG3FDKZ; arc=pass smtp.client-ip=209.85.208.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7837641C2F6
+	for <fio@vger.kernel.org>; Wed,  8 Jul 2026 12:00:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783512010; cv=none; b=UEyOli465QQt8DNy/FSVUGr1f0H7EqZmWlwpc2EIpCnoy8PWzPehxgsZNZANAdU/ySwvEADBuXxHh6BlWNZgJUwCi4NLN/CuPSVNQYTLwdeajTHsE5mdWXXD68XvRv4tzVPWBQTfnw3TR+MaDpMwoZqnGdPVSHT1Ln2lofn813A=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783512010; c=relaxed/simple;
+	bh=wCjUdCU1CPWnhe8fpr+R9biDrqV39fCLd6tSgO04+nk=;
+	h=Subject:From:To:Date:Message-Id; b=AZZ1H0aur7ugLyW5bhRLlCRvKjndom0h7JYDeuh+UpLaJwm9Q9p1GEtwmvXkjsuEEyjRLCjCPbUteiv7Ciov8hw9TnMLr0KEwF2rBUGbjzjlGVCIZxvxRZ0zfC5JQ7iYc2zfgiJfnK+5Cp8mlkbaiisLcoaRxWEaYGXSJSkusCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=hjsWiDCf; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MBG3FDKZ"
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-39c7050a48fso4864331fa.2
-        for <fio@vger.kernel.org>; Tue, 07 Jul 2026 11:23:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783448580; cv=none;
-        d=google.com; s=arc-20260327;
-        b=CXQBTVb6CFTj4mKMM+eAm+1HKkBPdbNdKt4AyPg4F68JI1oE4SQ6Kp0dZfB7/ekTjR
-         h7GHs7uTcBr/rck9YMXbmFVK0xtrWNK68aWo7Fp/L0vdBNQilRmKVMX4O3sssox/9Cuz
-         pqCE1kVbWJx4K+thbh6Dr1eaA8D9XpLfXobwQOcv4qCoUpzJHG0jDmIpmU9GEtmlhrxM
-         6Yk0tZ65ofy5t+tZMtZHqYtu2h+J05v86eTavbJI1dHWe1Y82BWubxyu85a8t9GeJRDe
-         NJZyR33szGict7dVLgStXWp+W1FkTR/gh526eMpCdjSQg4RL1QeRbsmKjJbIAXa/fQIh
-         cd1A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Me5ongFUaYhycjZ8bXhnyL9Ey4aTyfRjjswJ6V5WROY=;
-        fh=2Nm8zKwukH8ggRHWPIuA7y4xMjdzs3HgSU7QmjubHt4=;
-        b=kjQ7FuYhrU2Q6826R4Oib6JqjTlNdcYIF/XIO0vb0GgIFyMDlHG60VrceBY8RYFL7z
-         v5piuXwPXQUUKFT4uRQ4V7IBSeu3gGFO2hGRIzbRJTJTbzJL+m38GmKgvist235367tg
-         Uxx87WAlN7u5xrsoGnQQskr6br70JJLft1QL0qvjBT9oU1eO8lhSLxWWuBkiozUPH8WG
-         3lX1yG6BybxLSXVXfiLVE/ktGV9BC+Mliyc3SoBvGkd3F8lGTPUPuq+AHXawO81ql+Dg
-         3fYkLisduoUrqGdmzvwzkFcCV8gRssnSlpvmOBi6VoOqkN+vMYAn7k5W5C0CZPQ2nsgj
-         e1Sw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783448580; x=1784053380; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=Me5ongFUaYhycjZ8bXhnyL9Ey4aTyfRjjswJ6V5WROY=;
-        b=MBG3FDKZzDl5CTJqM/e4lwCok5wBg8Df7bCa6ePtjZaTbnm45vl1aeM6hYxox8k/59
-         UkFnv0nbcKTEdx91v2QnDxch8UhcY/d+P2ucEp581wfIbPZ5w8hJ3NYzKEcPMKZWSyaD
-         yKz8S1qpFXCNv/Y6rCpwsnHquYx74vllzflQcT+234Wck810UP+i1ZWKZl9cUYDliGe+
-         glarKmQGuOclyDw0qEGjlvzzfX3OV6uu6iEDlhZ00eo/eeuzSa3ar7WKvHRuLbp7HsT0
-         z/uziWSZOWb5dKFKHSG0LFoR2qYabIQHStpy1riaIK+eMVoYqIwFoM2xzeSV7jBuw0ke
-         oQQg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783448580; x=1784053380;
-        h=content-transfer-encoding:content-type:to:subject:message-id:date
-         :from:in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Me5ongFUaYhycjZ8bXhnyL9Ey4aTyfRjjswJ6V5WROY=;
-        b=LwyjYwNBgUE686uiXSuDLiuSq/+etgX2d27+1vU7+F1NSmdJcbswC4VGn33NYdGNe5
-         SLRP4KiNegFsfZH+Y3ylUHYxS03F3dBhCFeFmCq4X7yDoqSApp0V7+T8xCVkwodM3/AC
-         lOypvMGz0473Q9ejHy/bvCor4HO2Fqc3J/CtqwUhcgTBKfk0XPvSYgfQPF2ISd/2Qk0r
-         uOjY2REnT1Onj3qoQxW1EIXr1ERMzoyn/szqR1Vv8q1YQFVbJPwYRQEl4c7QXvFjrxWG
-         e5LOHPe/94Y5rqhJuXio2UrKjp4ZCy+ifDg/cQvDu8kYEc4qlFG0bLD3lJysG8KjB9zt
-         AaJw==
-X-Forwarded-Encrypted: i=1; AHgh+RpZE1pCMmLBRwOw3mYNA66lw/vEwafJtsCSS/g8xC1ECD+4yRwgWQZRi4/2TTcNGnxWO9Y=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy08rs+AluTFPWLxMlVzJ/9HKbvTxeeQ2PXxIWNxuZ2V9rFPbRN
-	d8sXRbmdES7qn4H8n7zfF4YX1+Jnqnu0UCiE6VntxfLg8xkHrTr4fukp/t8phI86dbXCSryQKv1
-	DC1CYYVmTSODOqrFFUHOu8i3aV4tkLXiYsFFo
-X-Gm-Gg: AfdE7cn3pz0oMawOBX57V1CHUIObn7i7EhtLviyfrd7UGVIE5papOdWL/GlPpu06MOI
-	kYih9kP4DZDQgpT2c565RzYkOZvKqju7Ymy5xMUDFEtnAM+vIeFysSOU5b0MyplEx2Sw2ibSZqK
-	efsRSt7ejb4lbd599fxutpU9065nt/0eXHTkj1jXRj/+nWwK/zCWDNZqz2iLQ4NVQQyB8GVAejb
-	qBtgFrbRPu9GoF5L9gPRX83rCpsaFdhViBH2qrD362O9Sl5ebeCPAUNnsFjEZBD88LLsJhXAZvx
-	aKc0uBUGbhlvF9dWjlBjte58BDqT
-X-Received: by 2002:a2e:a99d:0:b0:39a:e3c7:6649 with SMTP id
- 38308e7fff4ca-39c5ffdeddbmr17053411fa.28.1783448579735; Tue, 07 Jul 2026
- 11:22:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="hjsWiDCf"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=PslkGxyi6a1Bra8B414tVj1rk68budi6vmoxrL5c1Jw=; b=hjsWiDCf6SxCUi28qcGhyua5k1
+	5wZLnTI2ZdXZMcNeI7MziCtzef/mtca84Tehn+dhCvw/rrtushS9PZimCJXpGA0/PvgkQF+w57pcQ
+	5zWUpV/poOdF661fZBUU4KzzT7wKY5AcJnnyG9Qqr6Bkjv4Eka39eYdRKpjg6Yavsvrq6jJieIUq/
+	1LSlsrlNxk7p9q1p+7bBMq9ha/tnEk97wiNses5q0tMU4Wzb+7anpx8XEoJPANi3BkyZ5hG57uJAc
+	9UmUrN5fX7tAaJHnxtbAoAABwl2ty5ddX/hKxCHaAh1Gv4wfeKaTYVt0l+CP1fWKQ1YuYO0N+yZen
+	Jq9bTFdQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1whQwf-00000002GpY-0fuD
+	for fio@vger.kernel.org;
+	Wed, 08 Jul 2026 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 042B91BC015A; Wed,  8 Jul 2026 06:00:02 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Wed,  8 Jul 2026 06:00:01 -0600
+Message-Id: <20260708120002.042B91BC015A@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <PH3PPF87283933B8D3A50EAACC80498FE7887F52@PH3PPF87283933B.namprd10.prod.outlook.com>
- <CAOp=CXkW4206EoW0AY-7xzvg+Zrwjjt6DiXfyL-UO8S+njK-Pw@mail.gmail.com> <PH3PPF87283933B9384B6F2149D5B66D4E587F12@PH3PPF87283933B.namprd10.prod.outlook.com>
-In-Reply-To: <PH3PPF87283933B9384B6F2149D5B66D4E587F12@PH3PPF87283933B.namprd10.prod.outlook.com>
-From: Vincent Fu <vincentfu@gmail.com>
-Date: Tue, 7 Jul 2026 14:22:47 -0400
-X-Gm-Features: AVVi8CfRSIvb767jFHttafvyAmCvoJwQaS4ix_nG05tHzsYXdvV3aF5KugS_jdQ
-Message-ID: <CAOp=CXnQo+hKaZqqijvdE5_-eLr74NG1zJApHJO4T1b1aTVWYg@mail.gmail.com>
-Subject: Re: Bug report - Trim QD1 using io_uring is hitting unreal clat values
-To: Alexa Mercado Sanchez <Alexa.Mercado@solidigm.com>, fio <fio@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 6, 2026 at 1:44=E2=80=AFPM Alexa Mercado Sanchez
-<Alexa.Mercado@solidigm.com> wrote:
->
-> Following your suggestions, I minimized the job and ran git bisect (good =
-fio-3.37, bad fio-3.42) with an automated build+run harness. It landed clea=
-nly and reproducibly on:
->
-> commit 980fb7f2d9981bbfe4a3158d6293308c76a6d77a
-> Author: Jens Axboe <axboe@kernel.dk>
-> Date:   Mon Sep 30 09:42:22 2024 -0600
->
->     engines/io_uring: add support for async TRIM
->
->     6.12 kernels and newer support async trim, which means the non-cmd pa=
-th
->     no longer needs to quiesce the queue and issue a sync trim for a work=
-load
->     that includes trim/discard requests.
->
->     The engine will assume the support is there, and if it gets -EINVAL w=
-hen
->     trying an async trim, then it'll punt back to the using the sync trim
->     again.
->
->     Signed-off-by: Jens Axboe <axboe@kernel.dk>
->
->  engines/io_uring.c  | 37 +++++++++++++++++++++++++++++++------
->  os/linux/io_uring.h |  5 ++++-
->  2 files changed, 35 insertions(+), 7 deletions(-)
-> - Bisect found first bad commit
->
->
-> Minimal reproducer (QD1):
->
-> [trim_qd1]
-> ioengine=3Dio_uring
-> filename=3D/dev/nvmeXn1
-> rw=3Drandtrim
-> bs=3D128k
-> iodepth=3D1
-> direct=3D1
-> time_based=3D1
-> runtime=3D20
->
-> Symptom: trim clat_ns.mean =E2=89=88 runtime/2 in seconds (min =E2=89=88 =
-ramp_time, max =E2=89=88 ramp_time+runtime, all IOs in one histogram bin), =
-while trim lat_ns.mean is correct (~195 =C2=B5s). So the completion latency=
- is being computed against an unset/zero issue_time.
->
-> Note on kernels: you couldn't reproduce on 6.6, but I see it on both 5.15=
- and a RHEL10 6.12 build. I did some further debug and understood the diffe=
-rences in code better. On both of mine the async discard returns -EINVAL, s=
-o fio takes the punt-to-sync branch in fio_ioring_queue() (do_io_u_trim() =
-=E2=86=92 FIO_Q_COMPLETED). That path never stamps io_u->issue_time, wherea=
-s the normal ring path stamps it in fio_ioring_queued(). Since the engine s=
-ets FIO_ASYNCIO_SETS_ISSUE_TIME, the sync-trim completion ends up with a ze=
-ro issue time, which matches the observed clat. The real device latency (la=
-t) is unaffected.
->
+The following changes since commit ed3e687f27802ae0daa60ae96ae9b798ee1b6511:
 
-(Resending this with the HTML stripped out so that it makes it to the
-mailing list)
+  Merge branch 'fix-pending-log-iodepth-assert' of https://github.com/SAY-5/fio (2026-07-02 08:46:38 -0600)
 
-With the help of the troubleshooting you did, I have committed a patch
-that should fix the issue. Please try the tip of the master branch and
-report back if there are any remaining problems.
-Also, next time please include the mailing list in your reply and
-avoid top posting.
+are available in the Git repository at:
 
-Vincent
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 179fb9c335020ab6993ace93d4c2de7487f05a09:
+
+  parse: use signed format specifier for debug print (2026-07-07 16:22:15 -0400)
+
+----------------------------------------------------------------
+Bart Van Assche (3):
+      io_ddir: add "syncfs" to io_ddir_name() array
+      ioengines: record all sync io_u completions under DDIR_SYNC in total_io_u
+      blktrace: fix error handling in merge_blktrace_iologs
+
+Huilin Cen (1):
+      parse: ignore leading minus sign when splitting options
+
+Jens Axboe (1):
+      Merge branch 'master' of github.com:bvanassche/fio
+
+Vincent Fu (3):
+      engines/io_uring: set sync trim flag when async trim fails
+      Merge branch 'fix-issue-1657' of https://github.com/cenhuil/fio
+      parse: use signed format specifier for debug print
+
+ blktrace.c         |  7 +++----
+ engines/io_uring.c |  2 ++
+ io_ddir.h          | 15 +++++++++++----
+ ioengines.c        | 11 +++++++----
+ parse.c            | 14 ++++++++++++--
+ 5 files changed, 35 insertions(+), 14 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/blktrace.c b/blktrace.c
+index 045c4eb6..71d21122 100644
+--- a/blktrace.c
++++ b/blktrace.c
+@@ -710,7 +710,7 @@ int merge_blktrace_iologs(struct thread_data *td)
+ 					     nr_logs);
+ 	struct blktrace_cursor *bc;
+ 	FILE *merge_fp;
+-	char *str, *ptr, *name, *merge_buf;
++	char *str, *ptr, *name, *merge_buf = NULL;
+ 	int i, ret;
+ 
+ 	ret = init_merge_param_list(td->o.merge_blktrace_scalars, bcs, nr_logs,
+@@ -738,7 +738,7 @@ int merge_blktrace_iologs(struct thread_data *td)
+ 		goto err_out_file;
+ 	ret = setvbuf(merge_fp, merge_buf, _IOFBF, 128 * 1024);
+ 	if (ret)
+-		goto err_merge_buf;
++		goto err_out_file;
+ 
+ 	/* setup input files */
+ 	str = ptr = strdup(td->o.read_iolog_file);
+@@ -800,10 +800,9 @@ err_file:
+ 	for (i = 0; i < nr_logs; i++) {
+ 		fclose(bcs[i].f);
+ 	}
+-err_merge_buf:
++err_out_file:
+ 	fflush(merge_fp);
+ 	fclose(merge_fp);
+-err_out_file:
+ 	free(merge_buf);
+ err_param:
+ 	free(bcs);
+diff --git a/engines/io_uring.c b/engines/io_uring.c
+index bc7e33da..fd5475cc 100644
+--- a/engines/io_uring.c
++++ b/engines/io_uring.c
+@@ -889,6 +889,8 @@ static struct io_u *fio_ioring_event(struct thread_data *td, int event)
+ 
+ 	if (io_u->ddir == DDIR_TRIM) {
+ 		ld->async_trim_fail = 1;
++		td->io_ops->flags |= FIO_ASYNCIO_SYNC_TRIM;
++		td_set_ioengine_flags(td);
+ 		cqe->res = 0;
+ 	}
+ 	if (cqe->res > io_u->xfer_buflen)
+diff --git a/io_ddir.h b/io_ddir.h
+index 203b6898..c2b6266a 100644
+--- a/io_ddir.h
++++ b/io_ddir.h
+@@ -22,11 +22,18 @@ enum fio_ddir {
+ 
+ static inline const char *io_ddir_name(enum fio_ddir ddir)
+ {
+-	static const char *name[] = { "read", "write", "trim", "sync",
+-					"datasync", "sync_file_range",
+-					"wait", };
++	static const char *name[] = {
++		[DDIR_READ] = "read",
++		[DDIR_WRITE] = "write",
++		[DDIR_TRIM] = "trim",
++		[DDIR_SYNC] = "sync",
++		[DDIR_DATASYNC] = "datasync",
++		[DDIR_SYNC_FILE_RANGE] = "sync_file_range",
++		[DDIR_SYNCFS] = "syncfs",
++		[DDIR_WAIT] = "wait",
++	};
+ 
+-	if (ddir >= 0 && ddir < DDIR_LAST)
++	if (ddir >= 0 && ddir < sizeof(name) / sizeof(name[0]) && name[ddir])
+ 		return name[ddir];
+ 
+ 	return "invalid";
+diff --git a/ioengines.c b/ioengines.c
+index 60565e03..a2816817 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -441,19 +441,22 @@ enum fio_q_status td_io_queue(struct thread_data *td, struct io_u *io_u)
+ 	}
+ 
+ 	if (ret == FIO_Q_COMPLETED) {
+-		if (ddir_rw(io_u->ddir) ||
+-		    (ddir_sync(io_u->ddir) && td->runstate != TD_FSYNCING)) {
++		if (ddir_rw(io_u->ddir)) {
+ 			io_u_mark_depth(td, 1);
+ 			td->ts.total_io_u[io_u->ddir]++;
++		} else if (ddir_sync(io_u->ddir) && td->runstate != TD_FSYNCING) {
++			io_u_mark_depth(td, 1);
++			td->ts.total_io_u[DDIR_SYNC]++;
+ 		}
+ 
+ 		td->last_ddir_issued = ddir;
+ 	} else if (ret == FIO_Q_QUEUED) {
+ 		td->io_u_queued++;
+ 
+-		if (ddir_rw(io_u->ddir) ||
+-		    (ddir_sync(io_u->ddir) && td->runstate != TD_FSYNCING))
++		if (ddir_rw(io_u->ddir))
+ 			td->ts.total_io_u[io_u->ddir]++;
++		else if (ddir_sync(io_u->ddir) && td->runstate != TD_FSYNCING)
++			td->ts.total_io_u[DDIR_SYNC]++;
+ 
+ 		if (td->io_u_queued >= td->o.iodepth_batch)
+ 			td_io_commit(td);
+diff --git a/parse.c b/parse.c
+index 5bb55bff..e2ec4fcc 100644
+--- a/parse.c
++++ b/parse.c
+@@ -650,7 +650,10 @@ static int __handle_option(const struct fio_option *o, const char *ptr,
+ 		else
+ 			ret = check_str_bytes(tmp, &ull, data);
+ 
+-		dprint(FD_PARSE, "  ret=%d, out=%llu\n", ret, ull);
++		if (o->type == FIO_OPT_INT)
++			dprint(FD_PARSE, "  ret=%d, out=%lld\n", ret, ull);
++		else
++			dprint(FD_PARSE, "  ret=%d, out=%llu\n", ret, ull);
+ 
+ 		if (ret)
+ 			break;
+@@ -1041,8 +1044,15 @@ static int handle_option(const struct fio_option *o, const char *__ptr,
+ 			if (o->type != FIO_OPT_STR_MULTI && o->type != FIO_OPT_RANGE) {
+ 				if (!ptr2)
+ 					ptr2 = strchr(ptr, ':');
+-				if (!ptr2)
++				if (!ptr2) {
+ 					ptr2 = strchr(ptr, '-');
++					/*
++					 * If the first character is a minus sign, it's
++					 * likely a negative number, not a delimiter.
++					 */
++					if (ptr2 == ptr)
++						ptr2 = strchr(ptr + 1, '-');
++				}
+ 			}
+ 		} else if (ptr && o->type == FIO_OPT_FLOAT_LIST) {
+ 			ptr2 = strchr(ptr, ':');
