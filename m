@@ -1,199 +1,366 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF67D3FA5F1
-	for <fio@vger.kernel.org>; Thu, 16 Jul 2026 12:00:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75D3D34403A
+	for <fio@vger.kernel.org>; Sat, 18 Jul 2026 12:00:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784203214; cv=none; b=qsE1TcZhTSZy78mH/aG18XytOBQ9yw+TtRt8RIxTpQYNkHjTcJW4uAnaxPeYHzs/Am7LuI8DPneyaK2kvjTYKO2k0gnoErvn5rZcUbe83SLp+wloRgq6u10cWit59zVFj+FvMlI4X5hnXYtaghNOb+SLi2IxVnGmh0r6fMipoSw=
+	t=1784376013; cv=none; b=Wv+rf1YWdmIkzMjehEvZTcS1NyibaRBc7zX+GoV2CG0xqhn2P1+ZT4p79AFNCIik12aEw4Aj9M/qT+TbAuBO9biJCA2u6aRKT7PIcIoEh1j9pwYOud7V9DTVht4JDFP0JHVFf+SV91PdmCQg6/bVo75+i4CilAHMRK/oDPE/UMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784203214; c=relaxed/simple;
-	bh=SDvWld6QKLC6iKrE3zsQCDm6+YBbe5I0QZ1Cab4Hn0Y=;
-	h=Subject:From:To:Date:Message-Id; b=feLVe0IC6V4OM5qmxwfpk0fD9EOjuPjjJC8UZcLeLG9zHhCib+cP/+lLBYVYPmkKTCvWXi58V9JJBGtEAUmSaIiIJfk77vGrP76sPG1j2lBwIgD1cgViXxvIOVkgT7olotLoMtYhLSrlhc29CHagsis9AeU/E4Fsj2l6bKXnbEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=RCPZP9tw; arc=none smtp.client-ip=90.155.92.199
+	s=arc-20240116; t=1784376013; c=relaxed/simple;
+	bh=TOpGI32Fbn7/0oLvFlAvowTqaHNbqCPhKsatDLkFSiI=;
+	h=Subject:From:To:Date:Message-Id; b=dN4vrls3Hh942maaKGoJfger3vFS9MhRYD4pVI0n0/gktkwRgvZj4o/zfxO5zmLx3MXEN9ez9uER3uJicp4VJyymfUx9/U4eIgdYWUhx+oDLPeuUqMGQNOkYXMXwPZbw5qDKY88hmKsVi4jgLx3Zf6V2NrvoI4DgXO7VzCxS3DU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Cj8lgbmY; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RCPZP9tw"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Cj8lgbmY"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
-	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=h+ZACND9FgvjQzmy7olZHMyYbCUiL0WQ8iU36KVB7+0=; b=RCPZP9twAguSrziziVcRwOmc7r
-	muBIGiGCuVrmw9eYzRjY6KTiP/hUhVPm3Y/sYrxj0z8tXYlj4K2ItGQgG2JbbC1O2Sd5G+vKPO/rr
-	RSkiQfLxmcdFyPrVAYd7JQH25t+zL9/vV8wfOVGtTGy1pYurybs7shEAVKBvRXWUJuSnk/aDikUZe
-	43SQ396698+0SAoEr6fGMHQjDkYZaWxwWHWCDPhtQVPsp5gWjcgxgsofxINeVXGKfdH0C1kFODtkM
-	/4orWKRCIb2ttodLspYdXbT1jqG+hNC6Ab7zPWUGlIV6QLG8R9z6Vc59p6KVqVklkboZwv+P9w/BY
-	EC45YPng==;
+	bh=ETCSOLDjoTPAdgZ0kBK6nS04vVICcdS6kwLVj8TgxMo=; b=Cj8lgbmYoc7mYVQwBKS0oUsNIz
+	W8aKUXig3iv3/Xed+yO8BVyu7UouoyVDm1Gu2/hZ8PofyCPhKKZhOyHTGIOeLdQrtT+NNhlNIVCMd
+	P6cY60iNfAEkIfGtQf4BffrEa+4+KcWIEU8tgjmZNrenJNyyGa78X/mnlxhaTwquIoCESjITXih/S
+	kcIBWEidzJ0eoS3kXUBFnlREdKtHLlrI+FqiLShQthu4U5tbwqIvE6jm2dgtYpU6aMoiVM2bDSn6v
+	+nBPPItIhWkZYZFPvSVpLO0PBMagOVrqq4NlaFBuvzIZHL5t//YhgL4oWaLtAInHNwnjhDMc2kecG
+	i9RJe7zw==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
-	id 1wkKl3-0000000E1NV-0TtL
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wl3i9-00000006qqx-0kj4
 	for fio@vger.kernel.org;
-	Thu, 16 Jul 2026 12:00:05 +0000
+	Sat, 18 Jul 2026 12:00:05 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 566A71BC014B; Thu, 16 Jul 2026 06:00:01 -0600 (MDT)
+	id BCA801BC0154; Sat, 18 Jul 2026 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Thu, 16 Jul 2026 06:00:01 -0600
-Message-Id: <20260716120001.566A71BC014B@kernel.dk>
+Date: Sat, 18 Jul 2026 06:00:01 -0600
+Message-Id: <20260718120001.BCA801BC0154@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit 179fb9c335020ab6993ace93d4c2de7487f05a09:
+The following changes since commit b75f951c8635c0718c4b1b756f649ceb53b68481:
 
-  parse: use signed format specifier for debug print (2026-07-07 16:22:15 -0400)
+  Merge branch 'prv-y-verify-bytes-issued' of https://github.com/malikoyv/fio (2026-07-15 12:41:48 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to b75f951c8635c0718c4b1b756f649ceb53b68481:
+for you to fetch changes up to cd29b7a64de2d5462a3b72e46d098679ba16b3f1:
 
-  Merge branch 'prv-y-verify-bytes-issued' of https://github.com/malikoyv/fio (2026-07-15 12:41:48 -0400)
+  ci: drop Ubuntu container test platforms (2026-07-17 11:43:02 -0400)
 
 ----------------------------------------------------------------
-Vincent Fu (1):
-      Merge branch 'prv-y-verify-bytes-issued' of https://github.com/malikoyv/fio
+Vincent Fu (8):
+      test: drop scheduled tests
+      ci: switch from Ubuntu 22.04 to 26.04
+      fio: fix const char * warning
+      fio: resolve const char * compiler warnings
+      ci: use newer platforms for container tests
+      ci: update platforms for QEMU tests
+      ci: update macOS platform from macos-15 to macos-26
+      ci: drop Ubuntu container test platforms
 
-Yehor Malikov (4):
-      backend: stop experimental verify based on bytes issued, not completed
-      io_ddir: fix -Wsign-compare in io_ddir_name()
-      init: disable write sequence checking for experimental_verify
-      verify: add coverage for experimental replay
-
- backend.c   |  4 +++-
- fio.h       |  1 +
- init.c      |  4 ++++
- io_ddir.h   |  2 +-
- libfio.c    |  1 +
- t/verify.py | 20 ++++++++++++++------
- 6 files changed, 24 insertions(+), 8 deletions(-)
+ .github/workflows/ci.yml   | 26 +++++++++++---------------
+ .github/workflows/qemu.yml |  4 ++--
+ ci/actions-build.sh        | 10 +++++++++-
+ ci/actions-install.sh      | 23 ++++++++++++++---------
+ ioengines.c                | 16 +++++++++++++---
+ options.c                  |  2 +-
+ parse.c                    |  6 +++---
+ server.c                   |  2 +-
+ 8 files changed, 54 insertions(+), 35 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/backend.c b/backend.c
-index 7f41bdfa..35f522e5 100644
---- a/backend.c
-+++ b/backend.c
-@@ -710,7 +710,7 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 				break;
- 			}
- 		} else {
--			if (td->bytes_verified + td->o.rw_min_bs > verify_bytes)
-+			if (td->verify_bytes_prepped + td->o.rw_min_bs > verify_bytes)
- 				break;
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 2210f971..27ea58fb 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -4,8 +4,6 @@ on:
+   push:
+   pull_request:
+   workflow_dispatch:
+-  schedule:
+-    - cron: "35 5 * * *"  # 5:35 UTC which is 0:35 ET
  
- 			while ((io_u = get_io_u(td)) != NULL) {
-@@ -735,6 +735,7 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 					continue;
- 				} else if (io_u->ddir == DDIR_TRIM) {
- 					io_u->ddir = DDIR_READ;
-+					td->verify_bytes_prepped += io_u->buflen;
- 					io_u_set(td, io_u, IO_U_F_TRIMMED);
- 					if (td_io_prep(td, io_u)) {
- 						put_io_u(td, io_u);
-@@ -744,6 +745,7 @@ static void do_verify(struct thread_data *td, uint64_t verify_bytes)
- 				} else if (io_u->ddir == DDIR_WRITE) {
- 					io_u->ddir = DDIR_READ;
- 					io_u->numberio = td->verify_read_issues;
-+					td->verify_bytes_prepped += io_u->buflen;
- 					td->verify_read_issues++;
- 					populate_verify_io_u(td, io_u);
- 					if (td_io_prep(td, io_u)) {
-diff --git a/fio.h b/fio.h
-index 494959a6..d96ad4d0 100644
---- a/fio.h
-+++ b/fio.h
-@@ -378,6 +378,7 @@ struct thread_data {
- 	uint64_t io_issues[DDIR_RWDIR_CNT];
- 	uint64_t verify_read_issues;
- 	uint64_t io_issue_bytes[DDIR_RWDIR_CNT];
-+	uint64_t verify_bytes_prepped;
- 	uint64_t loops;
+ jobs:
+   build-containers:
+@@ -15,13 +13,11 @@ jobs:
+       fail-fast: false
+       matrix:
+         container:
+-        - {os: 'debian', dh: 'debian', ver: 'bookworm', target_arch: 'x86_64'}
+-        - {os: 'fedora', dh: 'fedora', ver: '40', target_arch: 'x86_64'}
+-        - {os: 'alma', dh: 'almalinux', ver: '9', target_arch: 'x86_64'}
+-        - {os: 'oracle', dh: 'oraclelinux', ver: '9', target_arch: 'x86_64'}
+-        - {os: 'rocky', dh: 'rockylinux', ver: '9', target_arch: 'x86_64'}
+-        - {os: 'ubuntu', dh: 'ubuntu', ver: 'noble', target_arch: 'i686'}
+-        - {os: 'ubuntu', dh: 'ubuntu', ver: 'noble', target_arch: 'x86_64'}
++        - {os: 'debian', dh: 'debian', ver: 'trixie', target_arch: 'x86_64'}
++        - {os: 'fedora', dh: 'fedora', ver: '44', target_arch: 'x86_64'}
++        - {os: 'alma', dh: 'almalinux', ver: '10', target_arch: 'x86_64'}
++        - {os: 'oracle', dh: 'oraclelinux', ver: '10', target_arch: 'x86_64'}
++        - {os: 'rocky', dh: 'rockylinux/rockylinux', ver: '10', target_arch: 'x86_64'}
  
- 	/*
-diff --git a/init.c b/init.c
-index d1bf6bfb..7f332417 100644
---- a/init.c
-+++ b/init.c
-@@ -933,6 +933,10 @@ static int fixup_options(struct thread_data *td)
- 				o->verify_write_sequence = 0;
- 		}
+     container:
+       image: ${{ matrix.container.dh }}:${{ matrix.container.ver }}
+@@ -59,21 +55,21 @@ jobs:
+         - windows-msys2-64
+         include:
+         - build: linux-gcc
+-          os: ubuntu-22.04
++          os: ubuntu-26.04
+           cc: gcc
+         - build: linux-clang
+-          os: ubuntu-22.04
++          os: ubuntu-26.04
+           cc: clang
+         - build: macos
+-          os: macos-15
++          os: macos-26
+         - build: linux-i686-gcc
+-          os: ubuntu-22.04
++          os: ubuntu-26.04
+           arch: i686
+         - build: android
+-          os: ubuntu-22.04
++          os: ubuntu-26.04
+           arch: aarch64-linux-android32
+         - build: android-recovery
+-          os: ubuntu-22.04
++          os: ubuntu-26.04
+           arch: aarch64-linux-android32
+         - build: windows-cygwin-64
+           os: windows-latest
+diff --git a/.github/workflows/qemu.yml b/.github/workflows/qemu.yml
+index e01b4061..16d74e29 100644
+--- a/.github/workflows/qemu.yml
++++ b/.github/workflows/qemu.yml
+@@ -7,7 +7,7 @@ on:
  
-+		if (o->experimental_verify && fio_offset_overlap_risk(td) &&
-+		    !fio_option_is_set(o, verify_write_sequence))
-+			o->verify_write_sequence = 0;
+ jobs:
+   qemu-guest:
+-    runs-on: ubuntu-22.04
++    runs-on: ubuntu-26.04
+ 
+     strategy:
+       fail-fast: false
+@@ -82,7 +82,7 @@ jobs:
+             extra_pkgs: sg3-utils
+ 
+     env:
+-      DISTRO: debian-12
++      DISTRO: debian-13
+       SSHCMD: ssh root@localhost -p 2022
+       SCPCMD: scp -P 2022
+       CI_TARGET_BUILD: linux
+diff --git a/ci/actions-build.sh b/ci/actions-build.sh
+index 861ed3a8..2aecbe85 100755
+--- a/ci/actions-build.sh
++++ b/ci/actions-build.sh
+@@ -38,6 +38,15 @@ main() {
+                     ;;
+ 	    esac
+ 	    ;;&
++        */linux | */ubuntu | */debian | */fedora)
++            case "${CI_TARGET_ARCH}" in
++                "x86_64")
++                    configure_flags+=(
++                        "--enable-libiscsi"
++                    )
++                    ;;
++            esac
++	    ;;&
+         */linux | */ubuntu | */debian | */fedora | */alma | */oracle | */rocky)
+             case "${CI_TARGET_ARCH}" in
+                 "i686")
+@@ -46,7 +55,6 @@ main() {
+                     ;;
+                 "x86_64")
+                     configure_flags+=(
+-                        "--enable-libiscsi"
+                         "--enable-libnbd"
+                     )
+                     ;;
+diff --git a/ci/actions-install.sh b/ci/actions-install.sh
+index 6940e5b9..41ab8439 100755
+--- a/ci/actions-install.sh
++++ b/ci/actions-install.sh
+@@ -79,7 +79,8 @@ DPKGCFG
+     # Architecture-independent packages and packages for which we don't
+     # care about the architecture.
+     pkgs+=(
+-        python3-scipy
++	python3-six
++	python3-scipy
+ 	python3-sphinx
+ 	python3-statsmodels
+ 	sudo
+@@ -113,7 +114,6 @@ install_fedora() {
+         kernel-devel
+         libaio-devel
+         libibverbs-devel
+-        libiscsi-devel
+         libnbd-devel
+         libnfs-devel
+         libpmem-devel
+@@ -134,6 +134,7 @@ install_fedora() {
+                 cunit-devel
+                 libgfapi-devel
+                 python3-statsmodels
++                libiscsi-devel
+             )
+             ;;
+         "rocky" | "alma" | "oracle")
+@@ -141,18 +142,20 @@ install_fedora() {
+                 CUnit-devel
+                 python-pip
+             )
+-            ;;&
+-        "rocky" | "alma")
+-            pkgs+=(
+-                glusterfs-api-devel
+-            )
+             ;;
+     esac
+     dnf install -y "${pkgs[@]}"
+ }
+ 
+ install_rhel_clone() {
+-    dnf install -y epel-release
++    if [ "${CI_TARGET_OS}" == "oracle" ]; then
++        local ver
++        ver="${CI_TARGET_OS_VER}"
++        dnf install -y "oracle-epel-release-el${ver}"
++    else
++        dnf install -y epel-release
++    fi
 +
- 		/*
- 		 * Verify header should not be offset beyond the verify
- 		 * interval.
-diff --git a/io_ddir.h b/io_ddir.h
-index c2b6266a..e3f8cbf7 100644
---- a/io_ddir.h
-+++ b/io_ddir.h
-@@ -33,7 +33,7 @@ static inline const char *io_ddir_name(enum fio_ddir ddir)
- 		[DDIR_WAIT] = "wait",
- 	};
+     install_fedora
  
--	if (ddir >= 0 && ddir < sizeof(name) / sizeof(name[0]) && name[ddir])
-+	if (ddir >= 0 && ddir < (int)(sizeof(name) / sizeof(name[0])) && name[ddir])
- 		return name[ddir];
+     # I could not find a python3-statsmodels package in the repos
+@@ -160,7 +163,9 @@ install_rhel_clone() {
+ }
  
- 	return "invalid";
-diff --git a/libfio.c b/libfio.c
-index a57ede4f..37f2c749 100644
---- a/libfio.c
-+++ b/libfio.c
-@@ -97,6 +97,7 @@ static void reset_io_counters(struct thread_data *td, int all)
- 			td->last_usec[ddir] = 0;
+ install_oracle() {
+-    dnf config-manager --set-enabled ol9_codeready_builder
++    local ver
++    ver="${CI_TARGET_OS_VER}"
++    dnf config-manager --set-enabled "ol${ver}_codeready_builder"
+     install_rhel_clone
+ }
+ 
+diff --git a/ioengines.c b/ioengines.c
+index a2816817..911a286e 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -711,6 +711,7 @@ int fio_show_ioengine_help(const char *engine)
+ 	struct thread_data td;
+ 	struct ioengine_ops *io_ops;
+ 	char *sep;
++	char *engine_name;
+ 	int ret = 1;
+ 
+ 	memset(&td, 0, sizeof(struct thread_data));
+@@ -724,17 +725,25 @@ int fio_show_ioengine_help(const char *engine)
  		}
- 		td->bytes_verified = 0;
-+		td->verify_bytes_prepped = 0;
+ 		return 0;
+ 	}
+-	sep = strchr(engine, ',');
++
++	engine_name = strdup(engine);
++	if (!engine_name) {
++		log_err("fio: out of memory\n");
++		return 1;
++	}
++
++	sep = strchr(engine_name, ',');
+ 	if (sep) {
+ 		*sep = 0;
+ 		sep++;
  	}
  
- 	td->zone_bytes = 0;
-diff --git a/t/verify.py b/t/verify.py
-index 4c3d0a3c..00603c17 100755
---- a/t/verify.py
-+++ b/t/verify.py
-@@ -301,6 +301,19 @@ TEST_LIST_HEADER = [
-         "test_class": VerifyTest,
-         "success": SUCCESS_DEFAULT,
-     },
-+    {
-+        # Basic test using experimental verify replay
-+        "test_id": 2004,
-+        "fio_opts": {
-+            "ioengine": "libaio",
-+            "filesize": "1M",
-+            "bs": 4096,
-+            "experimental_verify": 1,
-+            "output-format": "json",
-+            },
-+        "test_class": VerifyTest,
-+        "success": SUCCESS_DEFAULT,
-+    },
- ]
+-	td.o.ioengine = (char *)engine;
++	td.o.ioengine = engine_name;
+ 	td.io_ops = load_ioengine(&td);
  
- #
-@@ -541,12 +554,7 @@ def verify_test_header(test_env, args, csum, mode, sequence):
-         {sequential, random w/randommap, random w/norandommap, sequence modifiers}
-     """
-     for test in TEST_LIST_HEADER:
--        # experimental_verify does not work in verify_only=1 mode
--        if "_vo" in mode and 'experimental_verify' in test['fio_opts'] and \
--        test['fio_opts']['experimental_verify']:
--            test['force_skip'] = True
--        else:
--            test['force_skip'] = False
-+        test['force_skip'] = False
+ 	if (!td.io_ops) {
+-		log_info("IO engine %s not found\n", engine);
++		log_info("IO engine %s not found\n", engine_name);
++		free(engine_name);
+ 		return 1;
+ 	}
  
-         test['fio_opts']['verify'] = csum
-         if csum in ('pattern', 'pattern_hdr'):
+@@ -744,5 +753,6 @@ int fio_show_ioengine_help(const char *engine)
+ 		log_info("IO engine %s has no options\n", td.io_ops->name);
+ 
+ 	free_ioengine(&td);
++	free(engine_name);
+ 	return ret;
+ }
+diff --git a/options.c b/options.c
+index a7535e5c..29b86386 100644
+--- a/options.c
++++ b/options.c
+@@ -34,7 +34,7 @@ static const struct pattern_fmt_desc fmt_desc[] = {
+  */
+ static char *get_opt_postfix(const char *str)
+ {
+-	char *p = strstr(str, ":");
++	char *p = (char *)strstr(str, ":");
+ 
+ 	if (!p)
+ 		return NULL;
+diff --git a/parse.c b/parse.c
+index e2ec4fcc..92de7785 100644
+--- a/parse.c
++++ b/parse.c
+@@ -484,7 +484,7 @@ static size_t opt_len(const char *str)
+ 
+ 	size_t prefix_len = strlen(str);
+ 	for (i = 0; i < FIO_ARRAY_SIZE(delimiter); i++) {
+-		postfix = strchr(str, delimiter[i]);
++		postfix = (char *)strchr(str, delimiter[i]);
+ 		candidate_len = (size_t)(postfix - str);
+ 		if (postfix && candidate_len < prefix_len)
+ 			prefix_len = candidate_len;
+@@ -799,7 +799,7 @@ store_option_value:
+ 		** number of digits after period. Find first
+ 		** period in entire remaining list each time
+ 		*/
+-		cp2 = strchr(ptr, '.');
++		cp2 = (char *)strchr(ptr, '.');
+ 		if (cp2 != NULL) {
+ 			int len = 0;
+ 
+@@ -850,7 +850,7 @@ store_option_value:
+ 					ret = 0;
+ 					if (vp->cb)
+ 						fn = vp->cb;
+-					rest = strstr(*cp ?: ptr, ":");
++					rest = (char *)strstr(*cp ?: ptr, ":");
+ 					if (rest) {
+ 						if (*cp)
+ 							*rest = '\0';
+diff --git a/server.c b/server.c
+index 16ccf52b..34f3f5c0 100644
+--- a/server.c
++++ b/server.c
+@@ -2702,7 +2702,7 @@ int fio_server_parse_string(const char *str, char **ptr, bool *is_sock,
+ 	 * If no port seen yet, check if there's a last ',' at the end
+ 	 */
+ 	if (!lport) {
+-		portp = strchr(host, ',');
++		portp = (char *)strchr(host, ',');
+ 		if (portp) {
+ 			*portp = '\0';
+ 			portp++;
