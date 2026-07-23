@@ -1,366 +1,319 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75D3D34403A
-	for <fio@vger.kernel.org>; Sat, 18 Jul 2026 12:00:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E93847AF63
+	for <fio@vger.kernel.org>; Thu, 23 Jul 2026 12:00:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784376013; cv=none; b=Wv+rf1YWdmIkzMjehEvZTcS1NyibaRBc7zX+GoV2CG0xqhn2P1+ZT4p79AFNCIik12aEw4Aj9M/qT+TbAuBO9biJCA2u6aRKT7PIcIoEh1j9pwYOud7V9DTVht4JDFP0JHVFf+SV91PdmCQg6/bVo75+i4CilAHMRK/oDPE/UMI=
+	t=1784808014; cv=none; b=JSzONIKX9XFE+i39ZG4Z89PF7wXIA/lqmQwWDO0rhHxI1z+SqJsVnPL4WInezJ/v14MAn8Ivvv30AqAzOTGEixRwzSwmQ+2D3omV1gjbOJ0yk07ugH3SBS8I8sYaxnK2ebOGwTWixJCTwSgNGO6ZErH75xuYqEe/cl1/qPI/1qA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784376013; c=relaxed/simple;
-	bh=TOpGI32Fbn7/0oLvFlAvowTqaHNbqCPhKsatDLkFSiI=;
-	h=Subject:From:To:Date:Message-Id; b=dN4vrls3Hh942maaKGoJfger3vFS9MhRYD4pVI0n0/gktkwRgvZj4o/zfxO5zmLx3MXEN9ez9uER3uJicp4VJyymfUx9/U4eIgdYWUhx+oDLPeuUqMGQNOkYXMXwPZbw5qDKY88hmKsVi4jgLx3Zf6V2NrvoI4DgXO7VzCxS3DU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Cj8lgbmY; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1784808014; c=relaxed/simple;
+	bh=zVhk/PyiFd7nSTd4/LQ4eOjHpgKbSDF77F6UctXhHnE=;
+	h=Subject:From:To:Date:Message-Id; b=NpF/p7qRk3HiQKnVNYIyoUZpflM5ZKMw5I9wev+DvyvqxmnnraPJJ2X/MBpeaxnJgUYX542wfmSI3nTcsoyfbyyCac3cmo9e5HQC+cMHZa4mYI9kITjc8vpnwtyspytnJLZbFPQMhdPQyFoNzAEjFHb9b6xuC40z7wYrL+JSAGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=QKsuqsCn; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Cj8lgbmY"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="QKsuqsCn"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=ETCSOLDjoTPAdgZ0kBK6nS04vVICcdS6kwLVj8TgxMo=; b=Cj8lgbmYoc7mYVQwBKS0oUsNIz
-	W8aKUXig3iv3/Xed+yO8BVyu7UouoyVDm1Gu2/hZ8PofyCPhKKZhOyHTGIOeLdQrtT+NNhlNIVCMd
-	P6cY60iNfAEkIfGtQf4BffrEa+4+KcWIEU8tgjmZNrenJNyyGa78X/mnlxhaTwquIoCESjITXih/S
-	kcIBWEidzJ0eoS3kXUBFnlREdKtHLlrI+FqiLShQthu4U5tbwqIvE6jm2dgtYpU6aMoiVM2bDSn6v
-	+nBPPItIhWkZYZFPvSVpLO0PBMagOVrqq4NlaFBuvzIZHL5t//YhgL4oWaLtAInHNwnjhDMc2kecG
-	i9RJe7zw==;
+	bh=rpRIWC1odHXyCSzwBs19Pn48E96BWTymkTHkHMn5mr8=; b=QKsuqsCnk9Sc5tkE5rwun+oFJR
+	BYj1BI5r6gdTqWH/jD0P/Rn9FhOksRgi9tNA4Qf6zvI7SCRGLTtASozNKy5Ji9OKIJWUUAjqIRpPj
+	IyxdEGuZpes9+taHbIkJxxu2mtjHLvbNkFxHxiqCdaht/89djEHl/vnuMjFUCxS9Mmn9vYu615nVn
+	Eur4r8uX0n9dEnaNQVTbT/CIEp+768bzopjROSncxjADlHVhfRDzx1NkcW9WcVz2xBl4Ca/yag3lW
+	eIr8cFH/0boRRNHLvPG6Ax7D17oiiCgXOXUV61uEtJ7uz1ipl2/mBrcpPaN23aEnZePD8ZgtMQUKc
+	jcy45LRg==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wl3i9-00000006qqx-0kj4
+	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
+	id 1wms5u-00000001iku-0rae
 	for fio@vger.kernel.org;
-	Sat, 18 Jul 2026 12:00:05 +0000
+	Thu, 23 Jul 2026 12:00:06 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id BCA801BC0154; Sat, 18 Jul 2026 06:00:01 -0600 (MDT)
+	id 0EA061BC0156; Thu, 23 Jul 2026 06:00:02 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Sat, 18 Jul 2026 06:00:01 -0600
-Message-Id: <20260718120001.BCA801BC0154@kernel.dk>
+Date: Thu, 23 Jul 2026 06:00:02 -0600
+Message-Id: <20260723120002.0EA061BC0156@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit b75f951c8635c0718c4b1b756f649ceb53b68481:
+The following changes since commit cd29b7a64de2d5462a3b72e46d098679ba16b3f1:
 
-  Merge branch 'prv-y-verify-bytes-issued' of https://github.com/malikoyv/fio (2026-07-15 12:41:48 -0400)
+  ci: drop Ubuntu container test platforms (2026-07-17 11:43:02 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to cd29b7a64de2d5462a3b72e46d098679ba16b3f1:
+for you to fetch changes up to aa079a649f6df4fbda67fe612e74b0c34cea6dea:
 
-  ci: drop Ubuntu container test platforms (2026-07-17 11:43:02 -0400)
+  ci: consolidate QEMU FDP and verify-trim tests (2026-07-22 12:34:16 -0400)
 
 ----------------------------------------------------------------
-Vincent Fu (8):
-      test: drop scheduled tests
-      ci: switch from Ubuntu 22.04 to 26.04
-      fio: fix const char * warning
-      fio: resolve const char * compiler warnings
-      ci: use newer platforms for container tests
-      ci: update platforms for QEMU tests
-      ci: update macOS platform from macos-15 to macos-26
-      ci: drop Ubuntu container test platforms
+Vincent Fu (3):
+      ci: switch QEMU jobs to Debian testing
+      ci: add t/io_uring_pi.py to QEMU tests
+      ci: consolidate QEMU FDP and verify-trim tests
 
- .github/workflows/ci.yml   | 26 +++++++++++---------------
- .github/workflows/qemu.yml |  4 ++--
- ci/actions-build.sh        | 10 +++++++++-
- ci/actions-install.sh      | 23 ++++++++++++++---------
- ioengines.c                | 16 +++++++++++++---
- options.c                  |  2 +-
- parse.c                    |  6 +++---
- server.c                   |  2 +-
- 8 files changed, 54 insertions(+), 35 deletions(-)
+ .github/actions/create-guest-image/action.yml | 22 ++++++++++++++--------
+ .github/actions/start-vm/action.yml           |  5 +++--
+ .github/workflows/qemu.yml                    | 27 ++++++++++-----------------
+ t/fiotestcommon.py                            |  8 ++++++++
+ t/fiotestlib.py                               |  2 +-
+ t/io_uring_pi.py                              |  0
+ t/run-fio-tests.py                            | 10 ++++++++++
+ 7 files changed, 46 insertions(+), 28 deletions(-)
+ mode change 100644 => 100755 t/io_uring_pi.py
 
 ---
 
 Diff of recent changes:
 
-diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 2210f971..27ea58fb 100644
---- a/.github/workflows/ci.yml
-+++ b/.github/workflows/ci.yml
-@@ -4,8 +4,6 @@ on:
-   push:
-   pull_request:
-   workflow_dispatch:
--  schedule:
--    - cron: "35 5 * * *"  # 5:35 UTC which is 0:35 ET
+diff --git a/.github/actions/create-guest-image/action.yml b/.github/actions/create-guest-image/action.yml
+index 77be3a3c..427fb4dd 100644
+--- a/.github/actions/create-guest-image/action.yml
++++ b/.github/actions/create-guest-image/action.yml
+@@ -2,10 +2,10 @@ name: 'Create guest image'
+ description: 'Create VM guest image on Ubuntu runner'
  
- jobs:
-   build-containers:
-@@ -15,13 +13,11 @@ jobs:
-       fail-fast: false
-       matrix:
-         container:
--        - {os: 'debian', dh: 'debian', ver: 'bookworm', target_arch: 'x86_64'}
--        - {os: 'fedora', dh: 'fedora', ver: '40', target_arch: 'x86_64'}
--        - {os: 'alma', dh: 'almalinux', ver: '9', target_arch: 'x86_64'}
--        - {os: 'oracle', dh: 'oraclelinux', ver: '9', target_arch: 'x86_64'}
--        - {os: 'rocky', dh: 'rockylinux', ver: '9', target_arch: 'x86_64'}
--        - {os: 'ubuntu', dh: 'ubuntu', ver: 'noble', target_arch: 'i686'}
--        - {os: 'ubuntu', dh: 'ubuntu', ver: 'noble', target_arch: 'x86_64'}
-+        - {os: 'debian', dh: 'debian', ver: 'trixie', target_arch: 'x86_64'}
-+        - {os: 'fedora', dh: 'fedora', ver: '44', target_arch: 'x86_64'}
-+        - {os: 'alma', dh: 'almalinux', ver: '10', target_arch: 'x86_64'}
-+        - {os: 'oracle', dh: 'oraclelinux', ver: '10', target_arch: 'x86_64'}
-+        - {os: 'rocky', dh: 'rockylinux/rockylinux', ver: '10', target_arch: 'x86_64'}
+ inputs:
+-  distro:
+-    description: 'Linux distribution to use for guest image'
++  image_link:
++    description: 'Link to qcow2 cloud image file'
+     required: false
+-    default: 'debian-12'
++    default: 'https://cloud.debian.org/images/cloud/forky/daily/latest/debian-14-genericcloud-amd64-daily.qcow2'
+   extra_pkgs:
+     description: 'Extra packages to install for guest image'
+     required: false
+@@ -23,14 +23,21 @@ runs:
+         sudo chmod 0666 /dev/kvm
+         ssh-keygen -t rsa -N "" -f ~/.ssh/id_rsa
+       shell: bash
+-    - name: Create Debian image
++    - name: Download cloud image
++      run: wget -q ${{ inputs.image_link }} -O debian.qcow2
++      shell: bash
++    - name: Customize Debian image
+       run: |
+-        virt-builder ${{ inputs.distro }} \
++        virt-customize -a debian.qcow2 \
+           --quiet \
+           --hostname fio-tester \
+           --ssh-inject root \
+           --run-command "ssh-keygen -A" \
+-          --run-command "sed -i 's/ens2/enp0s2/g' /etc/network/interfaces" \
++          --run-command "echo 'network:' > /etc/netplan/50-cloud-init.yaml" \
++          --run-command "echo '  version: 2' >> /etc/netplan/50-cloud-init.yaml" \
++          --run-command "echo '  ethernets:' >> /etc/netplan/50-cloud-init.yaml" \
++          --run-command "echo '    enp0s2:' >> /etc/netplan/50-cloud-init.yaml" \
++          --run-command "echo '      dhcp4: true' >> /etc/netplan/50-cloud-init.yaml" \
+           --append-line '/etc/environment:PYTHONUNBUFFERED=1' \
+           --append-line '/etc/environment:GITHUB_SERVER_URL=${{ github.server_url }}' \
+           --append-line '/etc/environment:GITHUB_REPOSITORY=${{ github.repository }}' \
+@@ -39,7 +46,6 @@ runs:
+           --append-line '/etc/environment:GITHUB_JOB=${{ github.job }}' \
+           --append-line '/etc/environment:EXTRA_PKGS=${{ inputs.extra_pkgs }}' \
+           --append-line '/etc/environment:CI_TARGET_BUILD=${{ env.CI_TARGET_BUILD }}' \
+-          --append-line '/etc/environment:CI_TARGET_OS=${{ env.CI_TARGET_OS }}'
++          --append-line '/etc/environment:CI_TARGET_OS=${{ env.CI_TARGET_OS }}' \
  
-     container:
-       image: ${{ matrix.container.dh }}:${{ matrix.container.ver }}
-@@ -59,21 +55,21 @@ jobs:
-         - windows-msys2-64
-         include:
-         - build: linux-gcc
--          os: ubuntu-22.04
-+          os: ubuntu-26.04
-           cc: gcc
-         - build: linux-clang
--          os: ubuntu-22.04
-+          os: ubuntu-26.04
-           cc: clang
-         - build: macos
--          os: macos-15
-+          os: macos-26
-         - build: linux-i686-gcc
--          os: ubuntu-22.04
-+          os: ubuntu-26.04
-           arch: i686
-         - build: android
--          os: ubuntu-22.04
-+          os: ubuntu-26.04
-           arch: aarch64-linux-android32
-         - build: android-recovery
--          os: ubuntu-22.04
-+          os: ubuntu-26.04
-           arch: aarch64-linux-android32
-         - build: windows-cygwin-64
-           os: windows-latest
+       shell: bash
+-
+diff --git a/.github/actions/start-vm/action.yml b/.github/actions/start-vm/action.yml
+index ab13aa09..a09465ad 100644
+--- a/.github/actions/start-vm/action.yml
++++ b/.github/actions/start-vm/action.yml
+@@ -6,7 +6,8 @@ inputs:
+     required: false
+     default: "qemu-system-x86_64"
+   image: # VM image file
+-    required: true
++    required: false
++    default: debian.qcow2
+   ssh_fwd_port: # forward this host port to the guest's SSH port
+     required: false
+     default: 2022
+@@ -36,7 +37,7 @@ runs:
+       run: |
+         ${{ inputs.qemu }} \
+           -cpu host \
+-          -drive file=${{ inputs.image }},format=raw,if=virtio \
++          -drive file=${{ inputs.image }},format=qcow2,if=virtio \
+           -enable-kvm \
+           -smp $(nproc) \
+           -nographic \
 diff --git a/.github/workflows/qemu.yml b/.github/workflows/qemu.yml
-index e01b4061..16d74e29 100644
+index 16d74e29..0395cc12 100644
 --- a/.github/workflows/qemu.yml
 +++ b/.github/workflows/qemu.yml
-@@ -7,7 +7,7 @@ on:
- 
- jobs:
-   qemu-guest:
--    runs-on: ubuntu-22.04
-+    runs-on: ubuntu-26.04
- 
-     strategy:
+@@ -13,12 +13,12 @@ jobs:
        fail-fast: false
-@@ -82,7 +82,7 @@ jobs:
-             extra_pkgs: sg3-utils
+       matrix:
+         include:
+-          - config: basic io_uring_cmd tests
++          - config: basic io_uring_cmd and io_uring PI tests
+             device: >-
+               -device nvme,id=nvme0,serial=deadbeef
+               -drive id=nvm-0,file=nvme0.img,format=raw,if=none,discard=unmap,media=disk
+               -device nvme-ns,id=nvm-0,drive=nvm-0,bus=nvme0,nsid=1
+-            test_cmd: "python3 t/run-fio-tests.py --nvmecdev /dev/ng0n1 --run-only 1014 1015 1022 -p '1022:--skip 30 31 32 33 34 40 50 51 53 70'"
++            test_cmd: "python3 t/run-fio-tests.py --nvmebdev /dev/nvme0n1 --nvmecdev /dev/ng0n1 --run-only 1014 1015 1022 1025 -p '1022:--skip 30 31 32 33 34 40 50 51 53 70'"
+             extra_pkgs: "nvme-cli"
+           - config: 512 16-bit Guard PI tests (long)
+             device: >-
+@@ -48,41 +48,36 @@ jobs:
+               -device nvme-ns,id=nvm-2,drive=nvm-2,bus=nvme2,nsid=1,pif=2,ms=64,mset=1,pi=1,pil=0,logical_block_size=4096,physical_block_size=4096
+             test_cmd: "python3 t/nvmept_pi.py --fio ./fio --dut /dev/ng0n1 --lbaf 7"
+             extra_pkgs: "nvme-cli"
+-          - config: FDP
++          - config: FDP and verify-trim
+             device: >-
+               -device nvme-subsys,id=nvme-subsys0,fdp=on,fdp.runs=128K,fdp.nrg=8,fdp.nruh=64
+               -device nvme,id=nvme0,serial=deadbeef,subsys=nvme-subsys0
+               -drive id=nvm-1,file=nvme0.img,format=raw,if=none,discard=unmap,media=disk
+               -device nvme-ns,id=nvm-1,drive=nvm-1,bus=nvme0,nsid=1,logical_block_size=4096,physical_block_size=4096,fdp.ruhs=0-63
+-            test_cmd: "nvme fdp status /dev/ng0n1 && python3 t/nvmept_fdp.py --fio ./fio --dut /dev/ng0n1"
+-            extra_pkgs: "nvme-cli"
+-          - config: verify-trim
+-            device:
+-            test_cmd: "python3 t/verify-trim.py"
+-            extra_pkgs: sg3-utils
++            test_cmd: "nvme fdp status /dev/ng0n1 && python3 t/nvmept_fdp.py --fio ./fio --dut /dev/ng0n1 && python3 t/verify-trim.py"
++            extra_pkgs: nvme-cli
+           - config: ZBD1-5
+             device:
+             test_cmd: "./t/zbd/run-tests-against-nullb -s 1 -s 2 -s 3 -s 4 -s 5"
+-            extra_pkgs: sg3-utils
++            extra_pkgs: sg3-utils util-linux-extra
+           - config: ZBD6-10
+             device:
+             test_cmd: "./t/zbd/run-tests-against-nullb -s 6 -s 7 -s 8 -s 9 -s 10"
+-            extra_pkgs: sg3-utils
++            extra_pkgs: sg3-utils util-linux-extra
+           - config: ZBD11-15
+             device:
+             test_cmd: "./t/zbd/run-tests-against-nullb -s 11 -s 12 -s 13 -s 14 -s 15"
+-            extra_pkgs: sg3-utils
++            extra_pkgs: sg3-utils util-linux-extra
+           - config: ZBD16-20
+             device:
+             test_cmd: "./t/zbd/run-tests-against-nullb -s 16 -s 17 -s 18 -s 19 -s 20"
+-            extra_pkgs: sg3-utils
++            extra_pkgs: sg3-utils util-linux-extra
+           - config: ZBD21-25
+             device:
+             test_cmd: "./t/zbd/run-tests-against-nullb -s 21 -s 22 -s 23 -s 24 -s 25"
+-            extra_pkgs: sg3-utils
++            extra_pkgs: sg3-utils util-linux-extra
  
      env:
--      DISTRO: debian-12
-+      DISTRO: debian-13
+-      DISTRO: debian-13
        SSHCMD: ssh root@localhost -p 2022
        SCPCMD: scp -P 2022
        CI_TARGET_BUILD: linux
-diff --git a/ci/actions-build.sh b/ci/actions-build.sh
-index 861ed3a8..2aecbe85 100755
---- a/ci/actions-build.sh
-+++ b/ci/actions-build.sh
-@@ -38,6 +38,15 @@ main() {
-                     ;;
- 	    esac
- 	    ;;&
-+        */linux | */ubuntu | */debian | */fedora)
-+            case "${CI_TARGET_ARCH}" in
-+                "x86_64")
-+                    configure_flags+=(
-+                        "--enable-libiscsi"
-+                    )
-+                    ;;
-+            esac
-+	    ;;&
-         */linux | */ubuntu | */debian | */fedora | */alma | */oracle | */rocky)
-             case "${CI_TARGET_ARCH}" in
-                 "i686")
-@@ -46,7 +55,6 @@ main() {
-                     ;;
-                 "x86_64")
-                     configure_flags+=(
--                        "--enable-libiscsi"
-                         "--enable-libnbd"
-                     )
-                     ;;
-diff --git a/ci/actions-install.sh b/ci/actions-install.sh
-index 6940e5b9..41ab8439 100755
---- a/ci/actions-install.sh
-+++ b/ci/actions-install.sh
-@@ -79,7 +79,8 @@ DPKGCFG
-     # Architecture-independent packages and packages for which we don't
-     # care about the architecture.
-     pkgs+=(
--        python3-scipy
-+	python3-six
-+	python3-scipy
- 	python3-sphinx
- 	python3-statsmodels
- 	sudo
-@@ -113,7 +114,6 @@ install_fedora() {
-         kernel-devel
-         libaio-devel
-         libibverbs-devel
--        libiscsi-devel
-         libnbd-devel
-         libnfs-devel
-         libpmem-devel
-@@ -134,6 +134,7 @@ install_fedora() {
-                 cunit-devel
-                 libgfapi-devel
-                 python3-statsmodels
-+                libiscsi-devel
-             )
-             ;;
-         "rocky" | "alma" | "oracle")
-@@ -141,18 +142,20 @@ install_fedora() {
-                 CUnit-devel
-                 python-pip
-             )
--            ;;&
--        "rocky" | "alma")
--            pkgs+=(
--                glusterfs-api-devel
--            )
-             ;;
-     esac
-     dnf install -y "${pkgs[@]}"
- }
+@@ -100,7 +95,6 @@ jobs:
+     - name: Create guest VM image
+       uses: ./.github/actions/create-guest-image
+       with:
+-        distro: ${{ env.DISTRO }}
+         extra_pkgs: ${{ matrix.extra_pkgs }}
  
- install_rhel_clone() {
--    dnf install -y epel-release
-+    if [ "${CI_TARGET_OS}" == "oracle" ]; then
-+        local ver
-+        ver="${CI_TARGET_OS_VER}"
-+        dnf install -y "oracle-epel-release-el${ver}"
-+    else
-+        dnf install -y epel-release
-+    fi
+     - name: Build and install QEMU
+@@ -112,7 +106,6 @@ jobs:
+     - name: Start VM
+       uses: ./.github/actions/start-vm
+       with:
+-        image: ${{ env.DISTRO }}.img
+         host_key: true
+         options: ${{ matrix.device }}
+ 
+diff --git a/t/fiotestcommon.py b/t/fiotestcommon.py
+index 04dfb91f..eee9b9ae 100644
+--- a/t/fiotestcommon.py
++++ b/t/fiotestcommon.py
+@@ -65,6 +65,7 @@ class Requirements():
+     _unittests = False
+     _cpucount4 = False
+     _nvmecdev = False
++    _nvmebdev = False
+ 
+     def __init__(self, fio_root, args):
+         Requirements._not_macos = platform.system() != "Darwin"
+@@ -107,6 +108,7 @@ class Requirements():
+ 
+         Requirements._cpucount4 = multiprocessing.cpu_count() >= 4
+         Requirements._nvmecdev = args.nvmecdev if hasattr(args, 'nvmecdev') else False
++        Requirements._nvmebdev = args.nvmebdev if hasattr(args, 'nvmebdev') else False
+ 
+         req_list = [
+                 Requirements.linux,
+@@ -120,6 +122,7 @@ class Requirements():
+                 Requirements.unittests,
+                 Requirements.cpucount4,
+                 Requirements.nvmecdev,
++                Requirements.nvmebdev,
+                     ]
+         for req in req_list:
+             value, desc = req()
+@@ -179,3 +182,8 @@ class Requirements():
+     def nvmecdev(cls):
+         """Do we have an NVMe character device to test?"""
+         return Requirements._nvmecdev, "NVMe character device test target required"
 +
-     install_fedora
++    @classmethod
++    def nvmebdev(cls):
++        """Do we have an NVMe block device to test?"""
++        return Requirements._nvmebdev, "NVMe block device test target required"
+diff --git a/t/fiotestlib.py b/t/fiotestlib.py
+index 2049e41e..f842cf75 100755
+--- a/t/fiotestlib.py
++++ b/t/fiotestlib.py
+@@ -430,7 +430,7 @@ def run_fio_tests(test_list, test_env, args):
+             exe_path = os.path.join(test_env['fio_root'], config['exe'])
+             parameters = []
+             if config['parameters']:
+-                parameters = [p.format(fio_path=test_env['fio_path'], nvmecdev=args.nvmecdev)
++                parameters = [p.format(fio_path=test_env['fio_path'], nvmecdev=args.nvmecdev, nvmebdev=args.nvmebdev)
+                               for p in config['parameters']]
+             if Path(exe_path).suffix == '.py' and platform.system() == "Windows":
+                 parameters.insert(0, exe_path)
+diff --git a/t/io_uring_pi.py b/t/io_uring_pi.py
+old mode 100644
+new mode 100755
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index 47d1e65e..c2f73edb 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -1171,6 +1171,14 @@ TEST_LIST = [
+         'success':          SUCCESS_DEFAULT,
+         'requirements':     [],
+     },
++    {
++        'test_id':          1025,
++        'test_class':       FioExeTest,
++        'exe':              't/io_uring_pi.py',
++        'parameters':       ['-f', '{fio_path}', '--dut', '{nvmebdev}'],
++        'success':          SUCCESS_DEFAULT,
++        'requirements':     [Requirements.linux, Requirements.nvmebdev],
++    },
+ ]
  
-     # I could not find a python3-statsmodels package in the repos
-@@ -160,7 +163,9 @@ install_rhel_clone() {
- }
  
- install_oracle() {
--    dnf config-manager --set-enabled ol9_codeready_builder
-+    local ver
-+    ver="${CI_TARGET_OS_VER}"
-+    dnf config-manager --set-enabled "ol${ver}_codeready_builder"
-     install_rhel_clone
- }
- 
-diff --git a/ioengines.c b/ioengines.c
-index a2816817..911a286e 100644
---- a/ioengines.c
-+++ b/ioengines.c
-@@ -711,6 +711,7 @@ int fio_show_ioengine_help(const char *engine)
- 	struct thread_data td;
- 	struct ioengine_ops *io_ops;
- 	char *sep;
-+	char *engine_name;
- 	int ret = 1;
- 
- 	memset(&td, 0, sizeof(struct thread_data));
-@@ -724,17 +725,25 @@ int fio_show_ioengine_help(const char *engine)
- 		}
- 		return 0;
- 	}
--	sep = strchr(engine, ',');
-+
-+	engine_name = strdup(engine);
-+	if (!engine_name) {
-+		log_err("fio: out of memory\n");
-+		return 1;
-+	}
-+
-+	sep = strchr(engine_name, ',');
- 	if (sep) {
- 		*sep = 0;
- 		sep++;
- 	}
- 
--	td.o.ioengine = (char *)engine;
-+	td.o.ioengine = engine_name;
- 	td.io_ops = load_ioengine(&td);
- 
- 	if (!td.io_ops) {
--		log_info("IO engine %s not found\n", engine);
-+		log_info("IO engine %s not found\n", engine_name);
-+		free(engine_name);
- 		return 1;
- 	}
- 
-@@ -744,5 +753,6 @@ int fio_show_ioengine_help(const char *engine)
- 		log_info("IO engine %s has no options\n", td.io_ops->name);
- 
- 	free_ioengine(&td);
-+	free(engine_name);
- 	return ret;
- }
-diff --git a/options.c b/options.c
-index a7535e5c..29b86386 100644
---- a/options.c
-+++ b/options.c
-@@ -34,7 +34,7 @@ static const struct pattern_fmt_desc fmt_desc[] = {
-  */
- static char *get_opt_postfix(const char *str)
- {
--	char *p = strstr(str, ":");
-+	char *p = (char *)strstr(str, ":");
- 
- 	if (!p)
- 		return NULL;
-diff --git a/parse.c b/parse.c
-index e2ec4fcc..92de7785 100644
---- a/parse.c
-+++ b/parse.c
-@@ -484,7 +484,7 @@ static size_t opt_len(const char *str)
- 
- 	size_t prefix_len = strlen(str);
- 	for (i = 0; i < FIO_ARRAY_SIZE(delimiter); i++) {
--		postfix = strchr(str, delimiter[i]);
-+		postfix = (char *)strchr(str, delimiter[i]);
- 		candidate_len = (size_t)(postfix - str);
- 		if (postfix && candidate_len < prefix_len)
- 			prefix_len = candidate_len;
-@@ -799,7 +799,7 @@ store_option_value:
- 		** number of digits after period. Find first
- 		** period in entire remaining list each time
- 		*/
--		cp2 = strchr(ptr, '.');
-+		cp2 = (char *)strchr(ptr, '.');
- 		if (cp2 != NULL) {
- 			int len = 0;
- 
-@@ -850,7 +850,7 @@ store_option_value:
- 					ret = 0;
- 					if (vp->cb)
- 						fn = vp->cb;
--					rest = strstr(*cp ?: ptr, ":");
-+					rest = (char *)strstr(*cp ?: ptr, ":");
- 					if (rest) {
- 						if (*cp)
- 							*rest = '\0';
-diff --git a/server.c b/server.c
-index 16ccf52b..34f3f5c0 100644
---- a/server.c
-+++ b/server.c
-@@ -2702,7 +2702,7 @@ int fio_server_parse_string(const char *str, char **ptr, bool *is_sock,
- 	 * If no port seen yet, check if there's a last ',' at the end
- 	 */
- 	if (!lport) {
--		portp = strchr(host, ',');
-+		portp = (char *)strchr(host, ',');
- 		if (portp) {
- 			*portp = '\0';
- 			portp++;
+@@ -1196,6 +1204,8 @@ def parse_args():
+                         help='pass-through an argument to an executable test')
+     parser.add_argument('--nvmecdev', action='store', default=None,
+                         help='NVMe character device for **DESTRUCTIVE** testing (e.g., /dev/ng0n1)')
++    parser.add_argument('--nvmebdev', action='store', default=None,
++                        help='NVMe block device for **DESTRUCTIVE** testing (e.g., /dev/nvme0n1)')
+     parser.add_argument('-c', '--cleanup', action='store_true', default=False,
+                         help='Delete artifacts for passing tests')
+     args = parser.parse_args()
