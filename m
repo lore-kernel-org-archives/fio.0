@@ -1,107 +1,162 @@
 Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E28A40DB29
-	for <fio@vger.kernel.org>; Fri, 24 Jul 2026 12:00:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23DAB432BFF
+	for <fio@vger.kernel.org>; Tue, 28 Jul 2026 12:00:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784894419; cv=none; b=WpUvqDMUJCkwA3tAEgDTf80uOGS+gMXQZlFx4qJR+GaCB/AV9ZmsK53Dv9E2PaT48NhH1SZxmPSDvatxMhNxxDnwEMfeW5v/Cadfa5Qgy+CFDP8fsXNoGp/lR7Je8c3gF1Bro6lQDYdIW4/YiDL5AmKmQ+GqlSgn0XiiZ0PUf6Y=
+	t=1785240012; cv=none; b=CJqblhYsmL/DyRREWFil3kyhmo30Y7pCfDLo/qayN+ZUlnT9lq7v5ch6M81SoGMite7D+XzngMkj8ZEEJdP2ANqNfgI4jMXVF3svZMVzso0+MKsgzM+2q/MbxPSUaWgq9pGML9FPwbnk6B9aHCBvo9EfcLpSCQJdDOVmcdA2Zcc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784894419; c=relaxed/simple;
-	bh=Rt9fl99Pvv4SHMu/vKlDbv+tddlH62LZ5ckX+pMGDcs=;
-	h=Subject:From:To:Date:Message-Id; b=cn6T613QZcTWKBb93lKk+a00q+ZYmpmsfvOh9cLRNnoQnSxmxjQBU0/VYMTUiNXttri+xFVR1QJzHrmNlnRGkk2UC6IydTSYXbqKne2B2DfWvePM9vRtuBI6zKDRTW902ansashaxvWaC2m6RIUeaJsNTr/Gukq/b4pMie/s+Y4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=BJ2pDmbN; arc=none smtp.client-ip=90.155.92.199
+	s=arc-20240116; t=1785240012; c=relaxed/simple;
+	bh=LgtxaixhDjFBmLKgFiATuUIfJrnhZ/qRBoSm4L/sMnk=;
+	h=Subject:From:To:Date:Message-Id; b=oNLZfE7io/JYkCgYNgh8Rg9GEIPzhxXc8TrU+6pw5buVyRQrIKtLz8/LB8M/6aLSAE9iuQD6RO/lzBQhZCDCWIMql+JIhYg2kO/VPp5UY6H1i3vZETSFSt27fO1Rm9+T65zKiPNaiKwxDsvHqRfpvJUPSH0xYo0MFaJ91Un8f/0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=X6VzxrE8; arc=none smtp.client-ip=90.155.92.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="BJ2pDmbN"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="X6VzxrE8"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
 	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=9VKa6QRvTZAfn6LV00l+i+KNxble0V4iA/IeN/ogunY=; b=BJ2pDmbNThPjnr8LDRLwzAzvrA
-	knEhE0joL6lxYdBLYuQaEQnwe5hTdk5eJ1WYubXkyzn4lmrA+wrexRW3OqRuSWOr6w1akFz0/Fo/8
-	ELlRdvbwBLInG0+A/Vh9XqtB/wVbRjrLOQrVNraKQpkwPngyvGbd1D3hXFzgSO7QfjVNamMWlrBUr
-	zsnTnH6nGlZrrZIntiyiTxZbxTn42pe7a+uEaPRw1ywle3xytagWT3VCaS0hLA6AjVUaznkz5+V3x
-	2akhLjH21rN7EwXvyPbK8y6hmJtt4bCZ3d1LqI/QcQn7DP1nWiMeX1FQsBNRS+y6Sp8gVJIU7jtAw
-	DD4EQ4GQ==;
+	bh=Nj0Ro6n2NCcqKXKCCzD34eBx1MzlxTpw0euAElbKH/g=; b=X6VzxrE8LcpLdx5nAz4RxOu4Oz
+	9UiDqjGcFQsRUw7WejKrBE6Wsb/bg2ywVCXif9sr09ttcclWzJbpX2TdTXk7qPolwjTvZ6yylONMC
+	0J5VuiyJczrhDa1wS5mq4suAUzOLS5xaZzC9Vj/uAi8s1mPC/d2Xj2h1BWf8UW1lNfawI337c54y/
+	eNqNU/OBor+xCcXgKbUo6al0C5165DrYNmb8vATFRlVH42IdP0j434sJVf2t6DqOGH57/bnZUvE8V
+	AbyqpYy6G4UHGlrmeUgmxa/Ff7NQuzg9wEOmCznceFFsGAjmVzMJ5ftGX0GGwGvbZp3CmuILFhf+s
+	6o3R6pMA==;
 Received: from [96.43.243.2] (helo=kernel.dk)
 	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
-	id 1wnEZT-00000002Wec-3vuf
+	id 1wogTe-00000004tdF-0Tbr
 	for fio@vger.kernel.org;
-	Fri, 24 Jul 2026 12:00:08 +0000
+	Tue, 28 Jul 2026 12:00:06 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id E75651BC0161; Fri, 24 Jul 2026 06:00:01 -0600 (MDT)
+	id C47C61BC0165; Tue, 28 Jul 2026 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Fri, 24 Jul 2026 06:00:01 -0600
-Message-Id: <20260724120001.E75651BC0161@kernel.dk>
+Date: Tue, 28 Jul 2026 06:00:01 -0600
+Message-Id: <20260728120001.C47C61BC0165@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit aa079a649f6df4fbda67fe612e74b0c34cea6dea:
+The following changes since commit b384f4d3472e9dae62122c631899bac86368df63:
 
-  ci: consolidate QEMU FDP and verify-trim tests (2026-07-22 12:34:16 -0400)
+  ci: add Alpine Linux container test platform (2026-07-23 14:28:28 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to b384f4d3472e9dae62122c631899bac86368df63:
+for you to fetch changes up to c76c61b0fbe1b90a7886b8790805cf9903285074:
 
-  ci: add Alpine Linux container test platform (2026-07-23 14:28:28 -0400)
+  ci: add a test for OOM issue with large iolog trims (2026-07-27 12:19:07 -0400)
 
 ----------------------------------------------------------------
 Vincent Fu (1):
-      ci: add Alpine Linux container test platform
+      ci: add a test for OOM issue with large iolog trims
 
- .github/workflows/ci.yml | 4 ++++
- ci/actions-install.sh    | 4 ++++
- 2 files changed, 8 insertions(+)
+ t/jobs/t0038-397f1338.fio | 16 ++++++++++++++++
+ t/jobs/t0038.iolog        | 24 ++++++++++++++++++++++++
+ t/run-fio-tests.py        | 19 +++++++++++++++++++
+ 3 files changed, 59 insertions(+)
+ create mode 100644 t/jobs/t0038-397f1338.fio
+ create mode 100644 t/jobs/t0038.iolog
 
 ---
 
 Diff of recent changes:
 
-diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 27ea58fb..314a00a9 100644
---- a/.github/workflows/ci.yml
-+++ b/.github/workflows/ci.yml
-@@ -18,6 +18,7 @@ jobs:
-         - {os: 'alma', dh: 'almalinux', ver: '10', target_arch: 'x86_64'}
-         - {os: 'oracle', dh: 'oraclelinux', ver: '10', target_arch: 'x86_64'}
-         - {os: 'rocky', dh: 'rockylinux/rockylinux', ver: '10', target_arch: 'x86_64'}
-+        - {os: 'alpine', dh: 'alpine', ver: 'latest', target_arch: 'x86_64'}
- 
-     container:
-       image: ${{ matrix.container.dh }}:${{ matrix.container.ver }}
-@@ -30,6 +31,9 @@ jobs:
-     steps:
-     - name: Checkout repo
-       uses: actions/checkout@v6
-+    - name: Install bash on Alpine
-+      if: ${{ contains( matrix.container.os, 'alpine' ) }}
-+      run: apk add bash
-     - name: Install dependencies
-       run:  ./ci/actions-install.sh
-     - name: Build
-diff --git a/ci/actions-install.sh b/ci/actions-install.sh
-index 41ab8439..bf2acbe9 100755
---- a/ci/actions-install.sh
-+++ b/ci/actions-install.sh
-@@ -191,6 +191,10 @@ install_linux() {
-     install_ubuntu
- }
- 
-+install_alpine() {
-+	apk add git build-base pkgconf zlib-dev numactl-dev cunit-dev libaio-dev linux-headers python3 py3-statsmodels py3-six bash coreutils py3-sphinx
-+}
+diff --git a/t/jobs/t0038-397f1338.fio b/t/jobs/t0038-397f1338.fio
+new file mode 100644
+index 00000000..80e16c96
+--- /dev/null
++++ b/t/jobs/t0038-397f1338.fio
+@@ -0,0 +1,16 @@
++#
++# Make sure that Fio appropriately ignores the sizes of trim commands when
++# determining how much memory to allocate when reading an iolog.
++#
++# The iolog issues large trim and small write commands. Since trim is a
++# metadata-only command in this context Fio does not need to size the data
++# buffer to accommodate the sizes of the trims.
++#
++# Expected result: Job completes without issue
++# Buggy result: Job fails with out-of-memory error
++#
 +
- install_macos() {
-     # Assumes homebrew and python3 are already installed
-     #echo "Updating homebrew..."
++[test]
++read_iolog=t0038.iolog
++ioengine=null
++iodepth=128
+diff --git a/t/jobs/t0038.iolog b/t/jobs/t0038.iolog
+new file mode 100644
+index 00000000..362dc7d0
+--- /dev/null
++++ b/t/jobs/t0038.iolog
+@@ -0,0 +1,24 @@
++fio version 3 iolog
++30 /dev/null add
++10731 /dev/null open
++10736 /dev/null trim 0 2147483648
++10752 /dev/null write 0 4096
++10780 /dev/null trim 4096 2147483648
++10782 /dev/null write 4096 4096
++10784 /dev/null trim 8192 2147483648
++10785 /dev/null write 8192 4096
++10787 /dev/null trim 12288 2147483648
++10788 /dev/null write 12288 4096
++10791 /dev/null trim 16384 2147483648
++10793 /dev/null write 16384 4096
++10795 /dev/null trim 20480 2147483648
++10797 /dev/null write 20480 4096
++10798 /dev/null trim 24576 2147483648
++10799 /dev/null write 24576 4096
++10801 /dev/null trim 28672 2147483648
++10802 /dev/null write 28672 4096
++10804 /dev/null trim 32768 2147483648
++10806 /dev/null write 32768 4096
++10808 /dev/null trim 36864 2147483648
++10809 /dev/null write 36864 4096
++10892 /dev/null close
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index c2f73edb..d3683a1b 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -626,6 +626,16 @@ class FioJobFileTest_iops_rate(FioJobFileTest):
+             self.failure_reason = f"{self.failure_reason} iops ratio mismatch,"
+             self.passed = False
+ 
++class FioJobFileTest_t0038(FioJobFileTest):
++    """
++    Make sure t0034 can find the iolog by copying it to the test directory.
++    """
++    def setup(self, *args, **kws):
++        super().setup(*args, **kws)
++
++        src = os.path.join(os.path.dirname(self.fio_job), 't0038.iolog')
++        shutil.copy(src, self.paths['test_dir'])
++
+ 
+ TEST_LIST = [
+     {
+@@ -969,6 +979,15 @@ TEST_LIST = [
+         'pre_success':      SUCCESS_DEFAULT,
+         'requirements':     [Requirements.linux, Requirements.libaio],
+     },
++    {
++        'test_id':          38,
++        'test_class':       FioJobFileTest_t0038,
++        'job':              't0038-397f1338.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          None,
++        'pre_success':      None,
++        'requirements':     [],
++    },
+     {
+         'test_id':          1000,
+         'test_class':       FioExeTest,
