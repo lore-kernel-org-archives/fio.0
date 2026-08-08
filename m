@@ -1,69 +1,103 @@
-Received: from newman.cs.utexas.edu (newman.cs.utexas.edu [128.83.139.110])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD77C42BEBA
-	for <fio@vger.kernel.org>; Mon,  3 Aug 2026 20:50:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=128.83.139.110
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69F9B3D16FC
+	for <fio@vger.kernel.org>; Sat,  8 Aug 2026 12:00:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785790216; cv=none; b=RSTJ+C4RMymy9VS/8JxogqDqSId2+1YKgRK6lOa2tB0G794zgDLLUvjB7xcGAUjj6YRLWj1kBm1WrDC+kIk8VLYNVIzHNr3+dLwEhha5Q17pqhTu2pMLG5FaVWSwFYU70AEYONqXeyprjLDyOQYsXaGOnwAVVVDPdSIrILjfBv0=
+	t=1786190414; cv=none; b=gsNftLYo3KrLWkRjG8y9rn/EIN6upkexOZu/DMj18n5z94IewreqedIzaOzXQRPHyqF/sMtN052xlh/0BtWR+3wjjwOwrJbQpRz8W5UkjJ4gAYGTOVuX4JXdjWHinJqHs8J6D/Rvtlt/B07DiS7/W0axzhj3iUeAc7PtJNMkVi4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785790216; c=relaxed/simple;
-	bh=/wCazf8KRzXFqWjMTV3zWrYTndCL9tsbKTMLOzDz2Bo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=T5EPgV2qkIN876tpGaaUanZ5wwiv1bv0Z3eyfOlimbuGLn+0l0zy3M41TwUtyj+aafE72lC2yw9Ev5mdBvkrLzMg3s8UVkdcGwQQje3D0DDLGTtjfDixlfMJJh6sLD/RiOEWdDf3OzK4t1PpEkTL2kqQSF6EyR1JcoOdXitNz70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cs.utexas.edu; spf=pass smtp.mailfrom=cs.utexas.edu; dkim=pass (1024-bit key) header.d=cs.utexas.edu header.i=@cs.utexas.edu header.b=nlF+eeb4; arc=none smtp.client-ip=128.83.139.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=cs.utexas.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.utexas.edu
+	s=arc-20240116; t=1786190414; c=relaxed/simple;
+	bh=k2sOAhukMYAzSEntcOtp7bsB0OUw7ITWPtrB5o+MelU=;
+	h=Subject:From:To:Date:Message-Id; b=fm6P9h/J7L3Eto3l/z2oc1GAMt5vCe4lHUCw435rsiMrbcX2g9DBkve9mcqOAhxnKx9b9TdT9Pt6xuEG37RQLpbHyo7VXwdAedJl3XXWsK53zO8gJdf3ErZeZhNoijWE9P6IYCxzw45VlhL2TJzrop+aIBkzGLIOUe6zdpwpBmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=THIPWUFP; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cs.utexas.edu header.i=@cs.utexas.edu header.b="nlF+eeb4"
-X-AuthUser: pgoetz
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=cs.utexas.edu;
-	s=default; t=1785790211;
-	bh=/wCazf8KRzXFqWjMTV3zWrYTndCL9tsbKTMLOzDz2Bo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=nlF+eeb44iIVjHyRQbOrnMSjJZcklakqaSypvvhBpk1ikrfcQ476eKEZ0aSQkJYd8
-	 9Pqh0Y2sF6tk+K7NXoktYq5lO0SCZmCeyQnQU3OWVc5CD7xRGrR7V0utyGKnjWdW5A
-	 zKjnIMYYpnz7voocrWHUGuP/W6fwMd5dZ566VfH8=
-Received: from [128.83.120.185] (texas-tea.cs.utexas.edu [128.83.120.185])
-	(authenticated bits=0)
-	by newman.cs.utexas.edu (8.14.4/8.14.4/Debian-4.1ubuntu1.1) with ESMTP id 673KoBLu047182
-	(version=TLSv1/SSLv3 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-	Mon, 3 Aug 2026 15:50:11 -0500
-Message-ID: <c9a0d779-adfd-47da-83a3-474b3aa4cfd1@cs.utexas.edu>
-Date: Mon, 3 Aug 2026 15:50:10 -0500
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="THIPWUFP"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=8x4leMkRSE9rV97k8LJxNjnb2GCPlI791vDpbQ0krFY=; b=THIPWUFPwpvtx1AlIsmNFslWI+
+	Nai1QzsvBolTa6JL7g6fd2y0DxvXQN6Js+go+U0SY8r1jDToVAW9dqjm8vWGsRqG2iCL8a41F6aTG
+	gZOJibwTjfVYOSDHalGtnR5hc3GaJW3IrQ+2ZCxp13M4TdMkMgX8ooNKu9NhzxUhacCPxAEAKmfGb
+	9nJ+WBS1f4/jbvHbLVxlcaUBk7437W94qqGhgPUrdPLjPrrFY4O1N8sJuKSOMJLt4qd4dUfm9cPs8
+	LwdgywjUtvHEidxvyof3rj90sJPlCOYw6RROOtpBV7y6Hs3jA5XjhzoUlx7n7k92pnklGaPPokSVM
+	cz+K3+/Q==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
+	id 1wsfig-0000000Cv6Y-0JHE
+	for fio@vger.kernel.org;
+	Sat, 08 Aug 2026 12:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id BAD341BC0178; Sat,  8 Aug 2026 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Sat,  8 Aug 2026 06:00:01 -0600
+Message-Id: <20260808120001.BAD341BC0178@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Consistent core dump of fio 3.36
-To: Sitsofe Wheeler <sitsofe@gmail.com>
-Cc: fio@vger.kernel.org
-References: <984fc666-48fe-4212-96e7-6740a270d755@cs.utexas.edu>
- <CALjAwxjRNkYidXgnhLH8O-qoBaWK5K-j4v=eQjCKgOT0fFZ4kg@mail.gmail.com>
-Content-Language: en-US
-From: Patrick Goetz <pgoetz@cs.utexas.edu>
-In-Reply-To: <CALjAwxjRNkYidXgnhLH8O-qoBaWK5K-j4v=eQjCKgOT0fFZ4kg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.3.9 (newman.cs.utexas.edu [128.83.139.110]); Mon, 03 Aug 2026 15:50:11 -0500 (CDT)
-X-Virus-Scanned: clamav-milter 0.103.8 at newman
-X-Virus-Status: Clean
 
+The following changes since commit c76c61b0fbe1b90a7886b8790805cf9903285074:
 
+  ci: add a test for OOM issue with large iolog trims (2026-07-27 12:19:07 -0400)
 
-On 8/3/26 14:59, Sitsofe Wheeler wrote:
-> 
->> Is there something wrong with my syntax?
-> 
-> I think your syntax is fine and at first glance it just looks like
-> you're asking for a lot of files. Did you try fio's suggestion to
-> tweak --alloc-size
+are available in the Git repository at:
 
+  git://git.kernel.dk/fio.git master
 
-Thanks -- that was the issue. Increasing the --alloc-size to 100000 
-solved the problem.
+for you to fetch changes up to 1de4a3dc5d10a0107b51c496dc96a07f58bdc5c9:
 
+  Merge branch 'add_copyright' of https://github.com/ljw8161/fio (2026-08-07 11:09:43 -0400)
 
+----------------------------------------------------------------
+Jungwon Lee (1):
+      engines/io_uring: add copyright header to bsg files
+
+Vincent Fu (1):
+      Merge branch 'add_copyright' of https://github.com/ljw8161/fio
+
+ engines/bsg.c | 6 ++++++
+ engines/bsg.h | 5 +++++
+ 2 files changed, 11 insertions(+)
+
+---
+
+Diff of recent changes:
+
+diff --git a/engines/bsg.c b/engines/bsg.c
+index 372212ef..916dc242 100644
+--- a/engines/bsg.c
++++ b/engines/bsg.c
+@@ -1,3 +1,9 @@
++/*
++ * Copyright 2026 Samsung Electronics Co., Ltd All Rights Reserved
++ *
++ * For conditions of distribution and use, see the accompanying COPYING file.
++ *
++ */
+ #include "bsg.h"
+ 
+ int fio_bsg_uring_cmd_read_capacity(struct thread_data *td, unsigned int *bs,
+diff --git a/engines/bsg.h b/engines/bsg.h
+index 6a4bfd07..da64b999 100644
+--- a/engines/bsg.h
++++ b/engines/bsg.h
+@@ -1,6 +1,11 @@
+ /*
+  * bsg structure declarations and helper functions for the
+  * io_uring_cmd engine.
++ *
++ * Copyright 2026 Samsung Electronics Co., Ltd All Rights Reserved
++ *
++ * For conditions of distribution and use, see the accompanying COPYING file.
++ *
+  */
+ 
+ #ifndef FIO_BSG_H
