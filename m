@@ -1,50 +1,50 @@
 Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18004383320
-	for <fio@vger.kernel.org>; Thu,  3 Sep 2026 17:21:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D6774CA773
+	for <fio@vger.kernel.org>; Thu,  3 Sep 2026 17:21:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1788456073; cv=none; b=hHBMSvjHY8P9IsKaTjgyqHOKkrEYCAOjcHjO+xx99qSl3o6GvPOYGFfSllivyL0fsmMj/MGjgsgwH3QBrt68f/qbVgpVQjq9FibM4jrCffskpJCByD9ku0W6GC7+tqsBvYg5wfzWVZQwk0rW2XGxOC7JEahgO+qQHrCpmTEfOH8=
+	t=1788456074; cv=none; b=GLnq1nqLwf39BgOjyiXFztMPeNVdENaCZbNQd+JGLqxIQ+CZvLoaBOHmJHcek/BAQhgUYQzHR0xJgLfyCJBJeVoP01pgTpdgB6YlKHVGunnJ0CUuDNTi2V0sK3Ngvid6C74+DVlqcbHZvGa7JMZrT/J/ClU1/renB+SEJ0mXeOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1788456073; c=relaxed/simple;
-	bh=5nPlbuHsc6YDR5weR0k5nJpZs5pEGL8997w4TaLy86A=;
+	s=arc-20240116; t=1788456074; c=relaxed/simple;
+	bh=MXaVnghNm5X1rFxGkbOLHfe+XW4yTEQUU5ZEhImg3Jk=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PKMy1k63b5MqFMiDw3WyZCwFPCfD3THuqXd21KhyElVqSCc2jQ5Wh/SrE2BlACHspeDwvuYki5SsNrARQClewZNIFAk3XVvDJBprY7rdR5uUzf7IroMWbzZSQz4pdTy9GwZj4rdVYQ3KWbx3HiHR2UnHgh1MT8vKk22o1oZVkB8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=ewoEydqJ; arc=none smtp.client-ip=67.231.153.30
+	 MIME-Version:Content-Type; b=cvbI6/3/AVErLjoJjtEsd3fQFNmyJ5BjOAILLICc/F/mSnMIKq5WTh0U6CzUpDngXiOupi4g0jePnMBkCuAz6le2fThxem3ZVMpRCpdEZMUJDqA12si/NqeVtGQjEvpzFwmWvHS/Jn498NCFc0qZ33FgAT/3kTxIcaR2tfyzy8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=KFmcMYvq; arc=none smtp.client-ip=67.231.153.30
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="ewoEydqJ"
-Received: from pps.filterd (m0109332.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683G53pg708743
-	for <fio@vger.kernel.org>; Thu, 3 Sep 2026 10:21:10 -0700
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="KFmcMYvq"
+Received: from pps.filterd (m0528006.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 683G3IvJ197574
+	for <fio@vger.kernel.org>; Thu, 3 Sep 2026 10:21:11 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=15dt7QR/Or3YpPcMV21gvahBkGzrBcBcJxTh0
-	rP3GU4=; b=ewoEydqJ87k1Oj7dXSkuIPi5DhFiVYOvfhhaUITGbfr/MJGxZl1eo
-	7uoT6fEZoQoeZVOt9lpbrLcK4Yt9Ewyupwcg1IlCiSPpN8zIBPnyw1XDbwBtTK1F
-	d8FfFwn1Fn64iHlGvt2ic0090qs32D723lff5ZlgRcQkiA5O8BnSQyrQXfVWsaQX
-	5A1vA5tgYI1qlntF+kHjgARobkNCgTiV2yC3mddu2yYiR3yInLucMkuEb8peA6mS
-	rNW2pW/M2yqJdoBOWm83f0mI3uc+xA1bDXH35v1ObvtRXP4UYz6nWkJNQz0bIAFT
-	EkJ4fkxKg+ss2Wx9fZedwbFQC6iOukG2g==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4ge3gufspf-3
+	pps82601-s2048-2026-q3; bh=O1s298zPicbU7wzLkR//gKt5Jr5uph2euvcCf
+	GQm9cA=; b=KFmcMYvq5zs2ea/yIchWiU4yMC5sAkGavmATQ3VDFaUIs0/4NuhHP
+	NZGqSbGhFrT4rZ0NQSusi3an8qz4lYTEo8LBPEJp87hnqRPOiWkc9ZfRrOvTrf4n
+	/Fxgrl8VlgO8Oo4udJ809f7W5Hs7qp3mc+MSd46WgnyF19Iaw5Vps/J4qaX8Rj6y
+	TRnzSWOrms02BDNc5T+lN7AZZwnsXHP5bNbBW2bCZvg7VWMZPwpIz2TeA256rsax
+	qIYEP4MwqbXj0YvYTKb8aswjgj9X6gSSfD/jmCNi1z/sQuZE45fhawjrvqnNIJrj
+	c8hZ83TfD3lnb6UkYUol4WgtTrNE2EVkA==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4gf47v3dud-11
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Thu, 03 Sep 2026 10:21:10 -0700 (PDT)
-Received: from twshared15405.03.snb2.facebook.com (2620:10d:c0a8:1b::8e35) by
- mail.thefacebook.com (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server
+	for <fio@vger.kernel.org>; Thu, 03 Sep 2026 10:21:11 -0700 (PDT)
+Received: from twshared15102.02.snb2.facebook.com (2620:10d:c085:208::7cb7) by
+ mail.thefacebook.com (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.2.2562.45; Thu, 3 Sep 2026 17:21:08 +0000
 Received: by devbig197.nha3.facebook.com (Postfix, from userid 544533)
-	id 7C7A229E8B140; Thu,  3 Sep 2026 10:21:02 -0700 (PDT)
+	id C178229E8B142; Thu,  3 Sep 2026 10:21:02 -0700 (PDT)
 From: Keith Busch <kbusch@meta.com>
 To: <fio@vger.kernel.org>
 CC: <axboe@kernel.dk>, <vincentfu@gmail.com>, Keith Busch <kbusch@kernel.org>
-Subject: [PATCH 1/3] eta: don't estimate runtime from an unset job epoch
-Date: Thu, 3 Sep 2026 10:20:59 -0700
-Message-ID: <20260903172101.1886315-2-kbusch@meta.com>
+Subject: [PATCH 2/3] eta: cap the ETA at the job's own remaining runtime
+Date: Thu, 3 Sep 2026 10:21:00 -0700
+Message-ID: <20260903172101.1886315-3-kbusch@meta.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260903172101.1886315-1-kbusch@meta.com>
 References: <20260903172101.1886315-1-kbusch@meta.com>
@@ -57,112 +57,104 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-FB-Internal: Safe
 Content-Type: text/plain
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDE1MiBTYWx0ZWRfX4BPdwHFi0R0z
- z7F3VNa+BbUmf7bBZ/PxCP3a8GNdksDDBWHwqpfpCCmRnqax3aBdRQGxcD7g803bnDmhjXKrS3a
- pdbI/+nR/0IAFpLKLYSjrvWXDX5LFCeDLTaO3cNKiJuf4mVFre7092beZ5HSstO5YW2Yy/KXuud
- nmFkmHVSLJBglSyz0Pk107HgS/vCntz1aiaMqHKjwvxEiF7z5HgJUBC6QX8/vEkN8qNO9WAmiGF
- LjlvQ1EOvvGjSgRey0J3B/g0+q1gtGV7v6hzIqvty0PTCUrWXnmFJ8m+MIsuUaD1KokuT7QMR6y
- vlwZr+RHYyesKnCFizY9ILE1wUMU9NQ/GSTyKL2C2PFWW8QhGa4udbCukQYiYIP/1qUYUNbum1g
- EeaCHc6dOG4z5TeQMTjBwWuxB5gXRyBxov6mgf0x14Aj1vR49/RTFoGsQITyZ2vRtZRfoIZwlBB
- QAE51S7XuiZyRGDb8xA==
-X-Proofpoint-ORIG-GUID: S7cmr7QQWqKyNYhj7DTbsT-Ba0v18wCy
-X-Authority-Analysis: v=2.4 cv=DLe/JSNb c=1 sm=1 tr=0 ts=6a99ac86 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTAzMDE1MiBTYWx0ZWRfX8OWYBOVKSa8d
+ 6JUx7tqKaG0K3FEyvGPYphpJMJlKRWaq6oZypboG8IDIkhA4H0aEG+lMZkqZ3EpsyJZJw18Sngf
+ xHatPDnci94VYPS8bsazXaxTA+HM9LjVosUzeuYXO98AS/79lDyXHSnMRs5FgTLPHZS0k6gidc6
+ N9cYwivZi0aITrSeDBOQ+4et3nAVU6AClHdrl7UrRezFPZ2C5jvdt0Ahdycb/pt4SeN1aNvAvsR
+ i2deBrEmBcmIAKzxiGDOecjIfUO5JvBRF3mvU6wXkasyoxzQ4/tmFIsKyxHmTqjMe31CApZD3Lh
+ chhlB/+U0ab2uqFznUztKXeg+wKo99uwMCOp/4sXJCKwcCF8y9iHgspNnF6VLi029bSDwpe9kK/
+ Ooyuqk1TfNcQQPS0g5cgoxhuLGx+RMJP1e5Csop+tmhoS+AoMxIuAMUeemwHkx4naog4wyQEkkK
+ DP/3bk2ADGU9tSAEcow==
+X-Proofpoint-GUID: mXnCD2z_zv9OnDa0CKrVWbi6jfyZxHE0
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDE1MiBTYWx0ZWRfX42GYQOLVuHWV
+ 74z8ahfLKkAUfHGZvxCXqhtwtGxAbTdeY9BzbP+GZ1q9530GONNB78NLUFKrf//n5uwVn9wyw96
+ LKvCf/jEXnrgAO49xddrPknDCb8UScs=
+X-Authority-Analysis: v=2.4 cv=RI2D2Yi+ c=1 sm=1 tr=0 ts=6a99ac87 cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
  a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=xtH7KyWI9dI7BmFOsl-x:22 a=VwQbUJbxAAAA:8 a=WL9Mey4J0-dQdQc1l1AA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTAzMDE1MiBTYWx0ZWRfXwcPdl/Tv2uzB
- Mw8fIB9GvZKGwVgkloPZmNAUTYDdZcyvE4xwTQqjURxeYHhj7Lu7GvZCrIHOw0BSVvuDYjk8cfU
- se0rLhj4ZK7LQ0whG9t/ttoxvepPIEY=
-X-Proofpoint-GUID: S7cmr7QQWqKyNYhj7DTbsT-Ba0v18wCy
+ a=kkcUborcUVj0H7zxAXTl:22 a=VwQbUJbxAAAA:8 a=ud-SU7DF2gFTjWnKbvIA:9
+X-Proofpoint-ORIG-GUID: mXnCD2z_zv9OnDa0CKrVWbi6jfyZxHE0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-03_05,2026-09-03_01,2025-10-01_01
 
 From: Keith Busch <kbusch@kernel.org>
 
-run_threads() moves a job from TD_INITIALIZED to TD_RUNNING and only
-then releases it. The job itself doesn't call set_epoch_time() until
-well into thread_main(), after exec_prerun, pre_read_files(),
-fio_verify_init() and rate_submit_init() have run. Until that point
-td->epoch is still zeroed, so the "elapsed" that thread_eta() derives
-from it is the time since the unix epoch rather than the time this job
-has been running.
+The ETA of a running job is capped at "timeout + done_secs - elapsed".
+done_secs is a global accumulator of the runtime of every job reaped so
+far, so the cap grows every time a job finishes. Whenever the cap is
+what actually gets reported, the ETA jumps back up by the runtime of
+everything that has already completed.
 
-Nothing currently notices, because the one consumer of elapsed that
-could care wraps around on the unsigned subtraction, but it is a trap
-for anyone using elapsed as a real number of seconds.
+The cap is what gets reported when the progress based estimate exceeds
+the remaining runtime, that is when perc is below elapsed/timeout. Any
+job that is behind on bytes relative to its runtime is in that state,
+so this covers the common "size the job to the whole device, bound it
+with runtime" pattern. A job that would complete its size early stays
+at or above elapsed/timeout and never reaches the cap.
 
-Take a local copy of the runstate and demote a TD_RUNNING or
-TD_VERIFYING job whose epoch is not set yet to TD_CREATED, so it gets
-estimated as a job that is still starting up.
+time_based makes no difference either way. It only lowers perc to
+min(perc, elapsed/timeout), so a time_based job that cannot finish its
+size within the runtime is affected exactly like a size based one.
 
+The problem is most visible with stonewalled jobs, where the ETA climbs
+back to the full run time at every batch boundary instead of counting
+down. Start stonewalled io_uring jobs, size=3D10T runtime=3D5 time_based,
+report:
+
+  22 21 20  24 23 22 21 20  24 23 22 21 20  24 23 22 21 20  24 ...
+
+instead of counting down to 0.
+
+It is not specific to stonewall. Two concurrent jobs with runtime=3D5 and
+runtime=3D20 show the same jump when the short one is reaped at t=3D5:
+
+  19 18 17 16 15  19 18 17 16 15 14 ...
+
+done_secs made sense when it was introduced: thread_eta() was handed
+the global elapsed time back then, so "timeout + done_secs" was this
+job's projected finish time relative to the start of the whole run.
+b29ee5b3 switched elapsed to be per job, measured from td->epoch, but
+left the done_secs term behind.
+
+A job is terminated once utime_since(&td->epoch, now) reaches
+td->o.timeout, so with a per job elapsed the cap is simply
+"timeout - elapsed". Use that, and clamp at zero instead of relying on
+the unsigned subtraction wrapping.
+
+Fixes: b29ee5b3dee4 ("Update ramp_time")
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 ---
- eta.c | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ eta.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 diff --git a/eta.c b/eta.c
-index c6e3cffb..5dbf4d75 100644
+index 5dbf4d75..29e1bf41 100644
 --- a/eta.c
 +++ b/eta.c
-@@ -162,6 +162,16 @@ static unsigned long thread_eta(struct thread_data *=
+@@ -263,9 +263,18 @@ static unsigned long thread_eta(struct thread_data *=
 td)
- 	unsigned long eta_sec =3D 0;
- 	unsigned long elapsed;
- 	uint64_t timeout;
-+	int runstate =3D td->runstate;
-+
-+	/*
-+	 * run_threads() moves a job to TD_RUNNING before the job itself has
-+	 * recorded its epoch, so elapsed is meaningless until then. Estimate
-+	 * such a job as if it were still starting up.
-+	 */
-+	if (!td->epoch.tv_sec && !td->epoch.tv_nsec &&
-+	    (runstate =3D=3D TD_RUNNING || runstate =3D=3D TD_VERIFYING))
-+		runstate =3D TD_CREATED;
-=20
- 	elapsed =3D (mtime_since_now(&td->epoch) + 999) / 1000;
- 	timeout =3D td->o.timeout / 1000000UL;
-@@ -220,7 +230,7 @@ static unsigned long thread_eta(struct thread_data *t=
-d)
+ 			eta_sec =3D (unsigned long) (elapsed * (1.0 / perc)) - elapsed;
  		}
- 	}
 =20
--	if (td->runstate =3D=3D TD_RUNNING || td->runstate =3D=3D TD_VERIFYING)=
- {
-+	if (runstate =3D=3D TD_RUNNING || runstate =3D=3D TD_VERIFYING) {
- 		double perc, perc_t;
-=20
- 		bytes_done =3D ddir_rw_sum(td->io_bytes);
-@@ -256,11 +266,11 @@ static unsigned long thread_eta(struct thread_data =
-*td)
- 		if (td->o.timeout &&
- 		    eta_sec > (timeout + done_secs - elapsed))
- 			eta_sec =3D timeout + done_secs - elapsed;
--	} else if (td->runstate =3D=3D TD_NOT_CREATED || td->runstate =3D=3D TD=
-_CREATED
--			|| td->runstate =3D=3D TD_INITIALIZED
--			|| td->runstate =3D=3D TD_SETTING_UP
--			|| td->runstate =3D=3D TD_RAMP
--			|| td->runstate =3D=3D TD_PRE_READING) {
-+	} else if (runstate =3D=3D TD_NOT_CREATED || runstate =3D=3D TD_CREATED
-+			|| runstate =3D=3D TD_INITIALIZED
-+			|| runstate =3D=3D TD_SETTING_UP
-+			|| runstate =3D=3D TD_RAMP
-+			|| runstate =3D=3D TD_PRE_READING) {
- 		int64_t t_eta =3D 0, r_eta =3D 0;
- 		unsigned long long rate_bytes;
-=20
-@@ -278,7 +288,7 @@ static unsigned long thread_eta(struct thread_data *t=
-d)
- 				t_eta +=3D ramp_time;
- 			t_eta /=3D 1000000ULL;
-=20
--			if ((td->runstate =3D=3D TD_RAMP) && in_ramp_period(td)) {
-+			if ((runstate =3D=3D TD_RAMP) && in_ramp_period(td)) {
- 				unsigned long ramp_left;
-=20
- 				ramp_left =3D mtime_since_now(&td->epoch);
+-		if (td->o.timeout &&
+-		    eta_sec > (timeout + done_secs - elapsed))
+-			eta_sec =3D timeout + done_secs - elapsed;
++		/*
++		 * A job never runs for longer than its own timeout, which is
++		 * measured from its own epoch. Cap the estimate at whatever
++		 * time this job has left.
++		 */
++		if (td->o.timeout) {
++			unsigned long timeout_left;
++
++			timeout_left =3D timeout > elapsed ? timeout - elapsed : 0;
++			if (eta_sec > timeout_left)
++				eta_sec =3D timeout_left;
++		}
+ 	} else if (runstate =3D=3D TD_NOT_CREATED || runstate =3D=3D TD_CREATED
+ 			|| runstate =3D=3D TD_INITIALIZED
+ 			|| runstate =3D=3D TD_SETTING_UP
 --=20
 2.52.0
 
