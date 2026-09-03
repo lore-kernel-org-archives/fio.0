@@ -1,119 +1,136 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F3DB40F750
-	for <fio@vger.kernel.org>; Thu, 27 Aug 2026 12:00:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 395FD425862
+	for <fio@vger.kernel.org>; Thu,  3 Sep 2026 12:00:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1787832011; cv=none; b=Nu/wDVkMq2kIYcNd/xLLqAk4tp0WB5pm/CUDeLKzCz/P+crOlY592IBDbB6KJ3Jz80EYLlJjHtYzR8Z27qlpUzubd1l6orI1j19D6CXNjdOzbClEIcTeiXUlUn8xV4olb8DWFxIPuRinEQd3K0zubAiSyJiprr1NavJqUe9Uh9k=
+	t=1788436821; cv=none; b=h8nbtoQAgnYRrNFiBdL+HFIhLPBh9DN5EpeR9b/pfNu1jchCrHopF4DOS9vaG4B/OgFxkg+9MorCZ5h/Evxf8eNEPecifR6/xbWOWnyzdcBimseMN5TcVQcDdpIiD7JQF1jeSnEkHtGT0HRo8Mn+dwmUcykCdBYwuLDXWgffJZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1787832011; c=relaxed/simple;
-	bh=UbF0+ICLqBzPG0gtKW1lN6pIzBwn4Mdr+3UBvVemr68=;
-	h=Subject:From:To:Date:Message-Id; b=WR6va6KP9w49pxNV16hu8sNt9kTuBGjAyY6MthwYXBU2I9LnBMon5RV3yelWXcsp3j0DPa8aIVuwPWVAhKKLv92eSU/hP0kNYScOBs6f8OG8vuRx5GKBQluFbAIQLLt33gX6R+slQ10iSvQq9N6kUXK7gJMkBWEmesjBupe8kp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Oux/i4SP; arc=none smtp.client-ip=90.155.50.34
+	s=arc-20240116; t=1788436821; c=relaxed/simple;
+	bh=W184DpCWLmh8icGub1NMlglZkCgE+aM7JO6xSSwWRUM=;
+	h=Subject:From:To:Date:Message-Id; b=oALwLM9xpwKgg/+xC2sMXPq2nK6dcMUcrvqT+xIbb7Kugm9ecFyXFEuFMHfKlWZ9mF6++hbrMlxxesfkAphrNtnzv+lZTmlLOB7kDaZNHmgDyfSNooRkn8yuJblbIjsYPsU9MNa7hJPQ5HxsYzt2nrEREPOwompCMsSYBjnV1x8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=VXQEckck; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Oux/i4SP"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VXQEckck"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
 	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=GnW8ePWZ2fs44kKIPebHcEC4T3ws5cQcHuxwjUKcY5E=; b=Oux/i4SPD2W099rmGHWmQFjYVv
-	PF9dwUlPewgr19WrWSvUh1ODIWGAjgzV8h3G/J2YwWZk5Orm1cH+G4EBAQdErBfJLlBlGfdgHMgYo
-	/uLItJANpsXgaC91RKJ4tKHDBY5eGXii9pA/cjUnNL9lWJhrgFzTuBnR1JJuGhnihoE61onEztPY5
-	TzqMiW0Ppjrg6wSSHxiXrt8yzDFbnd5Ew/PAfyTVW2HVZ65p6z/ad+1hpwaqFlG+FhwqPM1hRFjnI
-	sfRqsL1KcwdTdGobkPF7ftOgwEJvw2YUvdYTTMLihDwZd3se1a+jVG7rnsWcLKwRCtoLkK07wvADw
-	UOcAr28w==;
+	bh=9Q2vuoeN6ha+uf2GGd0VxNWutE+q4cDzvw9tRQgYQuM=; b=VXQEckckQbHDYdPkcDSIdqVSyZ
+	dU45oqgQ33uGxlWME8CDkwxHDBBweK+jgjyCyQwAKIzBPe5DsvykuZav+lUBNpTnKxQSIn55fmz1g
+	tsP/33UdlNyV2kDGWjJpBtSkATRdLjcr6Qa5kl0RCpgMmxTzQY+3k9ZreelNe9FeOR92joyMIQBHF
+	UvaJoUw2w7RS4rmRACV2rOBmyvcl4f6flbnl+YuJsp+Z4xGZHpovygvD3C8eI800tqQiMpIqJRlA0
+	XLTJ/nhiLghnGqv8/cYAD9TBXt5gNSzS6GDwAfOwzwrFLsrQzgpOr/45rKadpA3GdVuJmRxdJfjGL
+	gIidZbTA==;
 Received: from [96.43.243.2] (helo=kernel.dk)
 	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wzYm5-0000000ClbF-1KJY
+	id 1x266v-00000009vBb-10vo
 	for fio@vger.kernel.org;
-	Thu, 27 Aug 2026 12:00:05 +0000
+	Thu, 03 Sep 2026 12:00:05 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 74CF31BC0157; Thu, 27 Aug 2026 06:00:01 -0600 (MDT)
+	id 6F4C41BC0156; Thu,  3 Sep 2026 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Thu, 27 Aug 2026 06:00:01 -0600
-Message-Id: <20260827120001.74CF31BC0157@kernel.dk>
+Date: Thu,  3 Sep 2026 06:00:01 -0600
+Message-Id: <20260903120001.6F4C41BC0156@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 
-The following changes since commit 93ab5b9771768dc99cef9550a75f74c5948eac0d:
+The following changes since commit ae35a58399b28edf857f7ebc43b3eb40d86ac29b:
 
-  Merge branch 'reap-signaled-worker-exit-code' of https://github.com/Vladyyy/fio (2026-08-24 15:42:41 +0000)
+  Merge branch 'verify-zero-dump' of https://github.com/sarthak-k/fio (2026-08-26 16:12:53 +0000)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to ae35a58399b28edf857f7ebc43b3eb40d86ac29b:
+for you to fetch changes up to 975ea1856fee9f4c0f01f6f19ba3c61ce24f9bc8:
 
-  Merge branch 'verify-zero-dump' of https://github.com/sarthak-k/fio (2026-08-26 16:12:53 +0000)
+  Merge branch 'consolidate_commit_call_path' of https://github.com/dennischerchang/fio (2026-09-01 21:48:38 +0000)
 
 ----------------------------------------------------------------
-Sarthak Killedar (1):
-      verify: dump the received buffer when zero verify fails
+Dennis Chang (1):
+      Consolidate all caller of io_ops_commit() to call td_io_commit().
 
 Vincent Fu (1):
-      Merge branch 'verify-zero-dump' of https://github.com/sarthak-k/fio
+      Merge branch 'consolidate_commit_call_path' of https://github.com/dennischerchang/fio
 
- verify.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ ioengines.c | 13 ++++++++-----
+ ioengines.h |  2 +-
+ 2 files changed, 9 insertions(+), 6 deletions(-)
 
 ---
 
 Diff of recent changes:
 
-diff --git a/verify.c b/verify.c
-index 633a9bb2..a978aff0 100644
---- a/verify.c
-+++ b/verify.c
-@@ -891,7 +891,7 @@ static int mem_is_zero_slow(const void *data, size_t length, size_t *offset)
- 	return !length;
- }
- 
--static int verify_zero(struct io_u *io_u)
-+static int verify_zero(struct thread_data *td, struct io_u *io_u)
- {
- 	size_t offset;
- 
-@@ -904,6 +904,15 @@ static int verify_zero(struct io_u *io_u)
- 		", block offset %lu\n",
- 			io_u->file->file_name, io_u->verify_offset, io_u->buflen,
- 			(unsigned long) offset);
-+
-+	/*
-+	 * Only the received data is worth dumping here, the expected
-+	 * contents are all zeroes.
-+	 */
-+	if (td->o.verify_dump)
-+		dump_buf(io_u->buf, io_u->buflen, io_u->verify_offset,
-+				"received", io_u->file);
-+
- 	return EILSEQ;
- }
- 
-@@ -912,7 +921,7 @@ static int verify_trimmed_io_u(struct thread_data *td, struct io_u *io_u)
- 	if (!td->o.trim_zero)
+diff --git a/ioengines.c b/ioengines.c
+index 911a286e..b0b18d34 100644
+--- a/ioengines.c
++++ b/ioengines.c
+@@ -304,8 +304,7 @@ int td_io_getevents(struct thread_data *td, unsigned int min, unsigned int max,
  		return 0;
  
--	return verify_zero(io_u);
-+	return verify_zero(td, io_u);
+ 	if (min > 0 && td->io_ops->commit) {
+-		r = td->io_ops->commit(td);
+-		if (r < 0)
++		if (!td_io_commit(td))
+ 			goto out;
+ 	}
+ 	if (max > td->cur_depth)
+@@ -502,21 +501,24 @@ int td_io_init(struct thread_data *td)
+ 	return ret;
  }
  
- static int verify_header(struct io_u *io_u, struct thread_data *td,
-@@ -1018,7 +1027,7 @@ int verify_io_u(struct thread_data *td, struct io_u **io_u_ptr)
- 		goto done;
- 	} else if (io_u->flags & IO_U_F_ZEROED) {
- 		dprint(FD_VERIFY, "verifying write zeroes command\n");
--		ret = verify_zero(io_u);
-+		ret = verify_zero(td, io_u);
- 		goto done;
+-void td_io_commit(struct thread_data *td)
++bool td_io_commit(struct thread_data *td)
+ {
+ 	int ret;
++	bool commit_success = true;
+ 
+ 	dprint(FD_IO, "calling ->commit(), depth %d\n", td->cur_depth);
+ 
+ 	if (!td->cur_depth || !td->io_u_queued)
+-		return;
++		return true;
+ 
+ 	io_u_mark_depth(td, td->io_u_queued);
+ 
+ 	if (td->io_ops->commit) {
+ 		ret = td->io_ops->commit(td);
+-		if (ret)
++		if (ret) {
+ 			td_verror(td, -ret, "io commit");
++			commit_success = false;
++		}
  	}
  
+ 	/*
+@@ -524,6 +526,7 @@ void td_io_commit(struct thread_data *td)
+ 	 */
+ 	td->io_u_in_flight += td->io_u_queued;
+ 	td->io_u_queued = 0;
++	return commit_success;
+ }
+ 
+ int td_io_open_file(struct thread_data *td, struct fio_file *f)
+diff --git a/ioengines.h b/ioengines.h
+index b0a767ba..d58b95c7 100644
+--- a/ioengines.h
++++ b/ioengines.h
+@@ -141,7 +141,7 @@ extern int __must_check td_io_init(struct thread_data *);
+ extern int __must_check td_io_prep(struct thread_data *, struct io_u *);
+ extern enum fio_q_status __must_check td_io_queue(struct thread_data *, struct io_u *);
+ extern int __must_check td_io_getevents(struct thread_data *, unsigned int, unsigned int, const struct timespec *);
+-extern void td_io_commit(struct thread_data *);
++extern bool td_io_commit(struct thread_data *);
+ extern int __must_check td_io_open_file(struct thread_data *, struct fio_file *);
+ extern int td_io_close_file(struct thread_data *, struct fio_file *);
+ extern int td_io_unlink_file(struct thread_data *, struct fio_file *);
