@@ -1,50 +1,50 @@
 Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 300E04BE42B
-	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 16:13:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370644BB5BD
+	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 16:13:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789056806; cv=none; b=TST+sUaDZrdxMBoxaMd6JuS0I9+A92Jz6Dlr7j6Q0p7avEGp7Zuydc/VlYsXa1BqIOZ/xMpYxM44gO3Ay4J5cjIbuI8dTgjcCCaoptgRGSjN+UzWVYwtOsOxOMAxVfXbW79GL6ymA7fRsxQcHraLlTBdxDWGILlREOmRAlKHbLc=
+	t=1789056808; cv=none; b=rAw8Q3phNrArx5jvd+C9ccmOOS0dr+cjRkWHYEIxpEaUzJY1ujF1LUIZlX0NCwn6bdt+bwzkS+ohYC/kGe1Ce7ZTXomPzO0h+g6xRCYfY4IPAEklPCvDOMnL7KVd1a480P3NbQd1VBO0y7C2f3jWYswXc3B3z8XmHo582xqFRQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789056806; c=relaxed/simple;
-	bh=km3530lQ85xW7cmck1z0zKEDR3hdtfRl/L5B+lY2h34=;
+	s=arc-20240116; t=1789056808; c=relaxed/simple;
+	bh=hewgNnZVsD5LRKpANQQVGwrQlWwDU5aNFEFpGf3trPc=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lt7EPjx5c00CbBvFijxeoU5Xm8PydsT1403IIuVWQ4UXdJuTINvrFZvhptNk4S/4zyCjAVpq3vXqTNZsoqPc85SGNJrK2e+QBGAOyaB/tBxVaVaOzvYUVadtPUSvz+JU6MjU8ij7pgLXZf3xBAhfzQzFV3w6c6gI1vmM1dq54Ic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=IJkdQxpi; arc=none smtp.client-ip=67.231.145.42
+	 MIME-Version:Content-Type; b=TDD/oEKuKMndP9QdqUbBkDUjSSNywLRzqAXjdrGXicp84KTLdoEp7MOjtgIA1oMIMWki0hc1H52t1L7xV9Zz1531nw2lh7XsIiaVxtmo/d6/3QfQ7mEz60N9gMxH++GuYkapSiiRATXezZZkxD3HF9Pl3uFA52tk5nltuddh57M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=EHi0wl0W; arc=none smtp.client-ip=67.231.145.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="IJkdQxpi"
-Received: from pps.filterd (m0528009.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68AF7rQZ3396900
-	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 09:13:24 -0700
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="EHi0wl0W"
+Received: from pps.filterd (m0109334.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68AF60GS3425245
+	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 09:13:26 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=
-	pps82601-s2048-2026-q3; bh=BDr7G6w1RvWUUMMYNQs2PgupYsvT3/heDrDUu
-	zm7roY=; b=IJkdQxpijmhxO6y82oYurOrHZRhQS12KSD1qMhFSzNkL87poZdVn/
-	Sm4e39jOwfZ1N5eCoEoM83+OO8px86XppJrmvIMAikyeoWXNQHP9DQWUn+3Veiem
-	ERduCtzJmAwYOsXaL4DjIk22bDP0SWUd9+0TH9/Sap1yGO1sgkLicICcNas40X0D
-	v/kpxvUMj0uGLEkSM0WZggwEvkWiAFBKtg8bh9HInNu799nvE+437JjnZOrtrvwT
-	TBvATRUZvypmHMLgyATJMyEqaII+NfR7ELFc9ECluwAclYiDXRWCUqqXgEzrwuj3
-	q8TNlq+A6uDIkj4Q9OVfnfa875l0jdhIA==
+	pps82601-s2048-2026-q3; bh=kPndOZkvBygIU5L22W5+QJ487BVL5ggRM+J36
+	SytnM0=; b=EHi0wl0WxbGxnqgX+qxqtohaDRgSIT16aQVsY9eEV4r5ib3MYjuAe
+	vOgpMl2Qe/xq/iykRTQP2KIH1eVKevLIuhQKFLJOH002U/913zIQz+i1ogPVwxM1
+	UfACENausbAAewEUq2QYrWKGtbuUe7cRlAzHanOofapY4k4L4z8sfK4y9GboHsQQ
+	nYnWAnAEm4sS5Yf2VhWUUynS/qqgfxykDY4+9ZMVyOe7Lg2YUrj1B5FORP0EHyLq
+	MGZJ0T/vW4KI057CFTmhKxZxncQvRRGlV5BbdioZz16C7Y1yLIQUSGuVJuydWv+3
+	EUdaCBS04toCaM/vsjrBG+ldz9Po5ADww==
 Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4gkcyffb95-9
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4gkcycfe2v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 09:13:24 -0700 (PDT)
-Received: from twshared120513.16.frc2.facebook.com (2620:10d:c085:208::7cb7)
- by mail.thefacebook.com (2620:10d:c08b:78::c78f) with Microsoft SMTP Server
+	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 09:13:26 -0700 (PDT)
+Received: from twshared22253.02.snb2.facebook.com (2620:10d:c085:208::f) by
+ mail.thefacebook.com (2620:10d:c08b:78::c78f) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.2.2562.45; Thu, 10 Sep 2026 16:13:19 +0000
+ 15.2.2562.45; Thu, 10 Sep 2026 16:13:25 +0000
 Received: by devbig197.nha3.facebook.com (Postfix, from userid 544533)
-	id 6B7F82BB6CA01; Thu, 10 Sep 2026 09:13:11 -0700 (PDT)
+	id 6416C2BB6CA00; Thu, 10 Sep 2026 09:13:11 -0700 (PDT)
 From: Keith Busch <kbusch@meta.com>
 To: <fio@vger.kernel.org>
 CC: <axboe@kernel.dk>, <vincentfu@gmail.com>, Keith Busch <kbusch@kernel.org>
-Subject: [PATCHv2 3/4] eta: cap the ETA at the job's own remaining runtime
-Date: Thu, 10 Sep 2026 09:13:09 -0700
-Message-ID: <20260910161310.1478081-4-kbusch@meta.com>
+Subject: [PATCHv2 2/4] backend: don't mark a job as running before it has set up
+Date: Thu, 10 Sep 2026 09:13:08 -0700
+Message-ID: <20260910161310.1478081-3-kbusch@meta.com>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260910161310.1478081-1-kbusch@meta.com>
 References: <20260910161310.1478081-1-kbusch@meta.com>
@@ -57,107 +57,132 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-FB-Internal: Safe
 Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: XjgU8HTBod2L_sSZkPlf4Eyy69oma1L7
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDE5NyBTYWx0ZWRfX/pn+Ao/HHwwS
- Qb5vfgbjcJZ6KdQ/CuWYbSZ8Nv/yBcfQSBsJipWlkLfuTFcrdFuXMkOUvy5gcyVIg2jUZis7dXu
- IholCso9nxINrrHEmJorlU2dIycJO/pebcN7JB0cM1/11A2R2Z3mTG3jZwkL//m1Oh0YpEas35d
- sIdK5KGs8BD7tP6Jmb9IvgOnGouNuVvUs5lHvvU0SpJQ76/A/DDuoZB2A20Vd/AO/Rk/HmJBUwp
- b9RSceCPxznlMOIr4boDNx52aM8Czb6aUnB6DZl03yxfAjclcyYNdyKtFEtlvK/TOCjGE73YmQ+
- pjMU4v9vhIbb86WxYVEx5QW2V4cWr57U2Bl8ma8/NuXY6y74GsBC8kbHEkD0LfDpHJ5+KYXoLNH
- 9NDCMcDv0eZ8/H56BrIhVmMT/ZNXdk4L10waSGP6iLJZrVlRPVLM6O5SYiuiy4gqTDy7RvPK5wr
- q2bmNsPLWdJpstv3kaQ==
-X-Authority-Analysis: v=2.4 cv=NJRAaE6g c=1 sm=1 tr=0 ts=6aa2d724 cx=c_pps
+X-Authority-Analysis: v=2.4 cv=KZlHIgYD c=1 sm=1 tr=0 ts=6aa2d726 cx=c_pps
  a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=U_y8lYiYyhHBU5rMqhb2:22 a=VwQbUJbxAAAA:8 a=ud-SU7DF2gFTjWnKbvIA:9
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDE5NyBTYWx0ZWRfX8Q2+FBFj50iY
- mrUhjRfYbuzCwgTjlqIpxx6TUDqQaiMWfKxB6ws87z66mMyNlRHEnZB0B0V0swd50RAXvUYBMH7
- j+QO5eaJ24MJHFn6VlBhTsetgNuAxOQ=
-X-Proofpoint-GUID: XjgU8HTBod2L_sSZkPlf4Eyy69oma1L7
+ a=lXOJE_9kCttGot3g:21 a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=7x6HtfJdh03M6CCDgxCd:22 a=crHB47gyY4rKiduisYu9:22 a=VwQbUJbxAAAA:8
+ a=XcTtRpExG9rSsvE4vFUA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDE5NyBTYWx0ZWRfX/7MUhEOTHYZM
+ NJjHp0zyVgzxh33OY5OzWSalfccoNXMyQxRUdkAlDLS30VHIxvM7ceOo2HWREYMEOyr3AUbTqmp
+ vAe2RjuhMsUl4XHNuSsFLkoFU9/3twE=
+X-Proofpoint-ORIG-GUID: wRC7ERT1bjPJikrwU67A7aTKXYukMRsM
+X-Proofpoint-GUID: wRC7ERT1bjPJikrwU67A7aTKXYukMRsM
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDE5NyBTYWx0ZWRfX8ENPI6eQEQop
+ A6SRmUG78Ub6XuK8kkgJtvj9huDT9dL2kKoyGzytpumWu8mz/caC02CXEzA57Gy+zjJrkEQC5zM
+ t/axYk01zbFjxBSQ0nnL7lwyKZqHt7gxC2JHOweuCJUvJd7kiHTNrQ0VgY2HkDjB7Ygt9hxSC/O
+ jqjGYzkKIjqNUmWY5pnjCvW8Zv4GyEUKketdFSVn8IIC2qnXktZlr77gU93NbN6za7MDzVNv69+
+ 1WOXt7C6mbRIS7ZcGbMBPAgSRfPDICYE4z7YvkWs1QxRUIXiLE3T6Lg48faP5gx6Vd9XuKz3Fwi
+ ARbdzqszSlI6E/Q7yog+XQveum0R7Bam6hQTndfNeN5v3edEL6yPVTQUoYpA1NtaQttrjFzeF8j
+ WmYrJv63hMlaFWHGWjZoZ4HlDIWyIf4LQYBtlQO13FbguUTS6rMd5hH5CfVogRgXEtUjQCSruMX
+ BxOpX1Ckq8Jyje2EbHg==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
  definitions=2026-09-10_05,2026-09-09_02,2025-10-01_01
 
 From: Keith Busch <kbusch@kernel.org>
 
-The ETA of a running job is capped at "timeout + done_secs - elapsed".
-done_secs is a global accumulator of the runtime of every job reaped so
-far, so the cap grows every time a job finishes. Whenever the cap is
-what actually gets reported, the ETA jumps back up by the runtime of
-everything that has already completed.
+run_threads() moves a job from TD_INITIALIZED straight to TD_RUNNING and
+only then releases it. The job still has all of its setup left to do:
+exec_prerun, pre_read_files(), setup_files(), init_io_u(),
+rate_submit_init() and finally set_epoch_time(). The job claims to be
+running for that entire window when it has not issued any IO and has no
+epoch to measure itself against.
 
-The cap is what gets reported when the progress based estimate exceeds
-the remaining runtime, that is when perc is below elapsed/timeout. Any
-job that is behind on bytes relative to its runtime is in that state,
-so this covers the common "size the job to the whole device, bound it
-with runtime" pattern. A job that would complete its size early stays
-at or above elapsed/timeout and never reaches the cap.
+Anything that reads the state during that window gets a wrong answer.
+thread_eta() is the most readily observable  one: it derives elapsed
+from td->epoch, which is still zeroed, so a job with a three second
+exec_prerun reports
 
-time_based makes no difference either way. It only lowers perc to
-min(perc, elapsed/timeout), so a time_based job that cannot finish its
-size within the runtime is affected exactly like a size based one.
+  Jobs: 1 (f=3D0): [R(1)][-.-%][eta 00m:00s]
+  Jobs: 1 (f=3D0): [R(1)][50.0%][eta 00m:03s]
 
-It is most visible with stonewalled jobs, where the ETA climbs back to
-the full run time at every batch boundary instead of counting down:
+before doing any work at all. Running, half done and no time left, none
+of which is true.
 
-  fio --name=3Dglobal --filename=3D/dev/zero --runtime=3D5 --size=3D10T \
-      --stonewall --name=3Da --name=3Db --name=3Dc --name=3Dd --name=3De
+Promote to TD_SETTING_UP instead, which is what that state is for, and
+let the job promote itself to TD_RAMP or TD_RUNNING once setup is over
+and it has recorded its epoch. The same job now reports
 
-  before: 22 21 20  24 23 22 21 20  24 23 22 21 20  24 ...
-  after:  22 21 20 19 18 17 16 15 14 13 ... 02 01 00
+  Jobs: 1 (f=3D1): [I(1)][0.0%][eta 00m:03s]
 
-Shrinking size until the jobs complete it within the runtime makes the
-symptom disappear, which is a good way to confirm the cap is what is
-being reported.
+Widen the TERMINATE_STONEWALL check to match. It tests for runstate >=3D
+TD_RUNNING to find jobs worth terminating, and a job in the setup window
+used to satisfy that. Without this, exit_what=3Dstonewall stops reaching =
+a
+job that is still setting up, and a test where the short job is reaped
+while a longer one sits in exec_prerun goes from 5.5s to 20.5s. Note
+TD_RAMP sorts below TD_SETTING_UP, so ramping jobs remain excluded from
+that check exactly as before.
 
-It is not specific to stonewall. Two concurrent jobs with runtime=3D5 and
-runtime=3D20 show the same jump when the short one is reaped at t=3D5.
-
-done_secs made sense when it was introduced: thread_eta() was handed
-the global elapsed time back then, so "timeout + done_secs" was this
-job's projected finish time relative to the start of the whole run.
-b29ee5b3 switched elapsed to be per job, measured from td->epoch, but
-left the done_secs term behind.
-
-A job is terminated once utime_since(&td->epoch, now) reaches
-td->o.timeout, so with a per job elapsed the cap is simply
-"timeout - elapsed". Use that, and clamp at zero instead of relying on
-the unsigned subtraction wrapping.
-
-Fixes: b29ee5b3dee4 ("Update ramp_time")
 Signed-off-by: Keith Busch <kbusch@kernel.org>
 ---
- eta.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ backend.c | 21 ++++++++++++++++-----
+ libfio.c  |  3 ++-
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/eta.c b/eta.c
-index 70efc208..d17b8c3f 100644
---- a/eta.c
-+++ b/eta.c
-@@ -253,9 +253,18 @@ static unsigned long thread_eta(struct thread_data *=
-td)
- 			eta_sec =3D (unsigned long) (elapsed * (1.0 / perc)) - elapsed;
+diff --git a/backend.c b/backend.c
+index 7f41bdfa..46bff828 100644
+--- a/backend.c
++++ b/backend.c
+@@ -2178,6 +2178,17 @@ static void *thread_main(void *data)
+ 		goto err;
+=20
+ 	set_epoch_time(td, o->log_alternate_epoch_clock_id, o->job_start_clock_=
+id);
++
++	/*
++	 * Setup is done and the job now has an epoch to measure itself
++	 * against, so it is finally safe to call it running. Everything
++	 * above this point ran as TD_SETTING_UP.
++	 */
++	if (in_ramp_period(td))
++		td_set_runstate(td, TD_RAMP);
++	else
++		td_set_runstate(td, TD_RUNNING);
++
+ 	fio_getrusage(&td->ru_start);
+ 	memcpy(&td->bw_sample_time, &td->epoch, sizeof(td->epoch));
+ 	memcpy(&td->iops_sample_time, &td->epoch, sizeof(td->epoch));
+@@ -2888,16 +2899,16 @@ reap:
  		}
 =20
--		if (td->o.timeout &&
--		    eta_sec > (timeout + done_secs - elapsed))
--			eta_sec =3D timeout + done_secs - elapsed;
-+		/*
-+		 * A job never runs for longer than its own timeout, which is
-+		 * measured from its own epoch. Cap the estimate at whatever
-+		 * time this job has left.
-+		 */
-+		if (td->o.timeout) {
-+			unsigned long timeout_left;
-+
-+			timeout_left =3D timeout > elapsed ? timeout - elapsed : 0;
-+			if (eta_sec > timeout_left)
-+				eta_sec =3D timeout_left;
-+		}
- 	} else if (td->runstate =3D=3D TD_NOT_CREATED || td->runstate =3D=3D TD=
-_CREATED
- 			|| td->runstate =3D=3D TD_INITIALIZED
- 			|| td->runstate =3D=3D TD_SETTING_UP
+ 		/*
+-		 * start created threads (TD_INITIALIZED -> TD_RUNNING).
++		 * start created threads (TD_INITIALIZED -> TD_SETTING_UP).
++		 * The job has plenty of setup left to do before it issues any
++		 * IO, so it promotes itself to TD_RAMP or TD_RUNNING once that
++		 * is done and it has recorded its epoch.
+ 		 */
+ 		for_each_td(td) {
+ 			if (td->runstate !=3D TD_INITIALIZED)
+ 				continue;
+=20
+-			if (in_ramp_period(td))
+-				td_set_runstate(td, TD_RAMP);
+-			else
+-				td_set_runstate(td, TD_RUNNING);
++			td_set_runstate(td, TD_SETTING_UP);
+ 			nr_running++;
+ 			nr_started--;
+ 			m_rate +=3D ddir_rw_sum(td->o.ratemin);
+diff --git a/libfio.c b/libfio.c
+index a57ede4f..322906c0 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -270,7 +270,8 @@ void fio_terminate_threads(unsigned int group_id, uns=
+igned int terminate)
+ 	for_each_td(td) {
+ 		if ((terminate =3D=3D TERMINATE_GROUP && group_id =3D=3D TERMINATE_ALL=
+) ||
+ 		    (terminate =3D=3D TERMINATE_GROUP && group_id =3D=3D td->groupid) =
+||
+-		    (terminate =3D=3D TERMINATE_STONEWALL && td->runstate >=3D TD_RUNN=
+ING) ||
++		    (terminate =3D=3D TERMINATE_STONEWALL &&
++		     td->runstate >=3D TD_SETTING_UP) ||
+ 		    (terminate =3D=3D TERMINATE_ALL)) {
+ 			dprint(FD_PROCESS, "setting terminate on %s/%d\n",
+ 						td->o.name, (int) td->pid);
 --=20
 2.53.0-Meta
 
