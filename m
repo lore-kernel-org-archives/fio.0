@@ -1,100 +1,126 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F6444BB26C
-	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 16:13:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789056811; cv=none; b=JihBW06rlA7VZ7Kr/t0XFBd88OVR5n1zzim/aNPx0LMK/9qUBWLvJ5ODimE8QZ1v0B0TpuEah8NrexbGRLWLanaC9Lbcs/tMRDMMrxHu/SUEOGM2SuVZuYC4ZRAEaXI0A2XUuuO/tsW1DdrubV1WV6dKQuH2XZ0Y0Qql4gGibug=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789056811; c=relaxed/simple;
-	bh=cZ9kAkq0t7EJu5cJNyZyri+ctcidmk0KEURCuhG3k00=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=P9yZfvv0RMSAFzhOpcmNJxvqRwelYxbJVQO77sazR/CyZxUvVBSOdd9Qq4Nxt+jGPBIBFAn3fkJZwZ+b3AhL/KDz9rXVVOSZEaYVq1edGO4sQjQ2Vg6T5NPT7qiQXgMfJq1R04pcWTVeODjlt+ybUvuhGoGviCpHtSaoekY2vYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=XlbpnTGJ; arc=none smtp.client-ip=67.231.145.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18061404BF9
+	for <fio@vger.kernel.org>; Fri, 11 Sep 2026 19:45:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1789155937; cv=pass; b=hVkh+qc9Ci8fsy1IleN9vUnyx5TNKTwtx3UhdvA1VNyVcpoRv6brG/9di4v3KIMU4dfNXlSMtfF1q7Vt193KxmimhAsvrFUOrd7W/UeFXgXssddVFDhRU4EYWcErjaPs0l/OYnkLfYN0+OBTUBP/5vV13PV0UCXDckhnRtekKkQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1789155937; c=relaxed/simple;
+	bh=coQegICKr/zhdDj6vIMAeewDNeVf+Nptv9/C5lcPRKU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nrigiggkCHLAGB7xsP3B06GO+G5yW0Y5vri9TD6JQYfnv8uBsrY8i8xXzWDUdltosPiOUzdJmB1UY7SO34IaVpJCM+E2Sr34s2GQSzorUPZScUYCB/rzeZglnz09F7FWAPmi/bvbfg6nluSHSovkISDj/IRKAqLg2tK7Om1qI+4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WoVAbnB0; arc=pass smtp.client-ip=209.85.208.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="XlbpnTGJ"
-Received: from pps.filterd (m0044012.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 68AF6jwK2395824
-	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 09:13:29 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pps82601-s2048-2026-q3; bh=NZHelw0dM
-	7oedA2BOc+PV6YQzxDGH5GTZocqhCEFmUw=; b=XlbpnTGJzc6Tf94SCgXg1XKLZ
-	PkJRB7nh4IP0cYu93+0L4t048sYGpWdWxHEklIazKf5XSTTwfFBxcGMrv6BY0SYB
-	z0p5v/bFsUM6H0ocgXcJP3Ni/8VkECLqYVBaX/bgLLo86Ql+y7qGMZ7G0vCJFJOc
-	RtqglKOde5OcQKj+suCnMTvYw2NljZmGDafOR8yMg7bAgM3qq3nCqIaacmG5umfZ
-	YBsbCE3tRJjxs/PBdX9BkYGCZRQJrC+MVWUlQu5tdQUq7SBIoMv7X/6MTTLh6XtS
-	bFbKkKVYl3a0/Xh2U4CElCTaiXVtgJdeeFc6JpMkrop9Pk1DjihyEFhnjLmKQ==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4gkcyeqd44-3
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <fio@vger.kernel.org>; Thu, 10 Sep 2026 09:13:29 -0700 (PDT)
-Received: from twshared27352.01.snb1.facebook.com (2620:10d:c085:208::f) by
- mail.thefacebook.com (2620:10d:c08b:78::2ac9) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.2.2562.45; Thu, 10 Sep 2026 16:13:27 +0000
-Received: by devbig197.nha3.facebook.com (Postfix, from userid 544533)
-	id 5C3182BB6C9FD; Thu, 10 Sep 2026 09:13:11 -0700 (PDT)
-From: Keith Busch <kbusch@meta.com>
-To: <fio@vger.kernel.org>
-CC: <axboe@kernel.dk>, <vincentfu@gmail.com>, Keith Busch <kbusch@kernel.org>
-Subject: [PATCHv2 0/4] fio: fix eta
-Date: Thu, 10 Sep 2026 09:13:06 -0700
-Message-ID: <20260910161310.1478081-1-kbusch@meta.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WoVAbnB0"
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-3a595487d43so8821171fa.3
+        for <fio@vger.kernel.org>; Fri, 11 Sep 2026 12:45:25 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789155920; cv=none;
+        d=google.com; s=arc-20260327;
+        b=ORxwcS+tcKP7/ub30UvQ3EilVB04qtu6jmiT5f8r+xp7if+HvKo9W1cl7tDWWbyv0G
+         hDdfRwL5bYj29tYiTlRBiHjZmmSu6uvetAQEYXvOlg9pz/ZN2BXUCou2pksxPxsZaPHE
+         vLtLdNZTLhKgHjQ3/NDlCmI7yCfKN4sfNTAk1T0mcFyRGj0A91LaQT44TK4EqceWaMYo
+         Holf6lxZMF6S6Et5b04KyRaEe+E4DCx39mSiKF00QEZVR1wxUaeTO5zsBGQbdUOqwZ0i
+         VRyTw7wet8ape+KBbvFpWD4VQePAbXxkHZtrXPVPnPj9OM1lIyLXusXQFVMIg0M4d3WZ
+         Q8pQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=9IhlUkMRcGadMw712CUmXXTZRL8yYqb/rn27iOJ3Jx0=;
+        fh=4U1Hn5Lg8YZkznXeQefaaGN8uE77LIcuj7VRWbLiznE=;
+        b=YP47qt8bP2Q2lFV0juk9IS0th4CRfFqyHTP2QIWyNDjTG4SXaCTWb8UXuylovjGHsa
+         TcVG/8ezuUxoRq2G0v6gSmS0ZwaGOj3qYbP0riXG9M1VT3VA15fCzSg0ZPGrRWUheJGR
+         98BGu32cQ9w59sC35Ce8ZrjEGthinAZ3etV+2trlnz2OmK6FE2UPcBkzo5kc3hBawLas
+         v+FxC6EvBOlYq8u6DszDiR7E/fm8pYJefF4YC7mQf7dfxESZJWy4E08WojVIBImaSQcj
+         iqbCeHAai0bOIPovFJTeYMjlDuocsjKbm+O9e6/3lpsgCCyyDbZyG601UMtbOfW9I78m
+         Nnyw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1789155920; x=1789760720; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=9IhlUkMRcGadMw712CUmXXTZRL8yYqb/rn27iOJ3Jx0=;
+        b=WoVAbnB00ta9o17WJdgwddVpQnPyOueppUCYDj0KEcmra2a5VtnRL4clNjQU4mZLVc
+         bEk6SWsgLUlgAtyWiN6i5XDTo13F563jsdapWtya93x7pLCKLaNUUHMiv+JvJosB2xPB
+         5/WiBcJg3q8gkv2BnIj0RFK3xnFxgR6jfZzeRFKfMdmUuokwN81HSJ+EjAmFm4wy/RA9
+         JHut7/uFWcmVnKj5WCvP3erQ2alN1JUQBWLeMPULWcg5Bdl7kNOzZGgqJslC0EQxl+yf
+         Z9o1IjlxmbSPk3AsmjRRvScF5cko/yhHJm90YX1n6zExt+VPK6ZdougO0+qaAER88vVB
+         kOVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1789155920; x=1789760720;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=9IhlUkMRcGadMw712CUmXXTZRL8yYqb/rn27iOJ3Jx0=;
+        b=gpOqXmOCSsGQH2D1xswad/Ht/LnogCFpeGKQLZrmi61ab3QUfbjWQayLk8DBsHppy2
+         QCUvG3KNhkkKh9W7p1FrmFCsB6xrUTsSy9AeJvhXkXMbdUbdt/OWGEMoQHRdSkTx/hup
+         UJH3T8IfaYWja25kyPwonT+87ThPemOdRiDzlyGnKqcfkXwCPIHgPXuBdIGAm1+jj/0b
+         8lqRnKnfWF8mOZGfQKbLFjLmudCmCCdJR6eJB6+ye61CwZB239X9WM04j6U+HRwJ2KK2
+         W9dWj7YanjRjhkH3KvEQIf4gO5xruqp04p4YJZIszM4ZLTH+D5kOPwsYp4KkVtdqNDpa
+         TKpw==
+X-Gm-Message-State: AFuF++nGl7NaS4mpr/8OyBNC+ER3FIga+iUed3iGQhAI3p9PIsaloqcA
+	2POzxw5PaCFiuk6/C17gs9ZwhBGNJgbYNPuVQ+A38pIqXuugsbsSxk5JI7GMBVOwyhWUMKlKrZX
+	jEX/ExGZFmvu7sBnaadT4xU4ZugByfrU=
+X-Gm-Gg: AYBFou3cLzuFyO9EfHRCTYv4sL3F40t/sVCaQWX9IWsFD83tg0P3q+y4rw5RQ//BtT3
+	oV4EMUKVLUJddyG0q5bjU0UaPUB7KaaCBtgQO/iQhW3T5fCaSZRG7MnRCJy/4XeKIG8iqTGkBhY
+	a6m3GtVZ4qJfab/5DXWQwIM/ZmoX0RshZcH9sXbPvyp4iGcTn1A2e3oMsG92D7HazcG9eWM+Gds
+	wmpstIjZmBhN0tESkAWxihs2elLnuJOKGC5QZfePhY67fGtXvTJMazz/EjZ3w0lTTDJc2vmgJm2
+	ZTq2ZxRMkUSIplOoqrPbNwTB6x7Tc/n+PCR+b2AYQhprXMJb5BQaTafKovD/0/QV9/51DEx2H17
+	T91Sz8qJ4Wfo=
+X-Received: by 2002:a05:651c:2124:b0:3a3:7682:49a1 with SMTP id
+ 38308e7fff4ca-3a5a52625f9mr6786511fa.22.1789155919488; Fri, 11 Sep 2026
+ 12:45:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <20260910161310.1478081-1-kbusch@meta.com>
+In-Reply-To: <20260910161310.1478081-1-kbusch@meta.com>
+From: Vincent Fu <vincentfu@gmail.com>
+Date: Fri, 11 Sep 2026 15:45:06 -0400
+X-Gm-Features: AcwNN1VE7roU4hFV5qBCWuWzedowtpcF_ij-_s5m95YHn0W78vEb2zh2x75aGXw
+Message-ID: <CAOp=CX=LBjGtcF5y2Xddj+j0MpnXxe0vPhK1MpybUSKRZB5aPg@mail.gmail.com>
+Subject: Re: [PATCHv2 0/4] fio: fix eta
+To: Keith Busch <kbusch@meta.com>
+Cc: fio@vger.kernel.org, axboe@kernel.dk, Keith Busch <kbusch@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-FB-Internal: Safe
-Content-Type: text/plain
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwOTEwMDE5NyBTYWx0ZWRfX5ZrQjxne+yIK
- HaGbCWSzIUm3OdXLt4EqmyA0EQxbToPCDkeGtbjl6l/b69R55Kuy/s6ugddHYmWGbI8d/egp/Nu
- cwlu8f8Il5/MpueiIsLDPd0iZBEjTd2Pv44NROOzthwrPcurTrH5iS4b3A9lov/fbHzDnhOzxbp
- 7S8PyIBjF2LXzZ/HQM97/u4T6cF+GRUIJFrbPmdedthYIYzEGfzQ8pNQnIdvuKZXMQ7/cb2Phmy
- WSaqy3oqusI9WBELIusb+3FkIptmyPdChwtoXFV68NztjCpSLEoZeICBv3aCr0ePRpKkPVCDT1W
- GQya/u/RC150GI0sPUnH+1xX7U/Blj/DCdE4P0WhjPV0R6eFYNt9AYuvXKcXKVYkuGzVNk1sfbp
- s3nPGnpxFtR7YA+fpjMbOrIFDMiIhnO+8UQqnM3onF8vHQKlOUsFTnM7t7BOn1lagFzIxYjLHbl
- gfGIHohxwN3dlGiGtOA==
-X-Authority-Analysis: v=2.4 cv=C/t8WgP+ c=1 sm=1 tr=0 ts=6aa2d729 cx=c_pps
- a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
- a=VdqzKS8jKosA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=PAz_-FQ8hEVmOPYdF0yf:22 a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8
- a=3ZPer1PrDAVJDb21DGMA:9 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwOTEwMDE5NyBTYWx0ZWRfX+A3m9Q9Tzzy1
- lmpzZ2b2rV+z25Ul0DNN8kZ2TVXbSMFQEohAQ7E7D1Y3BiJHe9Xc3RbD5AaINcgJ3iRdga+bbo2
- CZ+A9d+lkILJmsQGrVBW1ZVdzRx88xw=
-X-Proofpoint-GUID: Dl0AFPZCP42GkmhaEaGRtTh7OIacqxvd
-X-Proofpoint-ORIG-GUID: Dl0AFPZCP42GkmhaEaGRtTh7OIacqxvd
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1176,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-09-10_05,2026-09-09_02,2025-10-01_01
 
-From: Keith Busch <kbusch@kernel.org>
+On Thu, Sep 10, 2026 at 12:13=E2=80=AFPM Keith Busch <kbusch@meta.com> wrot=
+e:
+>
+> From: Keith Busch <kbusch@kernel.org>
+>
+> Changes:
+>
+> Fix up the state machine rather than hack around it.
+>
+> v1: https://lore.kernel.org/fio/20260903172101.1886315-1-kbusch@meta.com/
+>
+> Keith Busch (4):
+>   eta: count a job that is setting up as running
+>   backend: don't mark a job as running before it has set up
+>   eta: cap the ETA at the job's own remaining runtime
+>   eta: remove now unused done_secs
+>
+>  backend.c | 23 ++++++++++++++++-------
+>  eta.c     | 20 +++++++++++++++-----
+>  fio.h     |  1 -
+>  libfio.c  |  4 ++--
+>  4 files changed, 33 insertions(+), 15 deletions(-)
+>
+> --
+> 2.53.0-Meta
+>
 
-Changes:
+Applied. Thanks.
 
-Fix up the state machine rather than hack around it.
-
-v1: https://lore.kernel.org/fio/20260903172101.1886315-1-kbusch@meta.com/
-
-Keith Busch (4):
-  eta: count a job that is setting up as running
-  backend: don't mark a job as running before it has set up
-  eta: cap the ETA at the job's own remaining runtime
-  eta: remove now unused done_secs
-
- backend.c | 23 ++++++++++++++++-------
- eta.c     | 20 +++++++++++++++-----
- fio.h     |  1 -
- libfio.c  |  4 ++--
- 4 files changed, 33 insertions(+), 15 deletions(-)
-
---=20
-2.53.0-Meta
-
+Vincent
