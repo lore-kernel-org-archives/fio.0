@@ -1,94 +1,95 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18061404BF9
-	for <fio@vger.kernel.org>; Fri, 11 Sep 2026 19:45:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 627E4568FA6
+	for <fio@vger.kernel.org>; Fri, 11 Sep 2026 19:50:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.174
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789155937; cv=pass; b=hVkh+qc9Ci8fsy1IleN9vUnyx5TNKTwtx3UhdvA1VNyVcpoRv6brG/9di4v3KIMU4dfNXlSMtfF1q7Vt193KxmimhAsvrFUOrd7W/UeFXgXssddVFDhRU4EYWcErjaPs0l/OYnkLfYN0+OBTUBP/5vV13PV0UCXDckhnRtekKkQ=
+	t=1789156231; cv=pass; b=LwrBPEJFzfwDpXXvW9gmt1A2wM1BQueqXq8WI8aAnDaoooQq8RAzrQHZgqnpOv29iunHOEwPIEO5Qc6JaBi1wmAthMHY/TzO6pH+q9FSMeYrPJooAe47jQww1yIZM6CVt64cf/Bs5XcIqPAblX6jNwOa/v8lg6znnpNCFJqPDL8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789155937; c=relaxed/simple;
-	bh=coQegICKr/zhdDj6vIMAeewDNeVf+Nptv9/C5lcPRKU=;
+	s=arc-20240116; t=1789156231; c=relaxed/simple;
+	bh=QkgMlQaViWwWdMyqpgBtOsJU41E4gqUA/ZKXObs42Kk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nrigiggkCHLAGB7xsP3B06GO+G5yW0Y5vri9TD6JQYfnv8uBsrY8i8xXzWDUdltosPiOUzdJmB1UY7SO34IaVpJCM+E2Sr34s2GQSzorUPZScUYCB/rzeZglnz09F7FWAPmi/bvbfg6nluSHSovkISDj/IRKAqLg2tK7Om1qI+4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WoVAbnB0; arc=pass smtp.client-ip=209.85.208.169
+	 To:Cc:Content-Type; b=XX6dXavTz8lwag0SJaToAKAmC337/74nVoHRGk3U8v9uzAxCnAd8BvNuJN5sdNmfmcclv1RUeEZucd1jxWwoo8uH4y4OgW+WOo39mOLmrvSa/wqrXCmL4FBsvfvlArzO+3RihMpGAMnOZPS8o3utHEClwMyRP2gsC0xsh1wnESo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A7JRGyy1; arc=pass smtp.client-ip=209.85.208.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WoVAbnB0"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-3a595487d43so8821171fa.3
-        for <fio@vger.kernel.org>; Fri, 11 Sep 2026 12:45:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1789155920; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A7JRGyy1"
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-3a4835ab78cso12574991fa.2
+        for <fio@vger.kernel.org>; Fri, 11 Sep 2026 12:50:10 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1789156208; cv=none;
         d=google.com; s=arc-20260327;
-        b=ORxwcS+tcKP7/ub30UvQ3EilVB04qtu6jmiT5f8r+xp7if+HvKo9W1cl7tDWWbyv0G
-         hDdfRwL5bYj29tYiTlRBiHjZmmSu6uvetAQEYXvOlg9pz/ZN2BXUCou2pksxPxsZaPHE
-         vLtLdNZTLhKgHjQ3/NDlCmI7yCfKN4sfNTAk1T0mcFyRGj0A91LaQT44TK4EqceWaMYo
-         Holf6lxZMF6S6Et5b04KyRaEe+E4DCx39mSiKF00QEZVR1wxUaeTO5zsBGQbdUOqwZ0i
-         VRyTw7wet8ape+KBbvFpWD4VQePAbXxkHZtrXPVPnPj9OM1lIyLXusXQFVMIg0M4d3WZ
-         Q8pQ==
+        b=m5FPW8xlY9pjMoVXpsyZjoRxiKevAxyZDV1fH2h6B+mAeaKDE3pO6NOTUQdYp5cfRY
+         39hIqVMcs8+gjIiQ5g3cU2rYZiWZ9KheVwEN03RtihBrTqgilBIHvGIHdUEC+IKJfHJH
+         ALbJGoi5kl3N2/OKRyQX09a6UMdPxLobKMIKCuPFYIrbYMqiWxuot0y32bB0vfnpXGH2
+         7fzn5AjCJVPRGKecgxE14pCg/KFgJxP/6wJqBy7u5RiAQq+FNQZX9b5ITlqNwDkj2wNw
+         FQGCfoFb0SYMaTBbXZhqHshbdB6H1nd11VE99vO3RDS4IB0s78G8PrU94QrwPfS+5Ats
+         E1fg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=9IhlUkMRcGadMw712CUmXXTZRL8yYqb/rn27iOJ3Jx0=;
+        bh=QkgMlQaViWwWdMyqpgBtOsJU41E4gqUA/ZKXObs42Kk=;
         fh=4U1Hn5Lg8YZkznXeQefaaGN8uE77LIcuj7VRWbLiznE=;
-        b=YP47qt8bP2Q2lFV0juk9IS0th4CRfFqyHTP2QIWyNDjTG4SXaCTWb8UXuylovjGHsa
-         TcVG/8ezuUxoRq2G0v6gSmS0ZwaGOj3qYbP0riXG9M1VT3VA15fCzSg0ZPGrRWUheJGR
-         98BGu32cQ9w59sC35Ce8ZrjEGthinAZ3etV+2trlnz2OmK6FE2UPcBkzo5kc3hBawLas
-         v+FxC6EvBOlYq8u6DszDiR7E/fm8pYJefF4YC7mQf7dfxESZJWy4E08WojVIBImaSQcj
-         iqbCeHAai0bOIPovFJTeYMjlDuocsjKbm+O9e6/3lpsgCCyyDbZyG601UMtbOfW9I78m
-         Nnyw==;
+        b=ija4TGM/oERGZRZvwZaFuC8BvkgHgCyaB3Thav/Jw+61//FkHrLTbWSXPAj34t4xOv
+         D9vnblX4FxJSX/3TizYRdDESBQyPkiPp83SOvFIo1RtrcBlX61/EUQsowXN3l1XG5IJT
+         GNcPMydlbTgAIOTJHdqAFlcsjWxY3PEBLnk84apHt2VAgMFR/xSnjBMmjcPB5XuKAO0Q
+         jmgl0PXFLLHgU0kOWs7AiVSqevsQfdwH06pHkXavqY3gziru6IsQXGjKDZzdQGEetmqs
+         pkqSNO1WMtthZ3VBcdqpTuyxQw/E6h3FOpukO9h4XIQoeWcLXHCQyJKzisPKWlKQQk3t
+         O/Nw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789155920; x=1789760720; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1789156208; x=1789761008; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=9IhlUkMRcGadMw712CUmXXTZRL8yYqb/rn27iOJ3Jx0=;
-        b=WoVAbnB00ta9o17WJdgwddVpQnPyOueppUCYDj0KEcmra2a5VtnRL4clNjQU4mZLVc
-         bEk6SWsgLUlgAtyWiN6i5XDTo13F563jsdapWtya93x7pLCKLaNUUHMiv+JvJosB2xPB
-         5/WiBcJg3q8gkv2BnIj0RFK3xnFxgR6jfZzeRFKfMdmUuokwN81HSJ+EjAmFm4wy/RA9
-         JHut7/uFWcmVnKj5WCvP3erQ2alN1JUQBWLeMPULWcg5Bdl7kNOzZGgqJslC0EQxl+yf
-         Z9o1IjlxmbSPk3AsmjRRvScF5cko/yhHJm90YX1n6zExt+VPK6ZdougO0+qaAER88vVB
-         kOVg==
+        bh=QkgMlQaViWwWdMyqpgBtOsJU41E4gqUA/ZKXObs42Kk=;
+        b=A7JRGyy1ApA6Hamt6T9UYchyw+WUrAh6ZcCsTsSR6dMFnH+EmE4T0lyO0hFTnzXKHF
+         gAUikIOZzihOe1j9wD6aaug/G/kKidRKGDFHS4kLNUxRFoZmYs7MKFqyhS33SIuF0prO
+         5CJ4BvxvTGbmqf/JItBmUNdYrTGMGRKk0O15aH5MvX1PzI8wx7swSZoBmeivRopX/Bv7
+         dNuK142Pu5Ez+LnvW+JRuFqmV46yw89MplRMEUFpNqF4kzjJKcPbpsJLrJ9/sCM60N6h
+         BxH5EhNo3KoW/gHUo36Dm6Fpv39oLpv5z+t0XYAnrvgsnWV1kSbUwWNde0P4Ij11Vj8/
+         1QbA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789155920; x=1789760720;
+        d=1e100.net; s=20251104; t=1789156208; x=1789761008;
         h=content-transfer-encoding:content-type:cc:to:subject:message-id
          :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=9IhlUkMRcGadMw712CUmXXTZRL8yYqb/rn27iOJ3Jx0=;
-        b=gpOqXmOCSsGQH2D1xswad/Ht/LnogCFpeGKQLZrmi61ab3QUfbjWQayLk8DBsHppy2
-         QCUvG3KNhkkKh9W7p1FrmFCsB6xrUTsSy9AeJvhXkXMbdUbdt/OWGEMoQHRdSkTx/hup
-         UJH3T8IfaYWja25kyPwonT+87ThPemOdRiDzlyGnKqcfkXwCPIHgPXuBdIGAm1+jj/0b
-         8lqRnKnfWF8mOZGfQKbLFjLmudCmCCdJR6eJB6+ye61CwZB239X9WM04j6U+HRwJ2KK2
-         W9dWj7YanjRjhkH3KvEQIf4gO5xruqp04p4YJZIszM4ZLTH+D5kOPwsYp4KkVtdqNDpa
-         TKpw==
-X-Gm-Message-State: AFuF++nGl7NaS4mpr/8OyBNC+ER3FIga+iUed3iGQhAI3p9PIsaloqcA
-	2POzxw5PaCFiuk6/C17gs9ZwhBGNJgbYNPuVQ+A38pIqXuugsbsSxk5JI7GMBVOwyhWUMKlKrZX
-	jEX/ExGZFmvu7sBnaadT4xU4ZugByfrU=
-X-Gm-Gg: AYBFou3cLzuFyO9EfHRCTYv4sL3F40t/sVCaQWX9IWsFD83tg0P3q+y4rw5RQ//BtT3
-	oV4EMUKVLUJddyG0q5bjU0UaPUB7KaaCBtgQO/iQhW3T5fCaSZRG7MnRCJy/4XeKIG8iqTGkBhY
-	a6m3GtVZ4qJfab/5DXWQwIM/ZmoX0RshZcH9sXbPvyp4iGcTn1A2e3oMsG92D7HazcG9eWM+Gds
-	wmpstIjZmBhN0tESkAWxihs2elLnuJOKGC5QZfePhY67fGtXvTJMazz/EjZ3w0lTTDJc2vmgJm2
-	ZTq2ZxRMkUSIplOoqrPbNwTB6x7Tc/n+PCR+b2AYQhprXMJb5BQaTafKovD/0/QV9/51DEx2H17
-	T91Sz8qJ4Wfo=
-X-Received: by 2002:a05:651c:2124:b0:3a3:7682:49a1 with SMTP id
- 38308e7fff4ca-3a5a52625f9mr6786511fa.22.1789155919488; Fri, 11 Sep 2026
- 12:45:19 -0700 (PDT)
+        bh=QkgMlQaViWwWdMyqpgBtOsJU41E4gqUA/ZKXObs42Kk=;
+        b=cVXuOkSdymeIiuuaQKkGOP9x3659q9prielWCpSQnHvuzQzjarysb6hMLOzX6Uy7/o
+         ASjEsASlW3dT1kVkdpgb9+8ihtzlHAyrJeZQLJDGtDupLjryRT8V2DWZFQ01cVa0wx9z
+         MxQryXhKQQKQJ8F4CaYS0w/ug7NC3b2cYV3/fmBuvG5OFuTYoA/3VxVAvx72a2lWGN2R
+         Qepl35KELolJxy6Z0pRCWFfIViYI/bqKNlzBDG5X5RdFzMG4hQpeeG1tqitHEmnDSyKD
+         Bq8912izkR6+lm0WoQgjRAwFqVB30DNN3ezyW0tU7szorWPgTB3rHiB1yXlveCXo3wG4
+         XuMw==
+X-Gm-Message-State: AFuF++ngySnG4vbWSsapMiKyX2M3vAwHY7iSTRUOxJ+kHod64PfQczDv
+	LeQ8JGR7tdhzgYj9A4IsbM7LaNWtqwf83ehQR//VdVYbVHJGz2MMbhEVRHA/uU6XAWM0zmvAsJR
+	3d3j7a0WRRZh9DuLfmXret0PD+NdiYLiwcYo4
+X-Gm-Gg: AYBFou1sZHC8tpoaLEYM3uA/EoiXiWLxcqkwMmkwojTYNaa0AG8aiTmeQB/m7KeYdDz
+	FQ0DhercTsNPNNyIP8JxvPhSP549w6Snn5+KDbAMmXV/C08+Icu2NbnEn8qqclPX8jR7Jgbrv05
+	62uXz7KEP3xXQXG819+v0XXqKt7rJ8E/+Umj1ZqKY0okaImRQe6qnPdnJ4vZGIWzYPm3fTvxbsc
+	aG91N6xR4hQ4zlxH8/Yh2ugmOrq6B86htb7bkifuk66o0H6YB0EUbnV1kCRErLP/yri8PlVX4cK
+	VKOF4XL32anOK7nhoXMdrvy9kxvJIkbJTlb5ltji1k+tg9GMAeZ+FSJ+hlt+1e0OhD/hJw0VJgh
+	VoCOprxpapoc=
+X-Received: by 2002:a05:651c:43c1:10b0:3a4:952b:b061 with SMTP id
+ 38308e7fff4ca-3a5a50741e9mr4778201fa.26.1789156207741; Fri, 11 Sep 2026
+ 12:50:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260910161310.1478081-1-kbusch@meta.com>
-In-Reply-To: <20260910161310.1478081-1-kbusch@meta.com>
+References: <20260910161310.1478081-1-kbusch@meta.com> <20260910161310.1478081-3-kbusch@meta.com>
+In-Reply-To: <20260910161310.1478081-3-kbusch@meta.com>
 From: Vincent Fu <vincentfu@gmail.com>
-Date: Fri, 11 Sep 2026 15:45:06 -0400
-X-Gm-Features: AcwNN1VE7roU4hFV5qBCWuWzedowtpcF_ij-_s5m95YHn0W78vEb2zh2x75aGXw
-Message-ID: <CAOp=CX=LBjGtcF5y2Xddj+j0MpnXxe0vPhK1MpybUSKRZB5aPg@mail.gmail.com>
-Subject: Re: [PATCHv2 0/4] fio: fix eta
+Date: Fri, 11 Sep 2026 15:49:55 -0400
+X-Gm-Features: AcwNN1UadWcHpCv7izTnp3L_PGKA6Amn4wM8moZnQX6JnbLuSNL23pcID11fTrU
+Message-ID: <CAOp=CXmEGm0xoVsCEaLcnv7tOJVu2YKj7pX+JhaSOUPOBQpa+A@mail.gmail.com>
+Subject: Re: [PATCHv2 2/4] backend: don't mark a job as running before it has
+ set up
 To: Keith Busch <kbusch@meta.com>
 Cc: fio@vger.kernel.org, axboe@kernel.dk, Keith Busch <kbusch@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -97,30 +98,21 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Sep 10, 2026 at 12:13=E2=80=AFPM Keith Busch <kbusch@meta.com> wrot=
 e:
 >
-> From: Keith Busch <kbusch@kernel.org>
->
-> Changes:
->
-> Fix up the state machine rather than hack around it.
->
-> v1: https://lore.kernel.org/fio/20260903172101.1886315-1-kbusch@meta.com/
->
-> Keith Busch (4):
->   eta: count a job that is setting up as running
->   backend: don't mark a job as running before it has set up
->   eta: cap the ETA at the job's own remaining runtime
->   eta: remove now unused done_secs
->
->  backend.c | 23 ++++++++++++++++-------
->  eta.c     | 20 +++++++++++++++-----
->  fio.h     |  1 -
->  libfio.c  |  4 ++--
->  4 files changed, 33 insertions(+), 15 deletions(-)
->
-> --
-> 2.53.0-Meta
+<snip>
+> Widen the TERMINATE_STONEWALL check to match. It tests for runstate >=3D
+> TD_RUNNING to find jobs worth terminating, and a job in the setup window
+> used to satisfy that. Without this, exit_what=3Dstonewall stops reaching =
+a
+> job that is still setting up, and a test where the short job is reaped
+> while a longer one sits in exec_prerun goes from 5.5s to 20.5s. Note
+> TD_RAMP sorts below TD_SETTING_UP, so ramping jobs remain excluded from
+> that check exactly as before.
 >
 
-Applied. Thanks.
+I wonder if we should actually swap the order of TD_RAMP and TD_SETTING up =
+in
+the state machine. A job that is in its ramp time is part of the currently
+running stonewall group, so it should be terminated when exitall=3Dstonewal=
+l.
 
 Vincent
