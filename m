@@ -1,87 +1,208 @@
-Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DF2F379C38
-	for <fio@vger.kernel.org>; Fri, 11 Sep 2026 21:09:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22D82479873
+	for <fio@vger.kernel.org>; Sat, 12 Sep 2026 12:00:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789160960; cv=none; b=EZG3M6NhnujK83Lz0FTD0MWtbCtHFzsau2i5PTEWiHSN3+lEy897SqJSq26UOB4PR4QUC4iYM/vpwC1F0IpNkLnJG14E8hmO/csGnIjAzKsvJzA+hQeVdhoxTSeabC0hFgATho7uEM7tWy7C7GTQYeomDnUEQakrvbsCO7gqN9k=
+	t=1789214422; cv=none; b=BWlyBxdEK9VgrOBnIrV45wQW1htj0IUxykL42fgenRvW/pZzxyQxgBuMp9+4m0w/QNVysxGjDU5n9ddtFsowOueP+dOYGtTBLkjO0Y1Ras2xRNo/NqDRLITM93PtV4W1wQ21m/weZ5iVdWYvzjgeH34TiM+Haki0xE4zxR73V6M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789160960; c=relaxed/simple;
-	bh=tHOgS05cHufnUEzGJ8VcX0xiHGeRCiDjdj6+Y9Gaud0=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=UrSNT0wgUZ811n99SRzLAlKUuw1JHTbWPT4gQ2NKtryQGXpY4sG2p9UztrCVhl3anI1MfWgkyq7HIdTnajqAHGlGtYhXIXJSfx2YNaaSNMocXczp1JUnMnfa9R7FFyT86Bk4B91gTBozmppzVcAu1q0kPlZQvY70HnrWVumsrbQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ORojkg2y; arc=none smtp.client-ip=209.85.161.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1789214422; c=relaxed/simple;
+	bh=EMeF2UhDkW3s5VuA+Eppy+SMA4QVhuTYjgABmOH0iA8=;
+	h=Subject:From:To:Date:Message-Id; b=iA05bda9I89ERjfZ6nzX3xqiZgDoZbY3IrOP50WVuARii30hLaXM2/v1iedn578HS3MtFwTTeUWgioM1kHncMGH+S1qwkDJgjX8MS6iyIEZwHexn8mdNqREW25/2GHJ955R9nr8JHDmN57GXkGZ8A8/j5y1jPPBdNOtOq5x8vvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=Ct18v7uH; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ORojkg2y"
-Received: by mail-oo1-f47.google.com with SMTP id 006d021491bc7-6be1f18687bso952878eaf.2
-        for <fio@vger.kernel.org>; Fri, 11 Sep 2026 14:09:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1789160955; x=1789765755; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version
-         :content-type:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=tHOgS05cHufnUEzGJ8VcX0xiHGeRCiDjdj6+Y9Gaud0=;
-        b=ORojkg2ylybvaYB3Xrm4Ecc9H5LuaZypqqaCf8qHmzYWsRkumb9vj0dMj2NQT2W6t4
-         2kA8cdvvOUWdt+8OMOjXJB5bKiLIjKik3ZtnEXiI1rBRWvXtTVOakgXfTAwSveZaMH6i
-         QiRiZQV1bgchVjzjqL3bY7c419PM6Hi+AgueoA2MVyfxu+z4KwcePpLlk1a0+u29vg9+
-         siJgczofQw3+Ac0bewGqWSYaDIQKYlvpzuNGpi36z+0FOPJ3h3K6n7Y529cfTHtal/hl
-         5NsE3o6P53F9zgr0YfNkLHGq84c5kY4Gm9+fWnuWibb/T+FRmA85KCyXPg2bVXDziF0m
-         Ax8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1789160955; x=1789765755;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version
-         :content-type:date:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=tHOgS05cHufnUEzGJ8VcX0xiHGeRCiDjdj6+Y9Gaud0=;
-        b=kyzhGSn0PpnfHPl8hTILrS69Pky8D1xTqEeyVBRI5dPVvtnIQXlhTLX4UdOY0oG4Rv
-         vOUhwJPkSZqw0BNC8lIRl+lEo8LdYarlgCVK0Iih4iOsaH+jDq4a/fyOj1SmBKtgXAVX
-         na5sZcE2OmG8oCi3jIeY8jABjQs/d1xCV1t/BGIFiGA1uXs+j+FIIzl1rcTcu25BSyfV
-         Lg9dORHvvHGrl6eyk9coSadc7UN5qqOS3KvETRYR/nTgDk2g/f9pnbpcO6vSvifZXvif
-         pb+af0Pz9WYR9qoFmtL81nUgwepTKZgb1WuvEIsnE1RnYRVI+AfLpl3M3j0eBPXtjA6f
-         LBXg==
-X-Gm-Message-State: AFuF++knJjuGDB4erNiibIzYrDWWPWF0TNDGWPuLJXgV+UYyySaDCBko
-	Ka49vy7W0xYMBoJD0JzwyTu6e0EcLj4tYZHKo0K65fvSH8Y6dLO310SAeGaI
-X-Gm-Gg: AYBFou33k1xGf86UI1v0HL9Gp4CPlF/IydnEh5zAJQpTk5KXeSzRoT2+UwyQjBgelpV
-	QfBQ4LsCYNvvlH8tlOPrFYJL/bOldGCfB2ZKpQAcUOUXNkbX+wglLpMARni1qbbzRx+awwVUEHe
-	zQenI4xyX0DhzeCcu2RcyX9NUrOKn+5aF83X8brvzvaF0aEoCpIpdIBrYyFPdCyWflCBgPSppUJ
-	DZ9RYD+b5nQp5PUmBX6sInfx/iAnwUlW16T/QivOS4j7J9gO2cG/ZnFhbra7cU9pwC8sSVPONlp
-	d+WeSd13S9FKc/IUGEiZVe4LT36pqCoCwquvQAAjaqUd9PSaHmTQtb6ArwqO8YvfTUVAjwJBmbD
-	eYT/byFq8AAj/88OQDuU6dv8uxCz9k3JaoZpXqq0J9FS59bHd3B1+lnOa+Te+cfolCznnhh9G79
-	GRHQoSLjqxydVTiLcIC6b2Q+39ZkrtaG9uRuxBxPoTu0ya+gvwq44kwZgTi++Xf5hMk6QX7/+zx
-	+cJJw0R6yByKajoT/GzR0MYcVo7050j9SaLVb0eoEQwZFRlDlokUNf/GIb4TunrmwHnaw==
-X-Received: by 2002:a05:6820:184a:b0:6b7:83d6:2926 with SMTP id 006d021491bc7-6c0bc1d82dcmr4512348eaf.41.1789160955469;
-        Fri, 11 Sep 2026 14:09:15 -0700 (PDT)
-Received: from runnervmlun5p.4oje2qbujxxehcp531edvjx4bf.gx.internal.cloudapp.net ([20.106.22.181])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-803f5adf677sm4091284a34.4.2026.09.11.14.09.15
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Sep 2026 14:09:15 -0700 (PDT)
-Date: Fri, 11 Sep 2026 14:09:15 -0700 (PDT)
-Content-Type: multipart/mixed; boundary="===============5659777137254503794=="
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Ct18v7uH"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=8kgbddlKu9nmK18huSoQzxgBGEHYKdkZbliuEb710Pg=; b=Ct18v7uHDvKrzEHC4q7ODs/z+T
+	i/uKM/6+24/Hnp79Xh/ACHiW/ogddmvTaJx9AKV21F1+P4MzjlVu/UslCIFT1CX5weuRsCg18LKTI
+	9NRZG6702ui7ivOWquYvBkgHKbuWS2D6+2CQBPTZ1OtqIhSoAFQkvc1x/dQthBkQc2nUfvV9FlGeV
+	wPn8HbMzcPnEsIBTxVImzq+ZIofXGgvbePvXezbqH+tuDyBgfwUsqpMaETfEIEk41+xA7FwXAg1bl
+	v2KWweHHD7sghSZJreNpJq1u9yLLjLdaQeP87hbfu5SaH1HuL6ZxrX+myK+px9JRma51Z+7DdsBTn
+	2Sj42KWQ==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
+	id 1x5MOr-00000004OLy-31kq
+	for fio@vger.kernel.org;
+	Sat, 12 Sep 2026 12:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 863711BC0154; Sat, 12 Sep 2026 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Sat, 12 Sep 2026 06:00:01 -0600
+Message-Id: <20260912120001.863711BC0154@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCHv2_0/4=5D_fio=3A_fix_eta?=
-In-Reply-To: <20260910161310.1478081-1-kbusch@meta.com>
-References: <20260910161310.1478081-1-kbusch@meta.com>
-Message-ID: <178916095477.2971.12409468673227679585@runnervmlun5p.4oje2qbujxxehcp531edvjx4bf.gx.internal.cloudapp.net>
 
---===============5659777137254503794==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+The following changes since commit ac6ae485e6003b2a9999540c4e3e65780f1e6660:
 
+  Merge branch 'inconsistent_parameter_type_in_convert_agg_kbytes_percent' of https://github.com/dennischerchang/fio (2026-09-09 14:18:37 -0400)
 
-The result of fio's continuous integration tests was: failure
+are available in the Git repository at:
 
-For more details see https://github.com/fiotestbot/fio/actions/runs/34637696308
+  git://git.kernel.dk/fio.git master
 
---===============5659777137254503794==--
+for you to fetch changes up to 6bc57a931f04fa3f50348d8c8f087187f050c6e1:
+
+  eta: remove now unused done_secs (2026-09-11 14:41:56 -0400)
+
+----------------------------------------------------------------
+Keith Busch (4):
+      eta: count a job that is setting up as running
+      backend: don't mark a job as running before it has set up
+      eta: cap the ETA at the job's own remaining runtime
+      eta: remove now unused done_secs
+
+ backend.c | 23 ++++++++++++++++-------
+ eta.c     | 20 +++++++++++++++-----
+ fio.h     |  1 -
+ libfio.c  |  4 ++--
+ 4 files changed, 33 insertions(+), 15 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/backend.c b/backend.c
+index 2b419b12..88557f0b 100644
+--- a/backend.c
++++ b/backend.c
+@@ -71,7 +71,6 @@ unsigned int nr_segments = 0;
+ unsigned int cur_segment = 0;
+ unsigned int stat_number = 0;
+ int temp_stall_ts;
+-unsigned long done_secs = 0;
+ #ifdef PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP
+ pthread_mutex_t overlap_check = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+ #else
+@@ -2180,6 +2179,17 @@ static void *thread_main(void *data)
+ 		goto err;
+ 
+ 	set_epoch_time(td, o->log_alternate_epoch_clock_id, o->job_start_clock_id);
++
++	/*
++	 * Setup is done and the job now has an epoch to measure itself
++	 * against, so it is finally safe to call it running. Everything
++	 * above this point ran as TD_SETTING_UP.
++	 */
++	if (in_ramp_period(td))
++		td_set_runstate(td, TD_RAMP);
++	else
++		td_set_runstate(td, TD_RUNNING);
++
+ 	fio_getrusage(&td->ru_start);
+ 	memcpy(&td->bw_sample_time, &td->epoch, sizeof(td->epoch));
+ 	memcpy(&td->iops_sample_time, &td->epoch, sizeof(td->epoch));
+@@ -2499,7 +2509,6 @@ reaped:
+ 		if (td->error)
+ 			exit_value++;
+ 
+-		done_secs += mtime_since_now(&td->epoch) / 1000;
+ 		profile_td_exit(td);
+ 		flow_exit_job(td);
+ 	} end_for_each();
+@@ -2893,16 +2902,16 @@ reap:
+ 		}
+ 
+ 		/*
+-		 * start created threads (TD_INITIALIZED -> TD_RUNNING).
++		 * start created threads (TD_INITIALIZED -> TD_SETTING_UP).
++		 * The job has plenty of setup left to do before it issues any
++		 * IO, so it promotes itself to TD_RAMP or TD_RUNNING once that
++		 * is done and it has recorded its epoch.
+ 		 */
+ 		for_each_td(td) {
+ 			if (td->runstate != TD_INITIALIZED)
+ 				continue;
+ 
+-			if (in_ramp_period(td))
+-				td_set_runstate(td, TD_RAMP);
+-			else
+-				td_set_runstate(td, TD_RUNNING);
++			td_set_runstate(td, TD_SETTING_UP);
+ 			nr_running++;
+ 			nr_started--;
+ 			m_rate += ddir_rw_sum(td->o.ratemin);
+diff --git a/eta.c b/eta.c
+index c6e3cffb..d17b8c3f 100644
+--- a/eta.c
++++ b/eta.c
+@@ -253,9 +253,18 @@ static unsigned long thread_eta(struct thread_data *td)
+ 			eta_sec = (unsigned long) (elapsed * (1.0 / perc)) - elapsed;
+ 		}
+ 
+-		if (td->o.timeout &&
+-		    eta_sec > (timeout + done_secs - elapsed))
+-			eta_sec = timeout + done_secs - elapsed;
++		/*
++		 * A job never runs for longer than its own timeout, which is
++		 * measured from its own epoch. Cap the estimate at whatever
++		 * time this job has left.
++		 */
++		if (td->o.timeout) {
++			unsigned long timeout_left;
++
++			timeout_left = timeout > elapsed ? timeout - elapsed : 0;
++			if (eta_sec > timeout_left)
++				eta_sec = timeout_left;
++		}
+ 	} else if (td->runstate == TD_NOT_CREATED || td->runstate == TD_CREATED
+ 			|| td->runstate == TD_INITIALIZED
+ 			|| td->runstate == TD_SETTING_UP
+@@ -466,9 +475,10 @@ static bool calc_thread_status(struct jobs_eta *je, int force)
+ 		} else if (td->runstate == TD_RAMP) {
+ 			je->nr_running++;
+ 			je->nr_ramp++;
+-		} else if (td->runstate == TD_SETTING_UP)
++		} else if (td->runstate == TD_SETTING_UP) {
++			je->nr_running++;
+ 			je->nr_setting_up++;
+-		else if (td->runstate < TD_RUNNING)
++		} else if (td->runstate < TD_RUNNING)
+ 			je->nr_pending++;
+ 
+ 		if (je->elapsed_sec >= 3)
+diff --git a/fio.h b/fio.h
+index d96ad4d0..84d46414 100644
+--- a/fio.h
++++ b/fio.h
+@@ -598,7 +598,6 @@ extern bool read_only;
+ extern int eta_print;
+ extern int eta_new_line;
+ extern unsigned int eta_interval_msec;
+-extern unsigned long done_secs;
+ extern int fio_gtod_offload;
+ extern int fio_gtod_cpu;
+ extern enum fio_cs fio_clock_source;
+diff --git a/libfio.c b/libfio.c
+index 37f2c749..aff131ff 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -188,7 +188,6 @@ void reset_fio_state(void)
+ 	for (i = 0; i < nr_segments; i++)
+ 		segments[i].nr_threads = 0;
+ 	stat_number = 0;
+-	done_secs = 0;
+ }
+ 
+ const char *fio_get_os_string(int nr)
+@@ -271,7 +270,8 @@ void fio_terminate_threads(unsigned int group_id, unsigned int terminate)
+ 	for_each_td(td) {
+ 		if ((terminate == TERMINATE_GROUP && group_id == TERMINATE_ALL) ||
+ 		    (terminate == TERMINATE_GROUP && group_id == td->groupid) ||
+-		    (terminate == TERMINATE_STONEWALL && td->runstate >= TD_RUNNING) ||
++		    (terminate == TERMINATE_STONEWALL &&
++		     td->runstate >= TD_SETTING_UP) ||
+ 		    (terminate == TERMINATE_ALL)) {
+ 			dprint(FD_PROCESS, "setting terminate on %s/%d\n",
+ 						td->o.name, (int) td->pid);
