@@ -1,85 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90F373DDB09
-	for <fio@vger.kernel.org>; Thu, 17 Sep 2026 20:47:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 704693AD51F
+	for <fio@vger.kernel.org>; Thu, 17 Sep 2026 20:47:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789678056; cv=none; b=AftYLEcOXTfzfiet2Cs8sbk3oV9hfEHRM9C/Jl/vcGEzvvllpZXH8MckW3XmF/5hda8RUGEBIK6B4DZYF30ZYbO3Q1b68VvYF9woUUxNPilnvw5ImvwZ40SUFe+6tjEmeimfBBWuu81PXj5wywPfalqYgRiu0ItUhOV0gVQIHco=
+	t=1789678070; cv=none; b=ZeBuIKpiHtHVtvcVj0yVt8rxOXIMsvAa3jmGvd3q6cg07+Wt23kCybM0ZYKJ3wQxL7JcA6NGDN7Vbxv69bB+m4QovaTPcUyQzZ4U4rsJHWOCrJpXLn95n42twBPDQib5gw7D59V2IUy8MIQoqvo5G/tWj2+kQJrUINwjb/akFqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789678056; c=relaxed/simple;
-	bh=2HVMFzmzujvKu6Vp03A5269N1cdW2/FOAoTxk8/f+PY=;
+	s=arc-20240116; t=1789678070; c=relaxed/simple;
+	bh=tKhyjXe3nhC+1uUdOYoTjtVgSGMl66VRdH3947KCwtI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=qRGkCUGdnuNNqh9nE8jPeIJiSFvkVmWVaLrSKy6UPl8NgA5w7pJFQl+3JOtxvwHKCbPMYX4RPz/vmFOE03Da8pZEXHPhR04gmCC3yatGcQ0+jH49Mb9OMm7tG+HeWrIyYdA2OUVH0SSb3WX2fUCO1OqWbv7CeFgYSsXue2BDQns=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PrKFUU1o; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=Up7aNYM5; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type; b=RE/2izirjRUMzcG+Z9JILVvbD906SQ7mky6vbvzb3YpZWRMZ2oSh45SapewQi7TzHZHJA79BKmJ11sGki3OXYLcZk9c2sLyHX1eauEgGSAqKVrfI3/ULfD2mgVJRoZWweMTJDp14zc0YgSmJdOE5dvonn/H1yJQskVVJIwXsUb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b=gzYelizj; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PrKFUU1o";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="Up7aNYM5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789678053;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gbXR3VxTZJTl8AXEpTlI6TBxSbPL2fUTelZ+16bSPCw=;
-	b=PrKFUU1oKF3+DV3PeHi9HHdrjP/Kn2tPRTK0wFvz6cPpnz0nzgmWARRF3x3pctDaP2mU7m
-	Tbogn8l1U9LUAdQijZ9Kw0CbOoFZlcFNf5FS8XGghoikZGspsQMzuTGo77V7F9lF2LOQCi
-	iji3XSDFAZLftuWrv1H/dANo7p9fYNQ=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-94-DApX7qmiMU20rfYLRHMKhw-1; Thu, 17 Sep 2026 16:47:31 -0400
-X-MC-Unique: DApX7qmiMU20rfYLRHMKhw-1
-X-Mimecast-MFC-AGG-ID: DApX7qmiMU20rfYLRHMKhw_1789678051
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-93a05d645acso7331885a.2
-        for <fio@vger.kernel.org>; Thu, 17 Sep 2026 13:47:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b="gzYelizj"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912df756so428795e9.3
+        for <fio@vger.kernel.org>; Thu, 17 Sep 2026 13:47:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1789678051; x=1790282851; darn=vger.kernel.org;
+        d=kernel-dk.20251104.gappssmtp.com; s=20251104; t=1789678064; x=1790282864; darn=vger.kernel.org;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:to:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=gbXR3VxTZJTl8AXEpTlI6TBxSbPL2fUTelZ+16bSPCw=;
-        b=Up7aNYM5snunJ/IaPFOEomok+3z8DbVVhz19SELcipgOz6KLojsmL7oj9vvSAashU3
-         a8edR/1aR3TEN/UnId5aWr1L+T+HxDrOV5ri3bbdYwSQ8FOtkX/PPjM2SDiAgmnqZpcw
-         JfeqgZxhw0YY5bvnWYnrem8HsJfouSuFbHaiIBIItUskIBRjbIqper5uPUjtjdSeZA13
-         V8R6YFRRva+uYQWVKkuukcOQv7eCg9OiByG4PhdyeNdun1vOw9uPSYo46DjOm7+pUiCx
-         ZAP3nXCMKi3/tIIyyv3L2fRcpl4QsouiFS9QI2EKIaj87SMpLs8MzWg+/E69n6g4NsIS
-         mhmA==
+        bh=DzvviLRD17dSkOHErFiRRJeXx7+vkdacb55Hq1MZ0kI=;
+        b=gzYelizjno5pe81Ce65d0O481OR6ZKcpgMncd0Zo0FlHe0Db1iuaWjIrii9t1hjR4v
+         6Pyh4Fodqj+gMToojap44eOtdriBwmkHIUIMA9bv9IKVH4o1o1ZT0CFnuTaaiP6CdW6n
+         g9lofPy3TXOdt0K9WIjZfCcg7scG+UMoN0Txf2sLSnPpj0/QfdRMINsp8Z9C1jr8U3tq
+         ESdDDkBoWv609L4l94xzl/uHaGelL0HZf3z4JCmEDePM9uQGjaEFUcRDzvYc60160iPu
+         0rrzLH2PoK7iN5qvPpkOm6k8djVDENu5isF/MQs+xK+aERtKDbwEngCSDlDE5637Bih4
+         prQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789678051; x=1790282851;
+        d=1e100.net; s=20260707; t=1789678064; x=1790282864;
         h=content-transfer-encoding:content-type:in-reply-to:from
          :content-language:references:to:subject:user-agent:mime-version:date
          :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=gbXR3VxTZJTl8AXEpTlI6TBxSbPL2fUTelZ+16bSPCw=;
-        b=dGKSNKdsPdEj+l63l/KmMMqRZTRfONRwWBV660GfZ3XkA0mV0xxUwdNQtQMWGWXUSt
-         hR4yKAOvyJES9qtQkHk41FWf29vv89vH+VGEaHwOvVJe2ld9UgzTZf5rlowFKNnJfo36
-         dbopHLzo3KaIVX8L4kI3ZGDU+vJmVmpV1MW3dyacnn2cIvQPQzdDDSD0tU6OptC2g909
-         N0SJ/UJ0X75RusYmiqcOen8u10or5K3yPocuGRVQEpTxt+Hzhnba1XgHCQVygr23v7kB
-         X5kvKEOgDc+GJAM2eQjXjE0g3wg4ki0c6/j47dvaMcL2ru+b3YLQh9uebqKrMwYHdrIR
-         wVYg==
-X-Forwarded-Encrypted: i=1; AKwUvBxB2CqVrpEa+cOMh/MAtOC/dxlBVxCbQV2K5NTtA6EaptY/eF2CjN12hrhGXC4vDETxNzk=@vger.kernel.org
-X-Gm-Message-State: AFuF++ni0LVuFh2Z6fIz/NOJP8BereJ85CXf2XE3XJIcoKGIvPVRq8OU
-	8IEd6hYnZAWu2DbbG/oBLveIn56B7QDj1F987F0yuMWnvgKPRpWgBEwIxNo2O1oDrRiRv4Ap4Qr
-	AHAM4pGwCCtY0xSI0D0BhVTAJ1uCvcw2XI6cvpj0CDSaccDaRzbQ5t0hfxqHa+Ntm
-X-Gm-Gg: AYBFou2tJA0owSjhO76AaZEvyliuRWdNqReg6e/GdnxVA9sTT5FEgmed9m3SWqAN3qr
-	eK0/aT+i9A53iY3aLC+vJbUY+HGI43T0N2ZyFJJt4qcJRqbWHNe7p+AbasTZWF7qZe0oanwnX5u
-	OqfIIQJz3ZBgQiwATAfT4SZgadKtCA+dwtYbcCenGrWyoCXOuCna/UurAL0m0c1bT10nVEu2hqa
-	fXhSroAVntP64f4sac1l4TpgJFkuFhyAXk3KHg4rX4vGi0ZOn22pCbITJAyVuORS7fAPLRkkCIp
-	6LfzTo8jrqA1aWkGeW/QuBcZt1kbOQ6sm8K7D1dgZXJ6qu/dZsaz5aP2It38pzmbAOowWYFxgcM
-	2QFUpMzUcaAR4ADP+BxfyZj1esh9/zW9+692hCXw8cnpEqA==
-X-Received: by 2002:a05:620a:6010:b0:939:6dfa:4975 with SMTP id af79cd13be357-93bdca3b456mr20914385a.52.1789678050893;
-        Thu, 17 Sep 2026 13:47:30 -0700 (PDT)
-X-Received: by 2002:a05:620a:6010:b0:939:6dfa:4975 with SMTP id af79cd13be357-93bdca3b456mr20911885a.52.1789678050246;
-        Thu, 17 Sep 2026 13:47:30 -0700 (PDT)
-Received: from [10.0.0.209] (97-116-156-223.mpls.qwest.net. [97.116.156.223])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-93b81cf255bsm564087885a.35.2026.09.17.13.47.29
+        bh=DzvviLRD17dSkOHErFiRRJeXx7+vkdacb55Hq1MZ0kI=;
+        b=hqBG99PSF8PYMI/8w5GGSN7BGTbI+aywzb7aOWOQvglO/nSc8Pef6yKafmMnpniygD
+         XHGrI/U332MIh7Qi6nJRDvhDEjoQuaIZaNN7CRTHMKVdcqaT2hoL0gAd6XAv6nSnK83U
+         GRAMxmLDV6bTf9ZyTIU/ZQMj7/UGtsvZ+OieMfXMlnRvUHMK2eK2S38dW0dEwqlgwzx1
+         Vkp0oALAZ3DfsMXUjyxb7f9NXKSVog0roUtBpWNrg+Z8ogi3OrZDsPWgmkQXsvW6/RBy
+         Oxe85HtqntBJw3CwtdePAXfGssu+BueYtZTEjlHak3dfX5zK88J1UQCPjBkWuOM6b0va
+         Zrqg==
+X-Forwarded-Encrypted: i=1; AKwUvBzDeFd3u2Td3BTXZF6vOEb8ZLYV3wRJ/+uIAwMAYO8+0R54ZyBeOy/BE3gVF+w3kRTAJ+8=@vger.kernel.org
+X-Gm-Message-State: AFuF++mnR3dB4wUTw8VRY/CpE2JMakvSdvyiNe9SrAwEvRNpmv2R3jSn
+	KtNv8T54cbebx/7QnD2TbOmzbDGP8lkZieNC7BRtwo53rgsu8H2UEDnyj5KIp/UM8Qk=
+X-Gm-Gg: AYBFou30/rKl+XjFMEOhI0qJhV2ykMY0tXLBq0VQeKsbvpYTLyX46m58l5H/NB7+wpx
+	95NyxSWhUtTw68AzB15ISpYbO9CqlLnSxY5fHIM2C8BXCg9NMg3u4EkPbH0mrpxkatqLfJ3374m
+	45TVJ2MCdEsmWhIkttVxhrKfB971qRKgJMi/VcMKrMAYwKGVuYJbrFuvUOUWD0rQG76ipgLKMPw
+	8JLGK14lZDZuvJoFRWZEv2LxKDax/VvILhTa9CiBXDlwG2NTQ7eBHaFS4y6UU+pGw5j2+PWy4BE
+	2xd0DyzhEjINCnvTqPwBlSoX7KKW6ZhRwkXQDjhfqEsdSoTDQwhEADn6I10hUm8D3viu0kwYqR9
+	03UPo6SmsTHaLMqFT3/G64c5m8aj7O1YTmZWsbFea+c4M9NP9rhN9ScvLxIlIiM5SJILKhGRg7t
+	8GnwXCNbCO0dcYPpQ5MzRpEOxTehgwlM69BENxbU4FQssZ5rXLKd6UHbWyl61GE2wa/Q/rthq9W
+	VWS4h4sQNfMCgKac4sntk1utF7zfcOdua3qpOL1rutF/QOIYDzy8wV7Hg==
+X-Received: by 2002:a05:600c:1d0d:b0:49c:e27c:6b10 with SMTP id 5b1f17b1804b1-49fc5681652mr1267385e9.3.1789678064402;
+        Thu, 17 Sep 2026 13:47:44 -0700 (PDT)
+Received: from [192.168.1.112] ([217.65.139.42])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49fbf515cfdsm94093605e9.11.2026.09.17.13.47.42
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 17 Sep 2026 13:47:29 -0700 (PDT)
-Message-ID: <221f4079-9eb4-45b6-9f22-d3d31727a318@redhat.com>
-Date: Thu, 17 Sep 2026 15:47:29 -0500
+        Thu, 17 Sep 2026 13:47:43 -0700 (PDT)
+Message-ID: <ff4f6468-e7f1-4346-9192-a59fa863a2a7@kernel.dk>
+Date: Thu, 17 Sep 2026 14:47:41 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
@@ -87,78 +69,65 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] fio: server: Warn when listening on network
-To: Jens Axboe <axboe@kernel.dk>, fio@vger.kernel.org
+Subject: Re: [PATCH 1/3] client: sanitize FIO_NET_CMD_SENDFILE requests
+To: Eric Sandeen <sandeen@redhat.com>, fio@vger.kernel.org
 References: <20260917194706.2264798-1-sandeen@redhat.com>
- <20260917194706.2264798-4-sandeen@redhat.com>
- <ca12a7ee-7a5c-469f-89ea-5d3a3cc43489@kernel.dk>
- <53458ab5-5e82-4af0-93ef-d99002c259c2@redhat.com>
- <cc91f33f-5153-466a-80db-b2102cbed1c4@kernel.dk>
+ <20260917194706.2264798-2-sandeen@redhat.com>
+ <fe69c3bc-95e3-442b-ac61-9d84c85f2e93@kernel.dk>
+ <62500f3e-1211-41ee-997c-fd5aac3a56fc@redhat.com>
 Content-Language: en-US
-From: Eric Sandeen <sandeen@redhat.com>
-In-Reply-To: <cc91f33f-5153-466a-80db-b2102cbed1c4@kernel.dk>
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <62500f3e-1211-41ee-997c-fd5aac3a56fc@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 9/17/26 3:45 PM, Jens Axboe wrote:
-> On 9/17/26 2:29 PM, Eric Sandeen wrote:
->> On 9/17/26 3:01 PM, Jens Axboe wrote:
->>> On 9/17/26 1:41 PM, Eric Sandeen wrote:
->>>> Make it crystal clear to users at run time that the client/server
->>>> protocol should only be used in trusted environments.
->>>>
->>>> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
->>>> ---
->>>>  server.c | 7 +++++++
->>>>  1 file changed, 7 insertions(+)
->>>>
->>>> diff --git a/server.c b/server.c
->>>> index 34f3f5c0..887ed7ed 100644
->>>> --- a/server.c
->>>> +++ b/server.c
->>>> @@ -2596,6 +2596,13 @@ static int fio_init_server_connection(void)
->>>>  	} else
->>>>  		snprintf(bind_str, sizeof(bind_str), "%s", bind_sock);
->>>>  
->>>> +	if (!bind_sock) {
->>>> +		log_info("fio: WARNING: The fio network protocol is neither "
->>>> +			 "authenticated nor encrypted.\n");
->>>> +		log_info("fio: WARNING: Use this mode only in trusted "
->>>> +			 "environments.\n");
->>>> +	}
->>>> +
->>>>  	log_info("fio: server listening on %s\n", bind_str);
->>>>  
->>>>  	if (listen(sk, 4) < 0) {
+On 9/17/26 2:46 PM, Eric Sandeen wrote:
+> On 9/17/26 3:00 PM, Jens Axboe wrote:
+>> On 9/17/26 1:41 PM, Eric Sandeen wrote:
+>>> A legitimate fio server should only be requesting files from the
+>>> client's cwd; reject absolute paths or any paths above the cwd.
 >>>
->>> Let's not pollute the log with that - just document it in the...
->>> documentation!
+>>> Since this adds yet another failure mode, move fail: to the end of
+>>> the function as is a bit more typical for a goto fail;
+>>>
+>>> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+>>> ---
+>>>  client.c | 23 ++++++++++++++++++-----
+>>>  1 file changed, 18 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/client.c b/client.c
+>>> index 374a744a..b32c2852 100644
+>>> --- a/client.c
+>>> +++ b/client.c
+>>> @@ -1809,12 +1809,18 @@ static int fio_send_file(struct fio_client *client, struct cmd_sendfile *pdu,
+>>>  	size = sizeof(*rep);
+>>>  	rep = malloc(size);
+>>>  
+>>> +	/* Sanitize requested path to reject files not under cwd */
+>>> +	if (pdu->path[0] == '/' ||
+>>> +	    strstr((const char *)pdu->path, "..") != NULL) {
+>>> +		log_err("fio: rejecting sendfile request for unsafe path: %s\n",
+>>> +			(const char *)pdu->path);
+>>> +		rep->error = EPERM;
+>>> +		goto fail;
+>>> +	}
 >>
->> Which is implicitly already there in the man page, so it's probably
->> covered. Could make it more explicit I suppose, tho that's still
->> assuming users will read it, heh.
+>> Won't this potentially break existing use cases?
+> TBH I did this a while ago and never sent it, so let me re-check. I thought
+> I had considered that at the time...
 > 
-> The only people that will read this one are the ones that see it
-> in a log, breaking their scripts, not the intended audience.
-> If it's already documented in the man page, then just point any
-> report like that at the man page!
-
-Fair.
-
->>> Like I said in a private email, anyone that runs a fio backend
->>> outside of a trusted local/test environment needs to get their
->>> head examined. By definition, since it's generally used to open
->>> block devices and read/write to them it's run as root. And since
->>> the environment should be trusted, so should the clients. Anyone
->>> thinking otherwise needs to get their head examined.
->>
->> I don't disagree. Just floating the idea of making it crystal clear
->> at runtime, and like I said, if you don't like the change, I'm
->> happy to drop it.
+> OK yeah, I guess it is too broad, I suppose if a job name has ".." in it,
+> this would  cause improper rejections. I don't think anything legitimately
+> tries to grab files on relative paths, though.
 > 
-> I will just pick up patch 2/3, I think that one is obviously fine.
+> I'm guessing you think this isn't worth it either, and if so again I'm
+> happy to just drop it. Or I could tighten it up to only catch things that
+> really try to grab arbitrary paths outside of cwd.
+> 
+> I'm also leaning towards not worth it. :)
 
-Sounds good, thanks Jens!
+Not worth it.
 
--Eric 
+-- 
+Jens Axboe
 
