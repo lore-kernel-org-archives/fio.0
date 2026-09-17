@@ -1,126 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm2-f12.google.com (mail-wm2-f12.google.com [74.125.225.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB9D74E3769
-	for <fio@vger.kernel.org>; Thu, 17 Sep 2026 19:47:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 578E54E4C27
+	for <fio@vger.kernel.org>; Thu, 17 Sep 2026 20:00:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.225.140
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789674437; cv=none; b=HnKhQfAn9Fz4vZ5HSzKHTs1U5Ch3y1LTHKi7sfktpahorbzsiq2I2WK289S14wfgmcJeQOOilPLC8YQ8CbLMPIWhBiNWp7M+Iizmso0FijAgvK4lZ5eeiR6Ojn9kv9AnG3M0ojN8WvmWhEyB+e5ImVCeo16UMFC/H7XqtRW13YM=
+	t=1789675215; cv=none; b=RtUN2L6livkps5tmlftezJJ58U2L7RW3IwKCz2Picn+77kn5hPpJjFV1nARKkQ4QqVIV+gccZuK/XGJYfgxYET+dbtKmUBkBB1piLZD+lKRqsWoTMG968B58en4eBbTuixy6FKKM8sjlL5ujvuMBh911moGXZZCSFo2XWe78G4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789674437; c=relaxed/simple;
-	bh=aDE6yuJMAMA2ObyDdBW330mJnLNz6Cx9kyHWeUmAXCg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hfEpFYAdIMzJd29fPYDnvWu2n/FF/9Sa2XXdkAEUFAPE90wEoRtXEJbkBJzxb9Ck4uI03cd8FPeQLr4ZXqTZrzzVFFLK3qlHUNYDHp6SQVeelqsOlhx1iAd1iFGfsoY41/Hy3PJph1CTFUTqcALw6YdAq5p0YUORGNXZnBnndDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gHRAfXSR; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=eplyjNJ4; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1789675215; c=relaxed/simple;
+	bh=8garfyVOoK3ynAVqPydxT8IOve+AisrImbMVrLKrg3M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=XOfdDI8gopNzmErj5+astbbEABWzfIai2bQgUY819bL4+AcrnquqWbcjx8ENHwAn80kxa0lG+ukB3+g10JofX4FCdwSFXrX/RGfKB7HmUTPwaMZHZh7u8ngj1T+VTFj6OAqzPzf4U8h1XS3qngonJo60q1CCw4Ch0DZYlUOm7Ik=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b=wmg+4G73; arc=none smtp.client-ip=74.125.225.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gHRAfXSR";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="eplyjNJ4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1789674433;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=iBXaIsrzbQAmcX2poFz6Juz353uRe8PxcDDMRODgDak=;
-	b=gHRAfXSR9+nM/Ph/MFPeWWVLrywAZlKTA8Cbv95VqdOZLa+KnwYoBeDBYEVEgyFNaFzbdR
-	n3Lw+Jw1Rljj1O5vZJ0H3OejN0XfhqzBEYGQlxZlgGeotldu8PEUm1568B8+QcJH73zZDO
-	Zv08lex1zp+K2ygQERSU5lqK6Kib5pw=
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
- [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-6-2PjzaWvLPYieMLcDFiZYOQ-1; Thu, 17 Sep 2026 15:47:12 -0400
-X-MC-Unique: 2PjzaWvLPYieMLcDFiZYOQ-1
-X-Mimecast-MFC-AGG-ID: 2PjzaWvLPYieMLcDFiZYOQ_1789674432
-Received: by mail-ot1-f72.google.com with SMTP id 46e09a7af769-8052a85c504so1232101a34.1
-        for <fio@vger.kernel.org>; Thu, 17 Sep 2026 12:47:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b="wmg+4G73"
+Received: by mail-wm2-f12.google.com with SMTP id 5b1f17b1804b1-49b912e64ccso332695e9.0
+        for <fio@vger.kernel.org>; Thu, 17 Sep 2026 13:00:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1789674432; x=1790279232; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=iBXaIsrzbQAmcX2poFz6Juz353uRe8PxcDDMRODgDak=;
-        b=eplyjNJ40Mj+6Q4UR0LMO7kGr73HKBQJOs+5aymWyQ4yxmyunKAKqY1A8APnS08ny5
-         F0gFIidIxeVLaaZM3P1pY7nuVkicLlngNvhV51i08GTYrWtpDSMuehIU1aHeG34n3OUZ
-         oOoVynct+4U0S1nji1EC5RQG8BgtjFUL5YCG3jflqQ9OxDdW3j3shBwe9RHr+CLn89li
-         6odGSLBJVcFGDKudq6thLFhze4j/lEihg2+JiySGzLU4RG+5DtJxLFNKkKgXDNjLNtTV
-         nsD7c5CdiaixSbpd3/iIHFNS3IFMLKeZrbJ1KRDnSg9aMULRzheQGWakxt82Q/H1IGQa
-         J/4Q==
+        d=kernel-dk.20251104.gappssmtp.com; s=20251104; t=1789675209; x=1790280009; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=BpxkCkYc3vMQuLY9bsNpGDZHUHTayb6feoky1vHUSTw=;
+        b=wmg+4G73QXHEiHqRammji+N51vH6gGiWr8tIIBp7AWl59OvO7DPTkZstCwYx/pXfEk
+         Qb9FWmAifLBtSjh5UTD1hgFV/EvZEoSu3fcwz0Nr6AYWIqX1Yy+uksFZ3CdGEfDe5tIb
+         xjJCbEEpvCp+T/y48cAE0eYRy+GE2zalKQXNQfuu0Bugdn/i9BoCORfW+/yUMnWnxEk6
+         6buCslU7Eoc5Bo3tT/+rvdsDd/L0IUkgA2yx1qxpYrW9TIJIECLaUkh9lDhCWyqE9RGT
+         phdluI45doXIr0GLHZ/JTuLqKc5Hw8VhYOFh9g8pjwgMRYpKOEvJJVD27Df4BPqour6x
+         eyCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789674432; x=1790279232;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=iBXaIsrzbQAmcX2poFz6Juz353uRe8PxcDDMRODgDak=;
-        b=QY5z+VK6qmn1Klla5EMdngqC5JFFlJVLECcB39pOYzssyPiDkuXp3huiWtv9MtAhO3
-         pMWI8d6r/j2wZanzSpEKK9sBYNTLzDQzKr+DLLl0PW+6XC8DWayjd2lFKZK6bCerJlw9
-         Iwc70snrVhviORL4AHkN6M/DDUinim91p5TpLjbiyKlJS07MxiFbtFIZtpgg0Uoo4Nyc
-         Sv1CncLot206KNWKoFgdN2QVQ/IE7v2srKQ0cPwy1mvUflqaTu/3piZkE2+0dY0raLh1
-         E09g7QqGv532vLg+n+3Y6lfzOaWtCBGL7L74FffEbTuQPKXb3iLz+I6dmDlLBjdW1H92
-         eDOQ==
-X-Gm-Message-State: AFuF++n1BHYsN6jvN2FdtJ0FHm5KThOvUAOJbOLjpyEQqyZIUkqEhFF7
-	/tdqCXpVmvyDvCQU2+/GzpgyRCTmxHAX2WgX2WfLTtSRhZ06vC8mm3tKNBsNkVQgZunLrm7jUQ3
-	UhtG6Lu5SluYW/R6ayiK1CUZPheWvrpenMeRSuOdRViekdqcOjY98UMZYQddYRa1u5WxucRAOFa
-	DcqRqDd/KHo6tCMrLIEhhG77M00T73wrcoq5sodUE=
-X-Gm-Gg: AYBFou0JXm5lGB2vmwbyrbdc4PXKVEKSvFLNZB7thiVPyQXrGrqQsCcqoa7/Rx+HscR
-	tfKKQZHTBnyyEsVagzhe+gmButNcwQWoLaj4IVOLNNSkJYcI54SMQgL6ucs582uVaUAQTULv+mt
-	e+PSCTbcplWIkHEAOa/CPmKnro0TzyYlVoIVh3PI/Ea+foDSxlnw4371hILspmMbXRE97WsGlxg
-	aNZC6WLlJqltMUZ/7BBnSmej+xMP7ZpTYgyMSrbmU7khb5oWeO3UmuPAdZT75r+ouPQVtd/Nbp3
-	Xs+yGNawE8dYGNQiEkwbANuMfqhNPwNoVpWcdwG4vJSjWSQch2nAa28n5oz+F/pPema4TX9pCFH
-	5tAnCGXGiyDmN8kg6WY1818AYwAofsBvWMF85Uw==
-X-Received: by 2002:a05:6830:6a99:b0:80d:7045:ec38 with SMTP id 46e09a7af769-80de035af5bmr226268a34.7.1789674431615;
-        Thu, 17 Sep 2026 12:47:11 -0700 (PDT)
-X-Received: by 2002:a05:6830:6a99:b0:80d:7045:ec38 with SMTP id 46e09a7af769-80de035af5bmr226238a34.7.1789674431131;
-        Thu, 17 Sep 2026 12:47:11 -0700 (PDT)
-Received: from big24.sandeen.net (97-116-156-223.mpls.qwest.net. [97.116.156.223])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-80c466a2e63sm3828886a34.15.2026.09.17.12.47.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2026 12:47:10 -0700 (PDT)
-From: Eric Sandeen <sandeen@redhat.com>
-To: fio@vger.kernel.org
-Cc: axboe@kernel.dk,
-	Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH 3/3] fio: server: Warn when listening on network
-Date: Thu, 17 Sep 2026 14:41:26 -0500
-Message-ID: <20260917194706.2264798-4-sandeen@redhat.com>
-X-Mailer: git-send-email 2.55.0
-In-Reply-To: <20260917194706.2264798-1-sandeen@redhat.com>
-References: <20260917194706.2264798-1-sandeen@redhat.com>
+        d=1e100.net; s=20260707; t=1789675209; x=1790280009;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=BpxkCkYc3vMQuLY9bsNpGDZHUHTayb6feoky1vHUSTw=;
+        b=r8+FQtasayMVHhWGmMnzMpmBe35UTYJKPhIjMXHaYjMuZr4ip6WYPPxMHpfVbyzlHj
+         Nt0MRowSXLgy7aKGrLzHtw2/sFASXjzmRil0ZRELy/1BKUgZwiOOakcCt5Jh4dGtm3r+
+         1j+UJhcZ7DK78o6vac0tZHl5kbrIYrBXLSWjyVGgHn5oxvbv7BrX4ZRgdt2B3blN7Lc+
+         aEhz5BRYL1djA8nW5J+0RzEKqK0MrKAN9gK0ddMU2twm7nN6FXq1D0Kvz+aMSz1oIQMb
+         xbbFOBGVesQYKoSWOoY5jwPE9nSTpVseLvkg73OiAx6imNCb5Cxt71M0hULgpMd/r4z6
+         8tcg==
+X-Forwarded-Encrypted: i=1; AKwUvBzjADJvqZwPPVYpkrfI+v1yjfXyyYzE2jiwzVZYVeGK/BgTa/5z3mptbUSpLq6q/lAIX5M=@vger.kernel.org
+X-Gm-Message-State: AFuF++mkQHyBqXeGFW8b44VYNmlGnf1lugWW6m+A8UdvDdMitlpdlUW2
+	lqCEi6CWFHsGx6B97MVAvQPBDVHQnqRt4ZJ+tbFB0Cb+7cAPU0l/mMfHbtzT6oFqqEQlKeW61t9
+	tPBJFNTpaGA==
+X-Gm-Gg: AYBFou0VTsgBmzxCZPo9vUb7cbd0EVYdkYD1mx0bwlxY94SihHAvwbrM64yg4md1P1P
+	jTWNKvs7Gj0mhnA3HjKYrRPv0doImuQuBUcEZbvoJuKPHLIwAtZvbdlZEAbEdWwFMWdO1vZHTLE
+	x6lghaCoqbZky/u5z9da4vV3EikhLvdstBZ9WiJrlUNzVbAiSfwvkrTOex3dECE3nJrfem+RNX2
+	TS+KLcxJG0iFrykqAFpjJEsa8WmyiGTaJk5tYvAiVWnQHNLViiXiQe4lA/b/jAOVXHKMWeRxdXk
+	H0xt7On87/2cRbs4y5DhaotDZ4g45IHQG38u+x7WcNZBEx3rXYDxNUstsEkp9Zbfi2vdwCJ4chy
+	eSSDt9DFSbi9Wt1mHNs6YrRKimja1F8CC3Rlpx9A4qFiTPADZlXdS7fqpTqVsGWcc4r0Hrf1WJ5
+	D9tz69HmcuR53P3OTd/ri54Kjs/kwi/RraKRIuJJgk1q2sh7HJHrQqrnnNKF7go7hGRVHcucwc0
+	tFyKcosxPC2Eno6CGVU9WwdixxOYU+sg63s16aycDv4y8qH/q29J8CVM1Q=
+X-Received: by 2002:a05:600c:3493:b0:49f:bd3c:bc21 with SMTP id 5b1f17b1804b1-49fc573b55emr26415e9.28.1789675209212;
+        Thu, 17 Sep 2026 13:00:09 -0700 (PDT)
+Received: from [192.168.1.112] ([217.65.139.42])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4871af1cf5dsm2064298f8f.36.2026.09.17.13.00.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 17 Sep 2026 13:00:08 -0700 (PDT)
+Message-ID: <fe69c3bc-95e3-442b-ac61-9d84c85f2e93@kernel.dk>
+Date: Thu, 17 Sep 2026 14:00:07 -0600
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] client: sanitize FIO_NET_CMD_SENDFILE requests
+To: Eric Sandeen <sandeen@redhat.com>, fio@vger.kernel.org
+References: <20260917194706.2264798-1-sandeen@redhat.com>
+ <20260917194706.2264798-2-sandeen@redhat.com>
+Content-Language: en-US
+From: Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20260917194706.2264798-2-sandeen@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Make it crystal clear to users at run time that the client/server
-protocol should only be used in trusted environments.
+On 9/17/26 1:41 PM, Eric Sandeen wrote:
+> A legitimate fio server should only be requesting files from the
+> client's cwd; reject absolute paths or any paths above the cwd.
+> 
+> Since this adds yet another failure mode, move fail: to the end of
+> the function as is a bit more typical for a goto fail;
+> 
+> Signed-off-by: Eric Sandeen <sandeen@redhat.com>
+> ---
+>  client.c | 23 ++++++++++++++++++-----
+>  1 file changed, 18 insertions(+), 5 deletions(-)
+> 
+> diff --git a/client.c b/client.c
+> index 374a744a..b32c2852 100644
+> --- a/client.c
+> +++ b/client.c
+> @@ -1809,12 +1809,18 @@ static int fio_send_file(struct fio_client *client, struct cmd_sendfile *pdu,
+>  	size = sizeof(*rep);
+>  	rep = malloc(size);
+>  
+> +	/* Sanitize requested path to reject files not under cwd */
+> +	if (pdu->path[0] == '/' ||
+> +	    strstr((const char *)pdu->path, "..") != NULL) {
+> +		log_err("fio: rejecting sendfile request for unsafe path: %s\n",
+> +			(const char *)pdu->path);
+> +		rep->error = EPERM;
+> +		goto fail;
+> +	}
 
-Signed-off-by: Eric Sandeen <sandeen@redhat.com>
----
- server.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Won't this potentially break existing use cases?
 
-diff --git a/server.c b/server.c
-index 34f3f5c0..887ed7ed 100644
---- a/server.c
-+++ b/server.c
-@@ -2596,6 +2596,13 @@ static int fio_init_server_connection(void)
- 	} else
- 		snprintf(bind_str, sizeof(bind_str), "%s", bind_sock);
- 
-+	if (!bind_sock) {
-+		log_info("fio: WARNING: The fio network protocol is neither "
-+			 "authenticated nor encrypted.\n");
-+		log_info("fio: WARNING: Use this mode only in trusted "
-+			 "environments.\n");
-+	}
-+
- 	log_info("fio: server listening on %s\n", bind_str);
- 
- 	if (listen(sk, 4) < 0) {
 -- 
-2.55.0
-
+Jens Axboe
