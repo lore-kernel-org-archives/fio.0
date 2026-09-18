@@ -1,102 +1,101 @@
-Received: from mail-yx2-f13.google.com (mail-yx2-f13.google.com [74.125.224.141])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 173D340DB5E
-	for <fio@vger.kernel.org>; Thu, 17 Sep 2026 20:57:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.141
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDEB149B470
+	for <fio@vger.kernel.org>; Fri, 18 Sep 2026 12:00:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1789678682; cv=none; b=p2sBvpsIv9dpLCiou7ukfXuQzW0qZvzLG+d+u5c6X6h4g3MJNSdAUPy75DQugVbuhndmgwVXmuqJQI7Wkx0RBF3GwwJJ3JWs1DV05rrynBMqwSeVPYwdG/44y/LsxwNc/yPXxjeiXWLZcRYY0bAe0vG00cFcVqMACzBBhvdd7xQ=
+	t=1789732810; cv=none; b=YuodfkDXT3r3mWfLB5K9XsuXE4slzI8yxTuSCiKPC8b0kRPKGXhywH/1dy+UerIjMTDC+mRrnvpMVcCsYckC4nYjOSbzX8oIHekvcKiKk5uKi6vQBAhXxap6Bunln7jHf5bSb2mWpn0pb34Yoij6R9iztKFy78p3wApSeNokcr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1789678682; c=relaxed/simple;
-	bh=+/OpYF4jW8fjk7gJ0lA+dbCykv52sBWZi1uQLcDCZY4=;
-	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=VPaXioq4CWfigF94wyGJwfYGHnetmTEnI5t//OH0VxzRqjRUGaM0pdHJSe2+pIpDDXR1U4r7CBud4XKncB0JCwqSUQt447KIh4qbJ0ZLUFpywtqgbDde8uiOz0rVKcR3zHgi6nkgAsRf92tHIDNl95oHulzNNGG2gS/NrkkUmIs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b=mYm3oAUi; arc=none smtp.client-ip=74.125.224.141
+	s=arc-20240116; t=1789732810; c=relaxed/simple;
+	bh=AN7sFfusw8izNuTLzJ/EJTTd55NorJlQxaqP84rdFzg=;
+	h=Subject:From:To:Date:Message-Id; b=YNw6Z4+Y1bJsDJGkM6ARR8EY4TW+LY9WOIb65gef1Zew2iVZwTs6rn6fTJDxmXX9oESq2c/WwUEgywF4TRkrBHvSVDo++803XOnCst2I0zFNJED7OZMAF/46/iLr8AUTYvosOHxma6i7CEc9xJ74e80OUD9KKzgpIgPr+90JNxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oITZKss+; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel-dk.20251104.gappssmtp.com header.i=@kernel-dk.20251104.gappssmtp.com header.b="mYm3oAUi"
-Received: by mail-yx2-f13.google.com with SMTP id 00721157ae682-85d4eb63f16so273837b3.0
-        for <fio@vger.kernel.org>; Thu, 17 Sep 2026 13:57:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20251104.gappssmtp.com; s=20251104; t=1789678678; x=1790283478; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:mime-version:date:message-id
-         :subject:references:in-reply-to:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=DvhaQeC2A1bDHGIwReyugHy7NKHi/5/8IIkPNol+28I=;
-        b=mYm3oAUi3CM1CVx9GyLjfxqlKHMIsZvSozPPgWD72CKH9kWG9gqJGrkQWqhl4/Ipvm
-         MzWE1NbYQnrFpvfn2GV6iJZIOqGdzyjYUEeOxzGZnR7qAKhgzHEtLHsOJcrJpBS/2XGq
-         /owof25jGma8N63ETJhqijuOtOKb6ON1F2xgR/RaMit+p81yOnm7nsc/7I4Pw5aKH32G
-         VNt7B+kTWv0g62kYeVoUHkDByq2Y3uPlBCb8ZqjDpL7lKx9vFkbd1WH2rXHXrlMFB9tL
-         8qoFpkZpmrKy74FMM/XUNXM75T+kczY07PTwy8tDFJCWasUVkxA7sXqr1a4Og6MYfFLR
-         OhPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1789678678; x=1790283478;
-        h=content-transfer-encoding:content-type:mime-version:date:message-id
-         :subject:references:in-reply-to:to:from:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=DvhaQeC2A1bDHGIwReyugHy7NKHi/5/8IIkPNol+28I=;
-        b=Wbh0wtlVujAo32OVBabVE3n3GHG4Mv5GaDJn1mrVu1e7YcHFDytq69QXNJO6iezLL+
-         /VeN7uEt9qKnKFgKDH3Zz3xmJMEVz+S9NPOHUHogLnmBuS+/Fl5QMCEgkDx8xmu16z1U
-         wZEokgNeQaoysDGMvkKiWJdAaP3NbQJqhaElAgNuEBpD6SDVIOdWEC8149pZVLg530dB
-         suQVXVPaAx8jHerJfuZVbfYs/zbJ/a8O7GD+uVhsL4EIN0m6HGm/qtbA2uuDU0IQpoIL
-         C2CV18DSqVI3MlivONHT+zPnL3YWOLd5hGogJ/0FQ85quAiW0Fbk9ya7Z0rqTfEUt6tP
-         8Odg==
-X-Gm-Message-State: AFuF++ksvqZisA1HkdX7pl23xnJkMmV2Qghibord3AuNaAIVSGojxegS
-	TzWsDZURvkxWszzH/CsvvOO/AUwrYCNxiD5fWECpQGlg4X8E7daHuVPCwKCXKAI6ziW8OZmLBF4
-	L4iA8FJ+EPw==
-X-Gm-Gg: AYBFou1fsTZ0qHRSIOByUME5coodhhElrgV724s4AeL5xfBBmK6EO3SgVXN7BRWVFZh
-	OvgZZ3j7gruiy/FhGniNio+3SbvZNPVoPCpRISuTWJ5lRrWHQ09rd38wZAQ80S4bwDtyMrC23WI
-	/LuIpOfh4EhrxdCsnEb9QUbZc5Urz4nEsp4HQVkrad2SQ/dY/GGti+jMC7BAVoW9oqFTnMJ/ehU
-	WOHS7PEOB0BvUu02VQAp0ChYa+1cmA2G6dR/fr/oIFQecoAwNQ/EpecbTiXwdhPuO2v4hpMHSeo
-	YSgLe7C9DUWhJjxwaUFUhR3BGLUkQ+ni7ZpMb5ZSvwlUoytJZHT32/+FhQUE2mnqyChnOxlJl4H
-	COpTbpazvjT6GhCnRfLi8A9t9slnyKhMslkQwEGhvhlxMLfQwIp178Fgh1wqqWRyz7tlGZuOUUR
-	0SSWZoFYVjXPygAcTGJd4v8i92jFoGwzV+8nA5CE25MIrP0ewBwWaALuKfz08MPi5VhGzF5xt7a
-	v312LiXNNA8RWDC9/Lk80W9g3O27cOVSAZ56oH1aXClnMRmEiIutjnsKIKN/J0=
-X-Received: by 2002:a05:690c:660c:b0:80e:dc2:873b with SMTP id 00721157ae682-897331419e0mr1227657b3.16.1789678678004;
-        Thu, 17 Sep 2026 13:57:58 -0700 (PDT)
-Received: from [127.0.0.1] ([217.65.139.42])
-        by smtp.gmail.com with ESMTPSA id 00721157ae682-896ca22d543sm3481767b3.22.2026.09.17.13.57.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Sep 2026 13:57:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oITZKss+"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=hCqz74nxFgQjsQAcUS+iGl9gSIVt8S9lxi6oHhzwSyY=; b=oITZKss+1eD9CSd1imRmeXtlIF
+	7xKKD8X9KU+nloD+mlkPpnG/6QfefhFD9RPWI1GSv/YSUSYLYOZKN85XFrQaMxN/zPWvzr+0STYYl
+	YVLlyh50rd4VQx2VpGIdL2p7G7fvhMStNm2k/P03DzzKgehTl3BFrPu07MBAYMUl0LYahoWpXV0wD
+	1ZvKIh+oNF3zTkhd2E4DOj2v2+6F52Lo3aWWAIQri65uug5DNZJR2Idg9gXR+nClbRfJ4rMA8JEE+
+	kBfg+wecyO8kmpBs1Fcgzv5AMQtz1YqIVov3qPY58VVtwwSKgiH15+7bpULcZD1/NnJcyhFbtegoq
+	IC5vg97w==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1x7XG9-0000000HDuD-1V5r
+	for fio@vger.kernel.org;
+	Fri, 18 Sep 2026 12:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 90FD31BC0161; Fri, 18 Sep 2026 06:00:01 -0600 (MDT)
+Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
-To: fio@vger.kernel.org, Eric Sandeen <sandeen@redhat.com>
-In-Reply-To: <20260917205554.2281093-1-sandeen@redhat.com>
-References: <20260917205554.2281093-1-sandeen@redhat.com>
-Subject: Re: [PATCH V2] client: don't send uninitialized data in
- fio_send_file error replies
-Message-Id: <178967867670.1755301.8723095281128051810.b4-ty@b4>
-Date: Thu, 17 Sep 2026 14:57:56 -0600
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Fri, 18 Sep 2026 06:00:01 -0600
+Message-Id: <20260918120001.90FD31BC0161@kernel.dk>
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.15.2
 
+The following changes since commit 6bc57a931f04fa3f50348d8c8f087187f050c6e1:
 
-On Thu, 17 Sep 2026 15:55:53 -0500, Eric Sandeen wrote:
-> Various error cases in fio_send_file() might send an uninitialized
-> buffer over the wire. The server should ignore this when errno is set,
-> but it's best practice to not ship heap data over the wire, so fix that
-> by:
-> 
-> - using calloc vs malloc in the initial allocation so that early error
->   paths send initialized data.
-> 
-> [...]
+  eta: remove now unused done_secs (2026-09-11 14:41:56 -0400)
 
-Applied, thanks!
+are available in the Git repository at:
 
-[1/1] client: don't send uninitialized data in fio_send_file error replies
-      commit: 162e8fb3d059c090caa56255e4a6a92bfa6e47b3
+  git://git.kernel.dk/fio.git master
 
-Best regards,
--- 
-Jens Axboe
+for you to fetch changes up to 162e8fb3d059c090caa56255e4a6a92bfa6e47b3:
 
+  client: don't send uninitialized data in fio_send_file error replies (2026-09-17 14:57:34 -0600)
 
+----------------------------------------------------------------
+Eric Sandeen (1):
+      client: don't send uninitialized data in fio_send_file error replies
 
+ client.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/client.c b/client.c
+index 374a744a..c1d80783 100644
+--- a/client.c
++++ b/client.c
+@@ -1807,7 +1807,7 @@ static int fio_send_file(struct fio_client *client, struct cmd_sendfile *pdu,
+ 	int fd;
+ 
+ 	size = sizeof(*rep);
+-	rep = malloc(size);
++	rep = calloc(1, size);
+ 
+ 	if (stat((char *)pdu->path, &sb) < 0) {
+ fail:
+@@ -1817,14 +1817,14 @@ fail:
+ 		return 1;
+ 	}
+ 
+-	size += sb.st_size;
+-	rep = realloc(rep, size);
+-	rep->size = cpu_to_le32((uint32_t) sb.st_size);
+-
+ 	fd = open((char *)pdu->path, O_RDONLY);
+ 	if (fd == -1 )
+ 		goto fail;
+ 
++	size += sb.st_size;
++	rep = realloc(rep, size);
++	rep->size = cpu_to_le32((uint32_t) sb.st_size);
++
+ 	rep->error = read_data(fd, &rep->data, sb.st_size);
+ 	sendfile_reply(client->fd, rep, size, tag);
+ 	free(rep);
