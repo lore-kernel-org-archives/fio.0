@@ -1,87 +1,121 @@
-Received: from mail-pj2-f12.google.com (mail-pj2-f12.google.com [74.125.227.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8ED54D4898
-	for <fio@vger.kernel.org>; Mon, 21 Sep 2026 18:38:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.227.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09E374457B6
+	for <fio@vger.kernel.org>; Mon, 21 Sep 2026 23:20:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1790015939; cv=none; b=A51S+krN5Q8D6/LEWlkH7v0OPDwweHARIscROazN8QJJH/HeAlUuWBYpIZci9+ak9AvrMSw/mmeOBXOIeMO2Cpux48w2qgot4Y9NU1SOdVHOG/EMFewdW2Gnqy9eG4wQL26uyqBPAU0WPEmmYv7cJi3WPPwiAMx9wRuyExNxEaU=
+	t=1790032828; cv=none; b=eYa5qNb0erJemkVcy1b07ueXO/00XaZcTM4hjZ5IVt9vqiXcDZv7oSr5BLjIij1Tjv0kLpVKynXu/9s3OZ48U33S89uZ3htUwbrkpsjqfGl70/0SUeVZirY+aqni40mBrgnVZisvAWo0wwT3gbopLBwHZ3TwOBb+1+SHQdjXn+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1790015939; c=relaxed/simple;
-	bh=6JkR8PQCBEWdT33e7Ce9b5WopBHF9IpR7OX1UL9snj0=;
-	h=Date:Content-Type:MIME-Version:From:To:Subject:In-Reply-To:
-	 References:Message-ID; b=MXQj/dpLb2iTlPbNxGPRZ/ZLOa4AdkNA7QRuqYZ2N8uQnjdu5pGxfP6vFPIx0IKkpoY3nBo4ZDMiIF6ITnSMe1Nxb32mbwu//SP1+mQ/AiwZ961n/aPWqnT4TWLIsoONKei6i3flZCp6IV42hkW+2LQIxk/tX3EZYB8fLI5QAGQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EhD6APJj; arc=none smtp.client-ip=74.125.227.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1790032828; c=relaxed/simple;
+	bh=Tl0pECm8XO0tuARFl/YgPiU/Kp9XWd5v4ak+5GGPJ8A=;
+	h=Mime-Version:Subject:From:To:CC:In-Reply-To:Message-ID:Date:
+	 Content-Type:References; b=tS4PzCYW4LpPDdNjHpw+tOj7LZe48oeH44Qb0PinLi68rVCqiCSTZXpSB0ZWnzPm9IK9XjE/5iPHCI+Z53GpxKV9l/2oUZUsmW42rD4+n6sYfr987FDnldE5+w0QTSpznhMhBsUFcm/INCv5z3zkeU5BpRsAx2S6LU9ycy/8qCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=NzyiWyZQ; arc=none smtp.client-ip=203.254.224.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EhD6APJj"
-Received: by mail-pj2-f12.google.com with SMTP id 98e67ed59e1d1-396ccafb74fso3200333a91.3
-        for <fio@vger.kernel.org>; Mon, 21 Sep 2026 11:38:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1790015937; x=1790620737; darn=vger.kernel.org;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version
-         :content-type:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=6JkR8PQCBEWdT33e7Ce9b5WopBHF9IpR7OX1UL9snj0=;
-        b=EhD6APJjxB0WTnAxWFxiA3Vwr3kZjo4MCPh4gl2Znp5BH2aO7ARkci1euXPJFNLPeQ
-         V6B8SbiXbppwZJq14LXTR/fUR8uIM6QjSJ/ggFefLO3/tCoE4vJEGWS3h0Dh0fxLEE9L
-         chdWJsQx7X2SPpe3N42GA+IqSA2hpdaUgCs7+JMi1/KOjIjzgJQEczI3qsJhVTcwwrzZ
-         PvH9j5Zk//PPhOSBOabIK/ddZlqWKv4zlVimIfab7rDBMTKQkh45kgxZBZkBwbCgQzxn
-         looOMA1daHQoZ9/xQ0Ue7aK52Ras8bRtx3n4v0gNmjRkGL90cbiPSNvLRVttBPL311PR
-         m+Hg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1790015937; x=1790620737;
-        h=message-id:references:in-reply-to:subject:to:from:mime-version
-         :content-type:date:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=6JkR8PQCBEWdT33e7Ce9b5WopBHF9IpR7OX1UL9snj0=;
-        b=lNJ0JHkIImgQu45DaeSAVy7lH2UbjtNzKA5MrswSPJ5Od7oBd4N6727uE4X4z559lv
-         vxfIWYRy63JP3LETtTG9KeDm1/lUCwKBjFiSEPwcRSvNQKkvB8fK6FQsuX80qtuZKxBA
-         5zKM6ENUltHfEENVviyW/zkWzRG8hT+KKjsAXr+Z8h6Tiy+N1LhUDY44F0vICSu0Do3h
-         TTFS9Itfzvqc50NE5PrtspGSzaTaAOEh3kJWL663OC3+lzvyL0Fulz8w154IdPsIFsTn
-         5scUG6IAttVf9bKEPZ9CP9gfBhJ2MqvfxyUzAHRCzRIe2LOQEXMZrWt/y5VnW+LxdGp0
-         R/Yg==
-X-Gm-Message-State: AFuF++mp4uMVjD6IkdakJZAms7d5j7llMavzIcek4xiymM+gH8CiABtI
-	iYSPHB333P0IwTSChqbWMA6//cQsNNTsm637+bwUgYcks44K2xBjSlIHZz9U
-X-Gm-Gg: AYBFou2Be39d6bTy+Kz6kSXw1aH6jhQkFIcwGxHufXMOyEkslrut09WoVblMVySxRSn
-	bDp719v0X2tpbbPJOwCvA674lp2q0yE83g/u8z5HR2agKE4FGGvzmyo8Ch77juRQvPm4Qm5P5YA
-	WB+swBcPi60UktwGgdVUe3aI+D59kBfAMYmv6wn9SGIJfEqt7ADVHgyI1vE0py2YdWi1cNm/qBO
-	DZG+0UAZz2p5OUSUAovO95ktrguvjqyzJ3Pesu4aru/rnw/yqIaE4a3qpRnWtcXYkrP7bx8fD3+
-	TLZIZxoJZ/cgzfh5wnZaxmJnRTbfmIMnxykkhhnxQN0W+Li04nrOVcsujKuZBtBtMkvggNKjBml
-	5KWffOwHQMB850aLxI1hNSoCjHMnsgfVdscNkJt5vTiNAJDFj/E/tUOaiSQ0CXdl6vKN3zPDcTs
-	9ac2B0KeXN8lyvkvGWs1GmqH5kePjSusoYIzukiqSkxg7/7ditnuS9J59vRO8qSAMwMkh9AXNjz
-	34ez8+1miJ1iIqgBpM0AJNMDZEPuCz4TemACUJoYgtnI/Eg7lEY2IMXrZ3iytvDI9vH
-X-Received: by 2002:a17:90b:5251:b0:39e:6a7f:eeef with SMTP id 98e67ed59e1d1-39e6a7ff09amr12350530a91.20.1790015936952;
-        Mon, 21 Sep 2026 11:38:56 -0700 (PDT)
-Received: from runnervmlun5p.5v3bw1acg5aejpxxefstvhv1fg.xx.internal.cloudapp.net ([4.246.70.112])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3a06997b170sm94410a91.10.2026.09.21.11.38.56
-        for <fio@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Sep 2026 11:38:56 -0700 (PDT)
-Date: Mon, 21 Sep 2026 11:38:56 -0700 (PDT)
-Content-Type: multipart/mixed; boundary="===============8302396413462376405=="
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="NzyiWyZQ"
+Received: from epcas2p3.samsung.com (unknown [182.195.41.55])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20260921232022epoutp013ad3db8211c73084169401c515dd1693~XeV5LZ_LA0743207432epoutp01V
+	for <fio@vger.kernel.org>; Mon, 21 Sep 2026 23:20:22 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20260921232022epoutp013ad3db8211c73084169401c515dd1693~XeV5LZ_LA0743207432epoutp01V
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1790032822;
+	bh=Tl0pECm8XO0tuARFl/YgPiU/Kp9XWd5v4ak+5GGPJ8A=;
+	h=Subject:Reply-To:From:To:CC:In-Reply-To:Date:References:From;
+	b=NzyiWyZQw94enwW7WoobDldSwh7WzH1IvebBJgC6xtikfoQsp20Pz2EWTt1wKj5Xg
+	 LDUFBToUZI1Nuv8tXqe49ddJip2TUdyLWoQg9BHOe99zJIs/58uHgI2cF02rBUWgWa
+	 6n2GniTmvRQnaY0deE4Uuvg9Q0IqT5OlADloE5Nw=
+Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
+	epcas2p2.samsung.com (KnoxPortal) with ESMTPS id
+	20260921232022epcas2p245db11c7309ae1867bcc7daab0d60600~XeV47KZep1651116511epcas2p2B;
+	Mon, 21 Sep 2026 23:20:22 +0000 (GMT)
+Received: from epcas2p1.samsung.com (unknown [182.195.38.199]) by
+	epsnrtp02.localdomain (Postfix) with ESMTP id 4hpfN611lzz2SSKb; Mon, 21 Sep
+	2026 23:20:22 +0000 (GMT)
 Precedence: bulk
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: fiotestbot@gmail.com
-To: fio@vger.kernel.org
-Subject: =?utf-8?q?Re=3A_=5BPATCH=5D_examples=3A_add_seq-rand-read-write=2Efio?=
-In-Reply-To: <20260921025521epcms2p34a2d819339601929f469f71ca7014901@epcms2p3>
-References: <20260921025521epcms2p34a2d819339601929f469f71ca7014901@epcms2p3>
-Message-ID: <179001593631.2909.16026965515973449474@runnervmlun5p.5v3bw1acg5aejpxxefstvhv1fg.xx.internal.cloudapp.net>
+Mime-Version: 1.0
+Subject: RE:(2) [PATCH] examples: add seq-rand-read-write.fio
+Reply-To: jieon.seol@samsung.com
+Sender: Jieon Seol <jieon.seol@samsung.com>
+From: Jieon Seol <jieon.seol@samsung.com>
+To: Vincent Fu <vincentfu@gmail.com>
+CC: "fio@vger.kernel.org" <fio@vger.kernel.org>, "jieon.seol@gmail.com"
+	<jieon.seol@gmail.com>
+X-Priority: 3
+X-Content-Kind-Code: NORMAL
+In-Reply-To: <CAOp=CXmANYTw3at495z+G3S9injh2nLpgOP=_vQ3LBtbaF-G_Q@mail.gmail.com>
+X-CPGS-Detection: blocking_info_exchange
+X-Drm-Type: N,general
+X-Msg-Generator: Mail
+X-Msg-Type: PERSONAL
+X-Reply-Demand: N
+Message-ID: <20260921232021epcms2p5c738e175300ab42e01655efe7535dcaf@epcms2p5>
+Date: Tue, 22 Sep 2026 08:20:21 +0900
+X-CMS-MailID: 20260921232021epcms2p5c738e175300ab42e01655efe7535dcaf
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: AUTO_CONFIDENTIAL
+CMS-TYPE: 102P
+X-CPGSPASS: Y
+X-CPGSPASS: Y
+cpgsPolicy: CPGSC10-223,Y
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20260921025521epcms2p34a2d819339601929f469f71ca7014901
+References: <CAOp=CXmANYTw3at495z+G3S9injh2nLpgOP=_vQ3LBtbaF-G_Q@mail.gmail.com>
+	<20260921025521epcms2p34a2d819339601929f469f71ca7014901@epcms2p3>
+	<CGME20260921025521epcms2p34a2d819339601929f469f71ca7014901@epcms2p5>
 
---===============8302396413462376405==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Hi Vincent,
+
+Thanks for the feedback.
+
+The proposed job already has direct=3D1 in the global section.
+
+I considered modifying examples/ssd-test.fio, but kept this separate becaus=
+e the workload differs in a few significant ways: in particular, it uses 51=
+2 KiB sequential I/O, 4 KiB random I/O, and fixed-size runs rather than the=
+ current 4 KiB, libaio/iodepth=3D4, time-based configuration.
+
+If updating ssd-test.fio is preferable, I'm happy to rework the patch in th=
+at direction.
+
+Thanks,
+Jieon
 
 
-The result of fio's continuous integration tests was: success
-
-For more details see https://github.com/fiotestbot/fio/actions/runs/35567772288
-
---===============8302396413462376405==--
+--------- Original Message ---------
+Sender : Vincent Fu <vincentfu=40gmail.com>=C2=A0=0D=0ADate=20:=202026-09-2=
+2=2007:59=20(GMT+9)=0D=0ATitle=20:=20Re:=20=5BPATCH=5D=20examples:=20add=20=
+seq-rand-read-write.fio=0D=0A=0D=0AOn=20Sun,=20Sep=2020,=202026=20at=2010:5=
+8=E2=80=AFPM=20=EC=84=A4=EC=A7=80=EC=96=B8=20<jieon.seol=40samsung.com>=20w=
+rote:=0D=0A>=0D=0A>=20Add=20an=20example=20job=20file=20that=20runs=20four=
+=20basic=20storage=20performance=0D=0A>=20workloads=20in=20a=20single=20fio=
+=20invocation:=0D=0A>=0D=0A>=20-=20512=20KiB=20sequential=20read=0D=0A>=20-=
+=20512=20KiB=20sequential=20write=0D=0A>=20-=204=20KiB=20random=20read=0D=
+=0A>=20-=204=20KiB=20random=20write=0D=0A>=0D=0A>=20The=20sequential=20work=
+loads=20transfer=201=20GiB=20each.=20The=20random=20workloads=0D=0A>=20oper=
+ate=20over=20a=201=20GiB=20region=20using=20eight=20synchronous=20workers,=
+=20with=20each=0D=0A>=20worker=20transferring=20128=20MiB=20(1=20GiB=20aggr=
+egate=20per=20workload).=0D=0A>=0D=0A>=20Unlike=20examples/ssd-test.fio,=20=
+which=20uses=204=20KiB=20I/O=20for=20both=20sequential=0D=0A>=20and=20rando=
+m=20workloads,=20this=20job=20uses=20large-block=20sequential=20I/O=20for=
+=0D=0A>=20bandwidth=20measurement=20and=20small-block=20random=20I/O=20for=
+=20random=0D=0A>=20performance.=0D=0A>=0D=0A>=20The=20four=20workloads=20ar=
+e=20serialized=20with=20stonewall=20and=20explicitly=20use=0D=0A>=20the=20p=
+sync=20I/O=20engine.=20The=20target=20directory=20is=20supplied=20at=20invo=
+cation=0D=0A>=20time,=20for=20example:=0D=0A>=0D=0A>=20=C2=A0=20=C2=A0=20fi=
+o=20--directory=3D/path/to/test=20examples/seq-rand-read-write.fio=0D=0A>=
+=0D=0A>=20Testing:=0D=0A>=20-=20fio=20--parse-only=20examples/seq-rand-read=
+-write.fio=0D=0A>=0D=0A>=20Signed-off-by:=20Jieon=20Seol=20<jieon.seol=40sa=
+msung.com>=0D=0A>=20---=0D=0A=0D=0A=0D=0AIf=20you=20are=20really=20interest=
+ed=20in=20device=20performance=20you=20should=20run=20with=0D=0Adirect=3D1.=
+=20Otherwise=20you=20will=20be=20measuring=20the=20performance=20of=20the=
+=20page=20cache.=0D=0A=0D=0AWhy=20don't=20you=20just=20modify=20examples/ss=
+d-test.fio?=20That=20would=20be=20better=20than=0D=0Acreating=20a=20complet=
+ely=20new=20example=20job.=0D=0A=0D=0A=0D=0AVincent
