@@ -1,685 +1,254 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=90.155.92.199
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1792497609;
+	b=aIJo5tGdKjQCFz/Hpq9dk4/oUdCRRkJ+hMFDlsIBSVcSiSjxCiMx1K6TefdaM0jAiH48
+	 o8JdC/tu0m+PftUeuwl04Fln+W0uVFAWUzlfAbo21ZMhCx4ImDZihaeTBsTBij15pJkUQ
+	 A2usKt500nXNt60fllsTyPT+QpOeZy0mjh1VW1Jg9vEmAyvhxk7BBTzAnnjk5hBy2tlNZ
+	 ab1Qe9CKpKVKWqIjSpwn8okm8dvsnA80fTJ05HjVf8pOiO6ltHMREYm/pECrV7xg7RTlt
+	 5sOrrSw4Wk1MqQhmDVf2ptrb6JhLSPkhCCHZW0HoAFsIogiIfYZFkBk8XOJKIdYUiIA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1792497609;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Subject:From:To:
+	 User-Agent:Date:Message-Id;
+	bh=08tfQlxiWHkv7TTvMhMMC9cD4KlVnfJjeYZ0ItuW2DY=;
+	b=0aSul2EVr2yglMH4v6iohlp6TLhjt6NURi6togtgoBkbv/RAFb+lQOhjmIIHZtjeE5n6
+	 O5tk3GXKgbBBKdEwv6Qhs51hcBkL00WD5HdRhnxqwd9kDqhC/nENb5Hx2AScvUY9DIT8J
+	 3HFGIc6OCvhGn4D0oQ5tLSRwKYvReMs7gVhGhg1WC4BPltaH/F2H3MHd9ac0+axlUmM7J
+	 fyWuZLeIsXjGz2mzEZd6CMSUaoxvmtQXM6fIU3/Cx+CGXLplbU58Yg7RGGt+rZ97/F9BE
+	 OMjM+8LaYK0cPKIiZrpOgMKvQjjhs5Gaexzr1KBKG9BnpmK1PjyLHh0Reswu09E9X6w==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=kernel.dk;
+	spf=fail smtp.mailfrom=kernel.dk;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=GTFU8z+M;
+	arc=none smtp.remote-ip=90.155.92.199
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 700DA4FB9A0
-	for <fio@vger.kernel.org>; Tue, 13 Oct 2026 12:00:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1791892811; cv=none; b=BhvoUI+dd+o107foeKmtZ+7ixSCh2jO5A6ujLgIvOePMaEV+K91GvLlyW+5cLsmwWXxXgiHlQX8h1zZralXlOHZZjdRVSldQfFhyOgVlxZqq54HHPOuMNB+4hyZbFxKJeXGKeRuJ1HpLRDU6R9evMO6gMFSjKwzIJF7nYS0PdFc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1791892811; c=relaxed/simple;
-	bh=X+1vmuXBRjkAZT2TU3bWRSe2mnZ5063eVgzo3fS7P4o=;
-	h=Subject:From:To:Date:Message-Id; b=Xgd+Vcx3p4DlP4UOXPfv0nPKUOpRlfC9GVcZwUJNhcI6FAbw2TQTDy3eDFNwinx2CSb6hpb+EcpRh/MmL+ZbVPbn3aJCwjlPg+24stU+BQ8c3cLGpQ5CQ22hnIAvnaZvhIrNoAU5u0PyLcUB60mpRB+FLNH/yjXs28Oq/3iEIeI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=fail smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=TuOMXvoL; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10AA7606A33C
+	for <fio@vger.kernel.org>; Tue, 20 Oct 2026 12:00:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 10AA7606A33C
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="TuOMXvoL"
+	dkim=pass (2048-bit key, unprotected) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=GTFU8z+M
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
-	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	d=infradead.org; s=desiato.20200630; h=Message-Id:Date:To:From:Subject:Sender
+	:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
 	Content-Description:In-Reply-To:References;
-	bh=GzKm0iRplOad+3kY12Zf4lmsrPI3G12X1IcnlPgCQ4k=; b=TuOMXvoLD2aBG8l9iYWkoGhL3V
-	LLYp/OviOtjlFNSS2tOFv+rHJYWOM7vFg5StH5PyqLbJISDBZPlAGgxAPbVidI0bcgE8lzb+uFX0j
-	HD6IkkFjQ4atVpWg+hNtpCD9JfireJwDXP1mOgJmRj1jVgecujfFB1nsiXl7L22Q4L7aMWh7aK6ky
-	ojoCIFWGjSL/PWtXZnPP1uEjFMr+SXYbLtQpi8ybC7duUGR4MNrCC4aWvXxWnx91a3wzlgSqF28d3
-	TBDdV4KmlgXSyT2vcNvilEqN2IqtF77WSAlsg3RehjlIOMcq+hbP1xXGCdNRGRCZb1VPtKRumnuR1
-	gwfs5CZQ==;
+	bh=08tfQlxiWHkv7TTvMhMMC9cD4KlVnfJjeYZ0ItuW2DY=; b=GTFU8z+MlPp5ZC929bHqiq95V5
+	mG+6eyVhgbU3o3adY3n3Yps1M4+iu7waoj3uMjDseMJxUoLxr5SVlq1USdz/Z69Zz1Ucfa0NmaCDp
+	2bEt0HEY5fBX0iRv28WvlRZaLxKbAO5MQsGxdBasIdIQ5TATXSxxRY63DLlda/4sC0awgGrI7OjJp
+	DyxlCnsOGoG2EBZlS0vMB2jx4QE0p08mN4KosS4KoUb94sY/n3XQr4FKtK98KGeIwWcR7dpfN1hj1
+	FN+bGu2Ap7bKd4ZVwc+CMKbBbnnJZuVNh43MRCaYZyhzhDOePfr6wlKzzocVV+LeXHkGd33kGtURS
+	23EZlxpw==;
 Received: from [96.43.243.2] (helo=kernel.dk)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1xGbAq-0000000D7oE-35vr
+	by desiato.infradead.org with esmtpsa (Exim 4.99.5 #2 (Red Hat Linux))
+	id 1xJ8Vg-00000004gw0-3JXA
 	for fio@vger.kernel.org;
-	Tue, 13 Oct 2026 12:00:05 +0000
+	Tue, 20 Oct 2026 12:00:05 +0000
 Received: by kernel.dk (Postfix, from userid 1000)
-	id 62CC01BC0152; Tue, 13 Oct 2026 06:00:01 -0600 (MDT)
+	id 54DEB1BC012E; Tue, 20 Oct 2026 06:00:01 -0600 (MDT)
 Subject: Recent changes (master)
 From: Jens Axboe <axboe@kernel.dk>
 To: <fio@vger.kernel.org>
 User-Agent: mail (GNU Mailutils 3.17)
-Date: Tue, 13 Oct 2026 06:00:01 -0600
-Message-Id: <20261013120001.62CC01BC0152@kernel.dk>
-Precedence: bulk
+Date: Tue, 20 Oct 2026 06:00:01 -0600
+Message-Id: <20261020120001.54DEB1BC012E@kernel.dk>
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
+List-Post: <mailto:fio@vger.kernel.org>
+List-Help: <mailto:fio+help@vger.kernel.org>
 List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
+List-Owner: <mailto:fio+owner@vger.kernel.org>
+Precedence: list
 
-The following changes since commit daf3f3b837f81ac2464c6a67bba829c984d65a3f:
+The following changes since commit acb7a302059b0cc397c95a232a44cb14c524bbde:
 
-  Merge branch 'master' of https://github.com/rorychen/fio-HSMR (2026-10-01 14:26:20 -0400)
+  Merge branch 'dmabuf-io_uringv1' of https://github.com/swarnagh6/fio (2026-10-12 19:21:58 -0400)
 
 are available in the Git repository at:
 
   git://git.kernel.dk/fio.git master
 
-for you to fetch changes up to acb7a302059b0cc397c95a232a44cb14c524bbde:
+for you to fetch changes up to 4767beef328a257c4300358ffa2901f3e0f1dc68:
 
-  Merge branch 'dmabuf-io_uringv1' of https://github.com/swarnagh6/fio (2026-10-12 19:21:58 -0400)
+  Merge branch 'write_zeries' of https://github.com/panky-codes/fio (2026-10-19 11:57:14 -0400)
 
 ----------------------------------------------------------------
-Swarna Prabhu (1):
-      engines/io_uring: add support for dmabuf backed fixed buffers
+Pankaj Raghav (1):
+      fio: add FALLOC_FL_WRITE_ZEROES support to falloc
 
 Vincent Fu (1):
-      Merge branch 'dmabuf-io_uringv1' of https://github.com/swarnagh6/fio
+      Merge branch 'write_zeries' of https://github.com/panky-codes/fio
 
- HOWTO.rst           |  16 +++
- configure           |  32 +++++
- engines/io_uring.c  | 344 +++++++++++++++++++++++++++++++++++++++++++++++++++-
- examples/dmabuf.fio |  14 +++
- fio.1               |  16 +++
- os/linux/io_uring.h |  23 +++-
- 6 files changed, 439 insertions(+), 6 deletions(-)
- create mode 100644 examples/dmabuf.fio
+ HOWTO.rst   |  8 ++++++--
+ configure   | 23 +++++++++++++++++++++++
+ file.h      |  3 ++-
+ filesetup.c | 15 +++++++++++++++
+ fio.1       |  8 ++++++--
+ options.c   |  6 ++++++
+ 6 files changed, 58 insertions(+), 5 deletions(-)
 
 ---
 
 Diff of recent changes:
 
 diff --git a/HOWTO.rst b/HOWTO.rst
-index 3684fe70..0b39b01a 100644
+index 0b39b01a..6adea4d7 100644
 --- a/HOWTO.rst
 +++ b/HOWTO.rst
-@@ -2559,6 +2559,22 @@ with the caveat that when used on the command line, they must come after the
- 	map and release for each IO. This is more efficient, and reduces the
- 	IO latency as well.
+@@ -1357,6 +1357,10 @@ I/O type
+ 			Pre-allocate via :manpage:`fallocate(2)` with
+ 			FALLOC_FL_KEEP_SIZE set.
  
-+.. option:: dmabuf=str : [io_uring]
++		**write_zeroes**
++			Pre-allocate via :manpage:`fallocate(2)` with
++			FALLOC_FL_WRITE_ZEROES set.
 +
-+	Select the DMA-BUF exporter for the IO buffers. Allowed values are:
-+
-+		**none**
-+			Do not use DMA-BUF-backed buffers. This is the default.
-+
-+		**udmabuf**
-+			Allocate the IO buffers from a udmabuf (``/dev/udmabuf``)
-+			region and register them with io_uring as DMA-BUF-backed
-+			fixed buffers, so that the device DMAs directly to/from the
-+			DMA-BUF. Requires :option:`direct` =1; buffered IO is not
-+			supported. Requires a kernel that supports the extended
-+			buffer registration update. Not supported io_uring_cmd mode
-+			as kernel lacks support for passthrough.
-+
- .. option:: nonvectored=int : [io_uring] [io_uring_cmd]
+ 		**truncate**
+ 			Extend file to final size via :manpage:`ftruncate(2)`
+ 			instead of allocating.
+@@ -1367,8 +1371,8 @@ I/O type
+ 		**1**
+ 			Backward-compatible alias for **posix**.
  
- 	With this option, fio will use non-vectored read/write commands, where
+-	May not be available on all supported platforms. **keep** is only available
+-	on Linux. If using ZFS on Solaris this cannot be set to **posix**
++	May not be available on all supported platforms. **keep** and
++	**write_zeroes** are only available on Linux. If using ZFS on Solaris this cannot be set to **posix**
+ 	because ZFS doesn't support pre-allocation. Default: **native** if any
+ 	pre-allocation methods except **truncate** are available, **none** if not.
+ 
 diff --git a/configure b/configure
-index 2ab83371..60d0ef98 100755
+index 60d0ef98..9dfc9b6d 100755
 --- a/configure
 +++ b/configure
-@@ -2709,6 +2709,38 @@ else
-   nvme_uring_cmd="no"
+@@ -1098,6 +1098,26 @@ if compile_prog "" "" "linux_fallocate"; then
  fi
- print_config "NVMe uring command support" "$nvme_uring_cmd"
-+
+ print_config "Linux fallocate" "$linux_fallocate"
+ 
 +##########################################
-+# Check udmabuf allocation support
++# Linux fallocate FALLOC_FL_WRITE_ZEROES probe
++if test "$linux_fallocate_write_zeroes" != "yes" ; then
++  linux_fallocate_write_zeroes="no"
++fi
 +cat > $TMPC << EOF
-+#define _GNU_SOURCE
++#include <stdio.h>
 +#include <fcntl.h>
-+#include <sys/mman.h>
-+#include <sys/ioctl.h>
-+#include <linux/udmabuf.h>
-+int main(void)
++#include <linux/falloc.h>
++int main(int argc, char **argv)
 +{
-+  struct udmabuf_create create = {
-+    .memfd = 0,
-+    .flags = 0,
-+    .offset = 0,
-+    .size = 4096,
-+  };
-+  int (*create_memfd)(const char *, unsigned int) = memfd_create;
-+  int fd = create_memfd("fio-udmabuf", MFD_ALLOW_SEALING);
-+
-+  if (fcntl(fd, F_ADD_SEALS, F_SEAL_SHRINK) < 0)
-+    return 1;
-+  return ioctl(fd, UDMABUF_CREATE, &create);
++  int r = fallocate(0, FALLOC_FL_WRITE_ZEROES, 0, 1024);
++  return r;
 +}
 +EOF
-+if compile_prog "" "" "udmabuf"; then
-+  output_sym "CONFIG_UDMABUF"
-+  udmabuf="yes"
-+else
-+  udmabuf="no"
++if compile_prog "" "" "linux_fallocate_write_zeroes"; then
++    linux_fallocate_write_zeroes="yes"
 +fi
-+print_config "udmabuf allocation support" "$udmabuf"
- fi
- 
++print_config "Linux fallocate write zeroes" "$linux_fallocate_write_zeroes"
++
  ##########################################
-diff --git a/engines/io_uring.c b/engines/io_uring.c
-index f1e0527c..a7b67ce7 100644
---- a/engines/io_uring.c
-+++ b/engines/io_uring.c
-@@ -26,6 +26,9 @@
- #include "zbd.h"
- #include "nvme.h"
- #include "bsg.h"
-+#ifdef CONFIG_UDMABUF
-+#include <linux/udmabuf.h>
-+#endif
+ # POSIX fadvise probe
+ if test "$posix_fadvise" != "yes" ; then
+@@ -3221,6 +3241,9 @@ fi
+ if test "$linux_fallocate" = "yes" ; then
+   output_sym "CONFIG_LINUX_FALLOCATE"
+ fi
++if test "$linux_fallocate_write_zeroes" = "yes" ; then
++  output_sym "CONFIG_LINUX_FALLOCATE_WRITE_ZEROES"
++fi
+ if test "$posix_fallocate" = "yes" ; then
+   output_sym "CONFIG_POSIX_FALLOCATE"
+ fi
+diff --git a/file.h b/file.h
+index 6fcf409b..d3375d7c 100644
+--- a/file.h
++++ b/file.h
+@@ -63,7 +63,7 @@ enum {
  
- #include <sys/stat.h>
- 
-@@ -125,6 +128,15 @@ enum uring_cmd_read_mode {
- 	FIO_URING_CMD_RMODE_READ = 0,
- 	FIO_URING_CMD_RMODE_PREFETCH,
- };
-+/*
-+ * dmabuf exporter backing the pre-mapped IO buffers. Only "udmabuf" is
-+ * supported as of now, but can add support for GPU dmabuf exporters
-+ * in the future.
-+ */
-+enum uring_dmabuf_type {
-+	FIO_URING_DMABUF_NONE = 0,
-+	FIO_URING_DMABUF_UDMABUF,
-+};
- 
- struct io_sq_ring {
- 	unsigned *head;
-@@ -192,6 +204,15 @@ struct ioring_data {
- 	bool fua[DDIR_RWDIR_CNT];
- 	enum bsg_write_mode wmode;
- 	enum bsg_read_mode rmode;
-+	struct buf_udma *dmabuf;
-+};
-+
-+struct buf_udma {
-+	void *ptr;
-+	size_t size;
-+	int dmabuf_fd;
-+	int memfd;
-+	int target_fd;
+ /*
+  * No pre-allocation when laying down files, or call posix_fallocate(), or
+- * call fallocate() with FALLOC_FL_KEEP_SIZE set.
++ * call fallocate() with FALLOC_FL_KEEP_SIZE or FALLOC_FL_WRITE_ZEROES set.
+  */
+ enum fio_fallocate_mode {
+ 	FIO_FALLOCATE_NONE	= 1,
+@@ -71,6 +71,7 @@ enum fio_fallocate_mode {
+ 	FIO_FALLOCATE_KEEP_SIZE	= 3,
+ 	FIO_FALLOCATE_NATIVE	= 4,
+ 	FIO_FALLOCATE_TRUNCATE	= 5,
++	FIO_FALLOCATE_WRITE_ZEROES = 6,
  };
  
- struct ioring_options {
-@@ -224,6 +245,7 @@ struct ioring_options {
- 	unsigned int cdb_len;
- 	unsigned int verify_bytchk;
- 	unsigned int read_mode;
-+	enum uring_dmabuf_type dmabuf;
- };
+ /*
+diff --git a/filesetup.c b/filesetup.c
+index 72be2591..0f8c4d74 100644
+--- a/filesetup.c
++++ b/filesetup.c
+@@ -95,6 +95,21 @@ static void fallocate_file(struct thread_data *td, struct fio_file *f)
  
- static unsigned int enter_flags = IORING_ENTER_GETEVENTS;
-@@ -673,6 +695,26 @@ static struct fio_option options[] = {
- 		.category = FIO_OPT_C_ENGINE,
- 		.group	= FIO_OPT_G_IOURING,
- 	},
-+	{
-+		.name	= "dmabuf",
-+		.lname	= "Pre-mapped dma buffers",
-+		.type	= FIO_OPT_STR,
-+		.off1	= offsetof(struct ioring_options, dmabuf),
-+		.help	= "Back pre-mapped IO buffers with a dmabuf exporter",
-+		.def	= "none",
-+		.posval = {
-+			  { .ival = "none",
-+			    .oval = FIO_URING_DMABUF_NONE,
-+			    .help = "Do not use dmabuf-backed buffers"
-+			  },
-+			  { .ival = "udmabuf",
-+			    .oval = FIO_URING_DMABUF_UDMABUF,
-+			    .help = "Use udmabuf-backed dmabuf buffers"
-+			  },
-+		},
-+		.category = FIO_OPT_C_ENGINE,
-+		.group	= FIO_OPT_G_IOURING,
-+	},
- 	{
- 		.name	= NULL,
- 	},
-@@ -695,6 +737,238 @@ static int io_uring_enter(struct ioring_data *ld, unsigned int to_submit,
- #define BLOCK_URING_CMD_DISCARD	_IO(0x12, 0)
- #endif
- 
-+static int create_udmabuf(struct buf_udma *b, size_t size)
-+{
-+#ifdef CONFIG_UDMABUF
-+	struct udmabuf_create create;
-+	int memfd = -1, dmabuf_fd = -1, devfd = -1;
-+	void *p;
+ 		break;
+ 		}
++#ifdef CONFIG_LINUX_FALLOCATE_WRITE_ZEROES
++	case FIO_FALLOCATE_WRITE_ZEROES: {
++		int r;
 +
-+	size = (size + page_mask) & ~page_mask;
++		dprint(FD_FILE, "fallocate(FALLOC_FL_WRITE_ZEROES) "
++				"file %s size %llu\n", f->file_name,
++				(unsigned long long) f->real_file_size);
 +
-+	devfd = open("/dev/udmabuf", O_RDWR);
-+	if (devfd < 0) {
-+		log_err("fio: failed to open /dev/udmabuf: %s\n",
-+			strerror(errno));
-+		return -1;
-+	}
++		r = fallocate(f->fd, FALLOC_FL_WRITE_ZEROES, 0, f->real_file_size);
++		if (r != 0)
++			td_verror(td, errno, "fallocate");
 +
-+	memfd = memfd_create("fio-udmabuf", MFD_ALLOW_SEALING);
-+	if (memfd < 0) {
-+		log_err("fio: memfd_create failed: %s\n", strerror(errno));
-+		goto err;
-+	}
-+
-+	if (fcntl(memfd, F_ADD_SEALS, F_SEAL_SHRINK) < 0) {
-+		log_err("fio: failed to seal memfd: %s\n", strerror(errno));
-+		goto err;
-+	}
-+
-+	if (ftruncate(memfd, size) < 0) {
-+		log_err("fio: failed to size memfd to %llu bytes: %s\n",
-+			(unsigned long long) size, strerror(errno));
-+		goto err;
-+	}
-+
-+	memset(&create, 0, sizeof(create));
-+	create.memfd = memfd;
-+	create.offset = 0;
-+	create.size = size;
-+	dmabuf_fd = ioctl(devfd, UDMABUF_CREATE, &create);
-+	if (dmabuf_fd < 0) {
-+		log_err("fio: UDMABUF_CREATE (size %llu) failed: %s\n",
-+			(unsigned long long) size, strerror(errno));
-+		goto err;
-+	}
-+
-+	p = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, dmabuf_fd, 0);
-+	if (p == MAP_FAILED) {
-+		log_err("fio: failed to mmap udmabuf: %s\n", strerror(errno));
-+		goto err;
-+	}
-+
-+	close(devfd);
-+	b->size = size;
-+	b->dmabuf_fd = dmabuf_fd;
-+	b->memfd = memfd;
-+	b->ptr = p;
-+	dprint(FD_MEM, "udmabuf dmabuf_fd=%d memfd=%d size=%llu ptr=%p\n",
-+	       dmabuf_fd, memfd, (unsigned long long) size, p);
-+	return 0;
-+err:
-+	if (dmabuf_fd >= 0)
-+		close(dmabuf_fd);
-+	if (memfd >= 0)
-+		close(memfd);
-+	close(devfd);
-+	return -1;
-+#else
-+	(void) b;
-+	(void) size;
-+	log_err("fio: dmabuf=udmabuf is not supported by this build\n");
-+	return -1;
-+#endif
-+}
-+
-+/*
-+ * iomem hooks. When dmabuf=udmabuf, back td->orig_buffer with a udmabuf
-+ * region so io_u buffers carved out of it can be registered with io_uring
-+ * as dmabuf-backed fixed buffers. With dmabuf=none, use malloc by default.
-+ * Note:FIO_SKIPPABLE_IOMEM_ALLOC allows an explicit iomem= setting to override
-+ * these hooks and use fio's selected memory allocator instead.
-+ */
-+static int fio_ioring_iomem_alloc(struct thread_data *td, size_t total_mem)
-+{
-+	struct ioring_data *ld = td->io_ops_data;
-+	struct ioring_options *o = td->eo;
-+
-+	if (!o->dmabuf) {
-+		if (td->o.mem_type != MEM_MALLOC) {
-+			log_err("fio: io_uring: unexpected mem_type expected "
-+				"default malloc\n");
-+			return 1;
-+		}
-+		td->orig_buffer = malloc(total_mem);
-+		dprint(FD_MEM, "iouring malloc %llu %p\n",
-+		       (unsigned long long) total_mem, td->orig_buffer);
-+		return td->orig_buffer == NULL;
-+	}
-+
-+	ld->dmabuf = calloc(1, sizeof(*ld->dmabuf));
-+	if (!ld->dmabuf) {
-+		log_err("fio: failed to allocate dmabuf state\n");
-+		return 1;
-+	}
-+	ld->dmabuf->dmabuf_fd = -1;
-+	ld->dmabuf->memfd = -1;
-+	ld->dmabuf->target_fd = -1;
-+
-+	switch (o->dmabuf) {
-+	case FIO_URING_DMABUF_UDMABUF:
-+		if (create_udmabuf(ld->dmabuf, total_mem) < 0) {
-+			free(ld->dmabuf);
-+			ld->dmabuf = NULL;
-+			return 1;
-+		}
 +		break;
-+	default:
-+		log_err("fio: unsupported dmabuf exporter\n");
-+		free(ld->dmabuf);
-+		ld->dmabuf = NULL;
-+		return 1;
-+	}
-+
-+	td->orig_buffer = ld->dmabuf->ptr;
-+	dprint(FD_MEM, "iouring dmabuf %llu %p\n",
-+	       (unsigned long long) total_mem, td->orig_buffer);
-+	return 0;
-+}
-+
-+static void fio_ioring_iomem_free(struct thread_data *td)
-+{
-+	struct ioring_data *ld = td->io_ops_data;
-+	struct ioring_options *o = td->eo;
-+
-+	if (!o->dmabuf) {
-+		free(td->orig_buffer);
-+		td->orig_buffer = NULL;
-+		return;
-+	}
-+
-+	if (ld && ld->dmabuf) {
-+		if (ld->dmabuf->ptr)
-+			munmap(ld->dmabuf->ptr, ld->dmabuf->size);
-+		if (ld->dmabuf->dmabuf_fd >= 0)
-+			close(ld->dmabuf->dmabuf_fd);
-+		if (ld->dmabuf->memfd >= 0)
-+			close(ld->dmabuf->memfd);
-+		if (ld->dmabuf->target_fd >= 0)
-+			close(ld->dmabuf->target_fd);
-+		free(ld->dmabuf);
-+		ld->dmabuf = NULL;
-+	}
-+	td->orig_buffer = NULL;
-+}
-+
-+static int fio_ioring_register_dmabuf_buffers(struct thread_data *td,
-+					      struct ioring_data *ld, int depth)
-+{
-+	struct io_uring_rsrc_register reg = {
-+		.nr = depth,
-+		.flags = IORING_RSRC_REGISTER_SPARSE,
-+	};
-+	struct io_uring_regbuf_desc *rbs;
-+	struct io_uring_rsrc_update2 up;
-+	struct fio_file *f = td->files[0];
-+	int i, ret, nr = td->o.iodepth;
-+	bool opened = false;
-+
-+	ret = syscall(__NR_io_uring_register, ld->ring_fd,
-+		IORING_REGISTER_BUFFERS2, &reg, sizeof(reg));
-+	if (ret < 0) {
-+		log_err("fio: failed to register %d sparse buffers: %s\n",
-+			depth, strerror(errno));
-+		return ret;
-+	}
-+
-+	rbs = calloc(nr, sizeof(*rbs));
-+	if (!rbs)
-+		return -1;
-+
-+	/*
-+	 * The buffers are attached to the device that will DMA to/from them,
-+	 * so registration needs the target fd.
-+	 */
-+	if (f->fd == -1) {
-+		if (generic_open_file(td, f)) {
-+			log_err("fio: failed to open %s for dmabuf buffer "
-+				"registration\n", f->file_name);
-+			free(rbs);
-+			return -1;
 +		}
-+		opened = true;
-+	}
-+
-+	for (i = 0; i < nr; i++) {
-+		rbs[i].type = IO_REGBUF_TYPE_DMABUF;
-+		/* uaddr and size must be zero for IO_REGBUF_TYPE_DMABUF */
-+		rbs[i].dmabuf_fd = ld->dmabuf->dmabuf_fd;
-+		rbs[i].target_fd = f->fd;
-+		dprint(FD_IO, "iouring dmabuf reg[%d] tfd=%d dfd=%d\n",
-+		       i, rbs[i].target_fd, rbs[i].dmabuf_fd);
-+	}
-+
-+	memset(&up, 0, sizeof(up));
-+	up.flags = IORING_RSRC_UPDATE_EXTENDED;
-+	up.data = (unsigned long long)(uintptr_t) rbs;
-+	up.nr = nr;
-+
-+	ret = syscall(__NR_io_uring_register, ld->ring_fd,
-+		IORING_REGISTER_BUFFERS_UPDATE, &up, sizeof(up));
-+	if (ret < 0)
-+		log_err("fio: dmabuf fixed buffer update failed: %s\n",
-+			strerror(errno));
-+
-+	free(rbs);
-+
-+	if (ret < 0) {
-+		if (opened) {
-+			int fio_unused ret2;
-+			ret2 = generic_close_file(td, f);
-+		}
-+		return ret;
-+	}
-+
-+	/*
-+	 * store the file descriptor so that it can be read from
-+	 * fio_ioring_open_file correctly.
-+	 */
-+	ld->dmabuf->target_fd = f->fd;
-+	if (opened)
-+		f->fd = -1;
-+	return 0;
-+}
-+
- static void fio_ioring_prep_md(struct thread_data *td, struct io_u *io_u)
- {
- 	struct ioring_data *ld = td->io_ops_data;
-@@ -732,9 +1006,13 @@ static int fio_ioring_prep(struct thread_data *td, struct io_u *io_u)
- 	}
- 
- 	if (io_u->ddir == DDIR_READ || io_u->ddir == DDIR_WRITE) {
--		if (o->fixedbufs) {
-+		if (o->fixedbufs || o->dmabuf) {
- 			sqe->opcode = fixed_ddir_to_op[io_u->ddir];
--			sqe->addr = (unsigned long) io_u->xfer_buf;
-+			if (o->dmabuf)
-+				sqe->addr = (unsigned long)io_u->xfer_buf -
-+					    (unsigned long)td->orig_buffer;
-+			else
-+				sqe->addr = (unsigned long) io_u->xfer_buf;
- 			sqe->len = io_u->xfer_buflen;
- 			sqe->buf_index = io_u->index;
- 		} else {
-@@ -1380,6 +1658,7 @@ static void fio_ioring_cleanup(struct thread_data *td)
- 		free(ld->fds);
- 		free(ld->dsm);
- 		free(ld->bc);
-+		/* ld->dmabuf is released by fio_ioring_iomem_free() */
- 		free(ld);
- 	}
- }
-@@ -1552,6 +1831,10 @@ retry:
- 				IORING_REGISTER_BUFFERS, ld->iovecs, depth);
- 		if (ret < 0)
- 			return ret;
-+	} else if (o->dmabuf) {
-+		ret = fio_ioring_register_dmabuf_buffers(td, ld, depth);
-+		if (ret < 0)
-+			return ret;
- 	}
- 
- 	return fio_ioring_mmap(ld, &p);
-@@ -1800,6 +2083,38 @@ static int fio_ioring_init(struct thread_data *td)
- 		return 1;
- 	}
- 
-+	if (o->dmabuf) {
-+		if (td->io_ops->prep == fio_ioring_cmd_prep) {
-+			log_err("fio: dmabuf is not supported in "
-+				"io_uring_cmd mode\n");
-+			return 1;
-+		}
-+		if (!td->o.odirect) {
-+			log_err("fio: dmabuf requires direct=1\n");
-+			return 1;
-+		}
-+		/*
-+		 * Both register the fixed buffer table, and dmabuf needs to
-+		 * own the IO buffer allocation so that the io_u buffers fio
-+		 * fills and verifies are the ones the device DMAs to/from.
-+		 */
-+		if (o->fixedbufs) {
-+			log_err("fio: dmabuf and fixedbufs are mutually "
-+				"exclusive\n");
-+			return 1;
-+		}
-+		if (fio_option_is_set(&td->o, mem_type)) {
-+			log_err("fio: dmabuf cannot be combined with "
-+				"mem/iomem\n");
-+			return 1;
-+		}
-+		/* the buffers are attached to a single target device */
-+		if (td->o.nr_files != 1) {
-+			log_err("fio: dmabuf requires exactly one file\n");
-+			return 1;
-+		}
-+	}
-+
- 	ld = calloc(1, sizeof(*ld));
- 
- 	ld->is_uring_cmd_eng = (td->io_ops->prep == fio_ioring_cmd_prep);
-@@ -2060,6 +2375,19 @@ static int fio_ioring_open_file(struct thread_data *td, struct fio_file *f)
- 			return ret;
- 	}
- 
-+	/*
-+	 * cannot use the generic_open_file routine as it will open a different fd
-+	 * that would fail, since for dmabuf path we bind the buffers to struct file
-+	 * from the original fd used at registration time while issuing
-+	 * IORING_REGISTER_BUFFER_UPDATE syscall. Hence use the real fd that was opened
-+	 * once at registration time and therefore bypassing the standard file
-+	 * handling routine is needed for correctness for this case.
-+	 */
-+	if (ld && o->dmabuf) {
-+		f->fd = ld->dmabuf->target_fd;
-+		return 0;
-+	}
-+
- 	if (!ld || !o->registerfiles)
- 		return generic_open_file(td, f);
- 
-@@ -2189,8 +2517,14 @@ static int fio_ioring_close_file(struct thread_data *td, struct fio_file *f)
- 	struct ioring_data *ld = td->io_ops_data;
- 	struct ioring_options *o = td->eo;
- 
--	if (!ld || !o->registerfiles)
-+	if (!ld || !o->registerfiles) {
-+		if (ld && o->dmabuf) {
-+			/* actual close deferred to iomem_free to keep target_file alive */
-+			f->fd = -1;
-+			return 0;
-+		}
- 		return generic_close_file(td, f);
-+	}
- 
- 	f->fd = -1;
- 	return 0;
-@@ -2401,9 +2735,11 @@ static struct ioengine_ops ioengine_uring = {
- 	.name			= "io_uring",
- 	.version		= FIO_IOOPS_VERSION,
- 	.flags			= FIO_NO_OFFLOAD | FIO_ASYNCIO_SETS_ISSUE_TIME |
--				  FIO_ATOMICWRITES,
-+				  FIO_ATOMICWRITES | FIO_SKIPPABLE_IOMEM_ALLOC,
- 	.init			= fio_ioring_init,
- 	.post_init		= fio_ioring_post_init,
-+	.iomem_alloc		= fio_ioring_iomem_alloc,
-+	.iomem_free		= fio_ioring_iomem_free,
- 	.io_u_init		= fio_ioring_io_u_init,
- 	.io_u_free		= fio_ioring_io_u_free,
- 	.prep			= fio_ioring_prep,
-diff --git a/examples/dmabuf.fio b/examples/dmabuf.fio
-new file mode 100644
-index 00000000..49037bf1
---- /dev/null
-+++ b/examples/dmabuf.fio
-@@ -0,0 +1,14 @@
-+[global]
-+filename=/dev/nvme1n1
-+rw=write
-+bs=4096
-+direct=1
-+runtime=30
-+time_based=1
-+group_reporting=1
-+
-+[file1]
-+iodepth=128
-+fixedbufs=0
-+dmabuf=udmabuf
-+ioengine=io_uring
-\ No newline at end of file
++#endif /* CONFIG_LINUX_FALLOCATE_WRITE_ZEROES */
+ #endif /* CONFIG_LINUX_FALLOCATE */
+ 	case FIO_FALLOCATE_TRUNCATE: {
+ 		int r;
 diff --git a/fio.1 b/fio.1
-index 7dc5c353..08153d30 100644
+index 08153d30..6123b8d3 100644
 --- a/fio.1
 +++ b/fio.1
-@@ -2342,6 +2342,22 @@ release them when IO is done. If this option is set, the pages are pre-mapped
- before IO is started. This eliminates the need to map and release for each IO.
- This is more efficient, and reduces the IO latency as well.
+@@ -1139,6 +1139,10 @@ Pre-allocate via \fBposix_fallocate\fR\|(3).
+ Pre-allocate via \fBfallocate\fR\|(2) with
+ FALLOC_FL_KEEP_SIZE set.
  .TP
-+.BI (io_uring)dmabuf \fR=\fPstr
-+Select the DMA-BUF exporter for the IO buffers. Allowed values are:
-+.RS
++.B write_zeroes
++Pre-allocate via \fBfallocate\fR\|(2) with
++FALLOC_FL_WRITE_ZEROES set.
 +.TP
-+.B none
-+Do not use DMA-BUF-backed buffers. This is the default.
-+.TP
-+.B udmabuf
-+Allocate the IO buffers from a udmabuf (\fB/dev/udmabuf\fR) region and
-+register them with io_uring as DMA-BUF-backed fixed buffers, so that the
-+device DMAs directly to/from the DMA-BUF. Requires \fBdirect\fR=1;
-+buffered IO is not supported. Requires a kernel that supports
-+the extended buffer registration update. Not supported io_uring_cmd mode
-+as kernel lacks support for passthrough.
-+.RE
-+.TP
- .BI (io_uring,io_uring_cmd)nonvectored \fR=\fPint
- With this option, fio will use non-vectored read/write commands, where address
- must contain the address directly. Default is -1.
-diff --git a/os/linux/io_uring.h b/os/linux/io_uring.h
-index cadcadae..00c86293 100644
---- a/os/linux/io_uring.h
-+++ b/os/linux/io_uring.h
-@@ -463,7 +463,7 @@ struct io_uring_files_update {
- 
- struct io_uring_rsrc_register {
- 	__u32 nr;
--	__u32 resv;
-+	__u32 flags;
- 	__u64 resv2;
- 	__aligned_u64 data;
- 	__aligned_u64 tags;
-@@ -477,7 +477,7 @@ struct io_uring_rsrc_update {
- 
- struct io_uring_rsrc_update2 {
- 	__u32 offset;
--	__u32 resv;
-+	__u32 flags;
- 	__aligned_u64 data;
- 	__aligned_u64 tags;
- 	__u32 nr;
-@@ -541,4 +541,23 @@ struct io_uring_getevents_arg {
- 	__u64	ts;
- };
- 
-+#define IORING_RSRC_REGISTER_SPARSE    (1U << 0)
-+#define IORING_RSRC_UPDATE_EXTENDED   (1U << 1)
-+
-+enum io_uring_regbuf_type {
-+	IO_REGBUF_TYPE_EMPTY,
-+	IO_REGBUF_TYPE_UADDR,
-+	IO_REGBUF_TYPE_DMABUF,
-+};
-+
-+struct io_uring_regbuf_desc {
-+	__u32 type;
-+	__u32 flags;
-+	__u64 size;
-+	__u64 uaddr;
-+	__s32 dmabuf_fd;
-+	__s32 target_fd;
-+	__u64 __resv[6];
-+};
-+
+ .B truncate
+ Extend file to final size using \fBftruncate\fR|(2)
+ instead of allocating.
+@@ -1150,8 +1154,8 @@ Backward-compatible alias for \fBnone\fR.
+ Backward-compatible alias for \fBposix\fR.
+ .RE
+ .P
+-May not be available on all supported platforms. \fBkeep\fR is only available
+-on Linux. If using ZFS on Solaris this cannot be set to \fBposix\fR
++May not be available on all supported platforms. \fBkeep\fR and
++\fBwrite_zeroes\fR are only available on Linux. If using ZFS on Solaris this cannot be set to \fBposix\fR
+ because ZFS doesn't support pre-allocation. Default: \fBnative\fR if any
+ pre-allocation methods except \fBtruncate\fR are available, \fBnone\fR if not.
+ .P
+diff --git a/options.c b/options.c
+index bb7296ed..e707203d 100644
+--- a/options.c
++++ b/options.c
+@@ -3011,6 +3011,12 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
+ 			    .oval = FIO_FALLOCATE_KEEP_SIZE,
+ 			    .help = "Use fallocate(..., FALLOC_FL_KEEP_SIZE, ...)",
+ 			  },
++#ifdef CONFIG_LINUX_FALLOCATE_WRITE_ZEROES
++			  { .ival = "write_zeroes",
++			    .oval = FIO_FALLOCATE_WRITE_ZEROES,
++			    .help = "Use fallocate(..., FALLOC_FL_WRITE_ZEROES, ...)",
++			  },
++#endif
  #endif
+ 			  { .ival = "truncate",
+ 			    .oval = FIO_FALLOCATE_TRUNCATE,
