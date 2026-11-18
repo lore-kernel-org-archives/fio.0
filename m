@@ -1,99 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.172
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1794952925;
-	b=T8AB19wIrXZdmWSV1zW/DcJYO/cy+OacwGzN/K3uIkQgS5ICU4ujtIegEX9SN7XU9y6g
-	 XyMLflTrqIdDlr2gyNj0QPL2WqKDAejDAQUeBxc6wuFCsbE26rNEWsb7zuHeg1xUIwbK6
-	 ZPvoXr1HdfXP8lpXiE9eJG1JsuSResXNPSFLUxNosjtwGMPaO60e4CHiwc5ZVwlXeZkXR
-	 e0yMZaheDZNdzhwtaykcvsV/x+rAd9Y3Jurv0fLkY74/9Zu4POfp2wGzmh6mLDPbHMj5r
-	 EJ9mZsbm9bWflfNtayUquSxOFaC7MO52bu96vKUQnG5Vz5LrycVyPqLqgHKHt7CshIA==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1794952925;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=BMs09XGQpND5XXSMPIuoLfOsO9QI2cW+7riwB5KCB0M=;
-	b=h+9G0EJhEMMV0ODJThxLUu4KI/uNEIPk7OX6xybmpK4V/Kz3TDQiLUnGVWdDwjgs96gE
-	 3EHlpqOr2JL2MB2dICylagSBPsBGUFz1GpKOqOcjsNddegAXXr5ouTEvHVvhAir5fMvzH
-	 WTiZg0JclO2OAYb0uhcEqBXifQ7P5BQAm2+ydLemfVvYotGzjxlfi3u3OyBEJb/74EmmY
-	 yY8CUPrLgI/1Q4pGpCjJ6W7PsgSfcy19gvXSdqvzqpf1b94fv1HeXfn6f88ve00Tu+SWh
-	 sLecYnpx//vmnm9UO/uPMPRwksSSheQgORVCadtZ1KlzyZWAod1kgkC1a3d776UyCkQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qy1b6Yes;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.208.172
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com [209.85.208.172])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=90.155.50.34
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795006810;
+	b=LNXpfHWpuKC9O3sfFDC6xrhQf/UhzRtzFSAkuTaTHM0a7oBmWkRF8cd6XEG+qg+FGfxc
+	 qjDA9LttkPIxmnyqn3/fnUgs0jey7d80XrIE+bQ5fejM4EEA9jIXVDG551SJX4zaZ3zcB
+	 +wmWr1EzthWEihZ+OG6QCqgb7yEB7L/5u+YVzm1s0rqVqLX4XdYiuGxJVOtCPFwPNh1I/
+	 RvElK1PTvnLN8jCnYrYFFjfYsqmVy9eWMf+7vBFwn+M/V29BKqTIIJ4is2bNhVOmMQoHn
+	 N0Uw6mgEV4cMvHhmmBPCRfrSsk1aoXi1oSls/qa0lMEHDhUkUALrT/JPQd2aWZtoSaA==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795006810;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Subject:From:To:
+	 User-Agent:Date:Message-Id;
+	bh=LmNdYBU6YCQhPFGSMZibEO28xH9ShFuytYBQSECq9fs=;
+	b=1vBU9/131W9ax/pyc63UYuXtOB8PdQn3mCekG3f4dWrHhnSsbQc7S+Mk4b2l7i/GUH3g
+	 XTYdqfdO7yFzfRQwIPQEN8ySkcGbM3gpI24MJ4z4ALCFC+sVzbUftGs/Dz/Npv3CoDf7A
+	 nZha35an+Q14i6BlS8/RUdcsTgYUQTChc1J9xT00g/6fS/Hl2gRiw8yhi6zJwQgT8Ohor
+	 Y8kHJddJooIuTnL3SQ9Rm6zwg3Rbg1Z87873DVwFrNWnboRTHL0OyZ8w5e0NwfeHV3MR2
+	 5Jc1BM9I6SrY9JUwTFHU2+nvffMF6oXAYdMB7Xy7+MYutU6mUKWCl/za/xvAhNHIahQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=none header.from=kernel.dk;
+	spf=fail smtp.mailfrom=kernel.dk;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=hTr1JYUh;
+	arc=none smtp.remote-ip=90.155.50.34
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7B5A606A330
-	for <fio@vger.kernel.org>; Tue, 17 Nov 2026 22:02:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org B7B5A606A330
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D835606A339
+	for <fio@vger.kernel.org>; Wed, 18 Nov 2026 13:00:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3D835606A339
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=qy1b6Yes
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-3adfe77d336so4124171fa.1
-        for <fio@vger.kernel.org>; Tue, 17 Nov 2026 14:02:04 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1794952923; cv=none;
-        d=google.com; s=arc-20260327;
-        b=opDF2EQoEQu7Ywrpcdy1gVhTYfNG469zXkyJyYz0JJDp1mMs+rjVrZkJ0EUd99uZG6
-         +e7lw1qOkgYHI6YQ3fmKJimNxjKCl2f4Dge7xe1AhyGlFWsG/977BxhekTS51e0bY3L8
-         sKKf7yxKQkqoPYb1zT9suKXGIdEpnqm3ia9hYT+aVhkT6jF4/62cQ8EVYUMOrIptkYds
-         XDqVfHLnN7u/7mw9/bNHbX2yV0LAQXk3ASVCxdHOJp0rJQBmw3LkVooqveoEKb6Y9pl1
-         PhbpdXskL/kEux30OsjmiZ+gugYbLTBFb+6NYzXRfMKvoPa3dL0vNsjx8ckpQjsDDMK2
-         FOig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BMs09XGQpND5XXSMPIuoLfOsO9QI2cW+7riwB5KCB0M=;
-        fh=KL7ocyCi8wo5NHSBJvo6lb6F81rZv995ihw3PDTBT8M=;
-        b=c6y0V54FYYDtFiWCEEOsx8qpd/Ni2WlKT6aUvPQMd4xqWF34xE2cw0CI0yfUSOiESP
-         DcpWxgZ8d4QzPLaRY0Lmh0nrmoM+3ZGFTxOW+ib4hLxwNkkU29+5cXUWXdxuhdpxLJdt
-         QvDPvHR0jxKiBtd2AvQ651yYu083GFMC+MPP7RvNXovOBZHT4ib1Kyi/MC9Yy/T673uk
-         +YElXVbmHXjjzlr/pw1KEteifDfiAoP1PNJO4FJ0uzk2QpaEFjCHwIUlUhNp+RBRplYF
-         hvHDgeqEbRbRSybvxMUzUYMQt9g+ryqpNadMy2erww52HsBAyyG563Vheky0YLDv1CXI
-         dUaA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1794952923; x=1795557723; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BMs09XGQpND5XXSMPIuoLfOsO9QI2cW+7riwB5KCB0M=;
-        b=qy1b6YesUPIsyXGMKmveGilNKIF1nUvvCxSFt+s5NghDaegjmGPqrBkjWxfvAPGgBd
-         zvyDNZcp5VMNHtsL6/4QsWrWQ+fh1ITb25goNYEDm7GEt8cKPVYTEoXfTm1OyE0jw+hF
-         Xmv3tiaUhUZRZvUNsiAKkXsTls6niaVrtnmgIMECTtztWYrwOQXPItuEZYlot1pxBS3H
-         EdlYZv5dnsTluRF92EE/XtvdrjMvTnqdfdmemoyDqLzDgGh4UGJZ3RRZDaewRIoWmSNk
-         Rr+pzLoi6K09dMrW1HhNXaP0eXw8FcFkZ9ZSnNoMuTCrfZ6VJDsKQ0T5F5X8ui5V3qDQ
-         5MVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1794952923; x=1795557723;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=BMs09XGQpND5XXSMPIuoLfOsO9QI2cW+7riwB5KCB0M=;
-        b=kGkrvEQ0QIts32t/Wum6aJfQ8u+nlQ49+rvvFgT3FVn9TXArnWBockXBQDTY8uLiX5
-         hBeqcYO5QxUy+IfUNFFOX7PLlp5Z/kJImh5GvXt+g/G5ISSOHXUhLlp176UzI6OL9aQ3
-         cL6wHAFBKJcphHHRYFrYsr5pElY4U/B1rVO7mXIAoSOdYryPow6jHXvsCjWOCi4Ox9uN
-         WLa46zjA+Msj6SnvJdoQpE7pl1yopIlUkHj9mbRHxVQj5vD8T9XLnssnGU/QgUKLPYKZ
-         +sOW/agyNGqugCi4QL0E96oFU0v3Ve4U4fxdkIJajZmCGAvg3oTck5AvJelBqt24Srvn
-         vVVA==
-X-Gm-Message-State: APuU4Z+LCmV1Jv5iHziSOVBm6ZbzqoMwr+XNQk4RHKCBHxcw9MTkyyNq
-	BFtpUEpTscrbRFTVL3fmKb73bT15nDQQRKGiTKXnoqsERVrtZdVhIT1esGcZdQCjdzrwuGskW43
-	MM12HMcEC4UWkBVVQ17Y2Jz+WwSTPy01Il6sL
-X-Gm-Gg: AYBFou2U+ew/efkEgbyZSSVBmg9dzhgK8kLDEnd9+t0/JQ/R1Kf02QeIzedJUT8bYBH
-	IZXGzInUMBPkPVCUgAVQpMhReStMAFYgufHYFvnx/RKCftBgV+EnzMPXLOZnD9UYIKHcYfOtfFW
-	s8i5bt6pjf2KhkjOtSygtMQbuDcpWhfbfTuEiY58i+ChXjS9kPvbSUE7iGCX+f8Obk72Ob3kWLS
-	9mKRt29lIEYoMBAtEP4fg+lsT1G2gu+EcDEjw5Jq8pXgAIJ54Q6cphLI/6+D4BXJkiNoOBvQ17p
-	Bhwe6mvtr3nkMOorpUaP2rJWn2LUtKCGbRf1scVM18odVyncgvDHdSPXao6QLk4nNL39CdTc0Gu
-	o9E8cKfS09xw3mSj/x3QGQLhETBCoZ3jin44X2ZizIGnGx4v7DgSn+fa9XKo1JhymOTs=
-X-Received: by 2002:a05:651c:a333:b0:3ac:b371:68c1 with SMTP id
- 38308e7fff4ca-3ae670be907mr1694261fa.14.1794952922516; Tue, 17 Nov 2026
- 14:02:02 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=hTr1JYUh
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=LmNdYBU6YCQhPFGSMZibEO28xH9ShFuytYBQSECq9fs=; b=hTr1JYUhqknd0aeVrym+pw5ETd
+	9DjcUfV4zxfiQc35jARGouMeCWYnWolDnazrxconjnJqCyCBGF+QfUr/YM+/eMaQhLK4NmtoT8WMA
+	wNIIDdQgU589WvGWnw2yBNw8bauEbMDiTGIp95V8XBuXNpoux/h2i7+7HVJZO3qAIb3T6lPUSzsky
+	zHDeV47+3LvKz4l6ipz/RgXuEquZwFbkVQFUugeh06UXTle1mi55sHHkbjD+oTl10nmRFaIa5j4AQ
+	Z4526qSLbii2Ygic4q11hNCnvGpGbtKTQvxT0fSro+iWcpE+DLEp2u9vX6bNEL29eVXTt2fnL8zX7
+	W6YmQtiw==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xTfGf-0000000DZ5n-2idS
+	for fio@vger.kernel.org;
+	Wed, 18 Nov 2026 13:00:06 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id E2E681BC016B; Wed, 18 Nov 2026 06:00:01 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Wed, 18 Nov 2026 06:00:01 -0700
+Message-Id: <20261118130001.E2E681BC016B@kernel.dk>
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Post: <mailto:fio@vger.kernel.org>
@@ -102,73 +63,163 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:fio+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <PH8PR04MB994107D250DB2434D563DC57E88A772@PH8PR04MB994107.namprd04.prod.outlook.com>
-In-Reply-To: <PH8PR04MB994107D250DB2434D563DC57E88A772@PH8PR04MB994107.namprd04.prod.outlook.com>
-From: Vincent Fu <vincentfu@gmail.com>
-Date: Tue, 17 Nov 2026 17:01:49 -0500
-X-Gm-Features: AclHuK-VqL9VPzcZwucQ7zVTLAQFFnLW7Ijp3feDklrxWQHGCby0PWKdzsqt2AI
-Message-ID: <CAOp=CXnuSiNwChAbsWhXpCWyJb7NGFL5EMnL4ZHk0pRm3iaMWA@mail.gmail.com>
-Subject: Re: fio Write Workload with Verify Enabled Aborts with
- inflight_issued When Write Error Occurs at Runtime Start
-To: Siriporn Swart <Siriporn.Swart@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jon Whittaker <jonathan.whittaker@wdc.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 5, 2026 at 1:34=E2=80=AFPM Siriporn Swart <Siriporn.Swart@wdc.c=
-om> wrote:
->
-> Hello,
-> We observed a problem in fio versions 3.41 and later and would like to re=
-port the issue.
->
->
-> Summary: fio v3.41+ verify-enabled write workload aborts with inflight_is=
-sued when a write error occurs shortly after runtime start.
-> Regression:  The issue is not present in fio 3.39 or 3.40 but is reproduc=
-ible in fio 3.41 and later versions.
-> Environment: Windows (windowsaio)  and Linux (libaio)
->
-> Error message:
-> <Windows>
-> c:\>fio .\random_1_4k_0%_fio_job_file.fio
-> fio_getaffinity: pid 14376 is associated with 2 process groups
-> 4k_randwrite_1: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 4096B-=
-4096B, (T) 4096B-4096B, ioengine=3Dwindowsaio, iodepth=3D1
-> fio-3.43
-> Starting 1 thread
-> Jobs: 1 (f=3D0): [/(1)][-.-%][etainflight_issued does not match: numberio=
-=3D0, inflight_issued=3D7109
->
-> <Fedora>
-> [jon@111-perf-jrw ~]$ sudo fio linux_4kb_randwrite.fio
-> 4k_randwrite_1: (g=3D0): rw=3Drandwrite, bs=3D(R) 4096B-4096B, (W) 4096B-=
-4096B, (T) 4096B-4096B, ioengine=3Dlibaio, iodepth=3D1
-> fio-3.43
-> Starting 1 thread
-> inflight_issued does not match: numberio=3D0, inflight_issued=3D24377
-> Aborted                    sudo fio linux_4kb_randwrite.fio
->
+The following changes since commit 6abe06547f4ad296ea62cd1a2d55fc5274059c77:
 
-Hello Siriporn, thank you for reporting this issue.
-The typical use case for ramp_time is for performance measurement in order =
-to
-warm up the CPU caches and branch predictors. So it is unusual to use this
-option with a verify workload as Fio does considerable extra work for
-verification. The trigger for this issue is that when ramp_time expires, Fi=
-o
-resets a counter that is used for the verify_state_save option. This code w=
-as
-changed in recent Fio versions which led to the error you encountered.
+  Merge branch 'fix/verify-default-stack-20261111' of https://github.com/ooonea/fio (2026-11-16 11:25:16 -0500)
 
-The most straightforward fix is to simply drop the ramp_time option.
+are available in the Git repository at:
 
-Nevertheless, Fio should not abort the job with this combination of options=
-.
-Here is a branch that allows your job to complete successfully:
+  git://git.kernel.dk/fio.git master
 
-https://github.com/vincentkfu/fio/tree/ramp_time-verify
-Please let me know if it resolves the issue for you.
+for you to fetch changes up to af034f21a61a1e9eb3af281fafdfe93fbf783c36:
 
-Vincent
+  lib/rand: start every seed bucket odd in __fill_random_buf() (2026-11-16 21:42:29 -0500)
+
+----------------------------------------------------------------
+Vincent Fu (2):
+      test: add test for compressible random buffers
+      lib/rand: start every seed bucket odd in __fill_random_buf()
+
+ lib/rand.c         | 12 ++++++++++--
+ t/jobs/t0039.fio   | 21 +++++++++++++++++++++
+ t/run-fio-tests.py | 50 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 81 insertions(+), 2 deletions(-)
+ create mode 100644 t/jobs/t0039.fio
+
+---
+
+Diff of recent changes:
+
+diff --git a/lib/rand.c b/lib/rand.c
+index 0e787a62..35981741 100644
+--- a/lib/rand.c
++++ b/lib/rand.c
+@@ -112,8 +112,8 @@ void __fill_random_buf_small(void *buf, unsigned int len, uint64_t seed)
+ 
+ void __fill_random_buf(void *buf, unsigned int len, uint64_t seed)
+ {
+-	static uint64_t prime[] = {1, 2, 3, 5, 7, 11, 13, 17,
+-				   19, 23, 29, 31, 37, 41, 43, 47};
++	static uint64_t prime[] = {1, 3, 5, 7, 11, 13, 17, 19,
++				   23, 29, 31, 37, 41, 43, 47, 53};
+ 	uint64_t *b, *e, s[CONFIG_SEED_BUCKETS];
+ 	unsigned int rest;
+ 	int p;
+@@ -128,6 +128,14 @@ void __fill_random_buf(void *buf, unsigned int len, uint64_t seed)
+ 
+ 	rest = len - (rest * sizeof(*b));
+ 
++	/*
++	 * Each bucket advances by s *= GOLDEN_RATIO_64, which preserves the
++	 * number of trailing zero bits in s. Start every bucket odd (an odd
++	 * seed times an odd multiplier), otherwise a seed with several
++	 * trailing zeros leaves the low byte of every word with only a few
++	 * distinct values and the buffer becomes compressible.
++	 */
++	seed |= 1;
+ 	for (p = 0; p < CONFIG_SEED_BUCKETS; p++)
+ 		s[p] = seed * prime[p];
+ 
+diff --git a/t/jobs/t0039.fio b/t/jobs/t0039.fio
+new file mode 100644
+index 00000000..3a92e4a8
+--- /dev/null
++++ b/t/jobs/t0039.fio
+@@ -0,0 +1,21 @@
++#
++# Make sure buffers filled with random data are not compressible.
++#
++# A weakness in __fill_random_buf() (GitHub issue #2157) let seeds with
++# several trailing zero bits carry those zeros into every 64-bit word,
++# leaving the low byte of each word with only a few distinct values.
++# About 11% of 8 KiB buffers then compressed by hundreds of bytes.
++#
++# Expected result: (almost) no 8 KiB block compresses by >= 128 bytes
++# Buggy result: roughly 11% of blocks compress by >= 128 bytes
++#
++# run-fio-tests.py checks the contents of the written file.
++#
++
++[test]
++filename=t0039file
++rw=write
++bs=8k
++size=16M
++refill_buffers=1
++buffer_compress_percentage=0
+diff --git a/t/run-fio-tests.py b/t/run-fio-tests.py
+index d3683a1b..7fe7143b 100755
+--- a/t/run-fio-tests.py
++++ b/t/run-fio-tests.py
+@@ -48,6 +48,7 @@ import shutil
+ import logging
+ import argparse
+ import re
++import zlib
+ from pathlib import Path
+ from statsmodels.sandbox.stats.runs import runstest_1samp
+ from fiotestlib import FioExeTest, FioJobFileTest, run_fio_tests
+@@ -637,6 +638,46 @@ class FioJobFileTest_t0038(FioJobFileTest):
+         shutil.copy(src, self.paths['test_dir'])
+ 
+ 
++class FioJobFileTest_t0039(FioJobFileTest):
++    """
++    Make sure random buffers are not compressible. Compress each 8 KiB
++    block written by t0039.fio on its own and count the blocks that
++    shrink by at least 128 bytes. With the bug about 11% of blocks do; with
++    the fix almost none do.
++    """
++    BLOCK_SIZE = 8192
++    MIN_SAVING = 128
++    MAX_FRACTION = 0.01
++
++    def check_result(self):
++        super().check_result()
++
++        if not self.passed:
++            return
++
++        output_file = os.path.join(self.paths['test_dir'], "t0039file")
++        with open(output_file, "rb") as f:
++            data = f.read()
++
++        blocks = len(data) // self.BLOCK_SIZE
++        if blocks == 0:
++            self.failure_reason += " no data written,"
++            self.passed = False
++            return
++
++        compressible = 0
++        for i in range(blocks):
++            block = data[i * self.BLOCK_SIZE:(i + 1) * self.BLOCK_SIZE]
++            if len(zlib.compress(block, 1)) <= self.BLOCK_SIZE - self.MIN_SAVING:
++                compressible += 1
++
++        logging.debug("Test %d: %d/%d blocks compressible", self.testnum,
++                      compressible, blocks)
++        if compressible > blocks * self.MAX_FRACTION:
++            self.failure_reason += f" {compressible}/{blocks} blocks compressible,"
++            self.passed = False
++
++
+ TEST_LIST = [
+     {
+         'test_id':          1,
+@@ -988,6 +1029,15 @@ TEST_LIST = [
+         'pre_success':      None,
+         'requirements':     [],
+     },
++    {
++        'test_id':          39,
++        'test_class':       FioJobFileTest_t0039,
++        'job':              't0039.fio',
++        'success':          SUCCESS_DEFAULT,
++        'pre_job':          None,
++        'pre_success':      None,
++        'requirements':     [],
++    },
+     {
+         'test_id':          1000,
+         'test_class':       FioExeTest,
