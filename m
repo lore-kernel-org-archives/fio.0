@@ -1,99 +1,60 @@
-Authentication-Results: smtp.subspace.kernel.org; arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.45
-ARC-Seal: i=2; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=pass;
-	t=1795476161;
-	b=JDsMm5lceBraiugABU/1yWfXzc7dhBVbm3Bfz/nriBlgNaGhmcw4AFLDSaFDBPI43pQR
-	 rKxzDlEg3qI3vTucDQjFWg2aSum+FoXgRZhUCEOoj8iKG1c1yE/sDZaZQSu7notXO+9bG
-	 A8k3eZKcMXeNl2ANyP8ocUHQs/JaiQF2/V996H7UvU199CoWz4aJCWGneqiwTNGMTSYdc
-	 Jy0WG6kVVJ6fCPFJF1u8zJwuQ84JMw3Tjy83BgFkSsxqmVAtNK9P9EtIZHA6mP9p/dwU/
-	 n1O1mVqiwkgZT+bN/ey7WNGpabl0MxoqrlI51EnkOgvr86uhcHBYn85wVbtRQYqmdoQ==
-ARC-Message-Signature: i=2; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795476161;
-	h=DMARC-Filter:Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Gm-Gg:X-Received:MIME-Version:References:
-	 In-Reply-To:From:Date:X-Gm-Features:Message-ID:Subject:To:Cc:
-	 Content-Type:Content-Transfer-Encoding;
-	bh=vYi2llh9+xZEIAQ5xRLNSAw9ItpjIwXlAi6LIYQfJOA=;
-	b=hPr6t5xpEkZvdrTKlZFhBuOdAiiznFkRrCM/dA1cpXsF1+tZ/u//6fo7fAy6qUBn6ln8
-	 /mBQZRkA3k9nYBNZPQzK8aTBW41HmON8zmIAvmkha0CMdQ97W/Ap4ab9G+jUJ53dKthtA
-	 WPrmiHwI8F4631CayjDz0xJWYNtc84hWGBzq9lq7LVAphMoYYkHXQu6gsH109eXuJe+cp
-	 lszQcnqjOsWY++M4KbkPQlyoreFoThdEAGIGnZSXyFmzmOyt+Bpvy/+Ubz+nWbDxpEqaf
-	 tBpeEwMOkxbqVMNka6tlKOUKV4CUcV3msjyPCeqRD5UCEPPfLESvyKNDI9Q8LdZRfTQ==
-ARC-Authentication-Results: i=2; smtp.subspace.kernel.org; 
-	dmarc=pass header.from=gmail.com;
-	spf=pass smtp.mailfrom=gmail.com;
-	dkim=pass header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=i4CAtw8m;
-	arc=pass header.oldest-pass=0 smtp.remote-ip=209.85.167.45
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=90.155.50.34
+ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
+	t=1795525209;
+	b=ti9BsvXsvtQCgeZqzarXqIfOyq0Oh9qa5190N0ur8w4707sJIfpMjp9UZgWiapX0iwFg
+	 dL+ELGSs5sdrZyDd8hXRkVyGufe1zLI57xKwYgVmU9XKDRIpFq+izxKLuAlTdf59EB6u9
+	 uOwsCAmkRbhxSzUbS2Imj2gtcxwNnSpN9sw+EhCvTPiDpZa2lDQYsfjOGIL3jL7iytAAi
+	 5RVsTz0IyhTqCUHRSdqjLvrFUtqkFNgyoU0I0AWNuJZFq+iwaF8G+b09mvU0R/jK3UFS/
+	 jYVYSQyJDGN8dUtFeyMFoX1En13QbOY/Fg76n/nCw9df1WwJl6m6lbv8mSEtkTa+yvg==
+ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795525209;
+	h=DMARC-Filter:DKIM-Signature:Received:Received:Subject:From:To:
+	 User-Agent:Date:Message-Id;
+	bh=8PACwrvgeJB4wl2+kvr8AhGyYWNxG/j9s9iczNOh52g=;
+	b=TXl7dWZDhf6wusSBlIy1eW0+P1zbpO8viVdnj0MMOMJnjPPrtKj0VkpZkOwF7elRtYDR
+	 ujQBp0NKFSHUXR7wNtohU70Co0Xz/CS5z06NVlRolNqaYaLhuyWnKSWCNAOAGQkjxJyi8
+	 qGtzN3FjFCzFWXs746C9w0ZEhmrAKbySMNpJXuRFH/c2fqvR8heJetVHQf9BrQl/Vl19X
+	 SkieA+9gq8AxxG1q+pRntZb3O2ZtH1BNTaMdrFgF90KsELy9FJGC9pt4sDpJEM+uTvSJ/
+	 oqj8qBisgXezSAbDjQrgZVdo1tnTXB1ON74hGzaSpM2rCRsGev7TQRPnlhHrmKN5SAQ==
+ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
+	dmarc=fail header.from=kernel.dk;
+	spf=fail smtp.mailfrom=kernel.dk;
+	dkim=pass header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=hmwdlq8m;
+	arc=none smtp.remote-ip=90.155.50.34
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3824F606A321
-	for <fio@vger.kernel.org>; Mon, 23 Nov 2026 23:22:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 3824F606A321
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC01C606A335
+	for <fio@vger.kernel.org>; Tue, 24 Nov 2026 13:00:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org BC01C606A335
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20260707 header.b=i4CAtw8m
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5be4a2d94adso3484921e87.0
-        for <fio@vger.kernel.org>; Mon, 23 Nov 2026 15:22:40 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1795476159; cv=none;
-        d=google.com; s=arc-20260327;
-        b=AI9XrTexJWcalJAmpYr2xSkjqu96oFuMwRIV8A3PjODsPaZCycuamjJ0ncMau1WK7F
-         PWW1Kny+MwsCLE6gypyLNc3s8mYRe7p7+2v4Xl2eUXQ7uIqtrgnc4KL7lR43BQtFqvO/
-         Mxl7mrLtHN2dema+JpX3xjRdWyQfockb0cK+3JY64X5WvuDgtC0baNPgFEWLysoTcq5/
-         y3k4WFgsV1y0cqnIH/O8zpUnK4bMzvnY9pWW0r5ZmCFrq1f5GHpYDB7nzaivD3daRddE
-         sj2xW6l+QBSI4km23Y1eeWEzGDFpRvb4Z+1KCHiiECWzjRjGtvWlKYj3YThBMUdYTFZZ
-         zEdg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=vYi2llh9+xZEIAQ5xRLNSAw9ItpjIwXlAi6LIYQfJOA=;
-        fh=KL7ocyCi8wo5NHSBJvo6lb6F81rZv995ihw3PDTBT8M=;
-        b=cMpfV1WlGV4unW640XjPz0ah5NDXVRAYgWHBOCMj5SAyceRLbVPS1RUWXy7ai4uz2x
-         fvLfJDVyaD6OWNdzsY3WqMxBSVytxc/wyi2YiqETlTDI52zZHRQfs7Axkz7HCYdzziuN
-         dicyIOokJlG2ZKwsvEpEQOVRUyffZD1H1ZDUyNNXMXwMGXOb0nXOEIRjwWRw5NoGYimX
-         Mfgy8O3G9jKIHknqyJ1G4Gvfx6QCPq76JRn8dY5lrXWAqHU6Gq0CsuRoniRUlp56opuH
-         BBqV7Mzj2qj27O0tpvkilWImyOYtIONPg956ecjhBpVnt0W+HV9natfdH95GogaHK2qs
-         AnQg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20260707; t=1795476159; x=1796080959; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=vYi2llh9+xZEIAQ5xRLNSAw9ItpjIwXlAi6LIYQfJOA=;
-        b=i4CAtw8mPeAznTt50+FJaD8lUBo0rsX7ZK6VxlqeHv+tG12j8XbdYEg5OuzWuDs4Ds
-         S8HXNvToXRl+O5vgX7B6EvC+hb9FvUZdENxAsmJ/4UCvA+n1L2yFEGgJM4r8Q1GOY5G+
-         ZzPp1DyPl3AiIXVCk9qQ7IUm3T1uGJmiCB1/D6237oU59TkdhQqy+Kv/EvdbNUK9pcJM
-         pJzdWYGCDzDDltYetEtt/9CoDqjlY0z0MEGWMcRQzyTN7GTXRFTwZBD6VHW0B2Qzup7c
-         vIK24LIpR8blY2gm2u1NXezIgeOaVqe8wifoWP+wQzuAoIsa+upkeK/M6WV/7RCtEVux
-         mrvQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20260707; t=1795476159; x=1796080959;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=vYi2llh9+xZEIAQ5xRLNSAw9ItpjIwXlAi6LIYQfJOA=;
-        b=lnQ1Dk3dnWPySu2fJBw+E6cjLuI2OUssThvPVWXJB54UaVCMrFk3T6usFyb21J4Ud3
-         pmQsgmQPV9njrxGXQQBFhxJnn4a0IOPd0rY1gvfVP9qDVENEolnquFgSFPDGL4u4MhwS
-         sal5e3KORpGz0gXxM6rvygmegd/BD8HMuyiO3sdJF8iJYSCaxs2nBu/Z3J7JkdD5njZs
-         31btvyC8YKdOXXbsAggXI2w1is1t/yL+lycL0Onqzg3wYP61+9YVjnvHLmfrj/GXGwd0
-         FNn0ewNDRoB/ewv/EuYQ9H16imIlCq6ymLP3tZ2Tb6aChqHeUmLJDcukg12dEeptPaiu
-         N/oA==
-X-Gm-Message-State: APuU4Z9NP8DlwA8zCsW7x/vNMJtD+ZHCQFI9AksMMtgZWJ5FR79qxFRe
-	q7tp6LJXZyAJA0TRAknTr/3I1g0WnJSclNHRyxn+QkaW0l/xOvpOrCz4vLxNS8d0RafeaKu49dv
-	Ufan44dxni3pE9iw1Cs3hd/VGtnu43Ws=
-X-Gm-Gg: AZFdTZcGbfdMAENhIj7ItMz/th9+mezILbLlZegcZPl7b+v65PJ/otO9MlCqaQJnQ6a
-	hzOX1C4ojoUr82AB04tdTSuh6p5N/cG36ze9m2oB6pDbSFwRaWUnrnF6HapP/NlsTGPMyBsCd+1
-	OzU4UkKIXCicqemriwINdkkhe4KPx8JiC4oQYDiywMVNDevIutFbBaMyJkvPzcNsu78plCNEDke
-	IjqYuampeqkGIovRiW9Ena6uSNl7URiV6JhzlaHFhV1w/a8nZdb5XFBar9Uml5LcdMEPXkvnpjT
-	NC0jQmLB0qh72FuPF5CXb0mwFyHJbUP6lG74pLZ/nPcLR2c4hH09AGe5hWrV8vOC70Nvl34Vmlg
-	wEO4iVTRbpHygi6hTFQUmK9Bi/iLZbCnMQ2YWWVMcWu7LbuLrjEJNkgAIPxiqlKhw1Qo=
-X-Received: by 2002:ac2:4bc5:0:b0:5be:50d7:60f with SMTP id
- 2adb3069b0e04-5c1bc7fb764mr3566538e87.27.1795476159135; Mon, 23 Nov 2026
- 15:22:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=hmwdlq8m
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=Message-Id:Date:To:From:Subject:Sender:
+	Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=8PACwrvgeJB4wl2+kvr8AhGyYWNxG/j9s9iczNOh52g=; b=hmwdlq8mT57TzVznCEXgAqXrHA
+	KCJiorCkgR0Oto8UNkF/0kBg3z8kHf8TR3FE85+WkJcQphN+kESlFCzRMnd31opg4yrdc9rPSamv7
+	rZJveVP/EjoBiGQT+xqhTxcgKc9Ss47aUzsLIzUn9zO+YSM03TIckcBRwoj9V2cjz9JT14BGYJzyb
+	tmk1C2XmrVpcxHokThCFnbxh70dknYMUIDpFyBMXdi0ML22AyhpJ/bdXvM6FtBVwA5h2/E2jv+4PI
+	bD54FOSNgZVxnqJdOMdsXotP8BlnWM6EvVOVbjJVTLHcFTP9iXaid36BDCgHJ/k1ujpsttdfT5I1b
+	bNerYU9g==;
+Received: from [96.43.243.2] (helo=kernel.dk)
+	by casper.infradead.org with esmtpsa (Exim 4.100.1 #2 (Red Hat Linux))
+	id 1xVq7w-00000005MDs-44OY
+	for fio@vger.kernel.org;
+	Tue, 24 Nov 2026 13:00:05 +0000
+Received: by kernel.dk (Postfix, from userid 1000)
+	id 19CBE1BC0161; Tue, 24 Nov 2026 06:00:02 -0700 (MST)
+Subject: Recent changes (master)
+From: Jens Axboe <axboe@kernel.dk>
+To: <fio@vger.kernel.org>
+User-Agent: mail (GNU Mailutils 3.17)
+Date: Tue, 24 Nov 2026 06:00:02 -0700
+Message-Id: <20261124130002.19CBE1BC0161@kernel.dk>
 X-Mailing-List: fio@vger.kernel.org
 List-Id: <fio.vger.kernel.org>
 List-Post: <mailto:fio@vger.kernel.org>
@@ -102,38 +63,118 @@ List-Subscribe: <mailto:fio+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:fio+unsubscribe@vger.kernel.org>
 List-Owner: <mailto:fio+owner@vger.kernel.org>
 Precedence: list
-MIME-Version: 1.0
-References: <PH8PR04MB994107D250DB2434D563DC57E88A772@PH8PR04MB994107.namprd04.prod.outlook.com>
- <CAOp=CXnuSiNwChAbsWhXpCWyJb7NGFL5EMnL4ZHk0pRm3iaMWA@mail.gmail.com> <PH8PR04MB994107DF1ECA9BFA2015637E198A452@PH8PR04MB994107.namprd04.prod.outlook.com>
-In-Reply-To: <PH8PR04MB994107DF1ECA9BFA2015637E198A452@PH8PR04MB994107.namprd04.prod.outlook.com>
-From: Vincent Fu <vincentfu@gmail.com>
-Date: Mon, 23 Nov 2026 18:22:27 -0500
-X-Gm-Features: Aa3M54oKORwjDOgFhwjl82Ll_gP-S2nb6YD5ykz2YQ8k0MplPfEr5GXV9VJ3aTw
-Message-ID: <CAOp=CXkfXXFqC4XbsOLzpDC7FR9-p06HgdAvVcDATnpW4jaqHw@mail.gmail.com>
-Subject: Re: fio Write Workload with Verify Enabled Aborts with
- inflight_issued When Write Error Occurs at Runtime Start
-To: Siriporn Swart <Siriporn.Swart@wdc.com>
-Cc: "fio@vger.kernel.org" <fio@vger.kernel.org>, Jon Whittaker <jonathan.whittaker@wdc.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Nov 23, 2026 at 3:49=E2=80=AFPM Siriporn Swart <Siriporn.Swart@wdc.=
-com> wrote:
->
-> Hello Vincent,
->
-> Thank you very much for getting back to us.
-> Jon tested your patch, and the test completed successfully without any er=
-rors when using the ramp_time and verify options together.
->
-> We have additional functional tests that use fio to generate I/O to the d=
-rive, and they also rely on the combination of ramp_time and verify. Would =
-it be possible to incorporate this fix into the fio 3.4x release as well?
->
-> Best Regards.
-> Siriporn Swart
+The following changes since commit b6d1c31bba8a17cb0f0fa3f1b8f5fa5bd20cb57c:
 
-Siriporn, I have pushed the fix upstream. It will be available in the
-next Fio release.
+  engines/libcufile: fix clang -Wabsolute-value error (2026-11-20 13:58:44 -0500)
 
-Vincent
+are available in the Git repository at:
+
+  git://git.kernel.dk/fio.git master
+
+for you to fetch changes up to 1fe61cc8e693496b2ca69b69cb41183e14eaa461:
+
+  configure: add clock_gettime probe with -lpthread (2026-11-23 18:16:58 -0500)
+
+----------------------------------------------------------------
+Vincent Fu (3):
+      libfio: don't reset io_issues when the ramp period ends
+      ci: switch msys2 build from deprecated MINGW64 to CLANG64
+      configure: add clock_gettime probe with -lpthread
+
+ .github/workflows/ci.yml | 18 ++++++++++--------
+ configure                |  5 +++++
+ libfio.c                 | 18 +++++++++++++++---
+ 3 files changed, 30 insertions(+), 11 deletions(-)
+
+---
+
+Diff of recent changes:
+
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 314a00a9..ff024d6a 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -121,17 +121,19 @@ jobs:
+       if: ${{ startsWith(matrix.build, 'windows-msys2') }}
+       uses: msys2/setup-msys2@v2
+       with:
++        msystem: CLANG64
++        update: true
+         install: >
+           git
+           base-devel
+-          mingw-w64-${{matrix.arch}}-clang
+-          mingw-w64-${{matrix.arch}}-cunit
+-          mingw-w64-${{matrix.arch}}-toolchain
+-          mingw-w64-${{matrix.arch}}-lld
+-          mingw-w64-${{matrix.arch}}-python-scipy
+-          mingw-w64-${{matrix.arch}}-python-six
+-          mingw-w64-${{matrix.arch}}-python-statsmodels
+-          mingw-w64-${{matrix.arch}}-python-sphinx
++          mingw-w64-clang-${{matrix.arch}}-clang
++          mingw-w64-clang-${{matrix.arch}}-cunit
++          mingw-w64-clang-${{matrix.arch}}-toolchain
++          mingw-w64-clang-${{matrix.arch}}-lld
++          mingw-w64-clang-${{matrix.arch}}-python-scipy
++          mingw-w64-clang-${{matrix.arch}}-python-six
++          mingw-w64-clang-${{matrix.arch}}-python-statsmodels
++          mingw-w64-clang-${{matrix.arch}}-python-sphinx
+ 
+     - name: install bash 4 (macOS)
+       if: ${{ contains( matrix.build, 'macOS' ) }}
+diff --git a/configure b/configure
+index 2a2dcd6b..fe3d8784 100755
+--- a/configure
++++ b/configure
+@@ -1235,6 +1235,11 @@ if compile_prog "" "" "clock_gettime"; then
+ elif compile_prog "" "-lrt" "clock_gettime"; then
+     clock_gettime="yes"
+     LIBS="-lrt $LIBS"
++elif compile_prog "" "-lpthread" "clock_gettime"; then
++    # MinGW provides clock_gettime() in libwinpthread. GCC links it
++    # implicitly but clang (e.g. MSYS2 CLANG64) does not.
++    clock_gettime="yes"
++    LIBS="-lpthread $LIBS"
+ else
+   fatal "clock_gettime is not supported"
+ fi
+diff --git a/libfio.c b/libfio.c
+index aff131ff..1a4a78fe 100644
+--- a/libfio.c
++++ b/libfio.c
+@@ -141,8 +141,11 @@ static void update_thinktime_blocks_counter(struct thread_data *td)
+ {
+ 	unsigned long long b;
+ 
+-	/* an offload worker has no thinktime blocks counters initialized */
+-	if (!td->thinktime_blocks_counter)
++	/*
++	 * An offload worker has no thinktime blocks counters initialized.
++	 * io_issues is not reset below, so only rebase for io_blocks.
++	 */
++	if (td->thinktime_blocks_counter != td->io_blocks)
+ 		return;
+ 
+ 	b = ddir_rw_sum(td->thinktime_blocks_counter);
+@@ -157,10 +160,19 @@ void reset_all_stats(struct thread_data *td)
+ 
+ 	update_thinktime_blocks_counter(td);
+ 
++	/*
++	 * io_issues[] is deliberately not reset. It supplies the numberio
++	 * sequence used by verify (verify headers, the inflight log, failed
++	 * write tracking and the verify state file), which must increase
++	 * monotonically for the life of the job. It also sets the cadence
++	 * of fsync/fdatasync/sync_file_range/write_barrier, and resetting
++	 * it mid-interval would stretch the interval spanning the ramp
++	 * boundary. Finally, an in-flight io_u that is requeued decrements
++	 * it. It is not used for reported stats.
++	 */
+ 	for (i = 0; i < DDIR_RWDIR_CNT; i++) {
+ 		td->io_bytes[i] = 0;
+ 		td->io_blocks[i] = 0;
+-		td->io_issues[i] = 0;
+ 		td->ts.total_io_u[i] = 0;
+ 		td->ts.runtime[i] = 0;
+ 	}
