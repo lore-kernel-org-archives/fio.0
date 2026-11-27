@@ -1,79 +1,79 @@
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.remote-ip=68.232.141.245
 ARC-Seal: i=1; d=subspace.kernel.org; s=arc20261015; a=rsa-sha256; cv=none;
-	t=1795761630;
-	b=heZBq9ugk5geMALyuVAaHmNhjsE1LZOKsP3A0D4W7iMK6iMs4++o2J5nOUYU3+r1BILP
-	 zAIMq8oa4xXxXbRo6OzWrZYpxWhsQEIl17lnZndYM66T8KWyk5unuOuCe272QLFlhoAMB
-	 k4+ko0B+LkkvLamWwXWlEr+kRPdUHDRJnzfTYIwg+E7syFSpvNIalB3+hf9joAMyhY4zC
-	 uADWxqRdfIePO3Exg/ZrnPX0ybNBB9Qn6RI2uARlGAhc/QcmWbHyl1jeH2nUYBNF+RIGW
-	 1RWnGDSA1RtWpjdi+lSBcD99U0PeWwSPD86Vmz1Z4TIbn4X7+/h+BG8xBbb6M9YBdXg==
+	t=1795761631;
+	b=YJA4UHNYAxld4qUj2eU9cKKRiY0cixDsMY/HjzjE0ezLp6Ijs9ZySIhQT73tNjUemZwE
+	 fy9q1IYkhJC1k111DrjZ6ge0CYFy8dRJCvHT0Li5J2fILSRXxKE/mKQH9bJvJc7KNJD9N
+	 pyboEvvxRiIN/HG3/u2ukBrihOsJkvTvwKtOsqdn0QHMg3N7kq11pZuv8OQpM+KFK9/Mu
+	 GUF44lVSoH/LAov7NrmE2S3dhvJgAhc5/lQSK/qAvC4IWm2NtXB4iWX8X3Coyp1PsDpjV
+	 VyG9kB91s8WwOVYURSm6utKI28MfdOd+8JBm2lJzMIYaqSWf+hM+xFRzb4ZNOxcJ+1A==
 ARC-Message-Signature: i=1; d=subspace.kernel.org; s=arc20261015;
-	a=rsa-sha256; c=relaxed/relaxed; t=1795761630;
+	a=rsa-sha256; c=relaxed/relaxed; t=1795761631;
 	h=DMARC-Filter:DKIM-Signature:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 X-IronPort-AV:Received:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 IronPort-SDR:Received:X-CSE-ConnectionGUID:X-CSE-MsgGUID:
 	 WDCIronportException:Received:From:To:Cc:Subject:Date:Message-ID:
 	 X-Mailer:In-Reply-To:References:MIME-Version:
 	 Content-Transfer-Encoding;
-	bh=62UHRYxC2SxX6r0Cp82OSle+fDLvHCErZgaQIbqnlTQ=;
-	b=bkfLn40x6QnM52bf2QgjlOCw6iUv6P1PdzbNG3QmeoErlnj8omY8CEBu1//Kma0bhs/7
-	 h39CIIK7D64e38hzR3zhgkzbsZCyWZBLSh1+VMET5o9LAQTlYQ6YLKmrHfdCQFSVaJUk5
-	 oLsnLVAH67LQf756ME2hTvnWdDbTOnnqU8m1no3UTT8SIdFk8jGRw3Npw1eVeVtfo1m+y
-	 HeGHdqvjigiouAsRGCnZLb6TXHH67kaMj/gzfgYAYJJ3Gns8erNIb2WM1CisTt0PePkne
-	 +VllNrhM4Fxvdv0TWcV4yzDCpGZN/bORU+Q7M4rlZX+EM/70aigpXg4IDxH4tkZrx3g==
+	bh=b9nqa9r3rrdQ5GO19/akWVfuZ2WMhLNS4vAkoNoKZ5Y=;
+	b=iD26ffx6Pp0wJYfIvAYwetXXCo6yv16bAIsJIXpf80Gy8AfEgkGWjbk3JrHj5n+rQmA/
+	 9qQGHwXRAQkl8kf5eELCqy6UNCeA/zmHfBNdIWR0h1k3iSLhdIza1moJc2l0W91JNyBZP
+	 vz5afnwGXQDpJS9qiUQnJvHn/YuXV1P6DZgC6Ib99w7Uwri97FNDOSpEbZlkjxA+Ba6UJ
+	 p4q4N7hfpw9HsUCRQTZF/VbzIf54GSGNjMYtegrHqfikgtHc/dTDiSgKsMS0lSeDUW0kb
+	 Id46UKmNlI2e3QFhyJefYpRXKT571OteE9dgWEuTvT/50Gf9c/zKWtHCxB4S83UWxxA==
 ARC-Authentication-Results: i=1; smtp.subspace.kernel.org; 
 	dmarc=pass header.from=wdc.com;
 	spf=pass smtp.mailfrom=wdc.com;
-	dkim=pass header.d=wdc.com header.i=@wdc.com header.a=rsa-sha256 header.s=dkim.wdc.com header.b=YV7hPlnq;
+	dkim=pass header.d=wdc.com header.i=@wdc.com header.a=rsa-sha256 header.s=dkim.wdc.com header.b=BY1gwwbI;
 	arc=none smtp.remote-ip=68.232.141.245
 Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
 	(using TLSv1.2 with cipher ECDHE-ECDSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2565D606A323
-	for <fio@vger.kernel.org>; Fri, 27 Nov 2026 06:40:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 2565D606A323
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5963F606A321
+	for <fio@vger.kernel.org>; Fri, 27 Nov 2026 06:40:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp.subspace.kernel.org 5963F606A321
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.a=rsa-sha256 header.s=dkim.wdc.com header.b=YV7hPlnq
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.a=rsa-sha256 header.s=dkim.wdc.com header.b=BY1gwwbI
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1795761638; x=1827297638;
+  t=1795761639; x=1827297639;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=hOXAklWL/j1Ql1GGIcqGpvw//Wj8PpF9lIWIoLppNRs=;
-  b=YV7hPlnq3JU0i4pEygh8K7upwwQJR6OsW32Fbg3f20dKeNeyMBI7amrc
-   QshDCdBQyo3W5FdQOeaVjf75Qj76UMtAemOk2LyQrWse0ZPK11Y+3rliD
-   hsC3VrnWYZ1ecSH40Fj86Ve9p2pkLS5Bo1zRokcURQtYfUWlWe5PeBBHG
-   hm27CAOoGAZr3IHfiSkf+01ZYMgKXY2Q4jD/fi+8q0lLbp7JAHvkVTTRg
-   mCC4bYRSvAhV4BEX3znoupm5IW5oW+ssLrvTRwLkt6s/ABdl4rKhqTATs
-   clOqFGmY9j58h0vqNg9BpS0jmavfLFT75l5eFqTLGDmOCPckYbDO6wkpd
-   g==;
-X-CSE-ConnectionGUID: UTh9lbt2T6SZrSGremzE7w==
-X-CSE-MsgGUID: RABHJ98DRP+wKOSo+CFLSg==
+  bh=AZmzqoqH6hZ5sIza/Lu4GkGDZkhf0s+fs8UJwbceavc=;
+  b=BY1gwwbIo9QlfVLvNCOqZpU/rJTbaTmmCw6Ts8A1+eYruybFVp6h7Jn4
+   B2ygyz7ezI+DiOkmbTkhVDBMn+cQBNclWKQFlr7n06MBirS45IzfBiPwP
+   4Zi1BroAvH/svsl5xMHnDLtTHsD47FHNkpHXi1UocmL6FEBOsGllMv+lM
+   S8G1HY2NaU/NbsKXqG/PF++r1g07uGJGK27Qc0yLgK8ebV+kpnWtm3QI2
+   o9DdVJwqjcQQTvs+4ZGFKSRg0knN5n+Hx6QlqeOnBR/uX0J5Y9jkBOQX9
+   x5idPleoPfrqaTLvI39bfOMwZiRfvgYX6/HZgi+k4Jc+LWYJfDvh/NSrZ
+   w==;
+X-CSE-ConnectionGUID: +YxvwUGzRZukgJZgxBhUBg==
+X-CSE-MsgGUID: 7Nn5U62OQReYGrn+s+jE0Q==
 X-IronPort-AV: E=Sophos;i="6.27,236,1786982400"; 
-   d="scan'208";a="161815427"
+   d="scan'208";a="161815430"
 Received: from uls-op-cesaip02.wdc.com (HELO uls-op-esad2-o.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Nov 2026 14:40:38 +0800
-X-CSE-ConnectionGUID: LiX8+7O3TvSXVm3swtlxXA==
-X-CSE-MsgGUID: G3HVGpX5TEGI+brTFzSl4g==
-IronPort-SDR: 6b0925de_4bG67ZDMcIPBG/uAg8Qua0pJziVecqhZmT1OVlBaVk2HJZ0
- W2CIZmhnCDSMfia79BU04RoyrUvnp5bm/pDVD6Q==
+  by ob1.hgst.iphmx.com with ESMTP; 27 Nov 2026 14:40:39 +0800
+X-CSE-ConnectionGUID: sE9dsqPqSpCrO1jWNcundA==
+X-CSE-MsgGUID: EH+RgDMXTwm7HY18WLFdSw==
+IronPort-SDR: 6b0925df_y1RSRSXsn4cYbcyntFPkJlEu8y+FM/TYXkuaChgp0BRRQmZ
+ ZXlnKQQMWeDVVyO7f0o/6hsSc1Naph632at6Wtw==
 Received: from uls-op-esai2-o.wdc.com ([10.248.3.38])
-  by uls-op-esad2-o.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Nov 2026 22:40:29 -0800
-X-CSE-ConnectionGUID: tyEl9amtS3GDlFv1TAyVAg==
-X-CSE-MsgGUID: XSuLSDn2RNm8Y0em5YAcXg==
+  by uls-op-esad2-o.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Nov 2026 22:40:31 -0800
+X-CSE-ConnectionGUID: QHOW5QsVSQm2gR6i8ujNzA==
+X-CSE-MsgGUID: n8QkzQvgTIaj7xDxu9lpyw==
 WDCIronportException: Internal
 Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.67.30])
-  by uls-op-esai2-o.wdc.com with ESMTP; 26 Nov 2026 22:40:29 -0800
+  by uls-op-esai2-o.wdc.com with ESMTP; 26 Nov 2026 22:40:30 -0800
 From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 To: fio@vger.kernel.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Vincent Fu <vincentfu@gmail.com>
 Cc: Damien Le Moal <dlemoal@kernel.org>,
 	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 1/8] blktrace: initialize merge cursors
-Date: Fri, 27 Nov 2026 15:40:20 +0900
-Message-ID: <20261127064027.1909326-2-shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 2/8] blktrace: fix merge_blktrace_iologs() return value check
+Date: Fri, 27 Nov 2026 15:40:21 +0900
+Message-ID: <20261127064027.1909326-3-shinichiro.kawasaki@wdc.com>
 X-Mailer: git-send-email 2.56.0
 In-Reply-To: <20261127064027.1909326-1-shinichiro.kawasaki@wdc.com>
 References: <20261127064027.1909326-1-shinichiro.kawasaki@wdc.com>
@@ -88,36 +88,105 @@ Precedence: list
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-merge_blktrace_iologs() allocates the blktrace_cursor array with
-malloc() and only initializes the fields 'scalar' and 'nr_iter'. This
-leaves other fields uninitialized. However, read_trace() uses the
-uninitialized fields 'iter' and 'length' to calculate timestamps. This
-adds garbage offsets to the timestamps of each input blktrace file, and
-results in a merged trace with meaningless timestamps. To avoid such
-invalid timestamps, allocate the array with calloc() so that zero is set
-to all cursor fields.
+merge_blktrace_iologs() returns 0 on success, but add_job() treats a
+zero return value as failure. As a result, a successful blktrace merge
+makes fio fail: with --merge-blktrace-only the merged file is written
+but fio exits with status 1, and without it, the merged trace is never
+replayed. Fix the wrong check. Also, return -1 from the stub
+merge_blktrace_iologs() for platforms without blktrace support, which
+should always return non-zero value to report failure.
 
-Fixes: 55bfd8c81c25 ("blktrace: add option to iterate over a trace multiple times")
+While at it, fix the error paths that did not return non-zero value:
+
+ - return -1 when fread() fails since fread() may return zero
+ - return -ENOMEM when the cursor or the merge buffer allocation fails
+ - return -errno when fopen() fails for the merged output file
+ - return -EINVAL when the given file is not a blktrace
+
+Fixes: b9921d1a56d9 ("blktrace: add support to interleave blktrace files")
 Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
 ---
- blktrace.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ blktrace.c | 16 ++++++++++++++--
+ blktrace.h |  2 +-
+ init.c     |  2 +-
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
 diff --git a/blktrace.c b/blktrace.c
-index 1f2a9bc0..59f25741 100644
+index 59f25741..1edebc8f 100644
 --- a/blktrace.c
 +++ b/blktrace.c
-@@ -745,8 +745,8 @@ static int write_trace(FILE *fp, struct blk_io_trace *t)
- int merge_blktrace_iologs(struct thread_data *td)
- {
- 	int nr_logs = get_max_str_idx(td->o.read_iolog_file);
--	struct blktrace_cursor *bcs = malloc(sizeof(struct blktrace_cursor) *
--					     nr_logs);
-+	struct blktrace_cursor *bcs = calloc(nr_logs,
-+					     sizeof(struct blktrace_cursor));
- 	struct blktrace_cursor *bc;
- 	FILE *merge_fp;
+@@ -706,7 +706,7 @@ read_skip:
+ 	ret = fread(t, 1, sizeof(*t), bc->f);
+ 	if (ferror(bc->f)) {
+ 		td_verror(td, errno, "read blktrace file");
+-		return ret;
++		return -1;
+ 	} else if (feof(bc->f)) {
+ 		if (!bc->length)
+ 			bc->length = bc->t.time;
+@@ -752,6 +752,9 @@ int merge_blktrace_iologs(struct thread_data *td)
  	char *str, *ptr, *name, *merge_buf = NULL;
+ 	int i, ret;
+ 
++	if (!bcs)
++		return -ENOMEM;
++
+ 	ret = init_merge_param_list(td->o.merge_blktrace_scalars, bcs, nr_logs,
+ 				    100, offsetof(struct blktrace_cursor,
+ 						  scalar));
+@@ -772,9 +775,17 @@ int merge_blktrace_iologs(struct thread_data *td)
+ 
+ 	/* setup output file */
+ 	merge_fp = fopen(td->o.merge_blktrace_file, "w");
++	if (!merge_fp) {
++		ret = -errno;
++		log_err("fio: could not open merge file: %s\n",
++			td->o.merge_blktrace_file);
++		goto err_param;
++	}
+ 	merge_buf = malloc(128 * 1024);
+-	if (!merge_buf)
++	if (!merge_buf) {
++		ret = -ENOMEM;
+ 		goto err_out_file;
++	}
+ 	ret = setvbuf(merge_fp, merge_buf, _IOFBF, 128 * 1024);
+ 	if (ret)
+ 		goto err_out_file;
+@@ -794,6 +805,7 @@ int merge_blktrace_iologs(struct thread_data *td)
+ 
+ 		if (!is_blktrace(name, &bcs[i].swap)) {
+ 			log_err("fio: file is not a blktrace: %s\n", name);
++			ret = -EINVAL;
+ 			free(str);
+ 			goto err_file;
+ 		}
+diff --git a/blktrace.h b/blktrace.h
+index c53b717b..aa797495 100644
+--- a/blktrace.h
++++ b/blktrace.h
+@@ -46,7 +46,7 @@ static inline bool read_blktrace(struct thread_data* td)
+ 
+ static inline int merge_blktrace_iologs(struct thread_data *td)
+ {
+-	return false;
++	return -1;
+ }
+ 
+ #endif
+diff --git a/init.c b/init.c
+index 7f332417..3724fed4 100644
+--- a/init.c
++++ b/init.c
+@@ -1954,7 +1954,7 @@ static int add_job(struct thread_data *td, const char *jobname, int job_add_num,
+ 	if (td_steadystate_init(td))
+ 		goto err;
+ 
+-	if (o->merge_blktrace_file && !merge_blktrace_iologs(td))
++	if (o->merge_blktrace_file && merge_blktrace_iologs(td))
+ 		goto err;
+ 
+ 	if (merge_blktrace_only) {
 -- 
 2.56.0
 
